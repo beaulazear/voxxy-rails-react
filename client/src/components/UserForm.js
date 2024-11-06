@@ -59,7 +59,7 @@ const UserItem = styled.li`
   border-radius: 5px;
   margin-top: 10px;
   background-color: #f8f8f8;
-  color: black;  // Change text color to black
+  color: black; // Change text color to black
 `;
 
 const Title = styled.h3`
@@ -69,7 +69,7 @@ const Title = styled.h3`
   text-align: center;
 `;
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001'; // Fallback for local development
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001"; // Fallback for local development
 
 const UserForm = () => {
   const [name, setName] = useState('');
@@ -91,7 +91,7 @@ const UserForm = () => {
         setUsers(data);
       })
       .catch((error) => {
-        console.error('Failed to fetch users:', error);
+        console.error("Failed to fetch users:", error);
       });
   };
 
@@ -100,9 +100,9 @@ const UserForm = () => {
     const userData = { user: { name } };
 
     fetch(`${API_URL}/users`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(userData),
     })
@@ -117,13 +117,13 @@ const UserForm = () => {
         fetchUsers(); // Refresh user list
       })
       .catch((error) => {
-        console.error('Error adding user:', error);
+        console.error("Error adding user:", error);
       });
   };
 
   const handleDelete = (id) => {
     fetch(`${API_URL}/users/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     })
       .then((response) => {
         if (!response.ok) {
@@ -135,7 +135,7 @@ const UserForm = () => {
         fetchUsers(); // Refresh user list after deletion
       })
       .catch((error) => {
-        console.error('Error deleting user:', error);
+        console.error("Error deleting user:", error);
       });
   };
 
