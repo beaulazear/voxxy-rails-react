@@ -80,6 +80,7 @@ const UserForm = () => {
   }, []);
 
   const fetchUsers = () => {
+    console.log('API_URL:', API_URL);
     fetch(`${API_URL}/users`)
       .then((response) => {
         if (!response.ok) {
@@ -99,6 +100,7 @@ const UserForm = () => {
     e.preventDefault();
     const userData = { user: { name } };
 
+    console.log('API_URL:', API_URL);
     fetch(`${API_URL}/users`, {
       method: "POST",
       headers: {
@@ -122,6 +124,7 @@ const UserForm = () => {
   };
 
   const handleDelete = (id) => {
+    console.log('API_URL:', API_URL);
     fetch(`${API_URL}/users/${id}`, {
       method: "DELETE",
     })
