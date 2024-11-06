@@ -7,9 +7,11 @@ const HeroTextContainer = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
+  max-width: 100%;
   padding: 2rem 1rem;
-  background-color: #f5f5f5; /* Adjust to match your background color */
+  background-color: #f5f5f5;
   text-align: center;
+  box-sizing: border-box; /* Ensure padding does not cause overflow */
 `;
 
 const HeroTextHeading = styled.h1`
@@ -29,11 +31,11 @@ const HeroTextHeading = styled.h1`
 `;
 
 const HeroText = () => {
-    return (
-        <HeroTextContainer>
-            <HeroTextHeading>Ready to Supercharge Your Customer Insights?</HeroTextHeading>
-        </HeroTextContainer>
-    );
+  return (
+    <HeroTextContainer>
+      <HeroTextHeading>Ready to Supercharge Your Customer Insights?</HeroTextHeading>
+    </HeroTextContainer>
+  );
 };
 
 export default HeroText;

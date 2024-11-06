@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Button } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
 const HeroSection = styled.div`
   display: flex;
@@ -14,9 +15,8 @@ const HeroSection = styled.div`
   padding: 0 20px;
 
   @media (max-width: 768px) {
-    padding-top: 20px; /* Less padding on smaller screens */
+    padding-top: 20px;
   }
-
 `;
 
 const Title = styled.h1`
@@ -53,13 +53,19 @@ const StyledButton = styled(Button)`
 `;
 
 const HeroComponent = () => {
-    return (
-        <HeroSection>
-            <Title>Say Hello Voxxy :)</Title>
-            <Subtitle>Unlock Customer Insights at Scale with your AI Interview Agent</Subtitle>
-            <StyledButton>Join Our Wait List!</StyledButton>
-        </HeroSection>
-    );
+  const navigate = useNavigate();
+
+  const handleButtonClick = () => {
+    navigate('/waitlist');
+  };
+
+  return (
+    <HeroSection>
+      <Title>Say Hello Voxxy :)</Title>
+      <Subtitle>Unlock Customer Insights at Scale with your AI Interview Agent</Subtitle>
+      <StyledButton onClick={handleButtonClick}>Join Our Wait List!</StyledButton>
+    </HeroSection>
+  );
 };
 
 export default HeroComponent;

@@ -82,22 +82,11 @@ const MobileMenuButton = styled(MenuOutlined)`
   }
 `;
 
-const DrawerMenuItem = styled(NavLink)`
+const DrawerMenuItem = styled.div`
   font-size: 18px;
-  color: black;
   padding: 15px 0;
   border-bottom: 1px solid #f0f0f0;
-  text-decoration: none;
-  cursor: pointer;
-
-  &:hover {
-    color: #9b19f5;
-  }
-
-  &.active {
-    font-weight: bold;
-    color: #9b19f5;
-  }
+  text-align: center;
 `;
 
 const Navbar = () => {
@@ -131,16 +120,23 @@ const Navbar = () => {
         placement="right"
         onClose={closeDrawer}
         open={drawerVisible}
+        width={250} /* Controls drawer width */
       >
-        <DrawerMenuItem to="/" end onClick={closeDrawer}>Home</DrawerMenuItem>
-        <DrawerMenuItem to="/waitlist" onClick={closeDrawer}>Waitlist</DrawerMenuItem>
-        <DrawerMenuItem to="/contact" onClick={closeDrawer}>Contact</DrawerMenuItem>
-        <DrawerMenuItem as="div">
+        <DrawerMenuItem>
+          <NavLink to="/" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Home</NavLink>
+        </DrawerMenuItem>
+        <DrawerMenuItem>
+          <NavLink to="/waitlist" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Waitlist</NavLink>
+        </DrawerMenuItem>
+        <DrawerMenuItem>
+          <NavLink to="/contact" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Contact</NavLink>
+        </DrawerMenuItem>
+        <DrawerMenuItem>
           <StyledButton className="sign-up" onClick={closeDrawer}>
-            Sign Up
+            <NavLink to="/waitlist" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
           </StyledButton>
         </DrawerMenuItem>
-        <DrawerMenuItem as="div">
+        <DrawerMenuItem>
           <StyledButton className="demo" onClick={closeDrawer}>
             <NavLink to="/demo" style={{ color: 'inherit', textDecoration: 'none' }}>Demo</NavLink>
           </StyledButton>

@@ -11,6 +11,7 @@ const ContactContainer = styled.div`
   background-color: #f9f9f9;
   text-align: center;
   box-sizing: border-box;
+  padding: 50px;
 `;
 
 const Heading = styled.h1`
