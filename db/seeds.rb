@@ -4,6 +4,5 @@
 User.destroy_all
 
 # Create seed users
-User.create(name: "John Doe")
-User.create(name: "Jane Smith")
+User.create(name: "Courtney Greer")
 User.create(name: "Beau Lazear")
