@@ -6,6 +6,8 @@ import InfoBoxes from './components/InfoBoxes';
 import WaitlistForm from './components/WaitlistForm';
 import mail from './mail.png';
 import UserForm from './components/UserForm';
+import Footer from './components/Footer';
+
 const FullWidthImage = styled.img`
   width: 100%;
   height: auto; /* Maintain aspect ratio */
@@ -21,6 +23,7 @@ function App() {
       <FullWidthImage src={mail} alt="Mail" />
       <WaitlistForm />
       <UserForm />
+      <Footer />
     </div>
   );
 }
