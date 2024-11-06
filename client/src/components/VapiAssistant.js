@@ -10,11 +10,15 @@ const AssistantContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh; /* Full screen */
+  height: 80vh; /* Full screen */
   background: linear-gradient(135deg, #6a0dad, #9b19f5); /* Same background as HeroComponent */
   color: white;
   text-align: center;
   padding: 0 20px;
+
+  @media (max-width: 768px) {
+    padding-top: 20px;
+  }
 `;
 
 const Title = styled.h1`
