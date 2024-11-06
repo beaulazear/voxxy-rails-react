@@ -69,6 +69,8 @@ const Title = styled.h3`
   text-align: center;
 `;
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001'; // Fallback for local development
+
 const UserForm = () => {
   const [name, setName] = useState('');
   const [users, setUsers] = useState([]);
@@ -78,7 +80,7 @@ const UserForm = () => {
   }, []);
 
   const fetchUsers = () => {
-    fetch('http://localhost:3001/users')
+    fetch(`${API_URL}/users`)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -97,7 +99,7 @@ const UserForm = () => {
     e.preventDefault();
     const userData = { user: { name } };
 
-    fetch('http://localhost:3001/users', {
+    fetch(`${API_URL}/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -120,14 +122,13 @@ const UserForm = () => {
   };
 
   const handleDelete = (id) => {
-    fetch(`http://localhost:3001/users/${id}`, {
+    fetch(`${API_URL}/users/${id}`, {
       method: 'DELETE',
     })
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        // Check if there's a response body
         return response.text(); // Use .text() to handle non-JSON responses
       })
       .then(() => {
