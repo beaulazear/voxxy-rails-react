@@ -1,28 +1,22 @@
-import styled from 'styled-components';
 import './App.css';
-import HeroComponent from './components/HeroComponent';
+import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import InfoBoxes from './components/InfoBoxes';
-import WaitlistForm from './components/WaitlistForm';
-import mail from './mail.png';
-import UserForm from './components/UserForm';
 import Footer from './components/Footer';
-
-const FullWidthImage = styled.img`
-  width: 100%;
-  height: auto; /* Maintain aspect ratio */
-  display: block; /* Remove any gaps around the image */
-`;
+import Home from './components/HomePage';
+import WaitlistPage from './components/WaitlistPage';
+import VapiAssistant from './components/VapiAssistant';
+import ContactPage from './components/Contact';
 
 function App() {
   return (
     <div className="App">
       <Navbar />
-      <HeroComponent />
-      <InfoBoxes />
-      <FullWidthImage src={mail} alt="Mail" />
-      <WaitlistForm />
-      <UserForm />
+      <Routes>
+        <Route path='/' element={<Home />} />
+        <Route path='/waitlist' element={<WaitlistPage />} />
+        <Route path='/demo' element={<VapiAssistant />} />
+        <Route path='/contact' element={<ContactPage />} />
+      </Routes>
       <Footer />
     </div>
   );
