@@ -1,32 +1,37 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
-const InfoBoxesContainer = styled.div`
+const ScrollableContainer = styled.div`
+  overflow-x: auto;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  padding: 20px 50px;
+  padding: 20px 10px; /* Adjust horizontal padding to match gap */
   background-color: #f9f9f9;
+  white-space: nowrap;
+  height: fit-content;
+  scroll-snap-type: x mandatory;
+  justify-content: flex-start;
+  gap: 20px; /* Space between InfoBox elements */
 
-  @media (max-width: 768px) {
-    padding: 10px 20px;
-    flex-direction: column;
+  @media (min-width: 768px) {
+    justify-content: flex-start;
   }
 `;
 
 const InfoBox = styled.div`
-  flex: 1 1 45%;
-  margin: 10px;
+  min-width: 310px;
+  width: 300px;
+  height: 200px;
   padding: 20px;
   background-color: white;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   text-align: center;
-  max-width: 300px;
-
-  @media (max-width: 768px) {
-    max-width: 100%;
-  }
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  white-space: normal;
+  scroll-snap-align: center;
 `;
 
 const InfoTitle = styled.h3`
@@ -37,41 +42,56 @@ const InfoTitle = styled.h3`
 `;
 
 const InfoDescription = styled.p`
-  font-size: 16px;
+  font-size: 18px;
   color: #555;
-  line-height: 1.5;
+  line-height: 1.6;
 `;
 
 const InfoBoxes = () => {
-    const boxesData = [
-        {
-            title: "Personalized & Brand-Consistent",
-            description:
-                "Customize Voxxy to match your brand’s voice and style, so every conversation feels authentic and aligned with your values.",
-        },
-        {
-            title: "Focus on What Matters",
-            description:
-                "With Voxxy supporting with customer interviews, your team can stay focused on innovation and growth.",
-        },
-        {
-            title: "Insightful, Data-Driven Decisions",
-            description:
-                "Gather actionable insights directly from your customers, empowering your team to make data-backed decisions confidently.",
-        },
-        // Add more boxes here if needed
-    ];
+  const boxesData = [
+    {
+      title: "Personalized & Brand-Consistent",
+      description:
+        "Customize Voxxy to match your brand’s voice and style, so every conversation feels authentic and aligned with your values.",
+    },
+    {
+      title: "Focus on What Matters",
+      description:
+        "With Voxxy handling customer interviews, your team can stay focused on driving innovation and enhancing growth."
+    },
+    {
+      title: "Insightful, Data-Driven Decisions",
+      description:
+        "Gather actionable insights directly from your customers, empowering your team to make data-backed decisions confidently.",
+    },
+    {
+      title: "Seamless Integration & Efficiency",
+      description:
+        "Easily integrate Voxxy into your existing workflows, helping your team operate efficiently while delivering exceptional customer experiences.",
+    }
+  ];
 
-    return (
-        <InfoBoxesContainer>
-            {boxesData.map((box, index) => (
-                <InfoBox key={index}>
-                    <InfoTitle>{box.title}</InfoTitle>
-                    <InfoDescription>{box.description}</InfoDescription>
-                </InfoBox>
-            ))}
-        </InfoBoxesContainer>
-    );
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container && boxesData.length > 1) {
+      // Center the content in the scrollable area
+      const scrollPosition = (container.scrollWidth - container.clientWidth) / 2;
+      container.scrollTo({ left: scrollPosition, behavior: 'smooth' });
+    }
+  }, [boxesData.length]);
+
+  return (
+    <ScrollableContainer ref={containerRef}>
+      {boxesData.map((box, index) => (
+        <InfoBox key={index}>
+          <InfoTitle>{box.title}</InfoTitle>
+          <InfoDescription>{box.description}</InfoDescription>
+        </InfoBox>
+      ))}
+    </ScrollableContainer>
+  );
 };
 
 export default InfoBoxes;

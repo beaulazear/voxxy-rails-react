@@ -6,6 +6,7 @@ import Home from './components/HomePage';
 import WaitlistPage from './components/WaitlistPage';
 import VapiAssistant from './components/VapiAssistant';
 import ContactPage from './components/Contact';
+import InfoPage from './components/InfoPage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path='/waitlist' element={<WaitlistPage />} />
         <Route path='/demo' element={<VapiAssistant />} />
         <Route path='/contact' element={<ContactPage />} />
+        <Route path='/infopage' element={<InfoPage />} />
       </Routes>
       <Footer />
     </div>

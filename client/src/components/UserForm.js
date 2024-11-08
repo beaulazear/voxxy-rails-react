@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
   max-width: 380px;
@@ -97,6 +98,7 @@ const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 const UserForm = () => {
   const [name, setName] = useState('');
   const [users, setUsers] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUsers();
@@ -120,6 +122,7 @@ const UserForm = () => {
       .then(() => {
         setName('');
         fetchUsers();
+        navigate("/infopage");
       })
       .catch((error) => console.error("Error adding user:", error));
   };
