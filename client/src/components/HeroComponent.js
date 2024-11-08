@@ -61,7 +61,7 @@ const HeroComponent = () => {
 
   return (
     <HeroSection>
-      <Title>Say Hello Voxxy :)</Title>
+      <Title>Say Hello Voxxy</Title>
       <Subtitle>Unlock Customer Insights at Scale with your AI Interview Agent</Subtitle>
       <StyledButton onClick={handleButtonClick}>Join Our Wait List!</StyledButton>
     </HeroSection>
