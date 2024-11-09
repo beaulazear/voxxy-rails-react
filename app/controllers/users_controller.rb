@@ -1,4 +1,8 @@
 class UsersController < ApplicationController
+    before_action :current_user
+
+    skip_before_action :authorized, only: [:create, :index]
+
     def index
       users = User.all
       render json: users
@@ -18,10 +22,19 @@ class UsersController < ApplicationController
       user.destroy
       head :no_content
     end
+
+    def show
+      user = @current_user
+      if user
+          render json: user
+      else
+          render json: { error: "Not authorized" }, status: :unauthorized
+      end
+    end
   
     private
   
     def user_params
-      params.require(:user).permit(:name)
+      params.require(:user).permit(:name, :username, :email, :password)
     end
   end

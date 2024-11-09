@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../context/user';
 
 const Container = styled.div`
   max-width: 380px;
@@ -124,7 +124,8 @@ const WaitlistForm = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [waitlist, setWaitlist] = useState([]);
-  const navigate = useNavigate();
+
+  const { user } = useContext(UserContext)
 
   useEffect(() => {
     fetchWaitlist();
@@ -164,9 +165,9 @@ const WaitlistForm = () => {
         return response.json();
       })
       .then(() => {
-        setName(''); // Clear the input field
-        setEmail(''); // Clear the input field
-        navigate('/demo')
+        setName('');
+        setEmail('');
+        fetchWaitlist()
       })
       .catch((error) => {
         console.error('Error adding waitlist member:', error);
@@ -195,9 +196,7 @@ const WaitlistForm = () => {
     <>
       <FormContainer>
         <Heading>
-          We’re currently offering early access to our Beta platform. Join our
-          waitlist for an exclusive opportunity to experience Voxy’s AI-driven
-          customer interviews firsthand.
+          Hi {user.name}, here is the current waitlist. Add people manually and view the list below!
         </Heading>
       </FormContainer>
       <Container>

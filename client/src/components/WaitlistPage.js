@@ -1,7 +1,7 @@
 import React from "react";
 import HeroText from './HeroText';
 import styled from 'styled-components';
-import AdminWaitlist from './AdminWaitlist'
+import WaitlistForm from "./WaitlistForm";
 
 const PageContainer = styled.div`
   width: 100%;
@@ -14,7 +14,7 @@ export default function WaitlistPage() {
     return (
         <PageContainer>
             <HeroText />
-            <AdminWaitlist />
+            <WaitlistForm />
         </PageContainer>
     );
 }

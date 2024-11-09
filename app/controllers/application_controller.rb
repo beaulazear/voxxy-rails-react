@@ -1,8 +1,13 @@
-# app/controllers/application_controller.rb
 class ApplicationController < ActionController::API
-  private
+  include ActionController::Cookies
 
-  def json_request?
-    request.format.json?
+  before_action :authorized
+
+  def authorized
+    render json: { error: 'Not authorized' }, status: :unauthorized unless session.include?(:user_id)
+  end
+
+  def current_user
+    @current_user = User.find_by(id: session[:user_id])
   end
 end

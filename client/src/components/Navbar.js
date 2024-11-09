@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { Button, Drawer } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
+import { UserContext } from '../context/user';
 
 const NavbarContainer = styled.div`
   display: flex;
@@ -65,6 +66,12 @@ const StyledButton = styled(Button)`
     border: none;
   }
 
+  &.log-in {
+    background-color: #9b19f5;
+    color: white;
+    border: none;
+  }
+
   &.demo {
     background-color: #9b19f5;
     color: white;
@@ -91,6 +98,11 @@ const DrawerMenuItem = styled.div`
 
 const Navbar = () => {
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const { user, setUser } = useContext(UserContext);
+
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001"; // Add this line at the top
+
+  const navigate = useNavigate()
 
   const showDrawer = () => {
     setDrawerVisible(true);
@@ -100,19 +112,49 @@ const Navbar = () => {
     setDrawerVisible(false);
   };
 
+  function handleLogout() {
+    const confirmation = window.confirm("Are you sure you want to log out?");
+    if (confirmation) {
+      fetch(`${API_URL}/logout`, {
+        method: "DELETE",
+      }).then(() => {
+        setUser(null);
+        navigate('/');
+      });
+    } else {
+      console.log("Log out aborted");
+    }
+  }
+
   return (
     <NavbarContainer>
       <Logo>V</Logo>
       <MenuContainer>
         <MenuItem to="/" end>Home</MenuItem>
         <MenuItem to="/waitlist">Waitlist</MenuItem>
-        <MenuItem to="/contact">Contact</MenuItem>
-        <StyledButton className="sign-up">
-          <NavLink to="/waitlist" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
-        </StyledButton>
+        {!user && (
+          <>
+            <MenuItem to="/contact">Contact</MenuItem>
+          </>
+        )}
+        {user && (
+          <StyledButton className="sign-up" onClick={handleLogout}>
+            <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
+          </StyledButton>
+        )}
         <StyledButton className="demo">
           <NavLink to="/demo" style={{ color: 'inherit', textDecoration: 'none' }}>Demo</NavLink>
         </StyledButton>
+        {!user && (
+          <>
+            <StyledButton className="sign-up">
+              <NavLink to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
+            </StyledButton>
+            <StyledButton className="sign-up">
+              <NavLink to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>Log In</NavLink>
+            </StyledButton>
+          </>
+        )}
       </MenuContainer>
       <MobileMenuButton onClick={showDrawer} />
       <Drawer
@@ -132,15 +174,32 @@ const Navbar = () => {
           <NavLink to="/contact" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Contact</NavLink>
         </DrawerMenuItem>
         <DrawerMenuItem>
-          <StyledButton className="sign-up" onClick={closeDrawer}>
-            <NavLink to="/waitlist" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
-          </StyledButton>
-        </DrawerMenuItem>
-        <DrawerMenuItem>
           <StyledButton className="demo" onClick={closeDrawer}>
             <NavLink to="/demo" style={{ color: 'inherit', textDecoration: 'none' }}>Demo</NavLink>
           </StyledButton>
         </DrawerMenuItem>
+        {user && (
+          <DrawerMenuItem>
+            <StyledButton className="sign-up" onClick={handleLogout}>
+              <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
+            </StyledButton>
+          </DrawerMenuItem>
+        )}
+        {!user && (
+          <DrawerMenuItem>
+            <StyledButton className="sign-up" onClick={closeDrawer}>
+              <NavLink to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
+            </StyledButton>
+          </DrawerMenuItem>
+        )}
+
+        {!user && (
+          <DrawerMenuItem>
+            <StyledButton className="sign-up" onClick={closeDrawer}>
+              <NavLink to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>Log In</NavLink>
+            </StyledButton>
+          </DrawerMenuItem>
+        )}
       </Drawer>
     </NavbarContainer>
   );

@@ -1,4 +1,5 @@
 class WaitlistsController < ApplicationController
+    skip_before_action :authorized
 
     def create
         waitlist = Waitlist.new(waitlist_params)
