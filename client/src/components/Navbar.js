@@ -170,9 +170,11 @@ const Navbar = () => {
         <DrawerMenuItem>
           <NavLink to="/waitlist" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Waitlist</NavLink>
         </DrawerMenuItem>
-        <DrawerMenuItem>
-          <NavLink to="/contact" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Contact</NavLink>
-        </DrawerMenuItem>
+        {!user && (
+          <DrawerMenuItem>
+            <NavLink to="/contact" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Contact</NavLink>
+          </DrawerMenuItem>
+        )}
         <DrawerMenuItem>
           <StyledButton className="demo" onClick={closeDrawer}>
             <NavLink to="/demo" style={{ color: 'inherit', textDecoration: 'none' }}>Demo</NavLink>
@@ -186,19 +188,18 @@ const Navbar = () => {
           </DrawerMenuItem>
         )}
         {!user && (
-          <DrawerMenuItem>
-            <StyledButton className="sign-up" onClick={closeDrawer}>
-              <NavLink to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
-            </StyledButton>
-          </DrawerMenuItem>
-        )}
-
-        {!user && (
-          <DrawerMenuItem>
-            <StyledButton className="sign-up" onClick={closeDrawer}>
-              <NavLink to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>Log In</NavLink>
-            </StyledButton>
-          </DrawerMenuItem>
+          <>
+            <DrawerMenuItem>
+              <StyledButton className="sign-up" onClick={closeDrawer}>
+                <NavLink to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
+              </StyledButton>
+            </DrawerMenuItem>
+            <DrawerMenuItem>
+              <StyledButton className="sign-up" onClick={closeDrawer}>
+                <NavLink to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>Log In</NavLink>
+              </StyledButton>
+            </DrawerMenuItem>
+          </>
         )}
       </Drawer>
     </NavbarContainer>
