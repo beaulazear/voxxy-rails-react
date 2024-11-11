@@ -13,12 +13,12 @@ module VoxxyRails
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use ActionDispatch::Session::CookieStore
 
-    # Set SameSite to 'None' for cross-domain cookie sharing during development
+    # Configure the session store with SameSite=None and Secure attributes in production
     config.session_store :cookie_store, key: '_voxxy_session', same_site: :none, secure: Rails.env.production?
 
-    # Temporarily set cookies_same_site_protection to 'None' for development
+    # Ensure SameSite attribute is None for cookies during development and production
     config.action_dispatch.cookies_same_site_protection = :none
-        
+
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.2
 
