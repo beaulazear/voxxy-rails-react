@@ -105,7 +105,7 @@ const WaitlistForm = () => {
             .then(() => {
                 setName(''); // Clear the input field
                 setEmail(''); // Clear the input field
-                navigate('/demo')
+                navigate('/infopage')
             })
             .catch((error) => {
                 console.error('Error adding waitlist member:', error);
