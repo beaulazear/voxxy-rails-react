@@ -25,7 +25,7 @@ module VoxxyRails
     # CORS configuration for both development and production
     config.middleware.insert_before 0, Rack::Cors do
       allow do
-        origins 'http://localhost:3000', 'https://voxxy-rails-react.onrender.com' # Development and Production URLs
+        origins 'http://localhost:3000', 'https://www.voxxyai.com' # Development and Production URLs
         resource '*',
           headers: :any,
           methods: [:get, :post, :put, :patch, :delete, :options, :head],
