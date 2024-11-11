@@ -1,5 +1,12 @@
 # db/seeds.rb
 
-# Create seed users
-User.create(name: "Courtney Greer")
-User.create(name: "Beau Lazear")
+puts "seeding user"
+
+User.create(
+    name: "Beau",
+  username: "beaulazear",
+  password: "lazear10",
+  email: "beaulazear@gmail.com",
+)
+
+puts "user created"

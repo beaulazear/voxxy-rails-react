@@ -117,8 +117,10 @@ const Navbar = () => {
     if (confirmation) {
       fetch(`${API_URL}/logout`, {
         method: "DELETE",
+        credentials: 'include',
       }).then(() => {
         setUser(null);
+        closeDrawer()
         navigate('/');
       });
     } else {

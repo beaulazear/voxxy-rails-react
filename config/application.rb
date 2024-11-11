@@ -2,38 +2,34 @@ require_relative "boot"
 
 require "rails/all"
 
-# Require the gems listed in Gemfile, including any gems
-# you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
 module VoxxyRails
   class Application < Rails::Application
-    # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 7.2
-
+    # API-only mode
+    config.api_only = true
+    
     # Adding cookies and session middleware
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use ActionDispatch::Session::CookieStore
-    
-    # Use SameSite=Strict for all cookies to help protect against CSRF
-    # https://owasp.org/www-community/SameSite
-    config.action_dispatch.cookies_same_site_protection = :strict
 
-    # Configuration for the application, engines, and railties goes here.
-    #
-    # These settings can be overridden in specific environments using the files
-    # in config/environments, which are processed later.
-    #
-    # config.time_zone = "Central Time (US & Canada)"
-    # config.eager_load_paths << Rails.root.join("extras")
+    # Set SameSite to 'None' for cross-domain cookie sharing during development
+    config.session_store :cookie_store, key: '_voxxy_session', same_site: :none, secure: Rails.env.production?
 
-    # CORS configuration
+    # Temporarily set cookies_same_site_protection to 'None' for development
+    config.action_dispatch.cookies_same_site_protection = :none
+        
+    # Initialize configuration defaults for originally generated Rails version.
+    config.load_defaults 7.2
+
+    # CORS configuration for both development and production
     config.middleware.insert_before 0, Rack::Cors do
       allow do
-        origins '*' # Change this to your frontend domain for production
+        origins 'http://localhost:3000', 'https://www.voxxyai.com' # Development and Production URLs
         resource '*',
           headers: :any,
-          methods: [:get, :post, :put, :patch, :delete, :options, :head]
+          methods: [:get, :post, :put, :patch, :delete, :options, :head],
+          credentials: true # Allows cookies to be shared between frontend and backend
       end
     end
   end

@@ -11,44 +11,44 @@ import ContactPage from './components/Contact';
 import InfoPage from './components/InfoPage';
 import SignUp from './components/SignUp.js';
 import Login from './components/Login';
-import AdminWaitlist from './admincomponents/AdminWaitlist'
+import AdminWaitlist from './admincomponents/AdminWaitlist';
+import LoadingScreen from './components/LoadingScreen';
 
 function App() {
-
-  const { user } = useContext(UserContext);
-
-  console.log(user)
+  const { user, loading } = useContext(UserContext);
 
   const isLoggedIn = user && user.username && Object.keys(user).length > 0;
 
-  console.log(isLoggedIn)
-
   return (
     <div className="App">
-      {isLoggedIn ? (
-        <>
-          <Navbar />
-          <Routes>
-            <Route path='/' element={<Home />} />
-            <Route path='/waitlist' element={<AdminWaitlist />} />
-            <Route path='/demo' element={<VapiAssistant />} />
-          </Routes>
-          <Footer />
-        </>
+      {loading ? (
+        <LoadingScreen />
       ) : (
-        <>
-          <Navbar />
-          <Routes>
-            <Route path='/' element={<Home />} />
-            <Route path='/waitlist' element={<WaitlistPage />} />
-            <Route path='/demo' element={<VapiAssistant />} />
-            <Route path='/contact' element={<ContactPage />} />
-            <Route path='/infopage' element={<InfoPage />} />
-            <Route path='/signup' element={<SignUp />} />
-            <Route path='/login' element={<Login />} />
-          </Routes>
-          <Footer />
-        </>
+        isLoggedIn ? (
+          <>
+            <Navbar />
+            <Routes>
+              <Route path='/' element={<Home />} />
+              <Route path='/waitlist' element={<AdminWaitlist />} />
+              <Route path='/demo' element={<VapiAssistant />} />
+            </Routes>
+            <Footer />
+          </>
+        ) : (
+          <>
+            <Navbar />
+            <Routes>
+              <Route path='/' element={<Home />} />
+              <Route path='/waitlist' element={<WaitlistPage />} />
+              <Route path='/demo' element={<VapiAssistant />} />
+              <Route path='/contact' element={<ContactPage />} />
+              <Route path='/infopage' element={<InfoPage />} />
+              <Route path='/signup' element={<SignUp />} />
+              <Route path='/login' element={<Login />} />
+            </Routes>
+            <Footer />
+          </>
+        )
       )}
     </div>
   );

@@ -24,11 +24,12 @@ class UsersController < ApplicationController
     end
 
     def show
-      user = @current_user
+      Rails.logger.info("Session user_id in #show action: #{session[:user_id]}")
+      user = User.find_by(id: session[:user_id]) # Manually load user based on session[:user_id]
       if user
-          render json: user
+        render json: user
       else
-          render json: { error: "Not authorized" }, status: :unauthorized
+        render json: { error: "Not authorized" }, status: :unauthorized
       end
     end
   
