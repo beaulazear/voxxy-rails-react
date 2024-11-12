@@ -14,10 +14,10 @@ module VoxxyRails
     config.middleware.use ActionDispatch::Session::CookieStore
 
     # Configure the session store with SameSite=None and Secure attributes in production
-    config.session_store :cookie_store, key: '_voxxy_session', same_site: :none, secure: Rails.env.production?
+    # config.session_store :cookie_store, key: '_voxxy_session', same_site: :none, secure: Rails.env.production?
 
     # Ensure SameSite attribute is None for cookies during development and production
-    config.action_dispatch.cookies_same_site_protection = :none
+    config.action_dispatch.cookies_same_site_protection = :strict
 
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.2
