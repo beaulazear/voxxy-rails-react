@@ -4,7 +4,7 @@ import { UserContext } from '../context/user';
 
 const FooterContainer = styled.div`
   background: #f9f9f9;
-  padding: 2rem 0;
+  padding: 1.5rem 0;
   color: #555;
   text-align: center;
   font-family: 'Roboto', sans-serif;
@@ -12,18 +12,10 @@ const FooterContainer = styled.div`
   border-top: 1px solid #e0e0e0;
 
   p {
-    font-weight: 600;
+    font-weight: 500;
     color: #4b0082;
     margin-bottom: 0.5rem;
-    font-size: 1.1rem;
-  }
-
-  span {
-    display: block;
-    margin-top: 0.5rem;
-    color: #6a0dad;
     font-size: 1rem;
-    font-weight: 500;
   }
 
   a {
@@ -43,9 +35,8 @@ const UserFooter = () => {
 
     return (
         <FooterContainer>
-            <p>Thank you for being with us, {user?.name}!</p>
-            <span>If you have questions or need assistance, please reach out:</span>
-            <a href="mailto:support@voxxyAI.com">support@voxxyAI.com</a>
+            <p>Welcome back, {user?.name}</p>
+            <a href="mailto:support@voxxyAI.com">Contact Us</a>
         </FooterContainer>
     );
 };
