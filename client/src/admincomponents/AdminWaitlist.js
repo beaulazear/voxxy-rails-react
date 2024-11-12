@@ -73,9 +73,21 @@ const UserCard = styled.div`
   font-size: 1rem;
   color: #333;
   transition: box-shadow 0.3s;
+  overflow-x: auto;
+  white-space: nowrap;
 
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Adds padding to the right to make scrolling smoother on mobile */
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
   }
 `;
 
@@ -83,6 +95,7 @@ const UserInfo = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  margin-right: 1rem; /* Creates space between the text and delete button */
 `;
 
 const UserName = styled.div`
