@@ -2,19 +2,18 @@ import React, { useEffect, useState, useContext } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import { UserContext } from '../context/user';
 
-// Import fonts globally
 const GlobalStyle = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
   @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
 `;
 
 const Container = styled.div`
-  max-width: 450px;
+  max-width: 600px;
   margin: 2rem auto;
   padding: 2rem;
   background: #fafafa;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid #e0e0e0;
   font-family: 'Roboto', sans-serif;
 `;
@@ -22,15 +21,15 @@ const Container = styled.div`
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 `;
 
 const Input = styled.input`
-  padding: 0.75rem;
-  margin-top: 0.75rem;
+  padding: 0.8rem;
+  margin-top: 0.8rem;
   font-size: 1rem;
   border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 8px;
   transition: border-color 0.2s;
 
   &:focus {
@@ -41,12 +40,12 @@ const Input = styled.input`
 
 const SubmitButton = styled.button`
   margin-top: 1.5rem;
-  padding: 0.75rem;
+  padding: 0.8rem;
   font-size: 1rem;
   color: #fff;
   background-color: #4b0082;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s;
 
@@ -55,45 +54,70 @@ const SubmitButton = styled.button`
   }
 `;
 
-const UserList = styled.ul`
-  list-style: none;
-  padding: 0;
+const UserList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
 `;
 
-const UserItem = styled.li`
+const UserCard = styled.div`
+  padding: 1rem 1.5rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  margin-top: 0.5rem;
-  background-color: #f8f8f8;
+  font-size: 1rem;
   color: #333;
+  transition: box-shadow 0.3s;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
 `;
 
-const Title = styled.h3`
-  font-size: 1.6rem;
+const UserInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+`;
+
+const UserName = styled.div`
+  font-weight: 700;
   color: #4b0082;
-  text-align: center;
-  font-family: 'Caveat', cursive;
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
+  font-size: 1.3rem;
+`;
+
+const UserEmail = styled.div`
+  font-size: 1.1rem;
+  color: #555;
 `;
 
 const DeleteButton = styled.button`
-  padding: 0.5rem;
+  padding: 0.4rem 0.8rem;
   font-size: 0.9rem;
   color: #fff;
   background-color: #ff4d4f;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.3s;
 
   &:hover {
     background-color: #e43e3d;
   }
+`;
+
+const Title = styled.h3`
+  font-size: 1.8rem;
+  color: #4b0082;
+  text-align: center;
+  font-family: 'Caveat', cursive;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
 `;
 
 const FormContainer = styled.div`
@@ -224,10 +248,13 @@ const WaitlistForm = () => {
         <Title>Current Waitlist:</Title>
         <UserList>
           {waitlist.map((waitlistMember) => (
-            <UserItem key={waitlistMember.id}>
-              {waitlistMember.name} ({waitlistMember.email})
+            <UserCard key={waitlistMember.id}>
+              <UserInfo>
+                <UserName>{waitlistMember.name}</UserName>
+                <UserEmail>{waitlistMember.email}</UserEmail>
+              </UserInfo>
               <DeleteButton onClick={() => handleDelete(waitlistMember.id)}>Delete</DeleteButton>
-            </UserItem>
+            </UserCard>
           ))}
         </UserList>
       </Container>
