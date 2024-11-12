@@ -134,11 +134,6 @@ const Navbar = () => {
       <MenuContainer>
         <MenuItem to="/" end>Home</MenuItem>
         <MenuItem to="/waitlist">Waitlist</MenuItem>
-        {!user && (
-          <>
-            <MenuItem to="/contact">Contact</MenuItem>
-          </>
-        )}
         {user && (
           <StyledButton className="sign-up" onClick={handleLogout}>
             <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
@@ -172,11 +167,6 @@ const Navbar = () => {
         <DrawerMenuItem>
           <NavLink to="/waitlist" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Waitlist</NavLink>
         </DrawerMenuItem>
-        {!user && (
-          <DrawerMenuItem>
-            <NavLink to="/contact" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Contact</NavLink>
-          </DrawerMenuItem>
-        )}
         <DrawerMenuItem>
           <StyledButton className="demo" onClick={closeDrawer}>
             <NavLink to="/demo" style={{ color: 'inherit', textDecoration: 'none' }}>Demo</NavLink>

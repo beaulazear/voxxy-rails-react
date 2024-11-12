@@ -1,13 +1,15 @@
 import HeroComponent from './HeroComponent';
 import InfoBoxes from './InfoBoxes';
 import VideoComponent from './VideoComponent';
+import InfoComponent from './InfoComponent';
 
 function Home() {
   return (
     <div>
       <HeroComponent />
-      <InfoBoxes />
+      <InfoComponent />
       <VideoComponent />
+      <InfoBoxes />
     </div>
   );
 }

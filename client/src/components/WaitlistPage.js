@@ -1,5 +1,4 @@
 import React from "react";
-import HeroText from './HeroText';
 import styled from 'styled-components';
 import WaitlistForm from "./WaitlistForm";
 
@@ -13,7 +12,6 @@ const PageContainer = styled.div`
 export default function WaitlistPage() {
     return (
         <PageContainer>
-            <HeroText />
             <WaitlistForm />
         </PageContainer>
     );

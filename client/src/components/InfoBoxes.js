@@ -4,13 +4,13 @@ import styled from 'styled-components';
 const ScrollableContainer = styled.div`
   overflow-x: auto;
   display: flex;
-  padding: 20px 10px; /* Adjust horizontal padding to match gap */
+  padding: 20px 10px;
   background-color: #f9f9f9;
   white-space: nowrap;
   height: fit-content;
   scroll-snap-type: x mandatory;
   justify-content: flex-start;
-  gap: 20px; /* Space between InfoBox elements */
+  gap: 20px;
 
   @media (min-width: 768px) {
     justify-content: flex-start;
@@ -68,6 +68,12 @@ const InfoBoxes = () => {
       title: "Seamless Integration & Efficiency",
       description:
         "Easily integrate Voxxy into your existing workflows, helping your team operate efficiently while delivering exceptional customer experiences.",
+    },
+    // New box data from the image provided
+    {
+      title: "Qualitative Data Made Simple",
+      description:
+        "Transforms open-ended feedback into organized insights, so you can quickly understand customer trends and needs."
     }
   ];
 
@@ -76,7 +82,6 @@ const InfoBoxes = () => {
   useEffect(() => {
     const container = containerRef.current;
     if (container && boxesData.length > 1) {
-      // Center the content in the scrollable area
       const scrollPosition = (container.scrollWidth - container.clientWidth) / 2;
       container.scrollTo({ left: scrollPosition, behavior: 'smooth' });
     }

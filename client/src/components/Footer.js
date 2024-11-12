@@ -1,32 +1,41 @@
-// src/components/Footer.js
 import React from 'react';
 import styled from 'styled-components';
 
 const FooterContainer = styled.div`
-  margin-top: 2rem;
-  font-size: 0.9rem;
-  color: #333;
+  background: #f9f9f9;
+  padding: 2rem 0;
+  color: #555;
   text-align: center;
-  padding: 1rem 0;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.95rem;
+  border-top: 1px solid #e0e0e0;
 
   p {
-    font-weight: bold;
-    margin-bottom: 0.25rem;
+    font-weight: 600;
+    color: #4b0082;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
   }
 
   a {
-    color: #333;
+    color: #6a0dad;
     text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+
+    &:hover {
+      color: #8b00ff;
+    }
   }
 `;
 
 const Footer = () => {
-    return (
-        <FooterContainer>
-            <p>Contact Us</p>
-            <a href="mailto:team@voxxyAI.com">Email: team@voxxyAI.com</a>
-        </FooterContainer>
-    );
+  return (
+    <FooterContainer>
+      <p>Contact Us</p>
+      <a href="mailto:team@voxxyAI.com">Email: team@voxxyAI.com</a>
+    </FooterContainer>
+  );
 };
 
 export default Footer;

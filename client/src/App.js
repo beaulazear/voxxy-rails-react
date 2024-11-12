@@ -7,13 +7,13 @@ import Footer from './components/Footer';
 import Home from './components/HomePage';
 import WaitlistPage from './components/WaitlistPage';
 import VapiAssistant from './components/VapiAssistant';
-import ContactPage from './components/Contact';
 import InfoPage from './components/InfoPage';
 import SignUp from './components/SignUp.js';
 import Login from './components/Login';
 import AdminWaitlist from './admincomponents/AdminWaitlist';
 import LoadingScreen from './components/LoadingScreen';
 import WelcomeComponent from './admincomponents/WelcomeComponent.js';
+import UserFooter from './admincomponents/UserFooter.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -33,6 +33,7 @@ function App() {
               <Route path='/waitlist' element={<AdminWaitlist />} />
               <Route path='/demo' element={<VapiAssistant />} />
             </Routes>
+            <UserFooter />
           </>
         ) : (
           <>
@@ -41,7 +42,6 @@ function App() {
               <Route path='/' element={<Home />} />
               <Route path='/waitlist' element={<WaitlistPage />} />
               <Route path='/demo' element={<VapiAssistant />} />
-              <Route path='/contact' element={<ContactPage />} />
               <Route path='/infopage' element={<InfoPage />} />
               <Route path='/signup' element={<SignUp />} />
               <Route path='/login' element={<Login />} />

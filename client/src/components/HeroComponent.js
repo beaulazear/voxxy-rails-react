@@ -1,7 +1,11 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import { Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
+
+const GlobalStyle = createGlobalStyle`
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
+`;
 
 const HeroSection = styled.div`
   display: flex;
@@ -20,35 +24,40 @@ const HeroSection = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 2.5rem;
-  font-weight: bold;
+  font-size: 5rem; // Increased font size for more emphasis
+  font-weight: 600;
+  font-family: 'Caveat', cursive;
+  line-height: 1.2; // Added line spacing for better readability
 
   @media (max-width: 768px) {
-    font-size: 2rem;
+    font-size: 4rem;
   }
 `;
 
 const Subtitle = styled.p`
-  font-size: 1.2rem;
-  margin: 20px 0;
+margin-top 10px;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  max-width: 750px;
+  line-height: 1.6; // Added more line spacing for improved readability
 
   @media (max-width: 768px) {
-    font-size: 1rem;
+    font-size: 1.4rem;
   }
 `;
 
 const StyledButton = styled(Button)`
-  background-color: #444;
-  color: white;
+  background-color: white;
+  color: #6a0dad;
   border: none;
   font-size: 1rem;
-  padding: 0.5rem 2rem;
+  padding: 0.75rem 2rem;
   border-radius: 5px;
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: #666;
-    color: white;
+    background-color: #f3f3f3;
+    color: #6a0dad;
   }
 `;
 
@@ -60,11 +69,14 @@ const HeroComponent = () => {
   };
 
   return (
-    <HeroSection>
-      <Title>Say Hello Voxxy</Title>
-      <Subtitle>Unlock Customer Insights at Scale with your AI Interview Agent</Subtitle>
-      <StyledButton onClick={handleButtonClick}>Join Our Waitlist!</StyledButton>
-    </HeroSection>
+    <>
+      <GlobalStyle />
+      <HeroSection>
+        <Title>Hello Voxxy!</Title>
+        <Subtitle>Understand your customers like never before with conversational, AI-powered feedback.</Subtitle>
+        <StyledButton onClick={handleButtonClick}>Join Our Waitlist</StyledButton>
+      </HeroSection>
+    </>
   );
 };
 

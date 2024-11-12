@@ -1,20 +1,22 @@
 import React, { useEffect, useState, useContext } from 'react';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import { UserContext } from '../context/user';
 
+// Import fonts globally
+const GlobalStyle = createGlobalStyle`
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
+`;
+
 const Container = styled.div`
-  max-width: 380px;
-  margin: 1.5rem auto 0;
-  padding: 1.5rem;
+  max-width: 450px;
+  margin: 2rem auto;
+  padding: 2rem;
   background: #fafafa;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   border: 1px solid #e0e0e0;
-
-  @media (min-width: 600px) {
-    max-width: 450px;
-    padding: 2rem;
-  }
+  font-family: 'Roboto', sans-serif;
 `;
 
 const Form = styled.form`
@@ -25,7 +27,7 @@ const Form = styled.form`
 
 const Input = styled.input`
   padding: 0.75rem;
-  margin-top: 0.25rem;
+  margin-top: 0.75rem;
   font-size: 1rem;
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -42,14 +44,14 @@ const SubmitButton = styled.button`
   padding: 0.75rem;
   font-size: 1rem;
   color: #fff;
-  background-color: #333;
+  background-color: #4b0082;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: #555;
+    background-color: #6a1ab1;
   }
 `;
 
@@ -71,11 +73,12 @@ const UserItem = styled.li`
 `;
 
 const Title = styled.h3`
+  font-size: 1.6rem;
+  color: #4b0082;
+  text-align: center;
+  font-family: 'Caveat', cursive;
   margin-top: 1.5rem;
   margin-bottom: 1rem;
-  color: #333;
-  text-align: center;
-  font-weight: 500;
 `;
 
 const DeleteButton = styled.button`
@@ -97,8 +100,9 @@ const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.5rem;
+  padding: 2rem;
   text-align: center;
+  font-family: 'Roboto', sans-serif;
 
   @media (min-width: 600px) {
     padding: 3rem;
@@ -106,15 +110,14 @@ const FormContainer = styled.div`
 `;
 
 const Heading = styled.h2`
-  font-size: 1.4rem;
-  font-weight: 500;
+  font-size: 2rem;
+  font-family: 'Caveat', cursive;
+  color: #4b0082;
   margin-bottom: 1.5rem;
-  color: #333;
-  max-width: 90%;
+  text-align: center;
 
   @media (min-width: 600px) {
-    font-size: 1.75rem;
-    max-width: 600px;
+    font-size: 2.5rem;
   }
 `;
 
@@ -124,8 +127,7 @@ const WaitlistForm = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [waitlist, setWaitlist] = useState([]);
-
-  const { user } = useContext(UserContext)
+  const { user } = useContext(UserContext);
 
   useEffect(() => {
     fetchWaitlist();
@@ -167,7 +169,7 @@ const WaitlistForm = () => {
       .then(() => {
         setName('');
         setEmail('');
-        fetchWaitlist()
+        fetchWaitlist();
       })
       .catch((error) => {
         console.error('Error adding waitlist member:', error);
@@ -182,10 +184,10 @@ const WaitlistForm = () => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return response.text(); // Handle non-JSON responses
+        return response.text();
       })
       .then(() => {
-        fetchWaitlist(); // Refresh waitlist after deletion
+        fetchWaitlist();
       })
       .catch((error) => {
         console.error('Error deleting waitlist member:', error);
@@ -194,6 +196,7 @@ const WaitlistForm = () => {
 
   return (
     <>
+      <GlobalStyle />
       <FormContainer>
         <Heading>
           Hi {user.name}, here is the current waitlist. Add new data manually and/or view the current waitlist data below!
@@ -228,7 +231,6 @@ const WaitlistForm = () => {
         </UserList>
       </Container>
     </>
-
   );
 };
 

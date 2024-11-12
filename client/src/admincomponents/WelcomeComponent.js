@@ -1,8 +1,14 @@
 import React, { useContext } from 'react';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import { Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/user';
+
+// Global style to import the Caveat and Roboto fonts
+const GlobalStyle = createGlobalStyle`
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
+`;
 
 const WelcomeSection = styled.div`
   display: flex;
@@ -21,35 +27,41 @@ const WelcomeSection = styled.div`
 `;
 
 const Greeting = styled.h1`
-  font-size: 2.5rem;
-  font-weight: bold;
+  font-size: 4rem;
+  font-weight: 600;
+  font-family: 'Caveat', cursive;
+  line-height: 1.2;
+  margin-bottom: 1rem;
 
   @media (max-width: 768px) {
-    font-size: 2rem;
+    font-size: 3rem;
   }
 `;
 
 const Message = styled.p`
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   margin: 20px 0;
+  max-width: 750px;
+  line-height: 1.6;
+  font-family: 'Roboto', sans-serif;
 
   @media (max-width: 768px) {
-    font-size: 1rem;
+    font-size: 1.2rem;
   }
 `;
 
 const DashboardButton = styled(Button)`
-  background-color: #444;
-  color: white;
+  background-color: white;
+  color: #4b0082;
   border: none;
-  font-size: 1rem;
-  padding: 0.5rem 2rem;
+  font-size: 1.25rem;
+  padding: 0.75rem 2.5rem;
   border-radius: 5px;
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: #666;
-    color: white;
+    background-color: #f3f3f3;
+    color: #4b0082;
   }
 `;
 
@@ -62,11 +74,14 @@ const WelcomeComponent = () => {
     };
 
     return (
-        <WelcomeSection>
-            <Greeting>Welcome to Voxxy,  {user?.name || 'User'}!</Greeting>
-            <Message>Ready to continue managing and viewing your current waitlist?</Message>
-            <DashboardButton onClick={handleButtonClick}>Go to Waitlist</DashboardButton>
-        </WelcomeSection>
+        <>
+            <GlobalStyle />
+            <WelcomeSection>
+                <Greeting>Welcome to Voxxy, {user?.name || 'User'}!</Greeting>
+                <Message>Ready to continue managing and viewing your current waitlist?</Message>
+                <DashboardButton onClick={handleButtonClick}>Go to Waitlist</DashboardButton>
+            </WelcomeSection>
+        </>
     );
 };
 
