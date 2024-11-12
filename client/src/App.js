@@ -13,6 +13,7 @@ import SignUp from './components/SignUp.js';
 import Login from './components/Login';
 import AdminWaitlist from './admincomponents/AdminWaitlist';
 import LoadingScreen from './components/LoadingScreen';
+import WelcomeComponent from './admincomponents/WelcomeComponent.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -28,11 +29,10 @@ function App() {
           <>
             <Navbar />
             <Routes>
-              <Route path='/' element={<Home />} />
+              <Route path='/' element={<WelcomeComponent />} />
               <Route path='/waitlist' element={<AdminWaitlist />} />
               <Route path='/demo' element={<VapiAssistant />} />
             </Routes>
-            <Footer />
           </>
         ) : (
           <>

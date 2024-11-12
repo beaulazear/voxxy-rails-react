@@ -4,46 +4,86 @@ import { UserContext } from '../context/user';
 import styled from 'styled-components';
 
 const Container = styled.div`
-  max-width: 400px;
-  margin: auto;
-  padding: 30px;
-  background: #ffffff;
+  max-width: 380px;
+  margin: 1.5rem auto 0;
+  padding: 1.5rem;
+  background: #fafafa;
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+
+  @media (min-width: 600px) {
+    max-width: 450px;
+    padding: 2rem;
+  }
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
+  margin-bottom: 1.5rem;
 `;
 
 const Input = styled.input`
-  margin-bottom: 15px;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 0.75rem;
+  margin-top: 0.25rem;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: #666;
+    outline: none;
+  }
 `;
 
-const Button = styled.button`
-  padding: 12px;
+const SubmitButton = styled.button`
+  margin-top: 1.5rem;
+  padding: 0.75rem;
+  font-size: 1rem;
+  color: #fff;
+  background-color: #333;
   border: none;
-  border-radius: 5px;
-  background: #007bff;
-  color: white;
+  border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.3s;
 
   &:hover {
-    background: #0056b3;
+    background-color: #555;
+  }
+`;
+
+const FormContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem;
+  text-align: center;
+
+  @media (min-width: 600px) {
+    padding: 3rem;
+  }
+`;
+
+const Heading = styled.h2`
+  font-size: 1.4rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  color: #333;
+  max-width: 90%;
+
+  @media (min-width: 600px) {
+    font-size: 1.75rem;
+    max-width: 600px;
   }
 `;
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-
-    const { setUser } = useContext(UserContext)
-
-    const navigate = useNavigate()
+    const { setUser } = useContext(UserContext);
+    const navigate = useNavigate();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -66,9 +106,8 @@ const Login = () => {
                 return response.json();
             })
             .then((data) => {
-                console.log('Logged in:', data);
-                setUser(data)
-                navigate('/')
+                setUser(data);
+                navigate('/');
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -76,26 +115,30 @@ const Login = () => {
     };
 
     return (
-        <Container>
-            <h2>Log In</h2>
-            <Form onSubmit={handleSubmit}>
-                <Input
-                    type="text"
-                    placeholder="Enter your username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                />
-                <Input
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
-                <Button type="submit">Log In</Button>
-            </Form>
-        </Container>
+        <>
+            <FormContainer>
+                <Heading>Log in to access your account</Heading>
+            </FormContainer>
+            <Container>
+                <Form onSubmit={handleSubmit}>
+                    <Input
+                        type="text"
+                        placeholder="Enter your username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                    />
+                    <Input
+                        type="password"
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                    <SubmitButton type="submit">Log In</SubmitButton>
+                </Form>
+            </Container>
+        </>
     );
 };
 

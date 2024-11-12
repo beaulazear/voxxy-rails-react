@@ -196,7 +196,7 @@ const WaitlistForm = () => {
     <>
       <FormContainer>
         <Heading>
-          Hi {user.name}, here is the current waitlist. Add people manually and view the list below!
+          Hi {user.name}, here is the current waitlist. Add new data manually and/or view the current waitlist data below!
         </Heading>
       </FormContainer>
       <Container>
