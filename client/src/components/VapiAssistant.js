@@ -102,7 +102,7 @@ export default function VapiAssistant() {
     <>
       <GlobalStyle />
       <AssistantContainer>
-        <Title>Vapi Assistant</Title>
+        <Title>Try our Voxxy Demo now</Title>
         <Message>
           Experience seamless AI-driven customer interactions. Click to start your session!
         </Message>

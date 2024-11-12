@@ -50,26 +50,30 @@ const InfoDescription = styled.p`
 const InfoBoxes = () => {
   const boxesData = [
     {
-      title: "Personalized & Brand-Consistent",
+      title: "Engage Customers at Scale",
       description:
-        "Customize Voxxy to match your brand’s voice and style, so every conversation feels authentic and aligned with your values.",
+        "Voxxy chats with hundreds of customers at once, saving you time and resources."
     },
     {
-      title: "Focus on What Matters",
+      title: "Turn Feedback into Growth",
       description:
-        "With Voxxy handling customer interviews, your team can stay focused on driving innovation and enhancing growth."
+        "Use Voxxy's insights to improve customer satisfaction, guide product development, and build loyalty."
     },
     {
-      title: "Insightful, Data-Driven Decisions",
+      title: "Increased Response Rates",
       description:
-        "Gather actionable insights directly from your customers, empowering your team to make data-backed decisions confidently.",
+        "Voxxy's conversational style makes feedback collection feel natural, leading to higher customer engagement and response rates."
     },
     {
-      title: "Seamless Integration & Efficiency",
+      title: "Get Real-Time Insights",
       description:
-        "Easily integrate Voxxy into your existing workflows, helping your team operate efficiently while delivering exceptional customer experiences.",
+        "With instant analytics and summaries, you can make data-driven decisions faster."
     },
-    // New box data from the image provided
+    {
+      title: "Customize to Fit Your Brand",
+      description:
+        "Set the tone, style, and questions that align with your brand's voice and values."
+    },
     {
       title: "Qualitative Data Made Simple",
       description:

@@ -115,6 +115,7 @@ const Heading = styled.h2`
   color: #4b0082;
   margin-bottom: 1.5rem;
   text-align: center;
+  max-width: 650px;
 
   @media (min-width: 600px) {
     font-size: 2.5rem;
