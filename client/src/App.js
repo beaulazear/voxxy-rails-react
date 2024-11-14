@@ -14,6 +14,7 @@ import AdminWaitlist from './admincomponents/AdminWaitlist';
 import LoadingScreen from './components/LoadingScreen';
 import WelcomeComponent from './admincomponents/WelcomeComponent.js';
 import UserFooter from './admincomponents/UserFooter.js';
+import Steph from './admincomponents/Steph.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -45,6 +46,7 @@ function App() {
               <Route path='/infopage' element={<InfoPage />} />
               <Route path='/signup' element={<SignUp />} />
               <Route path='/login' element={<Login />} />
+              <Route path='/64a0203a922a52f49ba0c49f2e9b2d18' element={<Steph />}/>
             </Routes>
             <Footer />
           </>
