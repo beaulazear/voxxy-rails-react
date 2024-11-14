@@ -15,6 +15,16 @@ class WaitlistsController < ApplicationController
         render json: waitlist, status: :ok
     end
 
+    def destroy
+        waitlist = Waitlist.find_by(id: params[:id])
+        if waitlist
+            waitlist.destroy
+            render json: pet 
+        else
+            render json: { error: "waitlist not found" }, status: :not_found
+        end
+    end
+
     private
 
     def waitlist_params
