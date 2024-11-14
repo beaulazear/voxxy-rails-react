@@ -1,16 +1,10 @@
-// src/components/VapiAssistant.js
 import React, { useState, useEffect } from "react";
-import styled, { createGlobalStyle } from "styled-components";
+import { useNavigate } from 'react-router-dom';
+import styled from "styled-components";
 import Vapi from "@vapi-ai/web";
-import { Button } from "antd"; // Importing Ant Design button for styling consistency
+import { Button, Modal } from "antd"; // Importing Ant Design for modals
 
 export const vapi = new Vapi("0473382d-b20e-43b2-afbe-cf8f9bf7f9e6");
-
-// Global style for fonts
-const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
-  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
-`;
 
 const AssistantContainer = styled.div`
   display: flex;
@@ -40,9 +34,9 @@ const Title = styled.h1`
   }
 `;
 
-const Message = styled.p`
+const ActiveMessage = styled.p`
   font-size: 1.3rem;
-  margin-bottom: 20px;
+  margin-top: 20px;
   max-width: 800px;
   line-height: 1.6;
   font-family: 'Roboto', sans-serif;
@@ -72,10 +66,14 @@ const LoadingText = styled.i`
   color: white;
 `;
 
-export default function Steph() {
-  const defaultHeader = "Securta Solutions Feedback Experience via Voxxy";
+export default function VapiAssistant() {
+  const defaultHeader = "Share Your Thoughts with Sectura Solutions";
   const [callStatus, setCallStatus] = useState("inactive");
   const [headerText, setHeaderText] = useState(defaultHeader);
+  const [initialModalVisible, setInitialModalVisible] = useState(true);
+  const [endModalVisible, setEndModalVisible] = useState(false);
+
+  const navigate = useNavigate();
 
   const start = async () => {
     setCallStatus("loading");
@@ -94,13 +92,13 @@ export default function Steph() {
   };
 
   useEffect(() => {
-    // Set header back to default on initial render or page refresh
     setHeaderText(defaultHeader);
 
     vapi.on("call-start", () => setCallStatus("active"));
     vapi.on("call-end", () => {
       setCallStatus("inactive");
-      setHeaderText("Securta Solutions Thanks You for Participating");
+      setHeaderText("Sectura Solutions Thanks You for Participating");
+      setEndModalVisible(true);
     });
 
     return () => vapi.removeAllListeners();
@@ -108,20 +106,55 @@ export default function Steph() {
 
   return (
     <>
-      <GlobalStyle />
       <AssistantContainer>
         <Title>{headerText}</Title>
-        <Message>
-          You’re about to enter a Voxxy experience designed to capture your feedback and insights in real-time. During this session, feel free to share your thoughts openly—only a transcript of your words will be recorded, with no audio saved.
-        </Message>
         {callStatus === "inactive" && (
           <StyledButton onClick={start}>Start Session</StyledButton>
         )}
         {callStatus === "loading" && <LoadingText>Loading...</LoadingText>}
         {callStatus === "active" && (
-          <StyledButton onClick={stop}>End Session</StyledButton>
+          <>
+            <StyledButton onClick={stop}>End Session</StyledButton>
+            <ActiveMessage>
+              Please remember to press the End Session button when you’re finished. The session will continue to capture input until it is closed, so be sure to end the session to stop the microphone from picking up any additional sound.
+            </ActiveMessage>
+          </>
         )}
       </AssistantContainer>
+
+      {/* Initial Modal */}
+      <Modal
+        title="Get ready to share your feedback with Voxxy"
+        visible={initialModalVisible}
+        onCancel={() => setInitialModalVisible(false)}
+        footer={[
+          <Button key="learn" onClick={() => navigate('/')}>
+            Learn More
+          </Button>,
+          <Button key="close" type="primary" onClick={() => setInitialModalVisible(false)}>
+            Close
+          </Button>
+        ]}
+      >
+        <p>This is a space to share your spoken feedback with a conversational agent. Only a text transcript will be recorded, with no audio saved.</p>
+      </Modal>
+
+      {/* End Modal */}
+      <Modal
+        title="Thank you for your feedback!"
+        visible={endModalVisible}
+        onCancel={() => setEndModalVisible(false)}
+        footer={[
+          <Button key="home" onClick={() => window.location.href = '/'}>
+            Home
+          </Button>,
+          <Button key="close" type="primary" onClick={() => navigate('/')}>
+            Close
+          </Button>
+        ]}
+      >
+        <p>Did you like Voxxy? If you're interested in learning more about how Voxxy can support your business, click below to visit our homepage and discover more!</p>
+      </Modal>
     </>
   );
 }
