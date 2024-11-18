@@ -16,7 +16,7 @@ const WelcomeSection = styled.div`
   align-items: center;
   justify-content: center;
   text-align: center;
-  height: 100vh;
+  height: 70vh;
   background: linear-gradient(135deg, #4b0082, #8b00ff);
   color: white;
   padding: 0 20px;

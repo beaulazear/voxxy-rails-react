@@ -44,7 +44,7 @@ function App() {
               <Route path='/waitlist' element={<WaitlistPage />} />
               <Route path='/demo' element={<VapiAssistant />} />
               <Route path='/infopage' element={<InfoPage />} />
-              <Route path='/signup' element={<SignUp />} />
+              {/* <Route path='/signup' element={<SignUp />} /> */}
               <Route path='/login' element={<Login />} />
               <Route path='/64a0203a922a52f49ba0c49f2e9b2d18' element={<Steph />}/>
             </Routes>
