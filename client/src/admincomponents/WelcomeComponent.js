@@ -1,14 +1,8 @@
 import React, { useContext } from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 import { Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/user';
-
-// Global style to import the Caveat and Roboto fonts
-const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
-  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
-`;
 
 const WelcomeSection = styled.div`
   display: flex;
@@ -27,14 +21,14 @@ const WelcomeSection = styled.div`
 `;
 
 const Greeting = styled.h1`
-  font-size: 4rem;
-  font-weight: 600;
-  font-family: 'Caveat', cursive;
+  font-size: 3rem;
+  font-weight: 400;
+  font-family: 'Unbounded', san serif;
   line-height: 1.2;
   margin-bottom: 1rem;
 
   @media (max-width: 768px) {
-    font-size: 3rem;
+    font-size: 2.5rem;
   }
 `;
 
@@ -66,23 +60,22 @@ const DashboardButton = styled(Button)`
 `;
 
 const WelcomeComponent = () => {
-    const { user } = useContext(UserContext);
-    const navigate = useNavigate();
+  const { user } = useContext(UserContext);
+  const navigate = useNavigate();
 
-    const handleButtonClick = () => {
-        navigate('/waitlist');
-    };
+  const handleButtonClick = () => {
+    navigate('/waitlist');
+  };
 
-    return (
-        <>
-            <GlobalStyle />
-            <WelcomeSection>
-                <Greeting>Welcome to Voxxy, {user?.name || 'User'}!</Greeting>
-                <Message>Ready to continue managing and viewing your current waitlist?</Message>
-                <DashboardButton onClick={handleButtonClick}>Go to Waitlist</DashboardButton>
-            </WelcomeSection>
-        </>
-    );
+  return (
+    <>
+      <WelcomeSection>
+        <Greeting>Welcome to Voxxy, {user?.name || 'User'}!</Greeting>
+        <Message>Ready to continue managing and viewing your current waitlist?</Message>
+        <DashboardButton onClick={handleButtonClick}>Go to Waitlist</DashboardButton>
+      </WelcomeSection>
+    </>
+  );
 };
 
 export default WelcomeComponent;

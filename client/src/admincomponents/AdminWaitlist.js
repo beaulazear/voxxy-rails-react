@@ -1,11 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 import { UserContext } from '../context/user';
-
-const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
-  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
-`;
 
 const Container = styled.div`
   max-width: 600px;
@@ -128,7 +123,7 @@ const Title = styled.h3`
   font-size: 1.8rem;
   color: #4b0082;
   text-align: center;
-  font-family: 'Caveat', cursive;
+  font-family: 'Unbounded', san  serif;
   margin-top: 1.5rem;
   margin-bottom: 1rem;
 `;
@@ -148,15 +143,12 @@ const FormContainer = styled.div`
 
 const Heading = styled.h2`
   font-size: 2rem;
-  font-family: 'Caveat', cursive;
+  font-family: 'Unbounded', san serif;
   color: #4b0082;
   margin-bottom: 1.5rem;
   text-align: center;
   max-width: 650px;
 
-  @media (min-width: 600px) {
-    font-size: 2.5rem;
-  }
 `;
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
@@ -234,7 +226,6 @@ const WaitlistForm = () => {
 
   return (
     <>
-      <GlobalStyle />
       <FormContainer>
         <Heading>
           Hi {user.name}, here is the current waitlist. Add new data manually and/or view the current waitlist data below!

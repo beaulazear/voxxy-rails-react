@@ -33,7 +33,7 @@ const MenuContainer = styled.div`
   gap: 20px;
 
   @media (max-width: 768px) {
-    display: none; /* Hide the menu on smaller screens */
+    display: none;
   }
 `;
 
@@ -54,28 +54,19 @@ const MenuItem = styled(NavLink)`
 `;
 
 const StyledButton = styled(Button)`
-  font-size: 14px;
-  padding: 0 20px;
-  border-radius: 5px;
-  margin-left: 10px;
-  width: 80px;
+  font-size: 16px;
+  background-color: white;
+  color: black;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 
-  &.sign-up {
-    background-color: #d3c;
-    color: white;
-    border: none;
+  &:hover {
+    background-color: #e8def8 !important;
   }
 
-  &.log-in {
-    background-color: #9b19f5;
-    color: white;
-    border: none;
-  }
-
-  &.demo {
-    background-color: #9b19f5;
-    color: white;
-    border: none;
+  &:focus {
+    background-color: #e8def8;
   }
 `;
 
@@ -85,7 +76,7 @@ const MobileMenuButton = styled(MenuOutlined)`
   cursor: pointer;
 
   @media (min-width: 768px) {
-    display: none; /* Hide the mobile menu button on larger screens */
+    display: none;
   }
 `;
 
@@ -100,9 +91,9 @@ const Navbar = () => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const { user, setUser } = useContext(UserContext);
 
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001"; // Add this line at the top
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const showDrawer = () => {
     setDrawerVisible(true);
@@ -112,7 +103,7 @@ const Navbar = () => {
     setDrawerVisible(false);
   };
 
-  function handleLogout() {
+  const handleLogout = () => {
     const confirmation = window.confirm("Are you sure you want to log out?");
     if (confirmation) {
       fetch(`${API_URL}/logout`, {
@@ -120,13 +111,11 @@ const Navbar = () => {
         credentials: 'include',
       }).then(() => {
         setUser(null);
-        closeDrawer()
+        closeDrawer();
         navigate('/');
       });
-    } else {
-      console.log("Log out aborted");
     }
-  }
+  };
 
   return (
     <NavbarContainer>
@@ -135,7 +124,7 @@ const Navbar = () => {
         <MenuItem to="/" end>Home</MenuItem>
         <MenuItem to="/waitlist">Waitlist</MenuItem>
         {user && (
-          <StyledButton className="sign-up" onClick={handleLogout}>
+          <StyledButton onClick={handleLogout}>
             <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
           </StyledButton>
         )}
@@ -144,10 +133,10 @@ const Navbar = () => {
         </StyledButton>
         {!user && (
           <>
-            <StyledButton className="sign-up">
+            <StyledButton>
               <NavLink to="/waitlist" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
             </StyledButton>
-            <StyledButton className="sign-up">
+            <StyledButton>
               <NavLink to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>Log In</NavLink>
             </StyledButton>
           </>
@@ -159,7 +148,7 @@ const Navbar = () => {
         placement="right"
         onClose={closeDrawer}
         open={drawerVisible}
-        width={250} /* Controls drawer width */
+        width={250}
       >
         <DrawerMenuItem>
           <NavLink to="/" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Home</NavLink>
@@ -168,13 +157,13 @@ const Navbar = () => {
           <NavLink to="/waitlist" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Waitlist</NavLink>
         </DrawerMenuItem>
         <DrawerMenuItem>
-          <StyledButton className="demo" onClick={closeDrawer}>
+          <StyledButton onClick={closeDrawer}>
             <NavLink to="/demo" style={{ color: 'inherit', textDecoration: 'none' }}>Demo</NavLink>
           </StyledButton>
         </DrawerMenuItem>
         {user && (
           <DrawerMenuItem>
-            <StyledButton className="sign-up" onClick={handleLogout}>
+            <StyledButton onClick={handleLogout}>
               <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
             </StyledButton>
           </DrawerMenuItem>
@@ -182,12 +171,12 @@ const Navbar = () => {
         {!user && (
           <>
             <DrawerMenuItem>
-              <StyledButton className="sign-up" onClick={closeDrawer}>
+              <StyledButton onClick={closeDrawer}>
                 <NavLink to="/waitlist" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
               </StyledButton>
             </DrawerMenuItem>
             <DrawerMenuItem>
-              <StyledButton className="sign-up" onClick={closeDrawer}>
+              <StyledButton onClick={closeDrawer}>
                 <NavLink to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>Log In</NavLink>
               </StyledButton>
             </DrawerMenuItem>
