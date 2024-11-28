@@ -38,7 +38,6 @@ const Subtitle = styled.p`
   margin-bottom: 20px;
   max-width: 750px;
   line-height: 1.6;
-  font-family: 'Unbounded', sans-serif; /* Consistent font usage */
 
   @media (max-width: 768px) {
     font-size: 1.4rem;

@@ -35,9 +35,7 @@ const Title = styled.h1`
 `;
 
 const Message = styled.p`
-  font-family: "Unbounded", sans-serif;
   font-optical-sizing: auto;
-  font-weight: 400; /* Use lighter weight for body text */
   font-size: 1.8rem;
   margin-bottom: 20px;
   max-width: 750px;

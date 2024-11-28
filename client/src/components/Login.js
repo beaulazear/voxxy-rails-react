@@ -69,10 +69,6 @@ const Heading = styled.h2`
   color: #4b0082;
   margin-bottom: 1.5rem;
   font-weight: 400;
-
-  @media (max-width: 600px) {
-    font-size: 2.5rem;
-  }
 `;
 
 const Login = () => {

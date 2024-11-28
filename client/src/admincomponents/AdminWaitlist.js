@@ -10,7 +10,6 @@ const Container = styled.div`
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid #e0e0e0;
-  font-family: 'Roboto', sans-serif;
 `;
 
 const Form = styled.form`
@@ -126,6 +125,7 @@ const Title = styled.h3`
   font-family: 'Unbounded', san  serif;
   margin-top: 1.5rem;
   margin-bottom: 1rem;
+  font-weight: 400;
 `;
 
 const FormContainer = styled.div`
@@ -142,13 +142,13 @@ const FormContainer = styled.div`
 `;
 
 const Heading = styled.h2`
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-family: 'Unbounded', san serif;
   color: #4b0082;
   margin-bottom: 1.5rem;
   text-align: center;
   max-width: 650px;
-
+  font-weight: 400;
 `;
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";

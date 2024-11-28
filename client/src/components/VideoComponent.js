@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import VoxxyVideo from '../attachments/VoxxyVideo.mp4';
+import VideoPoster from '../attachments/VideoPoster.jpeg'; // Add your poster image here
 
 const Container = styled.div`
   display: flex;
@@ -32,6 +33,7 @@ const VideoComponent = () => {
       <VideoWrapper
         src={VoxxyVideo}
         controls
+        poster={VideoPoster} // Add the poster attribute
       >
         Your browser does not support the video tag.
       </VideoWrapper>

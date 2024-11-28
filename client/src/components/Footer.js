@@ -33,7 +33,7 @@ const Footer = () => {
   return (
     <FooterContainer>
       <p>Contact Us</p>
-      <a href="mailto:team@voxxyAI.com">Email: team@voxxyAI.com</a>
+      <a href="mailto:team@voxxyAI.com">team@voxxyAI.com</a>
     </FooterContainer>
   );
 };
