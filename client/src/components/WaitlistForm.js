@@ -2,12 +2,6 @@ import React, { useState } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 
-// Import fonts for styling
-const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
-  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
-`;
-
 const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -18,13 +12,10 @@ const PageContainer = styled.div`
 
 const Heading = styled.h2`
   font-size: 2rem;
-  font-family: 'Caveat', cursive;
+  font-family: 'Unbounded', san-serif;
+  font-weight: 400;
   color: #333;
   margin-bottom: 1rem;
-
-  @media (min-width: 600px) {
-    font-size: 2.5rem;
-  }
 `;
 
 const Subtitle = styled.p`
@@ -121,7 +112,6 @@ const WaitlistForm = () => {
 
   return (
     <>
-      <GlobalStyle />
       <PageContainer>
         <Heading>Ready to Supercharge Your Customer Insights?</Heading>
         <Subtitle>

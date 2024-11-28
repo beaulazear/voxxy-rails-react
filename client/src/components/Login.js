@@ -1,13 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/user';
-import styled, { createGlobalStyle } from 'styled-components';
-
-// Import fonts globally
-const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
-  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
-`;
+import styled from 'styled-components';
 
 const Container = styled.div`
   max-width: 450px;
@@ -70,10 +64,11 @@ const FormContainer = styled.div`
 `;
 
 const Heading = styled.h2`
-  font-size: 4rem;
-  font-family: 'Caveat', cursive;
+  font-size: 2rem;
+  font-family: 'Unbounded', san-serif;
   color: #4b0082;
   margin-bottom: 1.5rem;
+  font-weight: 400;
 
   @media (max-width: 600px) {
     font-size: 2.5rem;
@@ -81,67 +76,66 @@ const Heading = styled.h2`
 `;
 
 const Login = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const { setUser } = useContext(UserContext);
-    const navigate = useNavigate();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const { setUser } = useContext(UserContext);
+  const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const sessionData = { username, password };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const sessionData = { username, password };
 
-        const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+    const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
-        fetch(`${API_URL}/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify(sessionData),
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Invalid username or password');
-                }
-                return response.json();
-            })
-            .then((data) => {
-                setUser(data);
-                navigate('/');
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-    };
+    fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(sessionData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Invalid username or password');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setUser(data);
+        navigate('/');
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  };
 
-    return (
-        <>
-            <GlobalStyle />
-            <FormContainer>
-                <Heading>Log in to access your account!</Heading>
-            </FormContainer>
-            <Container>
-                <Form onSubmit={handleSubmit}>
-                    <Input
-                        type="text"
-                        placeholder="Enter your username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                    />
-                    <Input
-                        type="password"
-                        placeholder="Enter your password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                    <SubmitButton type="submit">Log In</SubmitButton>
-                </Form>
-            </Container>
-        </>
-    );
+  return (
+    <>
+      <FormContainer>
+        <Heading>Log in to access your account!</Heading>
+      </FormContainer>
+      <Container>
+        <Form onSubmit={handleSubmit}>
+          <Input
+            type="text"
+            placeholder="Enter your username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+          <Input
+            type="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <SubmitButton type="submit">Log In</SubmitButton>
+        </Form>
+      </Container>
+    </>
+  );
 };
 
 export default Login;

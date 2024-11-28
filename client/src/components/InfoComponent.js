@@ -1,13 +1,6 @@
 import React from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 
-// Global style to import the Caveat font
-const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
-  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
-`;
-
-// Main container for the section
 const InfoSection = styled.div`
   max-width: 800px;
   margin: 40px auto;
@@ -17,8 +10,8 @@ const InfoSection = styled.div`
 
 const Title = styled.h2`
   font-size: 2.5rem;
-  font-weight: 600;
-  font-family: 'Caveat', cursive;
+  font-weight: 400;
+  font-family: 'Unbounded', san-serif;
   color: #333;
   margin-bottom: 20px;
 `;
@@ -33,19 +26,18 @@ const Description = styled.p`
 `;
 
 const InfoComponent = () => {
-    return (
-        <>
-            <GlobalStyle />
-            <InfoSection>
-                <Title>What is Voxxy?</Title>
-                <Description>
-                    Voxxy is an AI-powered customer feedback platform designed to make gathering insights from your customers easy, engaging, and actionable.
-                    Using advanced conversational AI, Voxxy conducts natural, interactive interviews with your customers, giving you access to deeper, more meaningful
-                    feedback than traditional surveys can provide.
-                </Description>
-            </InfoSection>
-        </>
-    );
+  return (
+    <>
+      <InfoSection>
+        <Title>What is Voxxy?</Title>
+        <Description>
+          Voxxy is an AI-powered customer feedback platform designed to make gathering insights from your customers easy, engaging, and actionable.
+          Using advanced conversational AI, Voxxy conducts natural, interactive interviews with your customers, giving you access to deeper, more meaningful
+          feedback than traditional surveys can provide.
+        </Description>
+      </InfoSection>
+    </>
+  );
 };
 
 export default InfoComponent;

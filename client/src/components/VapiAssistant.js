@@ -1,16 +1,10 @@
 // src/components/VapiAssistant.js
 import React, { useState, useEffect } from "react";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import Vapi from "@vapi-ai/web";
-import { Button } from "antd"; // Importing Ant Design button for styling consistency
+import { Button } from "antd";
 
 export const vapi = new Vapi("0473382d-b20e-43b2-afbe-cf8f9bf7f9e6");
-
-// Global style for fonts
-const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
-  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
-`;
 
 const AssistantContainer = styled.div`
   display: flex;
@@ -19,7 +13,7 @@ const AssistantContainer = styled.div`
   justify-content: center;
   text-align: center;
   height: 80vh;
-  background: linear-gradient(135deg, #6a0dad, #9b19f5);
+  background: linear-gradient(135deg, #7F31D9, #431A73);
   color: white;
   padding: 0 20px;
 
@@ -29,23 +23,25 @@ const AssistantContainer = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 5rem;
-  font-weight: 600;
-  font-family: 'Caveat', cursive;
+  font-family: "Unbounded", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400; /* Adjust the weight to your preference */
+  font-size: 3rem;
   line-height: 1.2;
-  margin-bottom: 1rem;
 
   @media (max-width: 768px) {
-    font-size: 4rem;
+    font-size: 2.5rem;
   }
 `;
 
 const Message = styled.p`
+  font-family: "Unbounded", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400; /* Use lighter weight for body text */
   font-size: 1.8rem;
   margin-bottom: 20px;
   max-width: 750px;
   line-height: 1.6;
-  font-family: 'Roboto', sans-serif;
 
   @media (max-width: 768px) {
     font-size: 1.4rem;
@@ -70,6 +66,7 @@ const StyledButton = styled(Button)`
 const LoadingText = styled.i`
   font-size: 1.2rem;
   color: white;
+  font-family: 'Unbounded', sans-serif;
 `;
 
 export default function VapiAssistant() {
@@ -100,7 +97,6 @@ export default function VapiAssistant() {
 
   return (
     <>
-      <GlobalStyle />
       <AssistantContainer>
         <Title>Try our Voxxy Demo now</Title>
         <Message>

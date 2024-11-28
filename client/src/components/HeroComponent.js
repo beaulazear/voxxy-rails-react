@@ -1,11 +1,9 @@
 import React from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 import { Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
-const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
-`;
+// Removed GlobalStyle since fonts are now globally applied via index.html
 
 const HeroSection = styled.div`
   display: flex;
@@ -14,7 +12,7 @@ const HeroSection = styled.div`
   justify-content: center;
   text-align: center;
   height: 60vh;
-  background: linear-gradient(135deg, #6a0dad, #9b19f5);
+  background: linear-gradient(to right, #7F31D9 0%, #431A73 100%);
   color: white;
   padding: 0 20px;
 
@@ -24,22 +22,23 @@ const HeroSection = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 5rem; // Increased font size for more emphasis
-  font-weight: 600;
-  font-family: 'Caveat', cursive;
-  line-height: 1.2; // Added line spacing for better readability
+  font-size: 3rem; /* Adjusted font size for better emphasis */
+  font-weight: 400; /* Adjust weight as needed for desired thickness */
+  font-family: 'Unbounded', sans-serif; /* Ensure Unbounded is applied */
+  line-height: 1.2;
 
   @media (max-width: 768px) {
-    font-size: 4rem;
+    font-size: 2.5rem;
   }
 `;
 
 const Subtitle = styled.p`
-margin-top 10px;
+  margin-top: 10px;
   font-size: 1.8rem;
   margin-bottom: 20px;
   max-width: 750px;
-  line-height: 1.6; // Added more line spacing for improved readability
+  line-height: 1.6;
+  font-family: 'Unbounded', sans-serif; /* Consistent font usage */
 
   @media (max-width: 768px) {
     font-size: 1.4rem;
@@ -69,14 +68,11 @@ const HeroComponent = () => {
   };
 
   return (
-    <>
-      <GlobalStyle />
-      <HeroSection>
-        <Title>Hello Voxxy!</Title>
-        <Subtitle>Understand your customers like never before with conversational, AI-powered feedback.</Subtitle>
-        <StyledButton onClick={handleButtonClick}>Join Our Waitlist</StyledButton>
-      </HeroSection>
-    </>
+    <HeroSection>
+      <Title>Hello Voxxy!</Title>
+      <Subtitle>Understand your customers like never before with conversational, AI-powered feedback.</Subtitle>
+      <StyledButton onClick={handleButtonClick}>Join Our Waitlist</StyledButton>
+    </HeroSection>
   );
 };
 

@@ -23,14 +23,12 @@ const AssistantContainer = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 5rem;
-  font-weight: 600;
-  font-family: 'Caveat', cursive;
+  font-family: "Unbounded", sans-serif;
+  font-weight: 400;
+  font-size: 3rem;
   line-height: 1.2;
-  margin-bottom: 1rem;
-
   @media (max-width: 768px) {
-    font-size: 3rem;
+    font-size: 2.5rem;
   }
 `;
 
@@ -122,10 +120,9 @@ export default function VapiAssistant() {
         )}
       </AssistantContainer>
 
-      {/* Initial Modal */}
       <Modal
         title="Get ready to share your feedback with Voxxy"
-        visible={initialModalVisible}
+        open={initialModalVisible} // Updated from 'visible' to 'open'
         onCancel={() => setInitialModalVisible(false)}
         footer={[
           <Button key="learn" onClick={() => navigate('/')}>
@@ -142,7 +139,7 @@ export default function VapiAssistant() {
       {/* End Modal */}
       <Modal
         title="Thank you for your feedback!"
-        visible={endModalVisible}
+        open={endModalVisible} // Updated from 'visible' to 'open'
         onCancel={() => setEndModalVisible(false)}
         footer={[
           <Button key="home" onClick={() => window.location.href = '/'}>
