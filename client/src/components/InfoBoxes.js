@@ -37,6 +37,7 @@ const InfoBox = styled.div`
 const InfoTitle = styled.h3`
   font-size: 18px;
   font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
   color: #333;
   margin-bottom: 10px;
 `;
@@ -45,6 +46,7 @@ const InfoDescription = styled.p`
   font-size: 18px;
   color: #555;
   line-height: 1.6;
+  font-family: 'Roboto', sans-serif;
 `;
 
 const InfoBoxes = () => {

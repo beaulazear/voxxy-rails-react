@@ -37,7 +37,7 @@ const ActiveMessage = styled.p`
   margin-top: 20px;
   max-width: 800px;
   line-height: 1.6;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Montserrat', sans-serif;
 
   @media (max-width: 768px) {
     font-size: 1.1rem;

@@ -40,6 +40,7 @@ const Message = styled.p`
   margin-bottom: 20px;
   max-width: 750px;
   line-height: 1.6;
+  font-family: 'Montserrat', sans-serif;
 
   @media (max-width: 768px) {
     font-size: 1.4rem;

@@ -37,7 +37,7 @@ const Message = styled.p`
   margin: 20px 0;
   max-width: 750px;
   line-height: 1.6;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Montserrat', sans-serif;
 
   @media (max-width: 768px) {
     font-size: 1.2rem;
