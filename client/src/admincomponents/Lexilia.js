@@ -120,7 +120,7 @@ export default function VapiAssistant() {
                 )}
             </AssistantContainer>
 
-            <Modal
+          {/*  <Modal
                 title="Get ready to share your feedback with Voxxy"
                 open={initialModalVisible} // Updated from 'visible' to 'open'
                 onCancel={() => setInitialModalVisible(false)}
@@ -135,7 +135,7 @@ export default function VapiAssistant() {
             >
                 <p>This is a space to share your spoken feedback with a conversational agent. Only a text transcript will be recorded, with no audio saved.</p>
             </Modal>
-
+            */}
             {/* End Modal */}
             <Modal
                 title="Thank you for your feedback!"
