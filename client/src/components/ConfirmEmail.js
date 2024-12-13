@@ -1,6 +1,7 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { Button, message } from "antd";
+import { Button, message, Spin } from "antd";
 import { UserContext } from "../context/user";
 
 const ConfirmSection = styled.div`
@@ -58,50 +59,66 @@ const StyledButton = styled(Button)`
 `;
 
 const ConfirmEmail = () => {
-    const { user } = useContext(UserContext);
-    const [isSending, setIsSending] = useState(false);
+  const { user, loading } = useContext(UserContext);
+  const navigate = useNavigate();
+  const [isSending, setIsSending] = useState(false);
 
-    if (!user) {
-        return <p>Loading...</p>; // Handle case where user data is not yet loaded
+  // Redirect logic based on user state
+  useEffect(() => {
+    if (!loading) {
+      if (!user) {
+        navigate("/login"); // Redirect unauthenticated users to login
+      } else if (user.confirmed_at) {
+        navigate("/"); // Redirect confirmed users to homepage
+      }
     }
+  }, [user, loading, navigate]);
 
-    const handleResend = () => {
-        setIsSending(true);
+  const handleResend = () => {
+    setIsSending(true);
 
-        const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+    const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
-        fetch(`${API_URL}/resend_verification`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: user.email }),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.message) {
-                    message.success(data.message);
-                } else {
-                    message.error(data.error || "Failed to resend verification email.");
-                }
-            })
-            .catch(() => {
-                message.error("An error occurred. Please try again.");
-            })
-            .finally(() => {
-                setIsSending(false);
-            });
-    };
+    fetch(`${API_URL}/resend_verification`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: user.email }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.message) {
+          message.success(data.message);
+        } else {
+          message.error(data.error || "Failed to resend verification email.");
+        }
+      })
+      .catch(() => {
+        message.error("An error occurred. Please try again.");
+      })
+      .finally(() => {
+        setIsSending(false);
+      });
+  };
 
+  if (loading) {
     return (
-        <ConfirmSection>
-            <Title>Email Not Verified</Title>
-            <Message>
-                Please check your email and verify your account to access this section. If you haven't received an email, click the button below to resend it.
-            </Message>
-            <StyledButton onClick={handleResend} disabled={isSending}>
-                {isSending ? "Sending..." : "Resend Verification Email"}
-            </StyledButton>
-        </ConfirmSection>
+      <div style={{ textAlign: "center", marginTop: "50px" }}>
+        <Spin size="large" />
+      </div>
     );
+  }
+
+  return (
+    <ConfirmSection>
+      <Title>Email Not Verified</Title>
+      <Message>
+        Please check your email and verify your account to access this section. If you haven't received an email, click the button below to resend it.
+      </Message>
+      <StyledButton onClick={handleResend} disabled={isSending}>
+        {isSending ? "Sending..." : "Resend Verification Email"}
+      </StyledButton>
+    </ConfirmSection>
+  );
 };
 
 export default ConfirmEmail;
