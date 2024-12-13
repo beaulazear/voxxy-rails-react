@@ -50,6 +50,19 @@ const SubmitButton = styled.button`
   }
 `;
 
+const ErrorList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+  color: #d32f2f;
+  font-size: 0.9rem;
+  font-family: 'Roboto', sans-serif;
+`;
+
+const ErrorItem = styled.li`
+  margin-bottom: 0.5rem;
+`;
+
 const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -79,81 +92,96 @@ const SubHeading = styled.p`
 `;
 
 const SignUp = () => {
-    const [name, setName] = useState('');
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const { setUser } = useContext(UserContext);
-    const navigate = useNavigate();
+  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState([]);
+  const { setUser } = useContext(UserContext);
+  const navigate = useNavigate();
 
-    const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const userData = { user: { name, username, email, password } };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const userData = { user: { name, username, email, password } };
 
-        fetch(`${API_URL}/users`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify(userData),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                console.log('Success:', data);
-                setUser(data);
-                navigate('/');
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-    };
+    fetch(`${API_URL}/users`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(userData),
+    })
+      .then(async (response) => {
+        const data = await response.json();
+        if (response.ok) {
+          setUser(data);
+          navigate('/');
+        } else {
+          // Collect error messages into an array
+          const errorMessages = Object.entries(data.errors || {}).flatMap(([field, messages]) =>
+            messages.map((message) => `${message}`)
+          );
+          setErrors(errorMessages);
+        }
+      })
+      .catch(() => {
+        setErrors(['An unexpected error occurred. Please try again.']);
+      });
+  };
 
-    return (
-        <>
-            <FormContainer>
-                <Heading>Sign Up for Your Account</Heading>
-                <SubHeading>
-                    Create your account to access personalized features and manage your profile.
-                </SubHeading>
-            </FormContainer>
-            <Container>
-                <Form onSubmit={handleSubmit}>
-                    <Input
-                        type="text"
-                        placeholder="Enter your name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                    />
-                    <Input
-                        type="text"
-                        placeholder="Enter your username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                    />
-                    <Input
-                        type="email"
-                        placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                    <Input
-                        type="password"
-                        placeholder="Enter your password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                    <SubmitButton type="submit">Sign Up</SubmitButton>
-                </Form>
-            </Container>
-        </>
-    );
+  return (
+    <>
+      <FormContainer>
+        <Heading>Sign Up for Your Account</Heading>
+        <SubHeading>
+          Create your account to access personalized features and manage your profile.
+        </SubHeading>
+      </FormContainer>
+      <Container>
+        <Form onSubmit={handleSubmit}>
+          <Input
+            type="text"
+            placeholder="Enter your name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+          <Input
+            type="text"
+            placeholder="Enter your username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+          <Input
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <Input
+            type="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <SubmitButton type="submit">Sign Up</SubmitButton>
+        </Form>
+        {errors.length > 0 && (
+          <ErrorList>
+            {errors.map((error, index) => (
+              <ErrorItem key={index}>{error}</ErrorItem>
+            ))}
+          </ErrorList>
+        )}
+      </Container>
+    </>
+  );
 };
 
 export default SignUp;

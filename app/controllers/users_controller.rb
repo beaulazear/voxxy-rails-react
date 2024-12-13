@@ -7,7 +7,7 @@ class UsersController < ApplicationController
       EmailVerificationService.send_verification_email(user)
       render json: { message: 'User created. Please check your email to verify your account.' }, status: :created
     else
-      render json: user.errors.full_messages, status: :unprocessable_entity
+      render json: { errors: user.errors.to_hash(true) }, status: :unprocessable_entity
     end
   end
 
