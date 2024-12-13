@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_08_222116) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_07_200957) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -21,6 +21,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_08_222116) do
     t.string "username"
     t.string "email"
     t.string "password_digest"
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
   end
 
   create_table "waitlists", force: :cascade do |t|

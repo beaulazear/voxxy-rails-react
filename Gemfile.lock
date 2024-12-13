@@ -101,6 +101,10 @@ GEM
     debug (1.9.2)
       irb (~> 1.10)
       reline (>= 0.3.8)
+    dotenv (3.1.4)
+    dotenv-rails (3.1.4)
+      dotenv (= 3.1.4)
+      railties (>= 6.1)
     drb (2.2.1)
     erubi (1.13.0)
     globalid (1.2.1)
@@ -236,6 +240,7 @@ GEM
       rubocop-performance
       rubocop-rails
     ruby-progressbar (1.13.0)
+    ruby_http_client (3.5.5)
     rubyzip (2.3.2)
     securerandom (0.3.1)
     selenium-webdriver (4.26.0)
@@ -244,6 +249,8 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
+    sendgrid-ruby (6.7.0)
+      ruby_http_client (~> 3.4)
     sprockets (4.2.1)
       concurrent-ruby (~> 1.0)
       rack (>= 2.2.4, < 4)
@@ -287,6 +294,7 @@ DEPENDENCIES
   brakeman
   capybara
   debug
+  dotenv-rails
   importmap-rails
   jbuilder
   pg (~> 1.1)
@@ -295,6 +303,7 @@ DEPENDENCIES
   rails (~> 7.2.2)
   rubocop-rails-omakase
   selenium-webdriver
+  sendgrid-ruby (~> 6.7.0)
   sprockets-rails
   stimulus-rails
   turbo-rails

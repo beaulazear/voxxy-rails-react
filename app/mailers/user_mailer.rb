@@ -1,0 +1,9 @@
+class UserMailer < ApplicationMailer
+  default from: 'team@voxxyai.com'
+
+  def verification_email(user)
+    @user = user
+    @verification_link = "#{Rails.application.config.action_mailer.default_url_options[:host]}/verify?token=#{user.confirmation_token}"
+    mail(to: @user.email, subject: 'Verify Your Email Address')
+  end
+end

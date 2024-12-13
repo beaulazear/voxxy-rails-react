@@ -1,40 +1,81 @@
 import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { UserContext } from '../context/user';
-import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
-  max-width: 400px;
-  margin: auto;
-  padding: 30px;
-  background: #ffffff;
+  max-width: 450px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fafafa;
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  font-family: 'Roboto', sans-serif;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
+  margin-bottom: 1.5rem;
 `;
 
 const Input = styled.input`
-  margin-bottom: 15px;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 0.75rem;
+  margin-top: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: #666;
+    outline: none;
+  }
 `;
 
-const Button = styled.button`
-  padding: 12px;
+const SubmitButton = styled.button`
+  margin-top: 1.5rem;
+  padding: 0.75rem;
+  font-size: 1rem;
+  color: #fff;
+  background-color: #4b0082;
   border: none;
-  border-radius: 5px;
-  background: #007bff;
-  color: white;
+  border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.3s;
 
   &:hover {
-    background: #0056b3;
+    background-color: #6a1ab1;
   }
+`;
+
+const FormContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+
+  @media (min-width: 600px) {
+    padding: 3rem;
+  }
+`;
+
+const Heading = styled.h2`
+  font-size: 2rem;
+  font-family: 'Unbounded', sans-serif;
+  color: #4b0082;
+  margin-bottom: 1.5rem;
+  font-weight: 400;
+`;
+
+const SubHeading = styled.p`
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: #555;
+  line-height: 1.5;
 `;
 
 const SignUp = () => {
@@ -42,11 +83,10 @@ const SignUp = () => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const { setUser } = useContext(UserContext);
+    const navigate = useNavigate();
 
-    const { setUser } = useContext(UserContext)
-    const navigate = useNavigate()
-
-    const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001"; // Add this line at the top
+    const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -63,8 +103,8 @@ const SignUp = () => {
             .then((response) => response.json())
             .then((data) => {
                 console.log('Success:', data);
-                setUser(data)
-                navigate('/')
+                setUser(data);
+                navigate('/');
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -72,40 +112,47 @@ const SignUp = () => {
     };
 
     return (
-        <Container>
-            <h2>Sign Up</h2>
-            <Form onSubmit={handleSubmit}>
-                <Input
-                    type="text"
-                    placeholder="Enter your name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                />
-                <Input
-                    type="text"
-                    placeholder="Enter your username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                />
-                <Input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
-                <Input
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
-                <Button type="submit">Sign Up</Button>
-            </Form>
-        </Container>
+        <>
+            <FormContainer>
+                <Heading>Sign Up for Your Account</Heading>
+                <SubHeading>
+                    Create your account to access personalized features and manage your profile.
+                </SubHeading>
+            </FormContainer>
+            <Container>
+                <Form onSubmit={handleSubmit}>
+                    <Input
+                        type="text"
+                        placeholder="Enter your name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                    />
+                    <Input
+                        type="text"
+                        placeholder="Enter your username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                    />
+                    <Input
+                        type="email"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                    <Input
+                        type="password"
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                    <SubmitButton type="submit">Sign Up</SubmitButton>
+                </Form>
+            </Container>
+        </>
     );
 };
 

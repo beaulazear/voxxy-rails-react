@@ -134,7 +134,7 @@ const Navbar = () => {
         {!user && (
           <>
             <StyledButton>
-              <NavLink to="/waitlist" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
+              <NavLink to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
             </StyledButton>
             <StyledButton>
               <NavLink to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>Log In</NavLink>
@@ -172,7 +172,7 @@ const Navbar = () => {
           <>
             <DrawerMenuItem>
               <StyledButton onClick={closeDrawer}>
-                <NavLink to="/waitlist" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
+                <NavLink to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
               </StyledButton>
             </DrawerMenuItem>
             <DrawerMenuItem>

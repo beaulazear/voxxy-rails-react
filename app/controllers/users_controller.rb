@@ -1,41 +1,66 @@
 class UsersController < ApplicationController
-    before_action :current_user
+  skip_before_action :authorized, only: [:create, :verify, :index, :resend_verification]
 
-    skip_before_action :authorized, only: [:create, :index]
-
-    def index
-      users = User.all
-      render json: users
-    end
-  
-    def create
-      user = User.create(user_params)
-      if user.valid?
-        render json: user, status: :created
-      else
-        render json: user.errors, status: :unprocessable_entity
-      end
-    end
-  
-    def destroy
-      user = User.find(params[:id])
-      user.destroy
-      head :no_content
-    end
-
-    def show
-      Rails.logger.info("Session user_id in #show action: #{session[:user_id]}")
-      user = User.find_by(id: session[:user_id]) # Manually load user based on session[:user_id]
-      if user
-        render json: user
-      else
-        render json: { error: "Not authorized" }, status: :unauthorized
-      end
-    end
-  
-    private
-  
-    def user_params
-      params.require(:user).permit(:name, :username, :email, :password)
+  def create
+    user = User.new(user_params)
+    if user.save
+      EmailVerificationService.send_verification_email(user)
+      render json: { message: 'User created. Please check your email to verify your account.' }, status: :created
+    else
+      render json: user.errors.full_messages, status: :unprocessable_entity
     end
   end
+
+  def show
+    user = @current_user
+    if user
+        render json: user
+    else
+        render json: { error: "Not authorized" }, status: :unauthorized
+    end
+  end
+
+  def index
+    users = User.all
+    if users
+      render json: users
+    else
+      render json: 'not found'
+    end
+  end
+
+  def verify
+    user = User.find_by(confirmation_token: params[:token])
+
+    if user&.verify!
+      # Redirect to React frontend with token as a query parameter
+      redirect_to "#{frontend_host}#/verification"
+    else
+      redirect_to "#{frontend_host}"
+    end
+  end
+
+  def resend_verification
+    user = User.find_by(email: params[:email])
+
+    if user
+      if user.confirmed_at.nil?
+        user.update(confirmation_token: SecureRandom.hex(10)) # Generate a new token
+        EmailVerificationService.send_verification_email(user)
+        render json: { message: "Verification email has been resent." }, status: :ok
+      else
+        render json: { message: "Your email is already verified." }, status: :unprocessable_entity
+      end
+    else
+      render json: { error: "User not found." }, status: :not_found
+    end
+  rescue StandardError => e
+    render json: { error: "An error occurred: #{e.message}" }, status: :internal_server_error
+  end
+
+  private
+
+  def user_params
+    params.require(:user).permit(:name, :username, :email, :password)
+  end
+end

@@ -10,4 +10,15 @@ class ApplicationController < ActionController::API
   def current_user
     @current_user = User.find_by(id: session[:user_id])
   end
+
+  private
+
+  def frontend_host
+    if Rails.env.production?
+      "https://www.voxxyai.com/"
+    else
+      "http://localhost:3000/"
+    end
+  end
+
 end
