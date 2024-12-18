@@ -81,16 +81,16 @@ Rails.application.configure do
   # Action Mailer configuration for SendGrid
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    user_name: 'apikey', # Use 'apikey' as the username
-    password: ENV['VoxxyKeyAPI'], # Use your environment variable
-    domain: 'voxxyai.com', # Your verified domain
-    address: 'smtp.sendgrid.net',
+    user_name: "apikey", # Use 'apikey' as the username
+    password: ENV["VoxxyKeyAPI"], # Use your environment variable
+    domain: "voxxyai.com", # Your verified domain
+    address: "smtp.sendgrid.net",
     port: 587,
     authentication: :plain,
     enable_starttls_auto: true
   }
-  
-  config.action_mailer.default_url_options = { host: 'voxxyai.com', protocol: 'https' }
+
+  config.action_mailer.default_url_options = { host: "voxxyai.com", protocol: "https" }
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false

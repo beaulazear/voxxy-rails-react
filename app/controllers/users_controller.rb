@@ -1,11 +1,11 @@
 class UsersController < ApplicationController
-  skip_before_action :authorized, only: [:create, :verify, :index, :resend_verification]
+  skip_before_action :authorized, only: [ :create, :verify, :index, :resend_verification ]
 
   def create
     user = User.new(user_params)
     if user.save
       EmailVerificationService.send_verification_email(user)
-      render json: { message: 'User created. Please check your email to verify your account.' }, status: :created
+      render json: { message: "User created. Please check your email to verify your account." }, status: :created
     else
       render json: { errors: user.errors.to_hash(true) }, status: :unprocessable_entity
     end
@@ -25,7 +25,7 @@ class UsersController < ApplicationController
     if users
       render json: users
     else
-      render json: 'not found'
+      render json: "not found"
     end
   end
 

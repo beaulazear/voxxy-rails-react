@@ -5,7 +5,7 @@ class WaitlistsController < ApplicationController
         waitlist = Waitlist.new(waitlist_params)
         if waitlist.save
             render json: waitlist, status: :created
-        else 
+        else
             render json: { errors: waitlist.errors.full_messages }, status: :unprocessable_entity
         end
     end
@@ -19,7 +19,7 @@ class WaitlistsController < ApplicationController
         waitlist = Waitlist.find_by(id: params[:id])
         if waitlist
             waitlist.destroy
-            render json: waitlist 
+            render json: waitlist
         else
             render json: { error: "waitlist not found" }, status: :not_found
         end

@@ -8,7 +8,7 @@ module VoxxyRails
     config.api_only = false
 
     # Configure the session store with cross-origin support and secure settings for production
-    config.session_store :cookie_store, key: '_session_id', same_site: :none, secure: Rails.env.production?
+    config.session_store :cookie_store, key: "_session_id", same_site: :none, secure: Rails.env.production?
 
     # Add cookies and session middleware
     config.middleware.use ActionDispatch::Cookies
@@ -20,10 +20,10 @@ module VoxxyRails
     # CORS configuration for development and production
     config.middleware.insert_before 0, Rack::Cors do
       allow do
-        origins 'http://localhost:3000', 'https://www.voxxyai.com' # Frontend URLs
-        resource '*',
+        origins "http://localhost:3000", "https://www.voxxyai.com" # Frontend URLs
+        resource "*",
           headers: :any,
-          methods: [:get, :post, :put, :patch, :delete, :options, :head],
+          methods: [ :get, :post, :put, :patch, :delete, :options, :head ],
           credentials: true # Ensure cookies are included for cross-origin requests
       end
     end

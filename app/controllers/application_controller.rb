@@ -4,7 +4,7 @@ class ApplicationController < ActionController::API
   before_action :authorized
 
   def authorized
-    render json: { error: 'Not authorized' }, status: :unauthorized unless session.include?(:user_id)
+    render json: { error: "Not authorized" }, status: :unauthorized unless session.include?(:user_id)
   end
 
   def current_user
@@ -20,5 +20,4 @@ class ApplicationController < ActionController::API
       "http://localhost:3000/"
     end
   end
-
 end
