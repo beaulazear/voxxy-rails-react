@@ -107,6 +107,15 @@ GEM
       railties (>= 6.1)
     drb (2.2.1)
     erubi (1.13.0)
+    event_stream_parser (1.0.0)
+    faraday (2.12.2)
+      faraday-net_http (>= 2.0, < 3.5)
+      json
+      logger
+    faraday-multipart (1.1.0)
+      multipart-post (~> 2.0)
+    faraday-net_http (3.4.0)
+      net-http (>= 0.5.0)
     globalid (1.2.1)
       activesupport (>= 6.1)
     i18n (1.14.6)
@@ -138,6 +147,9 @@ GEM
     mini_mime (1.1.5)
     minitest (5.25.1)
     msgpack (1.7.3)
+    multipart-post (2.4.1)
+    net-http (0.6.0)
+      uri
     net-imap (0.5.0)
       date
       net-protocol
@@ -239,6 +251,10 @@ GEM
       rubocop-minitest
       rubocop-performance
       rubocop-rails
+    ruby-openai (7.3.1)
+      event_stream_parser (>= 0.3.0, < 2.0.0)
+      faraday (>= 1)
+      faraday-multipart (>= 1)
     ruby-progressbar (1.13.0)
     ruby_http_client (3.5.5)
     rubyzip (2.3.2)
@@ -269,6 +285,7 @@ GEM
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.6.0)
+    uri (1.0.2)
     useragent (0.16.10)
     web-console (4.2.1)
       actionview (>= 6.0.0)
@@ -302,6 +319,7 @@ DEPENDENCIES
   rack-cors
   rails (~> 7.2.2)
   rubocop-rails-omakase
+  ruby-openai
   selenium-webdriver
   sendgrid-ruby (~> 6.7.0)
   sprockets-rails

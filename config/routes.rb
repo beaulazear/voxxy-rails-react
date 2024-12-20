@@ -9,6 +9,8 @@ Rails.application.routes.draw do
   delete "logout", to: "sessions#destroy"
   get "/me", to: "users#show"
 
+  post "/api/openai/haiku", to: "openai#generate_haiku"
+
   get "up" => "rails/health#show", as: :rails_health_check
 
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker

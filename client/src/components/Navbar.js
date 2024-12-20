@@ -122,7 +122,7 @@ const Navbar = () => {
       <Logo>V</Logo>
       <MenuContainer>
         <MenuItem to="/" end>Home</MenuItem>
-        <MenuItem to="/waitlist">Waitlist</MenuItem>
+        <MenuItem to="/waitlist">OpenAI</MenuItem>
         {user && (
           <StyledButton onClick={handleLogout}>
             <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
@@ -154,7 +154,7 @@ const Navbar = () => {
           <NavLink to="/" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Home</NavLink>
         </DrawerMenuItem>
         <DrawerMenuItem>
-          <NavLink to="/waitlist" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Waitlist</NavLink>
+          <NavLink to="/waitlist" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>OpenAI</NavLink>
         </DrawerMenuItem>
         <DrawerMenuItem>
           <StyledButton onClick={closeDrawer}>
