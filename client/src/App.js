@@ -9,9 +9,8 @@ import WaitlistPage from './components/WaitlistPage';
 import InfoPage from './components/InfoPage';
 import SignUp from './components/SignUp.js';
 import Login from './components/Login';
-import AdminWaitlist from './admincomponents/AdminWaitlist';
+import TripPlanner from './admincomponents/TripPlanner.js';
 import LoadingScreen from './components/LoadingScreen';
-import WelcomeComponent from './admincomponents/WelcomeComponent.js';
 import UserFooter from './admincomponents/UserFooter.js';
 import Verification from './components/Verification.js';
 import ConfirmEmail from './components/ConfirmEmail.js';
@@ -40,8 +39,8 @@ function App() {
             <>
               <Navbar />
               <Routes>
-                <Route path="/" element={<WelcomeComponent />} />
-                <Route path="/waitlist" element={<AdminWaitlist />} />
+                <Route path="/" element={<TripPlanner />} />
+                <Route path="/waitlist" element={<WaitlistPage />} />
                 <Route path="/verification" element={<Verification />} />
                 <Route path="/confirm-email" element={<ConfirmEmail />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
