@@ -15,9 +15,6 @@ import LoadingScreen from './components/LoadingScreen';
 import WelcomeComponent from './admincomponents/WelcomeComponent.js';
 import UserFooter from './admincomponents/UserFooter.js';
 import Verification from './components/Verification.js';
-import Steph from './admincomponents/Steph.js';
-import SkiTrip from './admincomponents/SkiTrip.js';
-import Lexilia from './admincomponents/Lexilia.js';
 import ConfirmEmail from './components/ConfirmEmail.js';
 
 function App() {
@@ -49,9 +46,6 @@ function App() {
                 <Route path="/demo" element={<VapiAssistant />} />
                 <Route path="/verification" element={<Verification />} />
                 <Route path="/confirm-email" element={<ConfirmEmail />} />
-                <Route path="/64a0203a922a52f49ba0c49f2e9b2d18" element={<Steph />} />
-                <Route path="/206a463a50a761f16ab4fe5c66076178" element={<SkiTrip />} />
-                <Route path="/7b3612ef799bce4c212e7888d68baeae" element={<Lexilia />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
               <UserFooter />
@@ -77,9 +71,6 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/verification" element={<Verification />} />
               <Route path="/confirm-email" element={<ConfirmEmail />} />
-              <Route path="/64a0203a922a52f49ba0c49f2e9b2d18" element={<Steph />} />
-              <Route path="/206a463a50a761f16ab4fe5c66076178" element={<SkiTrip />} />
-              <Route path="/7b3612ef799bce4c212e7888d68baeae" element={<Lexilia />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
             <Footer />
