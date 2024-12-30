@@ -128,9 +128,6 @@ const Navbar = () => {
             <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
           </StyledButton>
         )}
-        <StyledButton className="demo">
-          <NavLink to="/demo" style={{ color: 'inherit', textDecoration: 'none' }}>Demo</NavLink>
-        </StyledButton>
         {!user && (
           <>
             <StyledButton>
@@ -155,11 +152,6 @@ const Navbar = () => {
         </DrawerMenuItem>
         <DrawerMenuItem>
           <NavLink to="/waitlist" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>OpenAI</NavLink>
-        </DrawerMenuItem>
-        <DrawerMenuItem>
-          <StyledButton onClick={closeDrawer}>
-            <NavLink to="/demo" style={{ color: 'inherit', textDecoration: 'none' }}>Demo</NavLink>
-          </StyledButton>
         </DrawerMenuItem>
         {user && (
           <DrawerMenuItem>

@@ -6,7 +6,6 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './components/HomePage';
 import WaitlistPage from './components/WaitlistPage';
-import VapiAssistant from './components/VapiAssistant';
 import InfoPage from './components/InfoPage';
 import SignUp from './components/SignUp.js';
 import Login from './components/Login';
@@ -43,7 +42,6 @@ function App() {
               <Routes>
                 <Route path="/" element={<WelcomeComponent />} />
                 <Route path="/waitlist" element={<AdminWaitlist />} />
-                <Route path="/demo" element={<VapiAssistant />} />
                 <Route path="/verification" element={<Verification />} />
                 <Route path="/confirm-email" element={<ConfirmEmail />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
@@ -65,7 +63,6 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/waitlist" element={<WaitlistPage />} />
-              <Route path="/demo" element={<VapiAssistant />} />
               <Route path="/infopage" element={<InfoPage />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/login" element={<Login />} />
