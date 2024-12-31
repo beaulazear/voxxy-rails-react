@@ -50,6 +50,13 @@ const SubmitButton = styled.button`
   }
 `;
 
+const ErrorMessage = styled.div`
+  color: red;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+  text-align: center;
+`;
+
 const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -72,14 +79,17 @@ const Heading = styled.h2`
 `;
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState(''); // Renamed from username
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(''); // State for error message
   const { setUser } = useContext(UserContext);
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const sessionData = { username, password };
+    setError(''); // Clear previous errors
+
+    const sessionData = { email, password }; // Use email instead of username
 
     const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
@@ -93,7 +103,9 @@ const Login = () => {
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error('Invalid username or password');
+          return response.json().then((data) => {
+            throw new Error(data.error || 'Failed to log in');
+          });
         }
         return response.json();
       })
@@ -103,6 +115,7 @@ const Login = () => {
       })
       .catch((error) => {
         console.error('Error:', error);
+        setError(error.message); // Display error under form
       });
   };
 
@@ -114,10 +127,10 @@ const Login = () => {
       <Container>
         <Form onSubmit={handleSubmit}>
           <Input
-            type="text"
-            placeholder="Enter your username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
           <Input
@@ -128,6 +141,7 @@ const Login = () => {
             required
           />
           <SubmitButton type="submit">Log In</SubmitButton>
+          {error && <ErrorMessage>{error}</ErrorMessage>}
         </Form>
       </Container>
     </>
