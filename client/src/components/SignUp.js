@@ -120,11 +120,8 @@ const SignUp = () => {
           setUser(data);
           navigate('/');
         } else {
-          // Collect error messages into an array
-          const errorMessages = Object.entries(data.errors || {}).flatMap(([field, messages]) =>
-            messages.map((message) => `${message}`)
-          );
-          setErrors(errorMessages);
+          // Display errors as an array
+          setErrors(data.errors || ['An error occurred. Please try again.']);
         }
       })
       .catch(() => {
