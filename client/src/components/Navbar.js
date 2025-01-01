@@ -22,9 +22,12 @@ const NavbarContainer = styled.div`
 `;
 
 const Logo = styled.div`
-  font-size: 24px;
+  font-size: 28px;
   font-weight: bold;
-  color: purple;
+  background: linear-gradient(to right, #4f46e5, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 1px;
 `;
 
 const MenuContainer = styled.div`
@@ -119,7 +122,7 @@ const Navbar = () => {
 
   return (
     <NavbarContainer>
-      <Logo>V</Logo>
+      <Logo>VOXXY</Logo>
       <MenuContainer>
         <MenuItem to="/" end>Home</MenuItem>
         <MenuItem to="/waitlist">OpenAI</MenuItem>
