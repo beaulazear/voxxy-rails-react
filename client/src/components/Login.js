@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/user';
 import styled from 'styled-components';
 
-const Container = styled.div`
+const FormContainer = styled.div`
   max-width: 450px;
   margin: 2rem auto;
   padding: 2rem;
@@ -57,25 +57,28 @@ const ErrorMessage = styled.div`
   text-align: center;
 `;
 
-const FormContainer = styled.div`
+const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem;
+  justify-content: center;
   text-align: center;
-  font-family: 'Roboto', sans-serif;
-
-  @media (min-width: 600px) {
-    padding: 3rem;
-  }
+  width: 100%;
+  margin-top: 80px; /* Prevents content from overlapping navbar */
 `;
 
-const Heading = styled.h2`
-  font-size: 2rem;
-  font-family: 'Unbounded', san-serif;
-  color: #4b0082;
-  margin-bottom: 1.5rem;
-  font-weight: 400;
+const Heading = styled.h1`
+  font-size: 3rem;
+  font-weight: bold;
+  margin: 10px 0;
+  background: linear-gradient(to right, #6c63ff, #e942f5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 2.5rem;
+  }
 `;
 
 const Login = () => {
@@ -121,10 +124,10 @@ const Login = () => {
 
   return (
     <>
-      <FormContainer>
-        <Heading>Log in to access your account!</Heading>
-      </FormContainer>
       <Container>
+        <Heading>Log in to access your account!</Heading>
+      </Container>
+      <FormContainer>
         <Form onSubmit={handleSubmit}>
           <Input
             type="email"
@@ -143,7 +146,7 @@ const Login = () => {
           <SubmitButton type="submit">Log In</SubmitButton>
           {error && <ErrorMessage>{error}</ErrorMessage>}
         </Form>
-      </Container>
+      </FormContainer>
     </>
   );
 };

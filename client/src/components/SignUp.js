@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { UserContext } from '../context/user';
 
-const Container = styled.div`
+const FormContainer = styled.div`
   max-width: 450px;
   margin: 2rem auto;
   padding: 2rem;
@@ -63,25 +63,28 @@ const ErrorItem = styled.li`
   margin-bottom: 0.5rem;
 `;
 
-const FormContainer = styled.div`
+const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem;
+  justify-content: center;
   text-align: center;
-  font-family: 'Roboto', sans-serif;
-
-  @media (min-width: 600px) {
-    padding: 3rem;
-  }
+  width: 100%;
+  margin-top: 80px; /* Prevents content from overlapping navbar */
 `;
 
-const Heading = styled.h2`
-  font-size: 2rem;
-  font-family: 'Unbounded', sans-serif;
-  color: #4b0082;
-  margin-bottom: 1.5rem;
-  font-weight: 400;
+const Heading = styled.h1`
+  font-size: 3rem;
+  font-weight: bold;
+  margin: 10px 0;
+  background: linear-gradient(to right, #6c63ff, #e942f5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 2.5rem;
+  }
 `;
 
 const SubHeading = styled.p`
@@ -131,13 +134,13 @@ const SignUp = () => {
 
   return (
     <>
-      <FormContainer>
+      <Container>
         <Heading>Sign Up for Your Account</Heading>
         <SubHeading>
           Create your account to access personalized features and manage your profile.
         </SubHeading>
-      </FormContainer>
-      <Container>
+      </Container>
+      <FormContainer>
         <Form onSubmit={handleSubmit}>
           <Input
             type="text"
@@ -176,7 +179,7 @@ const SignUp = () => {
             ))}
           </ErrorList>
         )}
-      </Container>
+      </FormContainer>
     </>
   );
 };
