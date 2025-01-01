@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
-// 🌟 Benefits Container
 const BenefitsContainer = styled.section`
   display: grid;
   grid-template-columns: 1fr 2fr; 
@@ -51,6 +51,7 @@ const BenefitsDropdown = styled.div`
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  text-align: left;
 
   @media (max-width: 768px) {
     padding: 15px;
@@ -135,6 +136,8 @@ const Button = styled.button`
 // 🏠 **Benefits Component**
 function Benefits( user ) {
     const [activeIndex, setActiveIndex] = useState(null);
+
+    const navigate = useNavigate()
 
     const toggleDropdown = (index) => {
         setActiveIndex(activeIndex === index ? null : index);

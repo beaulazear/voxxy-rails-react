@@ -84,6 +84,7 @@ const Heading = styled.h1`
 
   @media (max-width: 768px) {
     font-size: 2.5rem;
+    padding: 15px;
   }
 `;
 
@@ -92,6 +93,7 @@ const SubHeading = styled.p`
   margin-bottom: 2rem;
   color: #555;
   line-height: 1.5;
+  padding: 15px;
 `;
 
 const SignUp = () => {

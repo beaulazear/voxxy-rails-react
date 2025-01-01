@@ -24,7 +24,7 @@ const NavbarContainer = styled.div`
 const Logo = styled.div`
   font-size: 28px;
   font-weight: bold;
-  background: linear-gradient(to right, #4f46e5, #ec4899);
+  background: linear-gradient(to right, #4f46e5, #4f46e5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: 1px;
