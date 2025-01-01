@@ -5,7 +5,13 @@ class UsersController < ApplicationController
     user = User.new(user_params)
     if user.save
       EmailVerificationService.send_verification_email(user)
-      render json: { message: "User created. Please check your email to verify your account." }, status: :created
+      render json: {
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        confirmed_at: user.confirmed_at
+      }, status: :created
     else
       render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
     end
@@ -41,20 +47,30 @@ class UsersController < ApplicationController
   end
 
   def resend_verification
+    Rails.logger.info "Resend Verification Params: #{params.inspect}"
+
     user = User.find_by(email: params[:email])
+    Rails.logger.info "Found User: #{user.inspect}" if user
 
     if user
       if user.confirmed_at.nil?
-        user.update(confirmation_token: SecureRandom.hex(10)) # Generate a new token
-        EmailVerificationService.send_verification_email(user)
-        render json: { message: "Verification email has been resent." }, status: :ok
+        if user.update_columns(confirmation_token: SecureRandom.hex(10))
+          Rails.logger.info "New confirmation token: #{user.confirmation_token}"
+          EmailVerificationService.send_verification_email(user)
+          render json: { message: "Verification email has been resent." }, status: :ok
+        else
+          Rails.logger.error "Failed to update confirmation token for user #{user.email}"
+          render json: { error: "Failed to generate a new verification token." }, status: :unprocessable_entity
+        end
       else
         render json: { message: "Your email is already verified." }, status: :unprocessable_entity
       end
     else
+      Rails.logger.error "User not found with email: #{params[:email]}"
       render json: { error: "User not found." }, status: :not_found
     end
   rescue StandardError => e
+    Rails.logger.error "Error in resend_verification: #{e.message}"
     render json: { error: "An error occurred: #{e.message}" }, status: :internal_server_error
   end
 

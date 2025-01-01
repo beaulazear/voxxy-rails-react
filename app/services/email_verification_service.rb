@@ -10,12 +10,18 @@ class EmailVerificationService
     from = SendGrid::Email.new(email: "team@voxxyai.com", name: "Voxxy Team")
     to = SendGrid::Email.new(email: user.email)
     subject = "Verify Your Email Address"
+
+    Rails.logger.info "User confirmation token: #{user.confirmation_token}"
+
     verification_link = URI::HTTP.build(
       host: Rails.application.config.action_mailer.default_url_options[:host],
       port: Rails.application.config.action_mailer.default_url_options[:port],
       path: "/verify",
       query: "token=#{user.confirmation_token}"
     ).to_s + "#/verify"
+
+    Rails.logger.info "Verification link: #{verification_link}"
+
     content = Content.new(
       type: "text/html",
       value: <<~HTML
