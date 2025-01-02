@@ -70,6 +70,7 @@ const PrimaryButton = styled.button`
   font-size: 1rem;
   font-weight: bold;
   border-radius: 5px;
+  width: 205px;
   border: none;
   cursor: pointer;
   background: linear-gradient(to right, #ff4d4d, #ff7878);
@@ -87,6 +88,7 @@ const SecondaryButton = styled.button`
   font-size: 1rem;
   font-weight: bold;
   border-radius: 5px;
+  width: 205px;
   border: none;
   cursor: pointer;
   background: linear-gradient(to right, #6c63ff, #e942f5);
