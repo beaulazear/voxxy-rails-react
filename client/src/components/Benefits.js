@@ -134,14 +134,18 @@ const Button = styled.button`
 `;
 
 // 🏠 **Benefits Component**
-function Benefits( user ) {
+function Benefits( ) {
     const [activeIndex, setActiveIndex] = useState(null);
 
     const navigate = useNavigate()
 
     const toggleDropdown = (index) => {
-        setActiveIndex(activeIndex === index ? null : index);
+      setActiveIndex(activeIndex === index ? null : index);
     };
+
+    const handleNavigate = () => {
+      navigate("/signup")
+    }
     
     return (
         <BenefitsContainer>
@@ -171,7 +175,7 @@ function Benefits( user ) {
                                 <li>Group polls and real-time voting.</li>
                                 <li>Seamless sharing and updates with everyone.</li>
                             </ul>
-                            <Button onClick={() => navigate("/signup")}>Start Planning</Button>
+                            <Button onClick={handleNavigate()}>Start Planning</Button>
                         </DropdownContent>
                     )}
                 </DropdownItem>

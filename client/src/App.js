@@ -5,8 +5,6 @@ import { UserContext } from "./context/user.js";
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './components/HomePage';
-import WaitlistPage from './components/WaitlistPage';
-import InfoPage from './components/InfoPage';
 import SignUp from './components/SignUp.js';
 import Login from './components/Login';
 import TripPlanner from './admincomponents/TripPlanner.js';
@@ -40,7 +38,6 @@ function App() {
               <Navbar />
               <Routes>
                 <Route path="/" element={<TripPlanner />} />
-                <Route path="/waitlist" element={<WaitlistPage />} />
                 <Route path="/verification" element={<Verification />} />
                 <Route path="/confirm-email" element={<ConfirmEmail />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
@@ -61,8 +58,6 @@ function App() {
             <Navbar />
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/waitlist" element={<WaitlistPage />} />
-              <Route path="/infopage" element={<InfoPage />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/login" element={<Login />} />
               <Route path="/verification" element={<Verification />} />
