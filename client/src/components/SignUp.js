@@ -101,6 +101,7 @@ const SignUp = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [errors, setErrors] = useState([]);
   const { setUser } = useContext(UserContext);
   const navigate = useNavigate();
@@ -109,7 +110,13 @@ const SignUp = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const userData = { user: { name, username, email, password } };
+
+    if (password !== passwordConfirmation) {
+      setErrors(['Passwords do not match']);
+      return;
+    }
+
+    const userData = { user: { name, username, email, password, password_confirmation: passwordConfirmation } };
 
     fetch(`${API_URL}/users`, {
       method: 'POST',
@@ -125,7 +132,6 @@ const SignUp = () => {
           setUser(data);
           navigate('/');
         } else {
-          // Display errors as an array
           setErrors(data.errors || ['An error occurred. Please try again.']);
         }
       })
@@ -170,6 +176,13 @@ const SignUp = () => {
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <Input
+            type="password"
+            placeholder="Confirm your password"
+            value={passwordConfirmation}
+            onChange={(e) => setPasswordConfirmation(e.target.value)}
             required
           />
           <SubmitButton type="submit">Sign Up</SubmitButton>
