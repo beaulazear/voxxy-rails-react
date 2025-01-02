@@ -66,11 +66,11 @@ const ButtonContainer = styled.div`
 `;
 
 const PrimaryButton = styled.button`
-  padding: 10px 20px;
+  padding: 10px;
   font-size: 1rem;
   font-weight: bold;
   border-radius: 5px;
-  width: 205px;
+  width: 210px;
   border: none;
   cursor: pointer;
   background: linear-gradient(to right, #ff4d4d, #ff7878);
@@ -84,11 +84,11 @@ const PrimaryButton = styled.button`
 `;
 
 const SecondaryButton = styled.button`
-  padding: 10px 20px;
+  padding: 10px;
   font-size: 1rem;
   font-weight: bold;
   border-radius: 5px;
-  width: 205px;
+  width: 210px;
   border: none;
   cursor: pointer;
   background: linear-gradient(to right, #6c63ff, #e942f5);
