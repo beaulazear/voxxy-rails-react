@@ -171,7 +171,7 @@ function Benefits( user ) {
                                 <li>Group polls and real-time voting.</li>
                                 <li>Seamless sharing and updates with everyone.</li>
                             </ul>
-                            <Button>Start Planning</Button>
+                            <Button onClick={() => navigate("/signup")}>Start Planning</Button>
                         </DropdownContent>
                     )}
                 </DropdownItem>
