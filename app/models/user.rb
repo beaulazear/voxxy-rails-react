@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   has_secure_password
+  has_many :activities, dependent: :destroy
 
   before_create :generate_confirmation_token
 

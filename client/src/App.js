@@ -12,6 +12,7 @@ import LoadingScreen from './components/LoadingScreen';
 import UserFooter from './admincomponents/UserFooter.js';
 import Verification from './components/Verification.js';
 import ConfirmEmail from './components/ConfirmEmail.js';
+import SkiTripChat from './admincomponents/SkiTripChat.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -38,6 +39,7 @@ function App() {
               <Navbar />
               <Routes>
                 <Route path="/" element={<TripPlanner />} />
+                <Route path="/ski-trip" element={<SkiTripChat />} />
                 <Route path="/verification" element={<Verification />} />
                 <Route path="/confirm-email" element={<ConfirmEmail />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
