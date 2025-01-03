@@ -63,7 +63,6 @@ const ConfirmEmail = () => {
   const navigate = useNavigate();
   const [isSending, setIsSending] = useState(false);
 
-  // Redirect logic based on user state
   useEffect(() => {
     if (!loading) {
       if (!user) {

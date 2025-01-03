@@ -124,7 +124,9 @@ const Navbar = () => {
     <NavbarContainer>
       <Logo>VOXXY</Logo>
       <MenuContainer>
-        <MenuItem to="/" end>Home</MenuItem>
+        <StyledButton>
+          <MenuItem to="/" end>Home</MenuItem>
+        </StyledButton>
         {user && (
           <>
             <StyledButton>

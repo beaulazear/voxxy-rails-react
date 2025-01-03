@@ -1,9 +1,7 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/user';
 
-// Styled Components
 const Hero = styled.div`
   height: clamp(30vh, 40vh, 50vh);
   display: flex;
@@ -100,7 +98,6 @@ const EmptyState = styled.div`
   margin-top: 50px;
 `;
 
-// Loading Screen
 const LoadingScreen = styled.div`
   position: fixed;
   top: 0;
@@ -142,60 +139,89 @@ const LoadingScreen = styled.div`
   }
 `;
 
-// Main Component
 function YourTrips() {
-    const { user } = useContext(UserContext);
-    const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate();
+  const { user, setUser } = useContext(UserContext);
+  const [isLoading, setIsLoading] = useState(false);
 
-    if (!user) {
-        return (
-            <LoadingScreen>
-                <h1>Loading User Data...</h1>
-            </LoadingScreen>
-        );
-    }
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
-    const handleTripClick = () => {
-        setIsLoading(true);
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 1000);
-    };
-
+  if (!user) {
     return (
-        <>
-            <Hero>
-                <h1>Your Trips with Voxxy</h1>
-                <p>
-                    Below are your current trips with Voxxy.
-                </p>
-            </Hero>
-            {user.activities && user.activities.length > 0 ? (
-                <TripSelection>
-                    {user.activities.map((activity) => (
-                        <TripCard key={activity.id} onClick={() => handleTripClick(activity)}>
-                            <img
-                                src={activity.image || '/assets/ski-trip-icon.png'}
-                                alt={activity.activity_name}
-                            />
-                            <h2>{activity.activity_name}</h2>
-                        </TripCard>
-                    ))}
-                </TripSelection>
-            ) : (
-                <EmptyState>
-                    No trips yet. Your planned activities will appear here once created!
-                </EmptyState>
-            )}
-            {isLoading && (
-                <LoadingScreen>
-                    <h1>Voxxy Loading...</h1>
-                    <p>Let's Map Out Your Next Adventure!</p>
-                </LoadingScreen>
-            )}
-        </>
+      <LoadingScreen>
+        <h1>Loading User Data...</h1>
+      </LoadingScreen>
     );
+  }
+
+  const handleTripClick = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  const handleDelete = (activityId) => {
+
+    fetch(`${API_URL}/activities/${activityId}`, {
+      method: 'DELETE',
+      credentials: 'include', // Ensure session is maintained
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((resp) => {
+        if (!resp.ok) {
+          throw new Error('Failed to delete activity');
+        }
+        return resp.json();
+      })
+      .then(() => {
+        setUser((prevUser) => ({
+          ...prevUser,
+          activities: prevUser.activities.filter(
+            (activity) => activity.id !== activityId
+          ),
+        }));
+      })
+      .catch((error) => {
+        console.error('Error deleting activity:', error);
+      });
+  };
+
+  return (
+    <>
+      <Hero>
+        <h1>Your Trips with Voxxy</h1>
+        <p>
+          Below are your current trips with Voxxy.
+        </p>
+      </Hero>
+      {user.activities && user.activities.length > 0 ? (
+        <TripSelection>
+          {user.activities.map((activity) => (
+            <TripCard key={activity.id} onClick={() => handleTripClick(activity)}>
+              <img
+                src={activity.image || '/assets/ski-trip-icon.png'}
+                alt={activity.activity_name}
+              />
+              <h2>{activity.activity_name}</h2>
+              <button onClick={() => handleDelete(activity.id)}>Delete</button>
+            </TripCard>
+          ))}
+        </TripSelection>
+      ) : (
+        <EmptyState>
+          No trips yet. Your planned activities will appear here once created!
+        </EmptyState>
+      )}
+      {isLoading && (
+        <LoadingScreen>
+          <h1>Voxxy Loading...</h1>
+          <p>Let's Map Out Your Next Adventure!</p>
+        </LoadingScreen>
+      )}
+    </>
+  );
 }
 
 export default YourTrips;

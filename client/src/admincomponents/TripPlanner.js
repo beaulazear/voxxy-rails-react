@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { UserContext } from '../context/user';
 import SkiTripChat from './SkiTripChat'; // Import SkiTripChat component
 
-// Styled Components remain unchanged
 const Hero = styled.div`
   height: clamp(30vh, 40vh, 50vh);
   display: flex;
@@ -104,6 +103,12 @@ const LoadingScreen = styled.div`
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
+
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 6vw;
+    }
+  }
 `;
 
 function TripPlanner() {
@@ -132,7 +137,6 @@ function TripPlanner() {
     }
   };
 
-  // Render SkiTripChat if Ski Trip is selected
   if (selectedTrip === 'Ski Trip') {
     return <SkiTripChat />;
   }

@@ -15,6 +15,16 @@ class ActivitiesController < ApplicationController
       render json: activities
     end
 
+    def destroy
+      activity = current_user.activities.find_by(id: params[:id])
+      if activity
+        activity.destroy
+        render json: { message: "Activity deleted" }, status: :ok
+      else
+        render json: { message: "Not Found" }, status: :not_found
+      end
+    end
+
     private
 
     def activity_params
