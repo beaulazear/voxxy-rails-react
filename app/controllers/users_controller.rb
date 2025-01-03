@@ -18,11 +18,18 @@ class UsersController < ApplicationController
   end
 
   def show
-    user = current_user
+    user = User.includes(:activities).find_by(id: current_user.id)
+
     if user
-        render json: user
+      render json: user.as_json(
+        include: {
+          activities: {
+            only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at ]
+          }
+        }
+      )
     else
-        render json: { error: "Not authorized" }, status: :unauthorized
+      render json: { error: "Not authorized" }, status: :unauthorized
     end
   end
 

@@ -126,9 +126,14 @@ const Navbar = () => {
       <MenuContainer>
         <MenuItem to="/" end>Home</MenuItem>
         {user && (
-          <StyledButton onClick={handleLogout}>
-            <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
-          </StyledButton>
+          <>
+            <StyledButton>
+              <NavLink to="/your-trips" style={{ color: 'inherit', textDecoration: 'none' }}>Your Trips</NavLink>
+            </StyledButton>
+            <StyledButton onClick={handleLogout}>
+              <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
+            </StyledButton>
+          </>
         )}
         {!user && (
           <>
@@ -150,14 +155,23 @@ const Navbar = () => {
         width={250}
       >
         <DrawerMenuItem>
-          <NavLink to="/" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Home</NavLink>
+          <StyledButton onClick={closeDrawer}>
+            <NavLink to="/" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Home</NavLink>
+          </StyledButton>
         </DrawerMenuItem>
         {user && (
-          <DrawerMenuItem>
-            <StyledButton onClick={handleLogout}>
-              <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
-            </StyledButton>
-          </DrawerMenuItem>
+          <>
+            <DrawerMenuItem>
+              <StyledButton onClick={closeDrawer}>
+                <NavLink to="/your-trips" style={{ color: 'inherit', textDecoration: 'none' }}>Trips</NavLink>
+              </StyledButton>
+            </DrawerMenuItem>
+            <DrawerMenuItem>
+              <StyledButton onClick={handleLogout}>
+                <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
+              </StyledButton>
+            </DrawerMenuItem>
+          </>
         )}
         {!user && (
           <>
