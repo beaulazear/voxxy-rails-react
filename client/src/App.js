@@ -13,6 +13,8 @@ import UserFooter from './admincomponents/UserFooter.js';
 import Verification from './components/Verification.js';
 import ConfirmEmail from './components/ConfirmEmail.js';
 import YourTrips from './admincomponents/YourTrips.js';
+import ForgotPassword from './components/ForgotPassword.js';
+import ResetPassword from './components/ResetPassword.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -20,7 +22,6 @@ function App() {
 
   useEffect(() => {
     if (!loading && user && !user.confirmed_at) {
-      // Redirect unconfirmed users to the ConfirmEmail page
       navigate("/confirm-email");
     }
   }, [loading, user, navigate]);
@@ -33,42 +34,38 @@ function App() {
       {loading ? (
         <LoadingScreen />
       ) : (
-        isLoggedIn ? (
-          isConfirmed ? (
-            <>
-              <Navbar />
-              <Routes>
-                <Route path="/" element={<TripPlanner />} />
-                <Route path="/your-trips" element={<YourTrips />} />
-                <Route path="/verification" element={<Verification />} />
-                <Route path="/confirm-email" element={<ConfirmEmail />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-              <UserFooter />
-            </>
-          ) : (
-            <>
-              <Navbar />
-              <Routes>
-                <Route path="/confirm-email" element={<ConfirmEmail />} />
-                <Route path="*" element={<Navigate to="/confirm-email" replace />} />
-              </Routes>
-            </>
-          )
-        ) : (
-          <>
-            <Navbar />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/verification" element={<Verification />} />
-              <Route path="/confirm-email" element={<ConfirmEmail />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-            <Footer />
-          </>
-        )
+        <>
+          <Navbar />
+          <Routes>
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route
+              path="/"
+              element={user ? <TripPlanner /> : <Home />}
+            />            
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/verification" element={<Verification />} />
+            {isLoggedIn && (
+              <>
+                {isConfirmed ? (
+                  <>
+                    <Route path="/your-trips" element={<YourTrips />} />
+                    <Route path="/verification" element={<Verification />} />
+                    <Route path="/confirm-email" element={<ConfirmEmail />} />
+                    <Route path="/" element={<TripPlanner />} />
+                  </>
+                ) : (
+                  <>
+                    <Route path="/confirm-email" element={<ConfirmEmail />} />
+                  </>
+                )}
+              </>
+            )}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+          {isLoggedIn ? <UserFooter /> : <Footer />}
+        </>
       )}
     </div>
   );

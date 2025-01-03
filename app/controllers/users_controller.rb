@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  skip_before_action :authorized, only: [ :create, :verify, :index, :resend_verification ]
+  skip_before_action :authorized, only: [ :create, :verify, :resend_verification ]
 
   def create
     user = User.new(user_params)
@@ -30,15 +30,6 @@ class UsersController < ApplicationController
       )
     else
       render json: { error: "Not authorized" }, status: :unauthorized
-    end
-  end
-
-  def index
-    users = User.all
-    if users
-      render json: users
-    else
-      render json: "not found"
     end
   end
 

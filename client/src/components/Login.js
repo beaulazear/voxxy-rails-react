@@ -147,6 +147,11 @@ const Login = () => {
           <SubmitButton type="submit">Log In</SubmitButton>
           {error && <ErrorMessage>{error}</ErrorMessage>}
         </Form>
+        <p>
+          <button onClick={() => navigate('/forgot-password')}>
+            Forgot Password?
+          </button>
+        </p>
       </FormContainer>
     </>
   );

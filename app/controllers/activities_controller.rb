@@ -10,11 +10,6 @@ class ActivitiesController < ApplicationController
       end
     end
 
-    def index
-      activities = Activity.all
-      render json: activities
-    end
-
     def destroy
       activity = current_user.activities.find_by(id: params[:id])
       if activity
