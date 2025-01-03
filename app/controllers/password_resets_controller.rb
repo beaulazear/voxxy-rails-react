@@ -16,9 +16,9 @@ class PasswordResetsController < ApplicationController
     def update
         Rails.logger.info "🔑 Received Token: #{params[:token]}"
         Rails.logger.info "🔑 Received Password: #{params[:password]}"
-    
+
         user = User.find_by(reset_password_token: params[:token])
-    
+
         if user && user.password_reset_token_valid?
           if params[:password].present?
             if user.update(password: params[:password], password_confirmation: params[:password])
