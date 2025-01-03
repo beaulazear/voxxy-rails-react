@@ -1,20 +1,21 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/user';
+import SkiTripChat from './SkiTripChat'; // Import SkiTripChat component
 
+// Styled Components remain unchanged
 const Hero = styled.div`
-  height: clamp(30vh, 40vh, 50vh); /* Smoothly adjusts height across devices */
+  height: clamp(30vh, 40vh, 50vh);
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly; /* Even spacing above and below */
+  justify-content: space-evenly;
   align-items: center;
   text-align: center;
   background-color: #fff;
-  padding: clamp(20px, 5vw, 60px) 20px; /* Adaptive padding for smaller screens */
+  padding: clamp(20px, 5vw, 60px) 20px;
 
   h1 {
-    font-size: clamp(1.8rem, 5vw, 4rem); /* Scales smoothly */
+    font-size: clamp(1.8rem, 5vw, 4rem);
     font-weight: bold;
     margin: 5px 0;
     background: linear-gradient(to right, #6c63ff, #e942f5);
@@ -23,21 +24,11 @@ const Hero = styled.div`
   }
 
   p {
-    font-size: clamp(1rem, 2.5vw, 1.5rem); /* Scales smoothly */
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
     margin: 5px 0;
     max-width: 800px;
     color: #555;
     line-height: 1.4;
-  }
-
-  @media (max-width: 768px) {
-    height: 35vh; /* Reduce height slightly */
-    padding: 20px 15px; /* Adjust padding */
-  }
-
-  @media (max-width: 480px) {
-    height: 30vh; /* Further reduce height */
-    padding: 15px 10px; /* Adjust padding */
   }
 `;
 
@@ -113,30 +104,12 @@ const LoadingScreen = styled.div`
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
-
-  p {
-    font-size: 2.5vw;
-    font-weight: bold;
-    margin: 10px 0 0;
-    background: linear-gradient(to right, #6c63ff, #e942f5);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  @media (max-width: 768px) {
-    h1 {
-      font-size: 6vw;
-    }
-    p {
-      font-size: 4vw;
-    }
-  }
 `;
 
 function TripPlanner() {
   const { user } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+  const [selectedTrip, setSelectedTrip] = useState(null);
 
   if (!user) {
     return (
@@ -146,27 +119,28 @@ function TripPlanner() {
     );
   }
 
-  const handleSkiTripClick = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate('/ski-trip', { replace: true }); // Prevent history duplication
-    }, 1000);
-  };
-
   const handleTripSelect = (tripName) => {
     if (tripName === 'Ski Trip') {
-      handleSkiTripClick();
+      setIsLoading(true);
+      setTimeout(() => {
+        setIsLoading(false);
+        setSelectedTrip('Ski Trip');
+      }, 1000);
     } else {
       console.log(`Selected Trip: ${tripName}`);
       alert(`Selected Trip: ${tripName}`);
     }
   };
 
+  // Render SkiTripChat if Ski Trip is selected
+  if (selectedTrip === 'Ski Trip') {
+    return <SkiTripChat />;
+  }
+
   return (
     <>
       <Hero>
-        <h1>Your next escape awaits....</h1>
+        <h1>Your next escape awaits...</h1>
         <p>
           Voxxy helps you and your crew decide where to go, where to stay, and what to do – without
           the chaos.

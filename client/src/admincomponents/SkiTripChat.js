@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../context/user'; // Import UserContext
 
-// Styled Components
+// Styled Components remain unchanged
 const ChatContainer = styled.div`
   position: fixed;
   top: 50%;
@@ -128,6 +129,7 @@ function SkiTripChat() {
     const [isComplete, setIsComplete] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
+    const { user, setUser } = useContext(UserContext); // Access user and setUser from context
     const navigate = useNavigate();
 
     const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
@@ -173,9 +175,16 @@ function SkiTripChat() {
             if (response.ok) {
                 const data = await response.json();
                 console.log('Activity created:', data);
+
+                // ✅ Update user context with the new activity
+                setUser((prevUser) => ({
+                    ...prevUser,
+                    activities: [...(prevUser.activities || []), data],
+                }));
+
                 setTimeout(() => {
                     setIsLoading(false);
-                    navigate('/');
+                    navigate('/your-trips');
                 }, 1000);
             } else {
                 throw new Error('Failed to create activity');
@@ -191,7 +200,7 @@ function SkiTripChat() {
         <>
             {isLoading ? (
                 <LoadingScreen>
-                    <h1>Let's plan a {formData.activity_type} together..</h1>
+                    <h1>Let's plan a {formData.activity_type} together...</h1>
                 </LoadingScreen>
             ) : (
                 <ChatContainer>
