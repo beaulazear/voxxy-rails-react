@@ -4,40 +4,40 @@ import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/user';
 
 const Hero = styled.div`
-  height: 40vh;
+  height: clamp(30vh, 40vh, 50vh); /* Smoothly adjusts height across devices */
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-evenly; /* Even spacing above and below */
   align-items: center;
   text-align: center;
   background-color: #fff;
-  padding: 60px 20px;
+  padding: clamp(20px, 5vw, 60px) 20px; /* Adaptive padding for smaller screens */
 
   h1 {
-    font-size: clamp(1.8rem, 5vw, 4rem); /* Smooth scaling */
+    font-size: clamp(1.8rem, 5vw, 4rem); /* Scales smoothly */
     font-weight: bold;
-    margin: 10px 0;
+    margin: 5px 0;
     background: linear-gradient(to right, #6c63ff, #e942f5);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
   p {
-    font-size: clamp(1rem, 2.5vw, 1.5rem); /* Smooth scaling */
-    margin-bottom: 20px;
+    font-size: clamp(1rem, 2.5vw, 1.5rem); /* Scales smoothly */
+    margin: 5px 0;
     max-width: 800px;
     color: #555;
-    line-height: 1.5;
+    line-height: 1.4;
   }
 
   @media (max-width: 768px) {
-    height: 35vh;
-    padding: 40px 15px;
+    height: 35vh; /* Reduce height slightly */
+    padding: 20px 15px; /* Adjust padding */
   }
 
   @media (max-width: 480px) {
-    height: 40vh;
-    padding: 30px 10px;
+    height: 30vh; /* Further reduce height */
+    padding: 15px 10px; /* Adjust padding */
   }
 `;
 
