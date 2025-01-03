@@ -4,7 +4,7 @@ import { UserContext } from '../context/user';
 
 const FooterContainer = styled.footer`
   background: #f9f9f9;
-  padding: 0.8rem 0; /* Smaller padding for a tighter design */
+  padding-bottom: 0.8rem; /* Smaller padding for a tighter design */
   color: #555;
   text-align: center;
   font-family: 'Roboto', sans-serif;

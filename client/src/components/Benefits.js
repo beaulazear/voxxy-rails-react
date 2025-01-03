@@ -21,7 +21,6 @@ const BenefitsContainer = styled.section`
   }
 `;
 
-// 📝 Static Text Column
 const BenefitsText = styled.div`
   background: #fff;
   border-radius: 8px;
@@ -45,7 +44,6 @@ const BenefitsText = styled.div`
   }
 `;
 
-// 📚 Dropdown Section
 const BenefitsDropdown = styled.div`
   background: #fff;
   border-radius: 8px;
@@ -58,7 +56,6 @@ const BenefitsDropdown = styled.div`
   }
 `;
 
-// 🔽 Dropdown Item
 const DropdownItem = styled.div`
   border-bottom: 1px solid #e0e0e0;
   padding: 15px 0;
@@ -68,7 +65,6 @@ const DropdownItem = styled.div`
   }
 `;
 
-// 🔼 Dropdown Header
 const DropdownHeader = styled.div`
   display: flex;
   justify-content: space-between;
@@ -96,7 +92,6 @@ const DropdownHeader = styled.div`
   }
 `;
 
-// 📄 Dropdown Content
 const DropdownContent = styled.div`
   margin-top: 10px;
   padding-left: 15px;
@@ -114,7 +109,6 @@ const DropdownContent = styled.div`
   }
 `;
 
-// 🚀 Button
 const Button = styled.button`
   margin-top: 15px;
   padding: 10px 20px;
@@ -133,85 +127,76 @@ const Button = styled.button`
   }
 `;
 
-// 🏠 **Benefits Component**
-function Benefits( ) {
-    const [activeIndex, setActiveIndex] = useState(null);
+function Benefits() {
+  const [activeIndex, setActiveIndex] = useState(null);
 
-    const navigate = useNavigate()
+  const navigate = useNavigate()
 
-    const toggleDropdown = (index) => {
-      setActiveIndex(activeIndex === index ? null : index);
-    };
+  const toggleDropdown = (index) => {
+    setActiveIndex(activeIndex === index ? null : index);
+  };
 
-    const handleNavigate = () => {
-      navigate("/signup")
-    }
-    
-    return (
-        <BenefitsContainer>
-            {/* 📝 Static Text Column */}
-            <BenefitsText>
-                <h1>Voxxy is your ultimate companion for planning adventures.</h1>
-                <p>
-                    Whether you're exploring cities, relaxing on beaches, or hiking mountains, Voxxy simplifies the decision-making process and makes travel effortless.
-                </p>
-            </BenefitsText>
+  const handleNavigate = () => {
+    navigate("/signup")
+  }
 
-            {/* 📚 Dropdown Column */}
-            <BenefitsDropdown>
-                {/* 🔽 Dropdown Item 1 */}
-                <DropdownItem>
-                    <DropdownHeader onClick={() => toggleDropdown(1)}>
-                        <h3>Group-Friendly Collaboration</h3>
-                        <span>{activeIndex === 1 ? '▲' : '▼'}</span>
-                    </DropdownHeader>
-                    {activeIndex === 1 && (
-                        <DropdownContent>
-                            <p>
-                                Voxxy helps your group make decisions without the chaos. Whether you’re taking the quiz solo or sending surveys to friends, Voxxy ensures everyone has a voice – without the noise.
-                            </p>
-                            <ul>
-                                <li>Collaborative decision-making made easy.</li>
-                                <li>Group polls and real-time voting.</li>
-                                <li>Seamless sharing and updates with everyone.</li>
-                            </ul>
-                            <Button onClick={handleNavigate()}>Start Planning</Button>
-                        </DropdownContent>
-                    )}
-                </DropdownItem>
-
-                {/* 🔽 Dropdown Item 2 */}
-                <DropdownItem>
-                    <DropdownHeader onClick={() => toggleDropdown(2)}>
-                        <h3>Smart AI Planning</h3>
-                        <span>{activeIndex === 2 ? '▲' : '▼'}</span>
-                    </DropdownHeader>
-                    {activeIndex === 2 && (
-                        <DropdownContent>
-                            <p>
-                                Easily organize your trip itinerary, book accommodations, and plan activities—all in one place.
-                            </p>
-                        </DropdownContent>
-                    )}
-                </DropdownItem>
-
-                {/* 🔽 Dropdown Item 3 */}
-                <DropdownItem>
-                    <DropdownHeader onClick={() => toggleDropdown(3)}>
-                        <h3>Personalized Recommendations</h3>
-                        <span>{activeIndex === 3 ? '▲' : '▼'}</span>
-                    </DropdownHeader>
-                    {activeIndex === 3 && (
-                        <DropdownContent>
-                            <p>
-                                Enjoy a smooth and intuitive app experience designed for ease of use on every device.
-                            </p>
-                        </DropdownContent>
-                    )}
-                </DropdownItem>
-            </BenefitsDropdown>
-        </BenefitsContainer>
-    );
+  return (
+    <BenefitsContainer>
+      <BenefitsText>
+        <h1>Voxxy is your ultimate companion for planning adventures.</h1>
+        <p>
+          Whether you're exploring cities, relaxing on beaches, or hiking mountains, Voxxy simplifies the decision-making process and makes travel effortless.
+        </p>
+      </BenefitsText>
+      <BenefitsDropdown>
+        <DropdownItem>
+          <DropdownHeader onClick={() => toggleDropdown(1)}>
+            <h3>Group-Friendly Collaboration</h3>
+            <span>{activeIndex === 1 ? '▲' : '▼'}</span>
+          </DropdownHeader>
+          {activeIndex === 1 && (
+            <DropdownContent>
+              <p>
+                Voxxy helps your group make decisions without the chaos. Whether you’re taking the quiz solo or sending surveys to friends, Voxxy ensures everyone has a voice – without the noise.
+              </p>
+              <ul>
+                <li>Collaborative decision-making made easy.</li>
+                <li>Group polls and real-time voting.</li>
+                <li>Seamless sharing and updates with everyone.</li>
+              </ul>
+              <Button onClick={handleNavigate()}>Start Planning</Button>
+            </DropdownContent>
+          )}
+        </DropdownItem>
+        <DropdownItem>
+          <DropdownHeader onClick={() => toggleDropdown(2)}>
+            <h3>Smart AI Planning</h3>
+            <span>{activeIndex === 2 ? '▲' : '▼'}</span>
+          </DropdownHeader>
+          {activeIndex === 2 && (
+            <DropdownContent>
+              <p>
+                Easily organize your trip itinerary, book accommodations, and plan activities—all in one place.
+              </p>
+            </DropdownContent>
+          )}
+        </DropdownItem>
+        <DropdownItem>
+          <DropdownHeader onClick={() => toggleDropdown(3)}>
+            <h3>Personalized Recommendations</h3>
+            <span>{activeIndex === 3 ? '▲' : '▼'}</span>
+          </DropdownHeader>
+          {activeIndex === 3 && (
+            <DropdownContent>
+              <p>
+                Enjoy a smooth and intuitive app experience designed for ease of use on every device.
+              </p>
+            </DropdownContent>
+          )}
+        </DropdownItem>
+      </BenefitsDropdown>
+    </BenefitsContainer>
+  );
 }
 
 export default Benefits;

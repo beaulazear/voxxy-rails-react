@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/user';
 
-// 🌍 Hero Section
 const Hero = styled.div`
   height: 40vh;
   display: flex;
@@ -31,6 +30,7 @@ const Hero = styled.div`
   }
 
   @media (max-width: 768px) {
+  height: 20vh;
     h1 {
       font-size: 8vw;
     }
@@ -40,7 +40,6 @@ const Hero = styled.div`
   }
 `;
 
-// 🌟 Trip Selection Section
 const TripSelection = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -59,7 +58,6 @@ const TripSelection = styled.div`
   }
 `;
 
-// 🖼️ Trip Cards
 const TripCard = styled.div`
   width: 100%;
   max-width: 300px;
@@ -91,17 +89,8 @@ const TripCard = styled.div`
     transform: translateY(-5px);
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
   }
-
-  @media (max-width: 480px) {
-    height: 300px;
-
-    h2 {
-      font-size: 1em;
-    }
-  }
 `;
 
-// 🌀 Loading Screen
 const LoadingScreen = styled.div`
   position: fixed;
   top: 0;
@@ -144,11 +133,10 @@ const LoadingScreen = styled.div`
 `;
 
 function TripPlanner() {
-  const { user } = useContext(UserContext); // Access user context
+  const { user } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Handle when user is null (e.g., refreshing or invalid session)
   if (!user) {
     return (
       <LoadingScreen>
@@ -157,7 +145,6 @@ function TripPlanner() {
     );
   }
 
-  // Handle Ski Trip Click
   const handleSkiTripClick = () => {
     setIsLoading(true);
     setTimeout(() => {
@@ -166,7 +153,6 @@ function TripPlanner() {
     }, 1000);
   };
 
-  // Handle General Trip Selection
   const handleTripSelect = (tripName) => {
     if (tripName === 'Ski Trip') {
       handleSkiTripClick();
@@ -178,7 +164,6 @@ function TripPlanner() {
 
   return (
     <>
-      {/* Hero Section */}
       <Hero>
         <h1>Your next escape awaits....</h1>
         <p>
@@ -186,14 +171,12 @@ function TripPlanner() {
           the chaos.
         </p>
       </Hero>
-
-      {/* Trip Selection Section */}
       <TripSelection>
         {[
           { name: 'Choose a Destination', icon: '/assets/choose-destination-icon.png' },
           { name: 'Ski Trip', icon: '/assets/ski-trip-icon.png' },
           { name: 'Trip Around Ireland', icon: '/assets/trip-around-ireland-icon.png' },
-          { name: 'Plan a Trip', icon: '/assets/plan-a-road-trip-icon.png' },
+          { name: 'Plan a Road Trip', icon: '/assets/plan-a-road-trip-icon.png' },
           { name: 'Spring Break', icon: '/assets/spring-break-icon.png' },
           { name: 'Recommend a Trip', icon: '/assets/request-a-trip-icon.png' },
         ].map((trip) => (
@@ -203,8 +186,6 @@ function TripPlanner() {
           </TripCard>
         ))}
       </TripSelection>
-
-      {/* Loading State */}
       {isLoading && (
         <LoadingScreen>
           <h1>Voxxy Loading...</h1>
