@@ -8,6 +8,11 @@ Rails.application.configure do
   # since you don't have to restart the web server when you make code changes.
   config.enable_reloading = true
 
+  config.session_store :cookie_store,
+  key: "_session_id",
+  same_site: :lax,
+  secure: false
+
   # Do not eager load code on boot.
   config.eager_load = false
 

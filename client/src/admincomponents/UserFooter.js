@@ -4,21 +4,19 @@ import { UserContext } from '../context/user';
 
 const FooterContainer = styled.footer`
   background: #f9f9f9;
-  padding-bottom: 0.8rem; /* Smaller padding for a tighter design */
+  padding-bottom: 0.8rem;
   color: #555;
   text-align: center;
   font-family: 'Roboto', sans-serif;
   font-size: 0.85rem;
   border-top: 1px solid #e0e0e0;
 
-  /* Fixed positioning at the bottom */
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
   z-index: 1000;
 
-  /* Ensure spacing from the last content */
   margin-top: auto;
 
   p {
@@ -40,9 +38,8 @@ const FooterContainer = styled.footer`
   }
 `;
 
-/* Add space to the last content above the footer */
 const Spacer = styled.div`
-  height: 2rem; /* Creates space above the footer */
+  height: 2rem;
 `;
 
 const UserFooter = () => {

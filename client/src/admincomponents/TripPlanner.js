@@ -11,10 +11,10 @@ const Hero = styled.div`
   align-items: center;
   text-align: center;
   background-color: #fff;
-  padding: 80px 20px 20px;
+  padding: 60px 20px;
 
   h1 {
-    font-size: 6vw;
+    font-size: clamp(1.8rem, 5vw, 4rem); /* Smooth scaling */
     font-weight: bold;
     margin: 10px 0;
     background: linear-gradient(to right, #6c63ff, #e942f5);
@@ -23,20 +23,21 @@ const Hero = styled.div`
   }
 
   p {
-    font-size: 1.3vw;
-    margin-bottom: 30px;
-    max-width: 1500px;
+    font-size: clamp(1rem, 2.5vw, 1.5rem); /* Smooth scaling */
+    margin-bottom: 20px;
+    max-width: 800px;
     color: #555;
+    line-height: 1.5;
   }
 
   @media (max-width: 768px) {
-  height: 20vh;
-    h1 {
-      font-size: 8vw;
-    }
-    p {
-      font-size: 4vw;
-    }
+    height: 35vh;
+    padding: 40px 15px;
+  }
+
+  @media (max-width: 480px) {
+    height: 40vh;
+    padding: 30px 10px;
   }
 `;
 
