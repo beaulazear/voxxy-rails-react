@@ -13,6 +13,7 @@ const SectionContainer = styled.section`
   margin: 0 auto;
   background: radial-gradient(ellipse at center, #e9dfff 30%, #ffffff 70%);
   border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(173, 151, 255, 0.3); /* Soft purple shadow below */
 
   @media (max-width: 768px) {
     padding: 2rem 1rem;
