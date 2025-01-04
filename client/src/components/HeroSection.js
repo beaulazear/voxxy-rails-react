@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
 const HeroContainer = styled.section`
   text-align: center;
@@ -67,21 +68,33 @@ const SecondaryButton = styled.button`
   }
 `;
 
-const HeroSection = () => (
+const HeroSection = () => {
+  const navigate = useNavigate()
+
+  const handleLoginClick = () => {
+    navigate('/login')
+  }
+
+  const handleSignupClick = () => {
+    navigate('/signup')
+  }
+
+  return (
     <HeroContainer>
-        <HeroTitle>
-            Less Time planning
-            <br />
-            More Time Making Memories
-        </HeroTitle>
-        <HeroSubtitle>
-            Voxxy handles the details, so you can focus on sharing moments, laughter, and stories with the people who matter most.
-        </HeroSubtitle>
-        <HeroButtons>
-            <PrimaryButton>Sign Up for Free</PrimaryButton>
-            <SecondaryButton>Chat with Voxxy</SecondaryButton>
-        </HeroButtons>
+      <HeroTitle>
+        Less Time planning
+        <br />
+        More Time Making Memories
+      </HeroTitle>
+      <HeroSubtitle>
+        Voxxy handles the details, so you can focus on sharing moments, laughter, and stories with the people who matter most.
+      </HeroSubtitle>
+      <HeroButtons>
+        <PrimaryButton onClick={handleSignupClick}>Sign Up for Free</PrimaryButton>
+        <SecondaryButton onClick={handleLoginClick}>Chat with Voxxy</SecondaryButton>
+      </HeroButtons>
     </HeroContainer>
-);
+  )
+};
 
 export default HeroSection;

@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import MovieNightImage from '../assets/MovieNight.png';
+import { useNavigate } from 'react-router-dom';
 
 const CTAContainer = styled.section`
   text-align: center;
@@ -77,20 +78,33 @@ const ImageContainer = styled.div`
   }
 `;
 
-const CallToActionSection = () => (
+const CallToActionSection = () => {
+  const navigate = useNavigate()
+
+  const handleLoginClick = () => {
+    navigate('/login')
+  }
+
+  const handleSignupClick = () => {
+    navigate('/signup')
+  }
+  
+  return (
     <CTAContainer>
-        <CTATitle>Ready to make memories?</CTATitle>
-        <CTASubtitle>
-            Sign up now and let Voxxy take the stress out of your next group adventure.
-        </CTASubtitle>
-        <ImageContainer>
-            <img src={MovieNightImage} alt="Movie Night Illustration" />
-        </ImageContainer>
-        <CTAButtons>
-            <Button>Sign Up for Free</Button>
-            <Button>Chat with Voxxy</Button>
-        </CTAButtons>
+      <CTATitle>Ready to make memories?</CTATitle>
+      <CTASubtitle>
+        Sign up now and let Voxxy take the stress out of your next group adventure.
+      </CTASubtitle>
+      <ImageContainer>
+        <img src={MovieNightImage} alt="Movie Night Illustration" />
+      </ImageContainer>
+      <CTAButtons>
+        <Button onClick={handleSignupClick}>Sign Up for Free</Button>
+        <Button onClick={handleLoginClick}>Chat with Voxxy</Button>
+      </CTAButtons>
     </CTAContainer>
-);
+  )
+};
+
 
 export default CallToActionSection;

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import WalkingAroundImage from '../assets/WalkingAround.png';
 import OrganizingImage from '../assets/Organizing.png'; // Placeholder
@@ -31,7 +32,7 @@ const TabsContainer = styled.div`
   margin-bottom: 2rem;
   overflow-x: auto;
   white-space: nowrap;
-  padding-bottom: 0.5rem;
+  padding-bottom: 1rem; /* Increased spacing for scrollbar */
 
   &::-webkit-scrollbar {
     height: 6px;
@@ -143,6 +144,9 @@ const ImageContainer = styled.div`
 
   @media (max-width: 768px) {
     max-width: 300px;
+    margin: 0 auto; /* Center the image horizontally */
+    justify-content: center; /* Ensure alignment stays centered */
+    align-items: center;
   }
 `;
 
@@ -158,12 +162,13 @@ const ButtonsContainer = styled.div`
 `;
 
 const CTAButton = styled.button`
-  padding: 0.75rem 1.5rem;
+  padding: 0.7rem .9rem;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
   cursor: pointer;
   font-weight: 500;
+  width: 147px;
 
   &:first-child {
     background: linear-gradient(135deg, #f3f4f6, #e0e7ff);
@@ -182,6 +187,16 @@ const CTAButton = styled.button`
 
 const HowVoxxyWorks = () => {
   const [activeTab, setActiveTab] = useState('tab1');
+
+  const navigate = useNavigate()
+
+  const handleLoginClick = () => {
+    navigate('/login')
+  }
+
+  const handleSignupClick = () => {
+    navigate('/signup')
+  }
 
   const contentData = {
     tab1: {
@@ -254,8 +269,8 @@ const HowVoxxyWorks = () => {
           <ContentDescription>{description}</ContentDescription>
           {buttons && (
             <ButtonsContainer>
-              <CTAButton>Sign Up for Free</CTAButton>
-              <CTAButton>Chat with Voxxy</CTAButton>
+              <CTAButton onClick={handleSignupClick}>Sign Up for Free</CTAButton>
+              <CTAButton onClick={handleLoginClick}>Chat with Voxxy</CTAButton>
             </ButtonsContainer>
           )}
         </TextContainer>

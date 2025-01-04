@@ -43,6 +43,7 @@ const BenefitItem = styled.div`
 `;
 
 const BenefitText = styled.div`
+text-align: left;
   flex: 1;
 `;
 
@@ -89,7 +90,7 @@ const Benefits = () => (
             <BenefitText>
                 <BenefitTitle>Enjoy the Journey, Not Just the Event</BenefitTitle>
                 <BenefitSubtitle>
-                    From first idea to final memory, Voxxy is with you every step of the way
+                    From first idea to final memory, Voxxy is with you every step of the way.
                 </BenefitSubtitle>
                 <BenefitDescription>
                     Voxxy handles the entire planning process—from the first idea, coordinating flights, setting dates, and finalizing itineraries—to keep everyone aligned from start to finish.
