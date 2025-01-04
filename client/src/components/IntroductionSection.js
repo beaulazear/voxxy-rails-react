@@ -58,17 +58,20 @@ const ImageContainer = styled.div`
 `;
 
 const IntroductionSection = () => (
-    <IntroductionContainer>
-        <TextContainer>
-            <Title>Say Hellooo Voxxxyyy..</Title>
-            <Subtitle>
-                Planning group trips, dinners, and events just got easier. Voxxy listens, organizes, and delivers thoughtful plans everyone can agree on—so you can skip the stress and focus on making memories.
-            </Subtitle>
-        </TextContainer>
-        <ImageContainer>
-            <img src={BrainstormingImage} alt="Brainstorming Illustration" />
-        </ImageContainer>
-    </IntroductionContainer>
+  <IntroductionContainer>
+    <TextContainer>
+      <Title>Say Hellooo
+        <br />
+        Voxxxyyy..
+      </Title>
+      <Subtitle>
+        Planning group trips, dinners, and events just got easier. Voxxy listens, organizes, and delivers thoughtful plans everyone can agree on—so you can skip the stress and focus on making memories.
+      </Subtitle>
+    </TextContainer>
+    <ImageContainer>
+      <img src={BrainstormingImage} alt="Brainstorming Illustration" />
+    </ImageContainer>
+  </IntroductionContainer>
 );
 
 export default IntroductionSection;
