@@ -1,99 +1,95 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
 import { UserContext } from '../context/user';
+import styled from 'styled-components';
 
-const FormContainer = styled.div`
-  max-width: 450px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background: #fafafa;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e0e0e0;
-  font-family: 'Roboto', sans-serif;
+// 🌟 Page Container
+const PageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
 `;
 
+// 🌟 Form Container
+const FormContainer = styled.div`
+  max-width: 500px;
+  padding: 2.5rem;
+  background: radial-gradient(ellipse at center, #e9dfff 30%, #ffffff 70%);
+  border-radius: 16px;
+  box-shadow: 0 8px 16px rgba(173, 151, 255, 0.2);
+  text-align: center;
+`;
+
+// 🌟 Heading
+const Heading = styled.h1`
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-weight: bold;
+  margin-bottom: 1rem;
+  background: black;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+`;
+
+// 🌟 Subheading
+const SubHeading = styled.p`
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  color: #555;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+`;
+
+// 🌟 Form
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  margin-bottom: 1.5rem;
+  gap: 1rem;
 `;
 
+// 🌟 Input
 const Input = styled.input`
   padding: 0.75rem;
-  margin-top: 0.75rem;
   font-size: 1rem;
   border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 8px;
   transition: border-color 0.2s;
 
   &:focus {
-    border-color: #666;
+    border-color: #6c63ff;
     outline: none;
   }
 `;
 
+// 🌟 Submit Button
 const SubmitButton = styled.button`
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   padding: 0.75rem;
   font-size: 1rem;
   color: #fff;
-  background-color: #4b0082;
+  background: linear-gradient(135deg, #6c63ff, #e942f5);
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: opacity 0.3s;
 
   &:hover {
-    background-color: #6a1ab1;
+    opacity: 0.9;
   }
 `;
 
+// 🌟 Error List
 const ErrorList = styled.ul`
   list-style: none;
   padding: 0;
   margin-top: 1rem;
   color: #d32f2f;
   font-size: 0.9rem;
-  font-family: 'Roboto', sans-serif;
 `;
 
+// 🌟 Error Item
 const ErrorItem = styled.li`
   margin-bottom: 0.5rem;
-`;
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  width: 100%;
-  margin-top: 80px; /* Prevents content from overlapping navbar */
-`;
-
-const Heading = styled.h1`
-  font-size: 3rem;
-  font-weight: bold;
-  margin: 10px 0;
-  background: linear-gradient(to right, #6c63ff, #e942f5);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-align: center;
-
-  @media (max-width: 768px) {
-    font-size: 2.5rem;
-    padding: 15px;
-  }
-`;
-
-const SubHeading = styled.p`
-  font-size: 1.2rem;
-  margin-bottom: 2rem;
-  color: #555;
-  line-height: 1.5;
-  padding: 15px;
 `;
 
 const SignUp = () => {
@@ -106,8 +102,13 @@ const SignUp = () => {
   const { setUser } = useContext(UserContext);
   const navigate = useNavigate();
 
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
+  // 🌟 Form Submit Handler
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -116,13 +117,19 @@ const SignUp = () => {
       return;
     }
 
-    const userData = { user: { name, username, email, password, password_confirmation: passwordConfirmation } };
+    const userData = {
+      user: {
+        name,
+        username,
+        email,
+        password,
+        password_confirmation: passwordConfirmation,
+      },
+    };
 
     fetch(`${API_URL}/users`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify(userData),
     })
@@ -141,46 +148,42 @@ const SignUp = () => {
   };
 
   return (
-    <>
-      <Container>
-        <Heading>Sign Up for Your Account</Heading>
-        <SubHeading>
-          Create your account to access personalized features and manage your profile.
-        </SubHeading>
-      </Container>
+    <PageContainer>
       <FormContainer>
+        <Heading>Create Your Account</Heading>
+        <SubHeading>Join Voxxy and start planning effortlessly!</SubHeading>
         <Form onSubmit={handleSubmit}>
           <Input
             type="text"
-            placeholder="Enter your name"
+            placeholder="Your name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
           <Input
             type="text"
-            placeholder="Enter your username"
+            placeholder="Your username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
           />
           <Input
             type="email"
-            placeholder="Enter your email"
+            placeholder="Your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
           <Input
             type="password"
-            placeholder="Enter your password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
           <Input
             type="password"
-            placeholder="Confirm your password"
+            placeholder="Confirm password"
             value={passwordConfirmation}
             onChange={(e) => setPasswordConfirmation(e.target.value)}
             required
@@ -195,7 +198,7 @@ const SignUp = () => {
           </ErrorList>
         )}
       </FormContainer>
-    </>
+    </PageContainer>
   );
 };
 

@@ -1,52 +1,74 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/user';
 import styled from 'styled-components';
 
+const PageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+`;
+
 const FormContainer = styled.div`
-  max-width: 450px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background: #fafafa;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e0e0e0;
-  font-family: 'Roboto', sans-serif;
+  max-width: 500px;
+  margin: 3rem auto;
+  padding: 2.5rem;
+  background: radial-gradient(ellipse at center, #e9dfff 30%, #ffffff 70%);
+  border-radius: 16px;
+  box-shadow: 0 8px 16px rgba(173, 151, 255, 0.2);
+  text-align: center;
+`;
+
+const Heading = styled.h1`
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-weight: bold;
+  margin-bottom: 1rem;
+  background: black;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+`;
+
+const SubHeading = styled.p`
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  color: #555;
+  margin-bottom: 2rem;
+  line-height: 1.5;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  margin-bottom: 1.5rem;
+  gap: 1rem;
 `;
 
 const Input = styled.input`
   padding: 0.75rem;
-  margin-top: 0.75rem;
   font-size: 1rem;
   border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 8px;
   transition: border-color 0.2s;
 
   &:focus {
-    border-color: #666;
+    border-color: #6c63ff;
     outline: none;
   }
 `;
 
 const SubmitButton = styled.button`
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   padding: 0.75rem;
   font-size: 1rem;
   color: #fff;
-  background-color: #4b0082;
+  background: linear-gradient(135deg, #6c63ff, #e942f5);
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: opacity 0.3s;
 
   &:hover {
-    background-color: #6a1ab1;
+    opacity: 0.9;
   }
 `;
 
@@ -54,54 +76,42 @@ const ErrorMessage = styled.div`
   color: red;
   font-size: 0.875rem;
   margin-top: 1rem;
-  text-align: center;
 `;
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  width: 100%;
-  margin-top: 80px; /* Prevents content from overlapping navbar */
-`;
+const ForgotPasswordLink = styled.button`
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #6c63ff;
+  background: none;
+  border: none;
+  cursor: pointer;
 
-const Heading = styled.h1`
-  font-size: 3rem;
-  font-weight: bold;
-  margin: 10px 0;
-  background: linear-gradient(to right, #6c63ff, #e942f5);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-align: center;
-
-  @media (max-width: 768px) {
-    font-size: 2.5rem;
-    padding: 15px;
+  &:hover {
+    text-decoration: underline;
   }
 `;
 
 const Login = () => {
-  const [email, setEmail] = useState(''); // Renamed from username
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(''); // State for error message
+  const [error, setError] = useState('');
+
   const { setUser } = useContext(UserContext);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setError(''); // Clear previous errors
+    setError('');
+    const sessionData = { email, password };
 
-    const sessionData = { email, password }; // Use email instead of username
-
-    const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
-
-    fetch(`${API_URL}/login`, {
+    fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/login`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify(sessionData),
     })
@@ -119,16 +129,15 @@ const Login = () => {
       })
       .catch((error) => {
         console.error('Error:', error);
-        setError(error.message); // Display error under form
+        setError(error.message);
       });
   };
 
   return (
-    <>
-      <Container>
-        <Heading>Log in to access your account!</Heading>
-      </Container>
+    <PageContainer>
       <FormContainer>
+        <Heading>Welcome Back!</Heading>
+        <SubHeading>Log in to continue planning with Voxxy</SubHeading>
         <Form onSubmit={handleSubmit}>
           <Input
             type="email"
@@ -147,13 +156,11 @@ const Login = () => {
           <SubmitButton type="submit">Log In</SubmitButton>
           {error && <ErrorMessage>{error}</ErrorMessage>}
         </Form>
-        <p>
-          <button onClick={() => navigate('/forgot-password')}>
-            Forgot Password?
-          </button>
-        </p>
+        <ForgotPasswordLink onClick={() => navigate('/forgot-password')}>
+          Forgot Password?
+        </ForgotPasswordLink>
       </FormContainer>
-    </>
+    </PageContainer>
   );
 };
 

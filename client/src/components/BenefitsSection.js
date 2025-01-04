@@ -6,7 +6,7 @@ import TargetImage from '../assets/Target.png';
 
 const BenefitsContainer = styled.section`
   padding: 4rem 2rem;
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
   background: radial-gradient(ellipse at center, #e9dfff 30%, #ffffff 70%);
   
@@ -31,6 +31,10 @@ const BenefitItem = styled.div`
 
   &:nth-child(even) {
     flex-direction: row-reverse;
+  }
+
+  &:last-child {
+    margin-bottom: 0; /* Remove margin-bottom for the last child */
   }
 
   @media (max-width: 768px) {

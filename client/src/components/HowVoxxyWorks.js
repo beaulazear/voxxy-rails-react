@@ -13,7 +13,6 @@ const SectionContainer = styled.section`
   margin: 0 auto;
   background: radial-gradient(ellipse at center, #e9dfff 30%, #ffffff 70%);
   border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(173, 151, 255, 0.3); /* Soft purple shadow below */
 
   @media (max-width: 768px) {
     padding: 2rem 1rem;
@@ -98,7 +97,7 @@ const ContentContainer = styled.div`
   background: #ffffff;
   border-radius: 16px;
   padding: 2rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(173, 151, 255, 0.3); /* Soft purple shadow below */
   height: 400px; /* Ensure uniform height */
 
   @media (max-width: 768px) {
@@ -169,7 +168,7 @@ const CTAButton = styled.button`
   font-size: 1rem;
   cursor: pointer;
   font-weight: 500;
-  width: 147px;
+  width: 100px;
 
   &:first-child {
     background: linear-gradient(135deg, #f3f4f6, #e0e7ff);
@@ -270,8 +269,8 @@ const HowVoxxyWorks = () => {
           <ContentDescription>{description}</ContentDescription>
           {buttons && (
             <ButtonsContainer>
-              <CTAButton onClick={handleSignupClick}>Sign Up for Free</CTAButton>
-              <CTAButton onClick={handleLoginClick}>Chat with Voxxy</CTAButton>
+              <CTAButton onClick={handleSignupClick}>Sign Up</CTAButton>
+              <CTAButton onClick={handleLoginClick}>Log In</CTAButton>
             </ButtonsContainer>
           )}
         </TextContainer>
