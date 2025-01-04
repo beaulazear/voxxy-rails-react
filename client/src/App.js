@@ -4,7 +4,6 @@ import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { UserContext } from "./context/user.js";
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import Home from './components/HomePage';
 import SignUp from './components/SignUp.js';
 import Login from './components/Login';
 import TripPlanner from './admincomponents/TripPlanner.js';
@@ -15,6 +14,7 @@ import ConfirmEmail from './components/ConfirmEmail.js';
 import YourTrips from './admincomponents/YourTrips.js';
 import ForgotPassword from './components/ForgotPassword.js';
 import ResetPassword from './components/ResetPassword.js';
+import LandingPage from './components/LandingPage.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -40,7 +40,7 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route
               path="/"
-              element={user ? <TripPlanner /> : <Home />}
+              element={user ? <TripPlanner /> : <LandingPage />}
             />            
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<Login />} />

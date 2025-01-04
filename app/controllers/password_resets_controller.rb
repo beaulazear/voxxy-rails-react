@@ -2,7 +2,6 @@ class PasswordResetsController < ApplicationController
     skip_before_action :authorized
 
     def create
-      Rails.logger.info "Params received: #{params.inspect}"
       user = User.find_by(email: password_reset_params[:email])
       if user
         user.generate_password_reset_token
@@ -14,9 +13,6 @@ class PasswordResetsController < ApplicationController
     end
 
     def update
-        Rails.logger.info "🔑 Received Token: #{params[:token]}"
-        Rails.logger.info "🔑 Received Password: #{params[:password]}"
-
         user = User.find_by(reset_password_token: params[:token])
 
         if user && user.password_reset_token_valid?
