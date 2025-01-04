@@ -37,6 +37,8 @@ const BenefitItem = styled.div`
     flex-direction: column !important;
     text-align: center;
     gap: 1.5rem;
+    align-items: center; /* Center items on mobile */
+    justify-content: center; /* Ensure horizontal alignment */
   }
 `;
 
@@ -65,12 +67,15 @@ const BenefitDescription = styled.p`
 `;
 
 const BenefitImage = styled.img`
-  flex: 1;
+  width: 100%;
   max-width: 300px;
   height: auto;
+  object-fit: contain;
+  flex-shrink: 0;
 
   @media (max-width: 768px) {
     max-width: 250px;
+    margin: 0 auto; /* Ensures centering on mobile */
   }
 `;
 
