@@ -15,14 +15,15 @@ const DashboardContainer = styled.div`
 const SectionTitle = styled.h2`
   font-size: clamp(1.5rem, 2.5vw, 2rem);
   font-weight: bold;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0rem;
   text-align: left;
 `;
 
 const SubTitle = styled.h3`
   font-size: 1.2rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0rem;
+  margin-top: 0rem;
   text-align: left;
   color: #555;
 `;
@@ -101,6 +102,7 @@ const CardGrid = styled.div`
   align-items: stretch; /* Ensure all cards stretch evenly */
   justify-content: center;
   margin: 1rem 0; /* Consistent margin around each section */
+  margin-bottom: 0rem;
   padding: 1rem;
   box-sizing: border-box; /* Ensure padding doesn't affect width */
 
