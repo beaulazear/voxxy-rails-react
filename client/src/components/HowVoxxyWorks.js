@@ -11,7 +11,6 @@ const SectionContainer = styled.section`
   padding: 4rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  background: radial-gradient(ellipse at center, #e9dfff 30%, #ffffff 70%);
   border-radius: 16px;
 
   @media (max-width: 768px) {

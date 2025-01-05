@@ -8,7 +8,6 @@ const BenefitsContainer = styled.section`
   padding: 4rem 2rem;
   max-width: 1100px;
   margin: 0 auto;
-  background: radial-gradient(ellipse at center, #e9dfff 30%, #ffffff 70%);
   
   @media (max-width: 768px) {
     padding: 2rem 1rem;

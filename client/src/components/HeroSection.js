@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 const HeroContainer = styled.section`
   text-align: center;
   padding: 6rem 2rem;
-  background: radial-gradient(ellipse at center, #d6c8ff 20%, #ffffff 55%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -24,8 +23,8 @@ const HeroTitle = styled.h1`
 `;
 
 const HeroSubtitle = styled.p`
-  font-size: clamp(1rem, 2.5vw, 1.2rem); /* Scales smoothly between 1rem and 1.2rem */
-  margin-bottom: 1.5rem; /* Slightly reduced spacing */
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  margin-bottom: 1.5rem;
   color: #444;
   max-width: 600px;
   text-align: center;
