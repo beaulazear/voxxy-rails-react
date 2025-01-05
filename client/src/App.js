@@ -6,15 +6,14 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import SignUp from './components/SignUp.js';
 import Login from './components/Login';
-import TripPlanner from './admincomponents/TripPlanner.js';
 import LoadingScreen from './components/LoadingScreen';
 import UserFooter from './admincomponents/UserFooter.js';
 import Verification from './components/Verification.js';
 import ConfirmEmail from './components/ConfirmEmail.js';
-import YourTrips from './admincomponents/YourTrips.js';
 import ForgotPassword from './components/ForgotPassword.js';
 import ResetPassword from './components/ResetPassword.js';
 import LandingPage from './components/LandingPage.js';
+import TripDashboard from './admincomponents/TripDashboard.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -40,7 +39,7 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route
               path="/"
-              element={user ? <TripPlanner /> : <LandingPage />}
+              element={user ? <TripDashboard /> : <LandingPage />}
             />            
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
@@ -50,10 +49,9 @@ function App() {
               <>
                 {isConfirmed ? (
                   <>
-                    <Route path="/your-trips" element={<YourTrips />} />
                     <Route path="/verification" element={<Verification />} />
                     <Route path="/confirm-email" element={<ConfirmEmail />} />
-                    <Route path="/" element={<TripPlanner />} />
+                    <Route path="/" element={<TripDashboard />} />
                   </>
                 ) : (
                   <>
