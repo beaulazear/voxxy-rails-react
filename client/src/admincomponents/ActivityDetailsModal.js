@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { Modal, Button, Switch, Collapse, message } from 'antd';
+import React, { useContext, useState, useEffect } from 'react';
+import { Modal, Button, Collapse, Switch, message } from 'antd';
 import styled from 'styled-components';
 import { UserContext } from '../context/user';
 
@@ -77,11 +77,65 @@ const FooterButtons = styled.div`
 
 function ActivityDetailsModal({ activity, isVisible, onClose }) {
     const { user, setUser } = useContext(UserContext);
-
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
+    const [isActive, setIsActive] = useState(false);
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+    // ✅ Sync isActive with activity.active when activity updates
+    useEffect(() => {
+        if (activity && activity.active !== undefined) {
+            setIsActive(activity.active);
+        }
+    }, [activity]);
 
     if (!activity) return null;
 
+    // ✅ Handle Toggle Change
+    const handleToggleChange = (checked) => {
+        setIsActive(checked);
+        setHasUnsavedChanges(true);
+    };
+
+    // ✅ Handle Save Active State
+    const handleSaveActive = async () => {
+        try {
+            const response = await fetch(`${API_URL}/activities/${activity.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ active: isActive }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update activity status');
+            }
+
+            const updatedActivity = await response.json();
+
+            if (!updatedActivity || !updatedActivity.id) {
+                throw new Error('Invalid activity data received');
+            }
+
+            setUser((prevUser) => ({
+                ...prevUser,
+                activities: prevUser.activities.map((act) =>
+                    act && act.id === updatedActivity.id ? updatedActivity : act
+                ),
+            }));
+
+            message.success('Activity status updated successfully');
+            setHasUnsavedChanges(false);
+            onClose(); // ✅ Close the modal after saving
+        } catch (error) {
+            console.error('Error updating activity status:', error);
+            message.error('Failed to update activity status');
+        }
+    };
+
+    // ✅ Handle Delete
     const handleDelete = async () => {
         try {
             const response = await fetch(`${API_URL}/activities/${activity.id}`, {
@@ -95,7 +149,7 @@ function ActivityDetailsModal({ activity, isVisible, onClose }) {
 
             setUser((prevUser) => ({
                 ...prevUser,
-                activities: prevUser.activities.filter((act) => act.id !== activity.id),
+                activities: prevUser.activities.filter((act) => act && act.id !== activity.id),
             }));
 
             message.success('Activity deleted successfully');
@@ -117,6 +171,22 @@ function ActivityDetailsModal({ activity, isVisible, onClose }) {
         });
     };
 
+    // ✅ Handle Unsaved Changes on Close
+    const handleModalClose = () => {
+        if (hasUnsavedChanges) {
+            Modal.confirm({
+                title: 'Unsaved Changes',
+                content: 'You have unsaved changes. Are you sure you want to exit?',
+                okText: 'Yes, Exit',
+                cancelText: 'Cancel',
+                onOk: onClose,
+            });
+        } else {
+            onClose();
+        }
+    };
+
+    // ✅ Updated Collapse items instead of children
     const collapseItems = [
         {
             key: '1',
@@ -156,13 +226,13 @@ function ActivityDetailsModal({ activity, isVisible, onClose }) {
                 </ModalHeader>
             }
             open={isVisible}
-            onCancel={onClose}
+            onCancel={handleModalClose}
             footer={[
                 <FooterButtons key="footer">
                     <Button key="delete" danger onClick={confirmDelete}>
                         Delete
                     </Button>
-                    <Button key="save" type="primary">
+                    <Button key="save" type="primary" onClick={handleSaveActive}>
                         Save
                     </Button>
                 </FooterButtons>,
@@ -171,8 +241,8 @@ function ActivityDetailsModal({ activity, isVisible, onClose }) {
             <ModalSubHeader>
                 <p><strong>Host:</strong> Courtney Greer</p>
                 <div className="status-toggle">
-                    <span><strong>Status:</strong></span>
-                    <Switch defaultChecked />
+                    <span><strong>Active:</strong></span>
+                    <Switch checked={isActive} onChange={handleToggleChange} />
                 </div>
             </ModalSubHeader>
             <GroupInfo>

@@ -10,6 +10,15 @@ class ActivitiesController < ApplicationController
       end
     end
 
+    def update
+      activity = current_user.activities.find_by(id: params[:id])
+      if activity.update(activity_params)
+        render json: activity, status: :ok
+      else
+        render json: { error: activity.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+
     def destroy
       activity = current_user.activities.find_by(id: params[:id])
       if activity
@@ -23,6 +32,6 @@ class ActivitiesController < ApplicationController
     private
 
     def activity_params
-      params.require(:activity).permit(:activity_name, :activity_type, :activity_location, :group_size, :date_notes)
+      params.require(:activity).permit(:activity_name, :activity_type, :activity_location, :group_size, :date_notes, :active)
     end
 end

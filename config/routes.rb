@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   resources :users, only: [ :index, :create, :destroy ]
-  resources :activities, only: [ :create, :destroy ]
+  resources :activities, only: [ :create, :destroy, :update ]
   resource :password_reset, only: [ :create, :update ]
 
   get "/verify", to: "users#verify"
