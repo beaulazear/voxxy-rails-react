@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { UserContext } from '../context/user';
 import SkiTripChat from './SkiTripChat';
+import ActivityDetailsModal from './ActivityDetailsModal';
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -133,28 +134,19 @@ const LoadingScreen = styled.div`
 `;
 
 function TripDashboard() {
-  const { user, setUser } = useContext(UserContext);
+  const { user } = useContext(UserContext);
   const [selectedTrip, setSelectedTrip] = useState(null);
+  const [selectedActivity, setSelectedActivity] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+  const handleActivityClick = (activity) => {
+    setSelectedActivity(activity);
+    setIsModalVisible(true);
+  };
 
-  const handleDelete = (activityId) => {
-    fetch(`${API_URL}/activities/${activityId}`, {
-      method: 'DELETE',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then((resp) => {
-        if (!resp.ok) throw new Error('Failed to delete activity');
-        return resp.json();
-      })
-      .then(() => {
-        setUser((prevUser) => ({
-          ...prevUser,
-          activities: prevUser.activities.filter((activity) => activity.id !== activityId),
-        }));
-      })
-      .catch((error) => console.error('Error deleting activity:', error));
+  const closeModal = () => {
+    setIsModalVisible(false);
+    setSelectedActivity(null);
   };
 
   const handleTripSelect = (tripName) => {
@@ -175,10 +167,9 @@ function TripDashboard() {
   }
 
   const renderActivityCard = (activity) => (
-    <ActivityCard key={activity.id}>
+    <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)}>
       <img src={activity.image || '/assets/ski-trip-icon.png'} alt={activity.activity_name} />
       <h3>{activity.activity_name}</h3>
-      <button onClick={() => handleDelete(activity.id)}>Delete</button>
     </ActivityCard>
   );
 
@@ -219,6 +210,11 @@ function TripDashboard() {
           </ActivityCard>
         ))}
       </CardGrid>
+      <ActivityDetailsModal
+        activity={selectedActivity}
+        isVisible={isModalVisible}
+        onClose={closeModal}
+      />
     </DashboardContainer>
   );
 }
