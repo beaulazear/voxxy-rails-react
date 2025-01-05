@@ -27,24 +27,6 @@ const SubTitle = styled.h3`
   color: #555;
 `;
 
-const ActivitiesContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Dynamic card sizing */
-  gap: 1rem; /* Consistent spacing */
-  align-items: stretch; /* Ensures cards stretch to the same height */
-  justify-content: center;
-  margin-bottom: 1rem;
-  padding: 1rem;
-
-  @media (max-width: 768px) {
-    gap: 0.75rem; /* Slightly tighter gap on smaller screens */
-  }
-
-  @media (max-width: 480px) {
-    gap: 0.5rem; /* Tighter gap on very small screens */
-  }
-`;
-
 const ActivityCard = styled.div`
   display: flex;
   flex-direction: column;
@@ -58,6 +40,8 @@ const ActivityCard = styled.div`
   aspect-ratio: 1 / 1.2; /* Maintain consistent aspect ratio */
   padding: 1rem;
   max-width: 200px;
+  overflow: hidden; /* Prevent content overflow */
+  box-sizing: border-box;
 
   &:hover {
     transform: translateY(-5px);
@@ -92,6 +76,15 @@ const ActivityCard = styled.div`
       background: #c32cb5;
     }
   }
+
+  @media (max-width: 768px) {
+    padding: 0.8rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.5rem;
+    max-width: 160px; /* Ensure consistent card size on mobile */
+  }
 `;
 
 const EmptyState = styled.div`
@@ -108,16 +101,25 @@ const CardGrid = styled.div`
   align-items: stretch; /* Ensure all cards stretch evenly */
   justify-content: center;
   margin: 1rem 0; /* Consistent margin around each section */
-  padding: 1rem; /* Consistent padding inside each section */
+  padding: 1rem;
+  box-sizing: border-box; /* Ensure padding doesn't affect width */
 
   @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr); /* Two cards per row on tablets */
+    grid-template-columns: repeat(2, minmax(160px, 1fr)); /* Ensure two cards per row */
     gap: 0.75rem; /* Slightly tighter gap on smaller screens */
+    padding: 0.5rem; /* Smaller padding for compact layout */
   }
 
   @media (max-width: 480px) {
-    grid-template-columns: repeat(2, 1fr); /* Ensure two cards per row on very small screens */
-    gap: 0.5rem; /* Tighter gap for compact layout */
+    grid-template-columns: repeat(2, minmax(140px, 1fr)); /* Two cards per row even on very small screens */
+    gap: 0.5rem; /* Tighter gap */
+    padding: 0.3rem; /* Compact padding */
+  }
+
+  @media (max-width: 360px) {
+    grid-template-columns: 1fr; /* Single column fallback on extremely small screens */
+    gap: 0.5rem;
+    padding: 0.2rem;
   }
 `;
 
