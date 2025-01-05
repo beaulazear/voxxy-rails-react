@@ -49,17 +49,14 @@ const ActivityCard = styled.div`
   }
 
   img {
-    width: 60%;
+    width: 80%;
     height: auto;
     object-fit: contain;
-    margin-bottom: 0.5rem;
   }
 
   h3 {
-    font-size: clamp(0.8rem, 1vw, 1rem);
-    font-weight: bold;
+    font-size: clamp(.8rem, 1vw, 1.2rem);
     color: #333;
-    margin: 0.3rem 0;
   }
 
   button {
