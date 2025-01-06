@@ -32,14 +32,13 @@ const ActivityCard = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   background: #fff;
   border-radius: 12px;
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease;
   aspect-ratio: 1 / 1.2;
-  padding: 1rem;
+  padding: 0; /* Remove unnecessary padding */
   max-width: 250px;
   overflow: hidden;
   box-sizing: border-box;
@@ -49,24 +48,28 @@ const ActivityCard = styled.div`
   }
 
   img {
-    width: 80%;
-    height: auto;
-    object-fit: contain;
+    width: 100%;
+    height: 70%; /* Takes up most of the space */
+    object-fit: cover;
+    border-radius: 8px 8px 0 0; /* Rounded only at the top */
   }
 
   h3 {
-    font-size: clamp(.8rem, 1vw, 1.2rem);
+    font-size: clamp(1rem, 1.2vw, 1.5rem); /* Larger font size */
     color: #333;
+    line-height: 1.2;
+    margin-top: auto; /* Pushes the header to the bottom */
+    padding: 0.3rem;
   }
 
   button {
-    margin-top: 0.5rem;
     font-size: 0.9rem;
     background: #e942f5;
     color: #fff;
     border: none;
     border-radius: 6px;
     padding: 0.4rem 0.7rem;
+    margin: 0.5rem 0;
     cursor: pointer;
     transition: background 0.2s ease;
 
