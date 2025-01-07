@@ -24,6 +24,7 @@ gem "rack-cors", require: "rack/cors"
 gem "dotenv-rails", groups: [ :development, :test ]
 gem "sendgrid-ruby", "~> 6.7.0"
 gem "ruby-openai"
+gem "httparty"
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"

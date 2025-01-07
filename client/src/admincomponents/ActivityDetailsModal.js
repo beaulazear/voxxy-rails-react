@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Modal, Button, Collapse, Switch, message } from 'antd';
 import styled from 'styled-components';
 import { UserContext } from '../context/user';
+import ChatGPTChat from './ChatGPTChat';
 
 const ModalHeader = styled.div`
   display: flex;
@@ -252,6 +253,7 @@ function ActivityDetailsModal({ activity, isVisible, onClose }) {
                 <span>➕</span>
             </GroupInfo>
             <StyledCollapse items={collapseItems} defaultActiveKey={['1']} />
+            <ChatGPTChat />
         </Modal>
     );
 }
