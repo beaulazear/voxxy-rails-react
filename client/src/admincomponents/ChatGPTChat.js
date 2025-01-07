@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-// Styled Components
+// Styled Components (Same as before)
 const ChatContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -94,7 +94,7 @@ const LoadingText = styled.p`
 `;
 
 // Component
-const ChatGPTChat = () => {
+const ChatGPTChat = ({ activity }) => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [socket, setSocket] = useState(null);
@@ -103,10 +103,13 @@ const ChatGPTChat = () => {
 
     const startChat = () => {
         const API_URL = process.env.REACT_APP_API_URL || 'localhost:3001';
-        const isSecure = window.location.protocol === 'https:'; // Check if app is served over HTTPS
 
+        // Ensure no duplicate 'https://' or 'wss://' prefixes
+        const cleanApiUrl = API_URL.replace(/^https?:\/\//, '').replace(/^wss?:\/\//, '');
+        
+        const isSecure = window.location.protocol === 'https:';
         const cable = new WebSocket(
-            `${isSecure ? 'wss' : 'ws'}://${API_URL}/cable`
+            `${isSecure ? 'wss' : 'ws'}://${cleanApiUrl}/cable`
         );
 
         /** ✅ WebSocket Open Event **/
@@ -118,6 +121,33 @@ const ChatGPTChat = () => {
                     identifier: JSON.stringify({ channel: 'ChatChannel', user_id: 1 }) // Replace user_id dynamically
                 })
             );
+
+            // Send initial activity data with explicit instruction
+            if (activity) {
+                const initialMessage = `
+                    You are assisting with planning an activity. Below are the details:
+                    - **Name:** ${activity.activity_name}
+                    - **Location:** ${activity.activity_location}
+                    - **Group Size:** ${activity.group_size}
+                    - **Date Notes:** ${activity.date_notes}
+                    - **Activity Type:** ${activity.activity_type}
+
+                    **Instruction:** Do not correct or critique this data. Simply acknowledge it and ask how you can assist with planning.
+                `;
+
+                cable.send(
+                    JSON.stringify({
+                        command: 'message',
+                        identifier: JSON.stringify({ channel: 'ChatChannel', user_id: 1 }),
+                        data: JSON.stringify({ message: initialMessage })
+                    })
+                );
+
+                setMessages((prev) => [
+                    ...prev,
+                    { role: 'system', content: 'Activity details have been shared with the assistant.' }
+                ]);
+            }
         };
 
         /** ✅ WebSocket Message Event **/
@@ -147,16 +177,6 @@ const ChatGPTChat = () => {
             } catch (error) {
                 console.error('❌ Error parsing WebSocket message:', error);
             }
-        };
-
-        /** ✅ WebSocket Error Event **/
-        cable.onerror = (error) => {
-            console.error('❌ WebSocket Error:', error);
-        };
-
-        /** ✅ WebSocket Close Event **/
-        cable.onclose = () => {
-            console.log('🔴 WebSocket connection closed');
         };
 
         setSocket(cable);

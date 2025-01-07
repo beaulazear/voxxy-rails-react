@@ -253,7 +253,7 @@ function ActivityDetailsModal({ activity, isVisible, onClose }) {
                 <span>➕</span>
             </GroupInfo>
             <StyledCollapse items={collapseItems} defaultActiveKey={['1']} />
-            <ChatGPTChat />
+            <ChatGPTChat activity={activity} />
         </Modal>
     );
 }
