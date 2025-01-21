@@ -5,6 +5,7 @@ import HowVoxxyWorks from './HowVoxxyWorks';
 import AboutSection from './AboutSection';
 import CallToActionSection from './CallToActionSection';
 import BenefitsSection from './BenefitsSection';
+import Footer from './Footer'
 
 const LandingPage = () => {
     useEffect(() => {
@@ -19,6 +20,7 @@ const LandingPage = () => {
             <AboutSection />
             <BenefitsSection />
             <CallToActionSection />
+            <Footer />
         </>
     );
 };

@@ -3,11 +3,9 @@ import React, { useContext, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { UserContext } from "./context/user.js";
 import Navbar from './components/Navbar';
-import Footer from './components/Footer';
 import SignUp from './components/SignUp.js';
 import Login from './components/Login';
 import LoadingScreen from './components/LoadingScreen';
-import UserFooter from './admincomponents/UserFooter.js';
 import Verification from './components/Verification.js';
 import ConfirmEmail from './components/ConfirmEmail.js';
 import ForgotPassword from './components/ForgotPassword.js';
@@ -62,7 +60,6 @@ function App() {
             )}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-          {isLoggedIn ? <UserFooter /> : <Footer />}
         </>
       )}
     </div>

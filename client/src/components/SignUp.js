@@ -3,98 +3,151 @@ import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/user';
 import styled from 'styled-components';
 
-// 🌟 Page Container
 const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem 2rem;
+  min-height: 100vh;
+  padding: 2rem 1rem;
 `;
 
-// 🌟 Form Container
 const FormContainer = styled.div`
-  max-width: 500px;
-  padding: 2.5rem;
-  background: radial-gradient(ellipse at center, #e9dfff 30%, #ffffff 70%);
-  border-radius: 16px;
-  box-shadow: 0 8px 16px rgba(173, 151, 255, 0.2);
+  max-width: 400px;
+  padding: 2rem;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
   text-align: center;
 `;
 
-// 🌟 Heading
 const Heading = styled.h1`
-  font-size: clamp(2rem, 4vw, 2.5rem);
-  font-weight: bold;
-  margin-bottom: 1rem;
-  background: black;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
 `;
 
-// 🌟 Subheading
-const SubHeading = styled.p`
-  font-size: clamp(1rem, 1.5vw, 1.2rem);
-  color: #555;
-  margin-bottom: 2rem;
-  line-height: 1.5;
-`;
-
-// 🌟 Form
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem; /* Adjusted spacing between inputs */
 `;
 
-// 🌟 Input
-const Input = styled.input`
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  transition: border-color 0.2s;
+const InputGroup = styled.div`
+  text-align: left;
+  width: 93%; /* Ensure the input group spans the full container width */
 
-  &:focus {
-    border-color: #6c63ff;
-    outline: none;
+  label {
+    font-size: 0.875rem;
+    color: #333;
+    margin-bottom: 0.25rem;
+    display: block;
+  }
+
+  input {
+    width: 100%; /* Ensure the input spans the full width of the container */
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+
+    &:focus {
+      border-color: #6c63ff;
+      outline: none;
+    }
   }
 `;
 
-// 🌟 Submit Button
 const SubmitButton = styled.button`
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   padding: 0.75rem;
   font-size: 1rem;
   color: #fff;
-  background: linear-gradient(135deg, #6c63ff, #e942f5);
+  background: #d8b4ff;
   border: none;
-  border-radius: 8px;
+  border-radius: 50px; /* Oval shape */
   cursor: pointer;
-  transition: opacity 0.3s;
+  width: 100%; /* Matches the width of the form container */
 
   &:hover {
-    opacity: 0.9;
+    background: #cfa8f7;
+  }
+
+  &:disabled {
+    background: #f2e7ff;
+    cursor: not-allowed;
   }
 `;
 
-// 🌟 Error List
-const ErrorList = styled.ul`
-  list-style: none;
-  padding: 0;
+const TermsNote = styled.p`
+  font-size: 0.875rem;
+  color: #555;
   margin-top: 1rem;
-  color: #d32f2f;
-  font-size: 0.9rem;
+
+  a {
+    color: #6c63ff;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 `;
 
-// 🌟 Error Item
-const ErrorItem = styled.li`
-  margin-bottom: 0.5rem;
+const Divider = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2rem auto;
+  width: 100%; /* Full width of parent */
+  max-width: 400px; /* Matches the width of the form and button */
+  text-align: center; /* Ensures the text and lines are centered */
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #ddd;
+  }
+
+  span {
+    margin: 0 1.5rem;
+    font-size: 1.2rem;
+    color: #555;
+    white-space: nowrap;
+  }
+`;
+
+const Footer = styled.div`
+  text-align: center;
+  width: 100%; /* Ensures the footer spans the full width of the viewport */
+  padding: 0 1rem; /* Adds horizontal padding to the footer */
+
+  button {
+    border: 1px solid #000;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 50px; /* Oval shape */
+    background: transparent;
+    cursor: pointer;
+    margin-top: 1rem;
+    width: 100%; /* Makes the button take the full width of the footer */
+    max-width: 400px; /* Limits the button width on larger screens */
+    box-sizing: border-box; /* Ensures padding doesn’t cause overflow */
+
+    &:hover {
+      background: #f9f9f9;
+    }
+  }
+
+  p {
+    font-size: 0.875rem;
+  }
 `;
 
 const SignUp = () => {
   const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
@@ -106,9 +159,6 @@ const SignUp = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
-
-  // 🌟 Form Submit Handler
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -120,14 +170,13 @@ const SignUp = () => {
     const userData = {
       user: {
         name,
-        username,
         email,
         password,
         password_confirmation: passwordConfirmation,
       },
     };
 
-    fetch(`${API_URL}/users`, {
+    fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -150,54 +199,68 @@ const SignUp = () => {
   return (
     <PageContainer>
       <FormContainer>
-        <Heading>Create Your Account</Heading>
-        <SubHeading>Join Voxxy and start planning effortlessly!</SubHeading>
+        <Heading>Create an account</Heading>
         <Form onSubmit={handleSubmit}>
-          <Input
-            type="text"
-            placeholder="Your name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <Input
-            type="text"
-            placeholder="Your username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-          <Input
-            type="email"
-            placeholder="Your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <Input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <Input
-            type="password"
-            placeholder="Confirm password"
-            value={passwordConfirmation}
-            onChange={(e) => setPasswordConfirmation(e.target.value)}
-            required
-          />
-          <SubmitButton type="submit">Sign Up</SubmitButton>
+          <InputGroup>
+            <label htmlFor="name">What should we call you?</label>
+            <input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </InputGroup>
+          <InputGroup>
+            <label htmlFor="email">What’s your email?</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </InputGroup>
+          <InputGroup>
+            <label htmlFor="password">Create a password</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </InputGroup>
+          <InputGroup>
+            <label htmlFor="passwordConfirmation">Confirm your password</label>
+            <input
+              id="passwordConfirmation"
+              type="password"
+              value={passwordConfirmation}
+              onChange={(e) => setPasswordConfirmation(e.target.value)}
+              required
+            />
+          </InputGroup>
+          <SubmitButton type="submit">Create an account</SubmitButton>
         </Form>
+        <TermsNote>
+          By creating an account, you agree to the{' '}
+          <a href="/terms">Terms of use</a> and <a href="/privacy">Privacy Policy</a>.
+        </TermsNote>
         {errors.length > 0 && (
-          <ErrorList>
+          <ul style={{ color: 'red', marginTop: '1rem', fontSize: '0.875rem' }}>
             {errors.map((error, index) => (
-              <ErrorItem key={index}>{error}</ErrorItem>
+              <li key={index}>{error}</li>
             ))}
-          </ErrorList>
+          </ul>
         )}
       </FormContainer>
+      <Footer>
+        <Divider>
+          <span>Already have an account?</span>
+        </Divider>
+        <button onClick={() => navigate('/login')}>Log in</button>
+      </Footer>
     </PageContainer>
   );
 };

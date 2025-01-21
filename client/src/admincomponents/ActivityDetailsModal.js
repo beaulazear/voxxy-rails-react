@@ -77,13 +77,12 @@ const FooterButtons = styled.div`
 `;
 
 function ActivityDetailsModal({ activity, isVisible, onClose }) {
-    const { user, setUser } = useContext(UserContext);
+    const { setUser } = useContext(UserContext);
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
     const [isActive, setIsActive] = useState(false);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-    // ✅ Sync isActive with activity.active when activity updates
     useEffect(() => {
         if (activity && activity.active !== undefined) {
             setIsActive(activity.active);
@@ -92,13 +91,11 @@ function ActivityDetailsModal({ activity, isVisible, onClose }) {
 
     if (!activity) return null;
 
-    // ✅ Handle Toggle Change
     const handleToggleChange = (checked) => {
         setIsActive(checked);
         setHasUnsavedChanges(true);
     };
 
-    // ✅ Handle Save Active State
     const handleSaveActive = async () => {
         try {
             const response = await fetch(`${API_URL}/activities/${activity.id}`, {
@@ -136,7 +133,6 @@ function ActivityDetailsModal({ activity, isVisible, onClose }) {
         }
     };
 
-    // ✅ Handle Delete
     const handleDelete = async () => {
         try {
             const response = await fetch(`${API_URL}/activities/${activity.id}`, {
@@ -172,7 +168,6 @@ function ActivityDetailsModal({ activity, isVisible, onClose }) {
         });
     };
 
-    // ✅ Handle Unsaved Changes on Close
     const handleModalClose = () => {
         if (hasUnsavedChanges) {
             Modal.confirm({
@@ -187,7 +182,6 @@ function ActivityDetailsModal({ activity, isVisible, onClose }) {
         }
     };
 
-    // ✅ Updated Collapse items instead of children
     const collapseItems = [
         {
             key: '1',
