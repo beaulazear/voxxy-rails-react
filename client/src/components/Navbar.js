@@ -21,13 +21,18 @@ const NavbarContainer = styled.div`
   }
 `;
 
-const Logo = styled.div`
+const Logo = styled(NavLink)`
   font-size: 28px;
   font-weight: bold;
   background: linear-gradient(to right, #4f46e5, #4f46e5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: 1px;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const MenuContainer = styled.div`
@@ -122,7 +127,7 @@ const Navbar = () => {
 
   return (
     <NavbarContainer>
-      <Logo>VOXXY</Logo>
+      <Logo to="/">VOXXY</Logo>
       <MenuContainer>
         <StyledButton>
           <MenuItem to="/" end>Home</MenuItem>
