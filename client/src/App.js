@@ -12,6 +12,7 @@ import ForgotPassword from './components/ForgotPassword.js';
 import ResetPassword from './components/ResetPassword.js';
 import LandingPage from './components/LandingPage.js';
 import TripDashboard from './admincomponents/TripDashboard.js';
+import UserActivities from './admincomponents/UserActivities.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -41,6 +42,7 @@ function App() {
             />            
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
+            <Route path='/boards' element={<UserActivities />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/verification" element={<Verification />} />
             {isLoggedIn && (

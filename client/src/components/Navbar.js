@@ -129,11 +129,14 @@ const Navbar = () => {
     <NavbarContainer>
       <Logo to="/">VOXXY</Logo>
       <MenuContainer>
-        <StyledButton>
-          <MenuItem to="/" end>Home</MenuItem>
-        </StyledButton>
         {user && (
           <>
+            <StyledButton>
+              <MenuItem to="/boards" end>Boards</MenuItem>
+            </StyledButton>
+            <StyledButton>
+              <MenuItem to="/" end>Activities</MenuItem>
+            </StyledButton>
             <StyledButton onClick={handleLogout}>
               <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
             </StyledButton>
@@ -141,6 +144,9 @@ const Navbar = () => {
         )}
         {!user && (
           <>
+            <StyledButton>
+              <MenuItem to="/" end>Home</MenuItem>
+            </StyledButton>
             <StyledButton>
               <NavLink to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
             </StyledButton>
@@ -158,13 +164,18 @@ const Navbar = () => {
         open={drawerVisible}
         width={250}
       >
-        <DrawerMenuItem>
-          <StyledButton onClick={closeDrawer}>
-            <NavLink to="/" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Home</NavLink>
-          </StyledButton>
-        </DrawerMenuItem>
         {user && (
           <>
+            <DrawerMenuItem>
+              <StyledButton onClick={closeDrawer}>
+                <NavLink to="/boards" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Boards</NavLink>
+              </StyledButton>
+            </DrawerMenuItem>
+            <DrawerMenuItem>
+              <StyledButton onClick={closeDrawer}>
+                <NavLink to="/" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Activities</NavLink>
+              </StyledButton>
+            </DrawerMenuItem>
             <DrawerMenuItem>
               <StyledButton onClick={handleLogout}>
                 <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
@@ -174,6 +185,11 @@ const Navbar = () => {
         )}
         {!user && (
           <>
+            <DrawerMenuItem>
+              <StyledButton onClick={closeDrawer}>
+                <NavLink to="/" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Home</NavLink>
+              </StyledButton>
+            </DrawerMenuItem>
             <DrawerMenuItem>
               <StyledButton onClick={closeDrawer}>
                 <NavLink to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
