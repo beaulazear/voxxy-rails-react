@@ -3,9 +3,8 @@ import styled from 'styled-components';
 import { UserContext } from '../context/user';
 import ActivityDetailsModal from './ActivityDetailsModal';
 
-const SectionTitle = styled.h2`
+const SectionTitle = styled.p`
   font-size: clamp(1.5rem, 2.5vw, 2rem);
-  font-weight: bold;
   margin: 0;
   text-align: left;
 `;
