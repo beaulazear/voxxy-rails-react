@@ -54,13 +54,10 @@ const ActivityCard = styled.div.withConfig({
     transform: ${({ active }) => (active ? 'translateY(-5px)' : 'none')};
   }
 
-  img {
-    width: 100%;
-    height: auto;
-    max-height: 70%;
-    object-fit: contain;
-    background: transparent;
-    border-radius: 8px 8px 0 0;
+  .emoji {
+    font-size: 4rem;
+    margin-top: 1rem;
+    line-height: 1;
   }
 
   h3 {
@@ -74,29 +71,29 @@ const ActivityCard = styled.div.withConfig({
 
 function StartNewAdventure({ onTripSelect }) {
   const adventures = [
-    { name: 'Choose a Restaurant', icon: '/assets/Restaurant.jpg', active: true },
-    { name: 'Choose a Movie', icon: '/assets/Movie.jpg', active: false },
-    { name: 'Ski Trip', icon: '/assets/Ski.jpg', active: false },
-    { name: 'Kids Play Date', icon: '/assets/Kids.jpg', active: false },
-    { name: 'Choose a Destination', icon: '/assets/Restaurant.jpg', active: false },
-    { name: 'Game Night', icon: '/assets/Game.jpg', active: false },
-    { name: 'Family Reunion', icon: '/assets/Family.jpg', active: false },
-    { name: 'Road Trip', icon: '/assets/RoadTrip.jpg', active: false },
-    { name: 'Choose a Time', icon: '/assets/Time.jpg', active: false },
-    { name: 'Trip to Iceland', icon: '/assets/Iceland.jpg', active: false },
+    { name: 'Choose a Restaurant', emoji: '🍜', active: true },
+    { name: 'Choose a Movie', emoji: '🎥', active: false },
+    { name: 'Ski Trip', emoji: '🎿', active: false },
+    { name: 'Kids Play Date', emoji: '👩‍👧‍👦', active: false },
+    { name: 'Choose a Destination', emoji: '🗺️', active: false },
+    { name: 'Game Night', emoji: '🎮', active: false },
+    { name: 'Family Reunion', emoji: '👨‍👩‍👧‍👦', active: false },
+    { name: 'Road Trip', emoji: '🚗', active: false },
+    { name: 'Choose a Time', emoji: '⏰', active: false },
+    { name: 'Trip to Iceland', emoji: '🇮🇸', active: false },
   ];
 
   return (
     <div>
       <SectionTitle>Choose An Activity</SectionTitle>
       <CardGrid>
-        {adventures.map(({ name, icon, active }) => (
+        {adventures.map(({ name, emoji, active }) => (
           <ActivityCard
             key={name}
             active={active}
             onClick={active ? () => onTripSelect(name) : undefined}
           >
-            <img src={icon} alt={name} />
+            <div className="emoji">{emoji}</div>
             <h3>{name}</h3>
           </ActivityCard>
         ))}

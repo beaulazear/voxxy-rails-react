@@ -56,13 +56,10 @@ const ActivityCard = styled.div.withConfig({
     transform: ${({ active }) => (active ? 'translateY(-5px)' : 'none')};
   }
 
-  img {
-    width: 100%;
-    height: auto;
-    max-height: 70%; /* Prevents overflow */
-    object-fit: contain;
-    background: transparent;
-    border-radius: 8px 8px 0 0;
+  .emoji {
+    font-size: 4rem;
+    margin-top: 1rem;
+    line-height: 1;
   }
 
   h3 {
@@ -100,7 +97,7 @@ function UserActivities() {
 
   const renderActivityCard = (activity) => (
     <ActivityCard key={activity.id} active={true} onClick={() => handleActivityClick(activity)}>
-      <img src={activity.image || '/assets/Ski.jpg'} alt={activity.activity_name} />
+      <div className="emoji">{activity.emoji || '🎿'}</div>
       <h3>{activity.activity_name}</h3>
     </ActivityCard>
   );
@@ -113,7 +110,7 @@ function UserActivities() {
           user.activities.map(renderActivityCard)
         ) : (
           <ActivityCard active={true}>
-            <img src="/assets/request-a-trip-icon.png" alt="Start a New Board" />
+            <div className="emoji">➕</div>
             <h3>Start a New Board</h3>
           </ActivityCard>
         )}

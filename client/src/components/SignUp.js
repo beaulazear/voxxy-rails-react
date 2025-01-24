@@ -7,9 +7,8 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh;
   padding: 2rem 1rem;
+  min-height: 100vh; /* Ensures the page takes up the full height */
 `;
 
 const FormContainer = styled.div`

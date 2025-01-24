@@ -184,7 +184,7 @@ const Login = () => {
   return (
     <PageContainer>
       <FormContainer>
-        <Heading>Log In</Heading>
+        <Heading>Log in to your account</Heading>
         <Form onSubmit={handleSubmit}>
           <InputGroup>
             <label htmlFor="email">Email</label>
