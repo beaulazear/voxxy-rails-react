@@ -33,11 +33,13 @@ const CardGrid = styled.div`
   }
 `;
 
-const ActivityCard = styled.div`
+const ActivityCard = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'active', // Filter out 'active'
+})`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #fff;
+  background: ${({ active }) => (active ? '#fff' : '#e0e0e0')};
   border-radius: 12px;
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -45,21 +47,25 @@ const ActivityCard = styled.div`
   padding: 0;
   max-width: 250px;
   overflow: hidden;
+  pointer-events: ${({ active }) => (active ? 'auto' : 'none')};
+  opacity: ${({ active }) => (active ? '1' : '0.6')};
 
   &:hover {
-    transform: translateY(-5px);
+    transform: ${({ active }) => (active ? 'translateY(-5px)' : 'none')};
   }
 
   img {
     width: 100%;
-    height: 70%;
-    object-fit: cover;
+    height: auto;
+    max-height: 70%;
+    object-fit: contain;
+    background: transparent;
     border-radius: 8px 8px 0 0;
   }
 
   h3 {
     font-size: clamp(1rem, 1.2vw, 1.5rem);
-    color: #333;
+    color: ${({ active }) => (active ? '#333' : '#888')};
     line-height: 1.2;
     margin-top: auto;
     padding: 0.3rem;
@@ -68,19 +74,28 @@ const ActivityCard = styled.div`
 
 function StartNewAdventure({ onTripSelect }) {
   const adventures = [
-    { name: 'Ski Trip', icon: '/assets/ski-trip-icon.png' },
-    { name: 'Choose a Destination', icon: '/assets/choose-destination-icon.png' },
-    { name: 'Game Night', icon: '/assets/game-night-icon.png' },
-    { name: 'Dinner Plans', icon: '/assets/dinner-plans-icon.png' },
-    { name: 'Suggest an Adventure', icon: '/assets/request-a-trip-icon.png' },
+    { name: 'Choose a Restaurant', icon: '/assets/Restaurant.jpg', active: true },
+    { name: 'Choose a Movie', icon: '/assets/Movie.jpg', active: false },
+    { name: 'Ski Trip', icon: '/assets/Ski.jpg', active: false },
+    { name: 'Kids Play Date', icon: '/assets/Kids.jpg', active: false },
+    { name: 'Choose a Destination', icon: '/assets/Restaurant.jpg', active: false },
+    { name: 'Game Night', icon: '/assets/Game.jpg', active: false },
+    { name: 'Family Reunion', icon: '/assets/Family.jpg', active: false },
+    { name: 'Road Trip', icon: '/assets/RoadTrip.jpg', active: false },
+    { name: 'Choose a Time', icon: '/assets/Time.jpg', active: false },
+    { name: 'Trip to Iceland', icon: '/assets/Iceland.jpg', active: false },
   ];
 
   return (
     <div>
       <SectionTitle>Choose An Activity</SectionTitle>
       <CardGrid>
-        {adventures.map(({ name, icon }) => (
-          <ActivityCard key={name} onClick={() => onTripSelect(name)}>
+        {adventures.map(({ name, icon, active }) => (
+          <ActivityCard
+            key={name}
+            active={active}
+            onClick={active ? () => onTripSelect(name) : undefined}
+          >
             <img src={icon} alt={name} />
             <h3>{name}</h3>
           </ActivityCard>

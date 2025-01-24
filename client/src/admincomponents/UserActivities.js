@@ -35,11 +35,13 @@ const CardGrid = styled.div`
   }
 `;
 
-const ActivityCard = styled.div`
+const ActivityCard = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'active', // Prevent non-standard props from being passed to the DOM
+})`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #fff;
+  background: ${({ active }) => (active ? '#fff' : '#e0e0e0')};
   border-radius: 12px;
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -47,21 +49,25 @@ const ActivityCard = styled.div`
   padding: 0;
   max-width: 250px;
   overflow: hidden;
+  pointer-events: ${({ active }) => (active ? 'auto' : 'none')};
+  opacity: ${({ active }) => (active ? '1' : '0.6')};
 
   &:hover {
-    transform: translateY(-5px);
+    transform: ${({ active }) => (active ? 'translateY(-5px)' : 'none')};
   }
 
   img {
     width: 100%;
-    height: 70%;
-    object-fit: cover;
+    height: auto;
+    max-height: 70%; /* Prevents overflow */
+    object-fit: contain;
+    background: transparent;
     border-radius: 8px 8px 0 0;
   }
 
   h3 {
     font-size: clamp(1rem, 1.2vw, 1.5rem);
-    color: #333;
+    color: ${({ active }) => (active ? '#333' : '#888')};
     line-height: 1.2;
     margin-top: auto;
     padding: 0.3rem;
@@ -78,47 +84,47 @@ const DashboardContainer = styled.div`
 `;
 
 function UserActivities() {
-    const { user } = useContext(UserContext);
-    const [selectedActivity, setSelectedActivity] = useState(null);
-    const [isModalVisible, setIsModalVisible] = useState(false);
+  const { user } = useContext(UserContext);
+  const [selectedActivity, setSelectedActivity] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
-    const handleActivityClick = (activity) => {
-        setSelectedActivity(activity);
-        setIsModalVisible(true);
-    };
+  const handleActivityClick = (activity) => {
+    setSelectedActivity(activity);
+    setIsModalVisible(true);
+  };
 
-    const closeModal = () => {
-        setSelectedActivity(null);
-        setIsModalVisible(false);
-    };
+  const closeModal = () => {
+    setSelectedActivity(null);
+    setIsModalVisible(false);
+  };
 
-    const renderActivityCard = (activity) => (
-        <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)}>
-            <img src={activity.image || '/assets/ski-trip-icon.png'} alt={activity.activity_name} />
-            <h3>{activity.activity_name}</h3>
-        </ActivityCard>
-    );
+  const renderActivityCard = (activity) => (
+    <ActivityCard key={activity.id} active={true} onClick={() => handleActivityClick(activity)}>
+      <img src={activity.image || '/assets/Ski.jpg'} alt={activity.activity_name} />
+      <h3>{activity.activity_name}</h3>
+    </ActivityCard>
+  );
 
-    return (
-        <DashboardContainer>
-            <SectionTitle>Your Boards</SectionTitle>
-            <CardGrid>
-                {user?.activities?.length > 0 ? (
-                    user.activities.map(renderActivityCard)
-                ) : (
-                    <ActivityCard>
-                        <img src="/assets/request-a-trip-icon.png" alt="Start a New Board" />
-                        <h3>Start a New Board</h3>
-                    </ActivityCard>
-                )}
-            </CardGrid>
-            <ActivityDetailsModal
-                activity={selectedActivity}
-                isVisible={isModalVisible}
-                onClose={closeModal}
-            />
-        </DashboardContainer>
-    );
+  return (
+    <DashboardContainer>
+      <SectionTitle>Your Boards</SectionTitle>
+      <CardGrid>
+        {user?.activities?.length > 0 ? (
+          user.activities.map(renderActivityCard)
+        ) : (
+          <ActivityCard active={true}>
+            <img src="/assets/request-a-trip-icon.png" alt="Start a New Board" />
+            <h3>Start a New Board</h3>
+          </ActivityCard>
+        )}
+      </CardGrid>
+      <ActivityDetailsModal
+        activity={selectedActivity}
+        isVisible={isModalVisible}
+        onClose={closeModal}
+      />
+    </DashboardContainer>
+  );
 }
 
 export default UserActivities;
