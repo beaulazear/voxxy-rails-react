@@ -5,6 +5,7 @@ const SectionTitle = styled.p`
   font-size: clamp(1.5rem, 2.5vw, 2rem);
   margin: 0;
   text-align: left;
+  font-weight: bold;
 `;
 
 const CardGrid = styled.div`
@@ -33,7 +34,7 @@ const CardGrid = styled.div`
 `;
 
 const ActivityCard = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== 'active', // Filter out 'active'
+  shouldForwardProp: (prop) => prop !== 'active', // ✅ Stops `active` from reaching the DOM
 })`
   display: flex;
   flex-direction: column;
@@ -43,7 +44,7 @@ const ActivityCard = styled.div.withConfig({
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease;
-  padding: 0;
+  padding: 15px;
   max-width: 250px;
   overflow: hidden;
   pointer-events: ${({ active }) => (active ? 'auto' : 'none')};
@@ -58,14 +59,17 @@ const ActivityCard = styled.div.withConfig({
     margin-top: 1rem;
     line-height: 1;
   }
+`;
 
-  h3 {
-    font-size: clamp(1rem, 1.2vw, 1.5rem);
-    color: ${({ active }) => (active ? '#333' : '#888')};
-    line-height: 1.2;
-    margin-top: auto;
-    padding: 0.3rem;
-  }
+/** ✅ FIX: Prevent `active` from being passed to the DOM */
+const ActivityName = styled.h3.withConfig({
+  shouldForwardProp: (prop) => prop !== 'active', // ✅ Fix applied here
+})`
+  font-size: clamp(1.1rem, 1.4vw, 1.4rem); /* Slightly smaller */
+  font-weight: 500; /* Less bold */
+  color: ${({ active }) => (active ? '#222' : '#777')}; /* ✅ Uses active but doesn't pass it */
+  margin: 0.3rem 0;
+  padding: 0;
 `;
 
 function StartNewAdventure({ onTripSelect }) {
@@ -93,7 +97,7 @@ function StartNewAdventure({ onTripSelect }) {
             onClick={active ? () => onTripSelect(name) : undefined}
           >
             <div className="emoji">{emoji}</div>
-            <h3>{name}</h3>
+            <ActivityName active={active}>{name}</ActivityName> {/* ✅ Now error-free */}
           </ActivityCard>
         ))}
       </CardGrid>

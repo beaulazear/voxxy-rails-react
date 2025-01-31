@@ -1,8 +1,8 @@
 import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { UserContext } from '../context/user';
-import SkiTripChat from './SkiTripChat';
 import StartNewAdventure from './StartNewAdventure';
+import RestaurantChat from './RestaurantChat';
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -11,6 +11,7 @@ const DashboardContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   gap: 1.5rem;
+  position: relative; /* Needed for proper stacking of child elements */
 `;
 
 const LoadingScreen = styled.div`
@@ -36,19 +37,28 @@ const LoadingScreen = styled.div`
   }
 `;
 
+const DimmedOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Dimmed background */
+  z-index: 998; /* Lower than the chat box */
+`;
+
 function TripDashboard() {
   const { user } = useContext(UserContext);
   const [selectedTrip, setSelectedTrip] = useState(null);
 
   const handleTripSelect = (tripName) => {
-    if (tripName === 'Ski Trip') {
-      setSelectedTrip('Ski Trip');
+    if (tripName === 'Choose a Restaurant') {
+      setSelectedTrip('Choose a Restaurant');
     } else {
       alert(`Selected Trip: ${tripName}`);
     }
   };
 
-  if (selectedTrip === 'Ski Trip') return <SkiTripChat />;
   if (!user) {
     return (
       <LoadingScreen>
@@ -58,9 +68,18 @@ function TripDashboard() {
   }
 
   return (
-    <DashboardContainer>
-      <StartNewAdventure onTripSelect={handleTripSelect} />
-    </DashboardContainer>
+    <>
+      <DashboardContainer>
+        <StartNewAdventure onTripSelect={handleTripSelect} />
+      </DashboardContainer>
+      {/* Conditionally render the chat with an overlay */}
+      {selectedTrip === 'Choose a Restaurant' && (
+        <>
+          <DimmedOverlay />
+          <RestaurantChat onClose={() => setSelectedTrip(null)} />
+        </>
+      )}
+    </>
   );
 }
 
