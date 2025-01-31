@@ -24,7 +24,7 @@ class UsersController < ApplicationController
       render json: user.as_json(
         include: {
           activities: {
-            only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji],
+            only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji ],
             include: {
               responses: {
                 only: [ :id, :notes, :created_at ]
