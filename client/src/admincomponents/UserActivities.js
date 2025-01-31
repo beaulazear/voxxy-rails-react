@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { UserContext } from '../context/user';
-import ActivityDetailsModal from './ActivityDetailsModal';
+import ActivityDetailsPage from './ActivityDetailsPage';
 
 const SectionTitle = styled.p`
   font-size: clamp(1.5rem, 2.5vw, 2rem);
@@ -35,7 +35,7 @@ const CardGrid = styled.div`
 `;
 
 const ActivityCard = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== 'active', // Prevent non-standard props from being passed to the DOM
+  shouldForwardProp: (prop) => prop !== 'active',
 })`
   display: flex;
   flex-direction: column;
@@ -82,24 +82,30 @@ const DashboardContainer = styled.div`
 function UserActivities() {
   const { user } = useContext(UserContext);
   const [selectedActivity, setSelectedActivity] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleActivityClick = (activity) => {
     setSelectedActivity(activity);
-    setIsModalVisible(true);
   };
 
-  const closeModal = () => {
+  const handleBack = () => {
     setSelectedActivity(null);
-    setIsModalVisible(false);
   };
-
+  
   const renderActivityCard = (activity) => (
     <ActivityCard key={activity.id} active={true} onClick={() => handleActivityClick(activity)}>
-      <div className="emoji">{activity.emoji || '🎿'}</div>
+      <div className="emoji">{activity.emoji || '🌀'}</div>
       <h3>{activity.activity_name}</h3>
     </ActivityCard>
   );
+
+  if (selectedActivity) {
+    return (
+      <ActivityDetailsPage
+        activity={selectedActivity}
+        onBack={handleBack}
+      />
+    );
+  }
 
   return (
     <DashboardContainer>
@@ -114,11 +120,6 @@ function UserActivities() {
           </ActivityCard>
         )}
       </CardGrid>
-      <ActivityDetailsModal
-        activity={selectedActivity}
-        isVisible={isModalVisible}
-        onClose={closeModal}
-      />
     </DashboardContainer>
   );
 }
