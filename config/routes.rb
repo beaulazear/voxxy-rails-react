@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
+  resources :responses, only: [ :index, :create, :destroy ]
   resources :users, only: [ :index, :create, :destroy ]
-  resources :activities, only: [ :create, :destroy, :update ]
+  resources :activities, only: [ :create, :destroy, :update, :index, :show ]
   resource :password_reset, only: [ :create, :update ]
 
   get "/verify", to: "users#verify"
@@ -11,6 +12,8 @@ Rails.application.routes.draw do
   get "/me", to: "users#show"
 
   post "/api/openai/haiku", to: "openai#generate_haiku"
+
+  post "/api/openai/restaurant_recommendations", to: "openai#restaurant_recommendations"
 
   get "up" => "rails/health#show", as: :rails_health_check
 

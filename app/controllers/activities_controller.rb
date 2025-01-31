@@ -29,6 +29,25 @@ class ActivitiesController < ApplicationController
       end
     end
 
+    def index
+      activities = current_user.activities.all
+      render json: activities
+    end
+
+    def show
+      activity = current_user.activities.includes(:responses).find_by(id: params[:id])
+
+      if activity
+        render json: activity.as_json(
+          include: {
+            responses: { only: [ :id, :notes, :created_at ] }
+          }
+        )
+      else
+        render json: { error: "Not found" }, status: :not_found
+      end
+    end
+
     private
 
     def activity_params

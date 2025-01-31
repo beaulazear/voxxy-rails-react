@@ -1,6 +1,8 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { UserContext } from '../context/user';
+import CuisineChat from './CuisineChat';
+import AIRecommendations from "./AIRecommendations";
 
 const PageContainer = styled.div`
   width: 100%;
@@ -50,6 +52,10 @@ const Section = styled.div`
     margin-bottom: 1rem;
     text-align: left;
     font-weight: 600;
+  }
+
+  p {
+    text-align: left;
   }
 
   .location,
@@ -136,34 +142,46 @@ const ChatButton = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 2rem;
+`;
 
-  button {
-    padding: 0.75rem 1.5rem;
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: #fff;
-    background: #9b59b6;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: background 0.3s ease;
+const StyledButton = styled.button`
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  background: ${(props) => (props.$isDelete ? "#e74c3c" : "#9b59b6")};
 
-    &:hover {
-      background: #8e44ad;
-    }
+  &:hover {
+    background: ${(props) => (props.$isDelete ? "#c0392b" : "#8e44ad")};
   }
+`;
+
+const DimmedOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 998;
 `;
 
 function ActivityDetailsPage({ activity, onBack }) {
   const [activeTab, setActiveTab] = useState('Recommendations');
-  
-  const { setUser } = useContext(UserContext)
+  const [showChat, setShowChat] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(false); // New state for triggering refresh
+
+  const { setUser } = useContext(UserContext);
 
   function handleDelete(id) {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this activity? This action is permanent and cannot be undone."
     );
-  
+
     if (confirmDelete) {
       fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${id}`, {
         method: "DELETE",
@@ -172,14 +190,14 @@ function ActivityDetailsPage({ activity, onBack }) {
         .then((response) => {
           if (response.ok) {
             console.log(`Activity with ID ${id} deleted successfully`);
-  
+
             setUser((prevUser) => ({
               ...prevUser,
               activities: prevUser.activities.filter(
                 (activity) => activity.id !== id
               ),
             }));
-            onBack()
+            onBack();
           } else {
             console.error("Failed to delete activity");
           }
@@ -222,42 +240,53 @@ function ActivityDetailsPage({ activity, onBack }) {
         <h2>Pin</h2>
         <p>No pin added yet.</p>
       </Section>
-
       <TabsSection>
         <div className="tabs">
           <button
-            className={activeTab === 'Recommendations' ? 'active' : ''}
-            onClick={() => setActiveTab('Recommendations')}
+            className={activeTab === "Recommendations" ? "active" : ""}
+            onClick={() => setActiveTab("Recommendations")}
           >
             Recommendations
           </button>
           <button
-            className={activeTab === 'Discussion' ? 'active' : ''}
-            onClick={() => setActiveTab('Discussion')}
+            className={activeTab === "Discussion" ? "active" : ""}
+            onClick={() => setActiveTab("Discussion")}
           >
             Discussion
           </button>
         </div>
         <div className="tab-content">
-          {activeTab === 'Recommendations' && (
-            <p>Recommendations content goes here.</p>
-          )}
-          {activeTab === 'Discussion' && (
-            <p>Discussion content goes here.</p>
-          )}
+          {activeTab === "Recommendations" && <AIRecommendations activity={activity} refreshTrigger={refreshTrigger} />}
+          {activeTab === "Discussion" && <p>Discussion content goes here.</p>}
         </div>
       </TabsSection>
 
       <ChatButton>
-        <button onClick={() => console.log('Chat with Voxxy')}>
+        <StyledButton onClick={() => setShowChat(true)}>
           Chat with Voxxy
-        </button>
+        </StyledButton>
       </ChatButton>
+
       <ChatButton>
-        <button onClick={() => handleDelete(activity.id)}>
+        <StyledButton $isDelete onClick={() => handleDelete(activity.id)}>
           Delete Board
-        </button>
+        </StyledButton>
       </ChatButton>
+
+      {showChat && (
+        <>
+          <DimmedOverlay />
+
+          <CuisineChat
+            activityId={activity.id}
+            onClose={() => setShowChat(false)}
+            onChatComplete={() => {
+              setRefreshTrigger(prev => !prev);
+              console.log('🔄 refreshTrigger updated!', !refreshTrigger);
+            }}
+          />
+        </>
+      )}
     </PageContainer>
   );
 }

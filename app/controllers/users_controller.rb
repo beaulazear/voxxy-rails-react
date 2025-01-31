@@ -18,13 +18,18 @@ class UsersController < ApplicationController
   end
 
   def show
-    user = User.includes(:activities).find_by(id: current_user.id)
+    user = User.includes(activities: :responses).find_by(id: current_user.id)
 
     if user
       render json: user.as_json(
         include: {
           activities: {
-            only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji ]
+            only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji],
+            include: {
+              responses: {
+                only: [ :id, :notes, :created_at ]
+              }
+            }
           }
         }
       )

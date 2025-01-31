@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_31_114548) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_31_133358) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -27,6 +27,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_31_114548) do
     t.text "activity_summary"
     t.string "emoji"
     t.index ["user_id"], name: "index_activities_on_user_id"
+  end
+
+  create_table "responses", force: :cascade do |t|
+    t.bigint "activity_id", null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["activity_id"], name: "index_responses_on_activity_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -51,4 +59,5 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_31_114548) do
   end
 
   add_foreign_key "activities", "users"
+  add_foreign_key "responses", "activities"
 end
