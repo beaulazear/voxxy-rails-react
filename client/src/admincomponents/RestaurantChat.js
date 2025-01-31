@@ -131,6 +131,7 @@ function RestaurantChat({ onClose }) {
         activity_location: '',
         group_size: '',
         date_notes: '',
+        emoji: '🍜'
     });
     const [messages, setMessages] = useState([]);
 
@@ -198,10 +199,8 @@ function RestaurantChat({ onClose }) {
 
     return (
         <>
-            {/* Add an onClick handler to the Overlay */}
             <Overlay onClick={onClose} />
             <ChatContainer onClick={(e) => e.stopPropagation()}>
-                {/* Stop propagation to prevent clicks inside the chat from closing it */}
                 <ChatHeader>Chat with Voxxy</ChatHeader>
                 <ChatBody>
                     {messages.map((msg, index) => (
