@@ -17,6 +17,7 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  text-align: left;
 
   h1 {
     font-size: 2rem;
@@ -170,6 +171,74 @@ const DimmedOverlay = styled.div`
   z-index: 998;
 `;
 
+const FlexContainer = styled.div`
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+`;
+
+// Smaller Sections to keep them compact
+const SmallSection = styled.div`
+  flex: 1;
+  min-width: 280px;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  .location,
+  .date {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .participants {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+
+    .participant {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #9b59b6;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .add-participant {
+      padding: 0.5rem 1rem;
+      background: #e9e9e9;
+      border-radius: 20px;
+      color: #333;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 1px solid #ccc;
+
+      &:hover {
+        background: #d9d9d9;
+      }
+    }
+  }
+`;
+
 function ActivityDetailsPage({ activity, onBack }) {
   const [activeTab, setActiveTab] = useState('Recommendations');
   const [showChat, setShowChat] = useState(false);
@@ -215,26 +284,28 @@ function ActivityDetailsPage({ activity, onBack }) {
         <button onClick={() => onBack()}>Back</button>
       </Header>
 
-      <Section>
-        <h2>Details</h2>
-        <div className="location">
-          📍 {activity.activity_location || 'Not specified'}
-        </div>
-        <div className="date">
-          📅 {activity.date_notes}
-        </div>
-      </Section>
+      <FlexContainer>
+        <SmallSection>
+          <h2>Details</h2>
+          <div className="location">
+            📍 {activity.activity_location || 'Not specified'}
+          </div>
+          <div className="date">
+            📅 {activity.date_notes}
+          </div>
+        </SmallSection>
 
-      <Section>
-        <h2>Participants</h2>
-        <div className="participants">
-          <div className="participant">AK</div>
-          <div className="participant">AK</div>
-          <div className="participant">AK</div>
-          <div className="participant">AK</div>
-          <div className="add-participant">+ Invite</div>
-        </div>
-      </Section>
+        <SmallSection>
+          <h2>Participants</h2>
+          <div className="participants">
+            <div className="participant">AK</div>
+            <div className="participant">AK</div>
+            <div className="participant">AK</div>
+            <div className="participant">AK</div>
+            <div className="add-participant">+ Invite</div>
+          </div>
+        </SmallSection>
+      </FlexContainer>
 
       <Section>
         <h2>Pin</h2>
@@ -261,11 +332,13 @@ function ActivityDetailsPage({ activity, onBack }) {
         </div>
       </TabsSection>
 
-      <ChatButton>
-        <StyledButton onClick={() => setShowChat(true)}>
-          Chat with Voxxy
-        </StyledButton>
-      </ChatButton>
+      {activeTab === "Recommendations" && (
+        <ChatButton>
+          <StyledButton onClick={() => setShowChat(true)}>
+            Chat with Voxxy
+          </StyledButton>
+        </ChatButton>
+      )}
 
       <ChatButton>
         <StyledButton $isDelete onClick={() => handleDelete(activity.id)}>
