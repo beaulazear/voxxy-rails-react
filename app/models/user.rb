@@ -1,6 +1,8 @@
 class User < ApplicationRecord
   has_secure_password
   has_many :activities, dependent: :destroy
+  has_many :activity_participants
+  has_many :joined_activities, through: :activity_participants, source: :activity
 
   before_create :generate_confirmation_token
 

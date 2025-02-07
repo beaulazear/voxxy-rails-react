@@ -3,22 +3,25 @@ class UsersController < ApplicationController
 
   def create
     user = User.new(user_params)
+
     if user.save
       EmailVerificationService.send_verification_email(user)
-      render json: {
-        id: user.id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        confirmed_at: user.confirmed_at
-      }, status: :created
+
+      # Check if this user was invited to any activities
+      pending_invites = ActivityParticipant.where(invited_email: user.email, accepted: false)
+
+      pending_invites.each do |invite|
+        invite.update(user: user, accepted: true)
+      end
+
+      render json: user, status: :created
     else
       render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   def show
-    user = User.includes(activities: :responses).find_by(id: current_user.id)
+    user = User.includes(activities: [ :responses, :participants, :activity_participants ]).find_by(id: current_user.id)
 
     if user
       render json: user.as_json(
@@ -28,6 +31,12 @@ class UsersController < ApplicationController
             include: {
               responses: {
                 only: [ :id, :notes, :created_at ]
+              },
+              participants: {
+                only: [ :id, :name, :email ]
+              },
+              activity_participants: {
+                only: [ :invited_email, :accepted ]
               }
             }
           }

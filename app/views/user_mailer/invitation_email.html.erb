@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      color: #fff;
+      background-color: #9b59b6;
+      text-decoration: none;
+      font-size: 16px;
+      border-radius: 5px;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>You're Invited to Join an Activity on Voxxy!</h2>
+    <p>Hello,</p>
+    <p><strong><%= @inviter.name %></strong> has invited you to join an activity: <strong><%= @activity.activity_name %></strong> on Voxxy.</p>
+    <p>Click below to join the activity and start planning together!</p>
+    <a href="<%= @signup_link %>" class="button">Join Now</a>
+    <p>If you have any issues, feel free to reach out.</p>
+    <p>– The Voxxy Team</p>
+  </div>
+</body>
+</html>

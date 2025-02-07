@@ -312,15 +312,97 @@ const SmallSection = styled.div`
   }
 `;
 
+const InviteButton = styled.button`
+  padding: 0.5rem 1rem;
+  background: #9b59b6;
+  color: #fff;
+  border-radius: 20px;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  
+  &:hover {
+    background: #8e44ad;
+  }
+`;
+
+const ParticipantsSection = styled.div`
+  margin-top: 1rem;
+  max-height: 200px; /* Fixed height */
+  overflow-y: auto; /* Enables scrolling when content overflows */
+  border: 1px solid #ddd;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #fff;
+
+  h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .participant {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin: 0.25rem;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .confirmed {
+    background: #9b59b6;
+    color: #fff;
+  }
+
+  .pending {
+    background: #f0f0f0;
+    color: #666;
+    border: 1px solid #ccc;
+  }
+`;
+
 function ActivityDetailsPage({ activity, onBack }) {
   const [activeTab, setActiveTab] = useState('Recommendations');
   const [showChat, setShowChat] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
 
   const [showModal, setShowModal] = useState(false);
   const [updatedActivity, setUpdatedActivity] = useState(activity);
 
   const { setUser } = useContext(UserContext);
+
+  const confirmedParticipants = activity.participants || [];
+  const pendingParticipants = activity.activity_participants?.filter(p => !p.accepted) || [];
+
+  const handleInvite = async () => {
+    if (!inviteEmail) return;
+
+    const isDuplicate =
+      activity.participants.some((p) => p.email === inviteEmail) ||
+      activity.activity_participants.some((p) => p.invited_email === inviteEmail);
+
+    if (isDuplicate) {
+      alert("This email is already invited or is a participant.");
+      return;
+    }
+
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activity_participants/invite`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email: inviteEmail, activity_id: activity.id }),
+    });
+
+    if (response.ok) {
+      alert("Invitation sent!");
+      setInviteEmail("");
+    } else {
+      const data = await response.json();
+      alert(data.error || "Failed to send invitation.");
+    }
+  };
 
   function handleUpdate(newData) {
     setUpdatedActivity(newData);
@@ -390,13 +472,37 @@ function ActivityDetailsPage({ activity, onBack }) {
 
         <SmallSection>
           <h2>Participants</h2>
-          <div className="participants">
-            <div className="participant">AK</div>
-            <div className="participant">AK</div>
-            <div className="participant">AK</div>
-            <div className="participant">AK</div>
-            <div className="add-participant">+ Invite</div>
-          </div>
+          <ParticipantsSection>
+            <h3>Confirmed Participants</h3>
+            {confirmedParticipants.length > 0 ? (
+              confirmedParticipants.map((participant) => (
+                <div key={participant.id} className="participant confirmed">
+                  {participant.name}
+                </div>
+              ))
+            ) : (
+              <p>No confirmed participants yet.</p>
+            )}
+
+            <h3>Pending Invites</h3>
+            {pendingParticipants.length > 0 ? (
+              pendingParticipants.map((invite, index) => (
+                <div key={index} className="participant pending">
+                  {invite.invited_email} (Pending)
+                </div>
+              ))
+            ) : (
+              <p>No pending invites.</p>
+            )}
+          </ParticipantsSection>
+
+          <input
+            type="email"
+            placeholder="Invite by email"
+            value={inviteEmail}
+            onChange={(e) => setInviteEmail(e.target.value)}
+          />
+          <InviteButton onClick={handleInvite}>Invite</InviteButton>
         </SmallSection>
       </FlexContainer>
 

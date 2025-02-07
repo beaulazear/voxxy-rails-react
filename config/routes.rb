@@ -3,6 +3,9 @@ Rails.application.routes.draw do
   resources :users, only: [ :index, :create, :destroy ]
   resources :activities, only: [ :create, :destroy, :update, :index, :show ]
   resource :password_reset, only: [ :create, :update ]
+  resources :activity_participants, only: [] do
+    post :invite, on: :collection
+  end
 
   get "/verify", to: "users#verify"
   post "/resend_verification", to: "users#resend_verification"
