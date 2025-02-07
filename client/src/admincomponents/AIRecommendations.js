@@ -103,6 +103,8 @@ const AIRecommendations = ({ activity, refreshTrigger }) => {
                     credentials: "include",
                     body: JSON.stringify({
                         responses: updatedActivity.responses.map((res) => res.notes).join("\n\n"),
+                        activity_location: activity.activity_location,
+                        date_notes: activity.date_notes               
                     }),
                 });
 
@@ -121,7 +123,7 @@ const AIRecommendations = ({ activity, refreshTrigger }) => {
         };
 
         fetchRecommendations();
-    }, [refreshTrigger, activity.id]);
+    }, [refreshTrigger, activity.id, activity.date_notes, activity.activity_location]);
 
     return (
         <RecommendationsContainer>
