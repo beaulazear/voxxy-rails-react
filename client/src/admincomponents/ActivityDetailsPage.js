@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { UserContext } from '../context/user';
 import CuisineChat from './CuisineChat';
 import AIRecommendations from "./AIRecommendations";
+import UpdateActivityModal from './UpdateActivityModal';
 
 const PageContainer = styled.div`
   width: 100%;
@@ -179,7 +180,6 @@ const FlexContainer = styled.div`
   margin-bottom: 2rem;
 `;
 
-// Smaller Sections to keep them compact
 const SmallSection = styled.div`
   flex: 1;
   min-width: 280px;
@@ -242,9 +242,25 @@ const SmallSection = styled.div`
 function ActivityDetailsPage({ activity, onBack }) {
   const [activeTab, setActiveTab] = useState('Recommendations');
   const [showChat, setShowChat] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(false); // New state for triggering refresh
+  const [refreshTrigger, setRefreshTrigger] = useState(false);
+
+  const [showModal, setShowModal] = useState(false);
+  const [updatedActivity, setUpdatedActivity] = useState(activity);
 
   const { setUser } = useContext(UserContext);
+
+  function handleUpdate(newData) {
+    setUpdatedActivity(newData);
+
+    setUser((prevUser) => ({
+      ...prevUser,
+      activities: prevUser.activities.map((act) =>
+        act.id === newData.id ? newData : act
+      ),
+    }));
+
+    setRefreshTrigger((prev) => !prev);
+  }
 
   function handleDelete(id) {
     const confirmDelete = window.confirm(
@@ -280,7 +296,7 @@ function ActivityDetailsPage({ activity, onBack }) {
   return (
     <PageContainer>
       <Header>
-        <h1>{activity.activity_name || 'Activity Details'}</h1>
+        <h1>{updatedActivity.activity_name || 'Activity Details'}</h1>
         <button onClick={() => onBack()}>Back</button>
       </Header>
 
@@ -288,11 +304,12 @@ function ActivityDetailsPage({ activity, onBack }) {
         <SmallSection>
           <h2>Details</h2>
           <div className="location">
-            📍 {activity.activity_location || 'Not specified'}
+            📍 {updatedActivity.activity_location || 'Not specified'}
           </div>
           <div className="date">
-            📅 {activity.date_notes}
+            📅 {updatedActivity.date_notes}
           </div>
+          <button onClick={() => setShowModal(true)}>Update Details</button>
         </SmallSection>
 
         <SmallSection>
@@ -327,7 +344,7 @@ function ActivityDetailsPage({ activity, onBack }) {
           </button>
         </div>
         <div className="tab-content">
-          {activeTab === "Recommendations" && <AIRecommendations activity={activity} refreshTrigger={refreshTrigger} />}
+          {activeTab === "Recommendations" && <AIRecommendations activity={updatedActivity} refreshTrigger={refreshTrigger} />}
           {activeTab === "Discussion" && <p>Discussion content goes here.</p>}
         </div>
       </TabsSection>
@@ -359,6 +376,14 @@ function ActivityDetailsPage({ activity, onBack }) {
             }}
           />
         </>
+      )}
+
+      {showModal && (
+        <UpdateActivityModal
+          activity={updatedActivity}
+          onClose={() => setShowModal(false)}
+          onUpdate={handleUpdate}
+        />
       )}
     </PageContainer>
   );
