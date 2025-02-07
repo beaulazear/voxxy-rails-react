@@ -19,14 +19,18 @@ const Header = styled.div`
   align-items: center;
   margin-bottom: 1.5rem;
   text-align: left;
+  position: relative;
+  width: 100%;
 
   h1 {
     font-size: 2rem;
     font-weight: bold;
-    margin: 0;
+    margin: 0 auto;
+    flex-grow: 1;
+    text-align: center;
   }
 
-  button {
+  .back-button {
     padding: 0.5rem 1rem;
     background: #e942f5;
     color: #fff;
@@ -38,6 +42,75 @@ const Header = styled.div`
 
     &:hover {
       background: #d932e0;
+    }
+  }
+
+  .icon-buttons {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .trash-icon {
+    cursor: pointer;
+    font-size: 1.4rem;
+    transition: opacity 0.3s ease;
+    position: relative;
+    padding-bottom: 10px; /* Extra space to avoid tooltip cramming */
+
+    &:hover {
+      opacity: 0.7;
+    }
+
+    &:hover::after {
+      content: 'Delete Board';
+      position: absolute;
+      top: 140%; /* Moves tooltip below the icon */
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      border-radius: 4px;
+      white-space: nowrap;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.2s ease-in-out;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .icon-buttons {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    h1 {
+      order: 1;
+      margin-bottom: 1rem;
+    }
+
+    .icon-buttons {
+      order: 2;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      width: auto;
+      margin-top: 1rem;
+    }
+
+    .back-button, 
+    .trash-icon {
+      order: 2;
     }
   }
 `;
@@ -296,8 +369,11 @@ function ActivityDetailsPage({ activity, onBack }) {
   return (
     <PageContainer>
       <Header>
+        <button className="back-button" onClick={onBack}>Back</button>
         <h1>{updatedActivity.activity_name || 'Activity Details'}</h1>
-        <button onClick={() => onBack()}>Back</button>
+        <div className="icon-buttons">
+          <span className="trash-icon" onClick={() => handleDelete(activity.id)}>🗑️</span>
+        </div>
       </Header>
 
       <FlexContainer>
@@ -356,12 +432,6 @@ function ActivityDetailsPage({ activity, onBack }) {
           </StyledButton>
         </ChatButton>
       )}
-
-      <ChatButton>
-        <StyledButton $isDelete onClick={() => handleDelete(activity.id)}>
-          Delete Board
-        </StyledButton>
-      </ChatButton>
 
       {showChat && (
         <>
