@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/user';
 import styled from 'styled-components';
 
@@ -8,7 +8,7 @@ const PageContainer = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 2rem 1rem;
-  min-height: 100vh; /* Ensures the page takes up the full height */
+  min-height: 100vh;
 `;
 
 const FormContainer = styled.div`
@@ -29,12 +29,12 @@ const Heading = styled.h1`
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1.25rem; /* Adjusted spacing between inputs */
+  gap: 1.25rem;
 `;
 
 const InputGroup = styled.div`
   text-align: left;
-  width: 93%; /* Ensure the input group spans the full container width */
+  width: 93%;
 
   label {
     font-size: 0.875rem;
@@ -44,7 +44,7 @@ const InputGroup = styled.div`
   }
 
   input {
-    width: 100%; /* Ensure the input spans the full width of the container */
+    width: 100%;
     padding: 0.75rem;
     font-size: 1rem;
     border: 1px solid #ddd;
@@ -64,9 +64,9 @@ const SubmitButton = styled.button`
   color: #fff;
   background: #d8b4ff;
   border: none;
-  border-radius: 50px; /* Oval shape */
+  border-radius: 50px;
   cursor: pointer;
-  width: 100%; /* Matches the width of the form container */
+  width: 100%;
 
   &:hover {
     background: #cfa8f7;
@@ -98,9 +98,9 @@ const Divider = styled.div`
   align-items: center;
   justify-content: center;
   margin: 2rem auto;
-  width: 100%; /* Full width of parent */
-  max-width: 400px; /* Matches the width of the form and button */
-  text-align: center; /* Ensures the text and lines are centered */
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
 
   &::before,
   &::after {
@@ -120,20 +120,20 @@ const Divider = styled.div`
 
 const Footer = styled.div`
   text-align: center;
-  width: 100%; /* Ensures the footer spans the full width of the viewport */
-  padding: 0 1rem; /* Adds horizontal padding to the footer */
+  width: 100%;
+  padding: 0 1rem;
 
   button {
     border: 1px solid #000;
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
-    border-radius: 50px; /* Oval shape */
+    border-radius: 50px;
     background: transparent;
     cursor: pointer;
     margin-top: 1rem;
-    width: 100%; /* Makes the button take the full width of the footer */
-    max-width: 400px; /* Limits the button width on larger screens */
-    box-sizing: border-box; /* Ensures padding doesn’t cause overflow */
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
 
     &:hover {
       background: #f9f9f9;
@@ -146,11 +146,17 @@ const Footer = styled.div`
 `;
 
 const SignUp = () => {
+  const [searchParams] = useSearchParams();
+  const invitedEmail = searchParams.get("invited_email") || "";
+  const activityId = searchParams.get("activity_id");
+
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState(invitedEmail); // Prefilled if invited
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [errors, setErrors] = useState([]);
+
   const { setUser } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -158,7 +164,7 @@ const SignUp = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (password !== passwordConfirmation) {
@@ -167,32 +173,39 @@ const SignUp = () => {
     }
 
     const userData = {
-      user: {
-        name,
-        email,
-        password,
-        password_confirmation: passwordConfirmation,
-      },
+      user: { name, email, username, password, password_confirmation: passwordConfirmation },
     };
 
-    fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/users`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify(userData),
-    })
-      .then(async (response) => {
-        const data = await response.json();
-        if (response.ok) {
-          setUser(data);
-          navigate('/');
-        } else {
-          setErrors(data.errors || ['An error occurred. Please try again.']);
-        }
-      })
-      .catch(() => {
-        setErrors(['An unexpected error occurred. Please try again.']);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(userData),
       });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUser(data);
+
+        // ✅ If user was invited, add them to the activity
+        if (activityId) {
+          await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activity_participants/accept`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ activity_id: activityId, email: email }), // Send email explicitly
+          });
+        }
+
+        navigate('/boards'); // Redirect to boards
+      } else {
+        setErrors(data.errors || ['An error occurred. Please try again.']);
+      }
+    } catch {
+      setErrors(['An unexpected error occurred. Please try again.']);
+    }
   };
 
   return (
@@ -202,13 +215,11 @@ const SignUp = () => {
         <Form onSubmit={handleSubmit}>
           <InputGroup>
             <label htmlFor="name">What should we call you?</label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
+            <input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+          </InputGroup>
+          <InputGroup>
+            <label htmlFor="username">Choose your username.</label>
+            <input id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
           </InputGroup>
           <InputGroup>
             <label htmlFor="email">What’s your email?</label>
@@ -218,17 +229,12 @@ const SignUp = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              readOnly={!!invitedEmail} // Lock if coming from invite
             />
           </InputGroup>
           <InputGroup>
             <label htmlFor="password">Create a password</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </InputGroup>
           <InputGroup>
             <label htmlFor="passwordConfirmation">Confirm your password</label>
@@ -248,9 +254,7 @@ const SignUp = () => {
         </TermsNote>
         {errors.length > 0 && (
           <ul style={{ color: 'red', marginTop: '1rem', fontSize: '0.875rem' }}>
-            {errors.map((error, index) => (
-              <li key={index}>{error}</li>
-            ))}
+            {errors.map((error, index) => <li key={index}>{error}</li>)}
           </ul>
         )}
       </FormContainer>

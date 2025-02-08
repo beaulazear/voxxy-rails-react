@@ -7,7 +7,6 @@ class UsersController < ApplicationController
     if user.save
       EmailVerificationService.send_verification_email(user)
 
-      # Check if this user was invited to any activities
       pending_invites = ActivityParticipant.where(invited_email: user.email, accepted: false)
 
       pending_invites.each do |invite|
@@ -21,27 +20,34 @@ class UsersController < ApplicationController
   end
 
   def show
-    user = User.includes(activities: [ :responses, :participants, :activity_participants ]).find_by(id: current_user.id)
+    user = User.includes(activities: [ :responses, :participants, :activity_participants ])
+               .find_by(id: current_user.id)
 
     if user
+      participant_activities = Activity.includes(:user, :participants) # ✅ Ensure owner and participants are loaded
+                                       .joins(:activity_participants)
+                                       .where(activity_participants: { user_id: user.id, accepted: true })
+                                       .distinct
+
       render json: user.as_json(
         include: {
-          activities: {
+          activities: { # Activities the user owns
             only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji ],
             include: {
-              responses: {
-                only: [ :id, :notes, :created_at ]
-              },
-              participants: {
-                only: [ :id, :name, :email ]
-              },
-              activity_participants: {
-                only: [ :invited_email, :accepted ]
-              }
+              user: { only: [ :id, :name, :email ] }, # ✅ Include host details
+              responses: { only: [ :id, :notes, :created_at ] },
+              participants: { only: [ :id, :name, :email ] },
+              activity_participants: { only: [ :invited_email, :accepted ] }
             }
           }
         }
-      )
+      ).merge("participant_activities" => participant_activities.as_json(
+        only: [ :id, :activity_name, :emoji, :user_id, :date_notes ],
+        include: {
+          user: { only: [ :id, :name, :email ] }, # ✅ Host info
+          participants: { only: [ :id, :name, :email ] } # ✅ Ensure all participants are included
+        }
+      ))
     else
       render json: { error: "Not authorized" }, status: :unauthorized
     end
@@ -76,6 +82,22 @@ class UsersController < ApplicationController
     end
   rescue StandardError => e
     render json: { error: "An error occurred: #{e.message}" }, status: :internal_server_error
+  end
+
+  def invite_signup_redirect
+    invited_email = params[:invited_email]
+    activity_id = params[:activity_id]
+
+    if invited_email.present? && activity_id.present?
+      redirect_to "#{frontend_host}#/signup?invited_email=#{invited_email}&activity_id=#{activity_id}"
+    else
+      redirect_to "#{frontend_host}"
+    end
+  end
+
+  def index
+    users = User.all
+    render json: users
   end
 
   private

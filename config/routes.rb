@@ -10,6 +10,9 @@ Rails.application.routes.draw do
   get "/verify", to: "users#verify"
   post "/resend_verification", to: "users#resend_verification"
 
+  get "/invite_signup", to: "users#invite_signup_redirect"
+  post "/activity_participants/accept", to: "activity_participants#accept"
+
   post "login", to: "sessions#create"
   delete "logout", to: "sessions#destroy"
   get "/me", to: "users#show"

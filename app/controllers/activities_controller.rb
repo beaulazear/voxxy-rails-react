@@ -35,12 +35,16 @@ class ActivitiesController < ApplicationController
     end
 
     def show
-      activity = current_user.activities.includes(:responses).find_by(id: params[:id])
+      activity = Activity.includes(:user, :responses, :activity_participants, :participants).find_by(id: params[:id])
 
       if activity
         render json: activity.as_json(
+          only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :user_id ], # 👈 Ensure `user_id` is included
           include: {
-            responses: { only: [ :id, :notes, :created_at ] }
+            user: { only: [ :id, :name, :email ] }, # 👈 Include the host details
+            responses: { only: [ :id, :notes, :created_at ] },
+            activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] },
+            participants: { only: [ :id, :name, :email ] }
           }
         )
       else

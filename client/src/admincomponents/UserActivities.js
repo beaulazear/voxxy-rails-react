@@ -34,13 +34,11 @@ const CardGrid = styled.div`
   }
 `;
 
-const ActivityCard = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== 'active',
-})`
+const ActivityCard = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: ${({ active }) => (active ? '#fff' : '#e0e0e0')};
+  background: #fff;
   border-radius: 12px;
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -48,11 +46,10 @@ const ActivityCard = styled.div.withConfig({
   padding: 0;
   max-width: 250px;
   overflow: hidden;
-  pointer-events: ${({ active }) => (active ? 'auto' : 'none')};
-  opacity: ${({ active }) => (active ? '1' : '0.6')};
+  cursor: pointer;
 
   &:hover {
-    transform: ${({ active }) => (active ? 'translateY(-5px)' : 'none')};
+    transform: translateY(-5px);
   }
 
   .emoji {
@@ -63,7 +60,7 @@ const ActivityCard = styled.div.withConfig({
 
   h3 {
     font-size: clamp(1rem, 1.2vw, 1.5rem);
-    color: ${({ active }) => (active ? '#333' : '#888')};
+    color: #333;
     line-height: 1.2;
     margin-top: auto;
     padding: 0.3rem;
@@ -90,9 +87,22 @@ function UserActivities() {
   const handleBack = () => {
     setSelectedActivity(null);
   };
-  
+
+  const allActivities = [
+    ...(user?.activities || []),
+    ...(user?.participant_activities || [])
+  ];
+
+  // Ensure unique activities (avoid duplicates)
+  const uniqueActivities = allActivities.reduce((acc, activity) => {
+    if (!acc.some((a) => a.id === activity.id)) {
+      acc.push(activity);
+    }
+    return acc;
+  }, []);
+
   const renderActivityCard = (activity) => (
-    <ActivityCard key={activity.id} active={true} onClick={() => handleActivityClick(activity)}>
+    <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)}>
       <div className="emoji">{activity.emoji || '🌀'}</div>
       <h3>{activity.activity_name}</h3>
     </ActivityCard>
@@ -111,10 +121,10 @@ function UserActivities() {
     <DashboardContainer>
       <SectionTitle>Your Boards</SectionTitle>
       <CardGrid>
-        {user?.activities?.length > 0 ? (
-          user.activities.map(renderActivityCard)
+        {uniqueActivities.length > 0 ? (
+          uniqueActivities.map(renderActivityCard)
         ) : (
-          <ActivityCard active={true}>
+          <ActivityCard>
             <div className="emoji">➕</div>
             <h3>Start a New Board</h3>
           </ActivityCard>

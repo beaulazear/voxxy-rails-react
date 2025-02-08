@@ -371,17 +371,34 @@ function ActivityDetailsPage({ activity, onBack }) {
   const [showModal, setShowModal] = useState(false);
   const [updatedActivity, setUpdatedActivity] = useState(activity);
 
-  const { setUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
-  const confirmedParticipants = activity.participants || [];
-  const pendingParticipants = activity.activity_participants?.filter(p => !p.accepted) || [];
+  console.log(activity)
+
+  const isOwner = user?.id === activity?.user_id || user?.id === activity?.user?.id; // ✅ More reliable check  
+  const hostName = isOwner ? "You are the host of this activity." : `Host Name: ${activity?.user?.name || "Unknown"}`;
+
+  const participantsArray = Array.isArray(activity.participants) ? activity.participants : [];
+
+  const confirmedParticipants = participantsArray.length > 0
+    ? participantsArray
+    : [{ id: user.id, name: `${user.name} (Host)` }];
+
+  const isUserParticipant = confirmedParticipants.some(p => p.id === user?.id);
+
+  const participantsList = isUserParticipant ? confirmedParticipants : [...confirmedParticipants, user]; // ✅ Ensure logged-in participant is included  const pendingParticipants = activity.activity_participants?.filter(p => !p.accepted) || [];
 
   const handleInvite = async () => {
     if (!inviteEmail) return;
 
+    const participants = activity.participants || [];
+    const pendingInvites = activity.activity_participants || [];
+
+    const normalizedEmail = inviteEmail.trim().toLowerCase();
+
     const isDuplicate =
-      activity.participants.some((p) => p.email === inviteEmail) ||
-      activity.activity_participants.some((p) => p.invited_email === inviteEmail);
+      participants.some((p) => p.email.toLowerCase() === normalizedEmail) ||
+      pendingInvites.some((p) => p.invited_email.toLowerCase() === normalizedEmail);
 
     if (isDuplicate) {
       alert("This email is already invited or is a participant.");
@@ -446,7 +463,7 @@ function ActivityDetailsPage({ activity, onBack }) {
     }
   }
 
-  if (!activity) return null;
+  if (!activity) return <p>Loading...</p>;
 
   return (
     <PageContainer>
@@ -454,7 +471,10 @@ function ActivityDetailsPage({ activity, onBack }) {
         <button className="back-button" onClick={onBack}>Back</button>
         <h1>{updatedActivity.activity_name || 'Activity Details'}</h1>
         <div className="icon-buttons">
-          <span className="trash-icon" onClick={() => handleDelete(activity.id)}>🗑️</span>
+          {/* Show delete button only for the owner */}
+          {isOwner && (
+            <span className="trash-icon" onClick={() => handleDelete(activity.id)}>🗑️</span>
+          )}
         </div>
       </Header>
 
@@ -467,42 +487,37 @@ function ActivityDetailsPage({ activity, onBack }) {
           <div className="date">
             📅 {updatedActivity.date_notes}
           </div>
-          <button onClick={() => setShowModal(true)}>Update Details</button>
+          {/* Only the owner can update details */}
+          {isOwner && <button onClick={() => setShowModal(true)}>Update Details</button>}
         </SmallSection>
 
         <SmallSection>
           <h2>Participants</h2>
+          <p>{isOwner ? "You are the host of this activity." : `${hostName}`}</p>
           <ParticipantsSection>
             <h3>Confirmed Participants</h3>
-            {confirmedParticipants.length > 0 ? (
-              confirmedParticipants.map((participant) => (
-                <div key={participant.id} className="participant confirmed">
-                  {participant.name}
+            {participantsList.length > 0 ? (
+              participantsList.map((participant, index) => (
+                <div key={`${participant.id}-${index}`} className="participant confirmed">
+                  {participant.name} {participant.isHost ? "(Host)" : ""}
                 </div>
               ))
             ) : (
               <p>No confirmed participants yet.</p>
             )}
-
-            <h3>Pending Invites</h3>
-            {pendingParticipants.length > 0 ? (
-              pendingParticipants.map((invite, index) => (
-                <div key={index} className="participant pending">
-                  {invite.invited_email} (Pending)
-                </div>
-              ))
-            ) : (
-              <p>No pending invites.</p>
-            )}
           </ParticipantsSection>
 
-          <input
-            type="email"
-            placeholder="Invite by email"
-            value={inviteEmail}
-            onChange={(e) => setInviteEmail(e.target.value)}
-          />
-          <InviteButton onClick={handleInvite}>Invite</InviteButton>
+          {isOwner && (
+            <>
+              <input
+                type="email"
+                placeholder="Invite by email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+              />
+              <InviteButton onClick={handleInvite}>Invite</InviteButton>
+            </>
+          )}
         </SmallSection>
       </FlexContainer>
 
@@ -510,6 +525,7 @@ function ActivityDetailsPage({ activity, onBack }) {
         <h2>Pin</h2>
         <p>No pin added yet.</p>
       </Section>
+
       <TabsSection>
         <div className="tabs">
           <button

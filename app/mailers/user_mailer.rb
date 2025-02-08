@@ -10,7 +10,8 @@ class UserMailer < ApplicationMailer
   def invitation_email(email, activity, inviter)
     @activity = activity
     @inviter = inviter
-    @signup_link = "#{Rails.application.config.action_mailer.default_url_options[:host]}/signup?invited_email=#{email}&activity_id=#{activity.id}"
+    frontend_host = Rails.env.production? ? "https://voxxyai.com" : "http://localhost:3000"
+    @signup_link = "#{frontend_host}#/invite_signup?invited_email=#{email}&activity_id=#{activity.id}"
 
     mail(to: email, subject: "#{inviter.name} Invited You to Join Voxxy!")
   end

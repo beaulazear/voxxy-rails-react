@@ -39,8 +39,9 @@ function App() {
             <Route
               path="/"
               element={user ? <TripDashboard /> : <LandingPage />}
-            />            
+            />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/invite_signup" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
             <Route path='/boards' element={<UserActivities />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
