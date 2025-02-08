@@ -42,7 +42,7 @@ class UsersController < ApplicationController
           }
         }
       ).merge("participant_activities" => participant_activities.as_json(
-        only: [ :id, :activity_name, :emoji, :user_id, :date_notes ],
+        only: [ :id, :activity_name, :emoji, :user_id, :date_notes, :activity_location ],
         include: {
           user: { only: [ :id, :name, :email ] }, # ✅ Host info
           participants: { only: [ :id, :name, :email ] } # ✅ Ensure all participants are included
