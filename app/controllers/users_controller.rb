@@ -20,8 +20,11 @@ class UsersController < ApplicationController
   end
 
   def show
-    user = User.includes(activities: [ :responses, :participants, :activity_participants ])
-               .find_by(id: current_user.id)
+    unless current_user
+      return render json: { error: "Not authorized" }, status: :unauthorized
+    end
+
+    user = User.includes(activities: [ :responses, :participants, :activity_participants ]).find_by(id: current_user.id)
 
     if user
       participant_activities = Activity.includes(:user, :participants) # ✅ Ensure owner and participants are loaded

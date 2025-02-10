@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { UserContext } from '../context/user';
 import { useNavigate } from 'react-router-dom';
@@ -10,8 +10,8 @@ const Overlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.4); /* Dimmed background */
-  z-index: 998; /* Lower than ChatContainer but above content */
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 998;
 `;
 
 const ChatContainer = styled.div`
@@ -24,7 +24,7 @@ const ChatContainer = styled.div`
   background: white;
   border-radius: 15px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  z-index: 999; /* Higher than Overlay */
+  z-index: 999;
   display: flex;
   flex-direction: column;
   height: 70vh;
@@ -32,7 +32,7 @@ const ChatContainer = styled.div`
 `;
 
 const ChatHeader = styled.div`
-  background: white; /* White background at the top */
+  background: white;
   padding: 20px;
   border-bottom: 1px solid #ddd;
   text-align: center;
@@ -48,7 +48,7 @@ const ChatBody = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: #f9f9f9; /* Light gray background for chat */
+  background: #f9f9f9;
 `;
 
 const Message = styled.div`
@@ -68,7 +68,7 @@ const Message = styled.div`
     color: #333;
   `
             : `
-    background: #e7e4ff; /* Light purple for system messages */
+    background: #e7e4ff;
     align-self: flex-start;
     text-align: left;
     color: #6c63ff;
@@ -122,7 +122,6 @@ const SendButton = styled.button`
   }
 `;
 
-// Component
 function RestaurantChat({ onClose }) {
     const [step, setStep] = useState(0);
     const [formData, setFormData] = useState({
@@ -147,13 +146,22 @@ function RestaurantChat({ onClose }) {
         { key: 'activity_name', text: "Let’s give a nickname for this meal?" },
     ];
 
+    const chatBodyRef = useRef(null); // Reference for auto-scrolling
+
+    useEffect(() => {
+        if (chatBodyRef.current) {
+            chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+        }
+    }, [messages]); // Trigger scroll when messages update
+
     const handleNext = () => {
         if (formData[questions[step].key]) {
-            setMessages([
-                ...messages,
+            setMessages((prevMessages) => [
+                ...prevMessages,
                 { text: questions[step].text, isUser: false },
                 { text: formData[questions[step].key], isUser: true },
             ]);
+
             if (step < questions.length - 1) {
                 setStep(step + 1);
             } else {
@@ -202,7 +210,7 @@ function RestaurantChat({ onClose }) {
             <Overlay onClick={onClose} />
             <ChatContainer onClick={(e) => e.stopPropagation()}>
                 <ChatHeader>Chat with Voxxy</ChatHeader>
-                <ChatBody>
+                <ChatBody ref={chatBodyRef}>
                     {messages.map((msg, index) => (
                         <Message key={index} $isUser={msg.isUser}>
                             {msg.text}
