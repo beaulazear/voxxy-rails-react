@@ -3,7 +3,6 @@ import { UserContext } from '../context/user';
 import {
   PageContainer,
   Header,
-  Section,
   TabsSection,
   ChatButton,
   StyledButton,
@@ -26,21 +25,28 @@ function ActivityDetailsPage({ activityId, onBack }) {
   const [showModal, setShowModal] = useState(false);
   const [currentActivity, setCurrentActivity] = useState(null);
 
-  // ✅ Always get the latest version of the activity
   useEffect(() => {
-    const latestActivity = user.activities.find((act) => act.id === activityId);
+    // ✅ Check both activities the user owns & activities they are a participant in
+    const latestActivity = 
+      user.activities.find((act) => act.id === activityId) ||
+      user.participant_activities.find((act) => act.id === activityId);
+  
     if (latestActivity) {
       setCurrentActivity(latestActivity);
     }
-  }, [user.activities, activityId]); // Re-run when user.activities updates
+  }, [user.activities, user.participant_activities, activityId]); 
 
   if (!currentActivity) return <p>Loading...</p>;
 
   const isOwner = user?.id === currentActivity?.user_id || user?.id === currentActivity?.user?.id;
   const hostName = isOwner ? "You are the host of this activity." : `Host Name: ${currentActivity?.user?.name || "Unknown"}`;
 
+  // ✅ Separate participants into confirmed and pending
   const participantsArray = Array.isArray(currentActivity.participants) ? currentActivity.participants : [];
+  const pendingInvitesArray = Array.isArray(currentActivity.activity_participants) ? currentActivity.activity_participants : [];
+
   const confirmedParticipants = participantsArray.filter(p => p.id !== currentActivity.user_id);
+  const pendingParticipants = pendingInvitesArray.filter(p => !p.accepted); // Only show unaccepted invites
 
   const handleInvite = async () => {
     if (!inviteEmail) return;
@@ -167,6 +173,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
         <SmallSection>
           <h2>Participants</h2>
           <p>{isOwner ? "You are the host of this activity." : `${hostName}`}</p>
+
           <ParticipantsSection>
             <h3>Confirmed Participants</h3>
             {confirmedParticipants.length > 0 ? (
@@ -177,6 +184,17 @@ function ActivityDetailsPage({ activityId, onBack }) {
               ))
             ) : (
               <p>No confirmed participants yet.</p>
+            )}
+
+            <h3>Pending Invites</h3>
+            {pendingParticipants.length > 0 ? (
+              pendingParticipants.map((invite) => (
+                <div key={invite.id} className="participant pending">
+                  {invite.invited_email}
+                </div>
+              ))
+            ) : (
+              <p>No pending invitations.</p>
             )}
           </ParticipantsSection>
 
@@ -194,23 +212,12 @@ function ActivityDetailsPage({ activityId, onBack }) {
         </SmallSection>
       </FlexContainer>
 
-      <Section>
-        <h2>Pin</h2>
-        <p>No pin added yet.</p>
-      </Section>
-
       <TabsSection>
         <div className="tabs">
-          <button
-            className={activeTab === "Recommendations" ? "active" : ""}
-            onClick={() => setActiveTab("Recommendations")}
-          >
+          <button className={activeTab === "Recommendations" ? "active" : ""} onClick={() => setActiveTab("Recommendations")}>
             Recommendations
           </button>
-          <button
-            className={activeTab === "Discussion" ? "active" : ""}
-            onClick={() => setActiveTab("Discussion")}
-          >
+          <button className={activeTab === "Discussion" ? "active" : ""} onClick={() => setActiveTab("Discussion")}>
             Discussion
           </button>
         </div>
