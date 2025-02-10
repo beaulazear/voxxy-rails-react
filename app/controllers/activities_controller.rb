@@ -12,8 +12,9 @@ class ActivitiesController < ApplicationController
 
     def update
       activity = current_user.activities.find_by(id: params[:id])
+
       if activity.update(activity_params)
-        render json: activity, status: :ok
+        render json: activity.to_json(include: [ :participants, :activity_participants ]), status: :ok
       else
         render json: { error: activity.errors.full_messages }, status: :unprocessable_entity
       end
