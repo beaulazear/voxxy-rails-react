@@ -27,44 +27,32 @@ function App() {
   const isLoggedIn = user && user.username && Object.keys(user).length > 0;
   const isConfirmed = user && user.confirmed_at;
 
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <div className="App">
-      {loading ? (
-        <LoadingScreen />
-      ) : (
-        <>
-          <Navbar />
-          <Routes>
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route
-              path="/"
-              element={user ? <TripDashboard /> : <LandingPage />}
-            />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/invite_signup" element={<SignUp />} />
-            <Route path="/login" element={<Login />} />
-            <Route path='/boards' element={<UserActivities />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/verification" element={<Verification />} />
-            {isLoggedIn && (
-              <>
-                {isConfirmed ? (
-                  <>
-                    <Route path="/verification" element={<Verification />} />
-                    <Route path="/confirm-email" element={<ConfirmEmail />} />
-                    <Route path="/" element={<TripDashboard />} />
-                  </>
-                ) : (
-                  <>
-                    <Route path="/confirm-email" element={<ConfirmEmail />} />
-                  </>
-                )}
-              </>
-            )}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </>
-      )}
+      <Navbar />
+      <Routes>
+        <Route path="/" element={isLoggedIn ? <TripDashboard /> : <LandingPage />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/invite_signup" element={<SignUp />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/verification" element={<Verification />} />
+
+        {isLoggedIn && !isConfirmed && (
+          <Route path="/confirm-email" element={<ConfirmEmail />} />
+        )}
+
+        {isLoggedIn && isConfirmed && (
+          <Route path="/boards" element={<UserActivities />} />
+        )}
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </div>
   );
 }

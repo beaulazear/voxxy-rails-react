@@ -225,7 +225,12 @@ const Login = () => {
           <a href="/terms">Terms of use</a> and <a href="/privacy">Privacy Policy</a>.
         </TextLink>
         <TextLink>
-          <a href="/forgot-password">Forgot your password?</a>
+          <span
+            onClick={() => navigate("/forgot-password")}
+            style={{ cursor: "pointer", textDecoration: "underline", color: "blue" }}
+          >
+            Forgot Password?
+          </span>
         </TextLink>
       </FormContainer>
       <Footer>
