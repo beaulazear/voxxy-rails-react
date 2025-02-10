@@ -163,13 +163,13 @@ function ActivityDetailsPage({ activityId, onBack }) {
           <h2>Trip Details</h2>
           <div className="content-wrapper">
             <div className="detail-item">
-              🚀 <strong>Trip Name:</strong> {currentActivity.activity_name || 'Not specified'}
+              🚀 <strong>Name:</strong> {currentActivity.activity_name || 'Not specified'}
             </div>
             <div className="detail-item">
               📍 <strong>Location:</strong> {currentActivity.activity_location || 'Not specified'}
             </div>
             <div className="detail-item">
-              📅 <strong>Time:</strong> {currentActivity.date_notes || 'Not specified'}
+              ⏰ <strong>Time:</strong> {currentActivity.date_notes || 'Not specified'}
             </div>
             <div className="detail-item">
               👤 <strong>Host:</strong> {isOwner ? "You" : currentActivity?.user?.name || "Unknown"}

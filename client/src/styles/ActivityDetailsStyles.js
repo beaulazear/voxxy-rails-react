@@ -211,14 +211,20 @@ export const ParticipantsSection = styled.div`
   display: flex;
   flex-direction: column;
   border: 1px solid #ddd;
-  padding: 1.5rem;
+  padding: 1.25rem;
   border-radius: 8px;
   background: #fff;
   overflow: hidden;
 
   h3 {
     font-size: 1.2rem;
+    margin-top: 0;
     margin-bottom: 0.5rem;
+  }
+
+  /* Add more space above the "Pending Participants" heading */
+  h3:nth-of-type(2) {
+    margin-top: 1rem;
   }
 
   .participants-list {
@@ -252,6 +258,7 @@ export const ParticipantsSection = styled.div`
   .invite-section {
     display: flex;
     align-items: center;
+    gap: 1rem;
     margin-top: 1.5rem;
   }
 
@@ -264,7 +271,7 @@ export const ParticipantsSection = styled.div`
   }
 
   @media (max-width: 768px) {
-    padding: 1.25rem;
+    padding: 1rem;
 
     .invite-section {
       flex-direction: column;

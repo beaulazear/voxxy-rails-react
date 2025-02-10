@@ -2,20 +2,21 @@ class ResponsesController < ApplicationController
     before_action :authorized
 
     def create
-        activity = current_user.activities.find_by(id: params[:response][:activity_id]) # Ensure correct lookup
+      activity = current_user.activities.find_by(id: params[:response][:activity_id]) || Activity.joins(:participants).where(id: params[:response][:activity_id], participants: { id: current_user.id }).first
 
-        if activity
-          response = activity.responses.build(response_params)
-
-          if response.save
-            render json: response, status: :created
-          else
-            render json: { errors: response.errors.full_messages }, status: :unprocessable_entity
-          end
-        else
-          render json: { error: "Activity not found" }, status: :not_found
-        end
+      if activity.nil?
+        return render json: { error: "Activity not found" }, status: :not_found
       end
+
+      # ✅ Build response without setting user_id if it doesn't exist
+      response = activity.responses.build(response_params)
+
+      if response.save
+        render json: response, status: :created
+      else
+        render json: { errors: response.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
 
     def index
       activity = current_user.activities.find_by(id: params[:activity_id])
@@ -48,6 +49,6 @@ class ResponsesController < ApplicationController
     private
 
     def response_params
-      params.require(:response).permit(:notes)
+      params.require(:response).permit(:notes, :activity_id)
     end
 end

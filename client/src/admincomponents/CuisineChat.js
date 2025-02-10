@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 const Overlay = styled.div`
@@ -124,6 +124,7 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
     const [currentInput, setCurrentInput] = useState(""); // Current input field
     const [messages, setMessages] = useState([]);
 
+    const chatBodyRef = useRef(null); // 🔥 Ref for auto-scrolling
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
     const questions = [
@@ -134,10 +135,17 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
         "What’s your ideal price range? (e.g., budget-friendly, mid-range, upscale)",
     ];
 
+    // 🔥 Auto-scroll effect when messages update
+    useEffect(() => {
+        if (chatBodyRef.current) {
+            chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+        }
+    }, [messages]);
+
     const handleNext = () => {
         if (currentInput.trim()) {
-            setMessages([
-                ...messages,
+            setMessages((prevMessages) => [
+                ...prevMessages,
                 { text: questions[step], isUser: false },
                 { text: currentInput, isUser: true },
             ]);
@@ -184,7 +192,7 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
             <Overlay onClick={onClose} />
             <ChatContainer onClick={(e) => e.stopPropagation()}>
                 <ChatHeader>Chat with Voxxy</ChatHeader>
-                <ChatBody>
+                <ChatBody ref={chatBodyRef}> {/* 🔥 Assign the ref for auto-scrolling */}
                     {messages.map((msg, index) => (
                         <Message key={index} $isUser={msg.isUser}>
                             {msg.text}
