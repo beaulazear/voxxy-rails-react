@@ -19,7 +19,9 @@ class UserMailer < ApplicationMailer
   def existing_user_invite_email(user, activity, inviter)
     @activity = activity
     @inviter = inviter
-    @login_link = "#{Rails.application.config.action_mailer.default_url_options[:host]}/login"
+    frontend_host = Rails.env.production? ? "https://voxxyai.com" : "http://localhost:3000"
+    # ✅ Ensure the login link is properly encoded and has no trailing spaces
+    @login_link = "#{frontend_host}#/login?redirect=boards".strip
 
     mail(to: user.email, subject: "#{inviter.name} Invited You to a New Activity on Voxxy!")
   end

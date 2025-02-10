@@ -26,6 +26,7 @@
       font-size: 16px;
       border-radius: 5px;
       margin-top: 15px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -35,7 +36,10 @@
     <p>Hello,</p>
     <p><strong><%= @inviter.name %></strong> has invited you to join the activity: <strong><%= @activity.activity_name %></strong> on Voxxy.</p>
     <p>Click below to log in and view your new activity:</p>
+
+    <!-- ✅ This should now work properly -->
     <a href="<%= @login_link %>" class="button">Log in to Voxxy</a>
+
     <p>Looking forward to seeing you there!</p>
     <p>– The Voxxy Team</p>
   </div>

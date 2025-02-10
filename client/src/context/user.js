@@ -14,7 +14,7 @@ function UserProvider({ children }) {
         })
             .then((response) => {
                 if (response.ok) {
-                    response.json().then((user) => setUser(user));
+                    response.json().then(setUser);
                 }
             })
             .finally(() => setLoading(false));

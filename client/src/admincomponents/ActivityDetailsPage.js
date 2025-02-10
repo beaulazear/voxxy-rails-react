@@ -380,13 +380,7 @@ function ActivityDetailsPage({ activity, onBack }) {
 
   const participantsArray = Array.isArray(activity.participants) ? activity.participants : [];
 
-  const confirmedParticipants = participantsArray.length > 0
-    ? participantsArray
-    : [{ id: user.id, name: `${user.name} (Host)` }];
-
-  const isUserParticipant = confirmedParticipants.some(p => p.id === user?.id);
-
-  const participantsList = isUserParticipant ? confirmedParticipants : [...confirmedParticipants, user]; // ✅ Ensure logged-in participant is included  const pendingParticipants = activity.activity_participants?.filter(p => !p.accepted) || [];
+  const confirmedParticipants = participantsArray.filter(p => p.id !== activity.user_id);
 
   const handleInvite = async () => {
     if (!inviteEmail) return;
@@ -496,10 +490,10 @@ function ActivityDetailsPage({ activity, onBack }) {
           <p>{isOwner ? "You are the host of this activity." : `${hostName}`}</p>
           <ParticipantsSection>
             <h3>Confirmed Participants</h3>
-            {participantsList.length > 0 ? (
-              participantsList.map((participant, index) => (
-                <div key={`${participant.id}-${index}`} className="participant confirmed">
-                  {participant.name} {participant.isHost ? "(Host)" : ""}
+            {confirmedParticipants.length > 0 ? (
+              confirmedParticipants.map((participant) => (
+                <div key={participant.id} className="participant confirmed">
+                  {participant.name}
                 </div>
               ))
             ) : (

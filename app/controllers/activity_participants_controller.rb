@@ -17,7 +17,10 @@ class ActivityParticipantsController < ApplicationController
           UserMailer.existing_user_invite_email(user, activity, current_user).deliver_later
         end
 
-        ActivityParticipant.create!(activity_id: activity.id, invited_email: invited_email, accepted: false)
+        participant = ActivityParticipant.find_or_initialize_by(activity_id: activity.id, invited_email: invited_email)
+        participant.user_id = user.id if user # Associate user immediately if they exist
+        participant.accepted = user.present? # If they're an existing user, auto-accept
+        participant.save!
 
         render json: { message: "Invitation sent successfully" }, status: :ok
       end

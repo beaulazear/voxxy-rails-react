@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { UserContext } from '../context/user';
 import styled from 'styled-components';
 
@@ -95,9 +95,9 @@ const Divider = styled.div`
   align-items: center;
   justify-content: center;
   margin: 2rem auto;
-  width: 100%; /* Full width of parent */
-  max-width: 400px; /* Matches the width of the form and button */
-  text-align: center; /* Ensures the text and lines are centered */
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
 
   &::before,
   &::after {
@@ -117,20 +117,20 @@ const Divider = styled.div`
 
 const Footer = styled.div`
   text-align: center;
-  width: 100%; /* Ensures the footer spans the full width of the viewport */
-  padding: 0 1rem; /* Adds horizontal padding to the footer */
+  width: 100%;
+  padding: 0 1rem;
 
   button {
     border: 1px solid #000;
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
-    border-radius: 50px; /* Oval shape */
+    border-radius: 50px;
     background: transparent;
     cursor: pointer;
     margin-top: 1rem;
-    width: 100%; /* Makes the button take the full width of the footer */
-    max-width: 400px; /* Limits the button width on larger screens */
-    box-sizing: border-box; /* Ensures padding doesn’t cause overflow */
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
 
     &:hover {
       background: #f9f9f9;
@@ -148,6 +148,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const { setUser } = useContext(UserContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -174,7 +175,17 @@ const Login = () => {
       })
       .then((data) => {
         setUser(data);
-        navigate('/');
+
+        // ✅ Extract redirect parameter
+        const urlParams = new URLSearchParams(location.search);
+        const redirectPath = urlParams.get('redirect');
+
+        // ✅ Redirect to /boards if user was invited, otherwise go home
+        if (redirectPath === "boards") {
+          navigate("/boards");
+        } else {
+          navigate("/");
+        }
       })
       .catch((error) => {
         setError(error.message);
