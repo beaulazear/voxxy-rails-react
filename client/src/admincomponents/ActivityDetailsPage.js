@@ -27,14 +27,14 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
   useEffect(() => {
     // ✅ Check both activities the user owns & activities they are a participant in
-    const latestActivity = 
+    const latestActivity =
       user.activities.find((act) => act.id === activityId) ||
       user.participant_activities.find((act) => act.id === activityId);
-  
+
     if (latestActivity) {
       setCurrentActivity(latestActivity);
     }
-  }, [user.activities, user.participant_activities, activityId]); 
+  }, [user.activities, user.participant_activities, activityId]);
 
   if (!currentActivity) return <p>Loading...</p>;
 
@@ -160,46 +160,50 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
       <FlexContainer>
         <SmallSection>
-          <h2>Details</h2>
-          <div className="location">
-            📍 {currentActivity.activity_location || 'Not specified'}
-          </div>
-          <div className="date">
-            📅 {currentActivity.date_notes}
+          <h2>Trip Details</h2>
+          <div className="content-wrapper">
+            <div className="detail-item">
+              🚀 <strong>Trip Name:</strong> {currentActivity.activity_name || 'Not specified'}
+            </div>
+            <div className="detail-item">
+              📍 <strong>Location:</strong> {currentActivity.activity_location || 'Not specified'}
+            </div>
+            <div className="detail-item">
+              📅 <strong>Time:</strong> {currentActivity.date_notes || 'Not specified'}
+            </div>
+            <div className="detail-item">
+              👤 <strong>Host:</strong> {isOwner ? "You" : currentActivity?.user?.name || "Unknown"}
+            </div>
           </div>
           {isOwner && <button onClick={() => setShowModal(true)}>Update Details</button>}
         </SmallSection>
 
         <SmallSection>
           <h2>Participants</h2>
-          <p>{isOwner ? "You are the host of this activity." : `${hostName}`}</p>
-
           <ParticipantsSection>
-            <h3>Confirmed Participants</h3>
-            {confirmedParticipants.length > 0 ? (
-              confirmedParticipants.map((participant) => (
-                <div key={participant.id} className="participant confirmed">
-                  {participant.name}
-                </div>
-              ))
-            ) : (
-              <p>No confirmed participants yet.</p>
-            )}
+            <div className="participants-list">
+              <h3>Confirmed Participants</h3>
+              {confirmedParticipants.length > 0 ? (
+                confirmedParticipants.map((participant) => (
+                  <div key={participant.id} className="participant confirmed">{participant.name}</div>
+                ))
+              ) : (
+                <p>No confirmed participants yet.</p>
+              )}
 
-            <h3>Pending Invites</h3>
-            {pendingParticipants.length > 0 ? (
-              pendingParticipants.map((invite) => (
-                <div key={invite.id} className="participant pending">
-                  {invite.invited_email}
-                </div>
-              ))
-            ) : (
-              <p>No pending invitations.</p>
-            )}
+              <h3>Pending Invites</h3>
+              {pendingParticipants.length > 0 ? (
+                pendingParticipants.map((invite) => (
+                  <div key={invite.id} className="participant pending">{invite.invited_email}</div>
+                ))
+              ) : (
+                <p>No pending invitations.</p>
+              )}
+            </div>
           </ParticipantsSection>
 
           {isOwner && (
-            <>
+            <div className="invite-section">
               <input
                 type="email"
                 placeholder="Invite by email"
@@ -207,7 +211,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
                 onChange={(e) => setInviteEmail(e.target.value)}
               />
               <InviteButton onClick={handleInvite}>Invite</InviteButton>
-            </>
+            </div>
           )}
         </SmallSection>
       </FlexContainer>

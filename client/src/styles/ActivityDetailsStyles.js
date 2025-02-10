@@ -143,54 +143,89 @@ export const DimmedOverlay = styled.div`
 
 export const FlexContainer = styled.div`
   display: flex;
-  gap: 1.5rem;
   flex-wrap: wrap;
   justify-content: space-between;
+  align-items: stretch; /* Ensures sections stretch equally */
+  gap: 1.5rem;
   margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 1rem;
+  }
 `;
 
 export const SmallSection = styled.div`
   flex: 1;
-  min-width: 280px;
+  display: flex;
+  flex-direction: column;
   background: #fff;
   padding: 1.5rem;
   border-radius: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  min-height: 100%;
+  justify-content: space-between;
+  text-align: left;
 
   h2 {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
+    font-weight: bold;
     margin-bottom: 1rem;
     text-align: left;
-    font-weight: 600;
   }
-`;
 
-export const InviteButton = styled.button`
-  padding: 0.5rem 1rem;
-  background: #9b59b6;
-  color: #fff;
-  border-radius: 20px;
-  font-size: 1rem;
-  border: none;
-  cursor: pointer;
-  
-  &:hover {
-    background: #8e44ad;
+  .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .detail-item {
+    font-size: 1rem;
+    padding: 0.5rem;
+    background: #f7f7f7;
+    border-radius: 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  button {
+    align-self: flex-start;
+    padding: 0.5rem 1rem;
+    margin-top: 1rem; /* Ensures spacing from the last detail */
+  }
+
+  @media (max-width: 768px) {
+    padding: 1.25rem;
+
+    button {
+      margin-top: 1.5rem; /* Extra spacing for mobile */
+    }
   }
 `;
 
 export const ParticipantsSection = styled.div`
-  margin-top: 1rem;
-  max-height: 200px;
-  overflow-y: auto;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
   border: 1px solid #ddd;
-  padding: 1rem;
+  padding: 1.5rem;
   border-radius: 8px;
   background: #fff;
+  overflow: hidden;
 
   h3 {
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
+  }
+
+  .participants-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 250px;
+    padding-right: 0.5rem;
   }
 
   .participant {
@@ -212,5 +247,53 @@ export const ParticipantsSection = styled.div`
     background: #f0f0f0;
     color: #666;
     border: 1px solid #ccc;
+  }
+
+  .invite-section {
+    display: flex;
+    align-items: center;
+    margin-top: 1.5rem;
+  }
+
+  input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    padding: 1.25rem;
+
+    .invite-section {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    input {
+      width: 100%;
+    }
+  }
+`;
+
+export const InviteButton = styled.button`
+  padding: 0.5rem 1rem;
+  background: #9b59b6;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+
+  margin-left: 10px;
+
+  @media (max-width: 768px) {
+    margin-top: 0.5rem;
+  }
+
+  &:hover {
+    background: #8e44ad;
   }
 `;
