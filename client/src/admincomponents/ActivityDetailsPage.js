@@ -1,394 +1,53 @@
-import React, { useContext, useState } from 'react';
-import styled from 'styled-components';
+import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../context/user';
+import {
+  PageContainer,
+  Header,
+  Section,
+  TabsSection,
+  ChatButton,
+  StyledButton,
+  DimmedOverlay,
+  FlexContainer,
+  SmallSection,
+  InviteButton,
+  ParticipantsSection,
+} from "../styles/ActivityDetailsStyles"; // Import styles
 import CuisineChat from './CuisineChat';
 import AIRecommendations from "./AIRecommendations";
 import UpdateActivityModal from './UpdateActivityModal';
 
-const PageContainer = styled.div`
-  width: 100%;
-  min-height: 100vh;
-  padding: 2rem;
-  box-sizing: border-box;
-  background-color: #f9f9f9;
-`;
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  text-align: left;
-  position: relative;
-  width: 100%;
-
-  h1 {
-    font-size: 2rem;
-    font-weight: bold;
-    margin: 0 auto;
-    flex-grow: 1;
-    text-align: center;
-  }
-
-  .back-button {
-    padding: 0.5rem 1rem;
-    background: #e942f5;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: bold;
-
-    &:hover {
-      background: #d932e0;
-    }
-  }
-
-  .icon-buttons {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-
-  .trash-icon {
-    cursor: pointer;
-    font-size: 1.4rem;
-    transition: opacity 0.3s ease;
-    position: relative;
-    padding-bottom: 10px; /* Extra space to avoid tooltip cramming */
-
-    &:hover {
-      opacity: 0.7;
-    }
-
-    &:hover::after {
-      content: 'Delete Board';
-      position: absolute;
-      top: 140%; /* Moves tooltip below the icon */
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: rgba(0, 0, 0, 0.75);
-      color: #fff;
-      font-size: 0.8rem;
-      padding: 6px 10px;
-      border-radius: 4px;
-      white-space: nowrap;
-      opacity: 1;
-      visibility: visible;
-      transition: opacity 0.2s ease-in-out;
-    }
-  }
-
-  @media (min-width: 769px) {
-    .icon-buttons {
-      display: flex;
-      align-items: center;
-    }
-  }
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-
-    h1 {
-      order: 1;
-      margin-bottom: 1rem;
-    }
-
-    .icon-buttons {
-      order: 2;
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
-      width: auto;
-      margin-top: 1rem;
-    }
-
-    .back-button, 
-    .trash-icon {
-      order: 2;
-    }
-  }
-`;
-
-const Section = styled.div`
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
-
-  h2 {
-    font-size: 1.4rem;
-    margin-bottom: 1rem;
-    text-align: left;
-    font-weight: 600;
-  }
-
-  p {
-    text-align: left;
-  }
-
-  .location,
-  .date {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-  }
-
-  .participants {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-
-    .participant {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: #9b59b6;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-    }
-
-    .add-participant {
-      padding: 0.5rem 1rem;
-      background: #e9e9e9;
-      border-radius: 20px;
-      color: #333;
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      border: 1px solid #ccc;
-
-      &:hover {
-        background: #d9d9d9;
-      }
-    }
-  }
-`;
-
-const TabsSection = styled.div`
-  margin-top: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  .tabs {
-    display: flex;
-    width: 100%;
-    max-width: 400px;
-    justify-content: space-between;
-    border-radius: 8px;
-    overflow: hidden;
-
-    button {
-      flex: 1;
-      padding: 0.75rem 0;
-      text-align: center;
-      border: none;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      background: #f0f0f0;
-      color: #555;
-      transition: all 0.3s ease;
-
-      &.active {
-        background: #fff;
-        color: #000;
-        font-weight: bold;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-    }
-  }
-`;
-
-const ChatButton = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-top: 2rem;
-`;
-
-const StyledButton = styled.button`
-  padding: 0.75rem 1.5rem;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #fff;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  background: ${(props) => (props.$isDelete ? "#e74c3c" : "#9b59b6")};
-
-  &:hover {
-    background: ${(props) => (props.$isDelete ? "#c0392b" : "#8e44ad")};
-  }
-`;
-
-const DimmedOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 998;
-`;
-
-const FlexContainer = styled.div`
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  margin-bottom: 2rem;
-`;
-
-const SmallSection = styled.div`
-  flex: 1;
-  min-width: 280px;
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-
-  h2 {
-    font-size: 1.4rem;
-    margin-bottom: 1rem;
-    text-align: left;
-    font-weight: 600;
-  }
-
-  .location,
-  .date {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-  }
-
-  .participants {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-
-    .participant {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: #9b59b6;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-    }
-
-    .add-participant {
-      padding: 0.5rem 1rem;
-      background: #e9e9e9;
-      border-radius: 20px;
-      color: #333;
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      border: 1px solid #ccc;
-
-      &:hover {
-        background: #d9d9d9;
-      }
-    }
-  }
-`;
-
-const InviteButton = styled.button`
-  padding: 0.5rem 1rem;
-  background: #9b59b6;
-  color: #fff;
-  border-radius: 20px;
-  font-size: 1rem;
-  border: none;
-  cursor: pointer;
-  
-  &:hover {
-    background: #8e44ad;
-  }
-`;
-
-const ParticipantsSection = styled.div`
-  margin-top: 1rem;
-  max-height: 200px; /* Fixed height */
-  overflow-y: auto; /* Enables scrolling when content overflows */
-  border: 1px solid #ddd;
-  padding: 1rem;
-  border-radius: 8px;
-  background: #fff;
-
-  h3 {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .participant {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    margin: 0.25rem;
-    border-radius: 20px;
-    font-size: 1rem;
-    font-weight: 600;
-    text-align: center;
-  }
-
-  .confirmed {
-    background: #9b59b6;
-    color: #fff;
-  }
-
-  .pending {
-    background: #f0f0f0;
-    color: #666;
-    border: 1px solid #ccc;
-  }
-`;
-
-function ActivityDetailsPage({ activity, onBack }) {
+function ActivityDetailsPage({ activityId, onBack }) {
+  const { user, setUser } = useContext(UserContext);
   const [activeTab, setActiveTab] = useState('Recommendations');
   const [showChat, setShowChat] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
-
   const [showModal, setShowModal] = useState(false);
-  const [updatedActivity, setUpdatedActivity] = useState(activity);
+  const [currentActivity, setCurrentActivity] = useState(null);
 
-  const { user, setUser } = useContext(UserContext);
+  // ✅ Always get the latest version of the activity
+  useEffect(() => {
+    const latestActivity = user.activities.find((act) => act.id === activityId);
+    if (latestActivity) {
+      setCurrentActivity(latestActivity);
+    }
+  }, [user.activities, activityId]); // Re-run when user.activities updates
 
-  console.log(activity)
+  if (!currentActivity) return <p>Loading...</p>;
 
-  const isOwner = user?.id === activity?.user_id || user?.id === activity?.user?.id; // ✅ More reliable check  
-  const hostName = isOwner ? "You are the host of this activity." : `Host Name: ${activity?.user?.name || "Unknown"}`;
+  const isOwner = user?.id === currentActivity?.user_id || user?.id === currentActivity?.user?.id;
+  const hostName = isOwner ? "You are the host of this activity." : `Host Name: ${currentActivity?.user?.name || "Unknown"}`;
 
-  const participantsArray = Array.isArray(activity.participants) ? activity.participants : [];
-
-  const confirmedParticipants = participantsArray.filter(p => p.id !== activity.user_id);
+  const participantsArray = Array.isArray(currentActivity.participants) ? currentActivity.participants : [];
+  const confirmedParticipants = participantsArray.filter(p => p.id !== currentActivity.user_id);
 
   const handleInvite = async () => {
     if (!inviteEmail) return;
 
-    const participants = activity.participants || [];
-    const pendingInvites = activity.activity_participants || [];
-
     const normalizedEmail = inviteEmail.trim().toLowerCase();
+    const participants = currentActivity.participants || [];
+    const pendingInvites = currentActivity.activity_participants || [];
 
     const isDuplicate =
       participants.some((p) => p.email.toLowerCase() === normalizedEmail) ||
@@ -403,12 +62,36 @@ function ActivityDetailsPage({ activity, onBack }) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ email: inviteEmail, activity_id: activity.id }),
+      body: JSON.stringify({ email: inviteEmail, activity_id: currentActivity.id }),
     });
 
     if (response.ok) {
+      const newParticipant = await response.json();
+      console.log("✅ New participant data from API:", newParticipant);
       alert("Invitation sent!");
       setInviteEmail("");
+
+      // ✅ Update user context to include the new participant
+      setUser((prevUser) => {
+        const updatedUser = {
+          ...prevUser,
+          activities: prevUser.activities.map((act) =>
+            act.id === currentActivity.id
+              ? {
+                ...act,
+                participants: newParticipant.user_id
+                  ? [...(act.participants || []), { id: newParticipant.user_id, name: newParticipant.invited_email }]
+                  : act.participants,
+                activity_participants: [...(act.activity_participants || []), newParticipant],
+              }
+              : act
+          ),
+        };
+        console.log("🔄 Updated User Context:", updatedUser);
+        return updatedUser;
+      });
+
+      setRefreshTrigger((prev) => !prev); // ✅ Force re-render
     } else {
       const data = await response.json();
       alert(data.error || "Failed to send invitation.");
@@ -416,7 +99,7 @@ function ActivityDetailsPage({ activity, onBack }) {
   };
 
   function handleUpdate(newData) {
-    setUpdatedActivity(newData);
+    setCurrentActivity(newData);
 
     setUser((prevUser) => ({
       ...prevUser,
@@ -457,17 +140,14 @@ function ActivityDetailsPage({ activity, onBack }) {
     }
   }
 
-  if (!activity) return <p>Loading...</p>;
-
   return (
     <PageContainer>
       <Header>
         <button className="back-button" onClick={onBack}>Back</button>
-        <h1>{updatedActivity.activity_name || 'Activity Details'}</h1>
+        <h1>{currentActivity.activity_name || 'Activity Details'}</h1>
         <div className="icon-buttons">
-          {/* Show delete button only for the owner */}
           {isOwner && (
-            <span className="trash-icon" onClick={() => handleDelete(activity.id)}>🗑️</span>
+            <span className="trash-icon" onClick={() => handleDelete(currentActivity.id)}>🗑️</span>
           )}
         </div>
       </Header>
@@ -476,12 +156,11 @@ function ActivityDetailsPage({ activity, onBack }) {
         <SmallSection>
           <h2>Details</h2>
           <div className="location">
-            📍 {updatedActivity.activity_location || 'Not specified'}
+            📍 {currentActivity.activity_location || 'Not specified'}
           </div>
           <div className="date">
-            📅 {updatedActivity.date_notes}
+            📅 {currentActivity.date_notes}
           </div>
-          {/* Only the owner can update details */}
           {isOwner && <button onClick={() => setShowModal(true)}>Update Details</button>}
         </SmallSection>
 
@@ -536,7 +215,7 @@ function ActivityDetailsPage({ activity, onBack }) {
           </button>
         </div>
         <div className="tab-content">
-          {activeTab === "Recommendations" && <AIRecommendations activity={updatedActivity} refreshTrigger={refreshTrigger} />}
+          {activeTab === "Recommendations" && <AIRecommendations activity={currentActivity} refreshTrigger={refreshTrigger} />}
           {activeTab === "Discussion" && <p>Discussion content goes here.</p>}
         </div>
       </TabsSection>
@@ -552,9 +231,8 @@ function ActivityDetailsPage({ activity, onBack }) {
       {showChat && (
         <>
           <DimmedOverlay />
-
           <CuisineChat
-            activityId={activity.id}
+            activityId={currentActivity.id}
             onClose={() => setShowChat(false)}
             onChatComplete={() => {
               setRefreshTrigger(prev => !prev);
@@ -566,7 +244,7 @@ function ActivityDetailsPage({ activity, onBack }) {
 
       {showModal && (
         <UpdateActivityModal
-          activity={updatedActivity}
+          activity={currentActivity}
           onClose={() => setShowModal(false)}
           onUpdate={handleUpdate}
         />

@@ -78,14 +78,14 @@ const DashboardContainer = styled.div`
 
 function UserActivities() {
   const { user } = useContext(UserContext);
-  const [selectedActivity, setSelectedActivity] = useState(null);
+  const [selectedActivityId, setSelectedActivityId] = useState(null);
 
   const handleActivityClick = (activity) => {
-    setSelectedActivity(activity);
+    setSelectedActivityId(activity.id); // Pass only the ID
   };
 
   const handleBack = () => {
-    setSelectedActivity(null);
+    setSelectedActivityId(null);
   };
 
   const allActivities = [
@@ -108,10 +108,10 @@ function UserActivities() {
     </ActivityCard>
   );
 
-  if (selectedActivity) {
+  if (selectedActivityId) {
     return (
       <ActivityDetailsPage
-        activity={selectedActivity}
+        activityId={selectedActivityId} // Pass ID instead of whole object
         onBack={handleBack}
       />
     );

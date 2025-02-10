@@ -22,7 +22,7 @@ class ActivityParticipantsController < ApplicationController
         participant.accepted = user.present? # If they're an existing user, auto-accept
         participant.save!
 
-        render json: { message: "Invitation sent successfully" }, status: :ok
+        render json: participant, status: :ok # ✅ Simply return the participant
       end
 
       def accept
