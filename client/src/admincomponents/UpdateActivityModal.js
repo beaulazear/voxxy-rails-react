@@ -21,6 +21,10 @@ const ModalContainer = styled.div`
   width: 400px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   text-align: left;
+
+   @media (max-width: 768px) {
+    width: 300px;
+  }
 `;
 
 const Form = styled.form`
