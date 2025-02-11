@@ -175,7 +175,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
               👤 <strong>Host:</strong> {isOwner ? "You" : currentActivity?.user?.name || "Unknown"}
             </div>
           </div>
-          {isOwner && <button onClick={() => setShowModal(true)}>Update Details</button>}
+          {isOwner && <InviteButton onClick={() => setShowModal(true)}>Update Details</InviteButton>}
         </SmallSection>
 
         <SmallSection>
