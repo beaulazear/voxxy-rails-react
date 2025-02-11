@@ -5,7 +5,6 @@ const SectionTitle = styled.p`
   font-size: clamp(1.5rem, 2.5vw, 2rem);
   margin: 0;
   text-align: left;
-  font-weight: bold;
 `;
 
 const CardGrid = styled.div`
