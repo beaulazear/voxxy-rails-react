@@ -149,13 +149,8 @@ function ActivityDetailsPage({ activityId, onBack }) {
   return (
     <PageContainer>
       <Header>
-        <button className="back-button" onClick={onBack}>Back</button>
         <h1>{currentActivity.activity_name || 'Activity Details'}</h1>
-        <div className="icon-buttons">
-          {isOwner && (
-            <span className="trash-icon" onClick={() => handleDelete(currentActivity.id)}>🗑️</span>
-          )}
-        </div>
+        <button className="back-button" onClick={onBack}>Back</button>
       </Header>
 
       <FlexContainer>
@@ -175,7 +170,12 @@ function ActivityDetailsPage({ activityId, onBack }) {
               👤 <strong>Host:</strong> {isOwner ? "You" : currentActivity?.user?.name || "Unknown"}
             </div>
           </div>
-          {isOwner && <InviteButton onClick={() => setShowModal(true)}>Update Details</InviteButton>}
+          {isOwner && (
+            <div className="update-section">
+              <InviteButton onClick={() => setShowModal(true)}>Update Details</InviteButton>
+              <span className="trash-icon" onClick={() => handleDelete(currentActivity.id)}>🗑️</span>
+            </div>
+          )}
         </SmallSection>
 
         <SmallSection>

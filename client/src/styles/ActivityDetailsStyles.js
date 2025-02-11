@@ -22,7 +22,7 @@ export const Header = styled.div`
     font-weight: bold;
     margin: 0 auto;
     flex-grow: 1;
-    text-align: center;
+    text-align: left;
   }
 
   .back-button {
@@ -44,18 +44,7 @@ export const Header = styled.div`
     display: flex;
     align-items: center;
   }
-
-  .trash-icon {
-    cursor: pointer;
-    font-size: 1.4rem;
-    transition: opacity 0.3s ease;
-    position: relative;
-    padding-bottom: 10px;
-
-    &:hover {
-      opacity: 0.7;
-    }
-  }
+}
 `;
 
 export const Section = styled.div`
@@ -196,6 +185,50 @@ export const SmallSection = styled.div`
     padding: 0.5rem 1rem;
     margin-top: 1rem; /* Ensures spacing from the last detail */
   }
+
+.update-section {
+  display: flex;
+  align-items: flex-end; /* Align both items at the bottom */
+  gap: 10px; /* Space between button and icon */
+}
+
+.trash-icon {
+  cursor: pointer;
+  font-size: 1.8rem;
+  color: #e74c3c;
+  padding: 0.2rem 0.4rem;
+  display: flex;
+  align-items: flex-end; /* Aligns with button's text baseline */
+  position: relative;
+  line-height: 1; /* Prevents extra spacing */
+  transition: color 0.3s ease, transform 0.2s ease;
+
+  &:hover {
+    color: #c0392b;
+    transform: scale(1.1);
+  }
+
+  &:before {
+    content: "Delete Board";
+    position: absolute;
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    top: 100%; /* Keeps tooltip below */
+    left: 50%;
+    transform: translateX(-50%) translateY(5px);
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none;
+  }
+
+  &:hover:before {
+    opacity: 1;
+  }
+}
 
   @media (max-width: 768px) {
     padding: 1.25rem;
