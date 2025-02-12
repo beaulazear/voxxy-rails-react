@@ -13,15 +13,16 @@ bundle install
 # Runs database migrations
 bundle exec rake db:migrate
 
-# Only delete data in development (not in production or Render)
-if [ "$RAILS_ENV" = "development" ]; then
-  echo "Are you sure you want to DELETE all data from the database? This cannot be undone! (yes/no)"
-  read confirmation
-  if [ "$confirmation" = "yes" ]; then
-    echo "Deleting all data..."
-    bundle exec rake db:truncate_all  # Replace with db:reset if needed
-    echo "Database has been wiped clean!"
-  else
-    echo "Aborting data deletion."
-  fi
+# If in production, create a default user
+if [ "$RAILS_ENV" = "production" ]; then
+  echo "Creating default user..."
+  bundle exec rails runner "User.create!(
+    name: 'Testing',
+    username: 'testinguser',
+    email: 'testing@gmail.com',
+    password: 'testingpass',
+    password_confirmation: 'testingpass',
+    confirmed_at: Time.current
+  ) unless User.exists?(email: 'testing@gmail.com')"
+  echo "Default user created!"
 fi
