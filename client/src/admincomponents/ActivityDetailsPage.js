@@ -11,7 +11,7 @@ import {
   SmallSection,
   InviteButton,
   ParticipantsSection,
-} from "../styles/ActivityDetailsStyles"; // Import styles
+} from "../styles/ActivityDetailsStyles";
 import CuisineChat from './CuisineChat';
 import AIRecommendations from "./AIRecommendations";
 import UpdateActivityModal from './UpdateActivityModal';
