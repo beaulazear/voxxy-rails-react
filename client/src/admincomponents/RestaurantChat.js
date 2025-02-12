@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { UserContext } from '../context/user';
 import { useNavigate } from 'react-router-dom';
 
-// Styled Components
 const Overlay = styled.div`
   position: fixed;
   top: 0;
@@ -152,7 +151,7 @@ function RestaurantChat({ onClose }) {
         if (chatBodyRef.current) {
             chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
         }
-    }, [messages]); // Trigger scroll when messages update
+    }, [messages]);
 
     const handleNext = () => {
         if (formData[questions[step].key]) {

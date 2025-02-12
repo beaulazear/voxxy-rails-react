@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { UserContext } from '../context/user';
 import ActivityDetailsPage from './ActivityDetailsPage';
@@ -79,6 +80,7 @@ const DashboardContainer = styled.div`
 function UserActivities() {
   const { user } = useContext(UserContext);
   const [selectedActivityId, setSelectedActivityId] = useState(null);
+  const navigate = useNavigate()
 
   const handleActivityClick = (activity) => {
     setSelectedActivityId(activity.id); // Pass only the ID
@@ -93,7 +95,6 @@ function UserActivities() {
     ...(user?.participant_activities || [])
   ];
 
-  // Ensure unique activities (avoid duplicates)
   const uniqueActivities = allActivities.reduce((acc, activity) => {
     if (!acc.some((a) => a.id === activity.id)) {
       acc.push(activity);
@@ -111,7 +112,7 @@ function UserActivities() {
   if (selectedActivityId) {
     return (
       <ActivityDetailsPage
-        activityId={selectedActivityId} // Pass ID instead of whole object
+        activityId={selectedActivityId}
         onBack={handleBack}
       />
     );
@@ -124,7 +125,7 @@ function UserActivities() {
         {uniqueActivities.length > 0 ? (
           uniqueActivities.map(renderActivityCard)
         ) : (
-          <ActivityCard>
+          <ActivityCard onClick={() => navigate('/activities')}>
             <div className="emoji">➕</div>
             <h3>Start a New Board</h3>
           </ActivityCard>

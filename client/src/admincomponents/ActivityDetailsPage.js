@@ -56,8 +56,8 @@ function ActivityDetailsPage({ activityId, onBack }) {
     const pendingInvites = currentActivity.activity_participants || [];
 
     const isDuplicate =
-      participants.some((p) => p.email.toLowerCase() === normalizedEmail) ||
-      pendingInvites.some((p) => p.invited_email.toLowerCase() === normalizedEmail);
+      participants.some((p) => p?.email?.toLowerCase() === normalizedEmail) ||
+      pendingInvites.some((p) => p?.invited_email?.toLowerCase() === normalizedEmail);
 
     if (isDuplicate) {
       alert("This email is already invited or is a participant.");
