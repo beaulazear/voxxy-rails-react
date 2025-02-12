@@ -73,15 +73,15 @@ const ActivityName = styled.h3.withConfig({
 
 function StartNewAdventure({ onTripSelect }) {
   const adventures = [
-    { name: 'Choose a Restaurant', emoji: '🍜', active: true },
-    { name: 'Choose a Movie', emoji: '🎥', active: false },
+    { name: 'Lets Eat', emoji: '🍜', active: true },
+    { name: 'Movie Night', emoji: '🎥', active: false },
     { name: 'Ski Trip', emoji: '🎿', active: false },
     { name: 'Kids Play Date', emoji: '👩‍👧‍👦', active: false },
-    { name: 'Choose a Destination', emoji: '🗺️', active: false },
+    { name: 'Find a Destination', emoji: '🗺️', active: false },
     { name: 'Game Night', emoji: '🎮', active: false },
     { name: 'Family Reunion', emoji: '👨‍👩‍👧‍👦', active: false },
     { name: 'Road Trip', emoji: '🚗', active: false },
-    { name: 'Choose a Time', emoji: '⏰', active: false },
+    { name: 'Lets Mee', emoji: '⏰', active: false },
     { name: 'Trip to Iceland', emoji: '🇮🇸', active: false },
   ];
 
