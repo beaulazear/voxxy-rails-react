@@ -52,8 +52,8 @@ function TripDashboard() {
   const [selectedTrip, setSelectedTrip] = useState(null);
 
   const handleTripSelect = (tripName) => {
-    if (tripName === 'Choose a Restaurant') {
-      setSelectedTrip('Choose a Restaurant');
+    if (tripName === 'Lets Eat') {
+      setSelectedTrip('Lets Eat');
     } else {
       alert(`Selected Trip: ${tripName}`);
     }
@@ -73,7 +73,7 @@ function TripDashboard() {
         <StartNewAdventure onTripSelect={handleTripSelect} />
       </DashboardContainer>
       {/* Conditionally render the chat with an overlay */}
-      {selectedTrip === 'Choose a Restaurant' && (
+      {selectedTrip === 'Lets Eat' && (
         <>
           <DimmedOverlay />
           <RestaurantChat onClose={() => setSelectedTrip(null)} />
