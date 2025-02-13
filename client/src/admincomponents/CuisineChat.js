@@ -29,13 +29,36 @@ const ChatContainer = styled.div`
 `;
 
 const ChatHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background: white;
-  padding: 20px;
+  padding: 15px 20px;
   border-bottom: 1px solid #ddd;
-  text-align: center;
   font-size: 1.2rem;
   font-weight: bold;
   color: #6c63ff;
+`;
+
+const BackButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #6c63ff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  
+  &:hover {
+    color: #574dcf;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+  }
 `;
 
 const ChatBody = styled.div`
@@ -124,7 +147,7 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
     const [currentInput, setCurrentInput] = useState(""); // Current input field
     const [messages, setMessages] = useState([]);
 
-    const chatBodyRef = useRef(null); // 🔥 Ref for auto-scrolling
+    const chatBodyRef = useRef(null);
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
     const questions = [
@@ -135,7 +158,6 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
         "What’s your ideal price range? (e.g., budget-friendly, mid-range, upscale)",
     ];
 
-    // 🔥 Auto-scroll effect when messages update
     useEffect(() => {
         if (chatBodyRef.current) {
             chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
@@ -151,7 +173,7 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
             ]);
 
             setAnswers([...answers, { question: questions[step], answer: currentInput }]);
-            setCurrentInput(""); // Clear input for next question
+            setCurrentInput("");
 
             if (step < questions.length - 1) {
                 setStep(step + 1);
@@ -174,9 +196,7 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
 
             if (response.ok) {
                 console.log('✅ Response saved successfully!');
-
-                onChatComplete(); // ✅ Trigger refresh
-                console.log('🔥 onChatComplete() has been called!'); // ✅ Log to verify
+                onChatComplete();
             } else {
                 console.error('❌ Failed to save response');
             }
@@ -191,8 +211,16 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
         <>
             <Overlay onClick={onClose} />
             <ChatContainer onClick={(e) => e.stopPropagation()}>
-                <ChatHeader>Chat with Voxxy</ChatHeader>
-                <ChatBody ref={chatBodyRef}> {/* 🔥 Assign the ref for auto-scrolling */}
+                <ChatHeader>
+                    <BackButton onClick={onClose}>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M15.5 3.5L7 12l8.5 8.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        Back
+                    </BackButton>
+                    Chat with Voxxy
+                </ChatHeader>
+                <ChatBody ref={chatBodyRef}>
                     {messages.map((msg, index) => (
                         <Message key={index} $isUser={msg.isUser}>
                             {msg.text}
@@ -209,9 +237,7 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
                         placeholder="Type your response..."
                     />
                     <SendButton onClick={step < questions.length ? handleNext : handleSubmit}>
-                        <svg viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M2,21L23,12L2,3V10L17,12L2,14V21Z" />
-                        </svg>
+                        ▶
                     </SendButton>
                 </ChatFooter>
             </ChatContainer>

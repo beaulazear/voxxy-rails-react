@@ -81,7 +81,7 @@ function StartNewAdventure({ onTripSelect }) {
     { name: 'Game Night', emoji: '🎮', active: false },
     { name: 'Family Reunion', emoji: '👨‍👩‍👧‍👦', active: false },
     { name: 'Road Trip', emoji: '🚗', active: false },
-    { name: 'Lets Mee', emoji: '⏰', active: false },
+    { name: 'Lets Meet', emoji: '⏰', active: false },
     { name: 'Trip to Iceland', emoji: '🇮🇸', active: false },
   ];
 
