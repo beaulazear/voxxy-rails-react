@@ -10,5 +10,8 @@ cp -a client/build/. public/
 # builds the back end code
 bundle install
 
-# Runs database migrations
-bundle exec rake db:migrate
+# Clears the production database and recreates it
+echo "🚨 Dropping and recreating production database..."
+bundle exec rake db:drop db:create db:migrate
+
+echo "✅ Database reset complete!"

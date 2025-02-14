@@ -9,7 +9,7 @@ class SessionsController < ApplicationController
     if user&.authenticate(params[:password])
       session[:user_id] = user.id
 
-      participant_activities = Activity.includes(:user, :participants) # ✅ Ensure host and participants are loaded
+      participant_activities = Activity.includes(:user, :participants)
                                        .joins(:activity_participants)
                                        .where(activity_participants: { user_id: user.id, accepted: true })
                                        .distinct
@@ -19,7 +19,7 @@ class SessionsController < ApplicationController
           activities: { # Activities the user owns
             only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji ],
             include: {
-              user: { only: [ :id, :name, :email ] }, # ✅ Include host details
+              user: { only: [ :id, :name, :email ] },
               responses: { only: [ :id, :notes, :created_at ] },
               participants: { only: [ :id, :name, :email ] },
               activity_participants: { only: [ :invited_email, :accepted ] }
@@ -27,10 +27,10 @@ class SessionsController < ApplicationController
           }
         }
       ).merge("participant_activities" => participant_activities.as_json(
-        only: [ :id, :activity_name, :emoji, :user_id, :date_notes, :activity_location ], # ✅ Ensure date_notes & location are included
+        only: [ :id, :activity_name, :emoji, :user_id, :date_notes, :activity_location, :group_size ],
         include: {
-          user: { only: [ :id, :name, :email ] }, # ✅ Ensure host details are included
-          participants: { only: [ :id, :name, :email ] } # ✅ Ensure all participants are included
+          user: { only: [ :id, :name, :email ] },
+          participants: { only: [ :id, :name, :email ] }
         }
       ))
     else

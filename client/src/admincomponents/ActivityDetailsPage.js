@@ -26,7 +26,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
   const [currentActivity, setCurrentActivity] = useState(null);
 
   useEffect(() => {
-    // ✅ Check both activities the user owns & activities they are a participant in
     const latestActivity =
       user.activities.find((act) => act.id === activityId) ||
       user.participant_activities.find((act) => act.id === activityId);
@@ -38,15 +37,15 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
   if (!currentActivity) return <p>Loading...</p>;
 
-  const isOwner = user?.id === currentActivity?.user_id || user?.id === currentActivity?.user?.id;
-  const hostName = isOwner ? "You are the host of this activity." : `Host Name: ${currentActivity?.user?.name || "Unknown"}`;
+  console.log(currentActivity)
 
-  // ✅ Separate participants into confirmed and pending
+  const isOwner = user?.id === currentActivity?.user_id || user?.id === currentActivity?.user?.id;
+
   const participantsArray = Array.isArray(currentActivity.participants) ? currentActivity.participants : [];
   const pendingInvitesArray = Array.isArray(currentActivity.activity_participants) ? currentActivity.activity_participants : [];
 
   const confirmedParticipants = participantsArray.filter(p => p.id !== currentActivity.user_id);
-  const pendingParticipants = pendingInvitesArray.filter(p => !p.accepted); // Only show unaccepted invites
+  const pendingParticipants = pendingInvitesArray.filter(p => !p.accepted);
 
   const handleInvite = async () => {
     if (!inviteEmail) return;
@@ -77,7 +76,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
       alert("Invitation sent!");
       setInviteEmail("");
 
-      // ✅ Update user context to include the new participant
       setUser((prevUser) => {
         const updatedUser = {
           ...prevUser,
@@ -97,7 +95,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
         return updatedUser;
       });
 
-      setRefreshTrigger((prev) => !prev); // ✅ Force re-render
+      setRefreshTrigger((prev) => !prev);
     } else {
       const data = await response.json();
       alert(data.error || "Failed to send invitation.");
@@ -179,7 +177,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
         </SmallSection>
 
         <SmallSection>
-          <h2>Participants</h2>
+          <h2>Participants - {currentActivity.group_size}</h2>
           <ParticipantsSection>
             <div className="participants-list">
               <h3>Confirmed Participants</h3>

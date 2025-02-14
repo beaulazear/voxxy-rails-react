@@ -150,7 +150,7 @@ function RestaurantChat({ onClose }) {
         activity_type: 'Restaurant',
         activity_name: '',
         activity_location: '',
-        group_size: '',
+        group_size: 1,
         date_notes: '',
         emoji: '🍜'
     });
@@ -162,10 +162,9 @@ function RestaurantChat({ onClose }) {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
     const questions = [
-        { key: 'group_size', text: "How many people are in the group?" },
-        { key: 'date_notes', text: "What time are you planning to eat? (e.g., dinner, late-night)" },
-        { key: 'activity_location', text: "Are there specific areas of New York you’d like to stick to? (e.g., Manhattan, Brooklyn, Upper East Side)" },
-        { key: 'activity_name', text: "Let’s give a nickname for this meal?" },
+        { key: 'activity_location', text: "First, Where are you thinking of having this dinner? (e.g., Manhattan, Brooklyn, Upper East Side)" },
+        { key: 'date_notes', text: "What kind of meal are we talking? Brunch, lunch, dinner, or late night?" },
+        { key: 'activity_name', text: "Do you have a name for this dinner, or is it just a casual get-together? You’ll have a chance to change it later." },
     ];
 
     const chatBodyRef = useRef(null);
