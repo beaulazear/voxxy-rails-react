@@ -10,8 +10,8 @@ cp -a client/build/. public/
 # builds the back end code
 bundle install
 
-# Clears the production database and recreates it
-echo "🚨 Dropping and recreating production database..."
-bundle exec rake db:drop db:create db:migrate
+# 🚨 Delete all activities (but keep users)
+echo "🚨 WARNING: Deleting all activities and related data..."
+bundle exec rails runner "Activity.destroy_all"
 
-echo "✅ Database reset complete!"
+echo "✅ All activities have been deleted!"
