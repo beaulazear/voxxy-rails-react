@@ -21,6 +21,8 @@ Rails.application.routes.draw do
 
   post "/api/openai/restaurant_recommendations", to: "openai#restaurant_recommendations"
 
+  get "/test", to: "application#test"
+
   get "up" => "rails/health#show", as: :rails_health_check
 
   mount ActionCable.server => "/cable"
