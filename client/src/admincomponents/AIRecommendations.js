@@ -7,6 +7,15 @@ const RecommendationsContainer = styled.div`
   border-radius: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-top: 2rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem; /* Add padding for smaller screens */
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
 `;
 
 const Title = styled.h2`
@@ -33,6 +42,10 @@ const RecommendationItem = styled.div`
   text-align: left;
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 768px) {
+    padding: 1rem; /* Reduce padding slightly for better spacing */
+  }
 `;
 
 const RestaurantName = styled.h3`
@@ -99,7 +112,7 @@ const AIRecommendations = ({ activity, refreshTrigger }) => {
                     body: JSON.stringify({
                         responses: updatedActivity.responses.map((res) => res.notes).join("\n\n"),
                         activity_location: activity.activity_location,
-                        date_notes: activity.date_notes               
+                        date_notes: activity.date_notes
                     }),
                 });
 
@@ -126,26 +139,22 @@ const AIRecommendations = ({ activity, refreshTrigger }) => {
                 <LoadingText>Generating recommendations...</LoadingText>
             ) : recommendations.length > 0 ? (
                 <RecommendationList>
-                    {recommendations
-                        .map((rec, index) => {
-                            const match = rec.match(/^(.*?)(?:\s*-\s*(\$\$?\$?\$?))?:\s*(.*)$/);
-                            const name = match ? match[1].trim() : null;
-                            const price = match && match[2] ? match[2].trim() : null;
-                            const description = match && match[3] ? match[3].trim() : null;
-
-                            if (!name || !description || description === "No description available.") {
-                                return null;
-                            }
-
-                            return (
-                                <RecommendationItem key={index}>
-                                    <RestaurantName>{name}</RestaurantName>
-                                    {price && <PriceRange>{price}</PriceRange>}
-                                    <Description>{description}</Description>
-                                </RecommendationItem>
-                            );
-                        })
-                        .filter(Boolean)}
+                    {recommendations.map((rec, index) => (
+                        <RecommendationItem key={index}>
+                            <RestaurantName>{rec.name}</RestaurantName>
+                            {rec.price_range && <PriceRange>{rec.price_range}</PriceRange>}
+                            <Description>{rec.description}</Description>
+                            {rec.address && <p><strong>📍 Address:</strong> {rec.address}</p>}
+                            {rec.website && (
+                                <p>
+                                    <strong>🌐 Website:</strong>{" "}
+                                    <a href={rec.website} target="_blank" rel="noopener noreferrer">
+                                        {rec.website}
+                                    </a>
+                                </p>
+                            )}
+                        </RecommendationItem>
+                    ))}
                 </RecommendationList>
             ) : (
                 <LoadingText>No recommendations yet.</LoadingText>
