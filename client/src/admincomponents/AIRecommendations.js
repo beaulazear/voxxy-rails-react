@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import RestaurantMap from "./RestaurantMap";
 
 const RecommendationsContainer = styled.div`
   background: white;
@@ -138,24 +139,27 @@ const AIRecommendations = ({ activity, refreshTrigger }) => {
             {loading ? (
                 <LoadingText>Generating recommendations...</LoadingText>
             ) : recommendations.length > 0 ? (
-                <RecommendationList>
-                    {recommendations.map((rec, index) => (
-                        <RecommendationItem key={index}>
-                            <RestaurantName>{rec.name}</RestaurantName>
-                            {rec.price_range && <PriceRange>{rec.price_range}</PriceRange>}
-                            <Description>{rec.description}</Description>
-                            {rec.address && <p><strong>📍 Address:</strong> {rec.address}</p>}
-                            {rec.website && (
-                                <p>
-                                    <strong>🌐 Website:</strong>{" "}
-                                    <a href={rec.website} target="_blank" rel="noopener noreferrer">
-                                        {rec.website}
-                                    </a>
-                                </p>
-                            )}
-                        </RecommendationItem>
-                    ))}
-                </RecommendationList>
+                <>
+                    <RecommendationList>
+                        {recommendations.map((rec, index) => (
+                            <RecommendationItem key={index}>
+                                <RestaurantName>{rec.name}</RestaurantName>
+                                {rec.price_range && <PriceRange>{rec.price_range}</PriceRange>}
+                                <Description>{rec.description}</Description>
+                                {rec.address && <p><strong>📍 Address:</strong> {rec.address}</p>}
+                                {rec.website && (
+                                    <p>
+                                        <strong>🌐 Website:</strong>{" "}
+                                        <a href={rec.website} target="_blank" rel="noopener noreferrer">
+                                            {rec.website}
+                                        </a>
+                                    </p>
+                                )}
+                            </RecommendationItem>
+                        ))}
+                    </RecommendationList>
+                    {recommendations.length > 0 && <RestaurantMap recommendations={recommendations} />}
+                </>
             ) : (
                 <LoadingText>No recommendations yet.</LoadingText>
             )}
