@@ -9,5 +9,3 @@ cp -a client/build/. public/
 
 # builds the back end code
 bundle install
-
-rails db:reset
