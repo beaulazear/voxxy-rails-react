@@ -7,5 +7,7 @@ rm -rf public
 npm install --prefix client && npm run build --prefix client
 cp -a client/build/. public/
 
+rails db:drop db:create db:migrate
+
 # builds the back end code
 bundle install
