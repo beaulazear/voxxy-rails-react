@@ -31,8 +31,17 @@ class ActivitiesController < ApplicationController
     end
 
     def index
-      activities = current_user.activities.all
-      render json: activities
+      activities = current_user.activities.includes(:user, :responses, :activity_participants, :participants)
+
+      render json: activities.as_json(
+        only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :user_id ],
+        include: {
+          user: { only: [ :id, :name, :email ] },
+          responses: { only: [ :id, :notes, :created_at ] },
+          activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] },
+          participants: { only: [ :id, :name, :email ] }
+        }
+      )
     end
 
     def show

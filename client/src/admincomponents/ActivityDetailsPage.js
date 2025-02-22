@@ -37,8 +37,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
   if (!currentActivity) return <p>Loading...</p>;
 
-  console.log(currentActivity)
-
   const isOwner = user?.id === currentActivity?.user_id || user?.id === currentActivity?.user?.id;
 
   const participantsArray = Array.isArray(currentActivity.participants) ? currentActivity.participants : [];

@@ -154,13 +154,6 @@ const Login = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  console.log(window.location.origin)
-  console.log(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`)
-  fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/test`, { credentials: 'include' })
-  .then(res => res.json())
-  .then(data => console.log(data))
-  .catch(err => console.error("API issue:", err))
-
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');

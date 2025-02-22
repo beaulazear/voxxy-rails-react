@@ -65,7 +65,6 @@ const AIRecommendations = ({ activity, refreshTrigger }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        console.log('🔄 AIRecommendations useEffect triggered!');
 
         setLoading(true);
 
@@ -81,7 +80,6 @@ const AIRecommendations = ({ activity, refreshTrigger }) => {
                 });
 
                 if (!activityResponse.ok) {
-                    console.error("❌ Failed to fetch updated activity data.");
                     setLoading(false);
                     return;
                 }
@@ -89,13 +87,10 @@ const AIRecommendations = ({ activity, refreshTrigger }) => {
                 const updatedActivity = await activityResponse.json();
 
                 if (!updatedActivity.responses || updatedActivity.responses.length === 0) {
-                    console.log('⚠️ No responses found. Skipping fetch.');
                     setRecommendations([]);
                     setLoading(false);
                     return;
                 }
-
-                console.log('✅ Updated activity data received:', updatedActivity.responses);
 
                 const response = await fetch(`${API_URL}/api/openai/restaurant_recommendations`, {
                     method: "POST",
