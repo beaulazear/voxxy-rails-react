@@ -42,8 +42,10 @@ function ActivityDetailsPage({ activityId, onBack }) {
   const participantsArray = Array.isArray(currentActivity.participants) ? currentActivity.participants : [];
   const pendingInvitesArray = Array.isArray(currentActivity.activity_participants) ? currentActivity.activity_participants : [];
 
-  const confirmedParticipants = participantsArray.filter(p => p.id !== currentActivity.user_id);
-  const pendingParticipants = pendingInvitesArray.filter(p => !p.accepted);
+  const allParticipants = [
+    ...participantsArray.map(p => ({ name: p.name, email: p.email, confirmed: true })),
+    ...pendingInvitesArray.map(p => ({ name: p.name || p.invited_email, email: p.invited_email, confirmed: false }))
+  ];
 
   const handleInvite = async () => {
     if (!inviteEmail) return;
@@ -178,22 +180,14 @@ function ActivityDetailsPage({ activityId, onBack }) {
           <h2>Participants - {currentActivity.group_size}</h2>
           <ParticipantsSection>
             <div className="participants-list">
-              <h3>Confirmed Participants</h3>
-              {confirmedParticipants.length > 0 ? (
-                confirmedParticipants.map((participant) => (
-                  <div key={participant.id} className="participant confirmed">{participant.name}</div>
+              {allParticipants.length > 0 ? (
+                allParticipants.map((participant, index) => (
+                  <div key={index} className={`participant ${participant.confirmed ? 'confirmed' : 'pending'}`}>
+                    {participant.name || participant.email}
+                  </div>
                 ))
               ) : (
-                <p>No confirmed participants yet.</p>
-              )}
-
-              <h3>Pending Invites</h3>
-              {pendingParticipants.length > 0 ? (
-                pendingParticipants.map((invite) => (
-                  <div key={invite.id} className="participant pending">{invite.invited_email}</div>
-                ))
-              ) : (
-                <p>No pending invitations.</p>
+                <p>No participants yet.</p>
               )}
             </div>
           </ParticipantsSection>

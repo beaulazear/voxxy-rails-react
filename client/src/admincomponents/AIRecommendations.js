@@ -106,7 +106,6 @@ const AIRecommendations = ({ activity, refreshTrigger }) => {
                 if (response.ok) {
                     const data = await response.json();
                     setRecommendations(data.recommendations);
-                    console.log('✅ Recommendations updated!', data.recommendations);
                 } else {
                     console.error("❌ Failed to fetch AI recommendations");
                 }

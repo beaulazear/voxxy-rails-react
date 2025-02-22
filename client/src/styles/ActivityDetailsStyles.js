@@ -277,16 +277,15 @@ export const ParticipantsSection = styled.div`
     text-align: center;
   }
 
-  .confirmed {
-    background: #9b59b6;
-    color: #fff;
-  }
+.confirmed {
+  background: #6a1b9a;
+  color: #fff;
+}
 
-  .pending {
-    background: #f0f0f0;
-    color: #666;
-    border: 1px solid #ccc;
-  }
+.pending {
+  background: #d3d3d3;
+  color: #444;
+}
 
   .invite-section {
     display: flex;
