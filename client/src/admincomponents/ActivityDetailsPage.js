@@ -28,7 +28,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
   useEffect(() => {
     const latestActivity =
       user.activities.find((act) => act.id === activityId) ||
-      user.participant_activities.find((act) => act.id === activityId);
+      user.participant_activities.find((p) => p.activity.id === activityId)?.activity; // ✅ Extract `activity` correctly
 
     if (latestActivity) {
       setCurrentActivity(latestActivity);
@@ -40,12 +40,34 @@ function ActivityDetailsPage({ activityId, onBack }) {
   const isOwner = user?.id === currentActivity?.user_id || user?.id === currentActivity?.user?.id;
 
   const participantsArray = Array.isArray(currentActivity.participants) ? currentActivity.participants : [];
-  const pendingInvitesArray = Array.isArray(currentActivity.activity_participants) ? currentActivity.activity_participants : [];
+  console.log(participantsArray)
+  const pendingInvitesArray = Array.isArray(currentActivity.activity_participants)
+    ? currentActivity.activity_participants.filter(p => !p.accepted) // ✅ Only show pending invites
+    : [];
+  console.log(pendingInvitesArray)
+
+  const hostParticipant = {
+    name: `${currentActivity.user?.name || "Unknown"} (Host)`, // ✅ Add (Host) next to name
+    email: currentActivity.user?.email || "N/A",
+    confirmed: true
+  };
 
   const allParticipants = [
-    ...participantsArray.map(p => ({ name: p.name, email: p.email, confirmed: true })),
-    ...pendingInvitesArray.map(p => ({ name: p.name || p.invited_email, email: p.invited_email, confirmed: false }))
+    hostParticipant, // ✅ Always include the host at the top
+    ...participantsArray.filter(p => p.email) // ✅ Ensure email is defined before mapping
+      .map(p => ({
+        name: p.name || p.email,
+        email: p.email,
+        confirmed: true
+      })),
+    ...pendingInvitesArray.map(p => ({
+      name: p.invited_email,
+      email: p.invited_email,
+      confirmed: false
+    }))
   ];
+
+  console.log(allParticipants)
 
   const handleInvite = async () => {
     if (!inviteEmail) return;

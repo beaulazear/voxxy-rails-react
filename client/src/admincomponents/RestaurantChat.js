@@ -207,8 +207,8 @@ function RestaurantChat({ onClose }) {
 
                 setUser((prevUser) => ({
                     ...prevUser,
-                    activities: [...(prevUser.activities || []), data],
-                }));
+                    activities: [...(prevUser.activities || []), { ...data, user: prevUser }], // ✅ Inject user data into the new activity
+                  }));
 
                 navigate('/boards');
             } else {

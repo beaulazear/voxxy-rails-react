@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { UserContext } from '../context/user';
 import ActivityDetailsPage from './ActivityDetailsPage';
+import PendingInvites from './PendingInvites';
 
 const SectionTitle = styled.p`
   font-size: clamp(1.5rem, 2.5vw, 2rem);
@@ -91,16 +92,11 @@ function UserActivities() {
   };
 
   const allActivities = [
-    ...(user?.activities || []),
-    ...(user?.participant_activities || [])
+    ...(user?.activities || []), 
+    ...(user?.participant_activities?.filter(activity => activity.accepted).map(p => p.activity) || []) // ✅ Extract the `activity` object
   ];
 
-  const uniqueActivities = allActivities.reduce((acc, activity) => {
-    if (!acc.some((a) => a.id === activity.id)) {
-      acc.push(activity);
-    }
-    return acc;
-  }, []);
+  const uniqueActivities = [...new Map(allActivities.map(a => [a.id, a])).values()];
 
   const renderActivityCard = (activity) => (
     <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)}>
@@ -117,9 +113,10 @@ function UserActivities() {
       />
     );
   }
-
+  console.log(uniqueActivities)
   return (
     <DashboardContainer>
+      <PendingInvites />
       <SectionTitle>Your Boards</SectionTitle>
       <CardGrid>
         {uniqueActivities.length > 0 ? (

@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   resources :users, only: [ :index, :create, :destroy ]
   resources :activities, only: [ :create, :destroy, :update, :index, :show ]
   resource :password_reset, only: [ :create, :update ]
-  resources :activity_participants, only: [] do
+  resources :activity_participants, only: [ :index ] do
     post :invite, on: :collection
   end
 

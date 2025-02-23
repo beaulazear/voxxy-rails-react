@@ -9,47 +9,65 @@ class ActivityParticipantsController < ApplicationController
       invited_email = params[:email]&.strip&.downcase
       return render json: { error: "Invalid email" }, status: :unprocessable_entity unless invited_email.present?
 
-      user = User.where("lower(email) = ?", invited_email).first
+      user = User.find_by("lower(email) = ?", invited_email) # Check if the user exists
 
+      # Check if the participant already exists (avoid duplicate invites)
+      participant = ActivityParticipant.find_or_initialize_by(activity_id: activity.id, invited_email: invited_email)
+
+      if participant.persisted?
+        return render json: { error: "User is already invited." }, status: :unprocessable_entity
+      end
+
+      participant.user_id = user.id if user
+      participant.accepted = false # ✅ Require manual acceptance
+      participant.save!
+
+      # Send the correct email based on user existence
       if user.nil?
         UserMailer.invitation_email(invited_email, activity, current_user).deliver_later
       else
         UserMailer.existing_user_invite_email(user, activity, current_user).deliver_later
       end
 
-      participant = ActivityParticipant.find_or_initialize_by(activity_id: activity.id, invited_email: invited_email)
-
-      was_accepted = participant.accepted
-      participant.user_id = user.id if user
-      participant.accepted = user.present?
-      participant.save!
-
-      if participant.accepted && !was_accepted
-        activity.update!(group_size: activity.group_size + 1)
-      end
-
       render json: participant, status: :ok
-  end
-
-  def accept
-    invited_email = params[:email]&.strip&.downcase
-    activity_id = params[:activity_id]
-
-    participant = ActivityParticipant.find_by(invited_email: invited_email, activity_id: activity_id)
-
-    if participant
-      user = User.find_by(email: invited_email)
-
-      if user
-        participant.update!(user_id: user.id, accepted: true)
-        render json: participant, status: :ok
-      else
-        render json: { error: "User not found." }, status: :not_found
-      end
-    else
-      render json: { error: "Participant not found." }, status: :not_found
     end
-  rescue => e
-    render json: { error: e.message }, status: :unprocessable_entity
-  end
+
+    def accept
+      invited_email = params[:email]&.strip&.downcase
+      activity_id = params[:activity_id]
+
+      participant = ActivityParticipant.find_by(invited_email: invited_email, activity_id: activity_id)
+      return render json: { error: "Invitation not found." }, status: :not_found unless participant
+
+      user = User.find_by(email: invited_email)
+      return render json: { error: "User not found. Please register first." }, status: :not_found unless user
+
+      if participant.accepted
+        return render json: { error: "Invite already accepted." }, status: :unprocessable_entity
+      end
+
+      # Assign the user and mark as accepted
+      participant.update!(user_id: user.id, accepted: true)
+
+      # ✅ Increase group size when user accepts
+      activity = participant.activity
+      activity.update!(group_size: activity.group_size + 1)
+
+      render json: { message: "You have successfully joined the activity." }, status: :ok
+    rescue => e
+      render json: { error: e.message }, status: :unprocessable_entity
+    end
+
+    def index
+      activity_participants = ActivityParticipant.includes(:activity).where("user_id = ? OR invited_email = ?", current_user.id, current_user.email)
+
+      render json: activity_participants.as_json(
+        include: {
+          activity: {
+            only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji ],
+            include: { user: { only: [ :id, :name, :email ] } } # ✅ Includes host details
+          }
+        }
+      )
+    end
 end

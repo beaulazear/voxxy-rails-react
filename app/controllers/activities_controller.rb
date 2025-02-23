@@ -4,7 +4,10 @@ class ActivitiesController < ApplicationController
     def create
       activity = current_user.activities.build(activity_params)
       if activity.save
-        render json: activity, status: :created
+        render json: activity.as_json(
+          only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji ],
+          include: { user: { only: [ :id, :name, :email ] } } # ✅ Ensure host data is included
+        ), status: :created
       else
         render json: { errors: activity.errors.full_messages }, status: :unprocessable_entity
       end
@@ -45,20 +48,43 @@ class ActivitiesController < ApplicationController
     end
 
     def show
-      activity = Activity.includes(:user, :responses, :activity_participants, :participants).find_by(id: params[:id])
+      unless current_user
+        return render json: { error: "Not authorized" }, status: :unauthorized
+      end
 
-      if activity
-        render json: activity.as_json(
-          only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :user_id ], # 👈 Ensure `user_id` is included
+      # ✅ Fetch the user with their owned activities
+      user = User.includes(activities: [ :responses, :participants, :activity_participants ]).find_by(id: current_user.id)
+
+      if user
+        # ✅ Fetch activity participants where user is invited or accepted
+        activity_participants = ActivityParticipant.includes(:activity)
+                                                   .where("user_id = ? OR invited_email = ?", user.id, user.email)
+
+        # ✅ Extract the activities from the activity_participants
+        participant_activities = activity_participants.map(&:activity).uniq
+
+        render json: user.as_json(
           include: {
-            user: { only: [ :id, :name, :email ] }, # 👈 Include the host details
-            responses: { only: [ :id, :notes, :created_at ] },
-            activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] },
-            participants: { only: [ :id, :name, :email ] }
+            activities: { # ✅ Activities the user owns
+              only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji ],
+              include: {
+                user: { only: [ :id, :name, :email ] },
+                responses: { only: [ :id, :notes, :created_at ] },
+                participants: { only: [ :id, :name, :email ] },
+                activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] }
+              }
+            }
           }
-        )
+        ).merge("participant_activities" => participant_activities.as_json(
+          only: [ :id, :activity_name, :emoji, :user_id, :date_notes, :activity_location, :group_size ],
+          include: {
+            user: { only: [ :id, :name, :email ] }, # ✅ Host info
+            participants: { only: [ :id, :name, :email ] },
+            activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] } # ✅ Includes pending invites too
+          }
+        ))
       else
-        render json: { error: "Not found" }, status: :not_found
+        render json: { error: "Not authorized" }, status: :unauthorized
       end
     end
 
