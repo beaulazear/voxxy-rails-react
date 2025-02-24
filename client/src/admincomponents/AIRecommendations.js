@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import RestaurantMap from "./RestaurantMap";
 
@@ -99,90 +99,106 @@ const FetchButton = styled.button`
 `;
 
 const AIRecommendations = ({ activity }) => {
-    const [recommendations, setRecommendations] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+  const [recommendations, setRecommendations] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-    console.log(activity)
+  console.log("🚀 AIRecommendations received activity:", activity);
+  console.log("📝 Responses in AIRecommendations:", activity.responses);
 
-    const fetchRecommendations = async () => {
-        if (!activity.responses || activity.responses.length === 0) {
-            alert("No responses found for this activity.");
-            return;
-        }
+  useEffect(() => {
+    console.log("🔄 AIRecommendations re-rendered with responses:", activity.responses);
+  }, [activity.responses]); // ✅ Logs when responses change
 
-        if (recommendations.length > 0) {
-            alert("You already have recommendations. Refresh the page to get new ones.");
-            return;
-        }
+  const fetchRecommendations = async () => {
+    if (!activity.responses || activity.responses.length === 0) {
+      alert("No responses found for this activity.");
+      return;
+    }
 
-        setLoading(true);
-        setError("");
+    if (recommendations.length > 0) {
+      alert("You already have recommendations. Refresh the page to get new ones.");
+      return;
+    }
 
-        try {
-            const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+    setLoading(true);
+    setError("");
 
-            const response = await fetch(`${API_URL}/api/openai/restaurant_recommendations`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({
-                    responses: activity.responses.map((res) => res.notes).join("\n\n"),
-                    activity_location: activity.activity_location,
-                    date_notes: activity.date_notes,
-                }),
-            });
+    try {
+      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
-            if (response.ok) {
-                const data = await response.json();
-                setRecommendations(data.recommendations);
-            } else {
-                setError("⚠️ OpenAI rate limit reached. Try again later.");
-            }
-        } catch (error) {
-            setError("❌ Error fetching recommendations.");
-        } finally {
-            setLoading(false);
-        }
-    };
+      const response = await fetch(`${API_URL}/api/openai/restaurant_recommendations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          responses: activity.responses.map((res) => res.notes).join("\n\n"),
+          activity_location: activity.activity_location,
+          date_notes: activity.date_notes,
+        }),
+      });
 
-    return (
-        <RecommendationsContainer>
-            <Title>AI-Powered Restaurant Recommendations</Title>
+      if (response.ok) {
+        const data = await response.json();
+        setRecommendations(data.recommendations);
+      } else {
+        setError("⚠️ OpenAI rate limit reached. Try again later.");
+      }
+    } catch (error) {
+      setError("❌ Error fetching recommendations.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            {error && <LoadingText>{error}</LoadingText>}
+  console.log(activity.responses, activity)
 
-            {recommendations.length > 0 ? (
-                <>
-                    <RecommendationList>
-                        {recommendations.map((rec, index) => (
-                            <RecommendationItem key={index}>
-                                <RestaurantName>{rec.name}</RestaurantName>
-                                {rec.price_range && <PriceRange>{rec.price_range}</PriceRange>}
-                                <Description>{rec.description}</Description>
-                                {rec.address && <p><strong>📍 Address:</strong> {rec.address}</p>}
-                                {rec.website && (
-                                    <p>
-                                        <strong>🌐 Website:</strong>{" "}
-                                        <a href={rec.website} target="_blank" rel="noopener noreferrer">
-                                            {rec.website}
-                                        </a>
-                                    </p>
-                                )}
-                            </RecommendationItem>
-                        ))}
-                    </RecommendationList>
-                    {recommendations.length > 0 && <RestaurantMap recommendations={recommendations} />}
-                </>
-            ) : (
-                <LoadingText>No recommendations yet.</LoadingText>
-            )}
-            <br /><br />
-            <FetchButton onClick={fetchRecommendations} disabled={loading}>
-                {loading ? "Generating..." : "Get Recommendations"}
-            </FetchButton>
-        </RecommendationsContainer>
-    );
+  return (
+    <RecommendationsContainer>
+      <Title>AI-Powered Restaurant Recommendations</Title>
+
+      {error && <LoadingText>{error}</LoadingText>}
+
+      {recommendations.length > 0 ? (
+        <>
+          <RecommendationList>
+            {recommendations.map((rec, index) => (
+              <RecommendationItem key={index}>
+                <RestaurantName>{rec.name}</RestaurantName>
+                {rec.price_range && <PriceRange>{rec.price_range}</PriceRange>}
+                <Description>{rec.description}</Description>
+                {rec.address && <p><strong>📍 Address:</strong> {rec.address}</p>}
+                {rec.website && (
+                  <p>
+                    <strong>🌐 Website:</strong>{" "}
+                    <a href={rec.website} target="_blank" rel="noopener noreferrer">
+                      {rec.website}
+                    </a>
+                  </p>
+                )}
+              </RecommendationItem>
+            ))}
+          </RecommendationList>
+          {recommendations.length > 0 && <RestaurantMap recommendations={recommendations} />}
+        </>
+      ) : (
+        <>
+          {activity.responses?.length > 0 && (
+            <LoadingText>No recommendations yet! Click the ‘Get Recommendations’ button to discover restaurants tailored just for you, based on responses from all activity participants.</LoadingText>
+          )}
+          {(activity.responses?.length === 0 || !activity.responses) && (
+            <LoadingText>No recommendations yet! Once you or other participants submit responses, personalized recommendations can be generated for your activity.</LoadingText>
+          )}
+        </>
+      )}
+      <br /><br />
+      {activity.responses?.length > 0 && (
+        <FetchButton onClick={fetchRecommendations} disabled={loading}>
+          {loading ? "Generating..." : "Get Recommendations"}
+        </FetchButton>
+      )}
+    </RecommendationsContainer>
+  );
 };
 
 export default AIRecommendations;

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import { UserContext } from "../context/user.js";
 import styled from 'styled-components';
 
 const Overlay = styled.div`
@@ -147,6 +148,8 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
     const [currentInput, setCurrentInput] = useState(""); // Current input field
     const [messages, setMessages] = useState([]);
 
+    const { setUser } = useContext(UserContext)
+
     const chatBodyRef = useRef(null);
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
@@ -195,15 +198,47 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
             });
 
             if (response.ok) {
-                console.log('✅ Response saved successfully!');
+                const newResponse = await response.json();
+                console.log('✅ Response saved successfully!', newResponse);
+
+                setUser((prevUser) => {
+                    const updatedActivities = prevUser.activities.map((activity) => {
+                        if (activity.id === activityId) {
+                            return {
+                                ...activity,
+                                responses: [...activity.responses || [], newResponse]
+                            };
+                        }
+                        return activity;
+                    });
+
+                    const updatedParticipantActivities = prevUser.participant_activities.map((participantActivity) => {
+                        if (participantActivity.activity.id === activityId) {
+                            return {
+                                ...participantActivity,
+                                activity: {
+                                    ...participantActivity.activity,
+                                    responses: [...participantActivity.activity.responses || [], newResponse]
+                                }
+                            };
+                        }
+                        return participantActivity;
+                    });
+
+                    return {
+                        ...prevUser,
+                        activities: updatedActivities,
+                        participant_activities: updatedParticipantActivities,
+                    };
+                });
                 onChatComplete();
             } else {
-                console.error('❌ Failed to save response');
+                const errorData = await response.json();
+                console.error('❌ Failed to save response:', errorData);
             }
         } catch (error) {
             console.error('❌ Error:', error);
         }
-
         onClose();
     };
 

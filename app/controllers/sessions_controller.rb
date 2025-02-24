@@ -32,7 +32,8 @@ class SessionsController < ApplicationController
           activity: {
             only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji ],
             include: {
-              user: { only: [ :id, :name, :email ] }, # ✅ Includes host details
+              user: { only: [ :id, :name, :email ] },
+              responses: { only: [ :id, :notes, :created_at ] },
               participants: { only: [ :id, :name, :email ] }
             }
           }

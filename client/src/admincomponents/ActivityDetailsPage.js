@@ -28,12 +28,13 @@ function ActivityDetailsPage({ activityId, onBack }) {
   useEffect(() => {
     const latestActivity =
       user.activities.find((act) => act.id === activityId) ||
-      user.participant_activities.find((p) => p.activity.id === activityId)?.activity; // ✅ Extract `activity` correctly
+      user.participant_activities.find((p) => p.activity.id === activityId)?.activity;
 
     if (latestActivity) {
-      setCurrentActivity(latestActivity);
+      console.log("🔥 Updated activity from context:", latestActivity);
+      setCurrentActivity({...latestActivity});
     }
-  }, [user.activities, user.participant_activities, activityId]);
+  }, [user, activityId]);
 
   if (!currentActivity) return <p>Loading...</p>;
 
