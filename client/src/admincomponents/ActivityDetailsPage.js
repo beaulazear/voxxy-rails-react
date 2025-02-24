@@ -40,11 +40,9 @@ function ActivityDetailsPage({ activityId, onBack }) {
   const isOwner = user?.id === currentActivity?.user_id || user?.id === currentActivity?.user?.id;
 
   const participantsArray = Array.isArray(currentActivity.participants) ? currentActivity.participants : [];
-  console.log(participantsArray)
   const pendingInvitesArray = Array.isArray(currentActivity.activity_participants)
     ? currentActivity.activity_participants.filter(p => !p.accepted) // ✅ Only show pending invites
     : [];
-  console.log(pendingInvitesArray)
 
   const hostParticipant = {
     name: `${currentActivity.user?.name || "Unknown"} (Host)`, // ✅ Add (Host) next to name
@@ -66,8 +64,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
       confirmed: false
     }))
   ];
-
-  console.log(allParticipants)
 
   const handleInvite = async () => {
     if (!inviteEmail) return;

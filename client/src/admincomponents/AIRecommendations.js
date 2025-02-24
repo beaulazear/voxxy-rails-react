@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import RestaurantMap from "./RestaurantMap";
 
@@ -13,7 +13,7 @@ const RecommendationsContainer = styled.div`
   margin-right: auto;
 
   @media (max-width: 768px) {
-    padding: 1.5rem; /* Add padding for smaller screens */
+    padding: 1.5rem;
     margin-left: 1rem;
     margin-right: 1rem;
   }
@@ -45,7 +45,7 @@ const RecommendationItem = styled.div`
   flex-direction: column;
 
   @media (max-width: 768px) {
-    padding: 1rem; /* Reduce padding slightly for better spacing */
+    padding: 1rem;
   }
 `;
 
@@ -74,71 +74,85 @@ const LoadingText = styled.p`
   font-size: 1.1rem;
 `;
 
-const AIRecommendations = ({ activity, refreshTrigger }) => {
-    const [recommendations, setRecommendations] = useState([]);
-    const [loading, setLoading] = useState(true);
+const FetchButton = styled.button`
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background: #9b59b6;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: background 0.2s ease;
 
-    useEffect(() => {
+  &:hover {
+    background: #8e44ad;
+  }
+
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+`;
+
+const AIRecommendations = ({ activity }) => {
+    const [recommendations, setRecommendations] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    console.log(activity)
+
+    const fetchRecommendations = async () => {
+        if (!activity.responses || activity.responses.length === 0) {
+            alert("No responses found for this activity.");
+            return;
+        }
+
+        if (recommendations.length > 0) {
+            alert("You already have recommendations. Refresh the page to get new ones.");
+            return;
+        }
 
         setLoading(true);
+        setError("");
 
-        const fetchRecommendations = async () => {
-            try {
-                const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+        try {
+            const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
-                // ✅ Fetch the latest activity data instead of relying on context
-                const activityResponse = await fetch(`${API_URL}/activities/${activity.id}`, {
-                    method: "GET",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                });
+            const response = await fetch(`${API_URL}/api/openai/restaurant_recommendations`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({
+                    responses: activity.responses.map((res) => res.notes).join("\n\n"),
+                    activity_location: activity.activity_location,
+                    date_notes: activity.date_notes,
+                }),
+            });
 
-                if (!activityResponse.ok) {
-                    setLoading(false);
-                    return;
-                }
-
-                const updatedActivity = await activityResponse.json();
-
-                if (!updatedActivity.responses || updatedActivity.responses.length === 0) {
-                    setRecommendations([]);
-                    setLoading(false);
-                    return;
-                }
-
-                const response = await fetch(`${API_URL}/api/openai/restaurant_recommendations`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify({
-                        responses: updatedActivity.responses.map((res) => res.notes).join("\n\n"),
-                        activity_location: activity.activity_location,
-                        date_notes: activity.date_notes
-                    }),
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setRecommendations(data.recommendations);
-                } else {
-                    console.error("❌ Failed to fetch AI recommendations");
-                }
-            } catch (error) {
-                console.error("❌ Error:", error);
-            } finally {
-                setLoading(false);
+            if (response.ok) {
+                const data = await response.json();
+                setRecommendations(data.recommendations);
+            } else {
+                setError("⚠️ OpenAI rate limit reached. Try again later.");
             }
-        };
-
-        fetchRecommendations();
-    }, [refreshTrigger, activity.id, activity.date_notes, activity.activity_location]);
+        } catch (error) {
+            setError("❌ Error fetching recommendations.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <RecommendationsContainer>
             <Title>AI-Powered Restaurant Recommendations</Title>
-            {loading ? (
-                <LoadingText>Generating recommendations...</LoadingText>
-            ) : recommendations.length > 0 ? (
+
+            {error && <LoadingText>{error}</LoadingText>}
+
+            {recommendations.length > 0 ? (
                 <>
                     <RecommendationList>
                         {recommendations.map((rec, index) => (
@@ -163,6 +177,10 @@ const AIRecommendations = ({ activity, refreshTrigger }) => {
             ) : (
                 <LoadingText>No recommendations yet.</LoadingText>
             )}
+            <br /><br />
+            <FetchButton onClick={fetchRecommendations} disabled={loading}>
+                {loading ? "Generating..." : "Get Recommendations"}
+            </FetchButton>
         </RecommendationsContainer>
     );
 };

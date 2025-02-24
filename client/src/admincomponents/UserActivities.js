@@ -113,7 +113,7 @@ function UserActivities() {
       />
     );
   }
-  console.log(uniqueActivities)
+
   return (
     <DashboardContainer>
       <PendingInvites />

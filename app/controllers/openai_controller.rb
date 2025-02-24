@@ -86,9 +86,8 @@ class OpenaiController < ApplicationController
             render json: { error: "Failed to parse recommendations" }, status: :unprocessable_entity
           end
         rescue Faraday::TooManyRequestsError => e
-          Rails.logger.error "Too many requests: #{e.message}"
-          sleep(1)
-          retry
+          Rails.logger.error "⚠️ Too many requests: #{e.message}"
+          render json: { error: "Too many requests. Please wait and try again later." }, status: :too_many_requests
         end
       end
 end

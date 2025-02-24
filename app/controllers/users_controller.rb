@@ -53,6 +53,7 @@ class UsersController < ApplicationController
             only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji ],
             include: {
               user: { only: [ :id, :name, :email ] }, # ✅ Includes host details
+              responses: { only: [ :id, :notes, :created_at ] },
               participants: { only: [ :id, :name, :email ] }
             }
           }
