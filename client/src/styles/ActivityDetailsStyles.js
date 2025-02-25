@@ -192,11 +192,49 @@ export const SmallSection = styled.div`
   gap: 10px; /* Space between button and icon */
 }
 
+.update-icon {
+  cursor: pointer;
+  font-size: 1.8rem;
+  color: #6a1b9a;
+  padding: 0.4rem 0.2rem;
+  display: flex;
+  align-items: flex-end; /* Aligns with button's text baseline */
+  position: relative;
+  line-height: 1; /* Prevents extra spacing */
+  transition: color 0.3s ease, transform 0.2s ease;
+
+  &:hover {
+    color: #6a1b9a;
+    transform: scale(1.1);
+  }
+
+  &:before {
+    content: "Update Board";
+    position: absolute;
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    top: 100%; /* Keeps tooltip below */
+    left: 50%;
+    transform: translateX(-50%) translateY(5px);
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none;
+  }
+
+  &:hover:before {
+    opacity: 1;
+  }
+}
+
 .trash-icon {
   cursor: pointer;
   font-size: 1.8rem;
   color: #e74c3c;
-  padding: 0.2rem 0.4rem;
+  padding: 0.4rem 0.2rem;
   display: flex;
   align-items: flex-end; /* Aligns with button's text baseline */
   position: relative;

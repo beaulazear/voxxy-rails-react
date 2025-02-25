@@ -192,7 +192,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
           </div>
           {isOwner && (
             <div className="update-section">
-              <InviteButton onClick={() => setShowModal(true)}>Update Details</InviteButton>
+              <span className="update-icon" onClick={() => setShowModal(true)}>🔄</span>
               <span className="trash-icon" onClick={() => handleDelete(currentActivity.id)}>🗑️</span>
             </div>
           )}
