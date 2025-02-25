@@ -24,14 +24,11 @@ class UsersController < ApplicationController
       return render json: { error: "Not authorized" }, status: :unauthorized
     end
 
-    # ✅ Fetch the user including their owned activities
     user = User.includes(activities: [ :responses, :participants, :activity_participants ]).find_by(id: current_user.id)
 
     if user
-      # ✅ Fetch activity participants where user is invited OR has accepted
       activity_participants = ActivityParticipant.includes(:activity).where("user_id = ? OR invited_email = ?", user.id, user.email)
 
-      # ✅ Extract the activities from the activity_participants
       participant_activities = activity_participants.map(&:activity).uniq
 
       render json: user.as_json(
@@ -52,7 +49,7 @@ class UsersController < ApplicationController
           activity: {
             only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji ],
             include: {
-              user: { only: [ :id, :name, :email ] }, # ✅ Includes host details
+              user: { only: [ :id, :name, :email ] },
               responses: { only: [ :id, :notes, :created_at ] },
               participants: { only: [ :id, :name, :email ] }
             }
