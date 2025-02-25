@@ -145,7 +145,6 @@ const SendButton = styled.button`
 `;
 
 function RestaurantChat({ onClose }) {
-  const [step, setStep] = useState(0);
   const [formData, setFormData] = useState({
     activity_type: 'Restaurant',
     activity_name: '',
@@ -154,8 +153,8 @@ function RestaurantChat({ onClose }) {
     date_notes: '',
     emoji: '🍜'
   });
-  const [messages, setMessages] = useState([]);
-
+  const [messages, setMessages] = useState([{ text: "Voxxy here! I’m here to make planning this get-together smooth and stress-free. Let’s lock in the details real quick!", isUser: false }]);
+  const [step, setStep] = useState(0);
   const navigate = useNavigate();
   const { setUser } = useContext(UserContext);
   const inputRef = useRef(null);
@@ -163,9 +162,9 @@ function RestaurantChat({ onClose }) {
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
   const questions = [
-    { key: 'activity_location', text: "First, Where are you thinking of having this dinner? (e.g., Manhattan, Brooklyn, Upper East Side)" },
-    { key: 'date_notes', text: "What kind of meal are we talking? Brunch, lunch, dinner, or late night?" },
-    { key: 'activity_name', text: "Do you have a name for this dinner, or is it just a casual get-together? You’ll have a chance to change it later." },
+    { key: 'activity_location', text: "Where are you planning to meet up? (Just the city is fine!)" },
+    { key: 'date_notes', text: "What kind of outing is this? Brunch, lunch, dinner, happy hour, late-night drinks?" },
+    { key: 'activity_name', text: "Do you have a name for this event, or is it just a casual hangout? (You can change it later!)" },
   ];
 
   const chatBodyRef = useRef(null);
@@ -176,11 +175,12 @@ function RestaurantChat({ onClose }) {
     }
   }, [messages]);
 
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [step]);
+  }, []);
 
   const handleNext = () => {
     if (formData[questions[step].key]) {
@@ -260,7 +260,7 @@ function RestaurantChat({ onClose }) {
               {msg.text}
             </Message>
           ))}
-          {step < questions.length && <Message $isUser={false}>{questions[step].text}</Message>}
+          {step < questions.length && <Message $isUser={false}>{questions[step]?.text}</Message>}
         </ChatBody>
         <ChatFooter>
           <Input
