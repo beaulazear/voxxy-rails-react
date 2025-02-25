@@ -71,7 +71,6 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
     const [formData, setFormData] = useState({
         activity_name: activity.activity_name,
         activity_location: activity.activity_location,
-        group_size: activity.group_size,
         date_notes: activity.date_notes,
     });
 
@@ -108,9 +107,6 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
 
                     <label>Location</label>
                     <input type="text" name="activity_location" value={formData.activity_location} onChange={handleChange} required />
-
-                    <label>Group Size</label>
-                    <input type="number" name="group_size" value={formData.group_size} onChange={handleChange} required />
 
                     <label>Time of Day</label>
                     <input type="text" name="date_notes" value={formData.date_notes} onChange={handleChange} required />
