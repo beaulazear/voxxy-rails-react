@@ -148,9 +148,10 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
     const [currentInput, setCurrentInput] = useState(""); // Current input field
     const [messages, setMessages] = useState([]);
 
-    const { setUser } = useContext(UserContext)
-
+    const { setUser } = useContext(UserContext);
+    const inputRef = useRef(null);
     const chatBodyRef = useRef(null);
+
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
     const questions = [
@@ -166,6 +167,12 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
             chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
         }
     }, [messages]);
+
+    useEffect(() => {
+        if (inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [step]);
 
     const handleNext = () => {
         if (currentInput.trim()) {
@@ -212,23 +219,9 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
                         return activity;
                     });
 
-                    const updatedParticipantActivities = prevUser.participant_activities.map((participantActivity) => {
-                        if (participantActivity.activity.id === activityId) {
-                            return {
-                                ...participantActivity,
-                                activity: {
-                                    ...participantActivity.activity,
-                                    responses: [...participantActivity.activity.responses || [], newResponse]
-                                }
-                            };
-                        }
-                        return participantActivity;
-                    });
-
                     return {
                         ...prevUser,
-                        activities: updatedActivities,
-                        participant_activities: updatedParticipantActivities,
+                        activities: updatedActivities
                     };
                 });
                 onChatComplete();
@@ -240,6 +233,17 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
             console.error('❌ Error:', error);
         }
         onClose();
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            if (step < questions.length - 1) {
+                handleNext();
+            } else {
+                handleSubmit();
+            }
+        }
     };
 
     return (
@@ -261,19 +265,17 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
                             {msg.text}
                         </Message>
                     ))}
-                    {step < questions.length && (
-                        <Message $isUser={false}>{questions[step]}</Message>
-                    )}
+                    {step < questions.length && <Message $isUser={false}>{questions[step]}</Message>}
                 </ChatBody>
                 <ChatFooter>
                     <Input
+                        ref={inputRef}
                         value={currentInput}
                         onChange={(e) => setCurrentInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
                         placeholder="Type your response..."
                     />
-                    <SendButton onClick={step < questions.length ? handleNext : handleSubmit}>
-                        ▶
-                    </SendButton>
+                    <SendButton onClick={handleNext}>▶</SendButton>
                 </ChatFooter>
             </ChatContainer>
         </>

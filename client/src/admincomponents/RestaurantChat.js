@@ -82,14 +82,14 @@ const Message = styled.div`
   font-family: 'Arial', sans-serif;
   box-shadow: ${({ $isUser }) => ($isUser ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none')};
   ${({ $isUser }) =>
-        $isUser
-            ? `
+    $isUser
+      ? `
     background: white;
     align-self: flex-end;
     text-align: right;
     color: #333;
   `
-            : `
+      : `
     background: #e7e4ff;
     align-self: flex-start;
     text-align: left;
@@ -145,114 +145,136 @@ const SendButton = styled.button`
 `;
 
 function RestaurantChat({ onClose }) {
-    const [step, setStep] = useState(0);
-    const [formData, setFormData] = useState({
-        activity_type: 'Restaurant',
-        activity_name: '',
-        activity_location: '',
-        group_size: 1,
-        date_notes: '',
-        emoji: '🍜'
-    });
-    const [messages, setMessages] = useState([]);
+  const [step, setStep] = useState(0);
+  const [formData, setFormData] = useState({
+    activity_type: 'Restaurant',
+    activity_name: '',
+    activity_location: '',
+    group_size: 1,
+    date_notes: '',
+    emoji: '🍜'
+  });
+  const [messages, setMessages] = useState([]);
 
-    const navigate = useNavigate();
-    const { setUser } = useContext(UserContext);
+  const navigate = useNavigate();
+  const { setUser } = useContext(UserContext);
+  const inputRef = useRef(null);
 
-    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
-    const questions = [
-        { key: 'activity_location', text: "Where are you planning to meet up? (Just the city is fine!)" },
-        { key: 'date_notes', text: "What kind of outing is this? Brunch, lunch, dinner, happy hour, late-night drinks?" },
-        { key: 'activity_name', text: "Do you have a name for this event, or is it just a casual hangout? (You can change it later!)" },
-    ];
+  const questions = [
+    { key: 'activity_location', text: "First, Where are you thinking of having this dinner? (e.g., Manhattan, Brooklyn, Upper East Side)" },
+    { key: 'date_notes', text: "What kind of meal are we talking? Brunch, lunch, dinner, or late night?" },
+    { key: 'activity_name', text: "Do you have a name for this dinner, or is it just a casual get-together? You’ll have a chance to change it later." },
+  ];
 
-    const chatBodyRef = useRef(null);
+  const chatBodyRef = useRef(null);
 
-    useEffect(() => {
-        if (chatBodyRef.current) {
-            chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
-        }
-    }, [messages]);
+  useEffect(() => {
+    if (chatBodyRef.current) {
+      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+    }
+  }, [messages]);
 
-    const handleNext = () => {
-        if (formData[questions[step].key]) {
-            setMessages((prevMessages) => [
-                ...prevMessages,
-                { text: questions[step].text, isUser: false },
-                { text: formData[questions[step].key], isUser: true },
-            ]);
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [step]);
 
-            if (step < questions.length - 1) {
-                setStep(step + 1);
-            } else {
-                handleSubmit();
-            }
-        }
-    };
+  const handleNext = () => {
+    if (formData[questions[step].key]) {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { text: questions[step].text, isUser: false },
+        { text: formData[questions[step].key], isUser: true },
+      ]);
 
-    const handleSubmit = async () => {
-        try {
-            const response = await fetch(`${API_URL}/activities`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({ activity: formData }),
-            });
+      if (step < questions.length - 1) {
+        setStep(step + 1);
+      } else {
+        handleSubmit();
+      }
+    }
+  };
 
-            if (response.ok) {
-                const data = await response.json();
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch(`${API_URL}/activities`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ activity: formData }),
+      });
 
-                setUser((prevUser) => ({
-                    ...prevUser,
-                    activities: [...(prevUser.activities || []), { ...data, user: prevUser }], // ✅ Inject user data into the new activity
-                  }));
+      if (response.ok) {
+        const data = await response.json();
 
-                navigate('/boards');
-            } else {
-                throw new Error('Failed to create activity');
-            }
-        } catch (error) {
-            alert('Failed to create activity. Please try again.');
-        }
-    };
+        setUser((prevUser) => ({
+          ...prevUser,
+          activities: [...(prevUser.activities || []), { ...data, user: prevUser }],
+        }));
 
-    const handleInputChange = (e) => {
-        setFormData({ ...formData, [questions[step].key]: e.target.value });
-    };
+        navigate('/boards');
+      } else {
+        throw new Error('Failed to create activity');
+      }
+    } catch (error) {
+      alert('Failed to create activity. Please try again.');
+    }
+  };
 
-    return (
-        <>
-            <Overlay onClick={onClose} />
-            <ChatContainer onClick={(e) => e.stopPropagation()}>
-                <ChatHeader>
-                    <BackButton onClick={onClose}>
-                        <svg viewBox="0 0 24 24">
-                            <path d="M15.5 3.5L7 12l8.5 8.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                        Back
-                    </BackButton>
-                    Chat with Voxxy
-                </ChatHeader>
-                <ChatBody ref={chatBodyRef}>
-                    {messages.map((msg, index) => (
-                        <Message key={index} $isUser={msg.isUser}>
-                            {msg.text}
-                        </Message>
-                    ))}
-                    {step < questions.length && (
-                        <Message $isUser={false}>{questions[step].text}</Message>
-                    )}
-                </ChatBody>
-                <ChatFooter>
-                    <Input value={formData[questions[step]?.key] || ''} onChange={handleInputChange} placeholder="Type your message..." />
-                    <SendButton onClick={step < questions.length ? handleNext : handleSubmit}>▶</SendButton>
-                </ChatFooter>
-            </ChatContainer>
-        </>
-    );
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [questions[step].key]: e.target.value });
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (step < questions.length - 1) {
+        handleNext();
+      } else {
+        handleSubmit();
+      }
+    }
+  };
+
+  return (
+    <>
+      <Overlay onClick={onClose} />
+      <ChatContainer onClick={(e) => e.stopPropagation()}>
+        <ChatHeader>
+          <BackButton onClick={onClose}>
+            <svg viewBox="0 0 24 24">
+              <path d="M15.5 3.5L7 12l8.5 8.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Back
+          </BackButton>
+          Chat with Voxxy
+        </ChatHeader>
+        <ChatBody ref={chatBodyRef}>
+          {messages.map((msg, index) => (
+            <Message key={index} $isUser={msg.isUser}>
+              {msg.text}
+            </Message>
+          ))}
+          {step < questions.length && <Message $isUser={false}>{questions[step].text}</Message>}
+        </ChatBody>
+        <ChatFooter>
+          <Input
+            ref={inputRef}
+            value={formData[questions[step]?.key] || ''}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Type your message..."
+          />
+          <SendButton onClick={handleNext}>▶</SendButton>
+        </ChatFooter>
+      </ChatContainer>
+    </>
+  );
 }
 
 export default RestaurantChat;
