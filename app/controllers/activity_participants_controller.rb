@@ -11,7 +11,6 @@ class ActivityParticipantsController < ApplicationController
 
       user = User.find_by("lower(email) = ?", invited_email) # Check if the user exists
 
-      # Check if the participant already exists (avoid duplicate invites)
       participant = ActivityParticipant.find_or_initialize_by(activity_id: activity.id, invited_email: invited_email)
 
       if participant.persisted?
@@ -19,10 +18,9 @@ class ActivityParticipantsController < ApplicationController
       end
 
       participant.user_id = user.id if user
-      participant.accepted = false # ✅ Require manual acceptance
+      participant.accepted = false
       participant.save!
 
-      # Send the correct email based on user existence
       if user.nil?
         UserMailer.invitation_email(invited_email, activity, current_user).deliver_later
       else
@@ -46,10 +44,8 @@ class ActivityParticipantsController < ApplicationController
         return render json: { error: "Invite already accepted." }, status: :unprocessable_entity
       end
 
-      # Assign the user and mark as accepted
       participant.update!(user_id: user.id, accepted: true)
 
-      # ✅ Increase group size when user accepts
       activity = participant.activity
       activity.update!(group_size: activity.group_size + 1)
 
@@ -65,7 +61,7 @@ class ActivityParticipantsController < ApplicationController
         include: {
           activity: {
             only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji ],
-            include: { user: { only: [ :id, :name, :email ] } } # ✅ Includes host details
+            include: { user: { only: [ :id, :name, :email ] } }
           }
         }
       )
