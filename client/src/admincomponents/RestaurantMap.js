@@ -54,7 +54,7 @@ const RestaurantMap = ({ recommendations }) => {
     }, [recommendations]);
 
     return (
-        <div style={{ height: "400px", width: "100%", marginTop: "2rem" }}>
+        <div style={{ height: "100%", width: "100%", marginTop: "2rem" }}>
             <MapContainer center={[40.7128, -74.006]} zoom={12} style={{ height: "100%", width: "100%", borderRadius: "12px" }}>
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

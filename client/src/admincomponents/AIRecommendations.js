@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import RestaurantMap from "./RestaurantMap";
 
@@ -55,26 +55,7 @@ const RestaurantName = styled.h3`
   margin-bottom: 0.5rem;
 `;
 
-const PriceRange = styled.span`
-  font-size: 1rem;
-  font-weight: 600;
-  color: #555;
-`;
-
-const Description = styled.p`
-  font-size: 1rem;
-  color: #666;
-  margin-top: 0.5rem;
-`;
-
-const LoadingText = styled.p`
-  text-align: center;
-  font-style: italic;
-  color: #666;
-  font-size: 1.1rem;
-`;
-
-const FetchButton = styled.button`
+const Button = styled.button`
   display: block;
   width: 100%;
   padding: 0.75rem;
@@ -85,7 +66,7 @@ const FetchButton = styled.button`
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  margin-bottom: 1rem;
+  margin-top: 1.5rem;
   transition: background 0.2s ease;
 
   &:hover {
@@ -98,17 +79,76 @@ const FetchButton = styled.button`
   }
 `;
 
+/** MODAL STYLES **/
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background: white;
+  width: 95%;
+  max-width: 900px;
+  height: 85vh;
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    width: 98%;
+    height: 90vh;
+  }
+`;
+
+const ModalHeader = styled.div`
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f8f8;
+  border-bottom: 1px solid #ddd;
+`;
+
+const ModalTitle = styled.h3`
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #444;
+`;
+
+const CloseButton = styled.button`
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #555;
+  }
+`;
+
+const ModalBody = styled.div`
+  flex: 1;
+  overflow: hidden;
+`;
+
 const AIRecommendations = ({ activity }) => {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  console.log("🚀 AIRecommendations received activity:", activity);
-  console.log("📝 Responses in AIRecommendations:", activity.responses);
-
-  useEffect(() => {
-    console.log("🔄 AIRecommendations re-rendered with responses:", activity.responses);
-  }, [activity.responses]); // ✅ Logs when responses change
+  const [showMap, setShowMap] = useState(false);
 
   const fetchRecommendations = async () => {
     if (!activity.responses || activity.responses.length === 0) {
@@ -151,13 +191,11 @@ const AIRecommendations = ({ activity }) => {
     }
   };
 
-  console.log(activity.responses, activity)
-
   return (
     <RecommendationsContainer>
       <Title>AI-Powered Restaurant Recommendations</Title>
 
-      {error && <LoadingText>{error}</LoadingText>}
+      {error && <p style={{ textAlign: "center", color: "#666", fontStyle: "italic" }}>{error}</p>}
 
       {recommendations.length > 0 ? (
         <>
@@ -165,8 +203,6 @@ const AIRecommendations = ({ activity }) => {
             {recommendations.map((rec, index) => (
               <RecommendationItem key={index}>
                 <RestaurantName>{rec.name}</RestaurantName>
-                {rec.price_range && <PriceRange>{rec.price_range}</PriceRange>}
-                <Description>{rec.description}</Description>
                 {rec.address && <p><strong>📍 Address:</strong> {rec.address}</p>}
                 {rec.website && (
                   <p>
@@ -179,23 +215,32 @@ const AIRecommendations = ({ activity }) => {
               </RecommendationItem>
             ))}
           </RecommendationList>
-          {recommendations.length > 0 && <RestaurantMap recommendations={recommendations} />}
+          <Button onClick={() => setShowMap(true)}>View Recommendations on Map</Button>
         </>
       ) : (
-        <>
-          {activity.responses?.length > 0 && (
-            <LoadingText>No recommendations yet! Click the ‘Get Recommendations’ button to discover restaurants tailored just for you, based on responses from all activity participants.</LoadingText>
-          )}
-          {(activity.responses?.length === 0 || !activity.responses) && (
-            <LoadingText>No recommendations yet! Once you or other participants submit responses, personalized recommendations can be generated for your activity.</LoadingText>
-          )}
-        </>
+        <p style={{ textAlign: "center", color: "#666", fontStyle: "italic" }}>
+          No recommendations yet! Click ‘Get Recommendations’ to generate them.
+        </p>
       )}
-      <br /><br />
+
       {activity.responses?.length > 0 && (
-        <FetchButton onClick={fetchRecommendations} disabled={loading}>
+        <Button onClick={fetchRecommendations} disabled={loading}>
           {loading ? "Generating..." : "Get Recommendations"}
-        </FetchButton>
+        </Button>
+      )}
+
+      {showMap && (
+        <ModalOverlay>
+          <ModalContent>
+            <ModalHeader>
+              <ModalTitle>📍 Restaurant Locations</ModalTitle>
+              <CloseButton onClick={() => setShowMap(false)}>×</CloseButton>
+            </ModalHeader>
+            <ModalBody>
+              <RestaurantMap recommendations={recommendations} />
+            </ModalBody>
+          </ModalContent>
+        </ModalOverlay>
       )}
     </RecommendationsContainer>
   );
