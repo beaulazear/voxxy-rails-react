@@ -10,7 +10,7 @@ const HomeContainer = styled.div`
   justify-content: center;
   text-align: center;
   width: 100%;
-  margin-top: 80px; /* Prevents content from overlapping navbar */
+  margin-top: 80px;
 `;
 
 const HeroSection = styled.section`

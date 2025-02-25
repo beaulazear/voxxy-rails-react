@@ -66,9 +66,9 @@ const ConfirmEmail = () => {
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        navigate("/login"); // Redirect unauthenticated users to login
+        navigate("/login");
       } else if (user.confirmed_at) {
-        navigate("/"); // Redirect confirmed users to homepage
+        navigate("/");
       }
     }
   }, [user, loading, navigate]);

@@ -14,10 +14,11 @@ const HeroContainer = styled.section`
     padding: 3rem 1rem;
   }
 `;
+
 const HeroTitle = styled.h1`
-  font-size: clamp(1.5rem, 5vw, 3rem); /* Scales smoothly between 2rem and 3rem based on viewport */
+  font-size: clamp(1.5rem, 5vw, 3rem);
   font-weight: bold;
-  margin-bottom: 0.4rem; /* Slightly tighter spacing */
+  margin-bottom: 0.4rem;
   color: #000;
   text-align: center;
 `;

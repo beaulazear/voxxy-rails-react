@@ -152,7 +152,7 @@ const SignUp = () => {
 
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
-  const [email, setEmail] = useState(invitedEmail); // Prefilled if invited
+  const [email, setEmail] = useState(invitedEmail);
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [errors, setErrors] = useState([]);
@@ -189,17 +189,16 @@ const SignUp = () => {
       if (response.ok) {
         setUser(data);
 
-        // ✅ If user was invited, add them to the activity
         if (activityId) {
           await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activity_participants/accept`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
-            body: JSON.stringify({ activity_id: activityId, email: email }), // Send email explicitly
+            body: JSON.stringify({ activity_id: activityId, email: email }),
           });
         }
 
-        navigate('/boards'); // Redirect to boards
+        navigate('/boards');
       } else {
         setErrors(data.errors || ['An error occurred. Please try again.']);
       }
@@ -229,7 +228,7 @@ const SignUp = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              readOnly={!!invitedEmail} // Lock if coming from invite
+              readOnly={!!invitedEmail}
             />
           </InputGroup>
           <InputGroup>

@@ -84,7 +84,7 @@ function UserActivities() {
   const navigate = useNavigate()
 
   const handleActivityClick = (activity) => {
-    setSelectedActivityId(activity.id); // Pass only the ID
+    setSelectedActivityId(activity.id);
   };
 
   const handleBack = () => {
@@ -93,7 +93,7 @@ function UserActivities() {
 
   const allActivities = [
     ...(user?.activities || []), 
-    ...(user?.participant_activities?.filter(activity => activity.accepted).map(p => p.activity) || []) // ✅ Extract the `activity` object
+    ...(user?.participant_activities?.filter(activity => activity.accepted).map(p => p.activity) || [])
   ];
 
   const uniqueActivities = [...new Map(allActivities.map(a => [a.id, a])).values()];

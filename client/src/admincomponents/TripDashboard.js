@@ -11,7 +11,7 @@ const DashboardContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   gap: 1.5rem;
-  position: relative; /* Needed for proper stacking of child elements */
+  position: relative;
 `;
 
 const LoadingScreen = styled.div`
@@ -43,8 +43,8 @@ const DimmedOverlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* Dimmed background */
-  z-index: 998; /* Lower than the chat box */
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 998;
 `;
 
 function TripDashboard() {
@@ -72,7 +72,6 @@ function TripDashboard() {
       <DashboardContainer>
         <StartNewAdventure onTripSelect={handleTripSelect} />
       </DashboardContainer>
-      {/* Conditionally render the chat with an overlay */}
       {selectedTrip === 'Lets Eat' && (
         <>
           <DimmedOverlay />

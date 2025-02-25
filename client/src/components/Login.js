@@ -176,11 +176,9 @@ const Login = () => {
       .then((data) => {
         setUser(data);
 
-        // ✅ Extract redirect parameter
         const urlParams = new URLSearchParams(location.search);
         const redirectPath = urlParams.get('redirect');
 
-        // ✅ Redirect to /boards if user was invited, otherwise go home
         if (redirectPath === "boards") {
           navigate("/boards");
         } else {

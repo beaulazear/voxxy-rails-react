@@ -31,7 +31,7 @@ const TabsContainer = styled.div`
   margin-bottom: 2rem;
   overflow-x: auto;
   white-space: nowrap;
-  padding-bottom: 1rem; /* Increased spacing for scrollbar */
+  padding-bottom: 1rem;
 
   &::-webkit-scrollbar {
     height: 6px;
@@ -58,7 +58,7 @@ const Tab = styled.div`
   cursor: pointer;
   text-align: center;
   padding: 1rem;
-  width: clamp(120px, 15vw, 200px); /* Smooth scaling */
+  width: clamp(120px, 15vw, 200px);
   height: 60px;
   display: inline-flex;
   align-items: center;
@@ -96,8 +96,8 @@ const ContentContainer = styled.div`
   background: #ffffff;
   border-radius: 16px;
   padding: 2rem;
-  box-shadow: 0 8px 20px rgba(173, 151, 255, 0.3); /* Soft purple shadow below */
-  height: 400px; /* Ensure uniform height */
+  box-shadow: 0 8px 20px rgba(173, 151, 255, 0.3);
+  height: 400px;
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -143,8 +143,8 @@ const ImageContainer = styled.div`
 
   @media (max-width: 768px) {
     max-width: 300px;
-    margin: 0 auto; /* Center the image horizontally */
-    justify-content: center; /* Ensure alignment stays centered */
+    margin: 0 auto;
+    justify-content:
     align-items: center;
   }
 `;

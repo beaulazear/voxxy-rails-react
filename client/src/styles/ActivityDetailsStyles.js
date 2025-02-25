@@ -134,7 +134,7 @@ export const FlexContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  align-items: stretch; /* Ensures sections stretch equally */
+  align-items: stretch;
   gap: 1.5rem;
   margin-bottom: 2rem;
 
@@ -183,13 +183,13 @@ export const SmallSection = styled.div`
   button {
     align-self: flex-start;
     padding: 0.5rem 1rem;
-    margin-top: 1rem; /* Ensures spacing from the last detail */
+    margin-top: 1rem;
   }
 
 .update-section {
   display: flex;
-  align-items: flex-end; /* Align both items at the bottom */
-  gap: 10px; /* Space between button and icon */
+  align-items: flex-end;
+  gap: 10px;
 }
 
 .update-icon {
@@ -198,9 +198,9 @@ export const SmallSection = styled.div`
   color: #6a1b9a;
   padding: 0.4rem 0.2rem;
   display: flex;
-  align-items: flex-end; /* Aligns with button's text baseline */
+  align-items: flex-end;
   position: relative;
-  line-height: 1; /* Prevents extra spacing */
+  line-height: 1;
   transition: color 0.3s ease, transform 0.2s ease;
 
   &:hover {
@@ -217,7 +217,7 @@ export const SmallSection = styled.div`
     padding: 4px 8px;
     border-radius: 4px;
     white-space: nowrap;
-    top: 100%; /* Keeps tooltip below */
+    top: 100%;
     left: 50%;
     transform: translateX(-50%) translateY(5px);
     opacity: 0;
@@ -236,9 +236,9 @@ export const SmallSection = styled.div`
   color: #e74c3c;
   padding: 0.4rem 0.2rem;
   display: flex;
-  align-items: flex-end; /* Aligns with button's text baseline */
+  align-items: flex-end;
   position: relative;
-  line-height: 1; /* Prevents extra spacing */
+  line-height: 1;
   transition: color 0.3s ease, transform 0.2s ease;
 
   &:hover {
@@ -255,7 +255,7 @@ export const SmallSection = styled.div`
     padding: 4px 8px;
     border-radius: 4px;
     white-space: nowrap;
-    top: 100%; /* Keeps tooltip below */
+    top: 100%;
     left: 50%;
     transform: translateX(-50%) translateY(5px);
     opacity: 0;
@@ -272,7 +272,7 @@ export const SmallSection = styled.div`
     padding: 1.25rem;
 
     button {
-      margin-top: 1.5rem; /* Extra spacing for mobile */
+      margin-top: 1.5rem;
     }
   }
 `;
@@ -293,7 +293,6 @@ export const ParticipantsSection = styled.div`
     margin-bottom: 0.5rem;
   }
 
-  /* Add more space above the "Pending Participants" heading */
   h3:nth-of-type(2) {
     margin-top: 1rem;
   }

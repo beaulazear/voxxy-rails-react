@@ -91,8 +91,8 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
         })
             .then((res) => res.json())
             .then((updatedActivity) => {
-                onUpdate(updatedActivity); // Update parent state
-                onClose(); // Close modal
+                onUpdate(updatedActivity);
+                onClose();
             })
             .catch((error) => console.error('Error updating activity:', error));
     }

@@ -69,7 +69,7 @@ const ImageContainer = styled.div`
 
   img {
     width: 100%;
-    max-width: 700px; /* Increased max-width for larger screens */
+    max-width: 700px;
     height: auto;
 
     @media (max-width: 768px) {

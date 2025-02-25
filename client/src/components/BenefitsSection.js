@@ -33,15 +33,15 @@ const BenefitItem = styled.div`
   }
 
   &:last-child {
-    margin-bottom: 0; /* Remove margin-bottom for the last child */
+    margin-bottom: 0;
   }
 
   @media (max-width: 768px) {
     flex-direction: column !important;
     text-align: center;
     gap: 1.5rem;
-    align-items: center; /* Center items on mobile */
-    justify-content: center; /* Ensure horizontal alignment */
+    align-items: center;
+    justify-content: center;
   }
 `;
 
@@ -79,15 +79,13 @@ const BenefitImage = styled.img`
 
   @media (max-width: 768px) {
     max-width: 250px;
-    margin: 0 auto; /* Ensures centering on mobile */
+    margin: 0 auto;
   }
 `;
 
 const Benefits = () => (
     <BenefitsContainer>
         <Title>More Than Just Planning: The Voxxy Way</Title>
-
-        {/* Benefit 1 */}
         <BenefitItem>
             <BenefitImage src={BikingImage} alt="Enjoy the Journey" />
             <BenefitText>
@@ -100,8 +98,6 @@ const Benefits = () => (
                 </BenefitDescription>
             </BenefitText>
         </BenefitItem>
-
-        {/* Benefit 2 */}
         <BenefitItem>
             <BenefitImage src={CommentsImage} alt="Conversations That Drive Decisions" />
             <BenefitText>
@@ -114,8 +110,6 @@ const Benefits = () => (
                 </BenefitDescription>
             </BenefitText>
         </BenefitItem>
-
-        {/* Benefit 3 */}
         <BenefitItem>
             <BenefitImage src={TargetImage} alt="A Living Plan That Evolves With You" />
             <BenefitText>

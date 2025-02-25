@@ -33,7 +33,7 @@ const CardGrid = styled.div`
 `;
 
 const ActivityCard = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== 'active', // ✅ Stops `active` from reaching the DOM
+  shouldForwardProp: (prop) => prop !== 'active',
 })`
   display: flex;
   flex-direction: column;
@@ -60,13 +60,12 @@ const ActivityCard = styled.div.withConfig({
   }
 `;
 
-/** ✅ FIX: Prevent `active` from being passed to the DOM */
 const ActivityName = styled.h3.withConfig({
-  shouldForwardProp: (prop) => prop !== 'active', // ✅ Fix applied here
+  shouldForwardProp: (prop) => prop !== 'active',
 })`
-  font-size: clamp(1.1rem, 1.4vw, 1.4rem); /* Slightly smaller */
+  font-size: clamp(1.1rem, 1.4vw, 1.4rem);
   font-weight: 500; /* Less bold */
-  color: ${({ active }) => (active ? '#222' : '#777')}; /* ✅ Uses active but doesn't pass it */
+  color: ${({ active }) => (active ? '#222' : '#777')};
   margin: 0.3rem 0;
   padding: 0;
 `;
@@ -96,7 +95,7 @@ function StartNewAdventure({ onTripSelect }) {
             onClick={active ? () => onTripSelect(name) : undefined}
           >
             <div className="emoji">{emoji}</div>
-            <ActivityName active={active}>{name}</ActivityName> {/* ✅ Now error-free */}
+            <ActivityName active={active}>{name}</ActivityName>
           </ActivityCard>
         ))}
       </CardGrid>
