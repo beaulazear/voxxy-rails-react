@@ -32,7 +32,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
     if (latestActivity) {
       console.log("🔥 Updated activity from context:", latestActivity);
-      setCurrentActivity({...latestActivity});
+      setCurrentActivity({ ...latestActivity });
     }
   }, [user, activityId]);
 
@@ -122,12 +122,15 @@ function ActivityDetailsPage({ activityId, onBack }) {
   };
 
   function handleUpdate(newData) {
-    setCurrentActivity(newData);
+    setCurrentActivity((prevActivity) => ({
+      ...newData,
+      user: prevActivity.user, // ✅ Keep the existing host data (fixes "Unknown" issue)
+    }));
 
     setUser((prevUser) => ({
       ...prevUser,
       activities: prevUser.activities.map((act) =>
-        act.id === newData.id ? newData : act
+        act.id === newData.id ? { ...newData, user: act.user } : act
       ),
     }));
 
