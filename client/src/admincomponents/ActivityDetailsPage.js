@@ -42,18 +42,18 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
   const participantsArray = Array.isArray(currentActivity.participants) ? currentActivity.participants : [];
   const pendingInvitesArray = Array.isArray(currentActivity.activity_participants)
-    ? currentActivity.activity_participants.filter(p => !p.accepted) // ✅ Only show pending invites
+    ? currentActivity.activity_participants.filter(p => !p.accepted)
     : [];
 
   const hostParticipant = {
-    name: `${currentActivity.user?.name || "Unknown"} (Host)`, // ✅ Add (Host) next to name
+    name: `${currentActivity.user?.name || "Unknown"} (Host)`,
     email: currentActivity.user?.email || "N/A",
     confirmed: true
   };
 
   const allParticipants = [
     hostParticipant, // ✅ Always include the host at the top
-    ...participantsArray.filter(p => p.email) // ✅ Ensure email is defined before mapping
+    ...participantsArray.filter(p => p.email)
       .map(p => ({
         name: p.name || p.email,
         email: p.email,

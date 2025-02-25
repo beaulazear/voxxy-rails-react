@@ -3,11 +3,9 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-// Default marker icon fix for Leaflet
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
-// Custom marker icon for Leaflet
 const defaultIcon = new L.Icon({
     iconUrl: markerIcon,
     shadowUrl: markerShadow,
@@ -49,7 +47,6 @@ const RestaurantMap = ({ recommendations }) => {
                 })
             );
 
-            // Filter out any failed geocodes
             setLocations(geocodedLocations.filter((loc) => loc !== null));
         };
 
