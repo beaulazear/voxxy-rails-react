@@ -143,10 +143,10 @@ const SendButton = styled.button`
 `;
 
 function CuisineChat({ onClose, activityId, onChatComplete }) {
+    const [answers, setAnswers] = useState([]);
+    const [currentInput, setCurrentInput] = useState("");
+    const [messages, setMessages] = useState([{ text: "Hey hey, party people!  Voxxy here—your friendly get-together assitant. Your crew is making plans, and I’m here to help pick the perfect spot. Let’s do a quick vibe check!", isUser: false }]);
     const [step, setStep] = useState(0);
-    const [answers, setAnswers] = useState([]); // Store each answer separately
-    const [currentInput, setCurrentInput] = useState(""); // Current input field
-    const [messages, setMessages] = useState([]);
 
     const { setUser } = useContext(UserContext);
     const inputRef = useRef(null);
@@ -155,11 +155,11 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
     const questions = [
-        "What type of cuisine are you craving? (e.g., Italian, Mexican, Japanese, American, fusion)",
+        "What’s the food & drink mood? Are we craving anything specific (sushi, tacos, cocktails), or open to surprises?",
         "Do you want a casual spot, a trendy place, or fine dining?",
-        "Are there any dietary restrictions or preferences to consider? (e.g., vegetarian, halal, gluten-free)",
-        "Are you in the mood for any specific features? (e.g., rooftop views, live music, quiet ambiance, quick service)",
-        "What’s your ideal price range? (e.g., budget-friendly, mid-range, upscale)",
+        "Any deal-breakers? (Like, “No pizza, please” or “I need gluten-free options.”)",
+        "What’s the vibe? Fancy, casual, outdoor seating, rooftop views, great cocktails, good music—what matters most??",
+        "What’s the budget range you’d like to stay close to (low, mid, high)?",
     ];
 
     useEffect(() => {
