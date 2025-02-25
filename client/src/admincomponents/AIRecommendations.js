@@ -223,7 +223,7 @@ const AIRecommendations = ({ activity }) => {
         </p>
       )}
 
-      {activity.responses?.length > 0 && (
+      {activity.responses?.length > 0 && recommendations.length === 0 && (
         <Button onClick={fetchRecommendations} disabled={loading}>
           {loading ? "Generating..." : "Get Recommendations"}
         </Button>
