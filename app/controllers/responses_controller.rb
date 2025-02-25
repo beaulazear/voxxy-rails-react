@@ -8,7 +8,6 @@ class ResponsesController < ApplicationController
         return render json: { error: "Activity not found" }, status: :not_found
       end
 
-      # ✅ Build response without setting user_id if it doesn't exist
       response = activity.responses.build(response_params)
 
       if response.save

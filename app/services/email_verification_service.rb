@@ -41,7 +41,6 @@ class EmailVerificationService
       HTML
     )
 
-    # Build the SendGrid::Mail object explicitly
     mail = SendGrid::Mail.new
     mail.from = from
     mail.subject = subject
@@ -50,7 +49,6 @@ class EmailVerificationService
     mail.add_personalization(personalization)
     mail.add_content(content)
 
-    # Send the email via SendGrid
     sg = SendGrid::API.new(api_key: ENV["VoxxyKeyAPI"])
     response = sg.client.mail._("send").post(request_body: mail.to_json)
 

@@ -9,7 +9,7 @@ class ActivityParticipantsController < ApplicationController
       invited_email = params[:email]&.strip&.downcase
       return render json: { error: "Invalid email" }, status: :unprocessable_entity unless invited_email.present?
 
-      user = User.find_by("lower(email) = ?", invited_email) # Check if the user exists
+      user = User.find_by("lower(email) = ?", invited_email)
 
       participant = ActivityParticipant.find_or_initialize_by(activity_id: activity.id, invited_email: invited_email)
 

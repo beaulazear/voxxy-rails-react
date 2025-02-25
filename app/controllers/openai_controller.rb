@@ -20,7 +20,7 @@ class OpenaiController < ApplicationController
           render json: { haiku: response.dig("choices", 0, "message", "content") }
         rescue Faraday::TooManyRequestsError => e
           Rails.logger.error "Too many requests: #{e.message}"
-          sleep(1) # Delay before retrying
+          sleep(1)
           retry
         end
       end
@@ -75,10 +75,8 @@ class OpenaiController < ApplicationController
             }
           )
 
-          # Extract JSON from the response
           recommendations_json = response.dig("choices", 0, "message", "content")
 
-          # Parse JSON safely
           begin
             recommendations = JSON.parse(recommendations_json)["restaurants"]
             render json: { recommendations: recommendations }, status: :ok

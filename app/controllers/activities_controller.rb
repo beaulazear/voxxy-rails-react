@@ -6,7 +6,7 @@ class ActivitiesController < ApplicationController
       if activity.save
         render json: activity.as_json(
           only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji ],
-          include: { user: { only: [ :id, :name, :email ] } } # ✅ Ensure host data is included
+          include: { user: { only: [ :id, :name, :email ] } }
         ), status: :created
       else
         render json: { errors: activity.errors.full_messages }, status: :unprocessable_entity
@@ -52,20 +52,16 @@ class ActivitiesController < ApplicationController
         return render json: { error: "Not authorized" }, status: :unauthorized
       end
 
-      # ✅ Fetch the user with their owned activities
       user = User.includes(activities: [ :responses, :participants, :activity_participants ]).find_by(id: current_user.id)
 
       if user
-        # ✅ Fetch activity participants where user is invited or accepted
-        activity_participants = ActivityParticipant.includes(:activity)
-                                                   .where("user_id = ? OR invited_email = ?", user.id, user.email)
+        activity_participants = ActivityParticipant.includes(:activity).where("user_id = ? OR invited_email = ?", user.id, user.email)
 
-        # ✅ Extract the activities from the activity_participants
         participant_activities = activity_participants.map(&:activity).uniq
 
         render json: user.as_json(
           include: {
-            activities: { # ✅ Activities the user owns
+            activities: {
               only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji ],
               include: {
                 user: { only: [ :id, :name, :email ] },
@@ -78,9 +74,9 @@ class ActivitiesController < ApplicationController
         ).merge("participant_activities" => participant_activities.as_json(
           only: [ :id, :activity_name, :emoji, :user_id, :date_notes, :activity_location, :group_size ],
           include: {
-            user: { only: [ :id, :name, :email ] }, # ✅ Host info
+            user: { only: [ :id, :name, :email ] },
             participants: { only: [ :id, :name, :email ] },
-            activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] } # ✅ Includes pending invites too
+            activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] }
           }
         ))
       else

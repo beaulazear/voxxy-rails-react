@@ -51,7 +51,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
   };
 
   const allParticipants = [
-    hostParticipant, // ✅ Always include the host at the top
+    hostParticipant,
     ...participantsArray.filter(p => p.email)
       .map(p => ({
         name: p.name || p.email,
@@ -90,7 +90,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
     if (response.ok) {
       const newParticipant = await response.json();
-      console.log("✅ New participant data from API:", newParticipant);
       alert("Invitation sent!");
       setInviteEmail("");
 
@@ -123,7 +122,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
   function handleUpdate(newData) {
     setCurrentActivity((prevActivity) => ({
       ...newData,
-      user: prevActivity.user, // ✅ Keep the existing host data (fixes "Unknown" issue)
+      user: prevActivity.user,
     }));
 
     setUser((prevUser) => ({

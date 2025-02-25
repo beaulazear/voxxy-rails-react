@@ -33,7 +33,7 @@ class UsersController < ApplicationController
 
       render json: user.as_json(
         include: {
-          activities: { # ✅ Activities the user owns
+          activities: {
             only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji ],
             include: {
               user: { only: [ :id, :name, :email ] },

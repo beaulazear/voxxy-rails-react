@@ -13,11 +13,8 @@ class PasswordResetService
 
     Rails.logger.info "User reset token: #{user.reset_password_token}"
 
-    # app/services/password_reset_service.rb
-
     frontend_host = Rails.env.production? ? "https://www.voxxyai.com" : "http://localhost:3000"
 
-    # Manually construct the reset link to include the hash
     reset_link = "#{frontend_host}/#/reset-password?token=#{user.reset_password_token}"
 
     Rails.logger.info "Password Reset Link: #{reset_link}"
@@ -41,7 +38,6 @@ class PasswordResetService
       HTML
     )
 
-    # Build and send email
     mail = SendGrid::Mail.new
     mail.from = from
     mail.subject = subject
