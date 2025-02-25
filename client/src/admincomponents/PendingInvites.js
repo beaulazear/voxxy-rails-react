@@ -82,22 +82,21 @@ const Button = styled.button`
   cursor: pointer;
   font-weight: bold;
   transition: background 0.2s ease;
-  background: ${(props) => (props.$decline ? "#e74c3c" : "#2ecc71")}; /* ✅ Fix */
+  background: ${(props) => (props.$decline ? "#e74c3c" : "#2ecc71")};
   color: white;
 
   &:hover {
-    background: ${(props) => (props.$decline ? "#c0392b" : "#27ae60")}; /* ✅ Fix */
+    background: ${(props) => (props.$decline ? "#c0392b" : "#27ae60")};
   }
 `;
 
 const PendingInvites = () => {
     const { user, setUser } = useContext(UserContext);
 
-    // ✅ Filter pending invites where `accepted: false`
     const pendingInvites = user?.participant_activities?.filter(invite => !invite.accepted) || [];
 
     if (pendingInvites.length === 0) {
-        return null; // Don't render if there are no pending invites
+        return null;
     }
 
     const handleAccept = async (invite) => {
@@ -114,7 +113,6 @@ const PendingInvites = () => {
 
             if (response.ok) {
                 alert("Invite accepted!");
-                // ✅ Optimistically update UI without waiting for backend
                 setUser((prevUser) => {
                     return {
                         ...prevUser,
@@ -126,9 +124,10 @@ const PendingInvites = () => {
                             {
                                 ...invite.activity,
                                 participants: [
-                                    ...(invite.activity.participants || []), // Keep existing participants
-                                    { id: user.id, name: user.name, email: user.email } // ✅ Add current user
+                                    ...(invite.activity.participants || []),
+                                    { id: user.id, name: user.name, email: user.email }
                                 ],
+                                group_size: invite.activity.group_size + 1
                             },
                         ],
                     };
@@ -154,7 +153,6 @@ const PendingInvites = () => {
 
             if (response.ok) {
                 alert("Invite declined.");
-                // ✅ Remove from pending invites
                 setUser((prevUser) => ({
                     ...prevUser,
                     participant_activities: prevUser.participant_activities.filter(
@@ -181,7 +179,8 @@ const PendingInvites = () => {
                         <p>👤 Host: {invite.activity.user.name}</p>
                         <ButtonContainer>
                             <Button onClick={() => handleAccept(invite)}>Accept</Button>
-                            <Button $decline onClick={() => handleDecline(invite)}>Decline</Button>                        </ButtonContainer>
+                            <Button $decline onClick={() => handleDecline(invite)}>Decline</Button>
+                        </ButtonContainer>
                     </InviteCard>
                 ))}
             </InviteGrid>

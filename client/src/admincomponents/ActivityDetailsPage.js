@@ -31,7 +31,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
       user.participant_activities.find((p) => p.activity.id === activityId)?.activity;
 
     if (latestActivity) {
-      console.log("🔥 Updated activity from context:", latestActivity);
       setCurrentActivity({ ...latestActivity });
     }
   }, [user, activityId]);
