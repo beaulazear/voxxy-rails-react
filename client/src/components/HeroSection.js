@@ -4,14 +4,14 @@ import { useNavigate } from 'react-router-dom';
 
 const HeroContainer = styled.section`
   text-align: center;
-  padding: 6rem 2rem;
+  padding: 10rem 5rem; // Further increased padding
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 
   @media (max-width: 768px) {
-    padding: 3rem 1rem;
+    padding: 5rem 2rem; // Further increased padding for mobile
   }
 `;
 
@@ -21,6 +21,7 @@ const HeroTitle = styled.h1`
   margin-bottom: 0.4rem;
   color: #000;
   text-align: center;
+  padding: 2rem; // Further increased padding
 `;
 
 const HeroSubtitle = styled.p`
@@ -29,6 +30,7 @@ const HeroSubtitle = styled.p`
   color: #444;
   max-width: 600px;
   text-align: center;
+  padding: 2rem; // Further increased padding
 `;
 
 const HeroButtons = styled.div`
@@ -36,6 +38,7 @@ const HeroButtons = styled.div`
   justify-content: center;
   gap: 1rem;
   flex-wrap: wrap;
+  padding: 2rem; // Further increased padding
 `;
 
 const PrimaryButton = styled.button`
@@ -82,7 +85,7 @@ const HeroSection = () => {
   return (
     <HeroContainer>
       <HeroTitle>
-        Less Time planning
+        Less Time Planning
         <br />
         More Time Making Memories
       </HeroTitle>
