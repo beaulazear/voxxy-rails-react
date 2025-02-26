@@ -8,6 +8,9 @@
 # testing
 /coverage
 
+# Ignore all environment files (except templates).
+/.env*
+
 # production
 /build
 

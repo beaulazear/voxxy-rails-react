@@ -7,12 +7,17 @@ import { HashRouter } from 'react-router-dom';
 import { UserProvider } from './context/user';
 import mixpanel from "mixpanel-browser";
 
-//Initialize Mixpanel
-mixpanel.init("3a0b59ad74eb6f0b0f5947adbbf947a4", {
-  debug: true,
+const mixpanelKey = process.env.REACT_APP_MIXPANEL_KEY;
+
+mixpanel.init(mixpanelKey, {
+  debug: process.env.NODE_ENV !== 'production',
   track_pageview: true,
   persistence: "localStorage",
 });
+
+mixpanel.track("App Loaded");
+
+console.log("Mixpanel initialized and App Loaded event tracked!");
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
