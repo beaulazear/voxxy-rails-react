@@ -219,9 +219,23 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
                         return activity;
                     });
 
+                    const updatedParticipantActivities = prevUser.participant_activities.map((participant) => {
+                        if (participant.activity.id === activityId) {
+                            return {
+                                ...participant,
+                                activity: {
+                                    ...participant.activity,
+                                    responses: [...participant.activity.responses || [], newResponse]
+                                }
+                            };
+                        }
+                        return participant;
+                    });
+
                     return {
                         ...prevUser,
-                        activities: updatedActivities
+                        activities: updatedActivities,
+                        participant_activities: updatedParticipantActivities
                     };
                 });
                 onChatComplete();

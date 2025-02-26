@@ -154,40 +154,39 @@ const Login = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     const sessionData = { email, password };
 
-    fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify(sessionData),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          return response.json().then((data) => {
-            throw new Error(data.error || 'Failed to log in');
-          });
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setUser(data);
-
-        const urlParams = new URLSearchParams(location.search);
-        const redirectPath = urlParams.get('redirect');
-
-        if (redirectPath === "boards") {
-          navigate("/boards");
-        } else {
-          navigate("/");
-        }
-      })
-      .catch((error) => {
-        setError(error.message);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(sessionData),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to log in');
+      }
+
+      const data = await response.json();
+
+      setUser(data);
+
+      const urlParams = new URLSearchParams(location.search);
+      const redirectPath = urlParams.get('redirect');
+
+      if (redirectPath === "boards") {
+        navigate("/boards");
+      } else {
+        navigate("/");
+      }
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
   return (

@@ -219,7 +219,7 @@ const AIRecommendations = ({ activity }) => {
         </>
       ) : (
         <p style={{ textAlign: "center", color: "#666", fontStyle: "italic" }}>
-          No recommendations yet! Click ‘Get Recommendations’ to generate them.
+          No recommendations yet! 'Chat with Voxxy' to submit responses and get AI generated recommendations.
         </p>
       )}
 

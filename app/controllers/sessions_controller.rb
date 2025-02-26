@@ -2,14 +2,28 @@ class SessionsController < ApplicationController
   skip_before_action :authorized, only: [ :create ]
 
   def create
-    user = User.includes(activities: [ :responses, :participants, :activity_participants ]).find_by(email: params[:email])
+    user = User.includes(
+      activities: [
+        { responses: :activity },
+        :participants,
+        :activity_participants
+      ],
+      activity_participants: [
+        activity: [
+          :responses,
+          :participants
+        ]
+      ]
+    ).find_by(email: params[:email])
 
     if user&.authenticate(params[:password])
       session[:user_id] = user.id
 
-      activity_participants = ActivityParticipant.includes(:activity).where("user_id = ? OR invited_email = ?", user.id, user.email)
+      activity_participants = ActivityParticipant.includes(activity: [ :responses, :participants ]).where("user_id = ? OR invited_email = ?", user.id, user.email)
 
       participant_activities = activity_participants.map(&:activity).uniq
+
+      Rails.logger.info "User Data: #{user.as_json(include: { activities: { include: :responses } })}"
 
       render json: user.as_json(
         include: {
