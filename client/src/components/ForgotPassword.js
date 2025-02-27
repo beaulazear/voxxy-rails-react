@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FaEnvelope } from 'react-icons/fa';
 
 const Container = styled.div`
   max-width: 400px;
@@ -26,37 +25,13 @@ const Subtitle = styled.p`
   margin-bottom: 1.5rem;
 `;
 
-const InputContainer = styled.div`
-  text-align: left;
-`;
-
-const Label = styled.label`
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #333;
-  display: block;
-  margin-bottom: 0.5rem;
-`;
-
-const InputWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  background: #f4f4f4;
-  padding: 0.75rem;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-`;
-
-const Icon = styled(FaEnvelope)`
-  margin-right: 0.5rem;
-  color: #999;
-`;
-
 const Input = styled.input`
-  flex: 1;
-  border: none;
-  background: none;
+  width: 100%;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
   font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
   outline: none;
 `;
 
@@ -69,7 +44,7 @@ const Button = styled.button`
   color: white;
   background-color: #a488f4;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: background 0.3s;
 
@@ -84,55 +59,55 @@ const LinkText = styled.p`
   margin-top: 1rem;
 `;
 
-const Link = styled.a`
+const Link = styled.button`
+  background: none;
+  border: none;
   color: #a488f4;
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
 
   &:hover {
     text-decoration: underline;
   }
 `;
 
-const EmailSentContainer = styled.div`
-  text-align: center;
+const ErrorText = styled.p`
+  color: red;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
 `;
 
-const EmailIcon = styled.div`
-  width: 50px;
-  height: 50px;
-  margin: 0 auto 1rem;
-  background: #ede5ff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
+const EmailSentContainer = styled.div`
+  text-align: center;
 `;
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [emailSent, setEmailSent] = useState(false);
   const [error, setError] = useState('');
+  const [resendDisabled, setResendDisabled] = useState(false);
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const sendResetEmail = () => {
     setError('');
-
     fetch(`${API_URL}/password_reset`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password_reset: { email } }),
     })
       .then((res) => {
         if (!res.ok) throw new Error('Failed to send reset email');
         return res.json();
       })
-      .then(() => setEmailSent(true))
+      .then(() => {
+        setEmailSent(true);
+        setResendDisabled(true);
+        setTimeout(() => setResendDisabled(false), 30000);
+      })
       .catch((err) => setError(err.message));
   };
 
@@ -142,39 +117,38 @@ const ForgotPassword = () => {
         <>
           <Title>Reset password</Title>
           <Subtitle>Enter your email to receive a password reset link</Subtitle>
-          <form onSubmit={handleSubmit}>
-            <InputContainer>
-              <Label>Email</Label>
-              <InputWrapper>
-                <Icon />
-                <Input
-                  type="email"
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </InputWrapper>
-            </InputContainer>
-            {error && <p style={{ color: 'red', fontSize: '0.875rem', marginTop: '0.5rem' }}>{error}</p>}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              sendResetEmail();
+            }}
+          >
+            <Input
+              type="email"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            {error && <ErrorText>{error}</ErrorText>}
             <Button type="submit">Send reset link</Button>
           </form>
           <LinkText>
-            Remember your password? <Link href="/login">Sign in</Link>
+            Remember your password? <Link as="a" href="/login">Sign in</Link>
           </LinkText>
         </>
       ) : (
         <EmailSentContainer>
-          <EmailIcon>
-            <FaEnvelope color="#a488f4" size={24} />
-          </EmailIcon>
           <Title>Check your email</Title>
           <Subtitle>We've sent you a verification link to your email address</Subtitle>
           <LinkText>
-            Didn't receive the email? <Link href="#">Click to resend</Link>
+            Didn't receive the email?{' '}
+            <Link onClick={sendResetEmail} disabled={resendDisabled}>
+              {resendDisabled ? 'Wait to resend' : 'Click to resend'}
+            </Link>
           </LinkText>
           <LinkText>
-            <Link href="/login">Back to login</Link>
+            <Link as="a" href="/login">Back to login</Link>
           </LinkText>
         </EmailSentContainer>
       )}

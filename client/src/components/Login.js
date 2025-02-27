@@ -146,13 +146,16 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { setUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    if (user) {
+      navigate('/boards')
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
