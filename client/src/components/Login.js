@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { UserContext } from '../context/user';
 import styled from 'styled-components';
+import mixpanel from 'mixpanel-browser';
 
 const PageContainer = styled.div`
   display: flex;
@@ -178,6 +179,19 @@ const Login = () => {
       const data = await response.json();
 
       setUser(data);
+
+      // Track user login with Mixpanel
+      mixpanel.identify(data.id);
+      mixpanel.people.set({
+        "$name": data.name,
+        "$email": data.email,
+        "$created": data.created_at,
+        "confirmed_at": data.confirmed_at
+      });
+      mixpanel.track("User Logged In", {
+        "user_id": data.id,
+        "email": data.email
+      });
 
       const urlParams = new URLSearchParams(location.search);
       const redirectPath = urlParams.get('redirect');

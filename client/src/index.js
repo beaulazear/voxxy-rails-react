@@ -15,7 +15,7 @@ mixpanel.init(mixpanelKey, {
   persistence: "localStorage",
 });
 
-mixpanel.track("App Loaded");
+mixpanel.track() 
 
 console.log("Mixpanel initialized and App Loaded event tracked!");
 
