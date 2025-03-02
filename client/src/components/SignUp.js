@@ -151,7 +151,6 @@ const SignUp = () => {
   const activityId = searchParams.get("activity_id");
 
   const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState(invitedEmail);
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
@@ -173,7 +172,7 @@ const SignUp = () => {
     }
 
     const userData = {
-      user: { name, email, username, password, password_confirmation: passwordConfirmation },
+      user: { name, email, password, password_confirmation: passwordConfirmation },
     };
 
     try {
@@ -215,10 +214,6 @@ const SignUp = () => {
           <InputGroup>
             <label htmlFor="name">What should we call you?</label>
             <input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-          </InputGroup>
-          <InputGroup>
-            <label htmlFor="username">Choose your username.</label>
-            <input id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
           </InputGroup>
           <InputGroup>
             <label htmlFor="email">What’s your email?</label>

@@ -24,7 +24,7 @@ function App() {
     }
   }, [loading, user, navigate]);
 
-  const isLoggedIn = user && user.username && Object.keys(user).length > 0;
+  const isLoggedIn = user && user.email && Object.keys(user).length > 0;
   const isConfirmed = user && user.confirmed_at;
 
   if (loading) {
