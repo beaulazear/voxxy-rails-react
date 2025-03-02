@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 const Container = styled.div`
   max-width: 400px;
@@ -59,7 +60,7 @@ const LinkText = styled.p`
   margin-top: 1rem;
 `;
 
-const Link = styled.button`
+const NewLink = styled(Link)`
   background: none;
   border: none;
   color: #a488f4;
@@ -134,7 +135,7 @@ const ForgotPassword = () => {
             <Button type="submit">Send reset link</Button>
           </form>
           <LinkText>
-            Remember your password? <Link as="a" href="/login">Sign in</Link>
+            Remember your password? <NewLink to="/login">Sign in</NewLink>
           </LinkText>
         </>
       ) : (
@@ -148,7 +149,7 @@ const ForgotPassword = () => {
             </Link>
           </LinkText>
           <LinkText>
-            <Link as="a" href="/login">Back to login</Link>
+            <NewLink to="/login">Back to login</NewLink>
           </LinkText>
         </EmailSentContainer>
       )}

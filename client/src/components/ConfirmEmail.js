@@ -1,60 +1,60 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { Button, message, Spin } from "antd";
 import { UserContext } from "../context/user";
 
-const ConfirmSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+const Container = styled.div`
+  max-width: 400px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
-  height: 60vh;
-  background: linear-gradient(to right, #7F31D9 0%, #431A73 100%);
-  color: white;
-  padding: 20px;
-
-  @media (max-width: 768px) {
-    padding-top: 20px;
-  }
+  font-family: 'Inter', sans-serif;
 `;
 
-const Title = styled.h1`
-  font-size: 2.5rem;
-  font-weight: 500;
-  font-family: 'Unbounded', sans-serif;
-  line-height: 1.2;
-  margin-bottom: 20px;
+const IconWrapper = styled.div`
+  width: 50px;
+  height: 50px;
+  background: #f2e8ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+`;
 
-  @media (max-width: 768px) {
-    font-size: 2rem;
-  }
+const Icon = styled.img`
+  width: 24px;
+  height: 24px;
+  filter: invert(38%) sepia(66%) saturate(750%) hue-rotate(230deg);
+`;
+
+const Title = styled.h2`
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #000;
+  margin-bottom: 0.5rem;
 `;
 
 const Message = styled.p`
-  font-size: 1.2rem;
-  margin-bottom: 30px;
-  max-width: 600px;
-  line-height: 1.6;
-  font-family: 'Montserrat', sans-serif;
-
-  @media (max-width: 768px) {
-    font-size: 1rem;
-  }
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 1.5rem;
 `;
 
-const StyledButton = styled(Button)`
-  background-color: white;
+const LinkText = styled.button`
+  font-size: 0.9rem;
+  color: #8b6fe8;
+  background: none;
   border: none;
-  font-size: 1rem;
-  padding: 0.75rem 2rem;
-  border-radius: 5px;
-  transition: all 0.3s ease;
-
+  cursor: pointer;
+  text-decoration: underline;
+  margin-top: 0.5rem;
+  
   &:hover {
-    background-color: #fbe9e7;
-    color: #bf360c;
+    color: #6e54c9;
   }
 `;
 
@@ -62,6 +62,7 @@ const ConfirmEmail = () => {
   const { user, loading } = useContext(UserContext);
   const navigate = useNavigate();
   const [isSending, setIsSending] = useState(false);
+  const [timer, setTimer] = useState(60);
 
   useEffect(() => {
     if (!loading) {
@@ -72,6 +73,23 @@ const ConfirmEmail = () => {
       }
     }
   }, [user, loading, navigate]);
+
+  useEffect(() => {
+    let interval;
+    if (isSending) {
+      interval = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            setIsSending(false);
+            return 60;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isSending]);
 
   const handleResend = () => {
     setIsSending(true);
@@ -86,37 +104,30 @@ const ConfirmEmail = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.message) {
-          message.success(data.message);
+          alert(data.message);
         } else {
-          message.error(data.error || "Failed to resend verification email.");
+          alert("Failed to resend verification email.");
         }
       })
       .catch(() => {
-        message.error("An error occurred. Please try again.");
-      })
-      .finally(() => {
-        setIsSending(false);
+        alert("An error occurred. Please try again.");
       });
   };
 
-  if (loading) {
-    return (
-      <div style={{ textAlign: "center", marginTop: "50px" }}>
-        <Spin size="large" />
-      </div>
-    );
-  }
-
   return (
-    <ConfirmSection>
-      <Title>Email Not Verified</Title>
-      <Message>
-        Please check your email and verify your account to access this section. If you haven't received an email, click the button below to resend it.
-      </Message>
-      <StyledButton onClick={handleResend} disabled={isSending}>
-        {isSending ? "Sending..." : "Resend Verification Email"}
-      </StyledButton>
-    </ConfirmSection>
+    <Container>
+      <IconWrapper>
+        <Icon src="/email-icon.svg" alt="Email icon" />
+      </IconWrapper>
+      <Title>Check your email</Title>
+      <Message>We've sent you a verification link to your email address.</Message>
+      <Message>Didn't receive the email?</Message>
+      <LinkText onClick={handleResend} disabled={isSending}>
+        {isSending ? `Wait ${timer}s` : "Click to resend"}
+      </LinkText>
+      <br />
+      <LinkText onClick={() => navigate("/login")}>Back to login</LinkText>
+    </Container>
   );
 };
 
