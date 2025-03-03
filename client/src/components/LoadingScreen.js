@@ -19,8 +19,6 @@ const LoadingSection = styled.div`
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: linear-gradient(135deg, #6a0dad, #9b19f5);
-  color: white;
   animation: ${fadeIn} 1.5s ease-in-out;
   text-align: center;
 `;
