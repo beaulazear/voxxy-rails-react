@@ -21,7 +21,11 @@ const HeroTitle = styled.h1`
   margin-bottom: 0.4rem;
   color: #000;
   text-align: center;
-  padding: 2rem; // Further increased padding
+  padding: 2rem;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 `;
 
 const HeroSubtitle = styled.p`
@@ -30,7 +34,11 @@ const HeroSubtitle = styled.p`
   color: #444;
   max-width: 600px;
   text-align: center;
-  padding: 2rem; // Further increased padding
+  padding: 2rem;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 `;
 
 const HeroButtons = styled.div`
