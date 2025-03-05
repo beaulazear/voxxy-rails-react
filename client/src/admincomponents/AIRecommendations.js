@@ -79,76 +79,10 @@ const Button = styled.button`
   }
 `;
 
-/** MODAL STYLES **/
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-`;
-
-const ModalContent = styled.div`
-  background: white;
-  width: 95%;
-  max-width: 900px;
-  height: 85vh;
-  border-radius: 16px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-
-  @media (max-width: 768px) {
-    width: 98%;
-    height: 90vh;
-  }
-`;
-
-const ModalHeader = styled.div`
-  padding: 1rem 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #f8f8f8;
-  border-bottom: 1px solid #ddd;
-`;
-
-const ModalTitle = styled.h3`
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #444;
-`;
-
-const CloseButton = styled.button`
-  background: transparent;
-  border: none;
-  font-size: 1.5rem;
-  color: #888;
-  cursor: pointer;
-  transition: color 0.2s ease;
-
-  &:hover {
-    color: #555;
-  }
-`;
-
-const ModalBody = styled.div`
-  flex: 1;
-  overflow: hidden;
-`;
-
 const AIRecommendations = ({ activity }) => {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [showMap, setShowMap] = useState(false);
 
   const fetchRecommendations = async () => {
     if (!activity.responses || activity.responses.length === 0) {
@@ -215,7 +149,7 @@ const AIRecommendations = ({ activity }) => {
               </RecommendationItem>
             ))}
           </RecommendationList>
-          <Button onClick={() => setShowMap(true)}>View Recommendations on Map</Button>
+          <RestaurantMap recommendations={recommendations} />
         </>
       ) : (
         <p style={{ textAlign: "center", color: "#666", fontStyle: "italic" }}>
@@ -227,20 +161,6 @@ const AIRecommendations = ({ activity }) => {
         <Button onClick={fetchRecommendations} disabled={loading}>
           {loading ? "Generating..." : "Get Recommendations"}
         </Button>
-      )}
-
-      {showMap && (
-        <ModalOverlay>
-          <ModalContent>
-            <ModalHeader>
-              <ModalTitle>📍 Restaurant Locations</ModalTitle>
-              <CloseButton onClick={() => setShowMap(false)}>×</CloseButton>
-            </ModalHeader>
-            <ModalBody>
-              <RestaurantMap recommendations={recommendations} />
-            </ModalBody>
-          </ModalContent>
-        </ModalOverlay>
       )}
     </RecommendationsContainer>
   );

@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import SmallerLoading from "../components/SmallerLoading";
+import SmallerLoading from "../components/SmallerLoading"; // Loading screen
 
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
@@ -32,10 +32,11 @@ const FitBoundsToMarkers = ({ locations }) => {
 const RestaurantMap = ({ recommendations }) => {
     const [locations, setLocations] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showMap, setShowMap] = useState(false);
 
     useEffect(() => {
         if (!recommendations || recommendations.length === 0) {
-            setLoading(false); // No recommendations, no need to load
+            setLoading(false);
             return;
         }
 
@@ -75,29 +76,52 @@ const RestaurantMap = ({ recommendations }) => {
     }, [recommendations]);
 
     if (loading) {
-        return <SmallerLoading />;
+        return <SmallerLoading title={'Map View'} />;
     }
 
     return (
-        <div style={{ height: "100%", width: "100%", marginTop: "2rem" }}>
-            <MapContainer center={[40.7128, -74.006]} zoom={12} style={{ height: "100%", width: "100%", borderRadius: "12px" }}>
-                <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                />
+        <>
+            {!showMap ? (
+                <button onClick={() => setShowMap(true)} style={{ padding: "10px 20px", fontSize: "1rem", cursor: "pointer", marginTop: '15px' }}>
+                    View Recommendations on Map
+                </button>
+            ) : (
+                <div style={{ height: "100vh", width: "100vw", position: "fixed", top: 0, left: 0, backgroundColor: "#fff", zIndex: 1000 }}>
+                    <button
+                        onClick={() => setShowMap(false)}
+                        style={{
+                            position: "absolute",
+                            top: "10px",
+                            left: "10px",
+                            padding: "8px 15px",
+                            fontSize: "1rem",
+                            cursor: "pointer",
+                            zIndex: 1100,
+                        }}
+                    >
+                        Back
+                    </button>
 
-                {locations.length > 0 && <FitBoundsToMarkers locations={locations} />}
+                    <MapContainer center={[40.7128, -74.006]} zoom={12} style={{ height: "100%", width: "100%" }}>
+                        <TileLayer
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        />
 
-                {locations.map((location, index) => (
-                    <Marker key={index} position={[location.lat, location.lon]} icon={defaultIcon}>
-                        <Popup>
-                            <strong>{location.name}</strong> <br />
-                            📍 {location.address}
-                        </Popup>
-                    </Marker>
-                ))}
-            </MapContainer>
-        </div>
+                        {locations.length > 0 && <FitBoundsToMarkers locations={locations} />}
+
+                        {locations.map((location, index) => (
+                            <Marker key={index} position={[location.lat, location.lon]} icon={defaultIcon}>
+                                <Popup>
+                                    <strong>{location.name}</strong> <br />
+                                    📍 {location.address}
+                                </Popup>
+                            </Marker>
+                        ))}
+                    </MapContainer>
+                </div>
+            )}
+        </>
     );
 };
 

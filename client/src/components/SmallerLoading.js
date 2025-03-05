@@ -56,10 +56,10 @@ const LoadingSubtitle = styled.p`
   }
 `;
 
-const SmallerLoading = () => (
+const SmallerLoading = ({title}) => (
     <LoadingContainer>
         <Logo src={V} alt="Voxxy Logo" />
-        <LoadingTitle>Loading...</LoadingTitle>
+        <LoadingTitle>{title} Loading...</LoadingTitle>
         <LoadingSubtitle>Just a moment!</LoadingSubtitle>
     </LoadingContainer>
 );
