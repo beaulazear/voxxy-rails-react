@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
@@ -13,6 +13,20 @@ const defaultIcon = new L.Icon({
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
 });
+
+const FitBoundsToMarkers = ({ locations }) => {
+    const map = useMap();
+
+    useEffect(() => {
+        if (locations.length === 0) return;
+
+        const bounds = L.latLngBounds(locations.map(loc => [loc.lat, loc.lon]));
+        map.fitBounds(bounds, { padding: [50, 50] }); // Add padding for better visibility
+
+    }, [locations, map]);
+
+    return null;
+};
 
 const RestaurantMap = ({ recommendations }) => {
     const [locations, setLocations] = useState([]);
@@ -60,6 +74,9 @@ const RestaurantMap = ({ recommendations }) => {
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
+
+                {locations.length > 0 && <FitBoundsToMarkers locations={locations} />}
+
                 {locations.map((location, index) => (
                     <Marker key={index} position={[location.lat, location.lon]} icon={defaultIcon}>
                         <Popup>
