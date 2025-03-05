@@ -15,8 +15,6 @@ mixpanel.init(mixpanelKey, {
   persistence: "localStorage",
 });
 
-console.log("Mixpanel initialized and App Loaded event tracked!");
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
