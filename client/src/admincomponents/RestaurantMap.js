@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import SmallerLoading from "../components/SmallerLoading";
 
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
@@ -21,7 +22,7 @@ const FitBoundsToMarkers = ({ locations }) => {
         if (locations.length === 0) return;
 
         const bounds = L.latLngBounds(locations.map(loc => [loc.lat, loc.lon]));
-        map.fitBounds(bounds, { padding: [50, 50] }); // Add padding for better visibility
+        map.fitBounds(bounds, { padding: [50, 50] });
 
     }, [locations, map]);
 
@@ -30,9 +31,13 @@ const FitBoundsToMarkers = ({ locations }) => {
 
 const RestaurantMap = ({ recommendations }) => {
     const [locations, setLocations] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!recommendations || recommendations.length === 0) return;
+        if (!recommendations || recommendations.length === 0) {
+            setLoading(false); // No recommendations, no need to load
+            return;
+        }
 
         const fetchCoordinates = async () => {
             const geocodedLocations = await Promise.all(
@@ -61,11 +66,17 @@ const RestaurantMap = ({ recommendations }) => {
                 })
             );
 
-            setLocations(geocodedLocations.filter((loc) => loc !== null));
+            const filteredLocations = geocodedLocations.filter((loc) => loc !== null);
+            setLocations(filteredLocations);
+            setLoading(false);
         };
 
         fetchCoordinates();
     }, [recommendations]);
+
+    if (loading) {
+        return <SmallerLoading />;
+    }
 
     return (
         <div style={{ height: "100%", width: "100%", marginTop: "2rem" }}>
