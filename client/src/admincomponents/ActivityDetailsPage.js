@@ -3,7 +3,6 @@ import { UserContext } from '../context/user';
 import {
   PageContainer,
   Header,
-  TabsSection,
   ChatButton,
   StyledButton,
   DimmedOverlay,
@@ -18,7 +17,6 @@ import UpdateActivityModal from './UpdateActivityModal';
 
 function ActivityDetailsPage({ activityId, onBack }) {
   const { user, setUser } = useContext(UserContext);
-  const [activeTab, setActiveTab] = useState('Recommendations');
   const [showChat, setShowChat] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
@@ -224,30 +222,17 @@ function ActivityDetailsPage({ activityId, onBack }) {
             </div>
           )}
         </SmallSection>
+        <SmallSection>
+          <h2>Pinned Restaurants</h2>
+          <p style={{ color: "#666", fontStyle: "italic" }}>🚧 Coming Soon! 🚧 No pinned restaurants yet! This feature is currently under construction, but stay tuned! In the meantime, share your thoughts using the Chat with Voxxy button below to help shape the restaurant recommendations for you and your group. Soon, you’ll be able to pin, vote, and comment on recommendations here!</p>
+          <ChatButton>
+            <StyledButton onClick={() => setShowChat(true)}>
+              Chat with Voxxy
+            </StyledButton>
+          </ChatButton>
+        </SmallSection>
       </FlexContainer>
-
-      <TabsSection>
-        <div className="tabs">
-          <button className={activeTab === "Recommendations" ? "active" : ""} onClick={() => setActiveTab("Recommendations")}>
-            Recommendations
-          </button>
-          <button className={activeTab === "Discussion" ? "active" : ""} onClick={() => setActiveTab("Discussion")}>
-            Discussion
-          </button>
-        </div>
-        <div className="tab-content">
-          {activeTab === "Recommendations" && <AIRecommendations activity={currentActivity} refreshTrigger={refreshTrigger} />}
-          {activeTab === "Discussion" && <p>Discussion content goes here.</p>}
-        </div>
-      </TabsSection>
-
-      {activeTab === "Recommendations" && (
-        <ChatButton>
-          <StyledButton onClick={() => setShowChat(true)}>
-            Chat with Voxxy
-          </StyledButton>
-        </ChatButton>
-      )}
+      <AIRecommendations activity={currentActivity} refreshTrigger={refreshTrigger} />
 
       {showChat && (
         <>

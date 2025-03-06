@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import RestaurantMap from "./RestaurantMap";
+import SmallerLoading from "../components/SmallerLoading";
 
 const RecommendationsContainer = styled.div`
   background: white;
@@ -152,14 +153,14 @@ const AIRecommendations = ({ activity }) => {
           <RestaurantMap recommendations={recommendations} />
         </>
       ) : (
-        <p style={{ textAlign: "center", color: "#666", fontStyle: "italic" }}>
-          No recommendations yet! 'Chat with Voxxy' to submit responses and get AI generated recommendations.
-        </p>
+        <div style={{ color: "#666", fontStyle: "italic" }}>
+          {loading ? <SmallerLoading title={'Recommendations'} /> : "No recommendations yet! Click ‘Chat with Voxxy’ to share your feedback. Recommendations are personalized based on input from all group participants and can be generated once at least one participant has chatted with Voxxy."}
+        </div>
       )}
 
       {activity.responses?.length > 0 && recommendations.length === 0 && (
         <Button onClick={fetchRecommendations} disabled={loading}>
-          {loading ? "Generating..." : "Get Recommendations"}
+          {loading ? "Generating..." : "Generate Recommendations"}
         </Button>
       )}
     </RecommendationsContainer>

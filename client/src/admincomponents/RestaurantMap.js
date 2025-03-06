@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import SmallerLoading from "../components/SmallerLoading"; // Loading screen
+import styled from "styled-components";
+import SmallerLoading from "../components/SmallerLoading";
 
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
@@ -36,7 +37,7 @@ const RestaurantMap = ({ recommendations }) => {
 
     useEffect(() => {
         if (!recommendations || recommendations.length === 0) {
-            setLoading(false);
+            setLoading(true);
             return;
         }
 
@@ -82,9 +83,11 @@ const RestaurantMap = ({ recommendations }) => {
     return (
         <>
             {!showMap ? (
-                <button onClick={() => setShowMap(true)} style={{ padding: "10px 20px", fontSize: "1rem", cursor: "pointer", marginTop: '15px' }}>
-                    View Recommendations on Map
-                </button>
+                <ChatButton>
+                    <StyledButton onClick={() => setShowMap(true)}>
+                        View Recommendations on Map
+                    </StyledButton>
+                </ChatButton>
             ) : (
                 <div style={{ height: "100vh", width: "100vw", position: "fixed", top: 0, left: 0, backgroundColor: "#fff", zIndex: 1000 }}>
                     <button
@@ -92,9 +95,9 @@ const RestaurantMap = ({ recommendations }) => {
                         style={{
                             position: "absolute",
                             top: "10px",
-                            left: "10px",
+                            right: "10px",
                             padding: "8px 15px",
-                            fontSize: "1rem",
+                            fontSize: "1.2rem",
                             cursor: "pointer",
                             zIndex: 1100,
                         }}
@@ -126,3 +129,25 @@ const RestaurantMap = ({ recommendations }) => {
 };
 
 export default RestaurantMap;
+
+export const StyledButton = styled.button`
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  background: ${(props) => (props.$isDelete ? "#e74c3c" : "#9b59b6")};
+
+  &:hover {
+    background: ${(props) => (props.$isDelete ? "#c0392b" : "#8e44ad")};
+  }
+`;
+
+export const ChatButton = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+`;

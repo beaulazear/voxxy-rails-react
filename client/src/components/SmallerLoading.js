@@ -18,7 +18,7 @@ const LoadingContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 60vh; /* Smaller height */
+  height: 20vh; /* Smaller height */
   animation: ${fadeIn} 1.5s ease-in-out;
   text-align: center;
   padding: 1rem; /* Less padding */
@@ -37,9 +37,8 @@ const Logo = styled.img`
 `;
 
 const LoadingTitle = styled.h2`
-  font-size: 2rem;
+  font-size: 1rem;
   font-weight: bold;
-  margin-bottom: 5px;
   text-align: center;
 
   @media (max-width: 768px) {
@@ -47,20 +46,10 @@ const LoadingTitle = styled.h2`
   }
 `;
 
-const LoadingSubtitle = styled.p`
-  font-size: 1rem;
-  text-align: center;
-
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
-  }
-`;
-
 const SmallerLoading = ({title}) => (
     <LoadingContainer>
         <Logo src={V} alt="Voxxy Logo" />
         <LoadingTitle>{title} Loading...</LoadingTitle>
-        <LoadingSubtitle>Just a moment!</LoadingSubtitle>
     </LoadingContainer>
 );
 

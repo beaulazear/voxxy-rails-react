@@ -133,7 +133,7 @@ export const DimmedOverlay = styled.div`
 export const FlexContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: center;
   align-items: stretch;
   gap: 1.5rem;
   margin-bottom: 2rem;
@@ -153,8 +153,15 @@ export const SmallSection = styled.div`
   border-radius: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   min-height: 100%;
+  max-height: 500px; /* ✅ Set a max height */
+  overflow-y: auto; /* ✅ Enable scrolling when content overflows */
   justify-content: space-between;
   text-align: left;
+  max-width: 800px;
+
+  @media (min-width: 768px) {
+    min-width: 420px;
+  }
 
   h2 {
     font-size: 1.5rem;
