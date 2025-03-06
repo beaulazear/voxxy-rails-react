@@ -3,8 +3,6 @@ import styled from "styled-components";
 
 const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
 
-  console.log(pinned)
-
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
   function handleDelete() {

@@ -27,10 +27,14 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
 
         if (response.ok) {
           const data = await response.json();
-          setRecommendations(data.recommendations);
+          setRecommendations(data.recommendations || []);
+        } else {
+          console.warn("Unexpected response status:", response.status);
+          setRecommendations([]);
         }
       } catch (error) {
         console.error("Error fetching cached recommendations:", error);
+        setRecommendations([]);
       } finally {
         setLoading(false);
       }
@@ -124,6 +128,7 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
   return (
     <RecommendationsContainer>
       <Title>AI-Powered Restaurant Recommendations</Title>
+      {recommendations.length > 0 && (<div>Your recommendations won’t last forever! If you find one you love, click on it to pin it and keep it saved in pinned activities. 'Chat with Voxxy' to update your preferences.</div>)}
 
       <ChatButton>
         <StyledButton onClick={() => setShowChat(true)}>
@@ -226,7 +231,16 @@ const RecommendationItem = styled.div`
   display: flex;
   flex-direction: column;
   word-break: break-word;
+  background: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    border-left: 8px solid #6a1b9a;
+;
+    cursor: pointer;
+  }
 
   @media (max-width: 768px) {
     padding: 1rem;
@@ -234,10 +248,15 @@ const RecommendationItem = styled.div`
 
   a {
     color: #9b59b6;
-    word-break: break-word; /* Ensures URLs wrap instead of overflowing */
+    word-break: break-word;
     overflow-wrap: break-word;
     display: inline-block;
     max-width: 100%;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #8e44ad; /* Slightly darkens link on hover */
+    }
   }
 `;
 

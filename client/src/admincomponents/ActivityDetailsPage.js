@@ -232,7 +232,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
           <div style={{ overflowY: 'auto' }}>
             {pinnedActivities.length > 0 ? (
               pinnedActivities.map((pinned) => (
-                <PinnedActivityCard isOwner={isOwner} setPinnedActivities={setPinnedActivities} pinned={pinned} />
+                <PinnedActivityCard key={pinned.id} isOwner={isOwner} setPinnedActivities={setPinnedActivities} pinned={pinned} />
               ))
             ) : (
               <p style={{ color: "#666", fontStyle: "italic" }}>

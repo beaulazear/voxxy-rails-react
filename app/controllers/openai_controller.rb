@@ -59,7 +59,7 @@ class OpenaiController < ApplicationController
       if recommendations.present?
         render json: { recommendations: recommendations }
       else
-        render json: { error: "No cached recommendations found" }, status: :not_found
+        render json: { recommendations: [] }, status: :ok
       end
     end
 
