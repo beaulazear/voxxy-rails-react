@@ -3,22 +3,17 @@ import { UserContext } from '../context/user';
 import {
   PageContainer,
   Header,
-  ChatButton,
-  StyledButton,
-  DimmedOverlay,
   FlexContainer,
   SmallSection,
   InviteButton,
   ParticipantsSection,
 } from "../styles/ActivityDetailsStyles";
-import CuisineChat from './CuisineChat';
 import AIRecommendations from "./AIRecommendations";
 import UpdateActivityModal from './UpdateActivityModal';
 import PinnedActivityCard from './PinnedActivityCard';
 
 function ActivityDetailsPage({ activityId, onBack }) {
   const { user, setUser } = useContext(UserContext);
-  const [showChat, setShowChat] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -41,7 +36,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
         .catch((error) => console.error("Error fetching pinned activities:", error));
     }
 
-  }, [user, activityId]);
+  }, [user, activityId, refreshTrigger]);
 
   if (!currentActivity) return <p>Loading...</p>;
 
@@ -245,28 +240,9 @@ function ActivityDetailsPage({ activityId, onBack }) {
               </p>
             )}
           </div>
-          <ChatButton>
-            <StyledButton onClick={() => setShowChat(true)}>
-              Chat with Voxxy
-            </StyledButton>
-          </ChatButton>
         </SmallSection>
       </FlexContainer>
-      <AIRecommendations setPinnedActivities={setPinnedActivities} activity={currentActivity} refreshTrigger={refreshTrigger} />
-
-      {showChat && (
-        <>
-          <DimmedOverlay />
-          <CuisineChat
-            activityId={currentActivity.id}
-            onClose={() => setShowChat(false)}
-            onChatComplete={() => {
-              setRefreshTrigger(prev => !prev);
-              console.log('🔄 refreshTrigger updated!', !refreshTrigger);
-            }}
-          />
-        </>
-      )}
+      <AIRecommendations setPinnedActivities={setPinnedActivities} activity={currentActivity} setRefreshTrigger={setRefreshTrigger} />
 
       {showModal && (
         <UpdateActivityModal

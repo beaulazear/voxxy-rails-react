@@ -1,97 +1,20 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import {
+  ChatButton,
+  StyledButton,
+  DimmedOverlay,
+} from "../styles/ActivityDetailsStyles";
 import RestaurantMap from "./RestaurantMap";
 import SmallerLoading from "../components/SmallerLoading";
-
-const RecommendationsContainer = styled.div`
-  background: white;
-  padding: 1.5rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-top: 2rem;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-
-  @media (max-width: 768px) {
-    padding: 1.5rem;
-  }
-`;
-
-const Title = styled.h2`
-  font-size: 1.6rem;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
-  text-align: center;
-`;
-
-const RecommendationList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-`;
-
-const RecommendationItem = styled.div`
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  font-size: 1.1rem;
-  font-weight: 500;
-  line-height: 1.5;
-  color: #333;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  word-break: break-word;
+import CuisineChat from './CuisineChat';
 
 
-  @media (max-width: 768px) {
-    padding: 1rem;
-  }
-
-  a {
-    color: #9b59b6;
-    word-break: break-word; /* Ensures URLs wrap instead of overflowing */
-    overflow-wrap: break-word;
-    display: inline-block;
-    max-width: 100%;
-  }
-`;
-
-const RestaurantName = styled.h3`
-  font-size: 1.3rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-`;
-
-const Button = styled.button`
-  display: block;
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  font-weight: bold;
-  color: white;
-  background: #9b59b6;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 1.5rem;
-  transition: background 0.2s ease;
-
-  &:hover {
-    background: #8e44ad;
-  }
-
-  &:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-  }
-`;
-
-const AIRecommendations = ({ activity, setPinnedActivities }) => {
+const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger }) => {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
     const fetchCachedRecommendations = async () => {
@@ -202,6 +125,12 @@ const AIRecommendations = ({ activity, setPinnedActivities }) => {
     <RecommendationsContainer>
       <Title>AI-Powered Restaurant Recommendations</Title>
 
+      <ChatButton>
+        <StyledButton onClick={() => setShowChat(true)}>
+          Chat with Voxxy
+        </StyledButton>
+      </ChatButton>
+
       {error && <p style={{ textAlign: "center", color: "#666", fontStyle: "italic" }}>{error}</p>}
 
       {recommendations.length > 0 ? (
@@ -238,8 +167,106 @@ const AIRecommendations = ({ activity, setPinnedActivities }) => {
           {loading ? "Generating..." : "Generate Recommendations"}
         </Button>
       )}
+
+      {showChat && (
+        <>
+          <DimmedOverlay />
+          <CuisineChat
+            activityId={activity.id}
+            onClose={() => setShowChat(false)}
+            onChatComplete={() => {
+              setRefreshTrigger(prev => !prev);
+            }}
+          />
+        </>
+      )}
     </RecommendationsContainer>
   );
 };
 
 export default AIRecommendations;
+
+const RecommendationsContainer = styled.div`
+  background: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+`;
+
+const Title = styled.h2`
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  text-align: center;
+`;
+
+const RecommendationList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
+
+const RecommendationItem = styled.div`
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-size: 1.1rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #333;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  word-break: break-word;
+
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+
+  a {
+    color: #9b59b6;
+    word-break: break-word; /* Ensures URLs wrap instead of overflowing */
+    overflow-wrap: break-word;
+    display: inline-block;
+    max-width: 100%;
+  }
+`;
+
+const RestaurantName = styled.h3`
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+`;
+
+const Button = styled.button`
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background: #9b59b6;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #8e44ad;
+  }
+
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+`;
