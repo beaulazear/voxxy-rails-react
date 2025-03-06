@@ -57,6 +57,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/verification" element={<Verification />} />
+        <Route path="/loading" element={<LoadingScreen />} />
 
         {isLoggedIn && !isConfirmed && (
           <Route path="/confirm-email" element={<ConfirmEmail />} />

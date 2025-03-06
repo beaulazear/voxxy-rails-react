@@ -1,6 +1,6 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
-import V from "../assets/V.webp";
+import Voxxy from "../assets/Voxxy.png";
 
 const fadeIn = keyframes`
   from { opacity: 0; }
@@ -48,7 +48,7 @@ const LoadingTitle = styled.h2`
 
 const SmallerLoading = ({title}) => (
     <LoadingContainer>
-        <Logo src={V} alt="Voxxy Logo" />
+        <Logo src={Voxxy} alt="Voxxy Logo" />
         <LoadingTitle>{title} Loading...</LoadingTitle>
     </LoadingContainer>
 );

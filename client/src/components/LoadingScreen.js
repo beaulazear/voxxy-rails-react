@@ -1,6 +1,6 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
-import V from '../assets/V.webp';
+import Voxxy from '../assets/Voxxy.png';
 
 const fadeIn = keyframes`
   from { opacity: 0; }
@@ -57,7 +57,7 @@ const LoadingSubtitle = styled.p`
 
 const LoadingScreen = () => (
   <LoadingSection>
-    <Logo src={V} alt="Voxxy Logo" />
+    <Logo src={Voxxy} alt="Voxxy Logo" />
     <LoadingTitle>Your Voxxy Experience is Loading</LoadingTitle>
     <LoadingSubtitle>Please wait a moment...</LoadingSubtitle>
   </LoadingSection>
