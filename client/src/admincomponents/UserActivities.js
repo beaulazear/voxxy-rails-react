@@ -92,7 +92,7 @@ function UserActivities() {
   };
 
   const allActivities = [
-    ...(user?.activities || []), 
+    ...(user?.activities || []),
     ...(user?.participant_activities?.filter(activity => activity.accepted).map(p => p.activity) || [])
   ];
 
@@ -119,14 +119,13 @@ function UserActivities() {
       <PendingInvites />
       <SectionTitle>Your Boards</SectionTitle>
       <CardGrid>
-        {uniqueActivities.length > 0 ? (
+        {uniqueActivities.length > 0 && (
           uniqueActivities.map(renderActivityCard)
-        ) : (
-          <ActivityCard onClick={() => navigate('/activities')}>
-            <div className="emoji">➕</div>
-            <h3>Start a New Board</h3>
-          </ActivityCard>
         )}
+        <ActivityCard onClick={() => navigate('/activities')}>
+          <div className="emoji">➕</div>
+          <h3>Start a New Board</h3>
+        </ActivityCard>
       </CardGrid>
     </DashboardContainer>
   );
