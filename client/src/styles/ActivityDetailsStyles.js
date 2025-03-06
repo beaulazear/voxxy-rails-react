@@ -153,8 +153,7 @@ export const SmallSection = styled.div`
   border-radius: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   min-height: 100%;
-  max-height: 600px; /* ✅ Set a max height */
-  overflow-y: auto; /* ✅ Enable scrolling when content overflows */
+  max-height: 1000px; /* ✅ Set a max height */
   justify-content: space-between;
   text-align: left;
   max-width: 800px;

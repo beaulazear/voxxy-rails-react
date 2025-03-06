@@ -234,15 +234,17 @@ function ActivityDetailsPage({ activityId, onBack }) {
         </SmallSection>
         <SmallSection>
           <h2>Pinned Restaurants</h2>
-          {pinnedActivities.length > 0 ? (
-            pinnedActivities.map((pinned) => (
-              <PinnedActivityCard pinned={pinned} />
-            ))
-          ) : (
-            <p style={{ color: "#666", fontStyle: "italic" }}>
-              No pinned restaurants yet! Click on a recommendation to pin it.
-            </p>
-          )}
+          <div style={{ overflowY: 'auto' }}>
+            {pinnedActivities.length > 0 ? (
+              pinnedActivities.map((pinned) => (
+                <PinnedActivityCard isOwner={isOwner} setPinnedActivities={setPinnedActivities} pinned={pinned} />
+              ))
+            ) : (
+              <p style={{ color: "#666", fontStyle: "italic" }}>
+                No pinned restaurants yet! Click on a recommendation to pin it.
+              </p>
+            )}
+          </div>
           <ChatButton>
             <StyledButton onClick={() => setShowChat(true)}>
               Chat with Voxxy

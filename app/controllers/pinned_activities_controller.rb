@@ -19,7 +19,7 @@ class PinnedActivitiesController < ApplicationController
           pinned_activities = activity.pinned_activities.includes(:comments)
 
           render json: pinned_activities.as_json(
-            only: [ :id, :title, :hours, :price_range, :address, :votes, :description ],
+            only: [ :id, :title, :hours, :price_range, :address, :votes, :description, :activity_id ],
             include: {
               comments: {
                 only: [ :id, :content, :created_at ],
@@ -33,6 +33,23 @@ class PinnedActivitiesController < ApplicationController
           render json: { error: "Activity not found" }, status: :not_found
         end
       end
+
+        def destroy
+          activity = current_user.activities.find_by(id: params[:activity_id])
+
+          if activity
+            pinned_activity = activity.pinned_activities.find_by(id: params[:id])
+
+            if pinned_activity
+              pinned_activity.destroy
+              render json: { message: "Pinned activity deleted successfully" }, status: :ok
+            else
+              render json: { error: "Pinned activity not found" }, status: :not_found
+            end
+          else
+            render json: { error: "Activity not found or unauthorized" }, status: :forbidden
+          end
+        end
 
     private
 

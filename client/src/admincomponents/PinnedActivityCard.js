@@ -1,23 +1,59 @@
 import React from "react";
 import styled from "styled-components";
 
-const PinnedActivityCard = ({ pinned }) => {
-    return (
-        <Card>
-            <Title>{pinned.title}</Title>
-            <Description>{pinned.description}</Description>
-            <Details>
-                <DetailItem>⏰ {pinned.hours || "N/A"}</DetailItem>
-                <DetailItem>💸 {pinned.price_range || "N/A"}</DetailItem>
-                <DetailItem>📍 {pinned.address || "N/A"}</DetailItem>
-            </Details>
-        </Card>
+const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
+
+  console.log(pinned)
+
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
+  function handleDelete() {
+
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this pinned activity? This cannot be undone."
     );
+
+    if (!confirmDelete) return;
+
+    fetch(`${API_URL}/activities/${pinned.activity_id}/pinned_activities/${pinned.id}`, {
+      method: "DELETE",
+      credentials: "include",
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to delete pinned activity");
+        }
+        return res.json();
+      })
+      .then(() => {
+        setPinnedActivities((prevPinned) =>
+          prevPinned.filter((p) => p.id !== pinned.id)
+        );
+
+        console.log("Pinned activity deleted successfully");
+      })
+      .catch((error) => {
+        console.error("Error deleting pinned activity:", error);
+        alert("Failed to delete pinned activity.");
+      });
+  }
+
+  return (
+    <Card>
+      <Title>{pinned.title}</Title>
+      <Description>{pinned.description}</Description>
+      <Details>
+        <DetailItem>⏰ {pinned.hours || "N/A"}</DetailItem>
+        <DetailItem>💸 {pinned.price_range || "N/A"}</DetailItem>
+        <DetailItem>📍 {pinned.address || "N/A"}</DetailItem>
+        {isOwner && (<button onClick={handleDelete}>Delete</button>)}
+      </Details>
+    </Card>
+  );
 };
 
 export default PinnedActivityCard;
 
-// Styled Components
 const Card = styled.div`
   background: #fff;
   border-radius: 12px;
@@ -28,8 +64,8 @@ const Card = styled.div`
   flex-direction: column;
   gap: 12px;
   position: relative;
-  border-left: 8px solid #ff6b6b;
-  margin-bottom: 16px; /* More space between elements */
+  border-left: 8px solid #6a1b9a;
+  margin: 16px; /* More space between elements */
 
   &:hover {
     transform: scale(1.02);

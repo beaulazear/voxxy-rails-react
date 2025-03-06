@@ -2,7 +2,7 @@ Rails.application.routes.draw do
   resources :responses, only: [ :index, :create, :destroy ]
   resources :users, only: [ :index, :create, :destroy ]
   resources :activities, only: [ :create, :destroy, :update, :index, :show ] do
-    resources :pinned_activities, only: [ :index, :create ]
+    resources :pinned_activities, only: [ :index, :create, :update, :destroy ]
   end
   resource :password_reset, only: [ :create, :update ]
   resources :activity_participants, only: [ :index ] do
