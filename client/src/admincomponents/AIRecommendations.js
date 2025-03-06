@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import RestaurantMap from "./RestaurantMap";
 import SmallerLoading from "../components/SmallerLoading";
@@ -92,6 +92,29 @@ const AIRecommendations = ({ activity }) => {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchCachedRecommendations = async () => {
+      setLoading(true);
+      try {
+        const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+        const response = await fetch(`${API_URL}/check_cached_recommendations?activity_id=${activity.id}`, {
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setRecommendations(data.recommendations);
+        }
+      } catch (error) {
+        console.error("Error fetching cached recommendations:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCachedRecommendations();
+  }, [activity.id]);
 
   const fetchRecommendations = async () => {
     if (!activity.responses || activity.responses.length === 0) {

@@ -18,8 +18,8 @@ Rails.application.routes.draw do
   get "/me", to: "users#show"
 
   post "/api/openai/haiku", to: "openai#generate_haiku"
-
   post "/api/openai/restaurant_recommendations", to: "openai#restaurant_recommendations"
+  get "/check_cached_recommendations", to: "openai#check_cached_recommendations"
 
   get "/test", to: "application#test"
 
