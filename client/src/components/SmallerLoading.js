@@ -49,7 +49,7 @@ const LoadingTitle = styled.h2`
 const SmallerLoading = ({title}) => (
     <LoadingContainer>
         <Logo src={Voxxy} alt="Voxxy Logo" />
-        <LoadingTitle>{title} Loading...</LoadingTitle>
+        <LoadingTitle>{title} loading...</LoadingTitle>
     </LoadingContainer>
 );
 

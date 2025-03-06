@@ -5,7 +5,7 @@ import SmallerLoading from "../components/SmallerLoading";
 
 const RecommendationsContainer = styled.div`
   background: white;
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-top: 2rem;
@@ -15,8 +15,6 @@ const RecommendationsContainer = styled.div`
 
   @media (max-width: 768px) {
     padding: 1.5rem;
-    margin-left: 1rem;
-    margin-right: 1rem;
   }
 `;
 
