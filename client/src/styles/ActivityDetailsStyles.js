@@ -101,7 +101,7 @@ export const TabsSection = styled.div`
 export const ChatButton = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: 2rem;
+  margin-top: 1rem;
 `;
 
 export const StyledButton = styled.button`
@@ -153,7 +153,7 @@ export const SmallSection = styled.div`
   border-radius: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   min-height: 100%;
-  max-height: 500px; /* ✅ Set a max height */
+  max-height: 600px; /* ✅ Set a max height */
   overflow-y: auto; /* ✅ Enable scrolling when content overflows */
   justify-content: space-between;
   text-align: left;

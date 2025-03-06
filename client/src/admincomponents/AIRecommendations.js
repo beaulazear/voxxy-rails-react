@@ -88,7 +88,7 @@ const Button = styled.button`
   }
 `;
 
-const AIRecommendations = ({ activity }) => {
+const AIRecommendations = ({ activity, setPinnedActivities }) => {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -157,6 +157,47 @@ const AIRecommendations = ({ activity }) => {
     }
   };
 
+  const handlePinActivity = (rec) => {
+    if (window.confirm(`Do you want to pin "${rec.name}" to this activity?`)) {
+      createPinnedActivity(rec);
+    }
+  };
+
+  const createPinnedActivity = async (rec) => {
+    try {
+      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+      const response = await fetch(`${API_URL}/activities/${activity.id}/pinned_activities`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          pinned_activity: {
+            title: rec.name,
+            description: rec.description || "",
+            hours: rec.hours || "",
+            price_range: rec.price_range || "",
+            address: rec.address || "",
+            votes: 0,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to pin activity");
+      }
+
+      const newPinnedActivity = await response.json();
+      alert(`"${newPinnedActivity.title}" has been pinned!`);
+      setPinnedActivities((prevPinned) => [...prevPinned, newPinnedActivity]);
+
+    } catch (error) {
+      console.error("Error pinning activity:", error);
+      alert("Something went wrong while pinning the activity.");
+    }
+  };
+
   return (
     <RecommendationsContainer>
       <Title>AI-Powered Restaurant Recommendations</Title>
@@ -167,7 +208,7 @@ const AIRecommendations = ({ activity }) => {
         <>
           <RecommendationList>
             {recommendations.map((rec, index) => (
-              <RecommendationItem key={index}>
+              <RecommendationItem onClick={() => handlePinActivity(rec)} key={index}>
                 <RestaurantName>{rec.name}</RestaurantName>
                 {rec.description && <p>{rec.description}</p>}
                 {rec.hours && <p><strong>⏰ Hours:</strong> {rec.hours}</p>}

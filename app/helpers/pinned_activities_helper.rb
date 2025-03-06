@@ -1,0 +1,2 @@
+module PinnedActivitiesHelper
+end

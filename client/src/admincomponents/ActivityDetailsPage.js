@@ -14,6 +14,7 @@ import {
 import CuisineChat from './CuisineChat';
 import AIRecommendations from "./AIRecommendations";
 import UpdateActivityModal from './UpdateActivityModal';
+import PinnedActivityCard from './PinnedActivityCard';
 
 function ActivityDetailsPage({ activityId, onBack }) {
   const { user, setUser } = useContext(UserContext);
@@ -22,6 +23,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
   const [inviteEmail, setInviteEmail] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [currentActivity, setCurrentActivity] = useState(null);
+  const [pinnedActivities, setPinnedActivities] = useState([]);
 
   useEffect(() => {
     const latestActivity =
@@ -30,7 +32,15 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
     if (latestActivity) {
       setCurrentActivity({ ...latestActivity });
+
+      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
+      fetch(`${API_URL}/activities/${activityId}/pinned_activities`, { credentials: "include" })
+        .then((res) => res.json())
+        .then((data) => setPinnedActivities(data))
+        .catch((error) => console.error("Error fetching pinned activities:", error));
     }
+
   }, [user, activityId]);
 
   if (!currentActivity) return <p>Loading...</p>;
@@ -224,7 +234,15 @@ function ActivityDetailsPage({ activityId, onBack }) {
         </SmallSection>
         <SmallSection>
           <h2>Pinned Restaurants</h2>
-          <p style={{ color: "#666", fontStyle: "italic" }}>🚧 Coming Soon! 🚧 No pinned restaurants yet! This feature is currently under construction, but stay tuned! In the meantime, share your thoughts using the Chat with Voxxy button below to help shape the restaurant recommendations for you and your group. Soon, you’ll be able to pin, vote, and comment on recommendations here!</p>
+          {pinnedActivities.length > 0 ? (
+            pinnedActivities.map((pinned) => (
+              <PinnedActivityCard pinned={pinned} />
+            ))
+          ) : (
+            <p style={{ color: "#666", fontStyle: "italic" }}>
+              No pinned restaurants yet! Click on a recommendation to pin it.
+            </p>
+          )}
           <ChatButton>
             <StyledButton onClick={() => setShowChat(true)}>
               Chat with Voxxy
@@ -232,7 +250,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
           </ChatButton>
         </SmallSection>
       </FlexContainer>
-      <AIRecommendations activity={currentActivity} refreshTrigger={refreshTrigger} />
+      <AIRecommendations setPinnedActivities={setPinnedActivities} activity={currentActivity} refreshTrigger={refreshTrigger} />
 
       {showChat && (
         <>

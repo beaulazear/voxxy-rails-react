@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_02_152635) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_06_134429) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -37,6 +37,29 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_02_152635) do
     t.datetime "updated_at", null: false
     t.index ["activity_id"], name: "index_activity_participants_on_activity_id"
     t.index ["user_id"], name: "index_activity_participants_on_user_id"
+  end
+
+  create_table "comments", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "pinned_activity_id", null: false
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["pinned_activity_id"], name: "index_comments_on_pinned_activity_id"
+    t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "pinned_activities", force: :cascade do |t|
+    t.bigint "activity_id", null: false
+    t.string "title"
+    t.string "hours"
+    t.string "price_range"
+    t.string "address"
+    t.integer "votes"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["activity_id"], name: "index_pinned_activities_on_activity_id"
   end
 
   create_table "responses", force: :cascade do |t|
@@ -71,5 +94,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_02_152635) do
   add_foreign_key "activities", "users"
   add_foreign_key "activity_participants", "activities"
   add_foreign_key "activity_participants", "users"
+  add_foreign_key "comments", "pinned_activities"
+  add_foreign_key "comments", "users"
+  add_foreign_key "pinned_activities", "activities"
   add_foreign_key "responses", "activities"
 end

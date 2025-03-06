@@ -1,10 +1,15 @@
 Rails.application.routes.draw do
   resources :responses, only: [ :index, :create, :destroy ]
   resources :users, only: [ :index, :create, :destroy ]
-  resources :activities, only: [ :create, :destroy, :update, :index, :show ]
+  resources :activities, only: [ :create, :destroy, :update, :index, :show ] do
+    resources :pinned_activities, only: [ :index, :create ]
+  end
   resource :password_reset, only: [ :create, :update ]
   resources :activity_participants, only: [ :index ] do
     post :invite, on: :collection
+  end
+  resources :pinned_activities, only: [] do
+    resources :comments, only: [ :index, :create ]
   end
 
   get "/verify", to: "users#verify"
