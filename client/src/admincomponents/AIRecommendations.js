@@ -42,9 +42,19 @@ const RecommendationItem = styled.div`
   text-align: left;
   display: flex;
   flex-direction: column;
+  word-break: break-word;
+
 
   @media (max-width: 768px) {
     padding: 1rem;
+  }
+
+  a {
+    color: #9b59b6;
+    word-break: break-word; /* Ensures URLs wrap instead of overflowing */
+    overflow-wrap: break-word;
+    display: inline-block;
+    max-width: 100%;
   }
 `;
 
@@ -136,6 +146,9 @@ const AIRecommendations = ({ activity }) => {
             {recommendations.map((rec, index) => (
               <RecommendationItem key={index}>
                 <RestaurantName>{rec.name}</RestaurantName>
+                {rec.description && <p>{rec.description}</p>}
+                {rec.hours && <p><strong>⏰ Hours:</strong> {rec.hours}</p>}
+                {rec.price_range && <p><strong>💸 Price Range:</strong> {rec.price_range}</p>}
                 {rec.address && <p><strong>📍 Address:</strong> {rec.address}</p>}
                 {rec.website && (
                   <p>
