@@ -171,13 +171,13 @@ function ActivityDetailsPage({ activityId, onBack }) {
   return (
     <PageContainer>
       <Header>
-        <h1>{currentActivity.activity_name || 'Activity Details'}</h1>
+        <h1>Let's Eat!</h1>
         <button className="back-button" onClick={onBack}>Back</button>
       </Header>
 
       <FlexContainer>
         <SmallSection>
-          <h2>Trip Details</h2>
+          <h2>Activity Details</h2>
           <div className="content-wrapper">
             <div className="detail-item">
               🚀 <strong>Name:</strong> {currentActivity.activity_name || 'Not specified'}

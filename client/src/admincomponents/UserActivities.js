@@ -115,25 +115,33 @@ const SectionTitle = styled.p`
 `;
 
 const CardGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  display: flex;
   gap: 1rem;
   margin-top: 1rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 0 1rem 10px; /* Add side padding for smooth scrolling */
+  scroll-snap-type: x mandatory; 
+  margin-left: -2rem;
+  margin-right: -2rem;
 
-  @media (max-width: 600px) {
-    grid-template-columns: repeat(2, minmax(140px, 1fr));
-    gap: 0.75rem;
+  /* Hide scrollbar for Webkit browsers (Chrome, Safari) */
+  &::-webkit-scrollbar {
+    display: none;
   }
 
-  @media (max-width: 400px) {
-    grid-template-columns: 1fr;
-  }
+  /* Hide scrollbar for Firefox */
+  scrollbar-width: none;
+
+  /* Hide scrollbar for Edge and IE */
+  -ms-overflow-style: none;
 `;
+
 
 const ActivityCard = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   border-radius: 12px;
   text-align: center;
@@ -143,24 +151,18 @@ const ActivityCard = styled.div`
   cursor: pointer;
   position: relative;
   height: 160px;
+  width: 200px;
+  flex-shrink: 0;
   overflow: hidden;
-  color: #fff;
+  color: white;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ctext x='10' y='30' font-size='30' fill='rgba(255,255,255,0.7)'%3E🍜%3C/text%3E%3Ctext x='50' y='70' font-size='30' fill='rgba(255,255,255,0.7)'%3E🍜%3C/text%3E%3C/svg%3E");
+  background-size: 50px 50px;
+  background-repeat: repeat;
+  scroll-snap-align: center;
 
   &:hover {
-    transform: translateY(-5px);
+    transform: translateY(4px);
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
-  }
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #fff;
-    border-radius: 12px;
-    z-index: 1;
   }
 
   .content {
@@ -171,20 +173,45 @@ const ActivityCard = styled.div`
     justify-content: center;
     align-items: center;
     height: 100%;
+    width: 100%;
     padding: 1rem;
     text-align: center;
+    gap: 0.5rem;
   }
 
   .emoji {
     font-size: 3.5rem;
-    margin-bottom: 0.5rem;
+    filter: drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.8));
   }
 
   h3 {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 600;
-    color: black;
     margin: 0;
+    padding: 5px 10px;
+    border-radius: 8px;
+    color: black;
+    background: white;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    text-align: center;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    filter: drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.6));
+  }
+`;
+
+const StartBoardCard = styled(ActivityCard)`
+  background: rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: translateY(4px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+    background: rgba(0, 0, 0, 0.2);
   }
 `;
 
@@ -244,12 +271,12 @@ function UserActivities() {
         ) : (
           <p>No boards yet! Start a new one now.</p>
         )}
-        <ActivityCard onClick={() => setShowActivities(true)}>
+        <StartBoardCard onClick={() => setShowActivities(true)}>
           <div className="content">
             <div className="emoji">➕</div>
             <h3>Start a New Board</h3>
           </div>
-        </ActivityCard>
+        </StartBoardCard>
       </CardGrid>
     </DashboardContainer>
   );
