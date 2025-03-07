@@ -3,18 +3,18 @@ import styled from "styled-components";
 import { UserContext } from "../context/user";
 
 const InviteContainer = styled.div`
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  max-width: 1200px;
+  margin: 0;
 `;
 
-const SectionTitle = styled.h2`
-  font-size: 1.6rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
+const SectionTitle = styled.p`
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  margin: 0;
   text-align: left;
+  font-weight: 600;
+  color: #333;
 `;
 
 const InviteGrid = styled.div`
@@ -34,36 +34,39 @@ const InviteGrid = styled.div`
 `;
 
 const InviteCard = styled.div`
-  background: #f9f9f9;
+  background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  padding: 1.2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   cursor: pointer;
+  position: relative;
 
   &:hover {
-    transform: translateY(-3px);
+    transform: translateY(-5px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
   }
 
   .emoji {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
+    font-size: 3rem;
+    margin-bottom: 0.75rem;
   }
 
   h3 {
-    font-size: 1.2rem;
-    font-weight: bold;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
     margin-bottom: 0.3rem;
   }
 
   p {
-    font-size: 0.9rem;
-    color: #666;
-    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 0.4rem;
   }
 `;
 
@@ -71,22 +74,24 @@ const ButtonContainer = styled.div`
   display: flex;
   justify-content: center;
   gap: 0.75rem;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
 `;
 
 const Button = styled.button`
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  transition: background 0.2s ease;
-  background: ${(props) => (props.$decline ? "#e74c3c" : "#2ecc71")};
+  transition: all 0.2s ease-in-out;
+  background: ${(props) => (props.$decline ? "#ff4d4d" : "#6a1b9a")};
   color: white;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 
   &:hover {
-    background: ${(props) => (props.$decline ? "#c0392b" : "#27ae60")};
+    background: ${(props) => (props.$decline ? "#d93636" : "#8e44ad")};
+    transform: scale(1.05);
   }
 `;
 
