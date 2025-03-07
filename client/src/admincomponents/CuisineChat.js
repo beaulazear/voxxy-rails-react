@@ -168,11 +168,11 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
         }
     }, [messages]);
 
-    useEffect(() => {
+    function handleInputFocus() {
         if (inputRef.current) {
             inputRef.current.focus();
         }
-    }, [step]);
+    }
 
     const handleNext = () => {
         if (currentInput.trim()) {
@@ -280,7 +280,7 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
                     ))}
                     {step < questions.length && <Message $isUser={false}>{questions[step]}</Message>}
                 </ChatBody>
-                <ChatFooter>
+                <ChatFooter onClick={handleInputFocus}>
                     <Input
                         ref={inputRef}
                         value={currentInput}
