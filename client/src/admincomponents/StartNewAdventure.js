@@ -1,15 +1,30 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useState } from 'react';
+import styled, { keyframes } from 'styled-components';
+
+// 🔹 Keyframes for Falling Animation
+const rainAnimation = keyframes`
+  0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(360deg) scale(0.8); opacity: 0; }
+`;
+
+const EmojiRain = styled.div`
+  position: fixed;
+  top: -5%;
+  left: ${({ $left }) => $left}%;
+  font-size: ${({ $size }) => $size}rem;
+  animation: ${rainAnimation} ${({ $duration }) => $duration}s linear forwards;
+  z-index: 999;
+  pointer-events: none;
+  transform: rotate(${({ $rotation }) => $rotation}deg);
+`;
 
 const SectionTitle = styled.p`
   font-size: clamp(1.5rem, 2.5vw, 2rem);
   margin: 0;
-  color: #f0f0f0;
-  font-weight: bold;
+  color: #fff;
 `;
 
 const BackButton = styled.button`
-  color: #6a1b9a;
   font-weight: 600;
   padding: 12px 18px;
   border: none;
@@ -98,6 +113,8 @@ const ActivityName = styled.h3.withConfig({
 `;
 
 function StartNewAdventure({ onTripSelect, onClose }) {
+  const [emojiRain, setEmojiRain] = useState([]);
+
   const adventures = [
     { name: 'Lets Eat', emoji: '🍜', active: true },
     { name: 'Movie Night', emoji: '🎥', active: false },
@@ -111,8 +128,44 @@ function StartNewAdventure({ onTripSelect, onClose }) {
     { name: 'Trip to Iceland', emoji: '🇮🇸', active: false },
   ];
 
+  const handleSelection = (name) => {
+    if (name === "Lets Eat") {
+      triggerEmojiRain();
+    }
+    onTripSelect(name);
+  };
+
+  const triggerEmojiRain = () => {
+    const emojis = Array.from({ length: 40 }).map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,  // Spread across the whole screen
+      size: Math.random() * 1.5 + 1, // Vary emoji size
+      duration: Math.random() * 1 + 1.5, // Different speeds
+      rotation: Math.random() * 360, // Random rotation
+    }));
+
+    setEmojiRain(emojis);
+
+    setTimeout(() => {
+      setEmojiRain([]);
+    }, 2000);
+  };
+
   return (
     <>
+      {/* 🔹 Falling Emoji Effect */}
+      {emojiRain.map((emoji) => (
+        <EmojiRain
+          key={emoji.id}
+          $left={emoji.left}
+          $size={emoji.size}
+          $duration={emoji.duration}
+          $rotation={emoji.rotation}
+        >
+          🍜
+        </EmojiRain>
+      ))}
+
       <BackButton onClick={() => onClose()}>⬅ Back</BackButton>
       <SectionTitle>Choose An Activity</SectionTitle>
       <CardGrid>
@@ -120,7 +173,7 @@ function StartNewAdventure({ onTripSelect, onClose }) {
           <ActivityCard
             key={name}
             active={active}
-            onClick={active ? () => onTripSelect(name) : undefined}
+            onClick={active ? () => handleSelection(name) : undefined}
           >
             <div className="emoji">{emoji}</div>
             <ActivityName active={active}>{name}</ActivityName>

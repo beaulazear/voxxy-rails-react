@@ -1,8 +1,19 @@
 import React, { useState, useContext } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { UserContext } from '../context/user';
 import StartNewAdventure from './StartNewAdventure';
 import RestaurantChat from './RestaurantChat';
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -12,6 +23,7 @@ const DashboardContainer = styled.div`
   margin: 0 auto;
   gap: 1.5rem;
   position: relative;
+  animation: ${fadeIn} 0.8s ease-in-out; /* Apply animation */
 `;
 
 const LoadingScreen = styled.div`
@@ -73,7 +85,7 @@ function TripDashboard({setShowActivities}) {
   }
 
   return (
-    <div style={{background: 'linear-gradient(135deg, #7c2db3, #9250c7, #a974dc)',  minHeight: '100vh', height: 'auto', width: '100%',   }}>
+    <div style={{background: 'linear-gradient(135deg, #6a1b9a, #8e44ad)',  minHeight: '100vh', height: 'auto', width: '100%', animation: 'fadeIn 0.8s ease-in-out' }}>
       <DashboardContainer>
         <StartNewAdventure onClose={handleClose} setShowActivities={setShowActivities} onTripSelect={handleTripSelect} />
       </DashboardContainer>

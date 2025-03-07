@@ -21,7 +21,6 @@ const DashboardContainer = styled.div`
   animation: ${fadeIn} 0.8s ease-in-out;
 `;
 
-// 🔹 Responsive Hero Section
 const HeroSection = styled.div`
   display: flex;
   justify-content: space-between;
@@ -84,7 +83,6 @@ const UserInfo = styled.div`
   }
 `;
 
-// 🔹 Responsive "New Board" Button
 const AddTripButton = styled.button`
   background: #fff;
   color: #6a1b9a;
@@ -135,29 +133,58 @@ const CardGrid = styled.div`
 const ActivityCard = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   align-items: center;
-  background: #fff;
   border-radius: 12px;
   text-align: center;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   padding: 1rem;
   cursor: pointer;
+  position: relative;
+  height: 160px;
+  overflow: hidden;
+  color: #fff;
 
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
   }
 
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    border-radius: 12px;
+    z-index: 1;
+  }
+
+  .content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    padding: 1rem;
+    text-align: center;
+  }
+
   .emoji {
-    font-size: 3rem;
+    font-size: 3.5rem;
     margin-bottom: 0.5rem;
   }
 
   h3 {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 600;
-    color: #333;
+    color: black;
+    margin: 0;
   }
 `;
 
@@ -207,17 +234,21 @@ function UserActivities() {
       <CardGrid>
         {uniqueActivities.length > 0 ? (
           uniqueActivities.map((activity) => (
-            <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)}>
-              <div className="emoji">{activity.emoji || '🌀'}</div>
-              <h3>{activity.activity_name}</h3>
+            <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)} $emoji={activity.emoji}>
+              <div className="content">
+                <div className="emoji">{activity.emoji || '🌀'}</div>
+                <h3>{activity.activity_name}</h3>
+              </div>
             </ActivityCard>
           ))
         ) : (
           <p>No boards yet! Start a new one now.</p>
         )}
         <ActivityCard onClick={() => setShowActivities(true)}>
-          <div className="emoji">➕</div>
-          <h3>Start a New Board</h3>
+          <div className="content">
+            <div className="emoji">➕</div>
+            <h3>Start a New Board</h3>
+          </div>
         </ActivityCard>
       </CardGrid>
     </DashboardContainer>
