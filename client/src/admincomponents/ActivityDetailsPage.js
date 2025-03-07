@@ -205,8 +205,12 @@ function ActivityDetailsPage({ activityId, onBack }) {
             <h3>Participants - {currentActivity.group_size}</h3>
             <div className="participants-scroll">
               {allParticipants.filter(p => p.confirmed).map((participant, index) => {
-                const initials = participant.name
-                  ? participant.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+                // Remove text inside parentheses
+                const cleanedName = participant.name ? participant.name.replace(/\s*\(.*?\)\s*/g, '') : '';
+
+                // Extract initials from cleaned name
+                const initials = cleanedName
+                  ? cleanedName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
                   : "?";
 
                 return (

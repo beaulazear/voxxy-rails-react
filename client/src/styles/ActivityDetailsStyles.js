@@ -37,7 +37,7 @@ export const Header = styled.div`
 
   .back-button {
     padding: 0.5rem 1rem;
-    background: #e942f5;
+    background: linear-gradient(135deg, #6a1b9a, #8e44ad);
     color: #fff;
     border: none;
     border-radius: 4px;
@@ -46,7 +46,7 @@ export const Header = styled.div`
     font-weight: bold;
 
     &:hover {
-      background: #d932e0;
+      background: linear-gradient(135deg, #4e0f63, #6a1b8a);
     }
   }
 
@@ -432,22 +432,20 @@ export const ParticipantsSection = styled.div`
 `;
 
 export const InviteButton = styled.button`
-  padding: 0.5rem 1rem;
-  background: #9b59b6;
-  color: #fff;
-  border-radius: 8px;
-  font-size: 1rem;
-  border: none;
-  cursor: pointer;
-  white-space: nowrap;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #6a1b9a, #8e44ad);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
 
-  margin-left: 10px;
+    @media (max-width: 768px) {
+      margin-top: 0.5rem;
+    }
 
-  @media (max-width: 768px) {
-    margin-top: 0.5rem;
-  }
-
-  &:hover {
-    background: #8e44ad;
-  }
+    &:hover {
+      background: linear-gradient(135deg, #4e0f63, #6a1b8a);
+    }
 `;
