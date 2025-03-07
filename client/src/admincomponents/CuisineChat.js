@@ -206,7 +206,6 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
 
             if (response.ok) {
                 const newResponse = await response.json();
-                console.log('✅ Response saved successfully!', newResponse);
 
                 setUser((prevUser) => {
                     const updatedActivities = prevUser.activities.map((activity) => {

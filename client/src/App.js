@@ -12,7 +12,6 @@ import ConfirmEmail from './components/ConfirmEmail.js';
 import ForgotPassword from './components/ForgotPassword.js';
 import ResetPassword from './components/ResetPassword.js';
 import LandingPage from './components/LandingPage.js';
-import TripDashboard from './admincomponents/TripDashboard.js';
 import UserActivities from './admincomponents/UserActivities.js';
 
 function App() {
@@ -50,7 +49,7 @@ function App() {
     <div className="App">
       <Navbar />
       <Routes>
-        <Route path="/" element={isLoggedIn ? <TripDashboard /> : <LandingPage />} />
+        <Route path="/" element={isLoggedIn ? <UserActivities /> : <LandingPage />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/invite_signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
@@ -61,10 +60,6 @@ function App() {
 
         {isLoggedIn && !isConfirmed && (
           <Route path="/confirm-email" element={<ConfirmEmail />} />
-        )}
-
-        {isLoggedIn && isConfirmed && (
-          <Route path="/boards" element={<UserActivities />} />
         )}
 
         <Route path="*" element={<Navigate to="/" replace />} />

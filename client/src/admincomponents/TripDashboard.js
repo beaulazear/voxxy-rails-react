@@ -47,7 +47,7 @@ const DimmedOverlay = styled.div`
   z-index: 998;
 `;
 
-function TripDashboard() {
+function TripDashboard({setShowActivities}) {
   const { user } = useContext(UserContext);
   const [selectedTrip, setSelectedTrip] = useState(null);
 
@@ -67,18 +67,23 @@ function TripDashboard() {
     );
   }
 
+  function handleClose() {
+    setSelectedTrip(null)
+    setShowActivities(false)
+  }
+
   return (
-    <>
+    <div style={{background: 'linear-gradient(135deg, #7c2db3, #9250c7, #a974dc)',  minHeight: '100vh', height: 'auto', width: '100%',   }}>
       <DashboardContainer>
-        <StartNewAdventure onTripSelect={handleTripSelect} />
+        <StartNewAdventure onClose={handleClose} setShowActivities={setShowActivities} onTripSelect={handleTripSelect} />
       </DashboardContainer>
       {selectedTrip === 'Lets Eat' && (
         <>
           <DimmedOverlay />
-          <RestaurantChat onClose={() => setSelectedTrip(null)} />
+          <RestaurantChat onClose={handleClose} />
         </>
       )}
-    </>
+    </div>
   );
 }
 

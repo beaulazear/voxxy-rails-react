@@ -1,7 +1,6 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { UserContext } from '../context/user';
-import { useNavigate } from 'react-router-dom';
 
 const Overlay = styled.div`
   position: fixed;
@@ -155,7 +154,6 @@ function RestaurantChat({ onClose }) {
   });
   const [messages, setMessages] = useState([{ text: "Voxxy here! I’m here to make planning this get-together smooth and stress-free. Let’s lock in the details real quick!", isUser: false }]);
   const [step, setStep] = useState(0);
-  const navigate = useNavigate();
   const { setUser } = useContext(UserContext);
   const inputRef = useRef(null);
 
@@ -217,7 +215,7 @@ function RestaurantChat({ onClose }) {
           activities: [...(prevUser.activities || []), { ...data, user: prevUser }],
         }));
 
-        navigate('/boards');
+        onClose()
       } else {
         throw new Error('Failed to create activity');
       }

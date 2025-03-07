@@ -12,7 +12,6 @@ const NavbarContainer = styled.div`
   padding: 20px 50px;
   background-color: white;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  position: sticky;
   top: 0;
   z-index: 1000;
 
@@ -132,10 +131,7 @@ const Navbar = () => {
         {user && (
           <>
             <StyledButton>
-              <MenuItem to="/boards" end>Boards</MenuItem>
-            </StyledButton>
-            <StyledButton>
-              <MenuItem to="/" end>Activities</MenuItem>
+              <MenuItem to="/" end>Home</MenuItem>
             </StyledButton>
             <StyledButton onClick={handleLogout}>
               <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
@@ -168,12 +164,7 @@ const Navbar = () => {
           <>
             <DrawerMenuItem>
               <StyledButton onClick={closeDrawer}>
-                <NavLink to="/boards" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Boards</NavLink>
-              </StyledButton>
-            </DrawerMenuItem>
-            <DrawerMenuItem>
-              <StyledButton onClick={closeDrawer}>
-                <NavLink to="/" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Activities</NavLink>
+                <NavLink to="/" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Home</NavLink>
               </StyledButton>
             </DrawerMenuItem>
             <DrawerMenuItem>

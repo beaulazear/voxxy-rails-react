@@ -4,7 +4,34 @@ import styled from 'styled-components';
 const SectionTitle = styled.p`
   font-size: clamp(1.5rem, 2.5vw, 2rem);
   margin: 0;
-  text-align: left;
+  color: #f0f0f0;
+  font-weight: bold;
+`;
+
+const BackButton = styled.button`
+  color: #6a1b9a;
+  font-weight: 600;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 10px rgba(106, 27, 154, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+
+  &:hover {
+    background: #f0f0f0;
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(106, 27, 154, 0.3);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
 `;
 
 const CardGrid = styled.div`
@@ -64,13 +91,13 @@ const ActivityName = styled.h3.withConfig({
   shouldForwardProp: (prop) => prop !== 'active',
 })`
   font-size: clamp(1.1rem, 1.4vw, 1.4rem);
-  font-weight: 500; /* Less bold */
+  font-weight: 500;
   color: ${({ active }) => (active ? '#222' : '#777')};
   margin: 0.3rem 0;
   padding: 0;
 `;
 
-function StartNewAdventure({ onTripSelect }) {
+function StartNewAdventure({ onTripSelect, onClose }) {
   const adventures = [
     { name: 'Lets Eat', emoji: '🍜', active: true },
     { name: 'Movie Night', emoji: '🎥', active: false },
@@ -86,6 +113,7 @@ function StartNewAdventure({ onTripSelect }) {
 
   return (
     <>
+      <BackButton onClick={() => onClose()}>⬅ Back</BackButton>
       <SectionTitle>Choose An Activity</SectionTitle>
       <CardGrid>
         {adventures.map(({ name, emoji, active }) => (
