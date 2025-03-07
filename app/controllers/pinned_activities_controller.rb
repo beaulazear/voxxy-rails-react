@@ -2,7 +2,7 @@ class PinnedActivitiesController < ApplicationController
     before_action :authorized
 
     def create
-      activity = current_user.activities.find(params[:activity_id])
+      activity = Activity.find(params[:activity_id])
       pinned_activity = activity.pinned_activities.build(pinned_activity_params)
 
       if pinned_activity.save
@@ -35,7 +35,7 @@ class PinnedActivitiesController < ApplicationController
       end
 
         def destroy
-          activity = current_user.activities.find_by(id: params[:activity_id])
+          activity = Activity.find_by(id: params[:activity_id])
 
           if activity
             pinned_activity = activity.pinned_activities.find_by(id: params[:id])
