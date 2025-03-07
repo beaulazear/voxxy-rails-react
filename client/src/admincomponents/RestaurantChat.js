@@ -173,12 +173,11 @@ function RestaurantChat({ onClose }) {
     }
   }, [messages]);
 
-
-  useEffect(() => {
+  function handleInputFocus() {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, []);
+  }
 
   const handleNext = () => {
     if (formData[questions[step].key]) {
@@ -260,7 +259,7 @@ function RestaurantChat({ onClose }) {
           ))}
           {step < questions.length && <Message $isUser={false}>{questions[step]?.text}</Message>}
         </ChatBody>
-        <ChatFooter>
+        <ChatFooter onClick={handleInputFocus}>
           <Input
             ref={inputRef}
             value={formData[questions[step]?.key] || ''}
