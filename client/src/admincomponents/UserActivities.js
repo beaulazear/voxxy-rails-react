@@ -213,6 +213,12 @@ const StartBoardCard = styled(ActivityCard)`
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
     background: rgba(0, 0, 0, 0.2);
   }
+
+    h3 {
+    font-size: 1.2rem;
+    background: rgba(0, 0, 0, 0);
+    filter: none;
+  }
 `;
 
 function UserActivities() {
