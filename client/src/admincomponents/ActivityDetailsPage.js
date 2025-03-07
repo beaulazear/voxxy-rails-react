@@ -11,6 +11,7 @@ import {
 import AIRecommendations from "./AIRecommendations";
 import UpdateActivityModal from './UpdateActivityModal';
 import PinnedActivityCard from './PinnedActivityCard';
+import LoadingScreen from '../components/LoadingScreen.js'
 
 function ActivityDetailsPage({ activityId, onBack }) {
   const { user, setUser } = useContext(UserContext);
@@ -38,7 +39,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
   }, [user, activityId, refreshTrigger]);
 
-  if (!currentActivity) return <p>Loading...</p>;
+  if (!currentActivity) return <LoadingScreen />;
 
   const isOwner = user?.id === currentActivity?.user_id || user?.id === currentActivity?.user?.id;
 

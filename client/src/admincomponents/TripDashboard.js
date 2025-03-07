@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { UserContext } from '../context/user';
 import StartNewAdventure from './StartNewAdventure';
@@ -62,6 +62,13 @@ const DimmedOverlay = styled.div`
 function TripDashboard({setShowActivities}) {
   const { user } = useContext(UserContext);
   const [selectedTrip, setSelectedTrip] = useState(null);
+  const dashboardRef = useRef(null); // Create a ref for the container
+
+  useEffect(() => {
+    if (dashboardRef.current) {
+      dashboardRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, []); // Runs only when the component mounts
 
   const handleTripSelect = (tripName) => {
     if (tripName === 'Lets Eat') {
@@ -85,7 +92,7 @@ function TripDashboard({setShowActivities}) {
   }
 
   return (
-    <div style={{background: 'linear-gradient(135deg, #6a1b9a, #8e44ad)',  minHeight: '100vh', height: 'auto', width: '100%', animation: 'fadeIn 0.8s ease-in-out' }}>
+    <div ref={dashboardRef} style={{background: 'linear-gradient(135deg, #6a1b9a, #8e44ad)',  minHeight: '100vh', height: 'auto', width: '100%', animation: 'fadeIn 0.8s ease-in-out' }}>
       <DashboardContainer>
         <StartNewAdventure onClose={handleClose} setShowActivities={setShowActivities} onTripSelect={handleTripSelect} />
       </DashboardContainer>
