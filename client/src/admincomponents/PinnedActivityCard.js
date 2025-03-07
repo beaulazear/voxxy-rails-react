@@ -63,7 +63,7 @@ const Card = styled.div`
   gap: 12px;
   position: relative;
   border-left: 8px solid #6a1b9a;
-  margin: 16px; /* More space between elements */
+  margin: 10px; /* More space between elements */
 
   &:hover {
     transform: scale(1.02);

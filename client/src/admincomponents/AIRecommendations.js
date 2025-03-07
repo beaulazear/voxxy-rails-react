@@ -202,7 +202,7 @@ const RecommendationsContainer = styled.div`
   margin-right: auto;
 
   @media (max-width: 768px) {
-    padding: 1.5rem;
+    padding: 1rem;
   }
 `;
 

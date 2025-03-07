@@ -18,7 +18,7 @@ const LoadingContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 20vh; /* Smaller height */
+  height: 30vh; /* Smaller height */
   animation: ${fadeIn} 1.5s ease-in-out;
   text-align: center;
   padding: 1rem; /* Less padding */

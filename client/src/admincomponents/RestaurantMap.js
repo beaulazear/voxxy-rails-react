@@ -85,7 +85,7 @@ const RestaurantMap = ({ recommendations }) => {
             {!showMap ? (
                 <ChatButton>
                     <StyledButton onClick={() => setShowMap(true)}>
-                        View Recommendations on Map
+                        Map View
                     </StyledButton>
                 </ChatButton>
             ) : (

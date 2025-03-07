@@ -171,7 +171,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
   return (
     <PageContainer>
       <Header>
-        <h1>Let's Eat!</h1>
+        <h1>🍜 Let's Eat!</h1>
         <button className="back-button" onClick={onBack}>Back</button>
       </Header>
 
@@ -201,19 +201,40 @@ function ActivityDetailsPage({ activityId, onBack }) {
         </SmallSection>
 
         <SmallSection>
-          <h2>Participants - {currentActivity.group_size}</h2>
           <ParticipantsSection>
-            <div className="participants-list">
-              {allParticipants.length > 0 ? (
-                allParticipants.map((participant, index) => (
-                  <div key={index} className={`participant ${participant.confirmed ? 'confirmed' : 'pending'}`}>
-                    {participant.name || participant.email}
+            <h3>Participants - {currentActivity.group_size}</h3>
+            <div className="participants-scroll">
+              {allParticipants.filter(p => p.confirmed).map((participant, index) => {
+                const initials = participant.name
+                  ? participant.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+                  : "?";
+
+                return (
+                  <div key={index} className="participant-circle" data-name={participant.name}>
+                    <span className="initials">{initials}</span>
+                    <span className="full-name">{participant.name}</span>
                   </div>
-                ))
-              ) : (
-                <p>No participants yet.</p>
-              )}
+                );
+              })}
             </div>
+
+            {isOwner && (
+              <>
+                <h3>Pending Invites</h3>
+                <div className="participants-list">
+                  {allParticipants.filter(p => !p.confirmed).length > 0 ? (
+                    allParticipants.filter(p => !p.confirmed).map((participant, index) => (
+                      <div key={index} className="participant pending">
+                        {participant.email}
+                      </div>
+                    ))
+                  ) : (
+                    <p>No pending invites.</p>
+                  )}
+                </div>
+              </>
+            )}
+
           </ParticipantsSection>
 
           {isOwner && (

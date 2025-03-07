@@ -12,6 +12,10 @@ export const PageContainer = styled.div`
   box-sizing: border-box;
   background-color: #f9f9f9;
   animation: ${fadeIn} 0.8s ease-in-out;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 `;
 
 export const Header = styled.div`
@@ -310,6 +314,67 @@ export const ParticipantsSection = styled.div`
     margin-top: 1rem;
   }
 
+  /* Horizontal Scroll for Confirmed Participants */
+  .participants-scroll {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 10px;
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+    -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+  }
+
+  .participants-scroll::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome/Safari */
+  }
+
+  /* Circular Avatar for Confirmed Participants */
+  .participant-circle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background: #6a1b9a;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: width 0.3s ease-in-out;
+    overflow: hidden;
+    position: relative;
+    white-space: nowrap;
+    padding: 0 10px;
+  }
+
+  /* Expanding Effect: Only Expands Horizontally */
+  .participant-circle:hover {
+    width: auto;
+    min-width: 120px; /* Ensures space for full name */
+    border-radius: 20px; /* Keeps rounded edges */
+    padding: 0 15px;
+  }
+
+  /* Hide Full Name by Default */
+  .full-name {
+    display: none;
+    margin-left: 5px;
+  }
+
+  /* Show Full Name on Hover */
+  .participant-circle:hover .initials {
+    display: none;
+  }
+
+  .participant-circle:hover .full-name {
+    display: inline;
+  }
+
+  /* Pending Participants List */
   .participants-list {
     flex-grow: 1;
     overflow-y: auto;
@@ -327,15 +392,15 @@ export const ParticipantsSection = styled.div`
     text-align: center;
   }
 
-.confirmed {
-  background: #6a1b9a;
-  color: #fff;
-}
+  .confirmed {
+    background: #6a1b9a;
+    color: #fff;
+  }
 
-.pending {
-  background: #d3d3d3;
-  color: #444;
-}
+  .pending {
+    background: #d3d3d3;
+    color: #444;
+  }
 
   .invite-section {
     display: flex;
