@@ -20,6 +20,7 @@ const DashboardContainer = styled.div`
   margin: 0 auto;
   gap: 1.5rem;
   animation: ${fadeIn} 0.8s ease-in-out;
+  padding-bottom: 50px;
 `;
 
 const HeroContainer = styled.div`
