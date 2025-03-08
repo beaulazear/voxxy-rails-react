@@ -18,7 +18,6 @@ background-image: url("https://www.transparenttextures.com/patterns/food.png");
 
   @media (max-width: 768px) {
     padding: 1rem;
-    padding-bottom: 50px;
   }
 `;
 

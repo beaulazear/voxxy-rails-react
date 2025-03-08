@@ -31,8 +31,6 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
     ? activity.activity_participants.filter((p) => !p.accepted)
     : [];
 
-  console.log(pendingInvitesArray)
-
   const hostParticipant = {
     name: `${activity.user?.name || "Unknown"} (Host)`,
     email: activity.user?.email || "N/A",
@@ -52,8 +50,6 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
       confirmed: false,
     })),
   ];
-
-  console.log(allParticipants)
 
   return (
     <HeaderContainer>
@@ -294,7 +290,7 @@ export const ParticipantCircle = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 20px;
-  background: ${({ $pending }) => ($pending ? "#ccc" : "#6a1b9a")}; /* Gray for pending */
+  background: ${({ $pending }) => ($pending ? "#aaa" : "#4a0d5c")};
   color: white;
   font-size: 1rem;
   font-weight: bold;
@@ -305,11 +301,41 @@ export const ParticipantCircle = styled.div`
   justify-content: center;
   align-items: center;
   transition: all 0.3s ease-in-out;
+  position: relative;
+  overflow: hidden;
+  padding: 0 10px;
 
   &:hover {
-    opacity: 1;
-    background: ${({ $pending }) => ($pending ? "#aaa" : "#4a0d5c")}; /* Darker gray for pending, darker purple */
+    width: auto; /* Expands horizontally */
+    min-width: 120px; /* Ensures enough space */
+    border-radius: 20px; /* Keeps pill shape */
+    padding: 0 12px;
+    justify-content: flex-start;
   }
+
+  .name {
+    opacity: 0;
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: opacity 0.3s ease-in-out, max-width 0.3s ease-in-out;
+  }
+
+  &:hover .name {
+    opacity: 1;
+    max-width: 150px; /* Reveals name */
+    margin-left: 8px;
+  }
+`;
+
+export const ParticipantText = styled.span`
+  font-size: 0.9rem;
+  font-weight: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  transition: opacity 0.3s ease-in-out, max-width 0.3s ease-in-out;
 `;
 
 export const InviteButton = styled.button`

@@ -20,7 +20,6 @@ const DashboardContainer = styled.div`
   margin: 0 auto;
   gap: 1.5rem;
   animation: ${fadeIn} 0.8s ease-in-out;
-  padding-bottom: 50px;
 `;
 
 const HeroContainer = styled.div`
@@ -193,6 +192,10 @@ export const Button = styled.button`
   }
 `;
 
+const Padding = styled.div`
+  padding-bottom: 50px;
+`
+
 function UserActivities() {
   const { user } = useContext(UserContext);
   const [selectedActivityId, setSelectedActivityId] = useState(null);
@@ -257,40 +260,42 @@ function UserActivities() {
 
   return (
     <>
-      <DashboardContainer>
+      <Padding>
+        <DashboardContainer>
 
-        <HeroContainer>
-          <WelcomeText>Welcome back, {user.name}!</WelcomeText>
-          <SubText>
-            Let's start planning together.
-          </SubText>
-          <Button onClick={handleShowActivities}>➕ New Board</Button>
-        </HeroContainer>
+          <HeroContainer>
+            <WelcomeText>Welcome back, {user.name}!</WelcomeText>
+            <SubText>
+              Let's start planning together.
+            </SubText>
+            <Button onClick={handleShowActivities}>➕ New Board</Button>
+          </HeroContainer>
 
-        <PendingInvites />
+          <PendingInvites />
 
-        <SectionTitle>Your Boards</SectionTitle>
-        <CardGrid>
-          {uniqueActivities.length > 0 ? (
-            uniqueActivities.map((activity) => (
-              <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)} $emoji={activity.emoji}>
-                <div className="content">
-                  <div className="emoji">{activity.emoji || '🌀'}</div>
-                  <h3>{activity.activity_name}</h3>
-                </div>
-              </ActivityCard>
-            ))
-          ) : (
-            <p>No boards yet! Start a new one now.</p>
-          )}
-          <StartBoardCard onClick={() => setShowActivities(true)}>
-            <div className="content">
-              <div className="emoji">➕</div>
-              <h3>Start a New Board</h3>
-            </div>
-          </StartBoardCard>
-        </CardGrid>
-      </DashboardContainer>
+          <SectionTitle>Your Boards</SectionTitle>
+          <CardGrid>
+            {uniqueActivities.length > 0 ? (
+              uniqueActivities.map((activity) => (
+                <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)} $emoji={activity.emoji}>
+                  <div className="content">
+                    <div className="emoji">{activity.emoji || '🌀'}</div>
+                    <h3>{activity.activity_name}</h3>
+                  </div>
+                </ActivityCard>
+              ))
+            ) : (
+              <p>No boards yet! Start a new one now.</p>
+            )}
+            <StartBoardCard onClick={() => setShowActivities(true)}>
+              <div className="content">
+                <div className="emoji">➕</div>
+                <h3>Start a New Board</h3>
+              </div>
+            </StartBoardCard>
+          </CardGrid>
+        </DashboardContainer>
+      </Padding>
       <VoxxyFooter handleBack={handleBack} handleShowProfile={handleShowProfile} handleShowActivities={handleShowActivities} />
     </>
   );
