@@ -48,23 +48,26 @@ const SubText = styled.p`
   }
 `;
 
-const Highlight = styled.span`
-  font-weight: 700;
-`;
-
-
 const SectionTitle = styled.p`
   font-size: clamp(1.5rem, 2.5vw, 2rem);
   margin: 0;
+  margin-bottom: 0;
   text-align: left;
   font-weight: 600;
   color: #333;
+  padding: 1.5rem 2.5rem 1rem;
+  text-align: left;
+  max-width: 1200px;
+
+  @media (max-width: 768px) {
+    padding: 0rem .5rem .5rem;
+  }
 `;
 
 const CardGrid = styled.div`
   display: flex;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 0;
   overflow-x: auto;
   white-space: nowrap;
   padding: 0 1rem 10px; /* Add side padding for smooth scrolling */
@@ -168,6 +171,27 @@ const StartBoardCard = styled(ActivityCard)`
   }
 `;
 
+export const Button = styled.button`
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg,  #8e44ad, #6a1b9a);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    background: linear-gradient(135deg, #4e0f63, #6a1b8a);
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+`;
+
 function UserActivities() {
   const { user } = useContext(UserContext);
   const [selectedActivityId, setSelectedActivityId] = useState(null);
@@ -239,6 +263,7 @@ function UserActivities() {
           <SubText>
             Let's start planning together.
           </SubText>
+          <Button onClick={handleShowActivities}>➕ New Board</Button>
         </HeroContainer>
 
         <PendingInvites />

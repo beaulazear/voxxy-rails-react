@@ -24,10 +24,16 @@ const FooterContainer = styled.div`
 `;
 
 const IconButton = styled.div`
-  font-size: 1.8rem;
+  font-size: 2rem; /* Slightly larger to ensure no cutoff */
   color: white;
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem; /* Ensures even spacing */
+  height: 2.5rem;
+  line-height: 0; /* Fixes icon being clipped */
 
   &:hover {
     transform: scale(1.1);

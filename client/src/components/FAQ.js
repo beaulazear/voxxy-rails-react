@@ -22,6 +22,8 @@ const FAQContainer = styled.div`
   @media (max-width: 768px) {
     padding: 1.8rem;
     margin: 50px auto;
+    margin-left: 10px;
+    margin-right: 10px;
   }
 `;
 
@@ -38,7 +40,9 @@ const Title = styled.h2`
   margin: 0;
 `;
 
-const StyledCollapse = styled(Collapse)`
+const StyledCollapse = styled(Collapse).attrs({
+  motion: false,
+})`
   border-radius: 8px;
   border: none;
   background: white;
@@ -52,6 +56,8 @@ const StyledCollapse = styled(Collapse)`
     font-weight: 600;
     color: #4e0f63;
     padding: 1.2rem;
+    transition: background 0.2s ease-in-out;
+
     &:hover {
       background: rgba(78, 15, 99, 0.05);
     }
@@ -61,6 +67,11 @@ const StyledCollapse = styled(Collapse)`
     font-size: 1rem;
     padding: 1rem;
     line-height: 1.6;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .ant-collapse-content-box {
+    transition: all 0.3s ease-in-out;
   }
 `;
 
