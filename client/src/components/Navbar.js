@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { Button } from 'antd';
-import { HomeOutlined } from "@ant-design/icons";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 import { UserContext } from '../context/user';
 
 const NavbarContainer = styled.div`
@@ -70,24 +70,7 @@ const IconButton = styled(NavLink)`
 `;
 
 const Navbar = () => {
-  const { user, setUser } = useContext(UserContext);
-
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
-
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    const confirmation = window.confirm("Are you sure you want to log out?");
-    if (confirmation) {
-      fetch(`${API_URL}/logout`, {
-        method: "DELETE",
-        credentials: 'include',
-      }).then(() => {
-        setUser(null);
-        navigate('/');
-      });
-    }
-  };
+  const { user } = useContext(UserContext);
 
   return (
     <NavbarContainer>
@@ -95,11 +78,8 @@ const Navbar = () => {
       <MenuContainer>
         {user && (
           <>
-            <StyledButton onClick={handleLogout}>
-              <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
-            </StyledButton>
-            <IconButton to="/">
-              <HomeOutlined />
+            <IconButton to="/faq">
+              <QuestionCircleOutlined />
             </IconButton>
           </>
         )}

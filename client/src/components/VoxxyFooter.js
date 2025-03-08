@@ -1,8 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
 import { Avatar } from "antd";
-import { PlusCircleOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { PlusCircleOutlined, HomeOutlined } from "@ant-design/icons";
 import { UserContext } from "../context/user";
 import Woman from "../assets/Woman.jpg";
 
@@ -47,27 +46,23 @@ const UserAvatar = styled(Avatar)`
   }
 `;
 
-const VoxxyFooter = ({ handleShowActivities }) => {
+const VoxxyFooter = ({ handleShowActivities, handleShowProfile, handleBack }) => {
   const { user } = React.useContext(UserContext);
-  const navigate = useNavigate();
 
   return (
     <FooterContainer>
-      {/* Left - FAQ Button */}
-      <IconButton onClick={() => navigate("/faq")}>
-        <QuestionCircleOutlined />
+      <IconButton onClick={() => handleBack()}>
+        <HomeOutlined />
       </IconButton>
 
-      {/* Center - Add New Board */}
       <IconButton onClick={() => handleShowActivities()}>
         <PlusCircleOutlined />
       </IconButton>
 
-      {/* Right - User Avatar */}
       <UserAvatar
         size={40}
         src={user?.avatar || Woman}
-        onClick={() => navigate("/profile")}
+        onClick={() => handleShowProfile()}
       />
     </FooterContainer>
   );

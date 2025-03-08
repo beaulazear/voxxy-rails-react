@@ -59,6 +59,7 @@ function App() {
         <Route path="/verification" element={<Verification />} />
         <Route path="/faq" element={<FAQ />} />
 
+
         {isLoggedIn && !isConfirmed && (
           <Route path="/confirm-email" element={<ConfirmEmail />} />
         )}

@@ -6,6 +6,7 @@ import PendingInvites from './PendingInvites';
 import Woman from '../assets/Woman.jpg';
 import TripDashboard from './TripDashboard.js';
 import VoxxyFooter from '../components/VoxxyFooter.js';
+import Profile from './Profile.js';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -226,6 +227,7 @@ function UserActivities() {
   const { user } = useContext(UserContext);
   const [selectedActivityId, setSelectedActivityId] = useState(null);
   const [showActivities, setShowActivities] = useState(false);
+  const [showProfile, setShowProfile] = useState(false)
 
   const handleActivityClick = (activity) => {
     setSelectedActivityId(activity.id);
@@ -233,10 +235,20 @@ function UserActivities() {
 
   const handleBack = () => {
     setSelectedActivityId(null);
+    setShowActivities(false)
+    setShowProfile(false)
   };
 
   const handleShowActivities = () => {
+    setShowProfile(false)
+    setSelectedActivityId(null);
     setShowActivities(true)
+  }
+
+  const handleShowProfile = () => {
+    setSelectedActivityId(null);
+    setShowActivities(false)
+    setShowProfile(true)
   }
 
   const allActivities = [
@@ -247,11 +259,30 @@ function UserActivities() {
   const uniqueActivities = [...new Map(allActivities.map(a => [a.id, a])).values()];
 
   if (selectedActivityId) {
-    return <ActivityDetailsPage activityId={selectedActivityId} onBack={handleBack} />;
+    return (
+      <>
+        <ActivityDetailsPage activityId={selectedActivityId} onBack={handleBack} />;
+        <VoxxyFooter handleBack={handleBack} handleShowProfile={handleShowProfile} handleShowActivities={handleShowActivities} />
+      </>
+    )
   }
 
   if (showActivities) {
-    return <TripDashboard setShowActivities={setShowActivities} />;
+    return (
+      <>
+        <TripDashboard setShowActivities={setShowActivities} />;
+        <VoxxyFooter handleBack={handleBack} handleShowProfile={handleShowProfile} handleShowActivities={handleShowActivities} />
+      </>
+    )
+  }
+
+  if (showProfile) {
+    return (
+      <>
+        <Profile />
+        <VoxxyFooter handleBack={handleBack} handleShowProfile={handleShowProfile} handleShowActivities={handleShowActivities} />
+      </>
+    )
   }
 
   return (
@@ -291,7 +322,7 @@ function UserActivities() {
           </StartBoardCard>
         </CardGrid>
       </DashboardContainer>
-      <VoxxyFooter handleShowActivities={handleShowActivities} />
+      <VoxxyFooter handleBack={handleBack} handleShowProfile={handleShowProfile} handleShowActivities={handleShowActivities} />
     </>
   );
 }

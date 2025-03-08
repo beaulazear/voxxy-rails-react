@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 
-// 🔹 Keyframes for Falling Animation
 const rainAnimation = keyframes`
   0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity: 1; }
   100% { transform: translateY(100vh) rotate(360deg) scale(0.8); opacity: 0; }
@@ -22,31 +21,6 @@ const SectionTitle = styled.p`
   font-size: clamp(1.5rem, 2.5vw, 2rem);
   margin: 0;
   color: #fff;
-`;
-
-const BackButton = styled.button`
-  font-weight: 600;
-  padding: 12px 18px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 4px 10px rgba(106, 27, 154, 0.2);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 1rem;
-  font-size: 1rem;
-
-  &:hover {
-    background: #f0f0f0;
-    transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(106, 27, 154, 0.3);
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
 `;
 
 const CardGrid = styled.div`
@@ -112,7 +86,7 @@ const ActivityName = styled.h3.withConfig({
   padding: 0;
 `;
 
-function StartNewAdventure({ onTripSelect, onClose }) {
+function StartNewAdventure({ onTripSelect }) {
   const [emojiRain, setEmojiRain] = useState([]);
 
   const adventures = [
@@ -138,10 +112,10 @@ function StartNewAdventure({ onTripSelect, onClose }) {
   const triggerEmojiRain = () => {
     const emojis = Array.from({ length: 40 }).map((_, i) => ({
       id: i,
-      left: Math.random() * 100,  // Spread across the whole screen
-      size: Math.random() * 1.5 + 1, // Vary emoji size
-      duration: Math.random() * 1 + 1.5, // Different speeds
-      rotation: Math.random() * 360, // Random rotation
+      left: Math.random() * 100,
+      size: Math.random() * 1.5 + 1,
+      duration: Math.random() * 1 + 1.5,
+      rotation: Math.random() * 360,
     }));
 
     setEmojiRain(emojis);
@@ -153,7 +127,6 @@ function StartNewAdventure({ onTripSelect, onClose }) {
 
   return (
     <>
-      {/* 🔹 Falling Emoji Effect */}
       {emojiRain.map((emoji) => (
         <EmojiRain
           key={emoji.id}
@@ -166,7 +139,6 @@ function StartNewAdventure({ onTripSelect, onClose }) {
         </EmojiRain>
       ))}
 
-      <BackButton onClick={() => onClose()}>⬅ Back</BackButton>
       <SectionTitle>Choose An Activity</SectionTitle>
       <CardGrid>
         {adventures.map(({ name, emoji, active }) => (
