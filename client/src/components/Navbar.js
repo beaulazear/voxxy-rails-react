@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Button } from 'antd';
+import { HomeOutlined } from "@ant-design/icons";
 import { UserContext } from '../context/user';
 
 const NavbarContainer = styled.div`
@@ -56,6 +57,18 @@ const StyledButton = styled(Button)`
   }
 `;
 
+const IconButton = styled(NavLink)`
+  font-size: 1.8rem;
+  color: black;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.1);
+    color: #e0e0e0;
+  }
+`;
+
 const Navbar = () => {
   const { user, setUser } = useContext(UserContext);
 
@@ -85,6 +98,9 @@ const Navbar = () => {
             <StyledButton onClick={handleLogout}>
               <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
             </StyledButton>
+            <IconButton to="/">
+              <HomeOutlined />
+            </IconButton>
           </>
         )}
         {!user && (

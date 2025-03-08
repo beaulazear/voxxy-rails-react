@@ -18,6 +18,7 @@ const FooterContainer = styled.div`
   justify-content: space-between;
   box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
   z-index: 1000;
+  height: 25px;
 
   @media (max-width: 768px) {
     padding: 1rem;

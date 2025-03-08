@@ -13,7 +13,7 @@ import ForgotPassword from './components/ForgotPassword.js';
 import ResetPassword from './components/ResetPassword.js';
 import LandingPage from './components/LandingPage.js';
 import UserActivities from './admincomponents/UserActivities.js';
-import VoxxyFooter from './components/VoxxyFooter.js';
+import FAQ from './components/FAQ.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -57,7 +57,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/verification" element={<Verification />} />
-        <Route path="/loading" element={<LoadingScreen />} />
+        <Route path="/faq" element={<FAQ />} />
 
         {isLoggedIn && !isConfirmed && (
           <Route path="/confirm-email" element={<ConfirmEmail />} />
@@ -65,9 +65,6 @@ function App() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      {/* {isLoggedIn && isConfirmed && (
-        <VoxxyFooter />
-      )} */}
     </div>
   );
 }
