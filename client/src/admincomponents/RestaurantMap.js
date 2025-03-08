@@ -134,15 +134,15 @@ export const StyledButton = styled.button`
   padding: 0.75rem 1.5rem;
   font-size: 1.1rem;
   font-weight: bold;
-  color: #fff;
   border: none;
   border-radius: 20px;
   cursor: pointer;
   transition: background 0.3s ease;
-  background: ${(props) => (props.$isDelete ? "#e74c3c" : "#9b59b6")};
+  background: ${(props) => (props.$isDelete ? "#red" : "#white")};
 
   &:hover {
-    background: ${(props) => (props.$isDelete ? "#c0392b" : "#8e44ad")};
+    background: ${(props) => (props.$isDelete ? "#darkred" : "#27ae60")};
+    color: white;
   }
 `;
 

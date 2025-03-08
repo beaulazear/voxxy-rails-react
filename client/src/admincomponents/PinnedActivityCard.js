@@ -44,13 +44,40 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
         <DetailItem>⏰ {pinned.hours || "N/A"}</DetailItem>
         <DetailItem>💸 {pinned.price_range || "N/A"}</DetailItem>
         <DetailItem>📍 {pinned.address || "N/A"}</DetailItem>
-        {isOwner && (<button onClick={handleDelete}>Delete</button>)}
+        {isOwner && (<ChatButton><StyledButton onClick={handleDelete}>Delete</StyledButton></ChatButton>)}
       </Details>
     </Card>
   );
 };
 
 export default PinnedActivityCard;
+
+export const StyledButton = styled.button`
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  background: red;
+  margin-top: auto; /* Pushes it to the bottom inside a flex column */
+
+  &:hover {
+    background: darkred;
+  }
+`;
+
+export const ChatButton = styled.div`
+  display: flex;
+  justify-content: center;
+  flex-grow: 1; /* Allows it to take available space */
+  align-items: flex-end; /* Pushes content to the bottom */
+  margin-top: auto; /* Ensures it moves to the bottom */
+  width: 100%;
+  bottom: 0;
+`;
 
 const Card = styled.div`
   background: #fff;
@@ -64,6 +91,7 @@ const Card = styled.div`
   position: relative;
   border-left: 8px solid #6a1b9a;
   margin: 10px; /* More space between elements */
+  min-width: 300px;
 
   &:hover {
     transform: scale(1.02);

@@ -36,10 +36,10 @@ class UsersController < ApplicationController
           activities: {
             only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji ],
             include: {
-              user: { only: [ :id, :name, :email ] },
+              user: { only: [ :id, :name, :email, :avatar ] },
               responses: { only: [ :id, :notes, :created_at ] },
               participants: { only: [ :id, :name, :email ] },
-              activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] }
+              activity_participants: { only: [ :id, :user_id, :invited_email, :accepted, :avatar ] }
             }
           }
         }
@@ -49,9 +49,9 @@ class UsersController < ApplicationController
           activity: {
             only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji ],
             include: {
-              user: { only: [ :id, :name, :email ] },
+              user: { only: [ :id, :name, :email, :avatar ] },
               responses: { only: [ :id, :notes, :created_at ] },
-              participants: { only: [ :id, :name, :email ] }
+              participants: { only: [ :id, :name, :email, :avatar ] }
             }
           }
         }

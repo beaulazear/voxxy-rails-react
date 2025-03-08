@@ -1,22 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../context/user';
+import styled from 'styled-components';
 import {
   PageContainer,
-  Header,
-  FlexContainer,
   SmallSection,
-  InviteButton,
-  ParticipantsSection,
 } from "../styles/ActivityDetailsStyles";
 import AIRecommendations from "./AIRecommendations";
 import UpdateActivityModal from './UpdateActivityModal';
 import PinnedActivityCard from './PinnedActivityCard';
-import LoadingScreen from '../components/LoadingScreen.js'
+import LoadingScreen from '../components/LoadingScreen.js';
+import ActivityHeader from '../admincomponents/ActivityHeader.js'
 
 function ActivityDetailsPage({ activityId, onBack }) {
   const { user, setUser } = useContext(UserContext);
   const [refreshTrigger, setRefreshTrigger] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [currentActivity, setCurrentActivity] = useState(null);
   const [pinnedActivities, setPinnedActivities] = useState([]);
@@ -43,42 +40,21 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
   const isOwner = user?.id === currentActivity?.user_id || user?.id === currentActivity?.user?.id;
 
-  const participantsArray = Array.isArray(currentActivity.participants) ? currentActivity.participants : [];
-  const pendingInvitesArray = Array.isArray(currentActivity.activity_participants)
-    ? currentActivity.activity_participants.filter(p => !p.accepted)
-    : [];
+  const handleInvite = async (email) => {
 
-  const hostParticipant = {
-    name: `${currentActivity.user?.name || "Unknown"} (Host)`,
-    email: currentActivity.user?.email || "N/A",
-    confirmed: true
-  };
+    console.log('invite clicked', email)
 
-  const allParticipants = [
-    hostParticipant,
-    ...participantsArray.filter(p => p.email)
-      .map(p => ({
-        name: p.name || p.email,
-        email: p.email,
-        confirmed: true
-      })),
-    ...pendingInvitesArray.map(p => ({
-      name: p.invited_email,
-      email: p.invited_email,
-      confirmed: false
-    }))
-  ];
+    if (!email) return;
 
-  const handleInvite = async () => {
-    if (!inviteEmail) return;
-
-    const normalizedEmail = inviteEmail.trim().toLowerCase();
+    const normalizedEmail = email.trim().toLowerCase();
     const participants = currentActivity.participants || [];
     const pendingInvites = currentActivity.activity_participants || [];
 
+    console.log(normalizedEmail)
+
     const isDuplicate =
       participants.some((p) => p?.email?.toLowerCase() === normalizedEmail) ||
-      pendingInvites.some((p) => p?.invited_email?.toLowerCase() === normalizedEmail);
+      pendingInvites.some((p) => p?.email?.toLowerCase() === normalizedEmail);
 
     if (isDuplicate) {
       alert("This email is already invited or is a participant.");
@@ -89,13 +65,12 @@ function ActivityDetailsPage({ activityId, onBack }) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ email: inviteEmail, activity_id: currentActivity.id }),
+      body: JSON.stringify({ email: email, activity_id: currentActivity.id }),
     });
 
     if (response.ok) {
       const newParticipant = await response.json();
       alert("Invitation sent!");
-      setInviteEmail("");
 
       setUser((prevUser) => {
         const updatedUser = {
@@ -170,105 +145,36 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
   return (
     <PageContainer>
-      <Header>
-        <h1>🍜 Let's Eat!</h1>
-        <button className="back-button" onClick={onBack}>Back</button>
-      </Header>
-
-      <FlexContainer>
-        <SmallSection>
-          <h2>Activity Details</h2>
-          <div className="content-wrapper">
-            <div className="detail-item">
-              🚀 <strong>Name:</strong> {currentActivity.activity_name || 'Not specified'}
-            </div>
-            <div className="detail-item">
-              📍 <strong>Location:</strong> {currentActivity.activity_location || 'Not specified'}
-            </div>
-            <div className="detail-item">
-              ⏰ <strong>Time:</strong> {currentActivity.date_notes || 'Not specified'}
-            </div>
-            <div className="detail-item">
-              👤 <strong>Host:</strong> {isOwner ? "You" : currentActivity?.user?.name || "Unknown"}
-            </div>
-          </div>
-          {isOwner && (
-            <div className="update-section">
-              <span className="update-icon" onClick={() => setShowModal(true)}>🔄</span>
-              <span className="trash-icon" onClick={() => handleDelete(currentActivity.id)}>🗑️</span>
-            </div>
-          )}
-        </SmallSection>
-
-        <SmallSection>
-          <ParticipantsSection>
-            <h3>Participants - {currentActivity.group_size}</h3>
-            <div className="participants-scroll">
-              {allParticipants.filter(p => p.confirmed).map((participant, index) => {
-                // Remove text inside parentheses
-                const cleanedName = participant.name ? participant.name.replace(/\s*\(.*?\)\s*/g, '') : '';
-
-                // Extract initials from cleaned name
-                const initials = cleanedName
-                  ? cleanedName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
-                  : "?";
-
-                return (
-                  <div key={index} className="participant-circle" data-name={participant.name}>
-                    <span className="initials">{initials}</span>
-                    <span className="full-name">{participant.name}</span>
-                  </div>
-                );
-              })}
-            </div>
-
-            {isOwner && (
-              <>
-                <h3>Pending Invites</h3>
-                <div className="participants-list">
-                  {allParticipants.filter(p => !p.confirmed).length > 0 ? (
-                    allParticipants.filter(p => !p.confirmed).map((participant, index) => (
-                      <div key={index} className="participant pending">
-                        {participant.email}
-                      </div>
-                    ))
-                  ) : (
-                    <p>No pending invites.</p>
-                  )}
-                </div>
-              </>
-            )}
-
-          </ParticipantsSection>
-
-          {isOwner && (
-            <div className="invite-section">
-              <input
-                style={{ marginRight: '10px' }}
-                type="email"
-                placeholder="Invite by email"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
+      <ActivityHeader
+        activity={currentActivity}
+        isOwner={isOwner}
+        onBack={onBack}
+        onEdit={() => setShowModal(true)}
+        onDelete={handleDelete}
+        onInvite={handleInvite}
+      />
+      <SmallSection>
+        <TextContainer>
+          <PinnedTitle>📌 Pinned Restaurants 📌</PinnedTitle>
+          <SubTitle>
+            Your pinned activities are here to stay! If you have a favorite, don’t forget to vote on it and leave a comment to share your thoughts. Need to make changes? ‘Chat with Voxxy’ to explore new options!
+            <br></br><br></br>
+            {pinnedActivities.length === 0 && (" No pinned restaurants yet! Click on a recommendation to pin it.")}
+          </SubTitle>
+        </TextContainer>
+        <PinnedScrollContainer>
+          {pinnedActivities.length > 0 && (
+            pinnedActivities.map((pinned) => (
+              <PinnedActivityCard
+                key={pinned.id}
+                isOwner={isOwner}
+                setPinnedActivities={setPinnedActivities}
+                pinned={pinned}
               />
-              <InviteButton onClick={handleInvite}>Invite</InviteButton>
-            </div>
+            ))
           )}
-        </SmallSection>
-        <SmallSection>
-          <h2>Pinned Restaurants</h2>
-          <div style={{ overflowY: 'auto' }}>
-            {pinnedActivities.length > 0 ? (
-              pinnedActivities.map((pinned) => (
-                <PinnedActivityCard key={pinned.id} isOwner={isOwner} setPinnedActivities={setPinnedActivities} pinned={pinned} />
-              ))
-            ) : (
-              <p style={{ color: "#666", fontStyle: "italic" }}>
-                No pinned restaurants yet! Click on a recommendation to pin it.
-              </p>
-            )}
-          </div>
-        </SmallSection>
-      </FlexContainer>
+        </PinnedScrollContainer>
+      </SmallSection>
       <AIRecommendations setPinnedActivities={setPinnedActivities} activity={currentActivity} setRefreshTrigger={setRefreshTrigger} />
 
       {showModal && (
@@ -283,3 +189,48 @@ function ActivityDetailsPage({ activityId, onBack }) {
 }
 
 export default ActivityDetailsPage;
+
+const TextContainer = styled.div`
+  background: white;
+  backdrop-filter: blur(15px);
+  border-radius: 8px;
+  width: fit-content;
+  margin: 0 auto;
+  padding: 8px;
+  margin-bottom: 25px;
+  margin-top: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+`
+
+const SubTitle = styled.div`
+  color: black; /* Ensure text is readable on a light background */
+  max-width: 600px;
+  margin: auto;
+  font-size: 1.2rem;
+  padding: 1rem;
+`
+
+const PinnedTitle = styled.h2`
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  margin-top: 0;
+`;
+
+const PinnedScrollContainer = styled.div`
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+  -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+  margin-left: -2.1rem;
+  margin-right: -2.1rem;
+  max-height: 800px;
+  justify-content: center;
+
+  &::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome/Safari */
+  }
+`;

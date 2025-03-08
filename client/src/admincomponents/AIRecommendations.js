@@ -127,14 +127,16 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
 
   return (
     <RecommendationsContainer>
-      <Title>AI-Powered Restaurant Recommendations</Title>
-      {recommendations.length > 0 && (<div>Your recommendations won’t last forever! If you find one you love, click on it to pin it and keep it saved in pinned activities. 'Chat with Voxxy' to update your preferences.</div>)}
-
-      <ChatButton>
-        <StyledButton onClick={() => setShowChat(true)}>
-          Chat with Voxxy
-        </StyledButton>
-      </ChatButton>
+      <TextContainer>
+        <Title>AI-Powered Restaurant Recommendations</Title>
+        {recommendations.length > 0 && (<SubTitle>Your recommendations won’t last forever! If you find one you love, click on it to pin it and keep it saved in pinned activities. 'Chat with Voxxy' to update your preferences.</SubTitle>)}
+        {recommendations.length  === 0 && (<SubTitle>Recommendations are personalized based on input from all group participants and can be generated once at least one participant has chatted with Voxxy. <br></br><br></br>No recommendations yet! Click ‘Chat with Voxxy’ to share your feedback.</SubTitle>)}
+        <ChatButton>
+          <StyledButton onClick={() => setShowChat(true)}>
+            Chat with Voxxy
+          </StyledButton>
+        </ChatButton>
+      </TextContainer>
 
       {error && <p style={{ textAlign: "center", color: "#666", fontStyle: "italic" }}>{error}</p>}
 
@@ -144,18 +146,17 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
             {recommendations.map((rec, index) => (
               <RecommendationItem onClick={() => handlePinActivity(rec)} key={index}>
                 <RestaurantName>{rec.name}</RestaurantName>
-                {rec.description && <p>{rec.description}</p>}
-                {rec.hours && <p><strong>⏰ Hours:</strong> {rec.hours}</p>}
-                {rec.price_range && <p><strong>💸 Price Range:</strong> {rec.price_range}</p>}
-                {rec.address && <p><strong>📍 Address:</strong> {rec.address}</p>}
-                {rec.website && (
-                  <p>
-                    <strong>🌐 Website:</strong>{" "}
-                    <a href={rec.website} target="_blank" rel="noopener noreferrer">
-                      {rec.website}
-                    </a>
-                  </p>
-                )}
+                <Description>{rec.description || "No description available."}</Description>
+                <Details>
+                  <DetailItem>⏰ {rec.hours || "N/A"}</DetailItem>
+                  <DetailItem>💸 {rec.price_range || "N/A"}</DetailItem>
+                  <DetailItem>📍 {rec.address || "N/A"}</DetailItem>
+                  {rec.website && (
+                    <DetailItem>
+                      🌐 <a href={rec.website} target="_blank" rel="noopener noreferrer">{rec.website}</a>
+                    </DetailItem>
+                  )}
+                </Details>
               </RecommendationItem>
             ))}
           </RecommendationList>
@@ -163,14 +164,16 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
         </>
       ) : (
         <div style={{ color: "#666", fontStyle: "italic" }}>
-          {loading ? <SmallerLoading title={'Recommendations'} /> : "No recommendations yet! Click ‘Chat with Voxxy’ to share your feedback. Recommendations are personalized based on input from all group participants and can be generated once at least one participant has chatted with Voxxy."}
+          {loading && (<SmallerLoading title={'Recommendations'} />)}
         </div>
       )}
 
       {activity.responses?.length > 0 && recommendations.length === 0 && (
-        <Button onClick={fetchRecommendations} disabled={loading}>
-          {loading ? "Generating..." : "Generate Recommendations"}
-        </Button>
+        <StyledButton>
+          <ChatButton onClick={fetchRecommendations} disabled={loading}>
+            {loading ? "Generating..." : "Generate Recommendations"}
+          </ChatButton>
+        </StyledButton>
       )}
 
       {showChat && (
@@ -191,18 +194,34 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
 
 export default AIRecommendations;
 
-const RecommendationsContainer = styled.div`
+const TextContainer = styled.div`
   background: white;
+  backdrop-filter: blur(15px);
+  border-radius: 8px;
+  width: fit-content;
+  margin: 0 auto;
+  padding: 8px;
+  margin-bottom: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+`
+
+const SubTitle = styled.div`
+  color: black; /* Ensure text is readable on a light background */
+  max-width: 600px;
+  margin: auto;
+  font-size: 1.2rem;
+  padding: 1rem;
+`
+
+const RecommendationsContainer = styled.div`
   padding: 1.5rem;
   border-radius: 16px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-top: 2rem;
-  max-width: 800px;
+  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
 
   @media (max-width: 768px) {
-    padding: 1rem;
+    padding: 2rem;
   }
 `;
 
@@ -211,81 +230,74 @@ const Title = styled.h2`
   font-weight: bold;
   margin-bottom: 1.5rem;
   text-align: center;
+  color: black;
+  margin-top: 0;
 `;
 
 const RecommendationList = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+  -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+  margin-left: -3rem;
+  margin-right: -3rem;
+  padding: 20px;
+
+  &::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome/Safari */
+  }
 `;
 
 const RecommendationItem = styled.div`
-  padding: 1.5rem;
+  background: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  font-size: 1.1rem;
-  font-weight: 500;
-  line-height: 1.5;
-  color: #333;
-  text-align: left;
+  padding: 20px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
-  word-break: break-word;
-  background: #fff;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  gap: 12px;
+  position: relative;
+  border-left: 8px solid #666666;
+  min-width: 300px;
+  cursor: pointer;
+  text-align: left;
 
   &:hover {
-    transform: scale(1.02);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    border-left: 8px solid #6a1b9a;
-;
-    cursor: pointer;
-  }
-
-  @media (max-width: 768px) {
-    padding: 1rem;
-  }
-
-  a {
-    color: #9b59b6;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    display: inline-block;
-    max-width: 100%;
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: #8e44ad; /* Slightly darkens link on hover */
-    }
+    transform: scale(1.01);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
   }
 `;
 
 const RestaurantName = styled.h3`
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: bold;
-  margin-bottom: 0.5rem;
+  color: #222;
+  margin-bottom: 6px;
 `;
 
-const Button = styled.button`
-  display: block;
-  width: 100%;
-  padding: 0.75rem;
+const Description = styled.p`
   font-size: 1rem;
-  font-weight: bold;
-  color: white;
-  background: #9b59b6;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 1.5rem;
-  transition: background 0.2s ease;
+  color: #444;
+  line-height: 1.5;
+`;
 
-  &:hover {
-    background: #8e44ad;
-  }
+const Details = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 500;
+`;
 
-  &:disabled {
-    background: #ccc;
-    cursor: not-allowed;
+const DetailItem = styled.span`
+  font-size: 1rem;
+  color: #666;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  
+  &:last-child {
+    border-bottom: none;
   }
 `;
