@@ -39,22 +39,6 @@ const MenuContainer = styled.div`
   gap: 20px;
 `;
 
-const MenuItem = styled(NavLink)`
-  font-size: 16px;
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
-
-  &:hover {
-    color: #9b19f5;
-  }
-
-  &.active {
-    font-weight: bold;
-    color: #9b19f5;
-  }
-`;
-
 const StyledButton = styled(Button)`
   font-size: 16px;
   background-color: white;
@@ -105,9 +89,6 @@ const Navbar = () => {
         )}
         {!user && (
           <>
-            <StyledButton>
-              <MenuItem to="/" end>Home</MenuItem>
-            </StyledButton>
             <StyledButton>
               <NavLink to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
             </StyledButton>
