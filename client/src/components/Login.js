@@ -58,13 +58,15 @@ const InputGroup = styled.div`
 `;
 
 const SubmitButton = styled.button`
+  margin-top: 1.5rem;
   padding: 0.75rem;
   font-size: 1rem;
   color: #fff;
   background: #d8b4ff;
   border: none;
-  border-radius: 8px;
+  border-radius: 50px;
   cursor: pointer;
+  width: 100%;
 
   &:hover {
     background: #cfa8f7;
