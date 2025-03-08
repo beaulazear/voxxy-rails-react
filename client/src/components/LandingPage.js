@@ -41,7 +41,7 @@ const HeroWrapper = styled.div`
   animation: ${({ $isFadingOut }) =>
         $isFadingOut
             ? css`${fadeOut} 1.5s ease-in-out forwards`
-            : css`${fadeIn} 2s ease-out forwards`};
+            : css`${fadeIn} 1.5s ease-out forwards`};
 `;
 
 const ContentContainer = styled.div`
@@ -67,7 +67,7 @@ const LandingPage = () => {
         const heroTimeout = setTimeout(() => {
             setShowHero(false);
             setShowContent(true)
-        }, 5000);
+        }, 4000);
 
         return () => clearTimeout(heroTimeout);
     }, []);
