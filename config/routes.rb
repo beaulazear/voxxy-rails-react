@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   resources :responses, only: [ :index, :create, :destroy ]
-  resources :users, only: [ :index, :create, :destroy ]
+  resources :users, only: [ :index, :create, :destroy, :update ]
   resources :activities, only: [ :create, :destroy, :update, :index, :show ] do
     resources :pinned_activities, only: [ :index, :create, :update, :destroy ]
   end

@@ -108,9 +108,18 @@ class UsersController < ApplicationController
     render json: users
   end
 
+  def update
+    user = current_user
+    if user.update(avatar: params[:avatar])
+      render json: user, status: :ok
+    else
+      render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def user_params
-    params.require(:user).permit(:name, :email, :password, :password_confirmation)
+    params.require(:user).permit(:name, :email, :password, :password_confirmation, :avatar)
   end
 end

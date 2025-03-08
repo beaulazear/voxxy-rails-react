@@ -9,8 +9,8 @@ class User < ApplicationRecord
 
   validates :name, presence: true
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :password, presence: true, length: { minimum: 6 }
-  validates :password_confirmation, presence: true
+  validates :password, presence: true, length: { minimum: 6 }, if: -> { new_record? || !password.nil? }
+  validates :password_confirmation, presence: true, if: -> { password.present? }
 
   def verify!
     update_columns(confirmed_at: Time.current, confirmation_token: nil)

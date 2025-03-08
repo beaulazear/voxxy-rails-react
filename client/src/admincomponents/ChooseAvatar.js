@@ -1,15 +1,20 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import styled from "styled-components";
+import { UserContext } from "../context/user";
 import Avatar1 from "../assets/Avatar1.jpg";
 import Avatar2 from "../assets/Avatar2.jpg";
 import Avatar3 from "../assets/Avatar3.jpg";
 import Avatar4 from "../assets/Avatar4.jpg";
+import Avatar5 from "../assets/Avatar5.jpg";
+import Avatar6 from "../assets/Avatar6.jpg";
 
 const avatars = [
-    { id: 1, src: Avatar1 },
-    { id: 2, src: Avatar2 },
-    { id: 3, src: Avatar3 },
-    { id: 4, src: Avatar4 },
+  { id: 1, src: Avatar1, path: "/assets/Avatar1.jpg" },
+  { id: 2, src: Avatar2, path: "/assets/Avatar2.jpg" },
+  { id: 3, src: Avatar3, path: "/assets/Avatar3.jpg" },
+  { id: 4, src: Avatar4, path: "/assets/Avatar4.jpg" },
+  { id: 5, src: Avatar5, path: "/assets/Avatar5.jpg" },
+  { id: 6, src: Avatar6, path: "/assets/Avatar6.jpg" },
 ];
 
 const AvatarContainer = styled.div`
@@ -58,15 +63,16 @@ const AvatarGrid = styled.div`
 const AvatarButton = styled.button`
   border: none;
   background: none;
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
   transition: transform 0.2s ease-in-out;
   outline: none;
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
 
   &:hover {
-    transform: scale(1.1);
+    transform: ${({ disabled }) => (disabled ? "none" : "scale(1.1)")};
   }
 `;
 
@@ -75,12 +81,12 @@ const AvatarImage = styled.img`
   height: 80px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid transparent;
+  border: 3px solid ${({ selected }) => (selected ? "#6a1b9a" : "transparent")};
   transition: border 0.2s ease-in-out, transform 0.2s ease-in-out;
 
   &:hover {
-    border-color: #6a1b9a;
-    transform: scale(1.1);
+    border-color: ${({ selected }) => (selected ? "#6a1b9a" : "#ddd")};
+    transform: ${({ selected }) => (selected ? "scale(1.1)" : "scale(1.05)")};
   }
 
   @media (max-width: 600px) {
@@ -89,17 +95,75 @@ const AvatarImage = styled.img`
   }
 `;
 
+const LoadingText = styled.p`
+  font-size: 1rem;
+  color: #4e0f63;
+  font-weight: bold;
+  animation: fade 1.5s infinite alternate;
+
+  @keyframes fade {
+    from {
+      opacity: 0.5;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+`;
+
 export default function ChooseAvatar() {
-    return (
-        <AvatarContainer>
-            <Title>Choose Your Avatar</Title>
-            <AvatarGrid>
-                {avatars.map((avatar) => (
-                    <AvatarButton key={avatar.id} onClick={() => console.log(`Clicked Avatar ${avatar.id}`)}>
-                        <AvatarImage src={avatar.src} alt={`Avatar ${avatar.id}`} />
-                    </AvatarButton>
-                ))}
-            </AvatarGrid>
-        </AvatarContainer>
-    );
+  const { user, setUser } = useContext(UserContext);
+  const [selectedAvatar, setSelectedAvatar] = useState(user?.avatar || "");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleAvatarSelect = async (avatarPath) => {
+    setIsLoading(true); // Start loading state
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/users/${user.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify({ avatar: avatarPath }),
+      });
+
+      if (response.ok) {
+        setUser((prevUser) => ({ ...prevUser, avatar: avatarPath }));
+        setSelectedAvatar(avatarPath);
+      } else {
+        console.error("Failed to update avatar:", await response.json());
+      }
+    } catch (error) {
+      console.error("Error updating avatar:", error);
+    } finally {
+      setIsLoading(false); // Stop loading state after request finishes
+    }
+  };
+
+  return (
+    <AvatarContainer>
+      <Title>Choose Your Avatar</Title>
+
+      {isLoading && <LoadingText>Updating avatar...</LoadingText>} {/* Show loading text while updating */}
+
+      <AvatarGrid>
+        {avatars.map((avatar) => (
+          <AvatarButton
+            key={avatar.id}
+            onClick={() => handleAvatarSelect(avatar.path)}
+            disabled={isLoading} // Disable buttons while loading
+          >
+            <AvatarImage
+              src={avatar.src}
+              alt={`Avatar ${avatar.id}`}
+              selected={selectedAvatar === avatar.path}
+            />
+          </AvatarButton>
+        ))}
+      </AvatarGrid>
+    </AvatarContainer>
+  );
 }
