@@ -92,7 +92,7 @@ function TripDashboard({setShowActivities}) {
   }
 
   return (
-    <div ref={dashboardRef} style={{background: 'linear-gradient(135deg, #6a1b9a, #8e44ad)',  minHeight: '100vh', height: 'auto', width: '100%', animation: 'fadeIn 0.8s ease-in-out' }}>
+    <div ref={dashboardRef} style={{background: 'linear-gradient(135deg, #6a1b9a, #8e44ad)',  minHeight: '100vh', height: 'auto', width: '100%', animation: 'fadeIn 0.8s ease-in-out', paddingBottom: '40px' }}>
       <DashboardContainer>
         <StartNewAdventure setShowActivities={setShowActivities} onTripSelect={handleTripSelect} />
       </DashboardContainer>

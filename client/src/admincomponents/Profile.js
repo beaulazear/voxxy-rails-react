@@ -1,10 +1,11 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import { Input, Button, Avatar, message } from "antd";
 import { UserContext } from "../context/user";
 import { EditOutlined, SaveOutlined, LogoutOutlined } from "@ant-design/icons";
 import Woman from "../assets/Woman.jpg";
+import ChooseAvatar from "./ChooseAvatar";
 
 const fadeIn = keyframes`
   from {
@@ -17,9 +18,15 @@ const fadeIn = keyframes`
   }
 `;
 
+const Container = styled.div`
+  animation: ${fadeIn} 0.8s ease-in-out;
+  padding-bottom: 50px;
+`;
+
 const ProfileContainer = styled.div`
   max-width: 500px;
-  margin: 80px auto;
+  margin: 50px auto;
+  margin-top: 15px;
   padding: 2.5rem;
   background: white;
   border-radius: 16px;
@@ -39,6 +46,7 @@ const ProfileContainer = styled.div`
 const AvatarContainer = styled.div`
   position: relative;
   margin-bottom: 1.5rem;
+  animation: ${fadeIn} 0.8s ease-in-out;
 
   .profile-avatar {
     width: 120px;
@@ -56,8 +64,8 @@ const UserName = styled.h2`
   transition: all 0.3s ease-in-out;
 
   ${({ editing }) =>
-        editing &&
-        `
+    editing &&
+    `
     opacity: 0.6;
   `}
 `;
@@ -102,68 +110,79 @@ const StyledButton = styled(Button)`
 `;
 
 const Profile = () => {
-    const { user, setUser } = useContext(UserContext);
-    const [isEditing, setIsEditing] = useState(false);
-    const [newName, setNewName] = useState(user?.name || "");
+  const { user, setUser } = useContext(UserContext);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newName, setNewName] = useState(user?.name || "");
 
-    const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+  const topRef = useRef(null)
 
-    const navigate = useNavigate();
-  
-    const handleLogout = () => {
-      const confirmation = window.confirm("Are you sure you want to log out?");
-      if (confirmation) {
-        fetch(`${API_URL}/logout`, {
-          method: "DELETE",
-          credentials: 'include',
-        }).then(() => {
-          setUser(null);
-          navigate('/');
-        });
-      }
-    };
+  useEffect(() => {
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, []); // Runs only when the component mounts
 
-    const handleSave = () => {
-        if (!newName.trim()) {
-            message.error("Name cannot be empty.");
-            return;
-        }
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
-        setUser({ ...user, name: newName });
-        setIsEditing(false);
-        message.success("Profile updated successfully!");
-    };
+  const navigate = useNavigate();
 
-    return (
-        <ProfileContainer>
-            <AvatarContainer>
-                <Avatar
-                    src={user?.avatar || Woman}
-                    className="profile-avatar"
-                    size={120}
-                />
-            </AvatarContainer>
+  const handleLogout = () => {
+    const confirmation = window.confirm("Are you sure you want to log out?");
+    if (confirmation) {
+      fetch(`${API_URL}/logout`, {
+        method: "DELETE",
+        credentials: 'include',
+      }).then(() => {
+        setUser(null);
+        navigate('/');
+      });
+    }
+  };
 
-            {!isEditing ? (
-                <>
-                    <UserName>{user?.name || "User"}</UserName>
-                    <StyledButton icon={<EditOutlined />} onClick={() => setIsEditing(true)}>
-                        Edit Name
-                    </StyledButton>
-                    <StyledButton className="cancel" icon={<LogoutOutlined />} onClick={() => handleLogout()}>
-                        Logout
-                    </StyledButton>
-                </>
-            ) : (
-                <EditContainer>
-                    <StyledInput value={newName} onChange={(e) => setNewName(e.target.value)} />
-                    <StyledButton icon={<SaveOutlined />} onClick={handleSave}>
-                        Save
-                    </StyledButton>
-                </EditContainer>
-            )}
-        </ProfileContainer>
-    );
+  const handleSave = () => {
+    if (!newName.trim()) {
+      message.error("Name cannot be empty.");
+      return;
+    }
+
+    setUser({ ...user, name: newName });
+    setIsEditing(false);
+    message.success("Profile updated successfully!");
+  };
+
+  return (
+    <Container ref={topRef}>
+      <ProfileContainer>
+        <AvatarContainer>
+          <Avatar
+            src={user?.avatar || Woman}
+            className="profile-avatar"
+            size={120}
+          />
+        </AvatarContainer>
+
+        {!isEditing ? (
+          <>
+            <UserName>{user?.name || "User"}</UserName>
+            <StyledButton icon={<EditOutlined />} onClick={() => setIsEditing(true)}>
+              Edit Name
+            </StyledButton>
+            <StyledButton className="cancel" icon={<LogoutOutlined />} onClick={() => handleLogout()}>
+              Logout
+            </StyledButton>
+          </>
+        ) : (
+          <EditContainer>
+            <StyledInput value={newName} onChange={(e) => setNewName(e.target.value)} />
+            <StyledButton icon={<SaveOutlined />} onClick={handleSave}>
+              Save
+            </StyledButton>
+          </EditContainer>
+        )}
+      </ProfileContainer>
+      <ChooseAvatar />
+    </Container>
+  );
 };
 
 export default Profile;
