@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import { Input, Button, Avatar, message } from "antd";
@@ -114,13 +114,9 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(user?.name || "");
 
-  const topRef = useRef(null)
-
   useEffect(() => {
-    if (topRef.current) {
-      topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, []); // Runs only when the component mounts
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
@@ -151,7 +147,7 @@ const Profile = () => {
   };
 
   return (
-    <Container ref={topRef}>
+    <Container>
       <ProfileContainer>
         <AvatarContainer>
           <Avatar

@@ -88,11 +88,6 @@ const AvatarImage = styled.img`
     border-color: ${({ selected }) => (selected ? "#6a1b9a" : "#ddd")};
     transform: ${({ selected }) => (selected ? "scale(1.1)" : "scale(1.05)")};
   }
-
-  @media (max-width: 600px) {
-    width: 60px;
-    height: 60px;
-  }
 `;
 
 const LoadingText = styled.p`
