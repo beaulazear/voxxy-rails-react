@@ -3,7 +3,6 @@ import styled, { keyframes } from 'styled-components';
 import { UserContext } from '../context/user';
 import ActivityDetailsPage from './ActivityDetailsPage';
 import PendingInvites from './PendingInvites';
-import Woman from '../assets/Woman.jpg';
 import TripDashboard from './TripDashboard.js';
 import VoxxyFooter from '../components/VoxxyFooter.js';
 import Profile from './Profile.js';
@@ -23,90 +22,36 @@ const DashboardContainer = styled.div`
   animation: ${fadeIn} 0.8s ease-in-out;
 `;
 
-const HeroSection = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: linear-gradient(135deg, #6a1b9a, #8e44ad);
-  color: #fff;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s ease-in-out;
+const HeroContainer = styled.div`
+  padding: 1.5rem 2.5rem 1rem;
+  text-align: left;
+  max-width: 1200px;
 
   @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 1rem;
-    gap: 1rem;
+    padding: 0rem .5rem .5rem;
   }
 `;
 
-const UserInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+const WelcomeText = styled.h1`
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+`;
 
-  img {
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    object-fit: cover;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  }
+const SubText = styled.p`
+  font-size: 1.2rem;
+  font-weight: 500;
+  opacity: 0.9;
 
-  .welcome-text {
-    display: flex;
-    flex-direction: column;
+  @media (max-width: 768px) {
     font-size: 1rem;
-    font-weight: 500;
-
-    span {
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: #fff;
-    }
-  }
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-
-    img {
-      width: 45px;
-      height: 45px;
-    }
-
-    .welcome-text span {
-      font-size: 1.2rem;
-    }
   }
 `;
 
-const AddTripButton = styled.button`
-  background: #fff;
-  color: #6a1b9a;
-  font-weight: 600;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
-
-  &:hover {
-    background: #ffebff;
-    transform: scale(1.05);
-  }
-
-  @media (max-width: 768px) {
-    width: 100%;
-    max-width: 250px;
-    padding: 10px;
-  }
+const Highlight = styled.span`
+  font-weight: 700;
 `;
+
 
 const SectionTitle = styled.p`
   font-size: clamp(1.5rem, 2.5vw, 2rem);
@@ -288,15 +233,13 @@ function UserActivities() {
   return (
     <>
       <DashboardContainer>
-        <HeroSection>
-          <UserInfo>
-            <img src={user?.avatar || Woman} alt="User Avatar" />
-            <div className="welcome-text">
-              Welcome back, <span>{user?.name || "Explorer"}!</span>
-            </div>
-          </UserInfo>
-          <AddTripButton onClick={() => setShowActivities(true)}>➕ New Board</AddTripButton>
-        </HeroSection>
+
+        <HeroContainer>
+          <WelcomeText>Welcome back, {user.name}!</WelcomeText>
+          <SubText>
+            Let's start planning together.
+          </SubText>
+        </HeroContainer>
 
         <PendingInvites />
 

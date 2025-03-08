@@ -1,10 +1,21 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from 'react-router-dom';
-import styled from "styled-components";
+import styled, { keyframes } from 'styled-components';
 import { Input, Button, Avatar, message } from "antd";
 import { UserContext } from "../context/user";
 import { EditOutlined, SaveOutlined, LogoutOutlined } from "@ant-design/icons";
 import Woman from "../assets/Woman.jpg";
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
 
 const ProfileContainer = styled.div`
   max-width: 500px;
@@ -15,10 +26,13 @@ const ProfileContainer = styled.div`
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
   text-align: center;
   transition: all 0.3s ease-in-out;
+  animation: ${fadeIn} 0.8s ease-in-out;
 
   @media (max-width: 768px) {
     padding: 2rem;
     margin: 50px auto;
+    margin-left: 10px;
+    margin-right: 10px;
   }
 `;
 
