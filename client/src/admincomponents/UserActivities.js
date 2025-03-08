@@ -4,7 +4,8 @@ import { UserContext } from '../context/user';
 import ActivityDetailsPage from './ActivityDetailsPage';
 import PendingInvites from './PendingInvites';
 import Woman from '../assets/Woman.jpg';
-import TripDashboard from './TripDashboard.js'
+import TripDashboard from './TripDashboard.js';
+import VoxxyFooter from '../components/VoxxyFooter.js';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -234,6 +235,10 @@ function UserActivities() {
     setSelectedActivityId(null);
   };
 
+  const handleShowActivities = () => {
+    setShowActivities(true)
+  }
+
   const allActivities = [
     ...(user?.activities || []),
     ...(user?.participant_activities?.filter(activity => activity.accepted).map(p => p.activity) || [])
@@ -250,41 +255,44 @@ function UserActivities() {
   }
 
   return (
-    <DashboardContainer>
-      <HeroSection>
-        <UserInfo>
-          <img src={user?.avatar || Woman} alt="User Avatar" />
-          <div className="welcome-text">
-            Welcome back, <span>{user?.name || "Explorer"}!</span>
-          </div>
-        </UserInfo>
-        <AddTripButton onClick={() => setShowActivities(true)}>New Board</AddTripButton>
-      </HeroSection>
+    <>
+      <DashboardContainer>
+        <HeroSection>
+          <UserInfo>
+            <img src={user?.avatar || Woman} alt="User Avatar" />
+            <div className="welcome-text">
+              Welcome back, <span>{user?.name || "Explorer"}!</span>
+            </div>
+          </UserInfo>
+          <AddTripButton onClick={() => setShowActivities(true)}>➕ New Board</AddTripButton>
+        </HeroSection>
 
-      <PendingInvites />
+        <PendingInvites />
 
-      <SectionTitle>Your Boards</SectionTitle>
-      <CardGrid>
-        {uniqueActivities.length > 0 ? (
-          uniqueActivities.map((activity) => (
-            <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)} $emoji={activity.emoji}>
-              <div className="content">
-                <div className="emoji">{activity.emoji || '🌀'}</div>
-                <h3>{activity.activity_name}</h3>
-              </div>
-            </ActivityCard>
-          ))
-        ) : (
-          <p>No boards yet! Start a new one now.</p>
-        )}
-        <StartBoardCard onClick={() => setShowActivities(true)}>
-          <div className="content">
-            <div className="emoji">➕</div>
-            <h3>Start a New Board</h3>
-          </div>
-        </StartBoardCard>
-      </CardGrid>
-    </DashboardContainer>
+        <SectionTitle>Your Boards</SectionTitle>
+        <CardGrid>
+          {uniqueActivities.length > 0 ? (
+            uniqueActivities.map((activity) => (
+              <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)} $emoji={activity.emoji}>
+                <div className="content">
+                  <div className="emoji">{activity.emoji || '🌀'}</div>
+                  <h3>{activity.activity_name}</h3>
+                </div>
+              </ActivityCard>
+            ))
+          ) : (
+            <p>No boards yet! Start a new one now.</p>
+          )}
+          <StartBoardCard onClick={() => setShowActivities(true)}>
+            <div className="content">
+              <div className="emoji">➕</div>
+              <h3>Start a New Board</h3>
+            </div>
+          </StartBoardCard>
+        </CardGrid>
+      </DashboardContainer>
+      <VoxxyFooter handleShowActivities={handleShowActivities} />
+    </>
   );
 }
 

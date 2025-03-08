@@ -1,8 +1,7 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Button, Drawer } from 'antd';
-import { MenuOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
 import { UserContext } from '../context/user';
 
 const NavbarContainer = styled.div`
@@ -38,10 +37,6 @@ const MenuContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 20px;
-
-  @media (max-width: 768px) {
-    display: none;
-  }
 `;
 
 const MenuItem = styled(NavLink)`
@@ -77,38 +72,12 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const MobileMenuButton = styled(MenuOutlined)`
-  font-size: 24px;
-  color: black;
-  cursor: pointer;
-
-  @media (min-width: 768px) {
-    display: none;
-  }
-`;
-
-const DrawerMenuItem = styled.div`
-  font-size: 18px;
-  padding: 15px 0;
-  border-bottom: 1px solid #f0f0f0;
-  text-align: center;
-`;
-
 const Navbar = () => {
-  const [drawerVisible, setDrawerVisible] = useState(false);
   const { user, setUser } = useContext(UserContext);
 
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
   const navigate = useNavigate();
-
-  const showDrawer = () => {
-    setDrawerVisible(true);
-  };
-
-  const closeDrawer = () => {
-    setDrawerVisible(false);
-  };
 
   const handleLogout = () => {
     const confirmation = window.confirm("Are you sure you want to log out?");
@@ -118,7 +87,6 @@ const Navbar = () => {
         credentials: 'include',
       }).then(() => {
         setUser(null);
-        closeDrawer();
         navigate('/');
       });
     }
@@ -130,9 +98,6 @@ const Navbar = () => {
       <MenuContainer>
         {user && (
           <>
-            <StyledButton>
-              <MenuItem to="/" end>Home</MenuItem>
-            </StyledButton>
             <StyledButton onClick={handleLogout}>
               <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
             </StyledButton>
@@ -152,48 +117,6 @@ const Navbar = () => {
           </>
         )}
       </MenuContainer>
-      <MobileMenuButton onClick={showDrawer} />
-      <Drawer
-        title="Menu"
-        placement="right"
-        onClose={closeDrawer}
-        open={drawerVisible}
-        width={250}
-      >
-        {user && (
-          <>
-            <DrawerMenuItem>
-              <StyledButton onClick={closeDrawer}>
-                <NavLink to="/" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Home</NavLink>
-              </StyledButton>
-            </DrawerMenuItem>
-            <DrawerMenuItem>
-              <StyledButton onClick={handleLogout}>
-                <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</NavLink>
-              </StyledButton>
-            </DrawerMenuItem>
-          </>
-        )}
-        {!user && (
-          <>
-            <DrawerMenuItem>
-              <StyledButton onClick={closeDrawer}>
-                <NavLink to="/" onClick={closeDrawer} style={{ color: 'black', textDecoration: 'none' }}>Home</NavLink>
-              </StyledButton>
-            </DrawerMenuItem>
-            <DrawerMenuItem>
-              <StyledButton onClick={closeDrawer}>
-                <NavLink to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
-              </StyledButton>
-            </DrawerMenuItem>
-            <DrawerMenuItem>
-              <StyledButton onClick={closeDrawer}>
-                <NavLink to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>Log In</NavLink>
-              </StyledButton>
-            </DrawerMenuItem>
-          </>
-        )}
-      </Drawer>
     </NavbarContainer>
   );
 };

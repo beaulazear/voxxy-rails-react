@@ -244,6 +244,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
           {isOwner && (
             <div className="invite-section">
               <input
+                style={{ marginRight: '10px' }}
                 type="email"
                 placeholder="Invite by email"
                 value={inviteEmail}
