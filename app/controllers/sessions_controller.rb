@@ -32,8 +32,9 @@ class SessionsController < ApplicationController
             include: {
               user: { only: [ :id, :name, :email, :avatar ] },
               responses: { only: [ :id, :notes, :created_at ] },
-              participants: { only: [ :id, :name, :email ] },
-              activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] }
+              participants: { only: [ :id, :name, :email, :avatar ] },
+              activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] },
+              comments: { include: { user: { only: [ :id, :name, :avatar ] } } }
             }
           }
         }
@@ -45,7 +46,8 @@ class SessionsController < ApplicationController
             include: {
               user: { only: [ :id, :name, :email, :avatar ] },
               responses: { only: [ :id, :notes, :created_at ] },
-              participants: { only: [ :id, :name, :email ] }
+              participants: { only: [ :id, :name, :email, :avatar ] },
+              comments: { include: { user: { only: [ :id, :name, :avatar ] } } }
             }
           }
         }

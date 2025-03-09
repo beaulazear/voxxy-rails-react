@@ -1,20 +1,42 @@
 class CommentsController < ApplicationController
-    before_action :authorized
+  before_action :authorized
 
-    def create
-      pinned_activity = PinnedActivity.find(params[:pinned_activity_id])
-      comment = pinned_activity.comments.build(comment_params.merge(user_id: @current_user.id))
+  def create
+    activity = Activity.find_by(id: params[:activity_id])
+    return render json: { error: "Activity not found" }, status: :not_found unless activity
 
-      if comment.save
-        render json: comment, status: :created
-      else
-        render json: { errors: comment.errors.full_messages }, status: :unprocessable_entity
-      end
+    comment = Comment.new(comment_params)
+    comment.user_id = current_user.id
+    comment.activity_id = activity.id
+    comment.pinned_activity_id = params[:pinned_activity_id] if params[:pinned_activity_id].present?
+
+    if comment.save
+      render json: comment.as_json(include: { user: { only: [ :id, :name, :email, :avatar ] } }), status: :created
+    else
+      render json: { error: "Failed to post comment." }, status: :unprocessable_entity
     end
+  end
 
-    private
+  def index
+    commentable = find_commentable
+    return render json: { error: "Activity or Pinned Activity not found" }, status: :not_found unless commentable
 
-    def comment_params
-      params.require(:comment).permit(:content)
+    render json: commentable.comments.includes(:user).as_json(
+      include: { user: { only: [ :id, :name, :avatar ] } }
+    )
+  end
+
+  private
+
+  def find_commentable
+    if params[:activity_id]
+      Activity.find_by(id: params[:activity_id])
+    elsif params[:pinned_activity_id]
+      PinnedActivity.find_by(id: params[:pinned_activity_id])
     end
+  end
+
+  def comment_params
+    params.require(:comment).permit(:content)
+  end
 end

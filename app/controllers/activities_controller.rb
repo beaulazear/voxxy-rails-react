@@ -67,7 +67,8 @@ class ActivitiesController < ApplicationController
                 user: { only: [ :id, :name, :email, :avatar ] },
                 responses: { only: [ :id, :notes, :created_at ] },
                 participants: { only: [ :id, :name, :email, :avatar ] },
-                activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] }
+                activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] },
+                comments: { include: { user: { only: [ :id, :name, :avatar ] } } }
               }
             }
           }

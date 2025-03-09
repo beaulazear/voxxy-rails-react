@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { LeftOutlined, EditOutlined, DeleteOutlined, UserAddOutlined } from "@ant-design/icons";
 import Woman from "../assets/Woman.jpg";
+import ActivityCommentSection from './ActivityCommentSection.js'
 
 const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }) => {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
@@ -10,6 +11,8 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
+
+  console.log(activity)
 
   const handleInviteClick = () => {
     setShowInvitePopup(true);
@@ -113,6 +116,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
             <UserAddOutlined /> Invite
           </InviteButton>
         )}
+        <ActivityCommentSection activity={activity} />
       </ParticipantsSection>
 
       {showInvitePopup && (
