@@ -65,9 +65,13 @@ const Title = styled.h2`
 
 const AvatarGrid = styled.div`
   display: flex;
-  gap: 1.5rem;
+  gap: 1.2rem;
   justify-content: center;
   flex-wrap: wrap;
+
+  @media (max-width: 600px) {
+    gap: .8px;
+  }
 `;
 
 const AvatarButton = styled.button`

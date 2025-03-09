@@ -85,6 +85,7 @@ export const BackButton = styled(NavLink)`
   font-size: 1rem;
   font-weight: bold;
   transition: all 0.3s ease-in-out;
+  text-decoration: none; /* Removes underline */
 
   &:hover {
     background: linear-gradient(135deg, #4e0f63, #6a1b8a);
