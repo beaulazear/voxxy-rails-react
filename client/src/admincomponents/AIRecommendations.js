@@ -247,7 +247,7 @@ const RecommendationItem = styled.div`
   position: relative;
   border-left: 8px solid #666666;
   min-width: 300px;
-  max-width: 500px;
+  max-width: 600px;
   cursor: pointer;
   text-align: left;
 

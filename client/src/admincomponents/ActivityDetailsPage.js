@@ -208,9 +208,9 @@ const TextContainer = styled.div`
   flex-direction: column;
   gap: 12px;
   position: relative;
-  border-left: 8px solid #666666;
+  border-left: 8px solid #FFC75F;
   min-width: 300px;
-  max-width: 500px;
+  max-width: 600px;
   cursor: pointer;
   text-align: left;
 

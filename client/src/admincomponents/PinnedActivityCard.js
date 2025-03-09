@@ -89,11 +89,11 @@ const Card = styled.div`
   flex-direction: column;
   gap: 12px;
   position: relative;
-  border-left: 8px solid #666666;
+  border-left: 8px solid #FFB400;
   min-width: 300px;
   cursor: pointer;
   text-align: left;
-  max-width: 500px;
+  max-width: 600px;
 
   &:hover {
     transform: scale(1.01);
