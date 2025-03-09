@@ -125,7 +125,7 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
     }
   };
 
-  const hasManyItems = recommendations.length >= 3;
+  const hasManyItems = recommendations.length >= 1;
 
   return (
     <RecommendationsContainer>
@@ -136,7 +136,8 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
         <RecommendationItem>
           <RestaurantName>AI Recommendations</RestaurantName>
           {recommendations.length > 0 && (<Description>Your recommendations won’t last forever! If you find one you love, click on it to pin it and keep it saved in pinned activities. 'Chat with Voxxy' to update your preferences.</Description>)}
-          {recommendations.length === 0 && (<Description>Recommendations are personalized based on input from all group participants and can be generated once at least one participant has chatted with Voxxy. <br></br><br></br>No recommendations yet! Click ‘Chat with Voxxy’ to share your feedback.</Description>)}
+          {recommendations.length === 0 && (<Description>Voxxy creates personalized restaurant suggestions based on what your group enjoys.<br></br><br></br>
+            To get started, one participant needs to chat with Voxxy and share their preferences. Once that’s done, AI-powered recommendations will appear here!</Description>)}
           <ChatButton>
             <StyledButton onClick={() => setShowChat(true)}>
               Chat with Voxxy
@@ -179,7 +180,7 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
       {recommendations.length > 0 && (
         <RestaurantMap recommendations={recommendations} />
       )}
-      
+
       {showChat && (
         <>
           <DimmedOverlay />
@@ -217,7 +218,7 @@ const RecommendationList = styled.div`
   -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
   margin-left: -3rem;
   margin-right: -3rem;
-  padding: 20px;
+  padding: 10px;
 
   &::-webkit-scrollbar {
     display: none; /* Hide scrollbar for Chrome/Safari */

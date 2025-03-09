@@ -298,37 +298,20 @@ export const ParticipantCircle = styled.div`
   font-size: 1rem;
   font-weight: bold;
   text-transform: uppercase;
-  flex-shrink: 0; /* Ensures items stay in a row */
-  cursor: pointer;
+  flex-shrink: 0; /* Keeps items in one row */
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: all 0.3s ease-in-out;
   position: relative;
   overflow: hidden;
-  padding: 0 10px;
-  white-space: nowrap; /* Prevents text from wrapping */
+  padding: 0;
 
-  &:hover {
-    width: auto; /* Expands horizontally */
-    min-width: 120px; /* Ensures enough space */
-    border-radius: 20px; /* Keeps pill shape */
-    padding: 0 12px;
-    justify-content: flex-start;
-  }
+  /* No more hover effect */
+  transition: none;
 
-  .name {
-    opacity: 0;
-    max-width: 0;
-    overflow: hidden;
+  /* Ensure initials show properly */
+  .initials {
     white-space: nowrap;
-    transition: opacity 0.3s ease-in-out, max-width 0.3s ease-in-out;
-  }
-
-  &:hover .name {
-    opacity: 1;
-    max-width: 150px; /* Reveals name */
-    margin-left: 8px;
   }
 `;
 

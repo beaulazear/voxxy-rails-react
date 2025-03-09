@@ -153,7 +153,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
     }
   }
 
-  const hasManyItems = pinnedActivities.length >= 3;
+  const hasManyItems = pinnedActivities.length >= 1;
 
   return (
     <div ref={topRef}>
@@ -169,8 +169,9 @@ function ActivityDetailsPage({ activityId, onBack }) {
         <SmallSection>
           <PinnedScrollContainer style={{ justifyContent: hasManyItems ? 'flex-start' : 'center' }}>
             <TextContainer>
-              <PinnedTitle>Pinned Locations 📌</PinnedTitle>
-              <SubTitle>Your pinned activities are here to stay! If you have a favorite, don’t forget to vote on it and leave a comment to share your thoughts. Need to make changes? ‘Chat with Voxxy’ to explore new options!</SubTitle>
+              <PinnedTitle>🎉 Your pinned activities are saved for easy access!</PinnedTitle>
+              <SubTitle>Found a restaurant that’s a perfect match? Pin it to keep it on your list, then vote and leave a comment to share your thoughts with the group.
+              If your group’s preferences change, Chat with Voxxy to explore new AI-powered recommendations and refine your choices!</SubTitle>
             </TextContainer>
             {pinnedActivities.length > 0 && (
               pinnedActivities.map((pinned) => (
@@ -214,7 +215,6 @@ const TextContainer = styled.div`
   min-width: 300px;
   cursor: pointer;
   text-align: left;
-  max-width: 500px;
 
   &:hover {
     transform: scale(1.01);
@@ -244,7 +244,7 @@ const PinnedScrollContainer = styled.div`
   -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
   margin-left: -3rem;
   margin-right: -3rem;
-  padding: 20px;
+  padding: 10px;
 
   &::-webkit-scrollbar {
     display: none; /* Hide scrollbar for Chrome/Safari */
