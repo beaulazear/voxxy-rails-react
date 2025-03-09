@@ -39,7 +39,7 @@ class UsersController < ApplicationController
               user: { only: [ :id, :name, :email, :avatar ] },
               responses: { only: [ :id, :notes, :created_at ] },
               participants: { only: [ :id, :name, :email ] },
-              activity_participants: { only: [ :id, :user_id, :invited_email, :accepted, :avatar ] }
+              activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] }
             }
           }
         }

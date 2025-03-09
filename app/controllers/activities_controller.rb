@@ -6,7 +6,7 @@ class ActivitiesController < ApplicationController
       if activity.save
         render json: activity.as_json(
           only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji ],
-          include: { user: { only: [ :id, :name, :email ] } }
+          include: { user: { only: [ :id, :name, :email, :avatar ] } }
         ), status: :created
       else
         render json: { errors: activity.errors.full_messages }, status: :unprocessable_entity
@@ -42,7 +42,7 @@ class ActivitiesController < ApplicationController
           user: { only: [ :id, :name, :email ] },
           responses: { only: [ :id, :notes, :created_at ] },
           activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] },
-          participants: { only: [ :id, :name, :email ] }
+          participants: { only: [ :id, :name, :email, :avatar ] }
         }
       )
     end
@@ -66,7 +66,7 @@ class ActivitiesController < ApplicationController
               include: {
                 user: { only: [ :id, :name, :email ] },
                 responses: { only: [ :id, :notes, :created_at ] },
-                participants: { only: [ :id, :name, :email ] },
+                participants: { only: [ :id, :name, :email, :avatar ] },
                 activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] }
               }
             }
@@ -75,7 +75,7 @@ class ActivitiesController < ApplicationController
           only: [ :id, :activity_name, :emoji, :user_id, :date_notes, :activity_location, :group_size ],
           include: {
             user: { only: [ :id, :name, :email ] },
-            participants: { only: [ :id, :name, :email ] },
+            participants: { only: [ :id, :name, :email, :avatar ] },
             activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] }
           }
         ))

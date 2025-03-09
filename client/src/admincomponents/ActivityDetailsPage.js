@@ -166,7 +166,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
           <PinnedScrollContainer style={{ justifyContent: hasManyItems ? 'flex-start' : 'center' }}>
             <TextContainer>
               <PinnedTitle>🎉 Your pinned activities are saved for easy access!</PinnedTitle>
-              <SubTitle>Found a restaurant that’s a perfect match? Pin it to keep it on your list, then vote and leave a comment to share your thoughts with the group.
+              <SubTitle>Found a restaurant that’s a perfect match? Click (or tap) on it to pin it to your list! Once pinned, you can vote and leave a comment to share your thoughts with the group.
                 <br></br><br></br>
               If your group’s preferences change, Chat with Voxxy to explore new AI-powered recommendations and refine your choices!</SubTitle>
             </TextContainer>

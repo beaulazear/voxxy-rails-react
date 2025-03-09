@@ -49,7 +49,7 @@ class ActivityParticipantsController < ApplicationController
       activity = participant.activity
       activity.update!(group_size: activity.group_size + 1)
 
-      render json: { message: "You have successfully joined the activity." }, status: :ok
+      render json: participant.as_json(include: { user: { only: [ :id, :name, :email, :avatar ] } }), status: :ok
     rescue => e
       render json: { error: e.message }, status: :unprocessable_entity
     end
@@ -59,9 +59,10 @@ class ActivityParticipantsController < ApplicationController
 
       render json: activity_participants.as_json(
         include: {
+          user: { only: [ :id, :name, :email, :avatar ] }, # Include full user data
           activity: {
             only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji ],
-            include: { user: { only: [ :id, :name, :email ] } }
+            include: { user: { only: [ :id, :name, :email, :avatar ] } }
           }
         }
       )

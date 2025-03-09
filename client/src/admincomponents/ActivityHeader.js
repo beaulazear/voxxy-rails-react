@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { LeftOutlined, EditOutlined, DeleteOutlined, UserAddOutlined } from "@ant-design/icons";
+import Woman from "../assets/Woman.jpg";
 
 const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }) => {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
@@ -35,6 +36,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
     name: `${activity.user?.name || "Unknown"} (Host)`,
     email: activity.user?.email || "N/A",
     confirmed: true,
+    avatar: activity.user?.avatar || Woman
   };
 
   const allParticipants = [
@@ -43,11 +45,13 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
       name: p.name || p.email,
       email: p.email,
       confirmed: true,
+      avatar: p.avatar || Woman,
     })),
     ...pendingInvitesArray.map((p) => ({
       name: p.invited_email,
       email: p.invited_email,
       confirmed: false,
+      avatar: Woman,
     })),
   ];
 
@@ -83,41 +87,20 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
       <ParticipantsSection>
         <ParticipantsTitle>Participants - {activity.group_size}</ParticipantsTitle>
 
-        {/* Keep only the scrollable participants here */}
         <ParticipantsRow>
           <ParticipantsScroll>
             {allParticipants.filter((p) => p.confirmed).map((participant, index) => {
-              const cleanedName = participant.name.replace(/\s*\(.*?\)\s*/g, "");
-              const initials = cleanedName
-                ? cleanedName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-                : "?";
-
               return (
                 <ParticipantCircle key={index} title={participant.name}>
-                  {participant.avatar ? (
-                    <ParticipantImage src={participant.avatar} alt={participant.name} />
-                  ) : (
-                    <span className="initials">{initials}</span>
-                  )}
+                  <ParticipantImage src={participant.avatar} alt={participant.name} />
                 </ParticipantCircle>
               );
             })}
-
-            {/* Show pending participants if owner */}
             {isOwner &&
               allParticipants.filter((p) => !p.confirmed).map((participant, index) => {
-                const cleanedName = participant.name.replace(/\s*\(.*?\)\s*/g, "");
-                const initials = cleanedName
-                  ? cleanedName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-                  : "?";
-
                 return (
                   <ParticipantCircle key={`pending-${index}`} title={`${participant.name} (Pending)`} $pending>
-                    {participant.avatar ? (
-                      <ParticipantImage src={participant.avatar} alt={participant.name} />
-                    ) : (
-                      <span className="initials">{initials}</span>
-                    )}
+                    <ParticipantImage src={participant.avatar} alt={participant.name} />
                   </ParticipantCircle>
                 );
               })}
@@ -131,7 +114,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
           </InviteButton>
         )}
       </ParticipantsSection>
-      
+
       {showInvitePopup && (
         <InvitePopup>
           <PopupContent>
@@ -290,13 +273,11 @@ export const ParticipantsScroll = styled.div`
 `;
 
 export const ParticipantCircle = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
   background: ${({ $pending }) => ($pending ? "#aaa" : "#4a0d5c")};
   color: white;
-  font-size: 1rem;
-  font-weight: bold;
   text-transform: uppercase;
   flex-shrink: 0; /* Keeps items in one row */
   display: flex;
@@ -304,10 +285,7 @@ export const ParticipantCircle = styled.div`
   align-items: center;
   position: relative;
   overflow: hidden;
-  padding: 0;
-
-  /* No more hover effect */
-  transition: none;
+  padding: 10px;
 
   /* Ensure initials show properly */
   .initials {
