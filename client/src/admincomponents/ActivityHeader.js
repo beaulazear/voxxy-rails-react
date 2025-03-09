@@ -144,7 +144,7 @@ export default HeaderSection;
 
 export const HeaderContainer = styled.div`
   background: white;
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
   margin: 1rem auto;

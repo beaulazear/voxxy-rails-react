@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef } from "react";
+import React, { useState, useContext } from "react";
 import { UserContext } from "../context/user";
 import styled from "styled-components";
 import { SendOutlined } from "@ant-design/icons";
@@ -8,11 +8,6 @@ const CommentsSection = ({ activity }) => {
     const [comments, setComments] = useState(activity.comments || []);
     const [newComment, setNewComment] = useState("");
     const { user } = useContext(UserContext);
-    const commentsEndRef = useRef(null);
-
-    useEffect(() => {
-        commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [comments]);
 
     const handleCommentSubmit = async () => {
         if (!newComment.trim()) return;
@@ -51,7 +46,7 @@ const CommentsSection = ({ activity }) => {
 
     return (
         <CommentsContainer>
-            <CommentsTitle>Activity Chat</CommentsTitle>
+            <CommentsTitle>Comments</CommentsTitle>
             <CommentsList>
                 {comments.length > 0 ? (
                     comments.map((comment) => {
@@ -73,7 +68,7 @@ const CommentsSection = ({ activity }) => {
                 ) : (
                     <NoComments>No messages yet. Start the conversation!</NoComments>
                 )}
-                <div ref={commentsEndRef} />
+                <div/>
             </CommentsList>
 
             <CommentInputContainer>
@@ -95,10 +90,9 @@ export default CommentsSection;
 
 const CommentsContainer = styled.div`
   background: white;
-  border-radius: 12px;
-  padding: 1rem;
   width: 100%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 0;
+  margin: 0 auto;
 `;
 
 const CommentsTitle = styled.h3`

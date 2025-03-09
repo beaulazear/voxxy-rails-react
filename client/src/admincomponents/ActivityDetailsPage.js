@@ -9,7 +9,7 @@ import AIRecommendations from "./AIRecommendations";
 import UpdateActivityModal from './UpdateActivityModal';
 import PinnedActivityCard from './PinnedActivityCard';
 import LoadingScreen from '../components/LoadingScreen.js';
-import ActivityHeader from '../admincomponents/ActivityHeader.js'
+import ActivityHeader from './ActivityHeader.js';
 
 function ActivityDetailsPage({ activityId, onBack }) {
   const { user, setUser } = useContext(UserContext);

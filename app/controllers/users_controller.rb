@@ -53,7 +53,7 @@ class UsersController < ApplicationController
               user: { only: [ :id, :name, :email, :avatar ] },
               responses: { only: [ :id, :notes, :created_at ] },
               participants: { only: [ :id, :name, :email, :avatar ] },
-              comments: { include: { user: { only: [ :id, :name, :avatar ] } } },
+              comments: { include: { user: { only: [ :id, :name, :avatar ] } } }
             }
           }
         }
