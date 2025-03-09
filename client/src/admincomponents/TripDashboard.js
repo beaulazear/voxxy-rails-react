@@ -15,6 +15,21 @@ const fadeIn = keyframes`
   }
 `;
 
+const gradientAnimation = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
+export const PageContainer = styled.div`
+  background: linear-gradient(-45deg, #6a1b9a, #8e44ad, #b67fdd, #e0b3f3);
+  min-height: 100vh;
+  height: auto;
+  width: 100%;
+  animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
+  padding-bottom: 40px;
+`;
+
 const DashboardContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -23,7 +38,6 @@ const DashboardContainer = styled.div`
   margin: 0 auto;
   gap: 1.5rem;
   position: relative;
-  animation: ${fadeIn} 0.8s ease-in-out; /* Apply animation */
 `;
 
 const LoadingScreen = styled.div`
@@ -92,7 +106,7 @@ function TripDashboard({setShowActivities}) {
   }
 
   return (
-    <div ref={dashboardRef} style={{background: 'linear-gradient(135deg, #6a1b9a, #8e44ad)',  minHeight: '100vh', height: 'auto', width: '100%', animation: 'fadeIn 0.8s ease-in-out', paddingBottom: '40px' }}>
+    <PageContainer ref={dashboardRef}>
       <DashboardContainer>
         <StartNewAdventure setShowActivities={setShowActivities} onTripSelect={handleTripSelect} />
       </DashboardContainer>
@@ -102,7 +116,7 @@ function TripDashboard({setShowActivities}) {
           <RestaurantChat onClose={handleClose} />
         </>
       )}
-    </div>
+    </PageContainer>
   );
 }
 

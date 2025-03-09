@@ -18,7 +18,7 @@ const EmojiRain = styled.div`
 `;
 
 const SectionTitle = styled.p`
-  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-size: clamp(1.7rem, 2.7vw, 2.2rem);
   margin: 0;
   color: #fff;
 `;

@@ -18,9 +18,17 @@ const fadeIn = keyframes`
   }
 `;
 
+const gradientAnimation = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
 const Container = styled.div`
-  animation: ${fadeIn} 0.8s ease-in-out;
+  animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
+  background: linear-gradient(-45deg, #6a1b9a, #8e44ad, #b67fdd, #e0b3f3);
   padding-bottom: 50px;
+  padding-top: 10px;
 `;
 
 const ProfileContainer = styled.div`
@@ -36,8 +44,7 @@ const ProfileContainer = styled.div`
   animation: ${fadeIn} 0.8s ease-in-out;
 
   @media (max-width: 768px) {
-    padding: 2rem;
-    margin: 50px auto;
+    margin: 40px auto;
     margin-left: 10px;
     margin-right: 10px;
   }

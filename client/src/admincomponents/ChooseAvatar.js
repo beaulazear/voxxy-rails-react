@@ -94,6 +94,11 @@ const AvatarImage = styled.img`
   border: 3px solid ${({ selected }) => (selected ? "#6a1b9a" : "transparent")};
   transition: border 0.2s ease-in-out, transform 0.2s ease-in-out;
 
+  @media (max-width: 768px) {
+    width: 60px;
+    height: 60px;
+  }
+
   &:hover {
     border-color: ${({ selected }) => (selected ? "#6a1b9a" : "#ddd")};
     transform: ${({ selected }) => (selected ? "scale(1.1)" : "scale(1.05)")};

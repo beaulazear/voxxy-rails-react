@@ -5,14 +5,22 @@ const fadeIn = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
+
+const gradientAnimation = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
 export const PageContainer = styled.div`
   width: 100%;
   min-height: 100vh;
   padding: 1.5rem;
   padding-bottom: 40px;
   box-sizing: border-box;
-  animation: ${fadeIn} 0.8s ease-in-out;
-  background: linear-gradient(135deg, #6a1b9a, #8e44ad);
+  background: linear-gradient(-45deg, #6a1b9a, #8e44ad, #b67fdd, #e0b3f3);
+  background-size: 400% 400%;
+  animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
 `;
 
 export const ChatButton = styled.div`
