@@ -137,6 +137,9 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
           <RestaurantName>AI Recommendations</RestaurantName>
           {recommendations.length > 0 && (<Description>Your recommendations won’t last forever! If you find one you love, click on it to pin it and keep it saved in pinned activities. 'Chat with Voxxy' to update your preferences.</Description>)}
           {recommendations.length === 0 && (<Description>Recommendations are personalized based on input from all group participants and can be generated once at least one participant has chatted with Voxxy. <br></br><br></br>No recommendations yet! Click ‘Chat with Voxxy’ to share your feedback.</Description>)}
+          {recommendations.length > 0 && (
+            <RestaurantMap recommendations={recommendations} />
+          )}
           <ChatButton>
             <StyledButton onClick={() => setShowChat(true)}>
               Chat with Voxxy
@@ -148,9 +151,6 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
                 {loading ? "Generating..." : "Find Restaurants"}
               </StyledButton>
             </ChatButton>
-          )}
-          {recommendations.length > 0 && (
-            <RestaurantMap recommendations={recommendations} />
           )}
         </RecommendationItem>
         {recommendations.length > 0 ? (
@@ -204,10 +204,7 @@ const RecommendationsContainer = styled.div`
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-
-  @media (max-width: 768px) {
-    padding: 2rem;
-  }
+  margin-top: 0;
 `;
 
 const RecommendationList = styled.div`

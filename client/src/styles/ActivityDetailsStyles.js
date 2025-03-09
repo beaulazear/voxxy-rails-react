@@ -53,34 +53,10 @@ export const DimmedOverlay = styled.div`
 `;
 
 export const SmallSection = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
   padding: 1.5rem;
   border-radius: 16px;
-  min-height: 100%;
-  max-height: 1000px;
   max-width: 1200px;
-  justify-content: space-between;
-  text-align: left;
-  max-width: 1200px;
-  margin: auto;
-
-  @media (min-width: 768px) {
-    min-width: 420px;
-  }
-
-  button {
-    align-self: flex-start;
-    padding: 0.5rem 1rem;
-    margin-top: 1rem;
-  }
-
-  @media (max-width: 768px) {
-    padding: 1.25rem;
-
-    button {
-      margin-top: 1.5rem;
-    }
-  }
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 0;
 `;

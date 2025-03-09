@@ -165,15 +165,11 @@ function ActivityDetailsPage({ activityId, onBack }) {
           onInvite={handleInvite}
         />
         <SmallSection>
-          <TextContainer>
-            <PinnedTitle>Pinned Restaurants</PinnedTitle>
-            <SubTitle>
-              Your pinned activities are here to stay! If you have a favorite, don’t forget to vote on it and leave a comment to share your thoughts. Need to make changes? ‘Chat with Voxxy’ to explore new options!
-              <br></br><br></br>
-              {pinnedActivities.length === 0 && (" No pinned restaurants yet! Click on a recommendation to pin it.")}
-            </SubTitle>
-          </TextContainer>
           <PinnedScrollContainer>
+            <TextContainer>
+              <PinnedTitle>Pinned Locations 📌</PinnedTitle>
+              <SubTitle>Your pinned activities are here to stay! If you have a favorite, don’t forget to vote on it and leave a comment to share your thoughts. Need to make changes? ‘Chat with Voxxy’ to explore new options!</SubTitle>
+            </TextContainer>
             {pinnedActivities.length > 0 && (
               pinnedActivities.map((pinned) => (
                 <PinnedActivityCard
@@ -203,31 +199,38 @@ function ActivityDetailsPage({ activityId, onBack }) {
 export default ActivityDetailsPage;
 
 const TextContainer = styled.div`
-  background: white;
-  backdrop-filter: blur(15px);
-  border-radius: 8px;
-  width: fit-content;
-  margin: 0 auto;
-  padding: 18px;
-  margin-bottom: 25px;
-  margin-top: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  border-left: 8px solid #666666;
+  min-width: 300px;
+  cursor: pointer;
+  text-align: left;
+  max-width: 500px;
+
+  &:hover {
+    transform: scale(1.01);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+  }
 `
 
 const SubTitle = styled.div`
-  color: black;
-  max-width: 600px;
-  margin: auto;
-  font-size: 1.2rem;
-  padding: 1rem;
+  font-size: 1rem;
+  color: #444;
+  line-height: 1.5;
 `
 
 const PinnedTitle = styled.h2`
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-weight: bold;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  margin-top: 0;
+  color: #222;
+  margin-bottom: 6px;
 `;
 
 const PinnedScrollContainer = styled.div`
@@ -235,14 +238,13 @@ const PinnedScrollContainer = styled.div`
   gap: 1rem;
   overflow-x: auto;
   padding-bottom: 10px;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  margin-left: -2.1rem;
-  margin-right: -2.1rem;
-  max-height: 800px;
-  justify-content: center;
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+  -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+  margin-left: -3rem;
+  margin-right: -3rem;
+  padding: 20px;
 
   &::-webkit-scrollbar {
-    display: none;
+    display: none; /* Hide scrollbar for Chrome/Safari */
   }
 `;

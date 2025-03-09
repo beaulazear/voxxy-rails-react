@@ -89,12 +89,14 @@ const Card = styled.div`
   flex-direction: column;
   gap: 12px;
   position: relative;
-  border-left: 8px solid #6a1b9a;
-  margin: 10px; /* More space between elements */
+  border-left: 8px solid #666666;
   min-width: 300px;
+  cursor: pointer;
+  text-align: left;
+  max-width: 500px;
 
   &:hover {
-    transform: scale(1.02);
+    transform: scale(1.01);
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
   }
 `;
