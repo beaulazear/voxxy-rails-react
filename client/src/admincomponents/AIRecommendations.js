@@ -134,8 +134,9 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
 
       <RecommendationList style={{ justifyContent: hasManyItems ? 'flex-start' : 'center' }}>
         <RecommendationItem>
-          <RestaurantName>AI Recommendations</RestaurantName>
-          {recommendations.length > 0 && (<Description>Your recommendations won’t last forever! If you find one you love, click on it to pin it and keep it saved in pinned activities. 'Chat with Voxxy' to update your preferences.</Description>)}
+          <RestaurantName>🍽️ Your AI-powered recommendations are here!</RestaurantName>
+          {recommendations.length > 0 && (<Description>If you see a place that fits your group’s vibe, click to pin it and save it to your list.<br></br><br></br>
+            Want to refine your options? Chat with Voxxy to update preferences and generate new recommendations based on group feedback.</Description>)}
           {recommendations.length === 0 && (<Description>Voxxy creates personalized restaurant suggestions based on what your group enjoys.<br></br><br></br>
             To get started, one participant needs to chat with Voxxy and share their preferences. Once that’s done, AI-powered recommendations will appear here!</Description>)}
           <ChatButton>
