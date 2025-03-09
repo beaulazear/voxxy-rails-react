@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   end
   resources :pinned_activities, only: [] do
     resources :comments, only: [ :index, :create ]
+    resources :votes, only: [ :create, :destroy ]
   end
 
   get "/verify", to: "users#verify"

@@ -13,26 +13,29 @@ class PinnedActivitiesController < ApplicationController
     end
 
     def index
-        activity = Activity.find_by(id: params[:activity_id])
+      activity = Activity.find_by(id: params[:activity_id])
 
-        if activity
-          pinned_activities = activity.pinned_activities.includes(:comments)
+      if activity
+        pinned_activities = activity.pinned_activities.includes(:comments, :votes)
 
-          render json: pinned_activities.as_json(
-            only: [ :id, :title, :hours, :price_range, :address, :votes, :description, :activity_id ],
-            include: {
-              comments: {
-                only: [ :id, :content, :created_at ],
-                include: {
-                  user: { only: [ :id, :name, :email ] } # Includes the commenter's name and email
-                }
+        render json: pinned_activities.as_json(
+          only: [ :id, :title, :hours, :price_range, :address, :description, :activity_id ],
+          methods: [ :vote_count ],
+          include: {
+            comments: {
+              only: [ :id, :content, :created_at ],
+              include: {
+                user: { only: [ :id, :name, :email, :avatar ] }
               }
-            }
-          )
-        else
-          render json: { error: "Activity not found" }, status: :not_found
-        end
+            },
+            voters: { only: [ :id, :name, :avatar ] }, # ✅ Include voters in the response
+            votes: { only: [ :id, :user_id ] }
+          }
+        )
+      else
+        render json: { error: "Activity not found" }, status: :not_found
       end
+    end
 
         def destroy
           activity = Activity.find_by(id: params[:activity_id])

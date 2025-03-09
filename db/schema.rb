@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_09_205127) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_09_225447) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -86,6 +86,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_09_205127) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "votes", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "pinned_activity_id", null: false
+    t.boolean "upvote"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["pinned_activity_id"], name: "index_votes_on_pinned_activity_id"
+    t.index ["user_id"], name: "index_votes_on_user_id"
+  end
+
   create_table "waitlists", force: :cascade do |t|
     t.string "name"
     t.string "email"
@@ -100,4 +110,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_09_205127) do
   add_foreign_key "comments", "users"
   add_foreign_key "pinned_activities", "activities"
   add_foreign_key "responses", "activities"
+  add_foreign_key "votes", "pinned_activities"
+  add_foreign_key "votes", "users"
 end

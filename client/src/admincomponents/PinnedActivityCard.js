@@ -1,12 +1,65 @@
-import React from "react";
+import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
+import { UserContext } from "../context/user";
+import Woman from '../assets/Woman.jpg';
 
 const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
+  const { user } = useContext(UserContext);
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+  const [likes, setLikes] = useState(pinned.vote_count || 0);
+  const [likedBy, setLikedBy] = useState(pinned.voters || []);
+  const [hasLiked, setHasLiked] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setHasLiked(likedBy.some((voter) => voter.id === user.id));
+    }
+  }, [likedBy, user]);
+
+  console.log(pinned, likedBy)
+
+
+  function handleLike() {
+    if (hasLiked) {
+      // Find the vote ID of the current user
+      const userVote = pinned.votes.find(vote => vote.user_id === user.id);
+
+      const voteId = userVote.id;
+      const url = `${API_URL}/pinned_activities/${pinned.id}/votes/${voteId}`;
+
+      fetch(url, {
+        method: "DELETE",
+        credentials: "include",
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setLikes(data.votes);
+            setLikedBy(data.voters || []);
+            setHasLiked(false);
+          }
+        })
+        .catch(err => console.error("Error unliking activity:", err));
+
+    } else {
+      fetch(`${API_URL}/pinned_activities/${pinned.id}/votes`, {
+        method: "POST",
+        credentials: "include",
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setLikes(data.votes);
+            setLikedBy(data.voters || []);
+            setHasLiked(true);
+          }
+        })
+        .catch(err => console.error("Error liking activity:", err));
+    }
+  }
 
   function handleDelete() {
-
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this pinned activity? This cannot be undone."
     );
@@ -38,13 +91,30 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
 
   return (
     <Card>
-      <Title>{pinned.title}</Title>
+      <Header>
+        <Title>{pinned.title}</Title>
+        <LikeSection>
+          <LikeButton onClick={handleLike} $liked={hasLiked}>
+            {hasLiked ? "❤️" : "🤍"} {likes}
+          </LikeButton>
+          <AvatarList>
+            {likedBy.slice(0, 5).map((voter) => (
+              <Avatar key={voter.id} src={voter.avatar || Woman} alt={voter.name} />
+            ))}
+          </AvatarList>
+        </LikeSection>
+      </Header>
+
       <Description>{pinned.description}</Description>
       <Details>
         <DetailItem>⏰ {pinned.hours || "N/A"}</DetailItem>
         <DetailItem>💸 {pinned.price_range || "N/A"}</DetailItem>
         <DetailItem>📍 {pinned.address || "N/A"}</DetailItem>
-        {isOwner && (<ChatButton><StyledButton onClick={handleDelete}>Delete</StyledButton></ChatButton>)}
+        {isOwner && (
+          <ChatButton>
+            <StyledButton onClick={handleDelete}>Delete</StyledButton>
+          </ChatButton>
+        )}
       </Details>
     </Card>
   );
@@ -62,7 +132,7 @@ export const StyledButton = styled.button`
   cursor: pointer;
   transition: background 0.3s ease;
   background: red;
-  margin-top: auto; /* Pushes it to the bottom inside a flex column */
+  margin-top: auto;
 
   &:hover {
     background: darkred;
@@ -72,9 +142,9 @@ export const StyledButton = styled.button`
 export const ChatButton = styled.div`
   display: flex;
   justify-content: center;
-  flex-grow: 1; /* Allows it to take available space */
-  align-items: flex-end; /* Pushes content to the bottom */
-  margin-top: auto; /* Ensures it moves to the bottom */
+  flex-grow: 1;
+  align-items: flex-end;
+  margin-top: auto;
   width: 100%;
   bottom: 0;
 `;
@@ -101,11 +171,54 @@ const Card = styled.div`
   }
 `;
 
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 const Title = styled.h3`
   font-size: 1.4rem;
   font-weight: bold;
   color: #222;
   margin-bottom: 6px;
+`;
+
+const LikeSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const LikeButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  color: ${({ $liked }) => ($liked ? "red" : "#888")};
+
+  &:hover {
+    transform: scale(1.1);
+  }
+`;
+
+const AvatarList = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const Avatar = styled.img`
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid white;
+  margin-left: -8px;
+
+  &:first-child {
+    margin-left: 0;
+  }
 `;
 
 const Description = styled.p`
@@ -126,7 +239,7 @@ const DetailItem = styled.span`
   color: #666;
   padding: 6px 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  
+
   &:last-child {
     border-bottom: none;
   }

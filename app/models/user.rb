@@ -4,6 +4,7 @@ class User < ApplicationRecord
   has_many :activity_participants
   has_many :joined_activities, through: :activity_participants, source: :activity
   has_many :comments, dependent: :destroy
+  has_many :votes, dependent: :destroy
 
   before_create :generate_confirmation_token
 
