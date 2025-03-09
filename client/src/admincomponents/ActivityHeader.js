@@ -82,9 +82,10 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
 
       <ParticipantsSection>
         <ParticipantsTitle>Participants - {activity.group_size}</ParticipantsTitle>
+
+        {/* Keep only the scrollable participants here */}
         <ParticipantsRow>
           <ParticipantsScroll>
-            {/* Show confirmed participants */}
             {allParticipants.filter((p) => p.confirmed).map((participant, index) => {
               const cleanedName = participant.name.replace(/\s*\(.*?\)\s*/g, "");
               const initials = cleanedName
@@ -102,6 +103,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
               );
             })}
 
+            {/* Show pending participants if owner */}
             {isOwner &&
               allParticipants.filter((p) => !p.confirmed).map((participant, index) => {
                 const cleanedName = participant.name.replace(/\s*\(.*?\)\s*/g, "");
@@ -120,14 +122,16 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
                 );
               })}
           </ParticipantsScroll>
-
-          {isOwner && (
-            <InviteButton onClick={handleInviteClick}>
-              <UserAddOutlined /> Invite
-            </InviteButton>
-          )}
         </ParticipantsRow>
+
+        {/* ✅ Move Invite Button Below */}
+        {isOwner && (
+          <InviteButton onClick={handleInviteClick}>
+            <UserAddOutlined /> Invite
+          </InviteButton>
+        )}
       </ParticipantsSection>
+      
       {showInvitePopup && (
         <InvitePopup>
           <PopupContent>
@@ -266,24 +270,23 @@ export const ParticipantImage = styled.img`
 export const ParticipantsRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
   margin-top: 1rem;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  padding-bottom: 10px;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  overflow: hidden; /* Prevent layout shifting */
+  width: 100%;
 `;
 
 export const ParticipantsScroll = styled.div`
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;
-  flex-grow: 1;
+  white-space: nowrap; /* Prevent wrapping */
+  padding-bottom: 10px;
+  scrollbar-width: thin;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none; /* Hide scrollbar on WebKit browsers */
+  }
 `;
 
 export const ParticipantCircle = styled.div`
@@ -295,7 +298,7 @@ export const ParticipantCircle = styled.div`
   font-size: 1rem;
   font-weight: bold;
   text-transform: uppercase;
-  flex-shrink: 0;
+  flex-shrink: 0; /* Ensures items stay in a row */
   cursor: pointer;
   display: flex;
   justify-content: center;
@@ -304,6 +307,7 @@ export const ParticipantCircle = styled.div`
   position: relative;
   overflow: hidden;
   padding: 0 10px;
+  white-space: nowrap; /* Prevents text from wrapping */
 
   &:hover {
     width: auto; /* Expands horizontally */

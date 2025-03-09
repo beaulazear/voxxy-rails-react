@@ -155,7 +155,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
       />
       <SmallSection>
         <TextContainer>
-          <PinnedTitle>📌 Pinned Restaurants 📌</PinnedTitle>
+          <PinnedTitle>Pinned Restaurants</PinnedTitle>
           <SubTitle>
             Your pinned activities are here to stay! If you have a favorite, don’t forget to vote on it and leave a comment to share your thoughts. Need to make changes? ‘Chat with Voxxy’ to explore new options!
             <br></br><br></br>
@@ -196,7 +196,7 @@ const TextContainer = styled.div`
   border-radius: 8px;
   width: fit-content;
   margin: 0 auto;
-  padding: 8px;
+  padding: 18px;
   margin-bottom: 25px;
   margin-top: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);

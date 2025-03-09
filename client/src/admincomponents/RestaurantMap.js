@@ -81,7 +81,7 @@ const RestaurantMap = ({ recommendations }) => {
     }
 
     return (
-        <>
+        <div style={{paddingBottom: '40px'}}>
             {!showMap ? (
                 <ChatButton>
                     <StyledButton onClick={() => setShowMap(true)}>
@@ -124,7 +124,7 @@ const RestaurantMap = ({ recommendations }) => {
                     </MapContainer>
                 </div>
             )}
-        </>
+        </div>
     );
 };
 

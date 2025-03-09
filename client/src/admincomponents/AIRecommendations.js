@@ -200,9 +200,10 @@ const TextContainer = styled.div`
   border-radius: 8px;
   width: fit-content;
   margin: 0 auto;
-  padding: 8px;
+  padding: 18px;
+  text-align: left;
   margin-bottom: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
 `
 
 const SubTitle = styled.div`
