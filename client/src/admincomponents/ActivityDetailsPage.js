@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { UserContext } from '../context/user';
 import styled from 'styled-components';
 import {
@@ -18,7 +18,15 @@ function ActivityDetailsPage({ activityId, onBack }) {
   const [currentActivity, setCurrentActivity] = useState(null);
   const [pinnedActivities, setPinnedActivities] = useState([]);
 
+  const topRef = useRef(null)
+
   useEffect(() => {
+    const timer = setTimeout(() => {
+      if (topRef.current) {
+        topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+
     const latestActivity =
       user.activities.find((act) => act.id === activityId) ||
       user.participant_activities.find((p) => p.activity.id === activityId)?.activity;
@@ -33,6 +41,8 @@ function ActivityDetailsPage({ activityId, onBack }) {
         .then((data) => setPinnedActivities(data))
         .catch((error) => console.error("Error fetching pinned activities:", error));
     }
+
+    return () => clearTimeout(timer); // Cleanup function
 
   }, [user, activityId, refreshTrigger]);
 
@@ -144,47 +154,49 @@ function ActivityDetailsPage({ activityId, onBack }) {
   }
 
   return (
-    <PageContainer>
-      <ActivityHeader
-        activity={currentActivity}
-        isOwner={isOwner}
-        onBack={onBack}
-        onEdit={() => setShowModal(true)}
-        onDelete={handleDelete}
-        onInvite={handleInvite}
-      />
-      <SmallSection>
-        <TextContainer>
-          <PinnedTitle>Pinned Restaurants</PinnedTitle>
-          <SubTitle>
-            Your pinned activities are here to stay! If you have a favorite, don’t forget to vote on it and leave a comment to share your thoughts. Need to make changes? ‘Chat with Voxxy’ to explore new options!
-            <br></br><br></br>
-            {pinnedActivities.length === 0 && (" No pinned restaurants yet! Click on a recommendation to pin it.")}
-          </SubTitle>
-        </TextContainer>
-        <PinnedScrollContainer>
-          {pinnedActivities.length > 0 && (
-            pinnedActivities.map((pinned) => (
-              <PinnedActivityCard
-                key={pinned.id}
-                isOwner={isOwner}
-                setPinnedActivities={setPinnedActivities}
-                pinned={pinned}
-              />
-            ))
-          )}
-        </PinnedScrollContainer>
-      </SmallSection>
-      <AIRecommendations setPinnedActivities={setPinnedActivities} activity={currentActivity} setRefreshTrigger={setRefreshTrigger} />
-
-      {showModal && (
-        <UpdateActivityModal
+    <div ref={topRef}>
+      <PageContainer>
+        <ActivityHeader
           activity={currentActivity}
-          onClose={() => setShowModal(false)}
-          onUpdate={handleUpdate}
+          isOwner={isOwner}
+          onBack={onBack}
+          onEdit={() => setShowModal(true)}
+          onDelete={handleDelete}
+          onInvite={handleInvite}
         />
-      )}
-    </PageContainer>
+        <SmallSection>
+          <TextContainer>
+            <PinnedTitle>Pinned Restaurants</PinnedTitle>
+            <SubTitle>
+              Your pinned activities are here to stay! If you have a favorite, don’t forget to vote on it and leave a comment to share your thoughts. Need to make changes? ‘Chat with Voxxy’ to explore new options!
+              <br></br><br></br>
+              {pinnedActivities.length === 0 && (" No pinned restaurants yet! Click on a recommendation to pin it.")}
+            </SubTitle>
+          </TextContainer>
+          <PinnedScrollContainer>
+            {pinnedActivities.length > 0 && (
+              pinnedActivities.map((pinned) => (
+                <PinnedActivityCard
+                  key={pinned.id}
+                  isOwner={isOwner}
+                  setPinnedActivities={setPinnedActivities}
+                  pinned={pinned}
+                />
+              ))
+            )}
+          </PinnedScrollContainer>
+        </SmallSection>
+        <AIRecommendations setPinnedActivities={setPinnedActivities} activity={currentActivity} setRefreshTrigger={setRefreshTrigger} />
+
+        {showModal && (
+          <UpdateActivityModal
+            activity={currentActivity}
+            onClose={() => setShowModal(false)}
+            onUpdate={handleUpdate}
+          />
+        )}
+      </PageContainer>
+    </div>
   );
 }
 
