@@ -12,8 +12,6 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  console.log(activity)
-
   const handleInviteClick = () => {
     setShowInvitePopup(true);
   };

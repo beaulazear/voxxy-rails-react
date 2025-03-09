@@ -6,6 +6,7 @@ import PendingInvites from './PendingInvites';
 import TripDashboard from './TripDashboard.js';
 import VoxxyFooter from '../components/VoxxyFooter.js';
 import Profile from './Profile.js';
+import Woman from '../assets/Woman.jpg'
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -91,7 +92,7 @@ const CardGrid = styled.div`
 const ActivityCard = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   border-radius: 12px;
   text-align: center;
@@ -100,12 +101,13 @@ const ActivityCard = styled.div`
   padding: 1rem;
   cursor: pointer;
   position: relative;
-  height: 160px;
-  width: 200px;
+  height: 180px;
+  width: 220px;
   flex-shrink: 0;
   overflow: hidden;
   color: white;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ctext x='10' y='30' font-size='30' fill='rgba(255,255,255,0.7)'%3E🍜%3C/text%3E%3Ctext x='50' y='70' font-size='30' fill='rgba(255,255,255,0.7)'%3E🍜%3C/text%3E%3C/svg%3E");
+  background-image: ${({ $emoji }) =>
+    `url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><text x='10' y='30' font-size='30' fill='rgba(255,255,255,0.7)'>${$emoji || '🍜'}</text><text x='50' y='70' font-size='30' fill='rgba(255,255,255,0.7)'>${$emoji || '🍜'}</text></svg>")`};
   background-size: 50px 50px;
   background-repeat: repeat;
   scroll-snap-align: center;
@@ -116,7 +118,6 @@ const ActivityCard = styled.div`
   }
 
   .content {
-    position: relative;
     z-index: 2;
     display: flex;
     flex-direction: column;
@@ -126,34 +127,58 @@ const ActivityCard = styled.div`
     width: 100%;
     padding: 1rem;
     text-align: center;
-    gap: 0.5rem;
   }
 
   .emoji {
-    font-size: 3.5rem;
+    font-size: 3rem;
     filter: drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.8));
   }
 
   h3 {
     font-size: 1.2rem;
-    font-weight: 600;
+    font-weight: 800;
     margin: 0;
-    padding: 5px 10px;
-    border-radius: 8px;
     color: black;
     background: white;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    white-space: normal;
-    text-align: center;
+    padding: 5px 10px;
+    border-radius: 19px;
     max-width: 100%;
-    overflow-wrap: break-word;
+    text-align: center;
+  }
+
+  .host-info {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    filter: drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.6));
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 6px 10px;
+    border-radius: 8px;
+    width: 87%;
+    justify-content: space-between;
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+  }
+
+  .host-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid white;
+  }
+
+  .date-notes {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    font-weight: 400;
   }
 `;
+
 
 const StartBoardCard = styled(ActivityCard)`
   background: rgba(0, 0, 0, 0.1);
@@ -279,8 +304,15 @@ function UserActivities() {
               uniqueActivities.map((activity) => (
                 <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)} $emoji={activity.emoji}>
                   <div className="content">
-                    <div className="emoji">{activity.emoji || '🌀'}</div>
                     <h3>{activity.activity_name}</h3>
+                    <div className="emoji">{activity.emoji || '🌀'}</div>
+                  </div>
+                  <div className="host-info">
+                    <img className="host-avatar" src={activity.user.avatar || Woman} alt={activity.user.name} />
+                    <div>
+                      {activity.user.name}
+                      {activity.date_notes && <div className="date-notes">{activity.date_notes}</div>}
+                    </div>
                   </div>
                 </ActivityCard>
               ))
