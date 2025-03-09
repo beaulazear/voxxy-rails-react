@@ -64,7 +64,7 @@ class ActivitiesController < ApplicationController
             activities: {
               only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji ],
               include: {
-                user: { only: [ :id, :name, :email ] },
+                user: { only: [ :id, :name, :email, :avatar ] },
                 responses: { only: [ :id, :notes, :created_at ] },
                 participants: { only: [ :id, :name, :email, :avatar ] },
                 activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] }

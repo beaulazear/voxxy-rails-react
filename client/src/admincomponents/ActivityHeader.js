@@ -54,7 +54,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
       avatar: Woman,
     })),
   ];
-
+  
   return (
     <HeaderContainer>
       <TopBar>
