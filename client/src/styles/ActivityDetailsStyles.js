@@ -9,7 +9,7 @@ export const PageContainer = styled.div`
   width: 100%;
   min-height: 100vh;
   padding: 1.5rem;
-  padding-bottom: 30px;
+  padding-bottom: 40px;
   box-sizing: border-box;
   animation: ${fadeIn} 0.8s ease-in-out;
   background: linear-gradient(135deg, #6a1b9a, #8e44ad);

@@ -6,9 +6,7 @@ import {
   DimmedOverlay,
 } from "../styles/ActivityDetailsStyles";
 import RestaurantMap from "./RestaurantMap";
-import SmallerLoading from "../components/SmallerLoading";
 import CuisineChat from './CuisineChat';
-
 
 const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger }) => {
   const [recommendations, setRecommendations] = useState([]);
@@ -132,13 +130,25 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
 
       {error && <p style={{ textAlign: "center", color: "#666", fontStyle: "italic" }}>{error}</p>}
 
-      <RecommendationList style={{ justifyContent: hasManyItems ? 'flex-start' : 'center' }}>
+      <RecommendationList $hasManyItems={hasManyItems} style={{ justifyContent: hasManyItems ? 'flex-start' : 'center' }}>
         <RecommendationItem>
-          <RestaurantName>🍽️ Your AI-powered recommendations are here!</RestaurantName>
-          {recommendations.length > 0 && (<Description>If you see a place that fits your group’s vibe, click to pin it and save it to your list.<br></br><br></br>
-            Want to refine your options? Chat with Voxxy to update preferences and generate new recommendations based on group feedback.</Description>)}
-          {recommendations.length === 0 && (<Description>Voxxy creates personalized restaurant suggestions based on what your group enjoys.<br></br><br></br>
-            To get started, one participant needs to chat with Voxxy and share their preferences. Once that’s done, AI-powered recommendations will appear here!</Description>)}
+          {recommendations.length > 0 && (
+            <>
+              <RestaurantName>🍽️ Your AI-powered recommendations are here!</RestaurantName>
+              <Description>
+                If you see a place that fits your group’s vibe, click to pin it and save it to your list.
+                <br></br><br></br>
+                Want to refine your options? Chat with Voxxy to update preferences and generate new recommendations based on group feedback.
+              </Description>
+            </>
+          )}
+          {recommendations.length === 0 && (
+            <>
+              <RestaurantName>🤖 No recommendations yet!</RestaurantName>
+              <Description>Voxxy creates personalized restaurant suggestions based on what your group enjoys.<br></br><br></br>
+                To get started, one participant needs to chat with Voxxy and share their preferences. Once that’s done, AI-powered recommendations will appear here!</Description>
+            </>
+          )}
           <ChatButton>
             <StyledButton onClick={() => setShowChat(true)}>
               Chat with Voxxy
@@ -152,7 +162,7 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
             </ChatButton>
           )}
         </RecommendationItem>
-        {recommendations.length > 0 ? (
+        {recommendations.length > 0 && (
           <>
             {recommendations.map((rec, index) => (
               <RecommendationItem onClick={() => handlePinActivity(rec)} key={index}>
@@ -171,10 +181,6 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
               </RecommendationItem>
             ))}
           </>
-        ) : (
-          <div style={{ color: "#666", fontStyle: "italic" }}>
-            {loading && (<SmallerLoading title={'Recommendations'} />)}
-          </div>
         )}
       </RecommendationList>
 
@@ -212,7 +218,6 @@ const RecommendationsContainer = styled.div`
 
 const RecommendationList = styled.div`
   display: flex;
-  gap: 1rem;
   overflow-x: auto;
   padding-bottom: 10px;
   scrollbar-width: none; /* Hide scrollbar for Firefox */
@@ -220,6 +225,10 @@ const RecommendationList = styled.div`
   margin-left: -3rem;
   margin-right: -3rem;
   padding: 10px;
+
+  ${({ $hasManyItems }) => $hasManyItems && `
+    gap: 1rem;
+  `}
 
   &::-webkit-scrollbar {
     display: none; /* Hide scrollbar for Chrome/Safari */
@@ -238,9 +247,9 @@ const RecommendationItem = styled.div`
   position: relative;
   border-left: 8px solid #666666;
   min-width: 300px;
+  max-width: 500px;
   cursor: pointer;
   text-align: left;
-  max-width: 500px;
 
   &:hover {
     transform: scale(1.01);
@@ -248,7 +257,7 @@ const RecommendationItem = styled.div`
   }
 `;
 
-const RestaurantName = styled.h3`
+const RestaurantName = styled.h2`
   font-size: 1.4rem;
   font-weight: bold;
   color: #222;

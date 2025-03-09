@@ -18,10 +18,10 @@ const LoadingContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 30vh; /* Smaller height */
+  height: 20vh;
   animation: ${fadeIn} 1.5s ease-in-out;
   text-align: center;
-  padding: 1rem; /* Less padding */
+  padding: 1rem;
 `;
 
 const Logo = styled.img`
@@ -40,7 +40,7 @@ const LoadingTitle = styled.h2`
   font-size: 1.2rem;
   font-weight: bold;
   text-align: center;
-  color: black;
+  color: white;
 
   @media (max-width: 768px) {
     font-size: 1.6rem;

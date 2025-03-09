@@ -52,15 +52,11 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
   const handleInvite = async (email) => {
 
-    console.log('invite clicked', email)
-
     if (!email) return;
 
     const normalizedEmail = email.trim().toLowerCase();
     const participants = currentActivity.participants || [];
     const pendingInvites = currentActivity.activity_participants || [];
-
-    console.log(normalizedEmail)
 
     const isDuplicate =
       participants.some((p) => p?.email?.toLowerCase() === normalizedEmail) ||
@@ -214,6 +210,7 @@ const TextContainer = styled.div`
   position: relative;
   border-left: 8px solid #666666;
   min-width: 300px;
+  max-width: 500px;
   cursor: pointer;
   text-align: left;
 
