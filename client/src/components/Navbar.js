@@ -10,9 +10,6 @@ const NavbarContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 20px 50px;
-  background-color: white;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  top: 0;
   z-index: 1000;
 
   @media (max-width: 768px) {

@@ -215,7 +215,7 @@ const TextContainer = styled.div`
 `
 
 const SubTitle = styled.div`
-  color: black; /* Ensure text is readable on a light background */
+  color: black;
   max-width: 600px;
   margin: auto;
   font-size: 1.2rem;
@@ -235,14 +235,14 @@ const PinnedScrollContainer = styled.div`
   gap: 1rem;
   overflow-x: auto;
   padding-bottom: 10px;
-  scrollbar-width: none; /* Hide scrollbar for Firefox */
-  -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   margin-left: -2.1rem;
   margin-right: -2.1rem;
   max-height: 800px;
   justify-content: center;
 
   &::-webkit-scrollbar {
-    display: none; /* Hide scrollbar for Chrome/Safari */
+    display: none;
   }
 `;

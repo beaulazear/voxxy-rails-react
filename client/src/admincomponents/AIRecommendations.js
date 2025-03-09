@@ -125,24 +125,36 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
     }
   };
 
+  const hasManyItems = recommendations.length >= 3;
+
   return (
     <RecommendationsContainer>
-      <TextContainer>
-        <Title>AI-Powered Restaurant Recommendations</Title>
-        {recommendations.length > 0 && (<SubTitle>Your recommendations won’t last forever! If you find one you love, click on it to pin it and keep it saved in pinned activities. 'Chat with Voxxy' to update your preferences.</SubTitle>)}
-        {recommendations.length  === 0 && (<SubTitle>Recommendations are personalized based on input from all group participants and can be generated once at least one participant has chatted with Voxxy. <br></br><br></br>No recommendations yet! Click ‘Chat with Voxxy’ to share your feedback.</SubTitle>)}
-        <ChatButton>
-          <StyledButton onClick={() => setShowChat(true)}>
-            Chat with Voxxy
-          </StyledButton>
-        </ChatButton>
-      </TextContainer>
 
       {error && <p style={{ textAlign: "center", color: "#666", fontStyle: "italic" }}>{error}</p>}
 
-      {recommendations.length > 0 ? (
-        <>
-          <RecommendationList>
+      <RecommendationList style={{ justifyContent: hasManyItems ? 'flex-start' : 'center' }}>
+        <RecommendationItem>
+          <RestaurantName>AI Recommendations</RestaurantName>
+          {recommendations.length > 0 && (<Description>Your recommendations won’t last forever! If you find one you love, click on it to pin it and keep it saved in pinned activities. 'Chat with Voxxy' to update your preferences.</Description>)}
+          {recommendations.length === 0 && (<Description>Recommendations are personalized based on input from all group participants and can be generated once at least one participant has chatted with Voxxy. <br></br><br></br>No recommendations yet! Click ‘Chat with Voxxy’ to share your feedback.</Description>)}
+          <ChatButton>
+            <StyledButton onClick={() => setShowChat(true)}>
+              Chat with Voxxy
+            </StyledButton>
+          </ChatButton>
+          {activity.responses?.length > 0 && recommendations.length === 0 && (
+            <ChatButton onClick={fetchRecommendations} disabled={loading}>
+              <StyledButton>
+                {loading ? "Generating..." : "Find Restaurants"}
+              </StyledButton>
+            </ChatButton>
+          )}
+          {recommendations.length > 0 && (
+            <RestaurantMap recommendations={recommendations} />
+          )}
+        </RecommendationItem>
+        {recommendations.length > 0 ? (
+          <>
             {recommendations.map((rec, index) => (
               <RecommendationItem onClick={() => handlePinActivity(rec)} key={index}>
                 <RestaurantName>{rec.name}</RestaurantName>
@@ -159,22 +171,13 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
                 </Details>
               </RecommendationItem>
             ))}
-          </RecommendationList>
-          <RestaurantMap recommendations={recommendations} />
-        </>
-      ) : (
-        <div style={{ color: "#666", fontStyle: "italic" }}>
-          {loading && (<SmallerLoading title={'Recommendations'} />)}
-        </div>
-      )}
-
-      {activity.responses?.length > 0 && recommendations.length === 0 && (
-        <StyledButton>
-          <ChatButton onClick={fetchRecommendations} disabled={loading}>
-            {loading ? "Generating..." : "Generate Recommendations"}
-          </ChatButton>
-        </StyledButton>
-      )}
+          </>
+        ) : (
+          <div style={{ color: "#666", fontStyle: "italic" }}>
+            {loading && (<SmallerLoading title={'Recommendations'} />)}
+          </div>
+        )}
+      </RecommendationList>
 
       {showChat && (
         <>
@@ -194,25 +197,6 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
 
 export default AIRecommendations;
 
-const TextContainer = styled.div`
-  background: white;
-  backdrop-filter: blur(15px);
-  border-radius: 8px;
-  width: fit-content;
-  margin: 0 auto;
-  padding: 18px;
-  text-align: left;
-  margin-bottom: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
-`
-
-const SubTitle = styled.div`
-  color: black; /* Ensure text is readable on a light background */
-  max-width: 600px;
-  margin: auto;
-  font-size: 1.2rem;
-  padding: 1rem;
-`
 
 const RecommendationsContainer = styled.div`
   padding: 1.5rem;
@@ -224,15 +208,6 @@ const RecommendationsContainer = styled.div`
   @media (max-width: 768px) {
     padding: 2rem;
   }
-`;
-
-const Title = styled.h2`
-  font-size: 1.6rem;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  color: black;
-  margin-top: 0;
 `;
 
 const RecommendationList = styled.div`
@@ -265,6 +240,7 @@ const RecommendationItem = styled.div`
   min-width: 300px;
   cursor: pointer;
   text-align: left;
+  max-width: 500px;
 
   &:hover {
     transform: scale(1.01);

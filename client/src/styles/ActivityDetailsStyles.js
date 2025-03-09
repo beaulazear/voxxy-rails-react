@@ -12,9 +12,7 @@ export const PageContainer = styled.div`
   padding-bottom: 80px;
   box-sizing: border-box;
   animation: ${fadeIn} 0.8s ease-in-out;
-background-color: #a700b0;
-background-image: url("https://www.transparenttextures.com/patterns/food.png");
-/* This is mostly intended for prototyping; please download the pattern and re-host for production environments. Thank you! */
+  background: linear-gradient(135deg, #6a1b9a, #8e44ad);
 
   @media (max-width: 768px) {
     padding: 1rem;
