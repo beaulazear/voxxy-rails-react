@@ -153,6 +153,8 @@ function ActivityDetailsPage({ activityId, onBack }) {
     }
   }
 
+  const hasManyItems = pinnedActivities.length >= 3;
+
   return (
     <div ref={topRef}>
       <PageContainer>
@@ -165,7 +167,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
           onInvite={handleInvite}
         />
         <SmallSection>
-          <PinnedScrollContainer>
+          <PinnedScrollContainer style={{ justifyContent: hasManyItems ? 'flex-start' : 'center' }}>
             <TextContainer>
               <PinnedTitle>Pinned Locations 📌</PinnedTitle>
               <SubTitle>Your pinned activities are here to stay! If you have a favorite, don’t forget to vote on it and leave a comment to share your thoughts. Need to make changes? ‘Chat with Voxxy’ to explore new options!</SubTitle>

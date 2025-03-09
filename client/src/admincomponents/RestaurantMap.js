@@ -138,11 +138,12 @@ export const StyledButton = styled.button`
   border-radius: 20px;
   cursor: pointer;
   transition: background 0.3s ease;
-  color: white;
-  background: ${(props) => (props.$isDelete ? "red" : "linear-gradient(135deg, #6a1b9a, #8e44ad)")};
+  color: #8e44ad;
+  background: white;
 
   &:hover {
-    background: ${(props) => (props.$isDelete ? "darkred" : "linear-gradient(135deg, #4e0f63, #6a1b8a)")};
+    background: ${(props) => (props.$isDelete ? "darkred" : "#9153b0")};
+    color: white;
   }
 `;
 
