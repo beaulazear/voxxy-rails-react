@@ -8,15 +8,11 @@ const fadeIn = keyframes`
 export const PageContainer = styled.div`
   width: 100%;
   min-height: 100vh;
-  padding: 2rem;
+  padding: 1.5rem;
   padding-bottom: 80px;
   box-sizing: border-box;
   animation: ${fadeIn} 0.8s ease-in-out;
   background: linear-gradient(135deg, #6a1b9a, #8e44ad);
-
-  @media (max-width: 768px) {
-    padding: 1rem;
-  }
 `;
 
 export const ChatButton = styled.div`
