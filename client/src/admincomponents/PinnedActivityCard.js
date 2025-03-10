@@ -22,8 +22,16 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
 
   function handleLike() {
     if (hasLiked) {
-      // Find the vote ID of the current user
+      if (!Array.isArray(pinned.votes) || pinned.votes.length === 0) {
+        console.error("No votes found for this activity");
+        return;
+      }
+
       const userVote = pinned.votes.find(vote => vote.user_id === user.id);
+      if (!userVote) {
+        console.error("User vote not found in frontend state!");
+        return;
+      }
 
       const voteId = userVote.id;
       const url = `${API_URL}/pinned_activities/${pinned.id}/votes/${voteId}`;
@@ -33,11 +41,22 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
         credentials: "include",
       })
         .then(res => res.json())
-        .then(data => {
+        .then((data) => {
+          console.log("Response from DELETE request:", data);
+
           if (data.success) {
-            setLikes(data.votes);
+            setLikes(data.votes.length);
             setLikedBy(data.voters || []);
             setHasLiked(false);
+
+            // ✅ Ensure we store the correct vote ID from backend
+            setPinnedActivities(prevPinnedActivities =>
+              prevPinnedActivities.map(activity =>
+                activity.id === pinned.id
+                  ? { ...activity, votes: [...data.votes], voters: [...data.voters] }
+                  : activity
+              )
+            );
           }
         })
         .catch(err => console.error("Error unliking activity:", err));
@@ -48,11 +67,22 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
         credentials: "include",
       })
         .then(res => res.json())
-        .then(data => {
+        .then((data) => {
+          console.log("Response from POST request:", data);
+
           if (data.success) {
-            setLikes(data.votes);
+            setLikes(data.votes.length);
             setLikedBy(data.voters || []);
             setHasLiked(true);
+
+            // ✅ Immediately store the correct vote ID
+            setPinnedActivities(prevPinnedActivities =>
+              prevPinnedActivities.map(activity =>
+                activity.id === pinned.id
+                  ? { ...activity, votes: [...data.votes], voters: [...data.voters] }
+                  : activity
+              )
+            );
           }
         })
         .catch(err => console.error("Error liking activity:", err));

@@ -57,6 +57,6 @@ class PinnedActivitiesController < ApplicationController
     private
 
     def pinned_activity_params
-      params.require(:pinned_activity).permit(:title, :hours, :price_range, :address, :votes, :description)
+      params.require(:pinned_activity).permit(:title, :hours, :price_range, :address, :description)
     end
 end
