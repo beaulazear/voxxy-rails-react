@@ -86,7 +86,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
       </EntryMessage>
 
       <ParticipantsSection>
-        <ParticipantsTitle>Participants - {activity.group_size}</ParticipantsTitle>
+        <ParticipantsTitle>Voxxy Group Chat</ParticipantsTitle>
 
         <ParticipantsRow>
           <ParticipantsScroll>
@@ -241,7 +241,7 @@ export const ParticipantsTitle = styled.h3`
   font-size: 1.2rem;
   font-weight: bold;
   color: #4e0f63;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0rem;
   text-align: center;
 `;
 
@@ -277,7 +277,7 @@ export const ParticipantsScroll = styled.div`
 export const ParticipantCircle = styled.div`
   width: 50px;
   height: 50px;
-  border-radius: 15px;
+  border-radius: 75px;
   background: ${({ $pending }) => ($pending ? "#aaa" : "#4a0d5c")};
   color: white;
   text-transform: uppercase;

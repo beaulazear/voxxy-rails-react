@@ -46,7 +46,6 @@ const CommentsSection = ({ activity }) => {
 
     return (
         <CommentsContainer>
-            <CommentsTitle>Comments</CommentsTitle>
             <CommentsList>
                 {comments.length > 0 ? (
                     comments.map((comment) => {
@@ -93,14 +92,6 @@ const CommentsContainer = styled.div`
   width: 100%;
   padding: 0;
   margin: 0 auto;
-`;
-
-const CommentsTitle = styled.h3`
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #4e0f63;
-  margin-bottom: 1rem;
-  text-align: center;
 `;
 
 const CommentsList = styled.div`
