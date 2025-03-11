@@ -63,14 +63,14 @@ const SubmitButton = styled.button`
   padding: 0.75rem;
   font-size: 1rem;
   color: #fff;
-  background: #d8b4ff;
+  background: linear-gradient(135deg, #6a1b9a, #8e44ad);
   border: none;
   border-radius: 50px;
   cursor: pointer;
   width: 100%;
 
   &:hover {
-    background: #cfa8f7;
+    background: linear-gradient(135deg, #4e0f63, #6a1b8a);
   }
 
   &:disabled {
