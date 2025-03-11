@@ -15,7 +15,7 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
   const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
-    const fetchCachedRecommendations = async () => {
+    const fetchRecommendations = async () => {
       setLoading(true);
       try {
         const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
@@ -25,7 +25,14 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
 
         if (response.ok) {
           const data = await response.json();
-          setRecommendations(data.recommendations || []);
+          if (data.recommendations && data.recommendations.length > 0) {
+            setRecommendations(data.recommendations);
+          } else {
+            console.warn("No cached recommendations found. Fetching new recommendations...");
+            if (activity.responses?.length > 0) {
+              await fetchNewRecommendations();
+            }
+          }
         } else {
           console.warn("Unexpected response status:", response.status);
           setRecommendations([]);
@@ -38,8 +45,38 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
       }
     };
 
-    fetchCachedRecommendations();
-  }, [activity.id]);
+    const fetchNewRecommendations = async () => {
+      setLoading(true);
+      try {
+        const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+        const response = await fetch(`${API_URL}/api/openai/restaurant_recommendations`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            responses: activity.responses.map((res) => res.notes).join("\n\n"),
+            activity_location: activity.activity_location,
+            date_notes: activity.date_notes,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setRecommendations(data.recommendations);
+        } else {
+          console.error("Error fetching new recommendations.");
+          setError("⚠️ OpenAI rate limit reached. Try again later.");
+        }
+      } catch (error) {
+        console.error("❌ Error fetching recommendations:", error);
+        setError("❌ Error fetching recommendations.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecommendations();
+  }, [activity.id, activity.activity_location, activity.date_notes, activity.responses]);
 
   const fetchRecommendations = async () => {
     if (!activity.responses || activity.responses.length === 0) {
@@ -165,7 +202,10 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
         {recommendations.length > 0 && (
           <>
             {recommendations.map((rec, index) => (
-              <RecommendationItem onClick={() => handlePinActivity(rec)} key={index}>
+              <RecommendationItem key={index}>
+                {/* Pin Button in the Top Right */}
+                <PinButton onClick={() => handlePinActivity(rec)}>➕</PinButton>
+
                 <RestaurantName>{rec.name}</RestaurantName>
                 <Description>{rec.description || "No description available."}</Description>
                 <Details>
@@ -285,5 +325,24 @@ const DetailItem = styled.span`
   
   &:last-child {
     border-bottom: none;
+  }
+`;
+
+const PinButton = styled.button`
+  position: absolute;
+  background: #fff;
+  top: 10px;
+  right: 10px;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, background 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.2);
   }
 `;
