@@ -58,7 +58,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
 
   function extractHoursAndMinutes(isoString) {
     if (!isoString) return "Time: TBD"; // Handle missing data
-  
+
     return isoString.slice(11, 16); // Extracts "HH:MM" from "2000-01-01T12:15:00.000Z"
   }
 
@@ -83,6 +83,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
       <Title>{activity.emoji} {activity.activity_name}</Title>
       <HostInfo>
         Hosted by: <strong>{isOwner ? "You" : activity?.user?.name || "Unknown"}</strong>
+        <br></br>
         {activity.date_time ? (
           <span> ⏰ {extractHoursAndMinutes(activity.date_time)}</span>
         ) : (
@@ -90,7 +91,9 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
         )}
         {activity.date_day ? <span> 📆 {activity.date_day}</span> : <span> 📆 Date: TBD</span>}
         <br></br>
-        {activity.date_notes && `Date notes: ${activity.date_notes}`}
+        {(!activity.date_time || !activity.date_day) && 'Edit the activity to change the date + time of activity'}
+        <br></br><br></br>
+        {activity.date_notes && `Date Notes: ${activity.date_notes}`}
       </HostInfo>
 
       <EntryMessage>
