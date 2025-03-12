@@ -161,7 +161,7 @@ function RestaurantChat({ onClose }) {
 
   const questions = [
     { key: 'activity_location', text: "Where are you planning to meet up? (Just the city is fine!)" },
-    { key: 'date_notes', text: "What kind of outing is this? Brunch, lunch, dinner, happy hour, late-night drinks?" },
+    { key: 'date_notes', text: "How would you like to communicate your availability for this outing to the group?" },
     { key: 'activity_name', text: "Do you have a name for this event, or is it just a casual hangout? (You can change it later!)" },
   ];
 

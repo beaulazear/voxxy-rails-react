@@ -28,7 +28,7 @@ class SessionsController < ApplicationController
       render json: user.as_json(
         include: {
           activities: {
-            only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji ],
+            only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :date_day, :date_time, :welcome_message ],
             include: {
               user: { only: [ :id, :name, :email, :avatar ] },
               responses: { only: [ :id, :notes, :created_at ] },
@@ -42,7 +42,7 @@ class SessionsController < ApplicationController
         only: [ :id, :accepted, :invited_email ],
         include: {
           activity: {
-            only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji ],
+            only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message ],
             include: {
               user: { only: [ :id, :name, :email, :avatar ] },
               responses: { only: [ :id, :notes, :created_at ] },

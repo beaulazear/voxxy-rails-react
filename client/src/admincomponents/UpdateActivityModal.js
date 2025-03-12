@@ -15,12 +15,12 @@ const flyAnimation = keyframes`
 
 const Bird = styled.img`
   position: fixed;
-  bottom: 30vh;  /* Moves bird higher on screen */
-  left: -10vw;  /* Ensures start is fully off-screen */
-  width: 400px;  /* Even bigger */
+  bottom: 30vh;
+  left: -10vw;
+  width: 250px;
   height: auto;
   opacity: 0;
-  filter: drop-shadow(15px 15px 20px rgba(0, 0, 0, 0.5)); /* Stronger shadow */
+  filter: drop-shadow(10px 10px 15px rgba(0, 0, 0, 0.4));
   animation: ${({ $isFlying }) => ($isFlying ? flyAnimation : 'none')} 2s ease-in-out forwards;
   z-index: 1000;
 `;
@@ -40,14 +40,25 @@ const ModalOverlay = styled.div`
 
 const ModalContainer = styled.div`
   background: white;
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 10px;
-  width: 400px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  height: 90%;
+  max-width: 400px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   text-align: left;
+  position: relative;
+  animation: fadeIn 0.2s ease-in-out;
+  margin-bottom: 40px;
 
-  @media (max-width: 768px) {
-    width: 300px;
+  @media (max-width: 480px) {
+    max-width: 95%;
+    padding: 1.25rem;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 `;
 
@@ -55,17 +66,51 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+`;
 
-  label {
-    font-weight: bold;
-  }
+const Label = styled.label`
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+`;
 
-  input {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+const Input = styled.input`
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 0.9rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #f9f9f9;
+  transition: border-color 0.2s ease;
+
+  &:focus {
+    border-color: #6c5ce7;
+    background: white;
+    outline: none;
   }
+`;
+
+const TextArea = styled.textarea`
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 0.9rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #f9f9f9;
+  resize: vertical;
+  min-height: 80px;
+
+  &:focus {
+    border-color: #6c5ce7;
+    background: white;
+    outline: none;
+  }
+`;
+
+const ErrorText = styled.p`
+  color: red;
+  font-size: 0.85rem;
+  margin-top: 0.2rem;
 `;
 
 const ButtonGroup = styled.div`
@@ -75,57 +120,87 @@ const ButtonGroup = styled.div`
 `;
 
 const Button = styled.button`
-  padding: 0.75rem 1.25rem;
+  padding: 0.7rem 1rem;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
+  font-size: 0.9rem;
+  transition: background 0.2s ease;
 
   ${(props) =>
     props.$primary
       ? `background: #6c5ce7; color: white;`
-      : `background: #dcdcdc; color: black;`}
+      : `background: #e0e0e0; color: black;`}
 
   &:hover {
-    opacity: 0.9;
+    opacity: 0.85;
   }
 `;
 
 function UpdateActivityModal({ activity, onClose, onUpdate }) {
   const [formData, setFormData] = useState({
-    activity_name: activity.activity_name,
-    activity_location: activity.activity_location,
-    date_notes: activity.date_notes,
+    activity_name: activity.activity_name || "",
+    activity_location: activity.activity_location || "",
+    date_notes: activity.date_notes || "",
+    date_day: activity.date_day || "",
+    date_time: activity.date_time || "",
+    welcome_message: activity.welcome_message || "",
   });
 
   const [isFlying, setIsFlying] = useState(false);
+  const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
+    setError("");
+    setFieldErrors({});
 
-    fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activity.id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify(formData),
-    })
-      .then((res) => res.json())
-      .then((updatedActivity) => {
-        setIsFlying(true); // Start animation
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activity.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(formData),
+      });
 
-        setTimeout(() => {
-          onUpdate(updatedActivity);
-          setIsFlying(false);
-          onClose();
-        }, 2100); // Wait for animation to complete before closing
-      })
-      .catch((error) => console.error('Error updating activity:', error));
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.errors) {
+          setFieldErrors(
+            data.errors.reduce((acc, err) => {
+              if (err.toLowerCase().includes("date day")) {
+                acc.date_day = err;
+              } else if (err.toLowerCase().includes("time")) {
+                acc.date_time = err;
+              } else {
+                acc.general = err;
+              }
+              return acc;
+            }, {})
+          );
+        } else {
+          setError("Failed to update activity. Please try again.");
+        }
+        throw new Error("Validation errors");
+      }
+
+      setIsFlying(true);
+
+      setTimeout(() => {
+        onUpdate(data);
+        setIsFlying(false);
+        onClose();
+      }, 2100);
+    } catch (error) {
+      console.error("Error updating activity:", error);
+    }
   }
 
   return (
@@ -133,16 +208,30 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
       {isFlying && <Bird src={Tom} $isFlying={isFlying} alt="Flying bird" />}
       <ModalOverlay>
         <ModalContainer>
-          <h2>Update Activity</h2>
+          <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>Update Activity</h2>
           <Form onSubmit={handleSubmit}>
-            <label>Activity Name</label>
-            <input type="text" name="activity_name" value={formData.activity_name} onChange={handleChange} required />
+            <Label>Activity Name</Label>
+            <Input type="text" name="activity_name" value={formData.activity_name} onChange={handleChange} required />
 
-            <label>Location</label>
-            <input type="text" name="activity_location" value={formData.activity_location} onChange={handleChange} required />
+            <Label>Location</Label>
+            <Input type="text" name="activity_location" value={formData.activity_location} onChange={handleChange} required />
 
-            <label>Time of Day</label>
-            <input type="text" name="date_notes" value={formData.date_notes} onChange={handleChange} required />
+            <Label>Time of Day</Label>
+            <Input type="text" name="date_notes" value={formData.date_notes} onChange={handleChange} required />
+
+            <Label>Date</Label>
+            <Input type="date" name="date_day" value={formData.date_day} onChange={handleChange} />
+            {fieldErrors.date_day && <ErrorText>{fieldErrors.date_day}</ErrorText>}
+
+            <Label>Time</Label>
+            <Input type="time" name="date_time" value={formData.date_time} onChange={handleChange} />
+            {fieldErrors.date_time && <ErrorText>{fieldErrors.date_time}</ErrorText>}
+
+            <Label>Welcome Message</Label>
+            <TextArea name="welcome_message" value={formData.welcome_message} onChange={handleChange} />
+            {fieldErrors.general && <ErrorText>{fieldErrors.general}</ErrorText>}
+
+            {error && <ErrorText>{error}</ErrorText>}
 
             <ButtonGroup>
               <Button type="button" onClick={onClose}>Cancel</Button>

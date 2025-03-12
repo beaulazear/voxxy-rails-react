@@ -55,7 +55,13 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
       avatar: Woman,
     })),
   ];
+
+  function extractHoursAndMinutes(isoString) {
+    if (!isoString) return "Time: TBD"; // Handle missing data
   
+    return isoString.slice(11, 16); // Extracts "HH:MM" from "2000-01-01T12:15:00.000Z"
+  }
+
   return (
     <HeaderContainer>
       <TopBar>
@@ -77,12 +83,19 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
       <Title>{activity.emoji} {activity.activity_name}</Title>
       <HostInfo>
         Hosted by: <strong>{isOwner ? "You" : activity?.user?.name || "Unknown"}</strong>
-        {activity.date_notes && <span> ⏰ {activity.date_notes}</span>}
+        {activity.date_time ? (
+          <span> ⏰ {extractHoursAndMinutes(activity.date_time)}</span>
+        ) : (
+          <span> ⏰ Time: TBD</span>
+        )}
+        {activity.date_day ? <span> 📆 {activity.date_day}</span> : <span> 📆 Date: TBD</span>}
       </HostInfo>
 
       <EntryMessage>
-        {activity.entry_message ||
+        {activity.welcome_message ||
           "Welcome to this activity! This is a placeholder for a detailed description about what to expect, how it works, and any important details. Soon, you will be able to customize this message to fit your needs!"}
+        <br></br><br></br>
+        {activity.date_notes && `Notes on date & time: ${activity.date_notes}`}
       </EntryMessage>
 
       <ParticipantsSection>
