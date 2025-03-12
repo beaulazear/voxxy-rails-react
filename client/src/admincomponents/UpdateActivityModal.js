@@ -36,29 +36,65 @@ const ModalOverlay = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 999;
+  padding: 1rem; /* 🔹 Ensures space on small screens */
+  overflow-y: auto; /* 🔹 Allows scrolling when modal is too tall */
 `;
 
 const ModalContainer = styled.div`
   background: white;
   padding: 1.5rem;
   border-radius: 10px;
-  width: 90%;
-  height: 90%;
-  max-width: 400px;
+  width: 95%;
+  max-width: 450px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   text-align: left;
-  position: relative;
+  position: fixed;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   animation: fadeIn 0.2s ease-in-out;
-  margin-bottom: 40px;
+  max-height: 80vh; /* 🔹 Prevents the modal from being too tall */
+  overflow-y: auto;
+  padding-bottom: 2rem; /* 🔹 Prevents overlap with the footer */
 
   @media (max-width: 480px) {
+    width: 90%;
     max-width: 95%;
     padding: 1.25rem;
+    max-height: 80vh;
+  }
+
+  @media (max-width: 320px) { /* 🔹 Extra small devices */
+    width: 95%;
+    max-width: 100%;
+    padding: 1rem;
+    max-height: 75vh;
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translate(-50%, -55%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
+  }
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  color: #666;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #333;
   }
 `;
 
@@ -75,7 +111,7 @@ const Label = styled.label`
 `;
 
 const Input = styled.input`
-  width: 100%;
+  width: 90%;
   padding: 0.6rem;
   font-size: 0.9rem;
   border: 1px solid #ddd;
@@ -91,7 +127,7 @@ const Input = styled.input`
 `;
 
 const TextArea = styled.textarea`
-  width: 100%;
+  width: 90%;
   padding: 0.6rem;
   font-size: 0.9rem;
   border: 1px solid #ddd;
@@ -208,7 +244,10 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
       {isFlying && <Bird src={Tom} $isFlying={isFlying} alt="Flying bird" />}
       <ModalOverlay>
         <ModalContainer>
-          <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>Update Activity</h2>
+          <ModalHeader>
+            <h2>Update Activity</h2>
+            <CloseButton onClick={onClose}>✕</CloseButton>
+          </ModalHeader>
           <Form onSubmit={handleSubmit}>
             <Label>Activity Name</Label>
             <Input type="text" name="activity_name" value={formData.activity_name} onChange={handleChange} required />
@@ -234,8 +273,7 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
             {error && <ErrorText>{error}</ErrorText>}
 
             <ButtonGroup>
-              <Button type="button" onClick={onClose}>Cancel</Button>
-              <Button $primary type="submit">Save</Button>
+              <Button $primary type="submit">Update Activity Details</Button>
             </ButtonGroup>
           </Form>
         </ModalContainer>

@@ -89,13 +89,13 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
           <span> ⏰ Time: TBD</span>
         )}
         {activity.date_day ? <span> 📆 {activity.date_day}</span> : <span> 📆 Date: TBD</span>}
+        <br></br>
+        {activity.date_notes && `Date notes: ${activity.date_notes}`}
       </HostInfo>
 
       <EntryMessage>
         {activity.welcome_message ||
           "Welcome to this activity! This is a placeholder for a detailed description about what to expect, how it works, and any important details. Soon, you will be able to customize this message to fit your needs!"}
-        <br></br><br></br>
-        {activity.date_notes && `Notes on date & time: ${activity.date_notes}`}
       </EntryMessage>
 
       <ParticipantsSection>
