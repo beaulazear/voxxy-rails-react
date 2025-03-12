@@ -40,8 +40,7 @@ const InviteCard = styled.div`
   padding: 1.2rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  text-align: left;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   cursor: pointer;
   position: relative;

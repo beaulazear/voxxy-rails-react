@@ -300,7 +300,7 @@ function UserActivities() {
 
           <SectionTitle>Your Boards</SectionTitle>
           <CardGrid>
-            {uniqueActivities.length > 0 ? (
+            {uniqueActivities.length > 0 && (
               uniqueActivities.map((activity) => (
                 <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)} $emoji={activity.emoji}>
                   <div className="content">
@@ -316,8 +316,6 @@ function UserActivities() {
                   </div>
                 </ActivityCard>
               ))
-            ) : (
-              <p>No boards yet! Start a new one now.</p>
             )}
             <StartBoardCard onClick={() => setShowActivities(true)}>
               <div className="content">

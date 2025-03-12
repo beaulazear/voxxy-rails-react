@@ -67,7 +67,7 @@ const LandingPage = () => {
         const heroTimeout = setTimeout(() => {
             setShowHero(false);
             setShowContent(true)
-        }, 4000);
+        }, 2500);
 
         return () => clearTimeout(heroTimeout);
     }, []);

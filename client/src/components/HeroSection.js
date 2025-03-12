@@ -3,14 +3,35 @@ import styled from 'styled-components';
 
 const HeroContainer = styled.section`
   text-align: center;
-  padding: 10rem 5rem; // Further increased padding
+  padding: 10rem 5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+
+  /* Subtle Elliptical Gradient */
+  &::before {
+    content: "";
+    position: absolute;
+    width: 60vw; /* Wider to create an oval shape */
+    height: 35vh; /* Shorter height for an elliptical effect */
+    background: radial-gradient(ellipse at center, rgba(138, 43, 226, 0.3) 10%, rgba(255, 255, 255, 0) 60%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+    pointer-events: none;
+  }
 
   @media (max-width: 768px) {
-    padding: 5rem 2rem; // Further increased padding for mobile
+    padding: 5rem 2rem;
+
+    &::before {
+      width: 80vw; /* Adjust for mobile screens */
+      height: 40vh;
+    }
   }
 `;
 
@@ -28,32 +49,16 @@ const HeroTitle = styled.h1`
   }
 `;
 
-const HeroSubtitle = styled.p`
-  font-size: clamp(1rem, 2.5vw, 1.2rem);
-  margin-bottom: 1.5rem;
-  color: #444;
-  max-width: 600px;
-  text-align: center;
-  padding: 2rem;
-
-  @media (max-width: 768px) {
-    padding: .5rem;
-  }
-`;
-
 const HeroSection = () => {
   return (
     <HeroContainer>
       <HeroTitle>
-        Less Time Planning
+        Less Time Planning...
         <br />
         More Time Making Memories
       </HeroTitle>
-      <HeroSubtitle>
-        Voxxy handles the details, so you can focus on sharing moments, laughter, and stories with the people who matter most.
-      </HeroSubtitle>
     </HeroContainer>
-  )
+  );
 };
 
 export default HeroSection;
