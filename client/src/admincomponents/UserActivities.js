@@ -107,7 +107,7 @@ const ActivityCard = styled.div`
   overflow: hidden;
   color: white;
   background-image: ${({ $emoji }) =>
-    `url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><text x='10' y='30' font-size='30' fill='rgba(255,255,255,0.5)'>${$emoji || '🍜'}</text><text x='50' y='70' font-size='30' fill='rgba(255,255,255,0.5)'>${$emoji || '🍜'}</text></svg>")`};
+    `url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><text x='10' y='30' font-size='30' fill='rgba(255,255,255,1)'>${$emoji || '🍜'}</text><text x='50' y='70' font-size='30' fill='rgba(255,255,255,1)'>${$emoji || '🍜'}</text></svg>")`};
   background-size: 75px 75px;
   background-repeat: repeat;
   scroll-snap-align: center;
@@ -146,22 +146,22 @@ const ActivityCard = styled.div`
   .host-info {
     display: flex;
     align-items: center;
-    font-size: 0.9rem; /* Increased for readability */
+    font-size: 0.9rem;
     font-weight: bold;
     color: #fff;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.7);
     padding: 6px 12px;
     border-radius: 8px;
-    width: 100%;
     position: absolute;
-    bottom: 50px; /* Adjusted for proper spacing */
+    bottom: 50px;
     left: 8px;
-    right: 8px;
     backdrop-filter: blur(3px);
+    width: calc(90% - 16px);
+    right: auto;
   }
 
   .host-avatar {
-    width: 34px; /* Slightly larger for clarity */
+    width: 34px;
     height: 34px;
     border-radius: 50%;
     object-fit: cover;
@@ -173,16 +173,16 @@ const ActivityCard = styled.div`
     font-size: 0.85rem;
     font-weight: 500;
     color: #fff;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 6px 12px;
     border-radius: 6px;
     position: absolute;
     bottom: 10px;
     left: 8px;
-    right: 8px;
     text-align: center;
-    width: 90%;
     backdrop-filter: blur(3px);
+    width: calc(90% - 16px);
+    right: auto;
   }
 `;
 
@@ -240,8 +240,8 @@ function UserActivities() {
   }
 
   function extractHoursAndMinutes(isoString) {
-    if (!isoString) return "Time: TBD"; // Handle missing data
-    return isoString.slice(11, 16); // Extracts "HH:MM" from "2000-01-01T12:15:00.000Z"
+    if (!isoString) return "Time: TBD";
+    return isoString.slice(11, 16);
   }
 
   const allActivities = [
@@ -252,11 +252,10 @@ function UserActivities() {
   const uniqueActivities = [...new Map(allActivities.map(a => [a.id, a])).values()];
 
   const sortedActivities = uniqueActivities.sort((a, b) => {
-    // Convert date strings to timestamps for sorting
     const dateA = a.date_day ? new Date(a.date_day).getTime() : Infinity;
     const dateB = b.date_day ? new Date(b.date_day).getTime() : Infinity;
 
-    return dateA - dateB; // Sorts nearest date first, TBD last
+    return dateA - dateB;
   });
 
   if (selectedActivityId) {
