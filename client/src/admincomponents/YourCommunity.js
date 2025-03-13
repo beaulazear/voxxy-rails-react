@@ -154,27 +154,38 @@ const YourCommunity = () => {
     const { user } = useContext(UserContext);
     const [selectedUser, setSelectedUser] = useState(null);
 
-    // Get unique users along with all shared activities
+    if (!user) return null;
+
     const recentUsers = [
-        ...(user?.participant_activities || [])
+        ...(user.activities || []).flatMap(activity =>
+            activity.participants.map(p => ({
+                user: p.user,
+                activityName: activity.activity_name,
+            }))
+        ),
+
+        ...(user.participant_activities || [])
+            .filter((p) => p.accepted && p.activity && p.activity.user)
+            .map((p) => ({
+                user: p.activity.user,
+                activityName: p.activity.activity_name,
+            }))
     ]
-        .filter((p) => p.accepted && p.activity && p.activity.user) // Ensure valid data
-        .reduce((acc, p) => {
-            const existing = acc.find((entry) => entry.user.id === p.activity.user.id);
+        .filter(({ user: u }) => u && u.id !== user.id)
+        .reduce((acc, { user, activityName }) => {
+            const existing = acc.find((entry) => entry.user.id === user.id);
             if (existing) {
-                existing.activities.push(p.activity.activity_name);
+                existing.activities.push(activityName);
             } else {
                 acc.push({
-                    user: p.activity.user,
-                    activities: [p.activity.activity_name],
+                    user,
+                    activities: [activityName],
                 });
             }
             return acc;
         }, []);
 
     if (recentUsers.length === 0) return null;
-
-    console.log(recentUsers)
 
     return (
         <CommunityContainer>
@@ -186,6 +197,7 @@ const YourCommunity = () => {
                     </UserCard>
                 ))}
             </AvatarGrid>
+
             {selectedUser && (
                 <ModalOverlay onClick={() => setSelectedUser(null)}>
                     <ModalContent onClick={(e) => e.stopPropagation()}>
