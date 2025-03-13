@@ -251,6 +251,14 @@ function UserActivities() {
 
   const uniqueActivities = [...new Map(allActivities.map(a => [a.id, a])).values()];
 
+  const sortedActivities = uniqueActivities.sort((a, b) => {
+    // Convert date strings to timestamps for sorting
+    const dateA = a.date_day ? new Date(a.date_day).getTime() : Infinity;
+    const dateB = b.date_day ? new Date(b.date_day).getTime() : Infinity;
+
+    return dateA - dateB; // Sorts nearest date first, TBD last
+  });
+
   if (selectedActivityId) {
     return (
       <>
@@ -295,8 +303,8 @@ function UserActivities() {
 
           <SectionTitle>Your Boards</SectionTitle>
           <CardGrid>
-            {uniqueActivities.length > 0 && (
-              uniqueActivities.map((activity) => (
+            {sortedActivities.length > 0 && (
+              sortedActivities.map((activity) => (
                 <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)} $emoji={activity.emoji}>
                   <div className="content">
                     <h3>{activity.activity_name}</h3>

@@ -91,7 +91,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
         )}
         {activity.date_day ? <span> 📆 {activity.date_day}</span> : <span> 📆 Date: TBD</span>}
         <br></br>
-        {(!activity.date_time || !activity.date_day) && 'Edit the activity to change the date + time of activity'}
+        {((!activity.date_time || !activity.date_day) && isOwner)  && 'Edit the activity to change the date + time of activity'}
         <br></br><br></br>
         {activity.date_notes && `Date Notes: ${activity.date_notes}`}
       </HostInfo>
