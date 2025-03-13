@@ -73,7 +73,7 @@ const DimmedOverlay = styled.div`
   z-index: 998;
 `;
 
-function TripDashboard({setShowActivities}) {
+function TripDashboard({setShowActivities, setSelectedActivityId}) {
   const { user } = useContext(UserContext);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const dashboardRef = useRef(null); // Create a ref for the container
@@ -100,9 +100,10 @@ function TripDashboard({setShowActivities}) {
     );
   }
 
-  function handleClose() {
+  function handleClose(id) {
     setSelectedTrip(null)
     setShowActivities(false)
+    setSelectedActivityId(id)
   }
 
   return (

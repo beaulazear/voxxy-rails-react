@@ -7,6 +7,7 @@ import TripDashboard from './TripDashboard.js';
 import VoxxyFooter from '../components/VoxxyFooter.js';
 import Profile from './Profile.js';
 import Woman from '../assets/Woman.jpg'
+import YourCommunity from './YourCommunity.js';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -30,6 +31,7 @@ const HeroContainer = styled.div`
 
   @media (max-width: 768px) {
     padding: 0rem .5rem .5rem;
+    margin-top: 0px;
   }
 `;
 
@@ -55,7 +57,6 @@ const SectionTitle = styled.p`
   margin-bottom: 0;
   text-align: left;
   font-weight: 600;
-  color: #333;
   padding: 1.5rem 2.5rem 1rem;
   text-align: left;
   max-width: 1200px;
@@ -110,6 +111,7 @@ const ActivityCard = styled.div`
     `url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><text x='10' y='30' font-size='30' fill='rgba(255,255,255,1)'>${$emoji || '🍜'}</text><text x='50' y='70' font-size='30' fill='rgba(255,255,255,1)'>${$emoji || '🍜'}</text></svg>")`};
   background-size: 75px 75px;
   background-repeat: repeat;
+  background-color: white;
   scroll-snap-align: center;
   text-align: left;
   backdrop-filter: blur(5px); /* Softens emoji background */
@@ -130,11 +132,11 @@ const ActivityCard = styled.div`
   }
 
   h3 {
-    font-size: 1.5rem; /* Larger title */
+    font-size: 1.5rem;
     font-weight: 800;
     margin: 0;
     color: white;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.8);
     padding: 8px 14px;
     border-radius: 19px;
     max-width: 100%;
@@ -146,10 +148,10 @@ const ActivityCard = styled.div`
   .host-info {
     display: flex;
     align-items: center;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: bold;
     color: #fff;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.8);
     padding: 6px 12px;
     border-radius: 8px;
     position: absolute;
@@ -173,7 +175,7 @@ const ActivityCard = styled.div`
     font-size: 0.85rem;
     font-weight: 500;
     color: #fff;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, .8);
     padding: 6px 12px;
     border-radius: 6px;
     position: absolute;
@@ -270,7 +272,7 @@ function UserActivities() {
   if (showActivities) {
     return (
       <>
-        <TripDashboard setShowActivities={setShowActivities} />;
+        <TripDashboard setShowActivities={setShowActivities} setSelectedActivityId={setSelectedActivityId} />;
         <VoxxyFooter handleBack={handleBack} handleShowProfile={handleShowProfile} handleShowActivities={handleShowActivities} />
       </>
     )
@@ -287,7 +289,7 @@ function UserActivities() {
 
   return (
     <>
-      <Padding>
+      <Padding style={{background: 'linear-gradient(-45deg, #6a1b9a, #8e44ad, #b67fdd, #e0b3f3)'}}>
         <DashboardContainer>
 
           <HeroContainer>
@@ -300,7 +302,7 @@ function UserActivities() {
 
           <PendingInvites />
 
-          <SectionTitle>Your Boards</SectionTitle>
+          <SectionTitle>Upcoming Boards</SectionTitle>
           <CardGrid>
             {sortedActivities.length > 0 && (
               sortedActivities.map((activity) => (
@@ -319,7 +321,6 @@ function UserActivities() {
                       )}
                     </div>
 
-                    {/* Date & Time Info */}
                     <div className="date-time">
                       {activity.date_time ? (
                         <span> ⏰ {extractHoursAndMinutes(activity.date_time)}</span>
@@ -338,6 +339,8 @@ function UserActivities() {
               ))
             )}
           </CardGrid>
+          <SectionTitle>Voxxy Community</SectionTitle>
+          <YourCommunity />
         </DashboardContainer>
       </Padding>
       <VoxxyFooter handleBack={handleBack} handleShowProfile={handleShowProfile} handleShowActivities={handleShowActivities} />

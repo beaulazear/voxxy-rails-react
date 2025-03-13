@@ -84,15 +84,19 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
       <HostInfo>
         Hosted by: <strong>{isOwner ? "You" : activity?.user?.name || "Unknown"}</strong>
         <br></br>
+        {activity.date_day ? <span> 📆 {activity.date_day}</span> : <span> 📆 Date: TBD</span>}
         {activity.date_time ? (
           <span> ⏰ {extractHoursAndMinutes(activity.date_time)}</span>
         ) : (
           <span> ⏰ Time: TBD</span>
         )}
-        {activity.date_day ? <span> 📆 {activity.date_day}</span> : <span> 📆 Date: TBD</span>}
-        <br></br>
-        {((!activity.date_time || !activity.date_day) && isOwner)  && 'Edit the activity to change the date + time of activity'}
         <br></br><br></br>
+        {((!activity.date_time || !activity.date_day) && isOwner) && (
+          <>
+            <p>Edit the activity to change the date + time.</p>
+            <br></br><br></br>
+          </>
+        )}
         {activity.date_notes && `Date Notes: ${activity.date_notes}`}
       </HostInfo>
 

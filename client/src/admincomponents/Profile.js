@@ -32,7 +32,7 @@ const Container = styled.div`
 `;
 
 const ProfileContainer = styled.div`
-  max-width: 500px;
+  width: fit-content;
   margin: 50px auto;
   margin-top: 15px;
   padding: 2.5rem;
@@ -44,9 +44,8 @@ const ProfileContainer = styled.div`
   animation: ${fadeIn} 0.8s ease-in-out;
 
   @media (max-width: 768px) {
-    margin: 40px auto;
-    margin-left: 10px;
-    margin-right: 10px;
+    margin-left: auto;
+    margin-right: auto;
   }
 `;
 

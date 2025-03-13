@@ -214,7 +214,7 @@ function RestaurantChat({ onClose }) {
           activities: [...(prevUser.activities || []), { ...data, user: prevUser }],
         }));
 
-        onClose()
+        onClose(data.id)
       } else {
         throw new Error('Failed to create activity');
       }

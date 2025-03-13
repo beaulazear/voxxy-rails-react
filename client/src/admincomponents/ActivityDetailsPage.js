@@ -46,8 +46,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
   }, [user, activityId, refreshTrigger]);
 
-  console.log(currentActivity)
-
   if (!currentActivity) return <LoadingScreen />;
 
   const isOwner = user?.id === currentActivity?.user_id || user?.id === currentActivity?.user?.id;
