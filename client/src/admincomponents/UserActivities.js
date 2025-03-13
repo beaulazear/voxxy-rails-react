@@ -101,16 +101,18 @@ const ActivityCard = styled.div`
   padding: 1rem;
   cursor: pointer;
   position: relative;
-  height: 180px;
-  width: 220px;
+  height: 200px; /* Slightly increased for better spacing */
+  width: 240px; /* Increased for better text layout */
   flex-shrink: 0;
   overflow: hidden;
   color: white;
   background-image: ${({ $emoji }) =>
-    `url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><text x='10' y='30' font-size='30' fill='rgba(255,255,255,0.7)'>${$emoji || '🍜'}</text><text x='50' y='70' font-size='30' fill='rgba(255,255,255,0.7)'>${$emoji || '🍜'}</text></svg>")`};
-  background-size: 50px 50px;
+    `url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><text x='10' y='30' font-size='30' fill='rgba(255,255,255,0.5)'>${$emoji || '🍜'}</text><text x='50' y='70' font-size='30' fill='rgba(255,255,255,0.5)'>${$emoji || '🍜'}</text></svg>")`};
+  background-size: 75px 75px;
   background-repeat: repeat;
   scroll-snap-align: center;
+  text-align: left;
+  backdrop-filter: blur(5px); /* Softens emoji background */
 
   &:hover {
     transform: translateY(4px);
@@ -121,64 +123,68 @@ const ActivityCard = styled.div`
     z-index: 2;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     height: 100%;
     width: 100%;
     padding: 1rem;
-    text-align: center;
-  }
-
-  .emoji {
-    font-size: 3rem;
-    filter: drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.8));
   }
 
   h3 {
-    font-size: 1.2rem;
+    font-size: 1.5rem; /* Larger title */
     font-weight: 800;
     margin: 0;
-    color: black;
-    background: white;
-    padding: 5px 10px;
+    color: white;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 8px 14px;
     border-radius: 19px;
     max-width: 100%;
     text-align: center;
+    width: fit-content;
+    backdrop-filter: blur(2px);
   }
 
   .host-info {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.8rem;
+    font-size: 0.9rem; /* Increased for readability */
     font-weight: bold;
     color: #fff;
     background: rgba(0, 0, 0, 0.6);
-    padding: 6px 10px;
+    padding: 6px 12px;
     border-radius: 8px;
-    width: 87%;
-    justify-content: space-between;
+    width: 90%;
     position: absolute;
-    bottom: 8px;
+    bottom: 50px; /* Adjusted for proper spacing */
     left: 8px;
     right: 8px;
+    backdrop-filter: blur(3px);
   }
 
   .host-avatar {
-    width: 28px;
-    height: 28px;
+    width: 34px; /* Slightly larger for clarity */
+    height: 34px;
     border-radius: 50%;
     object-fit: cover;
     border: 1px solid white;
+    margin-right: 5px;
   }
 
-  .date-notes {
-    font-size: 0.75rem;
-    opacity: 0.8;
-    font-weight: 400;
+  .date-time {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 6px 10px;
+    border-radius: 6px;
+    position: absolute;
+    bottom: 10px;
+    left: 8px;
+    right: 8px;
+    text-align: center;
+    width: 90%;
+    backdrop-filter: blur(3px);
   }
 `;
-
 
 const StartBoardCard = styled(ActivityCard)`
   background: rgba(0, 0, 0, 0.1);
@@ -249,6 +255,11 @@ function UserActivities() {
     setShowProfile(true)
   }
 
+  function extractHoursAndMinutes(isoString) {
+    if (!isoString) return "Time: TBD"; // Handle missing data
+    return isoString.slice(11, 16); // Extracts "HH:MM" from "2000-01-01T12:15:00.000Z"
+  }
+
   const allActivities = [
     ...(user?.activities || []),
     ...(user?.participant_activities?.filter(activity => activity.accepted).map(p => p.activity) || [])
@@ -305,13 +316,26 @@ function UserActivities() {
                 <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)} $emoji={activity.emoji}>
                   <div className="content">
                     <h3>{activity.activity_name}</h3>
-                    <div className="emoji">{activity.emoji || '🌀'}</div>
-                  </div>
-                  <div className="host-info">
-                    <img className="host-avatar" src={activity.user.avatar || Woman} alt={activity.user.name} />
-                    <div>
-                      {activity.user.name}
-                      {activity.date_notes && <div className="date-notes">{activity.date_notes}</div>}
+
+                    {/* Host Info */}
+                    <div className="host-info">
+                      <img className="host-avatar" src={activity.user.avatar || Woman} alt={activity.user.name} />
+                      <span>Host: {activity.user.name}</span>
+                    </div>
+
+                    {/* Date & Time Info */}
+                    <div className="date-time">
+                      {activity.date_time ? (
+                        <span> ⏰ {extractHoursAndMinutes(activity.date_time)}</span>
+                      ) : (
+                        <span> ⏰ Time: TBD</span>
+                      )}
+                      {'  '}
+                      {activity.date_day ? (
+                        <span style={{ marginLeft: '15px' }}> 📆 {activity.date_day}</span>
+                      ) : (
+                        <span style={{ marginLeft: '15px' }}> 📆 Date: TBD</span>
+                      )}
                     </div>
                   </div>
                 </ActivityCard>
