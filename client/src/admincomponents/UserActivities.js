@@ -24,7 +24,7 @@ const DashboardContainer = styled.div`
 `;
 
 const HeroContainer = styled.div`
-  padding: 1.5rem 2.5rem 1rem;
+  padding: 0rem 2rem 1.75rem;
   text-align: left;
   max-width: 1200px;
 
@@ -186,22 +186,6 @@ const ActivityCard = styled.div`
   }
 `;
 
-const StartBoardCard = styled(ActivityCard)`
-  background: rgba(0, 0, 0, 0.1);
-
-  &:hover {
-    transform: translateY(4px);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
-    background: rgba(0, 0, 0, 0.2);
-  }
-
-    h3 {
-    font-size: 1.2rem;
-    background: rgba(0, 0, 0, 0);
-    filter: none;
-  }
-`;
-
 export const Button = styled.button`
   padding: 0.5rem 1rem;
   background: linear-gradient(135deg,  #8e44ad, #6a1b9a);
@@ -341,12 +325,6 @@ function UserActivities() {
                 </ActivityCard>
               ))
             )}
-            <StartBoardCard onClick={() => setShowActivities(true)}>
-              <div className="content">
-                <div className="emoji">➕</div>
-                <h3>Start a New Board</h3>
-              </div>
-            </StartBoardCard>
           </CardGrid>
         </DashboardContainer>
       </Padding>
