@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { UserContext } from '../context/user';
 import ActivityDetailsPage from './ActivityDetailsPage';
@@ -219,6 +219,14 @@ function UserActivities() {
   const [showActivities, setShowActivities] = useState(false);
   const [showProfile, setShowProfile] = useState(false)
 
+  const topRef = useRef(null)
+
+  useEffect(() => {
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, []); // Runs only when the component mounts
+
   const handleActivityClick = (activity) => {
     setSelectedActivityId(activity.id);
   };
@@ -289,8 +297,8 @@ function UserActivities() {
 
   return (
     <>
-      <Padding style={{background: 'linear-gradient(-45deg, #6a1b9a, #8e44ad, #b67fdd, #e0b3f3)'}}>
-        <DashboardContainer>
+      <Padding style={{ background: 'linear-gradient(-45deg, #6a1b9a, #8e44ad, #b67fdd, #e0b3f3)' }}>
+        <DashboardContainer ref={topRef}>
 
           <HeroContainer>
             <WelcomeText>Welcome back, {user.name}!</WelcomeText>
