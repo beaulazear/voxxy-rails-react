@@ -152,7 +152,7 @@ const ActivityCard = styled.div`
     background: rgba(0, 0, 0, 0.6);
     padding: 6px 12px;
     border-radius: 8px;
-    width: 90%;
+    width: 100%;
     position: absolute;
     bottom: 50px; /* Adjusted for proper spacing */
     left: 8px;
@@ -309,10 +309,15 @@ function UserActivities() {
                   <div className="content">
                     <h3>{activity.activity_name}</h3>
 
-                    {/* Host Info */}
                     <div className="host-info">
-                      <img className="host-avatar" src={activity.user.avatar || Woman} alt={activity.user.name} />
-                      <span>Host: {activity.user.name}</span>
+                      {activity.user ? (
+                        <>
+                          <img className="host-avatar" src={activity.user.avatar || Woman} alt={activity.user.name || "Unknown User"} />
+                          <span>{activity.user.name}</span>
+                        </>
+                      ) : (
+                        <span>Host: Unknown</span>
+                      )}
                     </div>
 
                     {/* Date & Time Info */}

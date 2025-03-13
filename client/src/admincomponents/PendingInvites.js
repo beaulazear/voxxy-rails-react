@@ -103,6 +103,8 @@ const PendingInvites = () => {
         return null;
     }
 
+    console.log(user)
+
     const handleAccept = async (invite) => {
         try {
             const response = await fetch(
@@ -115,30 +117,36 @@ const PendingInvites = () => {
                 }
             );
 
-            if (response.ok) {
-                alert("Invite accepted!");
-                setUser((prevUser) => {
-                    return {
-                        ...prevUser,
-                        participant_activities: prevUser.participant_activities.filter(
-                            (p) => p.activity.id !== invite.activity.id
-                        ),
-                        activities: [
-                            ...prevUser.activities,
-                            {
-                                ...invite.activity,
-                                participants: [
-                                    ...(invite.activity.participants || []),
-                                    { id: user.id, name: user.name, email: user.email }
-                                ],
-                                group_size: invite.activity.group_size + 1
-                            },
-                        ],
-                    };
-                });
-            } else {
+            if (!response.ok) {
                 alert("Failed to accept invite.");
+                return;
             }
+
+            const updatedActivity = await response.json();
+
+            console.log(updatedActivity)
+
+            setUser((prevUser) => ({
+                ...prevUser,
+                participant_activities: prevUser.participant_activities.map((p) =>
+                    p.activity.id === updatedActivity.id ? { ...p, accepted: true, activity: updatedActivity } : p
+                ),
+                activities: prevUser.activities.map((activity) =>
+                    activity.id === updatedActivity.id
+                        ? {
+                            ...updatedActivity,
+                            participants: [
+                                ...(updatedActivity.participants || []),
+                                { id: user.id, name: user.name, email: user.email },
+                            ],
+                            group_size: updatedActivity.group_size + 1,
+                            comments: updatedActivity.comments,
+                        }
+                        : activity
+                ),
+            }));
+
+            alert("Invite accepted!");
         } catch (error) {
             console.error("❌ Error accepting invite:", error);
         }

@@ -49,7 +49,38 @@ class ActivityParticipantsController < ApplicationController
       activity = participant.activity
       activity.update!(group_size: activity.group_size + 1)
 
-      render json: participant.as_json(include: { user: { only: [ :id, :name, :email, :avatar ] } }), status: :ok
+      # Create welcome comment
+      new_comment = activity.comments.create!(
+        user_id: user.id,
+        content: "#{user.name} has joined the chat 🎉" # 👈 Now includes user's name
+        )
+
+      # 🔥 Force reload activity to ensure new comment appears
+      activity.reload
+
+      # Return the updated activity including participants and comments
+      updated_activity = {
+        id: activity.id,
+        activity_name: activity.activity_name,
+        activity_location: activity.activity_location,
+        emoji: activity.emoji,
+        group_size: activity.group_size,
+        date_day: activity.date_day,
+        date_time: activity.date_time,
+        user: activity.user ? { id: activity.user.id, name: activity.user.name, email: activity.user.email, avatar: activity.user.avatar } : nil,
+        participants: activity.participants.select(:id, :name, :email, :avatar),
+        comments: activity.comments.order(created_at: :asc).map do |comment|
+          {
+            id: comment.id,
+            content: comment.content,
+            user_id: comment.user_id,
+            created_at: comment.created_at,
+            user: comment.user ? { id: comment.user.id, name: comment.user.name, avatar: comment.user.avatar } : nil
+          }
+        end
+      }
+
+      render json: updated_activity, status: :ok
     rescue => e
       render json: { error: e.message }, status: :unprocessable_entity
     end
