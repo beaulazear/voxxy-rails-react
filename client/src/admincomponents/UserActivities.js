@@ -252,8 +252,8 @@ function UserActivities() {
   const uniqueActivities = [...new Map(allActivities.map(a => [a.id, a])).values()];
 
   const sortedActivities = uniqueActivities.sort((a, b) => {
-    const dateA = a.date_day ? new Date(a.date_day).getTime() : Infinity;
-    const dateB = b.date_day ? new Date(b.date_day).getTime() : Infinity;
+    const dateA = a.date_day ? new Date(a.date_day).setHours(0, 0, 0, 0) : Infinity;
+    const dateB = b.date_day ? new Date(b.date_day).setHours(0, 0, 0, 0) : Infinity;
 
     return dateA - dateB;
   });
