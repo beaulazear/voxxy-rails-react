@@ -73,7 +73,7 @@ const DimmedOverlay = styled.div`
   z-index: 998;
 `;
 
-function TripDashboard({setShowActivities, setSelectedActivityId}) {
+function TripDashboard({ setShowActivities, setSelectedActivityId }) {
   const { user } = useContext(UserContext);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const dashboardRef = useRef(null); // Create a ref for the container
@@ -101,9 +101,13 @@ function TripDashboard({setShowActivities, setSelectedActivityId}) {
   }
 
   function handleClose(id) {
-    setSelectedTrip(null)
-    setShowActivities(false)
-    setSelectedActivityId(id)
+    if (id && id.preventDefault) {
+      id.preventDefault();
+      id = null;
+    }
+    setSelectedTrip(null);
+    setShowActivities(false);
+    setSelectedActivityId(id || null);
   }
 
   return (

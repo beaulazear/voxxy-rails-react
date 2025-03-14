@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import Voxxy from '../assets/Voxxy.png';
 
@@ -19,6 +20,7 @@ const LoadingSection = styled.div`
   align-items: center;
   justify-content: center;
   height: 80vh;
+  padding: 20px;
   animation: ${fadeIn} 1.5s ease-in-out;
   text-align: center;
 `;
@@ -55,12 +57,42 @@ const LoadingSubtitle = styled.p`
   }
 `;
 
-const LoadingScreen = () => (
-  <LoadingSection>
-    <Logo src={Voxxy} alt="Voxxy Logo" />
-    <LoadingTitle>Your Voxxy Experience is Loading</LoadingTitle>
-    <LoadingSubtitle>Please wait a moment...</LoadingSubtitle>
-  </LoadingSection>
-);
+const CountdownText = styled.p`
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-top: 15px;
+  color: #6a1b9a;
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+`;
+
+const LoadingScreen = () => {
+  const [countdown, setCountdown] = useState(10);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (countdown === 0) {
+      navigate('/');
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown((prev) => Math.max(prev - 1, 0)); // Stops at 0
+    }, 1000);
+
+    return () => clearTimeout(timer); // Cleanup timer
+  }, [countdown, navigate]);
+
+  return (
+    <LoadingSection>
+      <Logo src={Voxxy} alt="Voxxy Logo" />
+      <LoadingTitle>Your Voxxy Experience is Loading</LoadingTitle>
+      <LoadingSubtitle>Please wait a moment...</LoadingSubtitle>
+      <CountdownText>You'll be redirected in {countdown}...</CountdownText>
+    </LoadingSection>
+  );
+};
 
 export default LoadingScreen;
