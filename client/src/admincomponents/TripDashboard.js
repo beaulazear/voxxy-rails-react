@@ -22,8 +22,7 @@ const gradientAnimation = keyframes`
 `;
 
 export const PageContainer = styled.div`
-  background: linear-gradient(-45deg, #6a1b9a, #8e44ad, #b67fdd, #e0b3f3);
-  min-height: 100vh;
+  background: linear-gradient(-45deg, #9b59b6, #bb80d5, #dab8f0, #ffffff);  min-height: 100vh;
   height: auto;
   width: 100%;
   animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;

@@ -26,8 +26,7 @@ const gradientAnimation = keyframes`
 
 const Container = styled.div`
   animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
-  background: linear-gradient(-45deg, #6a1b9a, #8e44ad, #b67fdd, #e0b3f3);
-  padding-bottom: 50px;
+  background: linear-gradient(-45deg, #9b59b6, #bb80d5, #dab8f0, #ffffff);  padding-bottom: 50px;
   padding-top: 10px;
 `;
 

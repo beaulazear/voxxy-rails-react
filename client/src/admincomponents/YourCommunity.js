@@ -73,6 +73,7 @@ const YourCommunity = () => {
               <ModalOverlay onClick={() => setSelectedUser(null)}>
                   <ModalContent onClick={(e) => e.stopPropagation()}>
                       <h2>{selectedUser.user.name}</h2>
+                      <h3>{selectedUser.user.email}</h3>
                       <h4>Mutual Activities</h4>
                       <ActivityList>
                           {selectedUser.activities.map((activity, index) => (

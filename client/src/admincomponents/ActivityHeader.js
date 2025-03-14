@@ -7,12 +7,23 @@ import ActivityCommentSection from './ActivityCommentSection.js'
 const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }) => {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
+  const [selectedParticipant, setSelectedParticipant] = useState(null); // 🟣 State for pop-up
+
+  const handleParticipantClick = (participant) => {
+    setShowInvitePopup(null)
+    setSelectedParticipant(participant);
+  };
+
+  const closeParticipantPopup = () => {
+    setSelectedParticipant(null);
+  };
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   const handleInviteClick = () => {
+    setSelectedParticipant(null);
     setShowInvitePopup(true);
   };
 
@@ -112,7 +123,12 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
           <ParticipantsScroll>
             {allParticipants.filter((p) => p.confirmed).map((participant, index) => {
               return (
-                <ParticipantCircle key={index} title={participant.name}>
+                <ParticipantCircle
+                  key={index}
+                  title={participant.name}
+                  onClick={() => handleParticipantClick(participant)} // 🟣 Open pop-up on click
+                  $pending={!participant.confirmed}
+                >
                   <ParticipantImage src={participant.avatar} alt={participant.name} />
                 </ParticipantCircle>
               );
@@ -120,7 +136,12 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
             {isOwner &&
               allParticipants.filter((p) => !p.confirmed).map((participant, index) => {
                 return (
-                  <ParticipantCircle key={`pending-${index}`} title={`${participant.name} (Pending)`} $pending>
+                  <ParticipantCircle
+                    key={`pending-${index}`}
+                    title={`${participant.name} (Pending)`}
+                    $pending
+                    onClick={() => handleParticipantClick(participant)} // 🟣 Make pending participants clickable
+                  >
                     <ParticipantImage src={participant.avatar} alt={participant.name} />
                   </ParticipantCircle>
                 );
@@ -131,28 +152,39 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
         {/* ✅ Move Invite Button Below */}
         {isOwner && (
           <InviteButton onClick={handleInviteClick}>
-            <UserAddOutlined /> Invite
+            <UserAddOutlined style={{width: '85%'}} /> Invite
           </InviteButton>
         )}
         <ActivityCommentSection activity={activity} />
       </ParticipantsSection>
 
+      {selectedParticipant && (
+        <ParticipantPopupOverlay onClick={closeParticipantPopup}>
+          <ParticipantPopupContent onClick={(e) => e.stopPropagation()}>
+            <h2>{selectedParticipant.name || selectedParticipant.email}</h2>
+            <ParticipantPopupActions>
+              <ParticipantPopupButton onClick={closeParticipantPopup}>Close</ParticipantPopupButton>
+            </ParticipantPopupActions>
+          </ParticipantPopupContent>
+        </ParticipantPopupOverlay>
+      )}
+
       {showInvitePopup && (
-        <InvitePopup>
-          <PopupContent>
-            <h3>Invite a Participant</h3>
+        <ParticipantPopupOverlay onClick={handleClosePopup}>
+          <ParticipantPopupContent onClick={(e) => e.stopPropagation()}>
+            <h2>Invite a Participant</h2>
             <input
               type="email"
               placeholder="Enter email..."
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
             />
-            <PopupActions>
-              <PopupButton onClick={handleInviteSubmit}>Send Invite</PopupButton>
-              <PopupButton className="cancel" onClick={handleClosePopup}>Cancel</PopupButton>
-            </PopupActions>
-          </PopupContent>
-        </InvitePopup>
+            <ParticipantPopupActions>
+              <ParticipantPopupButton onClick={handleInviteSubmit}>Send Invite</ParticipantPopupButton>
+              <ParticipantPopupButton className="cancel" onClick={handleClosePopup}>Cancel</ParticipantPopupButton>
+            </ParticipantPopupActions>
+          </ParticipantPopupContent>
+        </ParticipantPopupOverlay>
       )}
     </HeaderContainer>
   );
@@ -373,68 +405,93 @@ export const EntryMessage = styled.p`
   margin: 0 auto;
 `;
 
-const InvitePopup = styled.div`
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
-    z-index: 1000;
-    min-width: 300px;
-    max-width: 400px;
+const ParticipantPopupOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
 `;
 
-const PopupContent = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+const ParticipantPopupContent = styled.div`
+  background: linear-gradient(135deg, #6a1b9a, #8e44ad);
+  padding: 2rem;
+  border-radius: 18px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  color: white;
+  animation: slideUp 0.3s ease-in-out;
 
-    h3 {
-        font-size: 1.4rem;
-        font-weight: bold;
-        color: #4e0f63;
-        margin-bottom: 0.5rem;
-        text-align: center;
+  @media (max-width: 600px) {
+    margin: 1rem;
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
     }
-
-    input {
-        padding: 0.75rem;
-        font-size: 1rem;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        width: 100%;
+    to {
+      transform: translateY(0);
+      opacity: 1;
     }
-`;
+  }
 
-const PopupActions = styled.div`
-    display: flex;
-    justify-content: space-between;
-    margin-top: 1rem;
-`;
-
-const PopupButton = styled.button`
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
+  h2 {
+    font-size: 1.8rem;
     font-weight: bold;
+    margin-bottom: 1rem;
+    text-transform: capitalize;
+  }
+
+  input {
+    padding: 0.75rem;
+    font-size: 1rem;
     border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.2s ease;
-    background: #9b59b6;
+    border-radius: 12px;
+    width: 95%;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+`;
+
+const ParticipantPopupActions = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+`;
+
+const ParticipantPopupButton = styled.button`
+  padding: 0.7rem 1.4rem;
+  background: white;
+  color: #6a1b9a;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  &.cancel {
+    background: rgba(255, 255, 255, 0.3);
     color: white;
 
     &:hover {
-        background: #8e44ad;
+      background: rgba(255, 255, 255, 0.5);
     }
-
-    &.cancel {
-        background: #e74c3c;
-
-        &:hover {
-            background: #c0392b;
-        }
-    }
+  }
 `;

@@ -47,6 +47,7 @@ const SectionTitle = styled.p`
 
   @media (max-width: 768px) {
     padding: 0rem .5rem .5rem;
+    text-align: center;
   }
 `;
 
@@ -195,7 +196,7 @@ export const Button = styled.button`
 
 const Padding = styled.div`
   padding-bottom: 50px;
-  background: linear-gradient(-45deg, #6a1b9a, #8e44ad, #b67fdd, #e0b3f3);
+  background: linear-gradient(-45deg, #9b59b6, #bb80d5, #dab8f0, #ffffff);;
 `
 
 const intros = [
