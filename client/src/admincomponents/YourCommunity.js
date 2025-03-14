@@ -88,6 +88,7 @@ export default function YourCommunity () {
       )}
   </CommunityContainer>
 );
+}
 
 const Wrapper = styled.div`
   width: 100%;
