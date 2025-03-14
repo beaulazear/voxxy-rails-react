@@ -109,16 +109,15 @@ const AvatarGrid = styled.div`
   overflow-x: auto;
   white-space: nowrap;
   padding-bottom: 10px;
-  scroll-snap-type: x mandatory;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+  -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+  margin-left: -3rem;
+  margin-right: -3rem;
+  padding: 10px;
 
   &::-webkit-scrollbar {
-    display: none;
+    display: none; /* Hide scrollbar for Chrome/Safari */
   }
-  scrollbar-width: none;
-  -ms-overflow-style: none;
 `;
 
 const UserCard = styled.div`
