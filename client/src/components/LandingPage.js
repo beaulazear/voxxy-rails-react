@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import styled, { css, keyframes } from "styled-components";
 import HeroSection from "./HeroSection";
 import IntroductionSection from "./IntroductionSection";
@@ -9,25 +9,13 @@ import CallToActionSection from "./CallToActionSection";
 import Footer from "./Footer";
 
 const fadeIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(10px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 `;
 
 const fadeOut = keyframes`
-  from {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-20px) scale(1.02);
-  }
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-10px); }
 `;
 
 const HeroWrapper = styled.div`
@@ -39,57 +27,94 @@ const HeroWrapper = styled.div`
   align-items: center;
   z-index: 1000;
   animation: ${({ $isFadingOut }) =>
-        $isFadingOut
-            ? css`${fadeOut} 1.5s ease-in-out forwards`
-            : css`${fadeIn} 1.5s ease-out forwards`};
+    $isFadingOut
+      ? css`${fadeOut} 1.2s ease-in-out forwards`
+      : css`${fadeIn} 1s ease-out forwards`};
 `;
 
 const ContentContainer = styled.div`
+  opacity: ${({ $isVisible }) => ($isVisible ? "1" : "0")};
+  transition: opacity 1s ease-in-out;
+`;
+
+const StaggeredContent = styled.div`
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
-
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  
   ${({ $isVisible }) =>
-        $isVisible &&
-        css`
+    $isVisible &&
+    css`
       opacity: 1;
       transform: translateY(0);
     `}
 `;
 
 const LandingPage = () => {
-    const [showHero, setShowHero] = useState(true);
-    const [showContent, setShowContent] = useState(false);
+  const [showHero, setShowHero] = useState(true);
+  const [showContent, setShowContent] = useState(false);
+  const [visibleSections, setVisibleSections] = useState(["introduction"]); // First section is visible by default
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
+  useEffect(() => {
+    window.scrollTo(0, 0);
 
-        const heroTimeout = setTimeout(() => {
-            setShowHero(false);
-            setShowContent(true)
-        }, 2500);
+    setTimeout(() => {
+      setShowHero(false);
+      setShowContent(true);
+    }, 3000); // Reduce hero duration to 1.5s
+  }, []);
 
-        return () => clearTimeout(heroTimeout);
-    }, []);
+  // Function to detect when a section enters the viewport
+  const handleScroll = useCallback(() => {
+    const sections = document.querySelectorAll(".staggered-section");
+    sections.forEach((section) => {
+      const rect = section.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.85 && !visibleSections.includes(section.id)) {
+        setVisibleSections((prev) => [...prev, section.id]);
+      }
+    });
+  }, [visibleSections]);
 
-    return (
-        <>
-            {showHero && (
-                <HeroWrapper $isFadingOut={!showHero}>
-                    <HeroSection />
-                </HeroWrapper>
-            )}
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
 
-            <ContentContainer $isVisible={showContent}>
-                <IntroductionSection />
-                <HowVoxxyWorks />
-                <AboutSection />
-                <BenefitsSection />
-                <CallToActionSection />
-                <Footer />
-            </ContentContainer>
-        </>
-    );
+  return (
+    <>
+      {showHero && (
+        <HeroWrapper $isFadingOut={!showHero}>
+          <HeroSection />
+        </HeroWrapper>
+      )}
+
+      <ContentContainer $isVisible={showContent}>
+        <StaggeredContent id="introduction" className="staggered-section" $isVisible={visibleSections.includes("introduction")}>
+          <IntroductionSection />
+        </StaggeredContent>
+
+        <StaggeredContent id="howVoxxyWorks" className="staggered-section" $isVisible={visibleSections.includes("howVoxxyWorks")}>
+          <HowVoxxyWorks />
+        </StaggeredContent>
+
+        <StaggeredContent id="about" className="staggered-section" $isVisible={visibleSections.includes("about")}>
+          <AboutSection />
+        </StaggeredContent>
+
+        <StaggeredContent id="benefits" className="staggered-section" $isVisible={visibleSections.includes("benefits")}>
+          <BenefitsSection />
+        </StaggeredContent>
+
+        <StaggeredContent id="cta" className="staggered-section" $isVisible={visibleSections.includes("cta")}>
+          <CallToActionSection />
+        </StaggeredContent>
+
+        <StaggeredContent id="footer" className="staggered-section" $isVisible={visibleSections.includes("footer")}>
+          <Footer />
+        </StaggeredContent>
+      </ContentContainer>
+    </>
+  );
 };
 
 export default LandingPage;

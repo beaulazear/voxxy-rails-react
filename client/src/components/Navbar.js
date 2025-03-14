@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom';
 import { Button } from 'antd';
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { UserContext } from '../context/user';
+import Voxxy_header from '../assets/Voxxy_header.jpeg'
 
 const NavbarContainer = styled.div`
   display: flex;
@@ -14,20 +15,6 @@ const NavbarContainer = styled.div`
 
   @media (max-width: 768px) {
     padding: 15px 20px;
-  }
-`;
-
-const Logo = styled(NavLink)`
-  font-size: 28px;
-  font-weight: bold;
-  background: linear-gradient(to right, #4f46e5, #4f46e5);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: 1px;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
   }
 `;
 
@@ -66,12 +53,31 @@ const IconButton = styled(NavLink)`
   }
 `;
 
+const LogoLink = styled(NavLink)`
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+`;
+
+const LogoImage = styled.img`
+  max-width: 150px; /* Adjust size */
+  width: auto;
+  height: 40px;
+  
+  @media (max-width: 768px) {
+    max-width: 120px; /* Slightly smaller for mobile */
+    height: 35px;
+  }
+`;
+
 const Navbar = () => {
   const { user } = useContext(UserContext);
 
   return (
     <NavbarContainer>
-      <Logo to="/">VOXXY</Logo>
+      <LogoLink to="/">
+        <LogoImage src={Voxxy_header} alt="Voxie Logo" />
+      </LogoLink>
       <MenuContainer>
         {user && (
           <>

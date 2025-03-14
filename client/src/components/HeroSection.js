@@ -1,46 +1,68 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
+import Voxxy_header from '../assets/Voxxy_header.jpeg';
+
+const fadeInZoom = keyframes`
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+`;
+
+const textGlow = keyframes`
+  0% {
+    text-shadow: 0 0 5px rgba(0, 174, 255, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 15px rgba(0, 174, 255, 0.6);
+  }
+  100% {
+    text-shadow: 0 0 5px rgba(0, 174, 255, 0.3);
+  }
+`;
 
 const HeroContainer = styled.section`
   text-align: center;
-  padding: 10rem 5rem;
+  padding: 4rem 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
-  overflow: hidden;
-
-  /* Subtle Elliptical Gradient */
-  &::before {
-    content: "";
-    position: absolute;
-    width: 60vw; /* Wider to create an oval shape */
-    height: 35vh; /* Shorter height for an elliptical effect */
-    background: radial-gradient(ellipse at center, rgba(138, 43, 226, 0.25) 10%, rgba(255, 255, 255, 0) 60%);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: -1;
-    pointer-events: none;
-  }
-
-  @media (max-width: 768px) {
-    padding: 4rem 1.5rem;
-  }
+  animation: ${fadeInZoom} 1.2s ease-out;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(0, 0, 0, 0) 100%);
 `;
 
 const HeroTitle = styled.h1`
-  font-size: clamp(1.7rem, 5vw, 3.2rem);
+  font-size: clamp(2rem, 5vw, 3.5rem);
   font-weight: bold;
-  margin-bottom: 0.4rem;
   color: #000;
   text-align: center;
-  padding: 2rem;
+  padding: 1rem;
+  margin-bottom: 0;
+  margin-top: 0;
+  animation: ${textGlow} 2.5s infinite alternate;
 
   @media (max-width: 768px) {
-    padding: .5rem;
-    margin-bottom: 0;
+    padding: 0.5rem;
+  }
+`;
+
+const VoxieGraphic = styled.img`
+  max-width: 420px;
+  width: 75%;
+  height: auto;
+  margin-top: 0.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: ${fadeInZoom} 1.5s ease-out 0.3s forwards;
+
+  @media (max-width: 768px) {
+    max-width: 280px;
   }
 `;
 
@@ -50,8 +72,9 @@ const HeroSection = () => {
       <HeroTitle>
         Less Time Planning...
         <br />
-        More Time Making Memories
+        More Time Making Memories With
       </HeroTitle>
+      <VoxieGraphic src={Voxxy_header} alt="Voxie Logo" />
     </HeroContainer>
   );
 };
