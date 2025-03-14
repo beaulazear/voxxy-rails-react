@@ -56,18 +56,6 @@ export default function YourCommunity() {
     activities: Array.from(entry.activities)
   }));
 
-  // Adding six fake users for debugging
-  const fakeUsers = [
-    { id: 101, name: "Alex Smith", email: "alex@example.com", avatar: Woman },
-    { id: 102, name: "Jordan Lee", email: "jordan@example.com", avatar: Woman },
-    { id: 103, name: "Taylor Morgan", email: "taylor@example.com", avatar: Woman },
-    { id: 104, name: "Chris Parker", email: "chris@example.com", avatar: Woman },
-    { id: 105, name: "Jamie Rivera", email: "jamie@example.com", avatar: Woman },
-    { id: 106, name: "Morgan Blake", email: "morgan@example.com", avatar: Woman }
-  ];
-
-  recentUsers = [...recentUsers, ...fakeUsers.map(user => ({ user, activities: ["Debug Activity"] }))];
-
   if (recentUsers.length === 0) return null;
 
   return (
