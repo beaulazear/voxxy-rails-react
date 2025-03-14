@@ -1,88 +1,95 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { UserContext } from "../context/user";
 import styled from "styled-components";
 import { SendOutlined } from "@ant-design/icons";
 import Woman from "../assets/Woman.jpg";
 
 const CommentsSection = ({ activity }) => {
-    const [comments, setComments] = useState(activity.comments || []);
-    const [newComment, setNewComment] = useState("");
-    const { user } = useContext(UserContext);
+  const [comments, setComments] = useState(activity.comments || []);
+  const [newComment, setNewComment] = useState("");
+  const { user } = useContext(UserContext);
+  const commentsListRef = useRef(null); // 🟢 Reference for auto-scroll
 
-    const handleCommentSubmit = async () => {
-        if (!newComment.trim()) return;
+  useEffect(() => {
+    if (commentsListRef.current) {
+        commentsListRef.current.scrollTop = commentsListRef.current.scrollHeight - commentsListRef.current.clientHeight;
+    }
+}, [comments]);
 
-        const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
-        const response = await fetch(`${API_URL}/activities/${activity.id}/comments`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ comment: { content: newComment } }),
-        });
+  const handleCommentSubmit = async () => {
+    if (!newComment.trim()) return;
 
-        if (response.ok) {
-            const comment = await response.json();
-            setComments((prev) => [...prev, comment]);
-            setNewComment("");
-        } else {
-            alert("Failed to add comment.");
-        }
-    };
+    const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+    const response = await fetch(`${API_URL}/activities/${activity.id}/comments`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ comment: { content: newComment } }),
+    });
 
-    const formatTimestamp = (timestamp) => {
-        const date = new Date(timestamp);
-        const today = new Date();
-        const isToday =
-            date.getDate() === today.getDate() &&
-            date.getMonth() === today.getMonth() &&
-            date.getFullYear() === today.getFullYear();
+    if (response.ok) {
+      const comment = await response.json();
+      setComments((prev) => [...prev, comment]);
+      setNewComment("");
+    } else {
+      alert("Failed to add comment.");
+    }
+  };
 
-        return isToday
-            ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-            : date.toLocaleDateString([], { month: "short", day: "numeric" }) +
-            " " +
-            date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    };
+  const formatTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    const today = new Date();
+    const isToday =
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear();
 
-    return (
-        <CommentsContainer>
-            <CommentsList>
-                {comments.length > 0 ? (
-                    comments.map((comment) => {
-                        const isOwnComment = comment.user.id === user.id;
-                        return (
-                            <CommentWrapper key={comment.id} $isOwnComment={isOwnComment}>
-                                {!isOwnComment && <Avatar src={comment.user.avatar || Woman} alt={comment.user.name} />}
-                                <CommentBubble $isOwnComment={isOwnComment}>
-                                    <CommentHeader>
-                                        <CommentAuthor>{comment.user.name}</CommentAuthor>
-                                        <Timestamp>{formatTimestamp(comment.created_at)}</Timestamp>
-                                    </CommentHeader>
-                                    <CommentText>{comment.content}</CommentText>
-                                </CommentBubble>
-                                {isOwnComment && <Avatar src={comment.user.avatar || Woman} alt={comment.user.name} />}
-                            </CommentWrapper>
-                        );
-                    })
-                ) : (
-                    <NoComments>No messages yet. Start the conversation!</NoComments>
-                )}
-                <div/>
-            </CommentsList>
+    return isToday
+      ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      : date.toLocaleDateString([], { month: "short", day: "numeric" }) +
+      " " +
+      date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
 
-            <CommentInputContainer>
-                <CommentInput
-                    type="text"
-                    placeholder="Write a message..."
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                />
-                <SendButton onClick={handleCommentSubmit}>
-                    <SendOutlined />
-                </SendButton>
-            </CommentInputContainer>
-        </CommentsContainer>
-    );
+  return (
+    <CommentsContainer>
+      <CommentsList ref={commentsListRef}>
+        {comments.length > 0 ? (
+          comments.map((comment) => {
+            const isOwnComment = comment.user.id === user.id;
+            return (
+              <CommentWrapper key={comment.id} $isOwnComment={isOwnComment}>
+                {!isOwnComment && <Avatar src={comment.user.avatar || Woman} alt={comment.user.name} />}
+                <CommentBubble $isOwnComment={isOwnComment}>
+                  <CommentHeader>
+                    <CommentAuthor>{comment.user.name}</CommentAuthor>
+                    <Timestamp>{formatTimestamp(comment.created_at)}</Timestamp>
+                  </CommentHeader>
+                  <CommentText>{comment.content}</CommentText>
+                </CommentBubble>
+                {isOwnComment && <Avatar src={comment.user.avatar || Woman} alt={comment.user.name} />}
+              </CommentWrapper>
+            );
+          })
+        ) : (
+          <NoComments>No messages yet. Start the conversation!</NoComments>
+        )}
+        <div />
+      </CommentsList>
+
+      <CommentInputContainer>
+        <CommentInput
+          type="text"
+          placeholder="Write a message..."
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+        />
+        <SendButton onClick={handleCommentSubmit}>
+          <SendOutlined />
+        </SendButton>
+      </CommentInputContainer>
+    </CommentsContainer>
+  );
 };
 
 export default CommentsSection;
