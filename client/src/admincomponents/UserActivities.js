@@ -26,28 +26,12 @@ const DashboardContainer = styled.div`
 
 const HeroContainer = styled.div`
   padding: 0rem 2rem 1.75rem;
-  text-align: left;
+  text-align: center;
   max-width: 1200px;
 
   @media (max-width: 768px) {
     padding: 0rem .5rem .5rem;
     margin-top: 0px;
-  }
-`;
-
-const WelcomeText = styled.h1`
-  font-size: clamp(2rem, 5vw, 3.2rem);
-  font-weight: 700;
-  margin-bottom: 0.3rem;
-`;
-
-const SubText = styled.p`
-  font-size: 1.2rem;
-  font-weight: 500;
-  opacity: 0.9;
-
-  @media (max-width: 768px) {
-    font-size: 1rem;
   }
 `;
 
@@ -158,7 +142,7 @@ const ActivityCard = styled.div`
     bottom: 50px;
     left: 8px;
     backdrop-filter: blur(3px);
-    width: calc(90% - 16px);
+    width: fit-content;
     right: auto;
   }
 
@@ -213,11 +197,33 @@ const Padding = styled.div`
   padding-bottom: 50px;
 `
 
+const intros = [
+  "Your next adventure starts now! Let’s make some memories. 🎉",
+  "From group chat chaos to actual plans—Voxxy’s got you. 😉",
+  "Ditch the ‘we should hang out’ texts. Let's make it happen! ✨",
+  "Less typing, more doing. Ready to Voxxy? 🚀",
+  "Your squad deserves better than ‘someday.’ Let’s plan it! 🌎",
+  "No more ghosted plans. Get together, for real this time. 👻",
+  "Planning made fun, not frustrating. Welcome to Voxxy! 🎭",
+  "Why talk about it when you can DO it? Let’s go! 🚦",
+  "Good vibes, great company, better plans. That’s Voxxy. 🍾",
+  "Hit ‘start’ on your next great memory. Voxxy it up! 🔥",
+];
+
+const IntroText = styled.h2`
+font-size: clamp(1.8rem, 4vw, 2.5rem);
+font-weight: bold;
+color: #000;
+text-align: center;
+margin-bottom: 1rem;
+`;
+
 function UserActivities() {
   const { user } = useContext(UserContext);
   const [selectedActivityId, setSelectedActivityId] = useState(null);
   const [showActivities, setShowActivities] = useState(false);
   const [showProfile, setShowProfile] = useState(false)
+  const [intro, setIntro] = useState("");
 
   const topRef = useRef(null)
 
@@ -225,7 +231,9 @@ function UserActivities() {
     if (topRef.current) {
       topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  }, []); // Runs only when the component mounts
+    const randomIntro = intros[Math.floor(Math.random() * intros.length)];
+    setIntro(randomIntro);
+  }, []);
 
   const handleActivityClick = (activity) => {
     setSelectedActivityId(activity.id);
@@ -299,12 +307,8 @@ function UserActivities() {
     <>
       <Padding style={{ background: 'linear-gradient(-45deg, #6a1b9a, #8e44ad, #b67fdd, #e0b3f3)' }}>
         <DashboardContainer ref={topRef}>
-
           <HeroContainer>
-            <WelcomeText>Welcome back, {user.name}!</WelcomeText>
-            <SubText>
-              Let's start planning together.
-            </SubText>
+            <IntroText>{intro}</IntroText>
             <Button onClick={handleShowActivities}>➕ New Board</Button>
           </HeroContainer>
 
