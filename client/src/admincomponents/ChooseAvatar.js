@@ -12,6 +12,12 @@ import Avatar8 from "../assets/Avatar8.jpg";
 import Avatar9 from "../assets/Avatar9.jpg";
 import Avatar10 from "../assets/Avatar10.jpg";
 import Avatar11 from "../assets/Avatar11.jpg";
+import Weird1 from "../assets/Weird1.jpg";
+import Weird2 from "../assets/Weird2.jpg";
+import Weird3 from "../assets/Weird3.jpg";
+import Weird4 from "../assets/Weird4.jpg";
+import Weird5 from "../assets/Weird5.jpg";
+
 
 const avatars = [
   { id: 1, src: Avatar1, path: "/assets/Avatar1.jpg" },
@@ -25,6 +31,12 @@ const avatars = [
   { id: 9, src: Avatar9, path: "/assets/Avatar9.jpg" },
   { id: 10, src: Avatar10, path: "/assets/Avatar10.jpg" },
   { id: 11, src: Avatar11, path: "/assets/Avatar11.jpg" },
+  { id: 12, src: Weird1, path: "/assets/Weird1.jpg" },
+  { id: 13, src: Weird2, path: "/assets/Weird2.jpg" },
+  { id: 14, src: Weird3, path: "/assets/Weird3.jpg" },
+  { id: 15, src: Weird4, path: "/assets/Weird4.jpg" },
+  { id: 16, src: Weird5, path: "/assets/Weird5.jpg" },
+
 ];
 
 const AvatarContainer = styled.div`
