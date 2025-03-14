@@ -117,6 +117,11 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
       </EntryMessage>
 
       <ParticipantsSection>
+        {isOwner && (
+          <InviteButton onClick={handleInviteClick}>
+            <UserAddOutlined style={{ width: '85%' }} /> Invite
+          </InviteButton>
+        )}
         <ParticipantsTitle>Voxxy Group Chat</ParticipantsTitle>
 
         <ParticipantsRow>
@@ -148,13 +153,6 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
               })}
           </ParticipantsScroll>
         </ParticipantsRow>
-
-        {/* ✅ Move Invite Button Below */}
-        {isOwner && (
-          <InviteButton onClick={handleInviteClick}>
-            <UserAddOutlined style={{width: '85%'}} /> Invite
-          </InviteButton>
-        )}
         <ActivityCommentSection activity={activity} />
       </ParticipantsSection>
 
