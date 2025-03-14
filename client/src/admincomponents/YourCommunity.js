@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { UserContext } from "../context/user";
 import Woman from "../assets/Woman.jpg"; // Fallback avatar
 
-const YourCommunity = () => {
+export default function YourCommunity () {
   const { user } = useContext(UserContext);
   const [selectedUser, setSelectedUser] = useState(null);
 
@@ -88,8 +88,6 @@ const YourCommunity = () => {
       )}
   </CommunityContainer>
 );
-
-export default YourCommunity;
 
 const Wrapper = styled.div`
   width: 100%;
