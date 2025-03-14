@@ -195,6 +195,7 @@ export const Button = styled.button`
 
 const Padding = styled.div`
   padding-bottom: 50px;
+  background: linear-gradient(-45deg, #6a1b9a, #8e44ad, #b67fdd, #e0b3f3);
 `
 
 const intros = [
@@ -211,11 +212,17 @@ const intros = [
 ];
 
 const IntroText = styled.h2`
-font-size: clamp(1.8rem, 4vw, 2.5rem);
-font-weight: bold;
-color: #000;
-text-align: center;
-margin-bottom: 1rem;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: bold;
+  color: #000;
+  text-align: center;
+  margin: 0 auto; /* Ensures horizontal centering */
+  padding: 0;
+  max-width: 600px; /* Slightly wider for better centering */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
 `;
 
 function UserActivities() {
@@ -305,7 +312,7 @@ function UserActivities() {
 
   return (
     <>
-      <Padding style={{ background: 'linear-gradient(-45deg, #6a1b9a, #8e44ad, #b67fdd, #e0b3f3)' }}>
+      <Padding>
         <DashboardContainer ref={topRef}>
           <HeroContainer>
             <IntroText>{intro}</IntroText>
@@ -334,17 +341,17 @@ function UserActivities() {
                     </div>
 
                     <div className="date-time">
+                      {activity.date_day ? (
+                        <span style={{ marginRight: '15px' }}> 📆 {activity.date_day}</span>
+                      ) : (
+                        <span style={{ marginRight: '15px' }}> 📆 Date: TBD</span>
+                      )}
                       {activity.date_time ? (
                         <span> ⏰ {extractHoursAndMinutes(activity.date_time)}</span>
                       ) : (
                         <span> ⏰ Time: TBD</span>
                       )}
                       {'  '}
-                      {activity.date_day ? (
-                        <span style={{ marginLeft: '15px' }}> 📆 {activity.date_day}</span>
-                      ) : (
-                        <span style={{ marginLeft: '15px' }}> 📆 Date: TBD</span>
-                      )}
                     </div>
                   </div>
                 </ActivityCard>

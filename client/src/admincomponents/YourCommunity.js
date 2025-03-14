@@ -3,6 +3,92 @@ import styled from "styled-components";
 import { UserContext } from "../context/user";
 import Woman from "../assets/Woman.jpg"; // Fallback avatar
 
+const YourCommunity = () => {
+  const { user } = useContext(UserContext);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  if (!user) return null;
+
+  const allUsers = new Map();
+
+  user.activities?.forEach(activity => {
+      activity.participants?.forEach(participant => {
+          if (participant.id !== user.id) {
+              allUsers.set(participant.id, { 
+                  user: participant, 
+                  activities: new Set([activity.activity_name]) 
+              });
+          }
+      });
+  });
+
+  user.participant_activities?.forEach(participant_activity => {
+      const activity = participant_activity.activity;
+      if (!activity) return;
+
+      if (activity.user?.id !== user.id) {
+          if (allUsers.has(activity.user.id)) {
+              allUsers.get(activity.user.id).activities.add(activity.activity_name);
+          } else {
+              allUsers.set(activity.user.id, { 
+                  user: activity.user, 
+                  activities: new Set([activity.activity_name]) 
+              });
+          }
+      }
+
+      activity.participants?.forEach(participant => {
+          if (participant.id !== user.id) {
+              if (allUsers.has(participant.id)) {
+                  allUsers.get(participant.id).activities.add(activity.activity_name);
+              } else {
+                  allUsers.set(participant.id, { 
+                      user: participant, 
+                      activities: new Set([activity.activity_name]) 
+                  });
+              }
+          }
+      });
+  });
+
+  const recentUsers = Array.from(allUsers.values()).map(entry => ({
+      user: entry.user,
+      activities: Array.from(entry.activities)
+  }));
+
+  if (recentUsers.length === 0) return null;
+
+  return (
+      <CommunityContainer>
+          <AvatarGrid>
+              {recentUsers.map(({ user, activities }) => (
+                  <UserCard key={user.id} onClick={() => setSelectedUser({ user, activities })}>
+                      <Avatar src={user.avatar || Woman} alt={user.name} />
+                      <UserName>{user.name}</UserName>
+                  </UserCard>
+              ))}
+          </AvatarGrid>
+
+          {selectedUser && (
+              <ModalOverlay onClick={() => setSelectedUser(null)}>
+                  <ModalContent onClick={(e) => e.stopPropagation()}>
+                      <h2>{selectedUser.user.name}</h2>
+                      <h4>Mutual Activities</h4>
+                      <ActivityList>
+                          {selectedUser.activities.map((activity, index) => (
+                              <li key={index}>{activity}</li>
+                          ))}
+                      </ActivityList>
+                      <CloseButton onClick={() => setSelectedUser(null)}>Close</CloseButton>
+                  </ModalContent>
+              </ModalOverlay>
+          )}
+      </CommunityContainer>
+  );
+};
+
+export default YourCommunity;
+
 const CommunityContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -149,89 +235,3 @@ const CloseButton = styled.button`
     background: rgba(255, 255, 255, 0.8);
   }
 `;
-
-const YourCommunity = () => {
-    const { user } = useContext(UserContext);
-    const [selectedUser, setSelectedUser] = useState(null);
-
-    if (!user) return null;
-
-    const recentUsers = [
-        // Get participants from activities you hosted
-        ...(user.activities || []).flatMap(activity =>
-            (activity.participants || []) // Ensure participants exist
-                .filter(p => p.user?.id && p.user.id !== user.id) // Avoid undefined errors, exclude self
-                .map(p => ({
-                    user: p.user,
-                    activityName: activity.activity_name,
-                }))
-        ),
-
-        // Get hosts from activities you participated in
-        ...(user.participant_activities || [])
-            .filter(p => p.accepted && p.activity?.user?.id && p.activity.user.id !== user.id) // Avoid undefined errors
-            .map(p => ({
-                user: p.activity.user,
-                activityName: p.activity.activity_name,
-            })),
-
-        // Get other participants from activities you participated in (excluding yourself)
-        ...(user.participant_activities || [])
-            .flatMap(p =>
-                (p.activity?.participants || []) // Ensure activity and participants exist
-                    .filter(participant => participant.user?.id && participant.user.id !== user.id) // Avoid undefined users, exclude self
-                    .map(participant => ({
-                        user: participant.user,
-                        activityName: p.activity.activity_name,
-                    }))
-            ),
-    ]
-        // Remove duplicates by merging activity names for the same user
-        .reduce((acc, { user, activityName }) => {
-            const existing = acc.find(entry => entry.user.id === user.id);
-            if (existing) {
-                existing.activities.push(activityName);
-            } else {
-                acc.push({
-                    user,
-                    activities: [activityName],
-                });
-            }
-            return acc;
-        }, []);
-
-    // Display logic remains unchanged
-    if (recentUsers.length === 0) return null;
-
-    if (recentUsers.length === 0) return null;
-
-    return (
-        <CommunityContainer>
-            <AvatarGrid>
-                {recentUsers.map(({ user, activities }) => (
-                    <UserCard key={user.id} onClick={() => setSelectedUser({ user, activities })}>
-                        <Avatar src={user.avatar || Woman} alt={user.name} />
-                        <UserName>{user.name}</UserName>
-                    </UserCard>
-                ))}
-            </AvatarGrid>
-
-            {selectedUser && (
-                <ModalOverlay onClick={() => setSelectedUser(null)}>
-                    <ModalContent onClick={(e) => e.stopPropagation()}>
-                        <h2>{selectedUser.user.name}</h2>
-                        <h4>Mutual Activities</h4>
-                        <ActivityList>
-                            {selectedUser.activities.map((activity, index) => (
-                                <li key={index}>{activity}</li>
-                            ))}
-                        </ActivityList>
-                        <CloseButton onClick={() => setSelectedUser(null)}>Close</CloseButton>
-                    </ModalContent>
-                </ModalOverlay>
-            )}
-        </CommunityContainer>
-    );
-};
-
-export default YourCommunity;
