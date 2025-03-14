@@ -91,8 +91,6 @@ export default function YourCommunity() {
   );
 }
 
-// Styled Components
-
 const EmptyCommunityMessage = styled.p`
   font-size: 1.2rem;
   font-weight: 500;
@@ -197,6 +195,10 @@ const ModalContent = styled.div`
   text-align: center;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   color: white;
+  
+  @media (max-width: 600px) {
+    margin: 1rem;
+  }
 `;
 
 const ActivityList = styled.ul`
