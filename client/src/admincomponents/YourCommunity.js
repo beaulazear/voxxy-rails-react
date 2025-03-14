@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { UserContext } from "../context/user";
 import Woman from "../assets/Woman.jpg"; // Fallback avatar
 
-export default function YourCommunity () {
+export default function YourCommunity() {
   const { user } = useContext(UserContext);
   const [selectedUser, setSelectedUser] = useState(null);
 
@@ -12,112 +12,129 @@ export default function YourCommunity () {
   const allUsers = new Map();
 
   user.activities?.forEach(activity => {
-      activity.participants?.forEach(participant => {
-          if (participant.id !== user.id) {
-              allUsers.set(participant.id, { 
-                  user: participant, 
-                  activities: new Set([activity.activity_name]) 
-              });
-          }
-      });
+    activity.participants?.forEach(participant => {
+      if (participant.id !== user.id) {
+        allUsers.set(participant.id, {
+          user: participant,
+          activities: new Set([activity.activity_name])
+        });
+      }
+    });
   });
 
   user.participant_activities?.forEach(participant_activity => {
-      const activity = participant_activity.activity;
-      if (!activity) return;
+    const activity = participant_activity.activity;
+    if (!activity) return;
 
-      if (activity.user?.id !== user.id) {
-          if (allUsers.has(activity.user.id)) {
-              allUsers.get(activity.user.id).activities.add(activity.activity_name);
-          } else {
-              allUsers.set(activity.user.id, { 
-                  user: activity.user, 
-                  activities: new Set([activity.activity_name]) 
-              });
-          }
+    if (activity.user?.id !== user.id) {
+      if (allUsers.has(activity.user.id)) {
+        allUsers.get(activity.user.id).activities.add(activity.activity_name);
+      } else {
+        allUsers.set(activity.user.id, {
+          user: activity.user,
+          activities: new Set([activity.activity_name])
+        });
       }
+    }
 
-      activity.participants?.forEach(participant => {
-          if (participant.id !== user.id) {
-              if (allUsers.has(participant.id)) {
-                  allUsers.get(participant.id).activities.add(activity.activity_name);
-              } else {
-                  allUsers.set(participant.id, { 
-                      user: participant, 
-                      activities: new Set([activity.activity_name]) 
-                  });
-              }
-          }
-      });
+    activity.participants?.forEach(participant => {
+      if (participant.id !== user.id) {
+        if (allUsers.has(participant.id)) {
+          allUsers.get(participant.id).activities.add(activity.activity_name);
+        } else {
+          allUsers.set(participant.id, {
+            user: participant,
+            activities: new Set([activity.activity_name])
+          });
+        }
+      }
+    });
   });
 
-  const recentUsers = Array.from(allUsers.values()).map(entry => ({
-      user: entry.user,
-      activities: Array.from(entry.activities)
+  let recentUsers = Array.from(allUsers.values()).map(entry => ({
+    user: entry.user,
+    activities: Array.from(entry.activities)
   }));
+
+  // Adding six fake users for debugging
+  const fakeUsers = [
+    { id: 101, name: "Alex Smith", email: "alex@example.com", avatar: Woman },
+    { id: 102, name: "Jordan Lee", email: "jordan@example.com", avatar: Woman },
+    { id: 103, name: "Taylor Morgan", email: "taylor@example.com", avatar: Woman },
+    { id: 104, name: "Chris Parker", email: "chris@example.com", avatar: Woman },
+    { id: 105, name: "Jamie Rivera", email: "jamie@example.com", avatar: Woman },
+    { id: 106, name: "Morgan Blake", email: "morgan@example.com", avatar: Woman }
+  ];
+
+  recentUsers = [...recentUsers, ...fakeUsers.map(user => ({ user, activities: ["Debug Activity"] }))];
 
   if (recentUsers.length === 0) return null;
 
   return (
-  <CommunityContainer>
-      <Wrapper>
+    <CommunityContainer>
+      <AvatarScrollContainer>
         <AvatarGrid>
-            {recentUsers.map(({ user, activities }) => (
-                <UserCard key={user.id} onClick={() => setSelectedUser({ user, activities })}>
-                    <Avatar src={user.avatar || Woman} alt={user.name} />
-                    <UserName>{user.name}</UserName>
-                </UserCard>
-            ))}
+          {recentUsers.map(({ user, activities }) => (
+            <UserCard key={user.id} onClick={() => setSelectedUser({ user, activities })}>
+              <Avatar src={user.avatar || Woman} alt={user.name} />
+              <UserName>{user.name}</UserName>
+            </UserCard>
+          ))}
         </AvatarGrid>
-      </Wrapper>
+      </AvatarScrollContainer>
 
       {selectedUser && (
-          <ModalOverlay onClick={() => setSelectedUser(null)}>
-              <ModalContent onClick={(e) => e.stopPropagation()}>
-                  <h2>{selectedUser.user.name}</h2>
-                  <h3>{selectedUser.user.email}</h3>
-                  <h4>Mutual Activities</h4>
-                  <ActivityList>
-                      {selectedUser.activities.map((activity, index) => (
-                          <li key={index}>{activity}</li>
-                      ))}
-                  </ActivityList>
-                  <CloseButton onClick={() => setSelectedUser(null)}>Close</CloseButton>
-              </ModalContent>
-          </ModalOverlay>
+        <ModalOverlay onClick={() => setSelectedUser(null)}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <h2>{selectedUser.user.name}</h2>
+            <h3>{selectedUser.user.email}</h3>
+            <h4>Mutual Activities</h4>
+            <ActivityList>
+              {selectedUser.activities.map((activity, index) => (
+                <li key={index}>{activity}</li>
+              ))}
+            </ActivityList>
+            <CloseButton onClick={() => setSelectedUser(null)}>Close</CloseButton>
+          </ModalContent>
+        </ModalOverlay>
       )}
-  </CommunityContainer>
-);
+    </CommunityContainer>
+  );
 }
 
-const Wrapper = styled.div`
-  width: 100%;
-  overflow: hidden;
-`;
-
+// Styled Components
 const CommunityContainer = styled.div`
   display: flex;
   flex-direction: column;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
+  margin-right: -2rem;
+  margin-left: -2rem;
+`;
+
+const AvatarScrollContainer = styled.div`
+  width: 100%;
+  overflow-x: auto;
+  max-width: 100vw;
+  white-space: nowrap;
+  scrollbar-width: thin;
+  scroll-snap-type: x mandatory;
+
+  &::-webkit-scrollbar {
+    height: 5px;
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #8e44ad;
+    border-radius: 5px;
+  }
 `;
 
 const AvatarGrid = styled.div`
   display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
   gap: 1rem;
-  overflow-x: auto;
-  white-space: nowrap;
-  padding-bottom: 10px;
-  scrollbar-width: none; /* Hide scrollbar for Firefox */
-  -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
-  margin-left: -3rem;
-  margin-right: -3rem;
-  padding: 10px;
-
-  &::-webkit-scrollbar {
-    display: none; /* Hide scrollbar for Chrome/Safari */
-  }
+  width: max-content; /* ✅ Dynamically adjusts to the content width */
 `;
 
 const UserCard = styled.div`
@@ -127,9 +144,9 @@ const UserCard = styled.div`
   text-align: center;
   padding: 12px;
   border-radius: 12px;
-  min-width: 120px;
+  min-width: 90px;
   flex-shrink: 0;
-  scroll-snap-align: start;
+  scroll-snap-align: center;
   cursor: pointer;
 
   &:hover {
@@ -138,15 +155,15 @@ const UserCard = styled.div`
 `;
 
 const Avatar = styled.img`
-  width: 70px;
-  height: 70px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid white;
 `;
 
 const UserName = styled.p`
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: white;
   margin-top: 8px;
@@ -165,7 +182,6 @@ const ModalOverlay = styled.div`
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: fadeIn 0.3s ease-in-out;
 `;
 
 const ModalContent = styled.div`
@@ -177,29 +193,6 @@ const ModalContent = styled.div`
   text-align: center;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   color: white;
-  animation: slideUp 0.3s ease-in-out;
-
-  @media (max-width: 600px) {
-    margin: 1rem; /* This adds even spacing around the modal */
-  }
-
-  @keyframes slideUp {
-    from {
-      transform: translateY(20px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-
-  h2 {
-    font-size: 1.8rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
-    text-transform: capitalize;
-  }
 `;
 
 const ActivityList = styled.ul`
@@ -213,18 +206,6 @@ const ActivityList = styled.ul`
   overflow: hidden;
   max-height: 300px;
   overflow-y: auto;
-
-  li {
-    padding: 0.75rem;
-    font-size: 1rem;
-    font-weight: 500;
-    color: #fff;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  }
-
-  li:last-child {
-    border-bottom: none;
-  }
 `;
 
 const CloseButton = styled.button`
@@ -237,7 +218,6 @@ const CloseButton = styled.button`
   font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
 
   &:hover {
     background: rgba(255, 255, 255, 0.8);
