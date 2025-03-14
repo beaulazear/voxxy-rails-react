@@ -11,6 +11,17 @@ class UsersController < ApplicationController
 
       pending_invites.each do |invite|
         invite.update(user: user, accepted: true)
+
+        activity = invite.activity
+        activity.update!(group_size: activity.group_size + 1) # 🟢 Update group size
+
+        # 🟢 Create welcome comment
+        activity.comments.create!(
+          user_id: user.id,
+          content: "#{user.name} has joined the chat 🎉"
+        )
+
+        activity.reload # 🔄 Reload activity to include the new comment
       end
 
       render json: user, status: :created

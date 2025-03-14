@@ -56,8 +56,9 @@ export default function YourCommunity() {
     activities: Array.from(entry.activities)
   }));
 
-  if (recentUsers.length === 0) return null;
-
+  if (recentUsers.length === 0) {
+    return <EmptyCommunityMessage>No connections yet. Get out there and start making memories! 🚀</EmptyCommunityMessage>;
+  }
   return (
     <CommunityContainer>
       <AvatarScrollContainer>
@@ -91,6 +92,21 @@ export default function YourCommunity() {
 }
 
 // Styled Components
+
+const EmptyCommunityMessage = styled.p`
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #6a1b9a;
+  text-align: center;
+  margin-top: 1rem;
+  opacity: 0.8;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+`;
+
 const CommunityContainer = styled.div`
   display: flex;
   flex-direction: column;

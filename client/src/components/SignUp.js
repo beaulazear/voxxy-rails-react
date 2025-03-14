@@ -190,12 +190,39 @@ const SignUp = () => {
         setUser(data);
 
         if (activityId) {
-          await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activity_participants/accept`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ activity_id: activityId, email: email }),
-          });
+          // ✅ Fetch the updated activity instead of calling `/accept` again
+          const activityResponse = await fetch(
+            `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activityId}`,
+            {
+              method: "GET",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+            }
+          );
+
+          if (activityResponse.ok) {
+            const updatedActivity = await activityResponse.json();
+
+            setUser((prevUser) => ({
+              ...prevUser,
+              participant_activities: prevUser.participant_activities.map((p) =>
+                p.activity.id === updatedActivity.id ? { ...p, accepted: true, activity: updatedActivity } : p
+              ),
+              activities: prevUser.activities.map((activity) =>
+                activity.id === updatedActivity.id
+                  ? {
+                    ...updatedActivity,
+                    participants: [
+                      ...(updatedActivity.participants || []),
+                      { id: data.id, name: data.name, email: data.email },
+                    ],
+                    group_size: updatedActivity.group_size + 1,
+                    comments: updatedActivity.comments,
+                  }
+                  : activity
+              ),
+            }));
+          }
         }
 
         navigate('/boards');

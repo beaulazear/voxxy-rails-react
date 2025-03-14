@@ -218,6 +218,20 @@ const IntroText = styled.h2`
   }
 `;
 
+const EmptyCommunityMessage = styled.p`
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #6a1b9a;
+  text-align: center;
+  margin-top: 0;
+  opacity: 0.8;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+`;
+
 function UserActivities() {
   const { user } = useContext(UserContext);
   const [selectedActivityId, setSelectedActivityId] = useState(null);
@@ -332,6 +346,7 @@ function UserActivities() {
     )
   }
 
+  console.log(user)
   return (
     <>
       <Padding>
@@ -380,6 +395,7 @@ function UserActivities() {
               ))
             )}
           </CardGrid>
+          {sortedActivities.length === 0 && <EmptyCommunityMessage>No boards yet! 🚀 Start your first activity and let the adventures begin! 🎉</EmptyCommunityMessage>}
           <SectionTitle> Your Voxxy Community</SectionTitle>
           <YourCommunity />
         </DashboardContainer>
