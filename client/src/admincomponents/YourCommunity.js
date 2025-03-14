@@ -59,36 +59,42 @@ const YourCommunity = () => {
   if (recentUsers.length === 0) return null;
 
   return (
-      <CommunityContainer>
-          <AvatarGrid>
-              {recentUsers.map(({ user, activities }) => (
-                  <UserCard key={user.id} onClick={() => setSelectedUser({ user, activities })}>
-                      <Avatar src={user.avatar || Woman} alt={user.name} />
-                      <UserName>{user.name}</UserName>
-                  </UserCard>
-              ))}
-          </AvatarGrid>
+  <CommunityContainer>
+      <Wrapper>
+        <AvatarGrid>
+            {recentUsers.map(({ user, activities }) => (
+                <UserCard key={user.id} onClick={() => setSelectedUser({ user, activities })}>
+                    <Avatar src={user.avatar || Woman} alt={user.name} />
+                    <UserName>{user.name}</UserName>
+                </UserCard>
+            ))}
+        </AvatarGrid>
+      </Wrapper>
 
-          {selectedUser && (
-              <ModalOverlay onClick={() => setSelectedUser(null)}>
-                  <ModalContent onClick={(e) => e.stopPropagation()}>
-                      <h2>{selectedUser.user.name}</h2>
-                      <h3>{selectedUser.user.email}</h3>
-                      <h4>Mutual Activities</h4>
-                      <ActivityList>
-                          {selectedUser.activities.map((activity, index) => (
-                              <li key={index}>{activity}</li>
-                          ))}
-                      </ActivityList>
-                      <CloseButton onClick={() => setSelectedUser(null)}>Close</CloseButton>
-                  </ModalContent>
-              </ModalOverlay>
-          )}
-      </CommunityContainer>
-  );
-};
+      {selectedUser && (
+          <ModalOverlay onClick={() => setSelectedUser(null)}>
+              <ModalContent onClick={(e) => e.stopPropagation()}>
+                  <h2>{selectedUser.user.name}</h2>
+                  <h3>{selectedUser.user.email}</h3>
+                  <h4>Mutual Activities</h4>
+                  <ActivityList>
+                      {selectedUser.activities.map((activity, index) => (
+                          <li key={index}>{activity}</li>
+                      ))}
+                  </ActivityList>
+                  <CloseButton onClick={() => setSelectedUser(null)}>Close</CloseButton>
+              </ModalContent>
+          </ModalOverlay>
+      )}
+  </CommunityContainer>
+);
 
 export default YourCommunity;
+
+const Wrapper = styled.div`
+  width: 100%;
+  overflow: hidden;
+`;
 
 const CommunityContainer = styled.div`
   display: flex;
@@ -105,6 +111,9 @@ const AvatarGrid = styled.div`
   white-space: nowrap;
   padding-bottom: 10px;
   scroll-snap-type: x mandatory;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 
   &::-webkit-scrollbar {
     display: none;
