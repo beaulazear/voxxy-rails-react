@@ -21,7 +21,7 @@ const fadeOut = keyframes`
 const HeroWrapper = styled.div`
   position: fixed;
   width: 100%;
-  height: 100vh; /* Ensure it fully covers the viewport */
+  height: 80vh; /* Ensure it fully covers the viewport */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -110,9 +110,7 @@ const LandingPage = () => {
           <CallToActionSection />
         </StaggeredContent>
 
-        <StaggeredContent id="footer" className="staggered-section" $isVisible={visibleSections.includes("footer")}>
-          <Footer />
-        </StaggeredContent>
+        <Footer />
       </ContentContainer>
     </>
   );
