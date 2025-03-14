@@ -157,23 +157,38 @@ const YourCommunity = () => {
     if (!user) return null;
 
     const recentUsers = [
+        // Get participants from activities you hosted
         ...(user.activities || []).flatMap(activity =>
-            activity.participants.map(p => ({
-                user: p.user,
-                activityName: activity.activity_name,
-            }))
+            (activity.participants || []) // Ensure participants exist
+                .filter(p => p.user?.id && p.user.id !== user.id) // Avoid undefined errors, exclude self
+                .map(p => ({
+                    user: p.user,
+                    activityName: activity.activity_name,
+                }))
         ),
 
+        // Get hosts from activities you participated in
         ...(user.participant_activities || [])
-            .filter((p) => p.accepted && p.activity && p.activity.user)
-            .map((p) => ({
+            .filter(p => p.accepted && p.activity?.user?.id && p.activity.user.id !== user.id) // Avoid undefined errors
+            .map(p => ({
                 user: p.activity.user,
                 activityName: p.activity.activity_name,
-            }))
+            })),
+
+        // Get other participants from activities you participated in (excluding yourself)
+        ...(user.participant_activities || [])
+            .flatMap(p =>
+                (p.activity?.participants || []) // Ensure activity and participants exist
+                    .filter(participant => participant.user?.id && participant.user.id !== user.id) // Avoid undefined users, exclude self
+                    .map(participant => ({
+                        user: participant.user,
+                        activityName: p.activity.activity_name,
+                    }))
+            ),
     ]
-        .filter(({ user: u }) => u && u.id !== user.id)
+        // Remove duplicates by merging activity names for the same user
         .reduce((acc, { user, activityName }) => {
-            const existing = acc.find((entry) => entry.user.id === user.id);
+            const existing = acc.find(entry => entry.user.id === user.id);
             if (existing) {
                 existing.activities.push(activityName);
             } else {
@@ -184,6 +199,9 @@ const YourCommunity = () => {
             }
             return acc;
         }, []);
+
+    // Display logic remains unchanged
+    if (recentUsers.length === 0) return null;
 
     if (recentUsers.length === 0) return null;
 
