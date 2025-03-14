@@ -26,7 +26,7 @@ const DashboardContainer = styled.div`
 
 const HeroContainer = styled.div`
   padding: 0rem 2rem 1.75rem;
-  text-align: center;
+  text-align: left;
   max-width: 1200px;
 
   @media (max-width: 768px) {
@@ -199,31 +199,23 @@ const Padding = styled.div`
   background: linear-gradient(-45deg, #9b59b6, #bb80d5, #dab8f0, #ffffff);;
 `
 
-const intros = [
-  "Your next adventure starts now! Let’s make some memories. 🎉",
-  "From group chat chaos to actual plans—Voxxy’s got you. 😉",
-  "Ditch the ‘we should hang out’ texts. Let's make it happen! ✨",
-  "Less typing, more doing. Ready to Voxxy? 🚀",
-  "Your squad deserves better than ‘someday.’ Let’s plan it! 🌎",
-  "No more ghosted plans. Get together, for real this time. 👻",
-  "Planning made fun, not frustrating. Welcome to Voxxy! 🎭",
-  "Why talk about it when you can DO it? Let’s go! 🚦",
-  "Good vibes, great company, better plans. That’s Voxxy. 🍾",
-  "Hit ‘start’ on your next great memory. Voxxy it up! 🔥",
-];
-
 const IntroText = styled.h2`
   font-size: clamp(1.8rem, 4vw, 2.5rem);
   font-weight: bold;
   color: #000;
-  text-align: center;
-  margin: 0 auto; /* Ensures horizontal centering */
+  text-align: left;
+  margin: 0;
   padding: 0;
-  max-width: 600px; /* Slightly wider for better centering */
+  max-width: 600px; 
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 1rem;
+
+  @media (max-width: 768px) {
+    text-align: left;
+    padding-left: 0.5rem;
+  }
 `;
 
 function UserActivities() {
@@ -239,9 +231,38 @@ function UserActivities() {
     if (topRef.current) {
       topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    const randomIntro = intros[Math.floor(Math.random() * intros.length)];
-    setIntro(randomIntro);
-  }, []);
+
+    const defaultIntros = [
+      "Your next adventure starts now! Let’s make some memories. 🎉",
+      "From group chat chaos to actual plans—Voxxy’s got you. 😉",
+      "Ditch the ‘we should hang out’ texts. Let's make it happen! ✨",
+      "Less typing, more doing. Ready to Voxxy? 🚀",
+      "Your squad deserves better than ‘someday.’ Let’s plan it! 🌎",
+      "No more ghosted plans. Get together, for real this time. 👻",
+      "Planning made fun, not frustrating. Welcome to Voxxy! 🎭",
+      "Why talk about it when you can DO it? Let’s go! 🚦",
+      "Good vibes, great company, better plans. That’s Voxxy. 🍾",
+      "Hit ‘start’ on your next great memory. Voxxy it up! 🔥",
+    ];
+
+    if (user?.name) {
+      const personalizedIntros = [
+        `Hey ${user.name}, your next adventure starts now! 🎉`,
+        `${user.name}, let's turn those group chat plans into reality. 😉`,
+        `Time to make things happen, ${user.name}! ✨`,
+        `Less texting, more action, ${user.name}. Ready to go? 🚀`,
+        `Your squad deserves better, ${user.name}. Let's plan it! 🌎`,
+        `No more ghosted plans, ${user.name}. Let’s do this! 👻`,
+        `Planning made fun, not frustrating, right ${user.name}? 🎭`,
+        `Why talk about it when you can DO it, ${user.name}? 🚦`,
+        `Good vibes, great company, and better plans—just for you, ${user.name}. 🍾`,
+        `Time to hit ‘start’ on your next great memory, ${user.name}! 🔥`
+      ];
+      setIntro(personalizedIntros[Math.floor(Math.random() * personalizedIntros.length)]);
+    } else {
+      setIntro(defaultIntros[Math.floor(Math.random() * defaultIntros.length)]);
+    }
+  }, [user]);
 
   const handleActivityClick = (activity) => {
     setSelectedActivityId(activity.id);
@@ -322,7 +343,7 @@ function UserActivities() {
 
           <PendingInvites />
 
-          <SectionTitle>Upcoming Boards</SectionTitle>
+          <SectionTitle>Upcoming Activity Boards</SectionTitle>
           <CardGrid>
             {sortedActivities.length > 0 && (
               sortedActivities.map((activity) => (
@@ -359,7 +380,7 @@ function UserActivities() {
               ))
             )}
           </CardGrid>
-          <SectionTitle>Voxxy Community</SectionTitle>
+          <SectionTitle> Your Voxxy Community</SectionTitle>
           <YourCommunity />
         </DashboardContainer>
       </Padding>
