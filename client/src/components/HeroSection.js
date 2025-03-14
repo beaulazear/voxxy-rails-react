@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import Voxxy_header from '../assets/Voxxy_header.jpeg';
 
+// Fade-in and zoom animation
 const fadeInZoom = keyframes`
   0% {
     opacity: 0;
@@ -13,6 +14,7 @@ const fadeInZoom = keyframes`
   }
 `;
 
+// Text glow animation
 const textGlow = keyframes`
   0% {
     text-shadow: 0 0 5px rgba(0, 174, 255, 0.3);
@@ -67,14 +69,26 @@ const VoxieGraphic = styled.img`
 `;
 
 const HeroSection = () => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = Voxxy_header;
+    img.onload = () => setImageLoaded(true);
+  }, []);
+
   return (
     <HeroContainer>
-      <HeroTitle>
-        Less Time Planning...
-        <br />
-        More Time Making Memories With
-      </HeroTitle>
-      <VoxieGraphic src={Voxxy_header} alt="Voxie Logo" />
+      {imageLoaded ? (
+        <>
+          <HeroTitle>
+            Less Time Planning...
+            <br />
+            More Time Making Memories With
+          </HeroTitle>
+          <VoxieGraphic src={Voxxy_header} alt="Voxie Logo" />
+        </>
+      ) : null}
     </HeroContainer>
   );
 };

@@ -21,7 +21,7 @@ const fadeOut = keyframes`
 const HeroWrapper = styled.div`
   position: fixed;
   width: 100%;
-  height: 80vh;
+  height: 100vh; /* Ensure it fully covers the viewport */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -35,6 +35,8 @@ const HeroWrapper = styled.div`
 const ContentContainer = styled.div`
   opacity: ${({ $isVisible }) => ($isVisible ? "1" : "0")};
   transition: opacity 1s ease-in-out;
+  margin-top: ${({ $isVisible }) => ($isVisible ? "0" : "100vh")}; 
+  /* Ensures content starts immediately after hero */
 `;
 
 const StaggeredContent = styled.div`
@@ -53,7 +55,7 @@ const StaggeredContent = styled.div`
 const LandingPage = () => {
   const [showHero, setShowHero] = useState(true);
   const [showContent, setShowContent] = useState(false);
-  const [visibleSections, setVisibleSections] = useState(["introduction"]); // First section is visible by default
+  const [visibleSections, setVisibleSections] = useState(["introduction"]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -61,10 +63,9 @@ const LandingPage = () => {
     setTimeout(() => {
       setShowHero(false);
       setShowContent(true);
-    }, 3000); // Reduce hero duration to 1.5s
+    }, 3000);
   }, []);
 
-  // Function to detect when a section enters the viewport
   const handleScroll = useCallback(() => {
     const sections = document.querySelectorAll(".staggered-section");
     sections.forEach((section) => {
