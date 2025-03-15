@@ -17,17 +17,23 @@ class ThankYouEmailService
         value: <<~HTML
           <html>
             <body style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
+              <img src="https://res.cloudinary.com/dgtpgywhl/image/upload/v1742052456/VOXXY_FULL_2_gdzqjx.jpg"
+                   alt="Voxxy Logo" width="600"
+                   style="max-width: 100%; height: auto; margin-bottom: 20px;">
+          #{'    '}
               <h1>Hey #{participant.name || "friend"}! 🎉</h1>
-              <p>We hope you had an <strong>amazing</strong> time at <strong>#{activity.activity_name}</strong>!</p>
+              <p>We hope you had an <strong>amazing</strong> time at <strong>#{activity.activity_name}</strong>! 🎊</p>
               <p>Thank you for using <strong>Voxxy</strong> to plan your adventure! 🚀</p>
               <p>We’re still growing and would <strong>love</strong> your feedback! 💜</p>
               <p>Did everything go smoothly? Any bugs? Let us know!</p>
               <p><strong>Your thoughts mean the world to us! 🌍</strong></p>
+          #{'    '}
               <a href="mailto:team@voxxyai.com"
-                 style="display: inline-block; padding: 10px 20px; color: white; background-color: #8e44ad; text-decoration: none; border-radius: 5px;">
+                 style="display: inline-block; padding: 12px 24px; color: white; background-color: #8e44ad; text-decoration: none; border-radius: 8px; font-size: 16px;">
                 Share Your Thoughts 💌
               </a>
-              <p style="margin-top: 20px;">See you next time on Voxxy! 🥳</p>
+          #{'    '}
+              <p style="margin-top: 30px;">See you next time on Voxxy! 🥳</p>
             </body>
           </html>
         HTML

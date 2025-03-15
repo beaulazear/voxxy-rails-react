@@ -149,7 +149,7 @@ const Footer = styled.div`
 const SignUp = () => {
   const [searchParams] = useSearchParams();
   const invitedEmail = searchParams.get("invited_email") || "";
-  const activityId = searchParams.get("activity_id");
+  // const activityId = searchParams.get("activity_id");
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState(invitedEmail);
@@ -187,43 +187,12 @@ const SignUp = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setUser(data);
-
-        if (activityId) {
-          // ✅ Fetch the updated activity instead of calling `/accept` again
-          const activityResponse = await fetch(
-            `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activityId}`,
-            {
-              method: "GET",
-              headers: { "Content-Type": "application/json" },
-              credentials: "include",
-            }
-          );
-
-          if (activityResponse.ok) {
-            const updatedActivity = await activityResponse.json();
-
-            setUser((prevUser) => ({
-              ...prevUser,
-              participant_activities: prevUser.participant_activities.map((p) =>
-                p.activity.id === updatedActivity.id ? { ...p, accepted: true, activity: updatedActivity } : p
-              ),
-              activities: prevUser.activities.map((activity) =>
-                activity.id === updatedActivity.id
-                  ? {
-                    ...updatedActivity,
-                    participants: [
-                      ...(updatedActivity.participants || []),
-                      { id: data.id, name: data.name, email: data.email },
-                    ],
-                    group_size: updatedActivity.group_size + 1,
-                    comments: updatedActivity.comments,
-                  }
-                  : activity
-              ),
-            }));
-          }
-        }
+        setUser({
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          avatar: data.avatar,
+        });
 
         navigate('/boards');
       } else {

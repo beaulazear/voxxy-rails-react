@@ -74,6 +74,11 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
   }
 
   const handleSendThankYou = async () => {
+    const confirmSend = window.confirm(
+      "Are you sure you want to send a thank-you email to all participants? 📩 This will notify every participant in the activity."
+    );
+  
+    if (!confirmSend) return;
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activity.id}/send_thank_you`,
@@ -122,7 +127,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
         ) : (
           <span> ⏰ Time: TBD</span>
         )}
-        <br></br>
+        <br></br><br></br>
         {((!activity.date_time || !activity.date_day) && isOwner) && (
           <>
             <p>Edit the activity to change the date + time.</p>

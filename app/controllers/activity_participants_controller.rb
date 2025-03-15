@@ -21,11 +21,7 @@ class ActivityParticipantsController < ApplicationController
       participant.accepted = false
       participant.save!
 
-      if user.nil?
-        UserMailer.invitation_email(invited_email, activity, current_user).deliver_later
-      else
-        UserMailer.existing_user_invite_email(user, activity, current_user).deliver_later
-      end
+      InviteUserService.send_invitation(activity, invited_email, current_user)
 
       render json: participant, status: :ok
     end
