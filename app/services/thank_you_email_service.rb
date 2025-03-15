@@ -18,7 +18,7 @@ class ThankYouEmailService
           <html>
             <body style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
               <img src="https://res.cloudinary.com/dgtpgywhl/image/upload/v1742052456/VOXXY_FULL_2_gdzqjx.jpg"
-                   alt="Voxxy Logo" width="600"
+                   alt="Voxxy Logo" width="500"
                    style="max-width: 100%; height: auto; margin-bottom: 20px;">
           #{'    '}
               <h1>Hey #{participant.name || "friend"}! 🎉</h1>
