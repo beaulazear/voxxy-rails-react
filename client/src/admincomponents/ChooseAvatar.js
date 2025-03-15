@@ -18,7 +18,6 @@ import Weird3 from "../assets/Weird3.jpg";
 import Weird4 from "../assets/Weird4.jpg";
 import Weird5 from "../assets/Weird5.jpg";
 
-
 const avatars = [
   { id: 1, src: Avatar1, path: "/assets/Avatar1.jpg" },
   { id: 2, src: Avatar2, path: "/assets/Avatar2.jpg" },
@@ -36,7 +35,6 @@ const avatars = [
   { id: 14, src: Weird3, path: "/assets/Weird3.jpg" },
   { id: 15, src: Weird4, path: "/assets/Weird4.jpg" },
   { id: 16, src: Weird5, path: "/assets/Weird5.jpg" },
-
 ];
 
 const AvatarContainer = styled.div`
@@ -143,7 +141,7 @@ export default function ChooseAvatar() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAvatarSelect = async (avatarPath) => {
-    setIsLoading(true); // Start loading state
+    setIsLoading(true);
 
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/users/${user.id}`, {
@@ -165,7 +163,7 @@ export default function ChooseAvatar() {
     } catch (error) {
       console.error("Error updating avatar:", error);
     } finally {
-      setIsLoading(false); // Stop loading state after request finishes
+      setIsLoading(false);
     }
   };
 
@@ -173,14 +171,14 @@ export default function ChooseAvatar() {
     <AvatarContainer>
       <Title>Choose Your Avatar</Title>
 
-      {isLoading && <LoadingText>Updating avatar...</LoadingText>} {/* Show loading text while updating */}
+      {isLoading && <LoadingText>Updating avatar...</LoadingText>}
 
       <AvatarGrid>
         {avatars.map((avatar) => (
           <AvatarButton
             key={avatar.id}
             onClick={() => handleAvatarSelect(avatar.path)}
-            disabled={isLoading} // Disable buttons while loading
+            disabled={isLoading}
           >
             <AvatarImage
               src={avatar.src}

@@ -73,6 +73,28 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
     return isoString.slice(11, 16); // Extracts "HH:MM" from "2000-01-01T12:15:00.000Z"
   }
 
+  const handleSendThankYou = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activity.id}/send_thank_you`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        }
+      );
+
+      if (response.ok) {
+        alert("Thank-you emails sent successfully! 🎉");
+      } else {
+        alert("Failed to send thank-you emails. Try again later.");
+      }
+    } catch (error) {
+      console.error("Error sending thank-you emails:", error);
+      alert("Something went wrong!");
+    }
+  };
+
   return (
     <HeaderContainer>
       <TopBar>
@@ -90,7 +112,6 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
           </ActionButtons>
         )}
       </TopBar>
-
       <Title>{activity.emoji} {activity.activity_name}</Title>
       <HostInfo>
         Hosted by: <strong>{isOwner ? "You" : activity?.user?.name || "Unknown"}</strong>
@@ -101,10 +122,11 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
         ) : (
           <span> ⏰ Time: TBD</span>
         )}
-        <br></br><br></br>
+        <br></br>
         {((!activity.date_time || !activity.date_day) && isOwner) && (
           <>
             <p>Edit the activity to change the date + time.</p>
+            <button onClick={handleSendThankYou}>📩 Send Thank You Email</button>
             <br></br><br></br>
           </>
         )}

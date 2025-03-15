@@ -85,6 +85,16 @@ class ActivitiesController < ApplicationController
       end
     end
 
+    def send_thank_you
+      activity = Activity.find_by(id: params[:id])
+      return render json: { error: "Activity not found" }, status: :not_found unless activity
+
+      ThankYouEmailService.send_thank_you_email(activity)
+      render json: { message: "Thank-you emails sent!" }, status: :ok
+    rescue => e
+      render json: { error: e.message }, status: :unprocessable_entity
+    end
+
     private
 
     def activity_params

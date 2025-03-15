@@ -28,6 +28,8 @@ Rails.application.routes.draw do
   post "/api/openai/restaurant_recommendations", to: "openai#restaurant_recommendations"
   get "/check_cached_recommendations", to: "openai#check_cached_recommendations"
 
+  post "/activities/:id/send_thank_you", to: "activities#send_thank_you"
+
   get "/test", to: "application#test"
 
   get "up" => "rails/health#show", as: :rails_health_check
