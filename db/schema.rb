@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_16_145654) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_16_150402) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -73,7 +73,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_16_145654) do
     t.datetime "updated_at", null: false
     t.bigint "user_id"
     t.index ["activity_id"], name: "index_responses_on_activity_id"
-    t.index ["user_id"], name: "index_responses_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -115,7 +114,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_16_145654) do
   add_foreign_key "comments", "users"
   add_foreign_key "pinned_activities", "activities"
   add_foreign_key "responses", "activities"
-  add_foreign_key "responses", "users"
+  add_foreign_key "responses", "users", on_delete: :cascade
   add_foreign_key "votes", "pinned_activities"
   add_foreign_key "votes", "users"
 end
