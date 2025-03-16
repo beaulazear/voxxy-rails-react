@@ -122,6 +122,7 @@ const CommunityContainer = styled.div`
 const AvatarScrollContainer = styled.div`
   width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   max-width: 100vw;
   white-space: nowrap;
   scrollbar-width: thin;
@@ -142,7 +143,7 @@ const AvatarGrid = styled.div`
   display: flex;
   flex-wrap: nowrap;
   justify-content: flex-start;
-  gap: 1rem;
+  gap: .7rem;
   width: max-content; /* ✅ Dynamically adjusts to the content width */
 `;
 
