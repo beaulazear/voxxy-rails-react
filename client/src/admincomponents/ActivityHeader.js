@@ -77,7 +77,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
     const confirmSend = window.confirm(
       "Are you sure you want to send a thank-you email to all participants? 📩 This will notify every participant in the activity."
     );
-  
+
     if (!confirmSend) return;
     try {
       const response = await fetch(
@@ -130,7 +130,8 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
         <br></br><br></br>
         {((!activity.date_time || !activity.date_day) && isOwner) && (
           <>
-            <p>Edit the activity to change the date + time.</p>
+            <span>Edit the activity to change the date + time.</span>
+            <br></br><br></br>
           </>
         )}
         {isOwner && (<button onClick={handleSendThankYou}>📩 Send Thank You Email</button>)}
@@ -158,7 +159,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
                 <ParticipantCircle
                   key={index}
                   title={participant.name}
-                  onClick={() => handleParticipantClick(participant)} // 🟣 Open pop-up on click
+                  onClick={() => handleParticipantClick(participant)}
                   $pending={!participant.confirmed}
                 >
                   <ParticipantImage src={participant.avatar} alt={participant.name} />
@@ -450,7 +451,7 @@ const ParticipantPopupContent = styled.div`
   padding: 2rem;
   border-radius: 18px;
   max-width: 420px;
-  width: 90%;
+  width: fit-content;
   text-align: center;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   color: white;
