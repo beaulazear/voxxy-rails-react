@@ -3,13 +3,15 @@ import styled from "styled-components";
 import { UserContext } from "../context/user";
 import Woman from "../assets/Woman.jpg"; // Fallback avatar
 
-export default function YourCommunity() {
+export default function YourCommunity({ showInvitePopup, onSelectUser }) {
   const { user } = useContext(UserContext);
   const [selectedUser, setSelectedUser] = useState(null);
 
   if (!user) return null;
 
   const allUsers = new Map();
+
+  console.log(showInvitePopup)
 
   user.activities?.forEach(activity => {
     activity.participants?.forEach(participant => {
@@ -64,7 +66,14 @@ export default function YourCommunity() {
       <AvatarScrollContainer>
         <AvatarGrid>
           {recentUsers.map(({ user, activities }) => (
-            <UserCard key={user.id} onClick={() => setSelectedUser({ user, activities })}>
+            <UserCard
+              key={user.id}
+              onClick={() =>
+                showInvitePopup
+                  ? onSelectUser(user) // ✅ If inviting, set email
+                  : setSelectedUser({ user, activities }) // ✅ Otherwise, open modal
+              }
+            >
               <Avatar src={user.avatar || Woman} alt={user.name} />
               <UserName>{user.name}</UserName>
             </UserCard>
@@ -72,7 +81,7 @@ export default function YourCommunity() {
         </AvatarGrid>
       </AvatarScrollContainer>
 
-      {selectedUser && (
+      {selectedUser && !showInvitePopup && (
         <ModalOverlay onClick={() => setSelectedUser(null)}>
           <ModalContent onClick={(e) => e.stopPropagation()}>
             <h2>{selectedUser.user.name}</h2>

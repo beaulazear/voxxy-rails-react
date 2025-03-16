@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { LeftOutlined, EditOutlined, DeleteOutlined, UserAddOutlined } from "@ant-design/icons";
 import Woman from "../assets/Woman.jpg";
-import ActivityCommentSection from './ActivityCommentSection.js'
+import ActivityCommentSection from './ActivityCommentSection.js';
+import YourCommunity from './YourCommunity.js';
 
 const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }) => {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
@@ -37,6 +38,10 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
   const handleClosePopup = () => {
     setShowInvitePopup(false);
     setInviteEmail("");
+  };
+
+  const handleSelectCommunityUser = (user) => {
+    setInviteEmail(user.email);
   };
 
   const participantsArray = Array.isArray(activity.participants) ? activity.participants : [];
@@ -205,6 +210,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
             />
+            <YourCommunity showInvitePopup={showInvitePopup} onSelectUser={handleSelectCommunityUser} />
             <ParticipantPopupActions>
               <ParticipantPopupButton onClick={handleInviteSubmit}>Send Invite</ParticipantPopupButton>
               <ParticipantPopupButton className="cancel" onClick={handleClosePopup}>Cancel</ParticipantPopupButton>
