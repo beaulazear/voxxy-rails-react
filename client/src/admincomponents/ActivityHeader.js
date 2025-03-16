@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { UserContext } from "../context/user.js";
 import styled from "styled-components";
-import { LeftOutlined, EditOutlined, DeleteOutlined, UserAddOutlined } from "@ant-design/icons";
+import { LeftOutlined, EditOutlined, DeleteOutlined, UserAddOutlined, LogoutOutlined } from "@ant-design/icons";
 import Woman from "../assets/Woman.jpg";
 import ActivityCommentSection from './ActivityCommentSection.js';
 import YourCommunity from './YourCommunity.js';
@@ -8,7 +9,8 @@ import YourCommunity from './YourCommunity.js';
 const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }) => {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
-  const [selectedParticipant, setSelectedParticipant] = useState(null); // 🟣 State for pop-up
+  const [selectedParticipant, setSelectedParticipant] = useState(null);
+  const { setUser } = useContext(UserContext)
 
   const handleParticipantClick = (participant) => {
     setShowInvitePopup(null)
@@ -105,13 +107,50 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
     }
   };
 
+  const handleLeaveActivity = async () => {
+    const confirmLeave = window.confirm(
+      "Are you sure you want to leave this activity? This will remove you from the group and delete any responses you've made."
+    );
+
+    if (!confirmLeave) return;
+
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activity_participants/leave`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ activity_id: activity.id }),
+        }
+      );
+
+      if (response.ok) {
+        alert("You have successfully left the activity.");
+        setUser((prevUser) => ({
+          ...prevUser,
+          participant_activities: prevUser.participant_activities.filter(
+            (p) => p.activity.id !== activity.id
+          ),
+        }));
+        onBack();
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || "Failed to leave activity.");
+      }
+    } catch (error) {
+      console.error("Error leaving activity:", error);
+      alert("Something went wrong.");
+    }
+  };
+
   return (
     <HeaderContainer>
       <TopBar>
         <BackButton onClick={onBack}>
           <LeftOutlined />
         </BackButton>
-        {isOwner && (
+        {isOwner ? (
           <ActionButtons>
             <EditIcon onClick={onEdit}>
               <EditOutlined />
@@ -120,6 +159,10 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
               <DeleteOutlined />
             </DeleteIcon>
           </ActionButtons>
+        ) : (
+          <LeaveActivityButton onClick={handleLeaveActivity}>
+            <LogoutOutlined style={{ fontSize: "1.3rem" }} /> Leave
+          </LeaveActivityButton>
         )}
       </TopBar>
       <Title>{activity.emoji} {activity.activity_name}</Title>
@@ -223,6 +266,25 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
 };
 
 export default HeaderSection;
+
+const LeaveActivityButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background: linear-gradient(135deg, #c0392b, #a83227);
+  }
+`;
 
 export const HeaderContainer = styled.div`
   background: white;

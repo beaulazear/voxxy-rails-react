@@ -11,8 +11,6 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
 
   const allUsers = new Map();
 
-  console.log(showInvitePopup)
-
   user.activities?.forEach(activity => {
     activity.participants?.forEach(participant => {
       if (participant.id !== user.id) {
@@ -103,7 +101,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
 const EmptyCommunityMessage = styled.p`
   font-size: 1.2rem;
   font-weight: 500;
-  color: #6a1b9a;
+  color: #fff;
   text-align: center;
   margin-top: 1rem;
   opacity: 0.8;

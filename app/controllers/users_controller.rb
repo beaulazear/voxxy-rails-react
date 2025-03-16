@@ -13,15 +13,14 @@ class UsersController < ApplicationController
         invite.update(user: user, accepted: true)
 
         activity = invite.activity
-        activity.update!(group_size: activity.group_size + 1) # 🟢 Update group size
+        activity.update!(group_size: activity.group_size + 1)
 
-        # 🟢 Create welcome comment
         activity.comments.create!(
           user_id: user.id,
           content: "#{user.name} has joined the chat 🎉"
         )
 
-        activity.reload # 🔄 Reload activity to include the new comment
+        activity.reload
       end
 
       render json: user, status: :created
@@ -48,7 +47,7 @@ class UsersController < ApplicationController
             only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :date_day, :date_time, :welcome_message ],
             include: {
               user: { only: [ :id, :name, :email, :avatar ] },
-              responses: { only: [ :id, :notes, :created_at ] },
+              responses: { only: [ :id, :notes, :created_at, :user_id, :activity_id ] },
               participants: { only: [ :id, :name, :email, :avatar ] },
               activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] },
               comments: { include: { user: { only: [ :id, :name, :avatar ] } } }
@@ -62,7 +61,7 @@ class UsersController < ApplicationController
             only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message ],
             include: {
               user: { only: [ :id, :name, :email, :avatar ] },
-              responses: { only: [ :id, :notes, :created_at ] },
+              responses: { only: [ :id, :notes, :created_at, :user_id, :activity_id ] },
               participants: { only: [ :id, :name, :email, :avatar ] },
               comments: { include: { user: { only: [ :id, :name, :avatar ] } } }
             }

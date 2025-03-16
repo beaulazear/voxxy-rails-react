@@ -19,6 +19,7 @@ Rails.application.routes.draw do
 
   get "/invite_signup", to: "users#invite_signup_redirect"
   post "/activity_participants/accept", to: "activity_participants#accept"
+  post "/activity_participants/leave", to: "activity_participants#leave"
 
   post "login", to: "sessions#create"
   delete "logout", to: "sessions#destroy"

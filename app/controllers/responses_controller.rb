@@ -9,6 +9,7 @@ class ResponsesController < ApplicationController
       end
 
       response = activity.responses.build(response_params)
+      response.user_id = current_user.id
 
       if response.save
         render json: response, status: :created
@@ -48,6 +49,6 @@ class ResponsesController < ApplicationController
     private
 
     def response_params
-      params.require(:response).permit(:notes, :activity_id)
+      params.require(:response).permit(:notes, :activity_id, :user_id)
     end
 end

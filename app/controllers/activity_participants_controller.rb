@@ -94,4 +94,28 @@ class ActivityParticipantsController < ApplicationController
         }
       )
     end
+
+    def leave
+      activity = Activity.find_by(id: params[:activity_id])
+      return render json: { error: "Activity not found" }, status: :not_found unless activity
+
+      participant = activity.activity_participants.find_by(user_id: current_user.id)
+      return render json: { error: "You are not a participant of this activity." }, status: :unprocessable_entity unless participant
+      return render json: { error: "Hosts cannot leave an activity they created." }, status: :forbidden if activity.user_id == current_user.id
+
+      Response.where(activity_id: activity.id, user_id: current_user.id).destroy_all
+
+      participant.destroy!
+
+      activity.update!(group_size: activity.group_size - 1)
+
+      activity.comments.create!(
+        user_id: current_user.id,
+        content: "#{current_user.name} has left the chat 😢"
+      )
+
+      render json: { message: "You have successfully left the activity." }, status: :ok
+    rescue => e
+      render json: { error: e.message }, status: :unprocessable_entity
+    end
 end

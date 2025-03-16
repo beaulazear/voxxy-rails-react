@@ -221,7 +221,7 @@ const IntroText = styled.h2`
 const EmptyCommunityMessage = styled.p`
   font-size: 1.2rem;
   font-weight: 500;
-  color: #6a1b9a;
+  color: #fff;
   text-align: center;
   margin-top: 0;
   opacity: 0.8;
