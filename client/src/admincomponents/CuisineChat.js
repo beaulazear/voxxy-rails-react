@@ -142,7 +142,18 @@ const SendButton = styled.button`
   }
 `;
 
-function CuisineChat({ onClose, activityId, onChatComplete }) {
+const ForceChatNotice = styled.p`
+  color: #ffcc00;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1rem;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 8px;
+`;
+
+function CuisineChat({ onClose, activityId, onChatComplete, forceChat }) {
     const [answers, setAnswers] = useState([]);
     const [currentInput, setCurrentInput] = useState("");
     const [messages, setMessages] = useState([{ text: "Hey hey, party people!  Voxxy here—your friendly get-together assitant. Your crew is making plans, and I’m here to help pick the perfect spot. Let’s do a quick vibe check!", isUser: false }]);
@@ -264,15 +275,20 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
             <Overlay onClick={onClose} />
             <ChatContainer onClick={(e) => e.stopPropagation()}>
                 <ChatHeader>
-                    <BackButton onClick={onClose}>
-                        <svg viewBox="0 0 24 24">
-                            <path d="M15.5 3.5L7 12l8.5 8.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                        Back
-                    </BackButton>
+                    {!forceChat && (
+                        <BackButton onClick={onClose}>
+                            <svg viewBox="0 0 24 24">
+                                <path d="M15.5 3.5L7 12l8.5 8.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                            Back
+                        </BackButton>
+                    )}
                     Chat with Voxxy
                 </ChatHeader>
                 <ChatBody ref={chatBodyRef}>
+                    {forceChat && (
+                        <ForceChatNotice>⚠️ You must complete this chat before moving forward.</ForceChatNotice>
+                    )}
                     {messages.map((msg, index) => (
                         <Message key={index} $isUser={msg.isUser}>
                             {msg.text}

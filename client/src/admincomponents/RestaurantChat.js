@@ -211,17 +211,20 @@ function RestaurantChat({ onClose }) {
 
         setUser((prevUser) => ({
           ...prevUser,
-          activities: [...(prevUser.activities || []), { ...data, user: prevUser }],
+          activities: [
+            ...(prevUser.activities || []), 
+            { ...data, user: prevUser, responses: [] }
+          ],
         }));
 
-        onClose(data.id)
+        onClose(data.id);
       } else {
         throw new Error('Failed to create activity');
       }
     } catch (error) {
       alert('Failed to create activity. Please try again.');
     }
-  };
+};
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [questions[step].key]: e.target.value });

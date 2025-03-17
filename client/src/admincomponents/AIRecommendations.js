@@ -13,6 +13,14 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showChat, setShowChat] = useState(false);
+  const [forceChat, setForceChat] = useState(false); // ✅ Forces chat on first load if needed
+  const [responsesCompleted, setResponsesCompleted] = useState(activity.responses?.length > 0);
+
+  useEffect(() => {
+    if (activity.responses?.length === 0) {
+      setForceChat(true);
+    }
+  }, [activity.responses]);
 
   useEffect(() => {
     const fetchRecommendations = async () => {
@@ -228,14 +236,23 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
         <RestaurantMap recommendations={recommendations} />
       )}
 
-      {showChat && (
+
+      {(showChat || forceChat) && (
         <>
           <DimmedOverlay />
           <CuisineChat
             activityId={activity.id}
-            onClose={() => setShowChat(false)}
+            onClose={() => {
+              if (responsesCompleted) {
+                setShowChat(false);
+                setForceChat(false);
+              }
+            }}
+            forceChat={forceChat}
             onChatComplete={() => {
               setRefreshTrigger(prev => !prev);
+              setForceChat(false);
+              setResponsesCompleted(true);
             }}
           />
         </>
@@ -245,7 +262,6 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
 };
 
 export default AIRecommendations;
-
 
 const RecommendationsContainer = styled.div`
   padding: 1.5rem;
