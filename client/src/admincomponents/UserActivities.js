@@ -8,6 +8,7 @@ import VoxxyFooter from '../components/VoxxyFooter.js';
 import Profile from './Profile.js';
 import Woman from '../assets/Woman.jpg'
 import YourCommunity from './YourCommunity.js';
+import NoBoardsDisplay from './NoBoardsDisplay.js';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -20,18 +21,18 @@ const DashboardContainer = styled.div`
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  gap: 1.5rem;
   animation: ${fadeIn} 0.8s ease-in-out;
 `;
 
 const HeroContainer = styled.div`
-  padding: 0rem 2rem 1.75rem;
+  padding: 0rem 2rem;
   text-align: left;
   max-width: 1200px;
 
   @media (max-width: 768px) {
-    padding: 0rem .5rem .5rem;
+    padding: 0rem .5rem .0rem;
     margin-top: 0px;
+    margin-bottom: 0px;
   }
 `;
 
@@ -218,20 +219,6 @@ const IntroText = styled.h2`
   }
 `;
 
-const EmptyCommunityMessage = styled.p`
-  font-size: 1.2rem;
-  font-weight: 500;
-  color: #fff;
-  text-align: center;
-  margin-top: 0;
-  opacity: 0.8;
-  
-  @media (max-width: 768px) {
-    font-size: 1rem;
-    padding: 0 1rem;
-  }
-`;
-
 function UserActivities() {
   const { user } = useContext(UserContext);
   const [selectedActivityId, setSelectedActivityId] = useState(null);
@@ -346,56 +333,53 @@ function UserActivities() {
     )
   }
 
-  console.log(user)
   return (
     <>
       <Padding>
         <DashboardContainer ref={topRef}>
           <HeroContainer>
             <IntroText>{intro}</IntroText>
-            <Button onClick={handleShowActivities}>➕ New Board</Button>
           </HeroContainer>
-
           <PendingInvites />
-
-          <SectionTitle>Upcoming Activity Boards</SectionTitle>
           <CardGrid>
             {sortedActivities.length > 0 && (
-              sortedActivities.map((activity) => (
-                <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)} $emoji={activity.emoji}>
-                  <div className="content">
-                    <h3>{activity.activity_name}</h3>
+              <>
+                <SectionTitle>Upcoming Activity Boards</SectionTitle>
+                {sortedActivities.map((activity) => (
+                  <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)} $emoji={activity.emoji}>
+                    <div className="content">
+                      <h3>{activity.activity_name}</h3>
 
-                    <div className="host-info">
-                      {activity.user ? (
-                        <>
-                          <img className="host-avatar" src={activity.user.avatar || Woman} alt={activity.user.name || "Unknown User"} />
-                          <span>{activity.user.name}</span>
-                        </>
-                      ) : (
-                        <span>Host: Unknown</span>
-                      )}
+                      <div className="host-info">
+                        {activity.user ? (
+                          <>
+                            <img className="host-avatar" src={activity.user.avatar || Woman} alt={activity.user.name || "Unknown User"} />
+                            <span>{activity.user.name}</span>
+                          </>
+                        ) : (
+                          <span>Host: Unknown</span>
+                        )}
+                      </div>
+                      <div className="date-time">
+                        {activity.date_day ? (
+                          <span style={{ marginRight: '15px' }}> 📆 {activity.date_day}</span>
+                        ) : (
+                          <span style={{ marginRight: '15px' }}> 📆 Date: TBD</span>
+                        )}
+                        {activity.date_time ? (
+                          <span> ⏰ {extractHoursAndMinutes(activity.date_time)}</span>
+                        ) : (
+                          <span> ⏰ Time: TBD</span>
+                        )}
+                        {'  '}
+                      </div>
                     </div>
-
-                    <div className="date-time">
-                      {activity.date_day ? (
-                        <span style={{ marginRight: '15px' }}> 📆 {activity.date_day}</span>
-                      ) : (
-                        <span style={{ marginRight: '15px' }}> 📆 Date: TBD</span>
-                      )}
-                      {activity.date_time ? (
-                        <span> ⏰ {extractHoursAndMinutes(activity.date_time)}</span>
-                      ) : (
-                        <span> ⏰ Time: TBD</span>
-                      )}
-                      {'  '}
-                    </div>
-                  </div>
-                </ActivityCard>
-              ))
+                  </ActivityCard>
+                ))}
+              </>
             )}
           </CardGrid>
-          {sortedActivities.length === 0 && <EmptyCommunityMessage>No boards yet! 🚀 Start your first activity and let the adventures begin! 🎉</EmptyCommunityMessage>}
+          {sortedActivities.length === 0 && <NoBoardsDisplay onCreateBoard={handleShowActivities} />}
           <SectionTitle> Your Voxxy Community</SectionTitle>
           <YourCommunity />
         </DashboardContainer>

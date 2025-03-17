@@ -59,10 +59,12 @@ const LinkText = styled.button`
 `;
 
 const ConfirmEmail = () => {
-  const { user, loading } = useContext(UserContext);
+  const { user, loading , setUser} = useContext(UserContext);
   const navigate = useNavigate();
   const [isSending, setIsSending] = useState(true);
   const [timer, setTimer] = useState(60);
+
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
   useEffect(() => {
     if (!loading) {
@@ -73,6 +75,19 @@ const ConfirmEmail = () => {
       }
     }
   }, [user, loading, navigate]);
+
+  const handleLogout = () => {
+    const confirmation = window.confirm("Are you sure you want to log out?");
+    if (confirmation) {
+      fetch(`${API_URL}/logout`, {
+        method: "DELETE",
+        credentials: 'include',
+      }).then(() => {
+        setUser(null);
+        navigate('/');
+      });
+    }
+  };
 
   useEffect(() => {
     let interval;
@@ -96,8 +111,6 @@ const ConfirmEmail = () => {
 
     setIsSending(true);
     setTimer(60);
-
-    const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
     fetch(`${API_URL}/resend_verification`, {
       method: "POST",
@@ -130,6 +143,7 @@ const ConfirmEmail = () => {
       </LinkText>
       <br />
       <LinkText onClick={() => navigate("/login")}>Back to login</LinkText>
+      <LinkText onClick={handleLogout} />
     </Container>
   );
 };

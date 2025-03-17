@@ -21,7 +21,7 @@ const fadeOut = keyframes`
 const HeroWrapper = styled.div`
   position: fixed;
   width: 100%;
-  height: 60vh; /* Reduce height to bring content up */
+  height: 80vh;
   display: flex;
   justify-content: center;
   align-items: center;

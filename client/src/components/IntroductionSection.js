@@ -31,7 +31,7 @@ const IntroductionContainer = styled.section`
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 5rem 2rem 0; /* Reduce top padding */
+  padding: 5rem;
   gap: 3rem;
   box-sizing: border-box;
   overflow: hidden;
