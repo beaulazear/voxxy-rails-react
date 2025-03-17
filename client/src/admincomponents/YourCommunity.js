@@ -229,7 +229,6 @@ const CloseButton = styled.button`
 const CommunityTitle = styled.p`
   font-size: clamp(1.5rem, 2.5vw, 2rem);
   font-weight: 600;
-  color: white;
   text-align: left;
   padding: 1.5rem 2.5rem 1rem;
   margin: 0;

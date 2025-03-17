@@ -23,6 +23,10 @@ const DashboardContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   animation: ${fadeIn} 0.8s ease-in-out;
+  
+  @media (min-width: 100px) {
+    pading: 5rem;
+  }
 `;
 
 const HeroContainer = styled.div`
@@ -39,16 +43,16 @@ const HeroContainer = styled.div`
 
 const SectionTitle = styled.p`
   font-size: clamp(1.5rem, 2.5vw, 2rem);
-  margin: 0;
-  margin-bottom: 0;
-  text-align: left;
   font-weight: 600;
-  padding: 1.5rem 2.5rem 1rem;
   text-align: left;
+  padding: 1.5rem 2.5rem 1rem;
+  margin: 0;
   max-width: 1200px;
+    margin-right: -2rem;
+  margin-left: -2rem;
 
   @media (max-width: 768px) {
-    padding: 0rem .5rem .5rem;
+    padding: 0.5rem;
     text-align: center;
   }
 `;
@@ -342,10 +346,10 @@ function UserActivities() {
             <IntroText>{intro}</IntroText>
           </HeroContainer>
           <PendingInvites />
+          {sortedActivities.length > 0 && (<SectionTitle>Upcoming Activity Boards</SectionTitle>)}
           <CardGrid>
             {sortedActivities.length > 0 && (
               <>
-                <SectionTitle>Upcoming Activity Boards</SectionTitle>
                 {sortedActivities.map((activity) => (
                   <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)} $emoji={activity.emoji}>
                     <div className="content">
