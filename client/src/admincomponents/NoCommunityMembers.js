@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import Friends from "../assets/FriendLunch.svg"; // Your uploaded image
+import Friends from "../assets/Friends.svg";
 
-const NoBoardsContainer = styled.div`
+const NoCommunityContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -84,40 +84,17 @@ const Message = styled.p`
   }
 `;
 
-const StartButton = styled.button`
-  padding: 0.8rem 1.6rem;
-  font-size: 1rem;
-  font-weight: bold;
-  color: white;
-  background: linear-gradient(135deg, #ffffff40, #ffffff20);
-  border: 2px solid white;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  backdrop-filter: blur(8px);
 
-  &:hover {
-    background: white;
-    color: #8e44ad;
-  }
-
-  @media (max-width: 768px) {
-    width: 100%;
-    text-align: center;
-  }
-`;
-
-export default function NoBoardsDisplay({ onCreateBoard }) {
-  return (
-    <NoBoardsContainer>
-      <Image src={Friends} alt="Friends enjoying a meal" />
-      <Content>
-        <Title>No Activities Planned Yet? 😲</Title>
-        <Message>
-          Don’t wait for your friends to invite you—be the one to start the next activity! Get your group together, plan something fun, and make unforgettable memories. 🚀
-        </Message>
-        <StartButton onClick={onCreateBoard}>➕ Create Your First Board</StartButton>
-      </Content>
-    </NoBoardsContainer>
-  );
+export default function NoCommunityMembers() {
+    return (
+        <NoCommunityContainer>
+            <Content>
+                <Title>No Community Members Yet? 🤝</Title>
+                <Message>
+                    Start making connections! Create new boards, plan activities, and watch your community grow. Your friends will show up here soon! 🚀
+                </Message>
+            </Content>
+            <Image src={Friends} alt="People connecting and making friends" />
+        </NoCommunityContainer>
+    );
 }

@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import styled from "styled-components";
 import { UserContext } from "../context/user";
 import Woman from "../assets/Woman.jpg"; // Fallback avatar
+import NoCommunityMembers from "./NoCommunityMembers";
 
 export default function YourCommunity({ showInvitePopup, onSelectUser }) {
   const { user } = useContext(UserContext);
@@ -57,10 +58,11 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
   }));
 
   if (recentUsers.length === 0) {
-    return <EmptyCommunityMessage>No connections yet. Get out there and start making memories! 🚀</EmptyCommunityMessage>;
+    return <NoCommunityMembers />;
   }
   return (
     <CommunityContainer>
+      <CommunityTitle>Your Voxxy Crew 🎭</CommunityTitle>
       <AvatarScrollContainer>
         <AvatarGrid>
           {recentUsers.map(({ user, activities }) => (
@@ -97,20 +99,6 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
     </CommunityContainer>
   );
 }
-
-const EmptyCommunityMessage = styled.p`
-  font-size: 1.2rem;
-  font-weight: 500;
-  color: #fff;
-  text-align: center;
-  margin-top: 1rem;
-  opacity: 0.8;
-  
-  @media (max-width: 768px) {
-    font-size: 1rem;
-    padding: 0 1rem;
-  }
-`;
 
 const CommunityContainer = styled.div`
   display: flex;
@@ -235,5 +223,20 @@ const CloseButton = styled.button`
 
   &:hover {
     background: rgba(255, 255, 255, 0.8);
+  }
+`;
+
+const CommunityTitle = styled.p`
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 600;
+  color: white;
+  text-align: left;
+  padding: 1.5rem 2.5rem 1rem;
+  margin: 0;
+  max-width: 1200px;
+
+  @media (max-width: 768px) {
+    padding: 0.5rem;
+    text-align: center;
   }
 `;

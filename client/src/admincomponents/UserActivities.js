@@ -19,6 +19,7 @@ const DashboardContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding: 2rem;
+  gap: .5px;
   max-width: 1200px;
   margin: 0 auto;
   animation: ${fadeIn} 0.8s ease-in-out;
@@ -27,7 +28,7 @@ const DashboardContainer = styled.div`
 const HeroContainer = styled.div`
   padding: 0rem 2rem;
   text-align: left;
-  max-width: 1200px;
+  max-width: 1500px;
 
   @media (max-width: 768px) {
     padding: 0rem .5rem .0rem;
@@ -380,7 +381,6 @@ function UserActivities() {
             )}
           </CardGrid>
           {sortedActivities.length === 0 && <NoBoardsDisplay onCreateBoard={handleShowActivities} />}
-          <SectionTitle> Your Voxxy Community</SectionTitle>
           <YourCommunity />
         </DashboardContainer>
       </Padding>
