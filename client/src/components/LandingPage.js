@@ -21,7 +21,7 @@ const fadeOut = keyframes`
 const HeroWrapper = styled.div`
   position: fixed;
   width: 100%;
-  height: 80vh; /* Ensure it fully covers the viewport */
+  height: 60vh; /* Reduce height to bring content up */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -35,8 +35,8 @@ const HeroWrapper = styled.div`
 const ContentContainer = styled.div`
   opacity: ${({ $isVisible }) => ($isVisible ? "1" : "0")};
   transition: opacity 1s ease-in-out;
-  margin-top: ${({ $isVisible }) => ($isVisible ? "0" : "100vh")}; 
-  /* Ensures content starts immediately after hero */
+  margin-top: 0; /* Ensures content starts sooner */
+  padding-top: 2rem; /* Add slight spacing instead of a huge margin */
 `;
 
 const StaggeredContent = styled.div`

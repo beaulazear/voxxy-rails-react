@@ -37,20 +37,23 @@ const Input = styled.input`
 `;
 
 const Button = styled.button`
-  width: 100%;
+  margin-top: 1.5rem;
   padding: 0.75rem;
-  margin-top: 1rem;
   font-size: 1rem;
-  font-weight: 600;
-  color: white;
-  background-color: #a488f4;
+  color: #fff;
+  background: linear-gradient(135deg, #6a1b9a, #8e44ad);
   border: none;
-  border-radius: 6px;
+  border-radius: 50px;
   cursor: pointer;
-  transition: background 0.3s;
+  width: 100%;
 
   &:hover {
-    background-color: #8b6fe8;
+    background: linear-gradient(135deg, #4e0f63, #6a1b8a);
+  }
+
+  &:disabled {
+    background: #f2e7ff;
+    cursor: not-allowed;
   }
 `;
 
