@@ -37,7 +37,7 @@ class ActivitiesController < ApplicationController
       activities = current_user.activities.includes(:user, :responses, :activity_participants, :participants)
 
       render json: activities.as_json(
-        only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :user_id, :date_day, :date_time, :welcome_message ],
+        only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :user_id, :date_day, :date_time, :welcome_message, :completed ],
         include: {
           user: { only: [ :id, :name, :email ] },
           responses: { only: [ :id, :notes, :created_at, :user_id, :activity_id ] },
@@ -62,7 +62,7 @@ class ActivitiesController < ApplicationController
         render json: user.as_json(
           include: {
             activities: {
-              only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :date_day, :date_time, :welcome_message ],
+              only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :date_day, :date_time, :welcome_message, :completed ],
               include: {
                 user: { only: [ :id, :name, :email, :avatar ] },
                 responses: { only: [ :id, :notes, :created_at ] },
@@ -73,7 +73,7 @@ class ActivitiesController < ApplicationController
             }
           }
         ).merge("participant_activities" => participant_activities.as_json(
-          only: [ :id, :activity_name, :emoji, :user_id, :date_notes, :activity_location, :group_size, :date_day, :date_time, :welcome_message ],
+          only: [ :id, :activity_name, :emoji, :user_id, :date_notes, :activity_location, :group_size, :date_day, :date_time, :welcome_message, :completed ],
           include: {
             user: { only: [ :id, :name, :email ] },
             participants: { only: [ :id, :name, :email, :avatar ] },
@@ -98,6 +98,6 @@ class ActivitiesController < ApplicationController
     private
 
     def activity_params
-      params.require(:activity).permit(:activity_name, :activity_type, :activity_location, :group_size, :date_notes, :active, :emoji, :date_day, :date_time, :welcome_message)
+      params.require(:activity).permit(:activity_name, :activity_type, :activity_location, :group_size, :date_notes, :active, :emoji, :date_day, :date_time, :welcome_message, :completed)
     end
 end

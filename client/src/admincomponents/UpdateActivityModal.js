@@ -36,8 +36,6 @@ const ModalOverlay = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 999;
-  padding: 1rem; /* 🔹 Ensures space on small screens */
-  overflow-y: auto; /* 🔹 Allows scrolling when modal is too tall */
 `;
 
 const ModalContainer = styled.div`
@@ -52,29 +50,8 @@ const ModalContainer = styled.div`
   top: 45%;
   left: 50%;
   transform: translate(-50%, -50%);
-  animation: fadeIn 0.2s ease-in-out;
-  max-height: 80vh; /* 🔹 Prevents the modal from being too tall */
+  max-height: 80vh;
   overflow-y: auto;
-  padding-bottom: 2rem; /* 🔹 Prevents overlap with the footer */
-
-  @media (max-width: 480px) {
-    width: 90%;
-    max-width: 95%;
-    padding: 1.25rem;
-    max-height: 80vh;
-  }
-
-  @media (max-width: 320px) { /* 🔹 Extra small devices */
-    width: 95%;
-    max-width: 100%;
-    padding: 1rem;
-    max-height: 75vh;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translate(-50%, -55%); }
-    to { opacity: 1; transform: translate(-50%, -50%); }
-  }
 `;
 
 const ModalHeader = styled.div`
@@ -91,7 +68,6 @@ const CloseButton = styled.button`
   font-weight: bold;
   cursor: pointer;
   color: #666;
-  transition: color 0.2s ease;
 
   &:hover {
     color: #333;
@@ -117,7 +93,6 @@ const Input = styled.input`
   border: 1px solid #ddd;
   border-radius: 6px;
   background: #f9f9f9;
-  transition: border-color 0.2s ease;
 
   &:focus {
     border-color: #6c5ce7;
@@ -126,33 +101,20 @@ const Input = styled.input`
   }
 `;
 
-const TextArea = styled.textarea`
-  width: 90%;
-  padding: 0.6rem;
-  font-size: 0.9rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background: #f9f9f9;
-  resize: vertical;
-  min-height: 80px;
-
-  &:focus {
-    border-color: #6c5ce7;
-    background: white;
-    outline: none;
-  }
-`;
-
-const ErrorText = styled.p`
-  color: red;
-  font-size: 0.85rem;
-  margin-top: 0.2rem;
-`;
-
-const ButtonGroup = styled.div`
+const ToggleContainer = styled.label`
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin-top: 1rem;
+  background: #f9f9f9;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+`;
+
+const ToggleSwitch = styled.input`
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
 `;
 
 const Button = styled.button`
@@ -162,12 +124,8 @@ const Button = styled.button`
   cursor: pointer;
   font-weight: bold;
   font-size: 0.9rem;
-  transition: background 0.2s ease;
-
-  ${(props) =>
-    props.$primary
-      ? `background: #6c5ce7; color: white;`
-      : `background: #e0e0e0; color: black;`}
+  background: #6c5ce7;
+  color: white;
 
   &:hover {
     opacity: 0.85;
@@ -182,20 +140,21 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
     date_day: activity.date_day || "",
     date_time: activity.date_time || "",
     welcome_message: activity.welcome_message || "",
+    completed: activity.completed || false,
   });
 
   const [isFlying, setIsFlying] = useState(false);
-  const [error, setError] = useState("");
-  const [fieldErrors, setFieldErrors] = useState({});
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
+  function handleToggleCompleted() {
+    setFormData({ ...formData, completed: !formData.completed });
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
-    setError("");
-    setFieldErrors({});
 
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activity.id}`, {
@@ -208,23 +167,7 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
       const data = await response.json();
 
       if (!response.ok) {
-        if (data.errors) {
-          setFieldErrors(
-            data.errors.reduce((acc, err) => {
-              if (err.toLowerCase().includes("date day")) {
-                acc.date_day = err;
-              } else if (err.toLowerCase().includes("time")) {
-                acc.date_time = err;
-              } else {
-                acc.general = err;
-              }
-              return acc;
-            }, {})
-          );
-        } else {
-          setError("Failed to update activity. Please try again.");
-        }
-        throw new Error("Validation errors");
+        throw new Error("Failed to update activity");
       }
 
       setIsFlying(true);
@@ -260,21 +203,24 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
 
             <Label>Date</Label>
             <Input type="date" name="date_day" value={formData.date_day} onChange={handleChange} />
-            {fieldErrors.date_day && <ErrorText>{fieldErrors.date_day}</ErrorText>}
 
             <Label>Time</Label>
             <Input type="time" name="date_time" value={formData.date_time} onChange={handleChange} />
-            {fieldErrors.date_time && <ErrorText>{fieldErrors.date_time}</ErrorText>}
 
             <Label>Welcome Message</Label>
-            <TextArea name="welcome_message" value={formData.welcome_message} onChange={handleChange} />
-            {fieldErrors.general && <ErrorText>{fieldErrors.general}</ErrorText>}
+            <Input type="text" name="welcome_message" value={formData.welcome_message} onChange={handleChange} />
 
-            {error && <ErrorText>{error}</ErrorText>}
+            {/* ✅ Completed Toggle */}
+            <ToggleContainer>
+              <span>Mark as Completed:</span>
+              <ToggleSwitch
+                type="checkbox"
+                checked={formData.completed}
+                onChange={handleToggleCompleted}
+              />
+            </ToggleContainer>
 
-            <ButtonGroup>
-              <Button $primary type="submit">Update Activity Details</Button>
-            </ButtonGroup>
+            <Button type="submit">Update Activity</Button>
           </Form>
         </ModalContainer>
       </ModalOverlay>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_16_150402) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_17_231421) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -28,6 +28,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_16_150402) do
     t.time "date_time"
     t.date "date_day"
     t.text "welcome_message"
+    t.boolean "completed", default: false
     t.index ["user_id"], name: "index_activities_on_user_id"
   end
 

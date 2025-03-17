@@ -41,22 +41,6 @@ const HeroContainer = styled.div`
   }
 `;
 
-const SectionTitle = styled.p`
-  font-size: clamp(1.5rem, 2.5vw, 2rem);
-  font-weight: 600;
-  text-align: left;
-  padding: 1.5rem 2.5rem 1rem;
-  margin: 0;
-  max-width: 1200px;
-    margin-right: -2rem;
-  margin-left: -2rem;
-
-  @media (max-width: 768px) {
-    padding: 0.5rem;
-    text-align: center;
-  }
-`;
-
 const CardGrid = styled.div`
   display: flex;
   gap: 1rem;
@@ -224,12 +208,57 @@ const IntroText = styled.h2`
   }
 `;
 
+const ButtonContainer = styled.div`
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem 2.5rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  justify-content: flex-start;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+    justify-content: center;
+  }
+`;
+
+const FilterButton = styled.button`
+  padding: 0.7rem 1.4rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background: ${({ $active }) => ($active ? '#6a1b9a' : 'rgba(255, 255, 255, 0.2)')};
+  border: 2px solid white;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(8px);
+
+  &:hover {
+    background: white;
+    color: #8e44ad;
+  }
+
+  @media (max-width: 600px) {
+    /* 🔹 Smaller buttons for mobile */
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 400px) {
+    /* 🔹 Even smaller buttons for very small screens */
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
+`;
+
 function UserActivities() {
   const { user } = useContext(UserContext);
   const [selectedActivityId, setSelectedActivityId] = useState(null);
   const [showActivities, setShowActivities] = useState(false);
   const [showProfile, setShowProfile] = useState(false)
   const [intro, setIntro] = useState("");
+  const [filterType, setFilterType] = useState("upcoming"); // 🔹 Sorting state
 
   const topRef = useRef(null)
 
@@ -304,12 +333,13 @@ function UserActivities() {
 
   const uniqueActivities = [...new Map(allActivities.map(a => [a.id, a])).values()];
 
-  const sortedActivities = uniqueActivities.sort((a, b) => {
-    const dateA = a.date_day ? new Date(a.date_day).setHours(0, 0, 0, 0) : Infinity;
-    const dateB = b.date_day ? new Date(b.date_day).setHours(0, 0, 0, 0) : Infinity;
-
-    return dateA - dateB;
-  });
+  const filteredActivities = uniqueActivities
+    .filter(activity => (filterType === "upcoming" ? !activity.completed : activity.completed)) // ✅ Filtering Logic
+    .sort((a, b) => {
+      const dateA = a.date_day ? new Date(a.date_day).setHours(0, 0, 0, 0) : Infinity;
+      const dateB = b.date_day ? new Date(b.date_day).setHours(0, 0, 0, 0) : Infinity;
+      return dateA - dateB;
+    });
 
   if (selectedActivityId) {
     return (
@@ -346,45 +376,62 @@ function UserActivities() {
             <IntroText>{intro}</IntroText>
           </HeroContainer>
           <PendingInvites />
-          {sortedActivities.length > 0 && (<SectionTitle>Upcoming Activity Boards</SectionTitle>)}
-          <CardGrid>
-            {sortedActivities.length > 0 && (
-              <>
-                {sortedActivities.map((activity) => (
-                  <ActivityCard key={activity.id} onClick={() => handleActivityClick(activity)} $emoji={activity.emoji}>
-                    <div className="content">
-                      <h3>{activity.activity_name}</h3>
 
-                      <div className="host-info">
-                        {activity.user ? (
-                          <>
-                            <img className="host-avatar" src={activity.user.avatar || Woman} alt={activity.user.name || "Unknown User"} />
-                            <span>{activity.user.name}</span>
-                          </>
-                        ) : (
-                          <span>Host: Unknown</span>
-                        )}
-                      </div>
-                      <div className="date-time">
-                        {activity.date_day ? (
-                          <span style={{ marginRight: '15px' }}> 📆 {activity.date_day}</span>
-                        ) : (
-                          <span style={{ marginRight: '15px' }}> 📆 Date: TBD</span>
-                        )}
-                        {activity.date_time ? (
-                          <span> ⏰ {extractHoursAndMinutes(activity.date_time)}</span>
-                        ) : (
-                          <span> ⏰ Time: TBD</span>
-                        )}
-                        {'  '}
-                      </div>
+          {filteredActivities.length > 0 && (
+            <ButtonContainer>
+              <FilterButton
+                $active={filterType === "upcoming"}
+                onClick={() => setFilterType("upcoming")}
+              >
+                Upcoming Boards
+              </FilterButton>
+              <FilterButton
+                $active={filterType === "past"}
+                onClick={() => setFilterType("past")}
+              >
+                Past Boards
+              </FilterButton>
+            </ButtonContainer>
+          )}
+
+          {filteredActivities.length > 0 ? (
+            <CardGrid>
+              {filteredActivities.map((activity) => (
+                <ActivityCard
+                  key={activity.id}
+                  onClick={() => handleActivityClick(activity)}
+                  $emoji={activity.emoji}
+                >
+                  <div className="content">
+                    <h3>{activity.activity_name}</h3>
+                    <div className="host-info">
+                      {activity.user ? (
+                        <>
+                          <img className="host-avatar" src={activity.user.avatar || Woman} alt={activity.user.name || "Unknown User"} />
+                          <span>{activity.user.name}</span>
+                        </>
+                      ) : (
+                        <span>Host: Unknown</span>
+                      )}
                     </div>
-                  </ActivityCard>
-                ))}
-              </>
-            )}
-          </CardGrid>
-          {sortedActivities.length === 0 && <NoBoardsDisplay onCreateBoard={handleShowActivities} />}
+                    <div className="date-time">
+                      {activity.date_day ? (
+                        <span> 📆 {activity.date_day}</span>
+                      ) : (
+                        <span> 📆 Date: TBD</span>
+                      )}
+                      {activity.date_time ? (
+                        <span> ⏰ {extractHoursAndMinutes(activity.date_time)}</span>) : (
+                        <span> ⏰ Time: TBD</span>
+                      )}
+                    </div>
+                  </div>
+                </ActivityCard>
+              ))}
+            </CardGrid>
+          ) : (
+            <NoBoardsDisplay onCreateBoard={() => setFilterType("upcoming")} />
+          )}
           <YourCommunity />
         </DashboardContainer>
       </Padding>

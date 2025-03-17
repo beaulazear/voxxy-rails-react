@@ -65,6 +65,7 @@ class ActivityParticipantsController < ApplicationController
         date_time: activity.date_time,
         user: activity.user ? { id: activity.user.id, name: activity.user.name, email: activity.user.email, avatar: activity.user.avatar } : nil,
         participants: activity.participants.select(:id, :name, :email, :avatar),
+        completed: false,
         comments: activity.comments.order(created_at: :asc).map do |comment|
           {
             id: comment.id,
@@ -88,7 +89,7 @@ class ActivityParticipantsController < ApplicationController
         include: {
           user: { only: [ :id, :name, :email, :avatar ] }, # Include full user data
           activity: {
-            only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji ],
+            only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :completed ],
             include: { user: { only: [ :id, :name, :email, :avatar ] } }
           }
         }
