@@ -61,7 +61,7 @@ const LinkText = styled.button`
 const ConfirmEmail = () => {
   const { user, loading } = useContext(UserContext);
   const navigate = useNavigate();
-  const [isSending, setIsSending] = useState(false);
+  const [isSending, setIsSending] = useState(true);
   const [timer, setTimer] = useState(60);
 
   useEffect(() => {
@@ -92,7 +92,10 @@ const ConfirmEmail = () => {
   }, [isSending]);
 
   const handleResend = () => {
+    if (isSending) return;
+
     setIsSending(true);
+    setTimer(60);
 
     const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
