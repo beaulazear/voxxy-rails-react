@@ -13,9 +13,10 @@ const NoCommunityContainer = styled.div`
   padding-top: 0rem;
   text-align: left;
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1200px) {
+    flex-direction: column;
+    text-align: center;
     gap: 1rem;
-    max-width: 900px;
   }
 
   @media (max-width: 768px) {
