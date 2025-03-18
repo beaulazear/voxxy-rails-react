@@ -153,6 +153,23 @@ const ForceChatNotice = styled.p`
   border-radius: 8px;
 `;
 
+const QuitButton = styled.button`
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 15px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 10px;
+  box-shadow: 0 2px 5px rgba(255, 77, 77, 0.3);
+  
+  &:hover {
+    background: #cc0000;
+  }
+`;
+
 function CuisineChat({ onClose, activityId, onChatComplete, forceChat }) {
     const [answers, setAnswers] = useState([]);
     const [currentInput, setCurrentInput] = useState("");
@@ -164,6 +181,43 @@ function CuisineChat({ onClose, activityId, onChatComplete, forceChat }) {
     const chatBodyRef = useRef(null);
 
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
+    const handleQuit = () => {
+        const confirmDelete = window.confirm(
+            "⚠️ If you exit now, this activity will be permanently deleted. Are you sure?"
+        );
+
+        if (!confirmDelete) return;
+
+        fetch(`${API_URL}/activities/${activityId}`, {
+            method: "DELETE",
+            credentials: "include",
+        })
+            .then((response) => {
+                if (response.ok) {
+                    console.log(`Activity with ID ${activityId} deleted successfully`);
+
+                    setUser((prevUser) => ({
+                        ...prevUser,
+                        activities: prevUser.activities.filter(
+                            (activity) => activity.id !== activityId
+                        ),
+                        participant_activities: prevUser.participant_activities.filter(
+                            (participant) => participant.activity.id !== activityId
+                        ),
+                    }));
+
+                    // Navigate all the way back to UserActivities
+                    onClose(); // Close the chat modal
+                    setTimeout(() => {
+                        window.location.reload(); // Ensure full UI reset
+                    }, 300);
+                } else {
+                    console.error("Failed to delete activity");
+                }
+            })
+            .catch((error) => console.error("Error deleting activity:", error));
+    };
 
     const questions = [
         "What’s the food & drink mood? Are we craving anything specific (sushi, tacos, cocktails), or open to surprises?",
@@ -287,7 +341,7 @@ function CuisineChat({ onClose, activityId, onChatComplete, forceChat }) {
                 </ChatHeader>
                 <ChatBody ref={chatBodyRef}>
                     {forceChat && (
-                        <ForceChatNotice>⚠️ You must complete this chat before moving forward.</ForceChatNotice>
+                        <ForceChatNotice>⚠️ Hosts must submit their preferences first to get started!</ForceChatNotice>
                     )}
                     {messages.map((msg, index) => (
                         <Message key={index} $isUser={msg.isUser}>
@@ -305,6 +359,8 @@ function CuisineChat({ onClose, activityId, onChatComplete, forceChat }) {
                         placeholder="Type your response..."
                     />
                     <SendButton onClick={handleNext}>▶</SendButton>
+
+                    {forceChat && <QuitButton onClick={handleQuit}>Quit</QuitButton>}
                 </ChatFooter>
             </ChatContainer>
         </>
