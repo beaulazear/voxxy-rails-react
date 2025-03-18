@@ -12,6 +12,8 @@ class Activity < ApplicationRecord
     private
 
     def date_day_must_be_in_future
+      return if will_save_change_to_completed? && completed
+
       if date_day < Date.today
         errors.add(:date_day, "must be a future date")
       end
