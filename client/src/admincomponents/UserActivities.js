@@ -377,22 +377,20 @@ function UserActivities() {
           </HeroContainer>
           <PendingInvites />
 
-          {filteredActivities.length > 0 && (
-            <ButtonContainer>
-              <FilterButton
-                $active={filterType === "upcoming"}
-                onClick={() => setFilterType("upcoming")}
-              >
-                Upcoming Boards
-              </FilterButton>
-              <FilterButton
-                $active={filterType === "past"}
-                onClick={() => setFilterType("past")}
-              >
-                Past Boards
-              </FilterButton>
-            </ButtonContainer>
-          )}
+          <ButtonContainer>
+            <FilterButton
+              $active={filterType === "upcoming"}
+              onClick={() => setFilterType("upcoming")}
+            >
+              Upcoming Boards
+            </FilterButton>
+            <FilterButton
+              $active={filterType === "past"}
+              onClick={() => setFilterType("past")}
+            >
+              Past Boards
+            </FilterButton>
+          </ButtonContainer>
 
           {filteredActivities.length > 0 ? (
             <CardGrid>

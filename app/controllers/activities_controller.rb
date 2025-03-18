@@ -19,6 +19,7 @@ class ActivitiesController < ApplicationController
       if activity.update(activity_params)
         render json: activity.to_json(include: [ :participants, :activity_participants ]), status: :ok
       else
+        Rails.logger.error "❌ Activity update failed: #{activity.errors.full_messages}"
         render json: { error: activity.errors.full_messages }, status: :unprocessable_entity
       end
     end
