@@ -243,6 +243,8 @@ const CommunityTitle = styled.p`
 `;
 
 const Image = styled.img`
+  display: block;
+  margin: 2rem auto;  /* Centers the image horizontally */
   width: 50%;
   max-width: 450px;
   height: auto;
@@ -255,12 +257,12 @@ const Image = styled.img`
   }
 
   @media (max-width: 768px) {
-    width: 85%;
+    width: 70%;
     max-width: 320px;
   }
 
   @media (max-width: 480px) {
-    width: 100%;
+    width: 85%;
     max-width: 280px;
   }
 `;
