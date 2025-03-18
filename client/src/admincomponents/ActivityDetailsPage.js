@@ -48,8 +48,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
   if (!currentActivity) return <LoadingScreen />;
 
-  console.log(currentActivity)
-
   const isOwner = user?.id === currentActivity?.user_id || user?.id === currentActivity?.user?.id;
 
   const handleInvite = async (email) => {

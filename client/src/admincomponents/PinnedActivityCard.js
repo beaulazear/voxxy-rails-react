@@ -17,9 +17,6 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
     }
   }, [likedBy, user]);
 
-  console.log(pinned, likedBy)
-
-
   function handleLike() {
     if (hasLiked) {
       if (!Array.isArray(pinned.votes) || pinned.votes.length === 0) {
@@ -49,7 +46,6 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
             setLikedBy(data.voters || []);
             setHasLiked(false);
 
-            // ✅ Ensure we store the correct vote ID from backend
             setPinnedActivities(prevPinnedActivities =>
               prevPinnedActivities.map(activity =>
                 activity.id === pinned.id

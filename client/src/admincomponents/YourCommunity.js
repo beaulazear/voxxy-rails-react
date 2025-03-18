@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { UserContext } from "../context/user";
 import Woman from "../assets/Woman.jpg"; // Fallback avatar
 import NoCommunityMembers from "./NoCommunityMembers";
+import Friends from "../assets/Friends.svg";
 
 export default function YourCommunity({ showInvitePopup, onSelectUser }) {
   const { user } = useContext(UserContext);
@@ -70,8 +71,8 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
               key={user.id}
               onClick={() =>
                 showInvitePopup
-                  ? onSelectUser(user) // ✅ If inviting, set email
-                  : setSelectedUser({ user, activities }) // ✅ Otherwise, open modal
+                  ? onSelectUser(user)
+                  : setSelectedUser({ user, activities })
               }
             >
               <Avatar src={user.avatar || Woman} alt={user.name} />
@@ -96,6 +97,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
           </ModalContent>
         </ModalOverlay>
       )}
+      <Image src={Friends} alt="People connecting and making friends" />
     </CommunityContainer>
   );
 }
@@ -132,7 +134,7 @@ const AvatarGrid = styled.div`
   flex-wrap: nowrap;
   justify-content: flex-start;
   gap: .7rem;
-  width: max-content; /* ✅ Dynamically adjusts to the content width */
+  width: max-content;
 `;
 
 const UserCard = styled.div`
@@ -237,5 +239,28 @@ const CommunityTitle = styled.p`
   @media (max-width: 768px) {
     padding: 0.5rem;
     text-align: center;
+  }
+`;
+
+const Image = styled.img`
+  width: 50%;
+  max-width: 450px;
+  height: auto;
+  border-radius: 12px;
+  flex-shrink: 0;
+
+  @media (max-width: 1024px) {
+    width: 55%;
+    max-width: 380px;
+  }
+
+  @media (max-width: 768px) {
+    width: 85%;
+    max-width: 320px;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    max-width: 280px;
   }
 `;

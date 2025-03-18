@@ -428,7 +428,7 @@ function UserActivities() {
               ))}
             </CardGrid>
           ) : (
-            <NoBoardsDisplay onCreateBoard={() => setFilterType("upcoming")} />
+            <NoBoardsDisplay onCreateBoard={() => setShowActivities(true)} />
           )}
           <YourCommunity />
         </DashboardContainer>
