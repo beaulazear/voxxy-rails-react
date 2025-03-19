@@ -6,7 +6,6 @@ const NoCommunityContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
   width: 100%;
   max-width: 1100px;
   margin: auto 0;
@@ -16,13 +15,11 @@ const NoCommunityContainer = styled.div`
   @media (max-width: 1200px) {
     flex-direction: column;
     text-align: center;
-    gap: 1rem;
   }
 
   @media (max-width: 768px) {
     flex-direction: column;
     text-align: center;
-    gap: 1rem;
   }
 `;
 

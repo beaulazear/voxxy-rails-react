@@ -12,6 +12,7 @@ const NoBoardsContainer = styled.div`
   margin: auto 0;
   padding-top: 0rem;
   text-align: left;
+  padding-bottom: 25px;
 
   @media (max-width: 1024px) {
     gap: 1rem;
