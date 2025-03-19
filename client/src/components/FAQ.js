@@ -38,14 +38,10 @@ const HeaderContainer = styled.div`
 `;
 
 const Title = styled.h2`
-  font-size: 2.5rem;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
   font-weight: 800;
   color: #4e0f63;
   margin: 0;
-
-  @media (max-width: 768px) {
-    font-size: 2rem;
-  }
 `;
 
 const StyledAccordion = styled(Accordion)`
@@ -63,7 +59,7 @@ const StyledAccordion = styled(Accordion)`
   }
 
   .accordion-button {
-    font-size: 1.4rem;
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
     font-weight: 700;
     color: #6a1b9a;
     background: white;
@@ -82,7 +78,7 @@ const StyledAccordion = styled(Accordion)`
   }
 
   .accordion-body {
-    font-size: 1.2rem;
+    font-size: clamp(1rem, 2vw, 1.2rem);
     line-height: 1.8;
     padding: 1.5rem;
     background: #f9f9f9;
@@ -90,7 +86,6 @@ const StyledAccordion = styled(Accordion)`
     color: #333;
 
     @media (max-width: 768px) {
-      font-size: 1rem;
       padding: 1.2rem;
     }
   }
