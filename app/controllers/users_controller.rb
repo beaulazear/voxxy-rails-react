@@ -124,6 +124,20 @@ class UsersController < ApplicationController
     end
   end
 
+  def destroy
+    user = current_user
+
+    if user
+      if user.destroy
+        render json: { message: "User account successfully deleted" }, status: :ok
+      else
+        render json: { error: "Failed to delete account" }, status: :unprocessable_entity
+      end
+    else
+      render json: { error: "User not found" }, status: :not_found
+    end
+  end
+
   private
 
   def user_params

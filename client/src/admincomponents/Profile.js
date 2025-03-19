@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import { Input, Button, Avatar, message } from "antd";
 import { UserContext } from "../context/user";
-import { EditOutlined, SaveOutlined, LogoutOutlined } from "@ant-design/icons";
+import { EditOutlined, SaveOutlined, LogoutOutlined, DeleteOutlined } from "@ant-design/icons";
 import Woman from "../assets/Woman.jpg";
 import ChooseAvatar from "./ChooseAvatar";
 
@@ -106,11 +106,19 @@ const StyledButton = styled(Button)`
   }
 
   &.cancel {
-    background-color: red;
+    background-color: #ccc;
   }
 
   &.cancel:hover {
-    background-color: #660000;
+    background-color: #ddd;
+  }
+
+  &.delete {
+    background-color: red;
+  }
+
+  &.delete:hover {
+    background-color: darkred;
   }
 `;
 
@@ -146,10 +154,51 @@ const Profile = () => {
       return;
     }
 
-    setUser({ ...user, name: newName });
-    setIsEditing(false);
-    message.success("Profile updated successfully!");
+    fetch(`${API_URL}/users/${user.id}`, {
+      method: "PATCH",
+      credentials: "include",  // ✅ Fixed
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ name: newName })
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Failed to update user");
+        }
+        return response.json();
+      })
+      .then(updatedUser => {
+        setUser({ ...user, name: updatedUser.name });
+        setIsEditing(false);
+        message.success("Profile updated successfully!");
+      })
+      .catch(error => console.error("Error updating user:", error));
   };
+
+  function handleDeleteProfile() {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete your profile? This action is permanent and cannot be undone."
+    );
+
+    if (!confirmDelete) return;
+
+    fetch(`${API_URL}/users/${user.id}`, {
+      method: "DELETE",
+      credentials: "include",
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Failed to delete profile");
+        }
+        return response.json();
+      })
+      .then(() => {
+        setUser(null); // ✅ Clears user from context
+        window.location.href = "/"; // ✅ Redirects to home or login page
+      })
+      .catch(error => console.error("Error deleting profile:", error));
+  }
 
   return (
     <Container>
@@ -170,6 +219,10 @@ const Profile = () => {
             </StyledButton>
             <StyledButton className="cancel" icon={<LogoutOutlined />} onClick={() => handleLogout()}>
               Logout
+            </StyledButton>
+            <br></br>
+            <StyledButton className="delete" icon={<DeleteOutlined />} onClick={() => handleDeleteProfile()}>
+              Delete Your Account
             </StyledButton>
           </>
         ) : (
