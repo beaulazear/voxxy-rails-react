@@ -15,33 +15,40 @@ const fadeIn = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const blimpMove = keyframes`
-  from { transform: translateX(-100%); opacity: 1; } 
-  to { transform: translateX(100vw); opacity: 1; }
+const moveLeft = keyframes`
+  from { transform: translateX(100%); } /* Start offscreen right */
+  to { transform: translateX(-100%); } /* Move offscreen left */
 `;
 
-const IntroText = styled.h2`
-  font-size: clamp(2.2rem, 5vw, 3rem);
-  font-weight: bold;
-  color: #000;
-  text-align: center;
-  padding: 1rem 2rem; /* Added padding for better spacing */
-  max-width: 700px;
-  white-space: nowrap;
-
-  /* Center horizontally */
-  position: absolute;
-  top: 12%;
-  left: 0;
-  right: 0;
-
-  /* Blimp animation with constant speed */
-  animation: ${blimpMove} 10s linear infinite; /* LINEAR for constant speed */
+const HeroContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  height: 80px; /* Ensure enough space for the text */
+  position: relative;
+  padding: 1rem 0; /* Adds top/bottom spacing */
+  margin-left: -2rem;
+  margin-right: -2rem; 
 
   @media (max-width: 768px) {
-    top: 12%;
-    font-size: clamp(1.8rem, 4vw, 2.5rem);
-    padding: 0.8rem 1.5rem;
+    padding: 0rem;
+    height: 50px;
+  }
+`;
+
+const MovingHeader = styled.h2`
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: bold;
+  color: #000;
+  white-space: nowrap;
+  position: absolute;
+  top: 30%; /* Center vertically */
+  transform: translateY(-50%); /* Keeps it aligned properly */
+  animation: ${moveLeft} 12s linear infinite; /* Moves right to left */ 
+
+  @media (max-width: 768px) {
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    top: 25%;
   }
 `;
 
@@ -56,18 +63,6 @@ const DashboardContainer = styled.div`
   
   @media (min-width: 100px) {
     pading: 5rem;
-  }
-`;
-
-const HeroContainer = styled.div`
-  padding: 2rem 2rem;
-  text-align: left;
-  max-width: 1500px;
-
-  @media (max-width: 768px) {
-    padding: 1rem 1rem;
-    margin-top: 0px;
-    margin-bottom: 0px;
   }
 `;
 
@@ -384,7 +379,7 @@ function UserActivities() {
       <Padding>
         <DashboardContainer ref={topRef}>
           <HeroContainer>
-            <IntroText>{intro}</IntroText>
+            <MovingHeader>{intro}</MovingHeader>
           </HeroContainer>
           <PendingInvites />
 
