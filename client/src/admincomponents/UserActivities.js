@@ -21,7 +21,7 @@ const blimpMove = keyframes`
 `;
 
 const IntroText = styled.h2`
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(2.2rem, 5vw, 3rem);
   font-weight: bold;
   color: #000;
   text-align: center;
