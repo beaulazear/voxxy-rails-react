@@ -2,6 +2,7 @@ import './App.css';
 import React, { useContext, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import mixpanel from 'mixpanel-browser';
+import "bootstrap/dist/css/bootstrap.min.css";
 import { UserContext } from "./context/user.js";
 import Navbar from './components/Navbar';
 import SignUp from './components/SignUp.js';

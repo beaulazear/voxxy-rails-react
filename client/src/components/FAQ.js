@@ -1,8 +1,7 @@
 import React from "react";
-import styled, { keyframes } from 'styled-components';
-import { NavLink } from 'react-router-dom';
-import { Collapse } from "antd";
-import { PlusOutlined, MinusOutlined } from "@ant-design/icons";
+import { Accordion } from "react-bootstrap";
+import styled, { keyframes } from "styled-components";
+import { NavLink } from "react-router-dom";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -10,20 +9,24 @@ const fadeIn = keyframes`
 `;
 
 const FAQContainer = styled.div`
-  max-width: 900px;
-  margin: 80px auto;
-  padding: 2.5rem;
+  max-width: 1000px;
+  margin: 100px auto;
+  padding: 3rem;
   background: white;
   border-radius: 16px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
   text-align: left;
   animation: ${fadeIn} 0.8s ease-in-out;
+
+  @media (max-width: 1024px) {
+    padding: 2.5rem;
+    max-width: 90%;
+  }
 
   @media (max-width: 768px) {
     padding: 1.8rem;
     margin: 50px auto;
-    margin-left: 10px;
-    margin-right: 10px;
+    max-width: 95%;
   }
 `;
 
@@ -31,69 +34,86 @@ const HeaderContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.8rem;
 `;
 
 const Title = styled.h2`
-  font-size: 2.2rem;
-  font-weight: 700;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #4e0f63;
   margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: 2rem;
+  }
 `;
 
-const StyledCollapse = styled(Collapse).attrs({
-  motion: false,
-})`
-  border-radius: 8px;
-  border: none;
-  background: white;
-
-  .ant-collapse-item {
-    border-bottom: 1px solid #e0e0e0;
+const StyledAccordion = styled(Accordion)`
+  .accordion-item {
+    border: none;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
 
-  .ant-collapse-header {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #4e0f63;
+  .accordion-header {
+    background: white;
+  }
+
+  .accordion-button {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #6a1b9a;
+    background: white;
     padding: 1.2rem;
-    transition: background 0.2s ease-in-out;
+    border: none;
+    box-shadow: none;
+    transition: all 0.2s ease-in-out;
 
     &:hover {
-      background: rgba(78, 15, 99, 0.05);
+      background: rgba(106, 27, 154, 0.05);
+    }
+
+    &:focus {
+      box-shadow: none;
     }
   }
 
-  .ant-collapse-content {
-    font-size: 1rem;
-    padding: 1rem;
-    line-height: 1.6;
-    transition: all 0.3s ease-in-out;
-  }
+  .accordion-body {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    padding: 1.5rem;
+    background: #f9f9f9;
+    border-radius: 8px;
+    color: #333;
 
-  .ant-collapse-content-box {
-    transition: all 0.3s ease-in-out;
+    @media (max-width: 768px) {
+      font-size: 1rem;
+      padding: 1.2rem;
+    }
   }
 `;
 
 export const BackButton = styled(NavLink)`
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   background: linear-gradient(135deg, #6a1b9a, #8e44ad);
-  color: #fff;
+  color: white;
   border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
   font-weight: bold;
+  text-decoration: none;
   transition: all 0.3s ease-in-out;
-  text-decoration: none; /* Removes underline */
 
   &:hover {
     background: linear-gradient(135deg, #4e0f63, #6a1b8a);
   }
 
   @media (max-width: 768px) {
-    font-size: 0.9rem;
-    padding: 0.4rem 0.8rem;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
   }
 `;
 
@@ -101,33 +121,39 @@ const FAQ = () => {
   const faqs = [
     {
       key: "1",
-      label: "How do I start an activity on Voxxy?",
-      children: "Create a new board, invite participants by email, and start planning!",
+      question: "How do I start an activity on Voxxy?",
+      answer:
+        "Starting an activity on Voxxy is simple! Click on 'Create Board', choose your event type, and set up the details. Invite friends via email, and once they join, you're all set to start planning together!",
     },
     {
       key: "2",
-      label: "How do I invite others to my activity?",
-      children: "When you create a board, you can send invitations via email. Invited users will receive a link to join your activity.",
+      question: "How do I invite others to my activity?",
+      answer:
+        "You can invite participants by entering their email addresses while creating an activity board. They'll receive an email with a direct link to join the activity and start collaborating instantly.",
     },
     {
       key: "3",
-      label: "What happens when someone accepts my invitation?",
-      children: "Once they sign up and accept the invitation, they will be listed as a confirmed participant on your activity board.",
+      question: "What happens when someone accepts my invitation?",
+      answer:
+        "Once a participant clicks the invite link and signs up, they will automatically be added to your activity board. You'll see their name and profile on the board, and they can contribute to the planning process.",
     },
     {
       key: "4",
-      label: "What is Chat with Voxxy?",
-      children: "Chat with Voxxy lets you submit preferences for your activity. Voxxy will generate personalized recommendations based on your inputs.",
+      question: "What is Chat with Voxxy?",
+      answer:
+        "Chat with Voxxy is an interactive feature that helps refine your event. You can answer questions about your preferences, and Voxxy will suggest the best locations, times, and recommendations based on your responses.",
     },
     {
       key: "5",
-      label: "Can I use Voxxy on my phone?",
-      children: "Yes! While we are currently a web app, you can add Voxxy to your phone's home screen and use it like a mobile app for a better experience.",
+      question: "Can I use Voxxy on my phone?",
+      answer:
+        "Yes! Voxxy is fully responsive, making it easy to use on mobile devices. You can also add it to your home screen for quick access, giving you an app-like experience right from your phone's browser.",
     },
     {
       key: "6",
-      label: "Is Voxxy available as a mobile app?",
-      children: "Not yet, but a mobile version is coming soon! Stay tuned for updates.",
+      question: "Is Voxxy available as a mobile app?",
+      answer:
+        "Currently, Voxxy is a web-based platform, but a mobile app version is in the works! Stay tuned for updates as we continue improving the experience for mobile users.",
     },
   ];
 
@@ -137,11 +163,15 @@ const FAQ = () => {
         <Title>FAQ's</Title>
         <BackButton to="/">Home</BackButton>
       </HeaderContainer>
-      <StyledCollapse
-        accordion={false}
-        expandIcon={({ isActive }) => (isActive ? <MinusOutlined /> : <PlusOutlined />)}
-        items={faqs}
-      />
+
+      <StyledAccordion defaultActiveKey="0">
+        {faqs.map(({ key, question, answer }) => (
+          <Accordion.Item eventKey={key} key={key}>
+            <Accordion.Header>{question}</Accordion.Header>
+            <Accordion.Body>{answer}</Accordion.Body>
+          </Accordion.Item>
+        ))}
+      </StyledAccordion>
     </FAQContainer>
   );
 };
