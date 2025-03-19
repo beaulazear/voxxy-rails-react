@@ -15,6 +15,36 @@ const fadeIn = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
+const blimpMove = keyframes`
+  from { transform: translateX(-100%); opacity: 1; } 
+  to { transform: translateX(100vw); opacity: 1; }
+`;
+
+const IntroText = styled.h2`
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: bold;
+  color: #000;
+  text-align: center;
+  padding: 1rem 2rem; /* Added padding for better spacing */
+  max-width: 700px;
+  white-space: nowrap;
+
+  /* Center horizontally */
+  position: absolute;
+  top: 12%;
+  left: 0;
+  right: 0;
+
+  /* Blimp animation with constant speed */
+  animation: ${blimpMove} 10s linear infinite; /* LINEAR for constant speed */
+
+  @media (max-width: 768px) {
+    top: 12%;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    padding: 0.8rem 1.5rem;
+  }
+`;
+
 const DashboardContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -30,12 +60,12 @@ const DashboardContainer = styled.div`
 `;
 
 const HeroContainer = styled.div`
-  padding: 0rem 2rem;
+  padding: 2rem 2rem;
   text-align: left;
   max-width: 1500px;
 
   @media (max-width: 768px) {
-    padding: 0rem .5rem .0rem;
+    padding: 1rem 1rem;
     margin-top: 0px;
     margin-bottom: 0px;
   }
@@ -189,25 +219,6 @@ const Padding = styled.div`
   background: linear-gradient(-45deg, #9b59b6, #bb80d5, #dab8f0, #ffffff);;
 `
 
-const IntroText = styled.h2`
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
-  font-weight: bold;
-  color: #000;
-  text-align: left;
-  margin: 0;
-  padding: 0;
-  max-width: 600px; 
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  margin-bottom: 1rem;
-
-  @media (max-width: 768px) {
-    text-align: left;
-    padding-left: 0.5rem;
-  }
-`;
-
 const ButtonContainer = styled.div`
   display: flex;
   gap: 1rem;
@@ -268,30 +279,30 @@ function UserActivities() {
     }
 
     const defaultIntros = [
-      "Your next adventure starts now! Let’s make some memories. 🎉",
-      "From group chat chaos to actual plans—Voxxy’s got you. 😉",
-      "Ditch the ‘we should hang out’ texts. Let's make it happen! ✨",
-      "Less typing, more doing. Ready to Voxxy? 🚀",
-      "Your squad deserves better than ‘someday.’ Let’s plan it! 🌎",
-      "No more ghosted plans. Get together, for real this time. 👻",
-      "Planning made fun, not frustrating. Welcome to Voxxy! 🎭",
-      "Why talk about it when you can DO it? Let’s go! 🚦",
-      "Good vibes, great company, better plans. That’s Voxxy. 🍾",
-      "Hit ‘start’ on your next great memory. Voxxy it up! 🔥",
+      "🚀 Adventure Mode: Activated!",
+      "🌎 Big plans, even bigger memories!",
+      "🎭 Voxxy is live—Let’s make magic!",
+      "🔥 Your next great story starts now!",
+      "🎉 Fun times ahead—Are you ready?",
+      "🌟 New plans, new people, new energy!",
+      "🛸 Plans loading… let’s take off!",
+      "💬 Less talk, more action—Let’s go!",
+      "🎯 Mission: Good vibes & great company!",
+      "🔮 The best memories haven’t happened yet!"
     ];
 
     if (user?.name) {
       const personalizedIntros = [
-        `Hey ${user.name}, your next adventure starts now! 🎉`,
-        `${user.name}, let's turn those group chat plans into reality. 😉`,
-        `Time to make things happen, ${user.name}! ✨`,
-        `Less texting, more action, ${user.name}. Ready to go? 🚀`,
-        `Your squad deserves better, ${user.name}. Let's plan it! 🌎`,
-        `No more ghosted plans, ${user.name}. Let’s do this! 👻`,
-        `Planning made fun, not frustrating, right ${user.name}? 🎭`,
-        `Why talk about it when you can DO it, ${user.name}? 🚦`,
-        `Good vibes, great company, and better plans—just for you, ${user.name}. 🍾`,
-        `Time to hit ‘start’ on your next great memory, ${user.name}! 🔥`
+        `🚀 ${user.name}, let's turn plans into reality!`,
+        `🎉 Get ready, ${user.name}—It’s Voxxy time!`,
+        `🔥 ${user.name}, your adventure starts now!`,
+        `💫 Big ideas, big moves—Let's go, ${user.name}!`,
+        `🌎 New plans, new places—You in, ${user.name}?`,
+        `🎭 Lights, camera, action! Right, ${user.name}?`,
+        `💬 No more ghosted plans, ${user.name}. Let’s do this!`,
+        `🔮 ${user.name}, the best moments are ahead!`,
+        `🎯 ${user.name}, let’s make today unforgettable!`,
+        `💥 Ready to make moves, ${user.name}? Let’s hit start!`
       ];
       setIntro(personalizedIntros[Math.floor(Math.random() * personalizedIntros.length)]);
     } else {
