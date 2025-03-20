@@ -71,6 +71,7 @@ const ImageContainer = styled.div`
   max-width: 100%;
   opacity: 0;
   animation: ${fadeInImage} 1.2s ease-out 0.4s forwards;
+  margin: 0 auto;
 
   img {
     width: 100%;

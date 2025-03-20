@@ -32,6 +32,8 @@ const TabsContainer = styled.div`
   overflow-x: auto;
   white-space: nowrap;
   padding-bottom: 1rem;
+  margin: 0 auto 2rem;
+  max-width: fit-content; /* Ensures the container is only as wide as the tabs */
 
   &::-webkit-scrollbar {
     height: 6px;
@@ -59,7 +61,7 @@ const Tab = styled.div`
   text-align: center;
   padding: 1rem;
   width: clamp(120px, 15vw, 200px);
-  height: 60px;
+  height: fit-content;
   display: inline-flex;
   align-items: center;
   justify-content: center;
