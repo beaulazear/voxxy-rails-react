@@ -77,6 +77,7 @@ const CardGrid = styled.div`
   scroll-snap-type: x mandatory; 
   margin-left: -2rem;
   margin-right: -2rem;
+  margin-bottom: 1rem;
 
   /* Hide scrollbar for Webkit browsers (Chrome, Safari) */
   &::-webkit-scrollbar {
@@ -133,8 +134,8 @@ const ActivityCard = styled.div`
   }
 
   h3 {
-    font-size: 1.5rem;
-    font-weight: 800;
+    font-size: 1rem;
+    font-weight: 700;
     margin: 0;
     color: white;
     background: rgba(0, 0, 0, 0.8);
