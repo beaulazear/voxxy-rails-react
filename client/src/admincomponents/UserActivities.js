@@ -26,9 +26,10 @@ const HeroContainer = styled.div`
   justify-content: center;
   height: 80px; /* Ensure enough space for the text */
   position: relative;
+  right: 0;
+  left: 0;
   padding: 1rem 0; /* Adds top/bottom spacing */
-  margin-left: -2rem;
-  margin-right: -2rem; 
+  overflow: hidden; /* Prevents white space issue */
 
   @media (max-width: 768px) {
     padding: 0rem;
@@ -44,7 +45,7 @@ const MovingHeader = styled.h2`
   position: absolute;
   top: 30%; /* Center vertically */
   transform: translateY(-50%); /* Keeps it aligned properly */
-  animation: ${moveLeft} 12s linear infinite; /* Moves right to left */ 
+  animation: ${moveLeft} 10s linear infinite; /* Moves right to left */ 
 
   @media (max-width: 768px) {
     font-size: clamp(1.5rem, 3.5vw, 2rem);

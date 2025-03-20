@@ -175,15 +175,15 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
         ) : (
           <span> ⏰ Time: TBD</span>
         )}
-        <br></br><br></br>
+        <br></br>
         {((!activity.date_time || !activity.date_day) && isOwner) && (
           <>
             <span>Edit the activity to change the date + time.</span>
-            <br></br><br></br>
+            <br></br>
           </>
         )}
-        {isOwner && (<button onClick={handleSendThankYou}>📩 Send Thank You Email</button>)}
-        <br></br><br></br>
+        {isOwner && (<InviteButton onClick={handleSendThankYou}>📩 Send Thank You Email</InviteButton>)}
+        <br></br>
         {activity.date_notes && `Date Notes: ${activity.date_notes}`}
       </HostInfo>
 
@@ -193,12 +193,12 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
       </EntryMessage>
 
       <ParticipantsSection>
+        <ParticipantsTitle>Voxxy Board Participants</ParticipantsTitle>
         {isOwner && (
           <InviteButton onClick={handleInviteClick}>
             <UserAddOutlined style={{ width: '85%' }} /> Invite
           </InviteButton>
         )}
-        <ParticipantsTitle>Voxxy Group Chat</ParticipantsTitle>
 
         <ParticipantsRow>
           <ParticipantsScroll>
@@ -464,6 +464,7 @@ export const InviteButton = styled.button`
   font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
+  margin: .8rem auto;
 
   &:hover {
     background: linear-gradient(135deg, #4e0f63, #6a1b8a);
