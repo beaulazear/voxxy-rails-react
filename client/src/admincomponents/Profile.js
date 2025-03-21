@@ -220,7 +220,7 @@ const Profile = () => {
             <StyledButton className="cancel" icon={<LogoutOutlined />} onClick={() => handleLogout()}>
               Logout
             </StyledButton>
-            <br></br>
+            <br></br><br></br>
             <StyledButton className="delete" icon={<DeleteOutlined />} onClick={() => handleDeleteProfile()}>
               Delete Your Account
             </StyledButton>
