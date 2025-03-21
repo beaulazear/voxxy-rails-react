@@ -142,35 +142,7 @@ const SendButton = styled.button`
   }
 `;
 
-const ForceChatNotice = styled.p`
-  color: #ffcc00;
-  font-size: 1rem;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 1rem;
-  background: rgba(0, 0, 0, 0.7);
-  padding: 10px;
-  border-radius: 8px;
-`;
-
-const QuitButton = styled.button`
-  background: #ff4d4d;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 15px;
-  font-size: 0.9rem;
-  font-weight: bold;
-  cursor: pointer;
-  margin-left: 10px;
-  box-shadow: 0 2px 5px rgba(255, 77, 77, 0.3);
-  
-  &:hover {
-    background: #cc0000;
-  }
-`;
-
-function CuisineChat({ onClose, activityId, onChatComplete, forceChat }) {
+function CuisineChat({ onClose, activityId, onChatComplete }) {
     const [answers, setAnswers] = useState([]);
     const [currentInput, setCurrentInput] = useState("");
     const [messages, setMessages] = useState([{ text: "Hey hey, party people!  Voxxy here—your friendly get-together assitant. Your crew is making plans, and I’m here to help pick the perfect spot. Let’s do a quick vibe check!", isUser: false }]);
@@ -181,43 +153,6 @@ function CuisineChat({ onClose, activityId, onChatComplete, forceChat }) {
     const chatBodyRef = useRef(null);
 
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
-
-    const handleQuit = () => {
-        const confirmDelete = window.confirm(
-            "⚠️ If you exit now, this activity will be permanently deleted. Are you sure?"
-        );
-
-        if (!confirmDelete) return;
-
-        fetch(`${API_URL}/activities/${activityId}`, {
-            method: "DELETE",
-            credentials: "include",
-        })
-            .then((response) => {
-                if (response.ok) {
-                    console.log(`Activity with ID ${activityId} deleted successfully`);
-
-                    setUser((prevUser) => ({
-                        ...prevUser,
-                        activities: prevUser.activities.filter(
-                            (activity) => activity.id !== activityId
-                        ),
-                        participant_activities: prevUser.participant_activities.filter(
-                            (participant) => participant.activity.id !== activityId
-                        ),
-                    }));
-
-                    // Navigate all the way back to UserActivities
-                    onClose(); // Close the chat modal
-                    setTimeout(() => {
-                        window.location.reload(); // Ensure full UI reset
-                    }, 300);
-                } else {
-                    console.error("Failed to delete activity");
-                }
-            })
-            .catch((error) => console.error("Error deleting activity:", error));
-    };
 
     const questions = [
         "What’s the food & drink mood? Are we craving anything specific (sushi, tacos, cocktails), or open to surprises?",
@@ -329,20 +264,15 @@ function CuisineChat({ onClose, activityId, onChatComplete, forceChat }) {
             <Overlay onClick={onClose} />
             <ChatContainer onClick={(e) => e.stopPropagation()}>
                 <ChatHeader>
-                    {!forceChat && (
-                        <BackButton onClick={onClose}>
-                            <svg viewBox="0 0 24 24">
-                                <path d="M15.5 3.5L7 12l8.5 8.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                            Back
-                        </BackButton>
-                    )}
+                    <BackButton onClick={onClose}>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M15.5 3.5L7 12l8.5 8.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        Back
+                    </BackButton>
                     Chat with Voxxy
                 </ChatHeader>
                 <ChatBody ref={chatBodyRef}>
-                    {forceChat && (
-                        <ForceChatNotice>⚠️ Hosts must submit their preferences first to get started!</ForceChatNotice>
-                    )}
                     {messages.map((msg, index) => (
                         <Message key={index} $isUser={msg.isUser}>
                             {msg.text}
@@ -359,8 +289,6 @@ function CuisineChat({ onClose, activityId, onChatComplete, forceChat }) {
                         placeholder="Type your response..."
                     />
                     <SendButton onClick={handleNext}>▶</SendButton>
-
-                    {forceChat && <QuitButton onClick={handleQuit}>Quit</QuitButton>}
                 </ChatFooter>
             </ChatContainer>
         </>

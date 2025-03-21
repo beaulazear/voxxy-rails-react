@@ -13,14 +13,7 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showChat, setShowChat] = useState(false);
-  const [forceChat, setForceChat] = useState(false); // ✅ Forces chat on first load if needed
   const [responsesCompleted, setResponsesCompleted] = useState(activity.responses?.length > 0);
-
-  useEffect(() => {
-    if (activity.responses?.length === 0) {
-      setForceChat(true);
-    }
-  }, [activity.responses]);
 
   useEffect(() => {
     const fetchRecommendations = async () => {
@@ -211,7 +204,6 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
           <>
             {recommendations.map((rec, index) => (
               <RecommendationItem key={index}>
-                {/* Pin Button in the Top Right */}
                 <PinButton onClick={() => handlePinActivity(rec)}>➕</PinButton>
 
                 <RestaurantName>{rec.name}</RestaurantName>
@@ -236,8 +228,7 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
         <RestaurantMap recommendations={recommendations} />
       )}
 
-
-      {(showChat || forceChat) && (
+      {(showChat) && (
         <>
           <DimmedOverlay />
           <CuisineChat
@@ -245,14 +236,12 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
             onClose={() => {
               if (responsesCompleted) {
                 setShowChat(false);
-                setForceChat(false);
               }
             }}
-            forceChat={forceChat}
             onChatComplete={() => {
               setRefreshTrigger(prev => !prev);
-              setForceChat(false);
               setResponsesCompleted(true);
+              setShowChat(false);
             }}
           />
         </>
