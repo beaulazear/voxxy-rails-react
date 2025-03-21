@@ -92,7 +92,7 @@ const Message = styled.div`
     background: #e7e4ff;
     align-self: flex-start;
     text-align: left;
-    color: #6c63ff;
+    color: #574dcf;
   `}
 `;
 
@@ -143,6 +143,40 @@ const SendButton = styled.button`
   }
 `;
 
+const TypingBubble = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  height: 16px;
+  padding: 0 6px;
+
+  span {
+    width: 6px;
+    height: 6px;
+    background-color: #6c63ff;
+    border-radius: 50%;
+    animation: blink 1.4s infinite both;
+  }
+
+  span:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  span:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes blink {
+    0%, 80%, 100% {
+      opacity: 0;
+    }
+    40% {
+      opacity: 1;
+    }
+  }
+`;
+
 function RestaurantChat({ onClose }) {
   const [formData, setFormData] = useState({
     activity_type: 'Restaurant',
@@ -152,18 +186,23 @@ function RestaurantChat({ onClose }) {
     date_notes: '',
     emoji: '🍜'
   });
-  const [messages, setMessages] = useState([{ text: "Voxxy here! I’m here to make planning this get-together smooth and stress-free. Let’s lock in the details real quick!", isUser: false }]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [messages, setMessages] = useState([
+    { text: "Voxxy here! I’m here to make planning this get-together smooth and stress-free. Let’s lock in the details real quick!", isUser: false }
+  ]);
   const [step, setStep] = useState(0);
   const { setUser } = useContext(UserContext);
   const inputRef = useRef(null);
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
-  const questions = [
-    { key: 'activity_location', text: "Where are you planning to meet up? (Just the city is fine!)" },
-    { key: 'date_notes', text: "How would you like to communicate your availability for this outing to the group?" },
-    { key: 'activity_name', text: "Do you have a name for this event, or is it just a casual hangout? (You can change it later!)" },
-  ];
+  const questionsRef = useRef([
+    { key: 'activity_location', text: "Where are you planning to meet up? (Just the city name is fine, but the more precise the better!)" },
+    { key: 'date_notes', text: "What kind of outing is this? Brunch, lunch, dinner, happy hour, late-night drinks?" },
+    { key: 'activity_name', text: "Do you have a name for this event, or is it just a casual hangout? (You can change it later!)" }
+  ]);
+  
+  const questions = questionsRef.current;
 
   const chatBodyRef = useRef(null);
 
@@ -173,6 +212,20 @@ function RestaurantChat({ onClose }) {
     }
   }, [messages]);
 
+  useEffect(() => {
+    // Trigger first typing bubble and question on initial mount
+    setIsTyping(true);
+    const timer = setTimeout(() => {
+      setMessages(prev => [
+        ...prev,
+        { text: questions[0].text, isUser: false }
+      ]);
+      setIsTyping(false);
+    }, 1200); // adjust delay to your liking
+  
+    return () => clearTimeout(timer); // cleanup
+  }, [questions]);
+
   function handleInputFocus() {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -180,18 +233,31 @@ function RestaurantChat({ onClose }) {
   }
 
   const handleNext = () => {
-    if (formData[questions[step].key]) {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { text: questions[step].text, isUser: false },
-        { text: formData[questions[step].key], isUser: true },
-      ]);
-
-      if (step < questions.length - 1) {
-        setStep(step + 1);
-      } else {
-        handleSubmit();
-      }
+    const key = questions[step]?.key;
+    const userResponse = formData[key];
+  
+    if (!userResponse) return;
+  
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { text: userResponse, isUser: true }
+    ]);
+  
+    const nextStep = step + 1;
+  
+    if (nextStep < questions.length) {
+      setIsTyping(true);
+      setTimeout(() => {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { text: questions[nextStep].text, isUser: false }
+        ]);
+        setIsTyping(false);
+        setStep(nextStep);
+      }, 1500);
+    } else {
+      setStep(nextStep);
+      handleSubmit();
     }
   };
 
@@ -212,7 +278,7 @@ function RestaurantChat({ onClose }) {
         setUser((prevUser) => ({
           ...prevUser,
           activities: [
-            ...(prevUser.activities || []), 
+            ...(prevUser.activities || []),
             { ...data, user: prevUser, responses: [] }
           ],
         }));
@@ -224,7 +290,7 @@ function RestaurantChat({ onClose }) {
     } catch (error) {
       alert('Failed to create activity. Please try again.');
     }
-};
+  };
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [questions[step].key]: e.target.value });
@@ -260,7 +326,13 @@ function RestaurantChat({ onClose }) {
               {msg.text}
             </Message>
           ))}
-          {step < questions.length && <Message $isUser={false}>{questions[step]?.text}</Message>}
+          {isTyping && (
+            <Message $isUser={false}>
+              <TypingBubble>
+                <span></span><span></span><span></span>
+              </TypingBubble>
+            </Message>
+          )}
         </ChatBody>
         <ChatFooter onClick={handleInputFocus}>
           <Input

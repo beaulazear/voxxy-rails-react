@@ -258,7 +258,7 @@ const HowVoxxyWorks = () => {
           className={activeTab === 'tab4' ? 'active' : ''}
           onClick={() => setActiveTab('tab4')}
         >
-          <TabText>Never Miss a Deadline with Task Reminders</TabText>
+          <TabText>Never Miss Deadlines with Task Reminders</TabText>
         </Tab>
       </TabsContainer>
       <ContentContainer>

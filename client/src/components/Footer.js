@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 const FooterContainer = styled.div`
   background: #f9f9f9;
-  padding-bottom: 1rem;
+  padding: 1rem;
   color: #555;
   text-align: center;
   font-family: 'Roboto', sans-serif;
