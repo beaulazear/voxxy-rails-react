@@ -205,9 +205,14 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
             {recommendations.map((rec, index) => (
               <RecommendationItem key={index}>
                 <PinButton onClick={() => handlePinActivity(rec)}>➕</PinButton>
-
                 <RestaurantName>{rec.name}</RestaurantName>
                 <Description>{rec.description || "No description available."}</Description>
+                {rec.reason && (
+                  <ExplanationContainer>
+                    <ExplanationTitle>Why was this chosen?</ExplanationTitle>
+                    <ExplanationText>{rec.reason}</ExplanationText>
+                  </ExplanationContainer>
+                )}
                 <Details>
                   <DetailItem>⏰ {rec.hours || "N/A"}</DetailItem>
                   <DetailItem>💸 {rec.price_range || "N/A"}</DetailItem>
@@ -251,6 +256,26 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
 };
 
 export default AIRecommendations;
+
+const ExplanationContainer = styled.div`
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f5f5f5;
+  border-left: 4px solid #a8a8a8;
+  border-radius: 4px;
+`;
+
+const ExplanationTitle = styled.h4`
+  margin: 0 0 4px;
+  font-size: 0.9rem;
+  color: #333;
+`;
+
+const ExplanationText = styled.p`
+  margin: 0;
+  font-size: 0.85rem;
+  color: #666;
+`;
 
 const RecommendationsContainer = styled.div`
   padding: 1.5rem;
@@ -307,6 +332,7 @@ const RestaurantName = styled.h2`
   font-weight: bold;
   color: #222;
   margin-bottom: 6px;
+  margin-right: 20px;
 `;
 
 const Description = styled.p`

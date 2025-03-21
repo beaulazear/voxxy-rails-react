@@ -70,6 +70,7 @@ class OpenaiController < ApplicationController
         name: rec.name,
         description: rec.description,
         hours: rec.hours,
+        reason: rec.reason,
         price_range: rec.price_range,
         address: rec.address,
         website: rec.website
@@ -98,6 +99,7 @@ class OpenaiController < ApplicationController
               "name": "Restaurant Name",
               "price_range": "$ - $$$$",
               "description": "Short description of the restaurant, including cuisine type and atmosphere.",
+              "reason": "Explain why this recommendation was chosen based on user feedback.",
               "hours": "Hours of operation (e.g., Mon-Fri: 9 AM - 10 PM, Sat-Sun: 8 AM - 11 PM)",
               "website": "Valid website link or null if unknown",
               "address": "Restaurant address or 'Not available'"
