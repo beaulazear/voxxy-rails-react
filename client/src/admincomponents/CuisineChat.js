@@ -191,7 +191,6 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
 
     const questionsRef = useRef([
         "What’s the food & drink mood? Are we craving anything specific (sushi, tacos, cocktails), or open to surprises?",
-        "Do you want a casual spot, a trendy place, or fine dining?",
         "Any deal-breakers? (Like, “No pizza, please” or “I need gluten-free options.”)",
         "What’s the vibe? Fancy, casual, outdoor seating, rooftop views, great cocktails, good music—what matters most??",
         "What’s the budget range you’d like to stay close to (low, mid, high)?",
@@ -226,19 +225,18 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
 
     const handleNext = () => {
         if (!currentInput.trim()) return;
-
+    
         const userMessage = { text: currentInput, isUser: true };
         const userAnswer = { question: questions[step], answer: currentInput };
-
+    
         setMessages((prev) => [...prev, userMessage]);
         setCurrentInput("");
         setAnswers((prev) => [...prev, userAnswer]);
-
+    
         const nextStep = step + 1;
-
+    
         if (nextStep < questions.length) {
             setIsTyping(true);
-
             setTimeout(() => {
                 setMessages((prev) => [
                     ...prev,
@@ -249,7 +247,18 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
             }, 1000); // delay for typing bubble
         } else {
             setStep(nextStep);
-            handleSubmit();
+            // Append final message before closing the chat
+            setMessages((prev) => [
+                ...prev,
+                { 
+                  text: "Got it! I’m pulling together the best spots that check all the boxes. Give me a sec, and I’ll drop the recommendations in just a moment!", 
+                  isUser: false 
+                }
+            ]);
+            // Delay submission so the user can see the final message
+            setTimeout(() => {
+                handleSubmit();
+            }, 1500);
         }
     };
 
@@ -311,11 +320,7 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
             e.preventDefault();
-            if (step < questions.length - 1) {
-                handleNext();
-            } else {
-                handleSubmit();
-            }
+            handleNext();
         }
     };
 
