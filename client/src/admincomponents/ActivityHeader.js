@@ -183,8 +183,6 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
           </>
         )}
         {isOwner && (<InviteButton onClick={handleSendThankYou}>📩 Send Thank You Email</InviteButton>)}
-        <br></br>
-        {activity.date_notes && `Date Notes: ${activity.date_notes}`}
       </HostInfo>
 
       <EntryMessage>
