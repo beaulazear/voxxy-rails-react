@@ -142,9 +142,44 @@ const SendButton = styled.button`
   }
 `;
 
+const TypingBubble = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  height: 16px;
+  padding: 0 6px;
+
+  span {
+    width: 6px;
+    height: 6px;
+    background-color: #6c63ff;
+    border-radius: 50%;
+    animation: blink 1.4s infinite both;
+  }
+
+  span:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  span:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes blink {
+    0%, 80%, 100% {
+      opacity: 0;
+    }
+    40% {
+      opacity: 1;
+    }
+  }
+`;
+
 function CuisineChat({ onClose, activityId, onChatComplete }) {
     const [answers, setAnswers] = useState([]);
     const [currentInput, setCurrentInput] = useState("");
+    const [isTyping, setIsTyping] = useState(false);
     const [messages, setMessages] = useState([{ text: "Hey hey, party people!  Voxxy here—your friendly get-together assitant. Your crew is making plans, and I’m here to help pick the perfect spot. Let’s do a quick vibe check!", isUser: false }]);
     const [step, setStep] = useState(0);
 
@@ -154,19 +189,34 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
 
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
-    const questions = [
+    const questionsRef = useRef([
         "What’s the food & drink mood? Are we craving anything specific (sushi, tacos, cocktails), or open to surprises?",
         "Do you want a casual spot, a trendy place, or fine dining?",
         "Any deal-breakers? (Like, “No pizza, please” or “I need gluten-free options.”)",
         "What’s the vibe? Fancy, casual, outdoor seating, rooftop views, great cocktails, good music—what matters most??",
         "What’s the budget range you’d like to stay close to (low, mid, high)?",
-    ];
+    ]);
+
+    const questions = questionsRef.current;
 
     useEffect(() => {
         if (chatBodyRef.current) {
             chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
         }
     }, [messages]);
+
+    useEffect(() => {
+        setIsTyping(true);
+        const timer = setTimeout(() => {
+            setMessages(prev => [
+                ...prev,
+                { text: questions[0], isUser: false }
+            ]);
+            setIsTyping(false);
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, [questions]);
 
     function handleInputFocus() {
         if (inputRef.current) {
@@ -175,21 +225,31 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
     }
 
     const handleNext = () => {
-        if (currentInput.trim()) {
-            setMessages((prevMessages) => [
-                ...prevMessages,
-                { text: questions[step], isUser: false },
-                { text: currentInput, isUser: true },
-            ]);
+        if (!currentInput.trim()) return;
 
-            setAnswers([...answers, { question: questions[step], answer: currentInput }]);
-            setCurrentInput("");
+        const userMessage = { text: currentInput, isUser: true };
+        const userAnswer = { question: questions[step], answer: currentInput };
 
-            if (step < questions.length - 1) {
-                setStep(step + 1);
-            } else {
-                handleSubmit();
-            }
+        setMessages((prev) => [...prev, userMessage]);
+        setCurrentInput("");
+        setAnswers((prev) => [...prev, userAnswer]);
+
+        const nextStep = step + 1;
+
+        if (nextStep < questions.length) {
+            setIsTyping(true);
+
+            setTimeout(() => {
+                setMessages((prev) => [
+                    ...prev,
+                    { text: questions[nextStep], isUser: false }
+                ]);
+                setIsTyping(false);
+                setStep(nextStep);
+            }, 1000); // delay for typing bubble
+        } else {
+            setStep(nextStep);
+            handleSubmit();
         }
     };
 
@@ -278,7 +338,13 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
                             {msg.text}
                         </Message>
                     ))}
-                    {step < questions.length && <Message $isUser={false}>{questions[step]}</Message>}
+                    {isTyping && (
+                        <Message $isUser={false}>
+                            <TypingBubble>
+                                <span></span><span></span><span></span>
+                            </TypingBubble>
+                        </Message>
+                    )}
                 </ChatBody>
                 <ChatFooter onClick={handleInputFocus}>
                     <Input

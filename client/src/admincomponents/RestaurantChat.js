@@ -178,14 +178,8 @@ const TypingBubble = styled.div`
 `;
 
 function RestaurantChat({ onClose }) {
-  const [formData, setFormData] = useState({
-    activity_type: 'Restaurant',
-    activity_name: '',
-    activity_location: '',
-    group_size: 1,
-    date_notes: '',
-    emoji: '🍜'
-  });
+  const [formData, setFormData] = useState({});
+  const [currentInput, setCurrentInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [messages, setMessages] = useState([
     { text: "Voxxy here! I’m here to make planning this get-together smooth and stress-free. Let’s lock in the details real quick!", isUser: false }
@@ -213,7 +207,6 @@ function RestaurantChat({ onClose }) {
   }, [messages]);
 
   useEffect(() => {
-    // Trigger first typing bubble and question on initial mount
     setIsTyping(true);
     const timer = setTimeout(() => {
       setMessages(prev => [
@@ -221,7 +214,7 @@ function RestaurantChat({ onClose }) {
         { text: questions[0].text, isUser: false }
       ]);
       setIsTyping(false);
-    }, 1200); // adjust delay to your liking
+    }, 1000); // adjust delay to your liking
   
     return () => clearTimeout(timer); // cleanup
   }, [questions]);
@@ -233,15 +226,16 @@ function RestaurantChat({ onClose }) {
   }
 
   const handleNext = () => {
-    const key = questions[step]?.key;
-    const userResponse = formData[key];
+    const key = questions[step].key;
+    if (!currentInput.trim()) return;
   
-    if (!userResponse) return;
+    const newFormData = { ...formData, [key]: currentInput.trim() };
   
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { text: userResponse, isUser: true }
-    ]);
+    console.log("Submitting final input for:", key, "=>", currentInput);
+  
+    setFormData(newFormData);
+    setMessages((prev) => [...prev, { text: currentInput, isUser: true }]);
+    setCurrentInput('');
   
     const nextStep = step + 1;
   
@@ -257,11 +251,22 @@ function RestaurantChat({ onClose }) {
       }, 1500);
     } else {
       setStep(nextStep);
-      handleSubmit();
+      setTimeout(() => {
+        handleSubmit(newFormData);
+      }, 100);
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (submittedData) => {
+    const payload = {
+      activity_type: 'Restaurant',
+      group_size: 1,
+      emoji: '🍜',
+      ...submittedData
+    };
+  
+    console.log("🚀 Submitting formData:", payload);
+  
     try {
       const response = await fetch(`${API_URL}/activities`, {
         method: 'POST',
@@ -269,12 +274,11 @@ function RestaurantChat({ onClose }) {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ activity: formData }),
+        body: JSON.stringify({ activity: payload }),
       });
-
+  
       if (response.ok) {
         const data = await response.json();
-
         setUser((prevUser) => ({
           ...prevUser,
           activities: [
@@ -282,28 +286,21 @@ function RestaurantChat({ onClose }) {
             { ...data, user: prevUser, responses: [] }
           ],
         }));
-
         onClose(data.id);
       } else {
-        throw new Error('Failed to create activity');
+        const err = await response.json();
+        console.error('Failed:', err);
+        alert('Something went wrong. Please try again.');
       }
     } catch (error) {
       alert('Failed to create activity. Please try again.');
     }
   };
 
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [questions[step].key]: e.target.value });
-  };
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (step < questions.length - 1) {
-        handleNext();
-      } else {
-        handleSubmit();
-      }
+      handleNext();
     }
   };
 
@@ -337,8 +334,8 @@ function RestaurantChat({ onClose }) {
         <ChatFooter onClick={handleInputFocus}>
           <Input
             ref={inputRef}
-            value={formData[questions[step]?.key] || ''}
-            onChange={handleInputChange}
+            value={currentInput}
+            onChange={(e) => setCurrentInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your message..."
           />
