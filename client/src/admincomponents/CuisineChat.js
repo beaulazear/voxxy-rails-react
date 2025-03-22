@@ -1,6 +1,43 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { UserContext } from "../context/user.js";
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
+
+const fadeInUp = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+const Message = styled.div`
+  max-width: 75%;
+  padding: 12px 15px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  font-family: 'Arial', sans-serif;
+  animation: ${fadeInUp} 0.3s ease forwards;
+  box-shadow: ${({ $isUser }) =>
+    $isUser ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'};
+  ${({ $isUser }) =>
+    $isUser
+      ? `
+    background: white;
+    align-self: flex-end;
+    text-align: right;
+    color: #333;
+  `
+      : `
+    background: #e7e4ff;
+    align-self: flex-start;
+    text-align: left;
+    color: #574dcf;
+  `}
+`;
 
 const Overlay = styled.div`
   position: fixed;
@@ -70,29 +107,6 @@ const ChatBody = styled.div`
   flex-direction: column;
   gap: 10px;
   background: #f9f9f9;
-`;
-
-const Message = styled.div`
-  max-width: 75%;
-  padding: 12px 15px;
-  border-radius: 20px;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  font-family: 'Arial', sans-serif;
-  ${({ $isUser }) =>
-        $isUser
-            ? `
-        background: white;
-        align-self: flex-end;
-        text-align: right;
-        color: #333;
-      `
-            : `
-        background: #e7e4ff;
-        align-self: flex-start;
-        text-align: left;
-        color: #6c63ff;
-      `}
 `;
 
 const ChatFooter = styled.div`

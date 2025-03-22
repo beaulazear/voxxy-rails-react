@@ -1,6 +1,17 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { UserContext } from '../context/user';
+
+const fadeInUp = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
 
 const Overlay = styled.div`
   position: fixed;
@@ -79,7 +90,9 @@ const Message = styled.div`
   font-size: 0.95rem;
   line-height: 1.5;
   font-family: 'Arial', sans-serif;
-  box-shadow: ${({ $isUser }) => ($isUser ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none')};
+  animation: ${fadeInUp} 0.3s ease forwards;
+  box-shadow: ${({ $isUser }) =>
+    $isUser ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'};
   ${({ $isUser }) =>
     $isUser
       ? `
