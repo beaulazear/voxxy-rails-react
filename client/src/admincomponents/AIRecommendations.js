@@ -238,11 +238,7 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
           <DimmedOverlay />
           <CuisineChat
             activityId={activity.id}
-            onClose={() => {
-              if (responsesCompleted) {
-                setShowChat(false);
-              }
-            }}
+            onClose={() => setShowChat(false)}
             onChatComplete={() => {
               setRefreshTrigger(prev => !prev);
               setResponsesCompleted(true);
