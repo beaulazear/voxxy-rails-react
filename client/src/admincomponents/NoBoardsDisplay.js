@@ -113,11 +113,11 @@ export default function NoBoardsDisplay({ onCreateBoard }) {
     <NoBoardsContainer>
       <Image src={Friends} alt="Friends enjoying a meal" />
       <Content>
-        <Title>No Activities Planned Yet? 😲</Title>
+        <Title>No Boards? 😲</Title>
         <Message>
           Don’t wait for your friends to invite you—be the one to start the next activity! Get your group together, plan something fun, and make unforgettable memories. 🚀
         </Message>
-        <StartButton onClick={onCreateBoard}>➕ Create Your First Board</StartButton>
+        <StartButton onClick={onCreateBoard}>➕ Start Planning Now</StartButton>
       </Content>
     </NoBoardsContainer>
   );

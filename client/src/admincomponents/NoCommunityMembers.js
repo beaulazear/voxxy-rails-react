@@ -88,7 +88,7 @@ export default function NoCommunityMembers() {
     return (
         <NoCommunityContainer>
             <Content>
-                <Title>No Community Members Yet? 🤝</Title>
+                <Title>No Community Members Yet! 🤝</Title>
                 <Message>
                     Start making connections! Create new boards, plan activities, and watch your community grow. Your friends will show up here soon! 🚀
                 </Message>
