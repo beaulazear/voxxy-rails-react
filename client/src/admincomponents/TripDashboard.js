@@ -104,14 +104,13 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
     );
   }
 
-  // New onClose for RestaurantChat – called when RestaurantChat completes
   const handleRestaurantChatClose = (id) => {
-    // Store the created activity ID
-    setActivityIdCreated(id);
-    // Instead of immediately closing, show the post-chat popup
-    setShowPostRestaurantPopup(true);
-    // Remove the RestaurantChat overlay
-    setSelectedTrip(null);
+    if (id) {
+      setActivityIdCreated(id);
+      setShowPostRestaurantPopup(true);
+    } else {
+      setSelectedTrip(null);
+    }
   };
 
   return (

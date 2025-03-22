@@ -208,7 +208,7 @@ function RestaurantChat({ onClose }) {
     { key: 'date_notes', text: "What kind of outing is this? Brunch, lunch, dinner, happy hour, late-night drinks?" },
     { key: 'activity_name', text: "Do you have a name for this event, or is it just a casual hangout? (You can change it later!)" }
   ]);
-  
+
   const questions = questionsRef.current;
 
   const chatBodyRef = useRef(null);
@@ -228,7 +228,7 @@ function RestaurantChat({ onClose }) {
       ]);
       setIsTyping(false);
     }, 1000); // adjust delay to your liking
-  
+
     return () => clearTimeout(timer); // cleanup
   }, [questions]);
 
@@ -241,15 +241,15 @@ function RestaurantChat({ onClose }) {
   const handleNext = () => {
     const key = questions[step].key;
     if (!currentInput.trim()) return;
-  
+
     const newFormData = { ...formData, [key]: currentInput.trim() };
-    
+
     setFormData(newFormData);
     setMessages((prev) => [...prev, { text: currentInput, isUser: true }]);
     setCurrentInput('');
-  
+
     const nextStep = step + 1;
-  
+
     if (nextStep < questions.length) {
       setIsTyping(true);
       setTimeout(() => {
@@ -275,7 +275,7 @@ function RestaurantChat({ onClose }) {
       emoji: '🍜',
       ...submittedData
     };
-    
+
     try {
       const response = await fetch(`${API_URL}/activities`, {
         method: 'POST',
@@ -285,7 +285,7 @@ function RestaurantChat({ onClose }) {
         credentials: 'include',
         body: JSON.stringify({ activity: payload }),
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         setUser((prevUser) => ({
@@ -315,10 +315,10 @@ function RestaurantChat({ onClose }) {
 
   return (
     <>
-      <Overlay onClick={onClose} />
+      <Overlay onClick={() => onClose(null)} />
       <ChatContainer onClick={(e) => e.stopPropagation()}>
         <ChatHeader>
-          <BackButton onClick={onClose}>
+          <BackButton onClick={() => onClose(null)}>
             <svg viewBox="0 0 24 24">
               <path d="M15.5 3.5L7 12l8.5 8.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
