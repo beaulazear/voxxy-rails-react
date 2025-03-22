@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import {
   ChatButton,
@@ -6,42 +6,112 @@ import {
   DimmedOverlay,
 } from "../styles/ActivityDetailsStyles";
 import RestaurantMap from "./RestaurantMap";
-import CuisineChat from './CuisineChat';
+import CuisineChat from "./CuisineChat";
 
 const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger }) => {
+  // Local state for recommendations, loading status, errors, and chat modal.
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [responsesCompleted, setResponsesCompleted] = useState(activity.responses?.length > 0);
   const [showChat, setShowChat] = useState(false);
 
+  // Destructure necessary fields from the activity object.
+  const { id, responses, activity_location, date_notes } = activity;
+  const responsesCompleted = responses?.length > 0;
+
+  // Function: Fetch recommendations using detailed user responses.
+  const fetchRecommendations = useCallback(async () => {
+    if (!responses || responses.length === 0) {
+      alert("No responses found for this activity.");
+      return;
+    }
+    if (recommendations.length > 0) return; // Avoid duplicate fetch
+    setLoading(true);
+    setError("");
+    try {
+      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+      const res = await fetch(`${API_URL}/api/openai/restaurant_recommendations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          responses: responses.map((res) => res.notes).join("\n\n"),
+          activity_location,
+          date_notes,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setRecommendations(data.recommendations);
+      } else {
+        setError("⚠️ OpenAI rate limit reached. Try again later.");
+      }
+    } catch (err) {
+      setError("❌ Error fetching recommendations.");
+    } finally {
+      setLoading(false);
+    }
+  }, [responses, activity_location, date_notes, recommendations.length]);
+
+  // Function: Fetch trending recommendations based solely on activity details.
+  const fetchTrendingRecommendations = useCallback(async () => {
+    if (!activity_location || !date_notes) {
+      alert("Activity details missing for recommendations.");
+      return;
+    }
+    if (recommendations.length > 0) return; // Avoid duplicate fetch
+    setLoading(true);
+    setError("");
+    try {
+      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+      const res = await fetch(`${API_URL}/api/openai/trending_recommendations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ activity_location, date_notes }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setRecommendations(data.recommendations);
+      } else {
+        setError("⚠️ OpenAI rate limit reached. Try again later.");
+      }
+    } catch (err) {
+      setError("❌ Error fetching trending recommendations.");
+    } finally {
+      setLoading(false);
+    }
+  }, [activity_location, date_notes, recommendations.length]);
+
+  // useEffect: Check for cached recommendations on mount.
   useEffect(() => {
+    if (recommendations.length > 0) return; // Already loaded
+
     const fetchRecommendationsCache = async () => {
       setLoading(true);
       try {
         const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
-        const response = await fetch(`${API_URL}/check_cached_recommendations?activity_id=${activity.id}`, {
+        const res = await fetch(`${API_URL}/check_cached_recommendations?activity_id=${id}`, {
           credentials: "include",
         });
-
-        if (response.ok) {
-          const data = await response.json();
+        if (res.ok) {
+          const data = await res.json();
           if (data.recommendations && data.recommendations.length > 0) {
             setRecommendations(data.recommendations);
           } else {
             console.warn("No cached recommendations found.");
-            if (activity.responses?.length > 0) {
+            if (responses?.length > 0) {
               await fetchRecommendations();
             } else {
               await fetchTrendingRecommendations();
             }
           }
         } else {
-          console.warn("Unexpected response status:", response.status);
+          console.warn("Unexpected response status:", res.status);
           setRecommendations([]);
         }
-      } catch (error) {
-        console.error("Error fetching cached recommendations:", error);
+      } catch (err) {
+        console.error("Error fetching cached recommendations:", err);
         setRecommendations([]);
       } finally {
         setLoading(false);
@@ -49,80 +119,17 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
     };
 
     fetchRecommendationsCache();
-  }, [activity.id, activity.activity_location, activity.date_notes, activity.responses]);
+  }, [
+    id,
+    activity_location,
+    date_notes,
+    responses,
+    recommendations.length,
+    fetchRecommendations,
+    fetchTrendingRecommendations,
+  ]);
 
-  const fetchRecommendations = async () => {
-    if (!activity.responses || activity.responses.length === 0) {
-      alert("No responses found for this activity.");
-      return;
-    }
-    if (recommendations.length > 0) {
-      alert("You already have recommendations. Refresh the page to get new ones.");
-      return;
-    }
-    setLoading(true);
-    setError("");
-    try {
-      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
-      const response = await fetch(`${API_URL}/api/openai/restaurant_recommendations`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          responses: activity.responses.map((res) => res.notes).join("\n\n"),
-          activity_location: activity.activity_location,
-          date_notes: activity.date_notes,
-        }),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setRecommendations(data.recommendations);
-      } else {
-        setError("⚠️ OpenAI rate limit reached. Try again later.");
-      }
-    } catch (error) {
-      setError("❌ Error fetching recommendations.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchTrendingRecommendations = async () => {
-    if (!activity.activity_location || !activity.date_notes) {
-      alert("Activity details missing for recommendations.");
-      return;
-    }
-    if (recommendations.length > 0) {
-      alert("You already have recommendations. Refresh the page to get new ones.");
-      return;
-    }
-    setLoading(true);
-    setError("");
-    try {
-      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
-      // Assumes your backend now has an endpoint to fetch trending recommendations.
-      const response = await fetch(`${API_URL}/api/openai/trending_recommendations`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          activity_location: activity.activity_location,
-          date_notes: activity.date_notes,
-        }),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setRecommendations(data.recommendations);
-      } else {
-        setError("⚠️ OpenAI rate limit reached. Try again later.");
-      }
-    } catch (error) {
-      setError("❌ Error fetching trending recommendations.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Handler: Trigger the appropriate fetch based on responses completion.
   const handleFetchRecommendations = async () => {
     if (responsesCompleted) {
       await fetchRecommendations();
@@ -131,20 +138,20 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
     }
   };
 
+  // Handler: Pin a recommendation to the activity.
   const handlePinActivity = (rec) => {
     if (window.confirm(`Do you want to pin "${rec.name}" to this activity?`)) {
       createPinnedActivity(rec);
     }
   };
 
+  // Function: Create a pinned activity.
   const createPinnedActivity = async (rec) => {
     try {
       const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
-      const response = await fetch(`${API_URL}/activities/${activity.id}/pinned_activities`, {
+      const res = await fetch(`${API_URL}/activities/${id}/pinned_activities`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
           pinned_activity: {
@@ -157,14 +164,12 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
           },
         }),
       });
-      if (!response.ok) {
-        throw new Error("Failed to pin activity");
-      }
-      const newPinnedActivity = await response.json();
+      if (!res.ok) throw new Error("Failed to pin activity");
+      const newPinnedActivity = await res.json();
       alert(`"${newPinnedActivity.title}" has been pinned!`);
       setPinnedActivities((prevPinned) => [...prevPinned, newPinnedActivity]);
-    } catch (error) {
-      console.error("Error pinning activity:", error);
+    } catch (err) {
+      console.error("Error pinning activity:", err);
       alert("Something went wrong while pinning the activity.");
     }
   };
@@ -174,20 +179,17 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
   return (
     <RecommendationsContainer>
       {error && (
-        <p style={{ textAlign: "center", color: "#666", fontStyle: "italic" }}>
-          {error}
-        </p>
+        <ErrorText>{error}</ErrorText>
       )}
-
-      <RecommendationList $hasManyItems={hasManyItems} style={{ justifyContent: hasManyItems ? 'flex-start' : 'center' }}>
+      <RecommendationList $hasManyItems={hasManyItems}>
         <RecommendationItem>
           {recommendations.length > 0 ? (
             <>
               <RestaurantName>🍽️ Your AI-powered recommendations are here!</RestaurantName>
               <Description>
-                If you see a place that fits your group’s vibe, click to pin it and save it to your list.
+                Click on a recommendation to pin it to your list.
                 <br /><br />
-                Want to refine your options? Chat with Voxxy to update preferences and generate new recommendations based on group feedback.
+                Want to refine your options? Chat with Voxxy to update preferences and generate new recommendations.
               </Description>
             </>
           ) : (
@@ -197,8 +199,8 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
                 Voxxy creates personalized restaurant suggestions based on what your group enjoys.
                 <br /><br />
                 {responsesCompleted
-                  ? "To get started, one participant needs to chat with Voxxy and share their preferences. Once that’s done, AI-powered recommendations will appear here!"
-                  : "Since there are no detailed responses, we're showing trending restaurant options based on the activity details."}
+                  ? "Have a chat with Voxxy to share preferences and see tailored recommendations."
+                  : "Since detailed responses are missing, we're showing trending restaurant options based on the activity details."}
               </Description>
             </>
           )}
@@ -215,47 +217,42 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
             </ChatButton>
           )}
         </RecommendationItem>
-        {recommendations.length > 0 && (
-          <>
-            {recommendations.map((rec, index) => (
-              <RecommendationItem key={index}>
-                <PinButton onClick={() => handlePinActivity(rec)}>➕</PinButton>
-                <RestaurantName>{rec.name}</RestaurantName>
-                <Description>{rec.description || "No description available."}</Description>
-                {rec.reason && (
-                  <ExplanationContainer>
-                    <ExplanationTitle>Why was this chosen?</ExplanationTitle>
-                    <ExplanationText>{rec.reason}</ExplanationText>
-                  </ExplanationContainer>
+        {recommendations.length > 0 &&
+          recommendations.map((rec, index) => (
+            <RecommendationItem key={index}>
+              <PinButton onClick={() => handlePinActivity(rec)}>➕</PinButton>
+              <RestaurantName>{rec.name}</RestaurantName>
+              <Description>{rec.description || "No description available."}</Description>
+              {rec.reason && (
+                <ExplanationContainer>
+                  <ExplanationTitle>Why was this chosen?</ExplanationTitle>
+                  <ExplanationText>{rec.reason}</ExplanationText>
+                </ExplanationContainer>
+              )}
+              <Details>
+                <DetailItem>⏰ {rec.hours || "N/A"}</DetailItem>
+                <DetailItem>💸 {rec.price_range || "N/A"}</DetailItem>
+                <DetailItem>📍 {rec.address || "N/A"}</DetailItem>
+                {rec.website && (
+                  <DetailItem>
+                    🌐 <a href={rec.website} target="_blank" rel="noopener noreferrer">
+                      {rec.website}
+                    </a>
+                  </DetailItem>
                 )}
-                <Details>
-                  <DetailItem>⏰ {rec.hours || "N/A"}</DetailItem>
-                  <DetailItem>💸 {rec.price_range || "N/A"}</DetailItem>
-                  <DetailItem>📍 {rec.address || "N/A"}</DetailItem>
-                  {rec.website && (
-                    <DetailItem>
-                      🌐 <a href={rec.website} target="_blank" rel="noopener noreferrer">{rec.website}</a>
-                    </DetailItem>
-                  )}
-                </Details>
-              </RecommendationItem>
-            ))}
-          </>
-        )}
+              </Details>
+            </RecommendationItem>
+          ))}
       </RecommendationList>
-
-      {recommendations.length > 0 && (
-        <RestaurantMap recommendations={recommendations} />
-      )}
-
+      {recommendations.length > 0 && <RestaurantMap recommendations={recommendations} />}
       {showChat && (
         <>
           <DimmedOverlay />
           <CuisineChat
-            activityId={activity.id}
+            activityId={id}
             onClose={() => setShowChat(false)}
             onChatComplete={() => {
-              setRefreshTrigger(prev => !prev);
+              setRefreshTrigger((prev) => !prev);
               setShowChat(false);
             }}
           />
@@ -267,26 +264,26 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
 
 export default AIRecommendations;
 
-/* Styled components used in the component */
+/* Styled Components */
 
 const RecommendationsContainer = styled.div`
   padding: 1.5rem;
   border-radius: 16px;
   max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 0;
+  margin: 0 auto;
+`;
+
+const ErrorText = styled.p`
+  text-align: center;
+  color: #666;
+  font-style: italic;
 `;
 
 const RecommendationList = styled.div`
   display: flex;
   overflow-x: auto;
-  padding-bottom: 10px;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  margin-left: -3rem;
-  margin-right: -3rem;
   padding: 10px;
+  margin: 0 -3rem;
   ${({ $hasManyItems }) => $hasManyItems && `gap: 1rem;`}
   &::-webkit-scrollbar {
     display: none;
@@ -347,17 +344,16 @@ const DetailItem = styled.span`
 
 const PinButton = styled.button`
   position: absolute;
-  background: #fff;
   top: 10px;
   right: 10px;
-  color: white;
+  background: #fff;
   border: none;
   border-radius: 50%;
   width: 40px;
   height: 40px;
   font-size: 1.3rem;
   cursor: pointer;
-  transition: transform 0.2s ease-in-out, background 0.2s ease-in-out;
+  transition: transform 0.2s ease-in-out;
   &:hover {
     transform: scale(1.2);
   }

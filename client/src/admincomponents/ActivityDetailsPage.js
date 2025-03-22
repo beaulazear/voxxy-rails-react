@@ -164,13 +164,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
         />
         <SmallSection>
           <PinnedScrollContainer style={{ justifyContent: hasManyItems ? 'flex-start' : 'center' }}>
-            <TextContainer>
-              <PinnedTitle>🎉 Your pinned activities are saved for easy access!</PinnedTitle>
-              <SubTitle>Found a restaurant that’s a perfect match? Click (or tap) on it to pin it to your list! Once pinned, you can vote and leave a comment to share your thoughts with the group.
-                <br></br><br></br>
-                If your group’s preferences change, Chat with Voxxy to explore new AI-powered recommendations and refine your choices!</SubTitle>
-            </TextContainer>
-            {pinnedActivities.length > 0 && (
+            {pinnedActivities.length > 0 ? (
               pinnedActivities.map((pinned) => (
                 <PinnedActivityCard
                   key={pinned.id}
@@ -179,6 +173,13 @@ function ActivityDetailsPage({ activityId, onBack }) {
                   pinned={pinned}
                 />
               ))
+            ) : (
+              <TextContainer>
+                <PinnedTitle>🎉 Your pinned activities are saved for easy access!</PinnedTitle>
+                <SubTitle>Found a restaurant that’s a perfect match? Click (or tap) on it to pin it to your list! Once pinned, you can vote and leave a comment to share your thoughts with the group.
+                  <br></br><br></br>
+                  If your group’s preferences change, Chat with Voxxy to explore new AI-powered recommendations and refine your choices!</SubTitle>
+              </TextContainer>
             )}
           </PinnedScrollContainer>
         </SmallSection>
