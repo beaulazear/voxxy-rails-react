@@ -303,6 +303,8 @@ const RecommendationItem = styled.div`
   border-left: 8px solid #666666;
   min-width: 300px;
   max-width: 600px;
+  max-height: 500px;
+  overflow-y: auto;
   cursor: pointer;
   text-align: left;
   &:hover {
