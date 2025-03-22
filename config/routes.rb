@@ -28,6 +28,7 @@ Rails.application.routes.draw do
   post "/api/openai/haiku", to: "openai#generate_haiku"
   post "/api/openai/restaurant_recommendations", to: "openai#restaurant_recommendations"
   get "/check_cached_recommendations", to: "openai#check_cached_recommendations"
+  post "/api/openai/trending_recommendations", to: "openai#trending_recommendations"
 
   post "/activities/:id/send_thank_you", to: "activities#send_thank_you"
 

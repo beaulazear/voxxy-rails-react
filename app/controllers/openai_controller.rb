@@ -63,7 +63,74 @@ class OpenaiController < ApplicationController
       end
     end
 
+    def trending_recommendations
+      activity_location = params[:activity_location]
+      date_notes = params[:date_notes]
+
+      if activity_location.blank? || date_notes.blank?
+        render json: { error: "Missing required details" }, status: :unprocessable_entity
+        return
+      end
+
+      cache_key = "trending_recommendations_#{Digest::SHA256.hexdigest("#{activity_location}-#{date_notes}")}"
+
+      recommendations = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+        fetch_trending_recommendations_from_openai(activity_location, date_notes)
+      end
+
+      if recommendations.present?
+        render json: { recommendations: recommendations }, status: :ok
+      else
+        render json: { error: "Failed to generate trending recommendations" }, status: :unprocessable_entity
+      end
+    end
+
     private
+
+    def fetch_trending_recommendations_from_openai(activity_location, date_notes)
+      client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
+
+      prompt = <<~PROMPT
+        You are an AI assistant that provides restaurant recommendations based solely on location and timing.
+        The event is taking place in #{activity_location}, planned for #{date_notes}.
+        Recommend 5 trending or popular restaurants in the area.
+        Provide each recommendation in **valid JSON format** using the following structure:
+
+        {
+          "restaurants": [
+            {
+              "name": "Restaurant Name",
+              "price_range": "$ - $$$$",
+              "description": "Short description of the restaurant, including cuisine type and atmosphere.",
+              "reason": "Explain why this restaurant is trending or popular in this area.",
+              "hours": "Hours of operation (e.g., Mon-Fri: 9 AM - 10 PM, Sat-Sun: 8 AM - 11 PM)",
+              "website": "Valid website link or null if unknown",
+              "address": "Restaurant address or 'Not available'"
+            }
+          ]
+        }
+        - The response must be valid JSON.
+      PROMPT
+
+      response = client.chat(
+        parameters: {
+          model: "gpt-3.5-turbo",
+          messages: [
+            { role: "system", content: "You are an AI assistant that provides structured restaurant recommendations in JSON format." },
+            { role: "user", content: prompt }
+          ],
+          temperature: 0.7
+        }
+      )
+
+      recommendations_json = response.dig("choices", 0, "message", "content")
+
+      begin
+        JSON.parse(recommendations_json)["restaurants"]
+      rescue JSON::ParserError
+        nil
+      end
+    end
 
     def format_recommendation(rec)
       {
