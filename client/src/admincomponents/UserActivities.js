@@ -37,6 +37,15 @@ const HeroContainer = styled.div`
   }
 `;
 
+const FullWidthWrapper = styled.div`
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+`;
+
 const MovingHeader = styled.h2`
   font-size: clamp(1.8rem, 4vw, 2.5rem);
   font-weight: bold;
@@ -48,8 +57,7 @@ const MovingHeader = styled.h2`
   animation: ${moveLeft} 10s linear infinite; /* Moves right to left */ 
 
   @media (max-width: 768px) {
-    font-size: clamp(1.5rem, 3.5vw, 2rem);
-    top: 25%;
+    top: 10%;
   }
 `;
 
@@ -380,9 +388,11 @@ function UserActivities() {
     <>
       <Padding>
         <DashboardContainer ref={topRef}>
-          <HeroContainer>
-            <MovingHeader>{intro}</MovingHeader>
-          </HeroContainer>
+          <FullWidthWrapper>
+            <HeroContainer>
+              <MovingHeader>{intro}</MovingHeader>
+            </HeroContainer>
+          </FullWidthWrapper>
           <PendingInvites />
 
           <ButtonContainer>
