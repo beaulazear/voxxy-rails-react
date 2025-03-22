@@ -250,6 +250,8 @@ const Image = styled.img`
   height: auto;
   border-radius: 12px;
   flex-shrink: 0;
+  margin-top: -5vh;
+  margin-bottom: 0px;
 
   @media (max-width: 1024px) {
     width: 55%;

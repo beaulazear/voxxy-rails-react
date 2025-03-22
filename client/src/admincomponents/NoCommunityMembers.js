@@ -29,6 +29,7 @@ const Image = styled.img`
   height: auto;
   border-radius: 12px;
   flex-shrink: 0;
+  margin-top: -5vh;
 
   @media (max-width: 1024px) {
     width: 55%;
@@ -51,7 +52,7 @@ const Content = styled.div`
   flex-direction: column;
   align-items: flex-start;
   flex: 1;
-  max-width: 500px;
+  max-width: 550px;
 
   @media (max-width: 768px) {
     align-items: center;
