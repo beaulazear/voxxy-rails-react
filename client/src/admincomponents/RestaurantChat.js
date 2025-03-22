@@ -230,9 +230,7 @@ function RestaurantChat({ onClose }) {
     if (!currentInput.trim()) return;
   
     const newFormData = { ...formData, [key]: currentInput.trim() };
-  
-    console.log("Submitting final input for:", key, "=>", currentInput);
-  
+    
     setFormData(newFormData);
     setMessages((prev) => [...prev, { text: currentInput, isUser: true }]);
     setCurrentInput('');
@@ -264,9 +262,7 @@ function RestaurantChat({ onClose }) {
       emoji: '🍜',
       ...submittedData
     };
-  
-    console.log("🚀 Submitting formData:", payload);
-  
+    
     try {
       const response = await fetch(`${API_URL}/activities`, {
         method: 'POST',

@@ -3,6 +3,8 @@ import styled, { keyframes } from 'styled-components';
 import { UserContext } from '../context/user';
 import StartNewAdventure from './StartNewAdventure';
 import RestaurantChat from './RestaurantChat';
+import CuisineChat from './CuisineChat';
+import PostRestaurantPopup from './PostRestaurantPopup'; // Import the new popup
 
 const fadeIn = keyframes`
   from {
@@ -75,7 +77,10 @@ const DimmedOverlay = styled.div`
 function TripDashboard({ setShowActivities, setSelectedActivityId }) {
   const { user } = useContext(UserContext);
   const [selectedTrip, setSelectedTrip] = useState(null);
-  const dashboardRef = useRef(null); // Create a ref for the container
+  const [activityIdCreated, setActivityIdCreated] = useState(null);
+  const [showPostRestaurantPopup, setShowPostRestaurantPopup] = useState(false);
+  const [showCuisineChat, setShowCuisineChat] = useState(false);
+  const dashboardRef = useRef(null);
 
   useEffect(() => {
     if (dashboardRef.current) {
@@ -99,15 +104,15 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
     );
   }
 
-  function handleClose(id) {
-    if (id && id.preventDefault) {
-      id.preventDefault();
-      id = null;
-    }
+  // New onClose for RestaurantChat – called when RestaurantChat completes
+  const handleRestaurantChatClose = (id) => {
+    // Store the created activity ID
+    setActivityIdCreated(id);
+    // Instead of immediately closing, show the post-chat popup
+    setShowPostRestaurantPopup(true);
+    // Remove the RestaurantChat overlay
     setSelectedTrip(null);
-    setShowActivities(false);
-    setSelectedActivityId(id || null);
-  }
+  };
 
   return (
     <PageContainer ref={dashboardRef}>
@@ -117,8 +122,38 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
       {selectedTrip === 'Lets Eat' && (
         <>
           <DimmedOverlay />
-          <RestaurantChat onClose={handleClose} />
+          <RestaurantChat onClose={handleRestaurantChatClose} />
         </>
+      )}
+
+      {/* Render the PostRestaurantPopup once RestaurantChat is done */}
+      {showPostRestaurantPopup && (
+        <PostRestaurantPopup
+          onChat={() => {
+            setShowCuisineChat(true);
+            setShowPostRestaurantPopup(false);
+          }}
+          onSkip={() => {
+            setShowPostRestaurantPopup(false);
+            // Optionally, update board state or set selected activity here if needed
+            setSelectedActivityId(activityIdCreated);
+          }}
+        />
+      )}
+
+      {/* Render CuisineChat if user chooses to chat with Voxxy */}
+      {showCuisineChat && (
+        <CuisineChat
+          activityId={activityIdCreated}
+          onClose={() => {
+            setShowCuisineChat(false);
+            setSelectedActivityId(activityIdCreated); // Redirect back to board
+          }}
+          onChatComplete={() => {
+            setShowCuisineChat(false);
+            setSelectedActivityId(activityIdCreated); // Redirect back to board
+          }}
+        />
       )}
     </PageContainer>
   );
