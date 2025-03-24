@@ -10,13 +10,26 @@ const FooterContainer = styled.div`
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(135deg, #4e0f63, #6a1b8a);
   padding: 1rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
   z-index: 1000;
+  overflow: hidden; /* Ensures the pseudo-element stays within bounds */
+  background: transparent; /* Remove background here */
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #4e0f63, #6a1b8a);
+    opacity: 0.7; /* Adjust opacity as needed */
+    z-index: -1; /* Place it behind the content */
+  }
 
   @media (max-width: 768px) {
     padding: 1rem;

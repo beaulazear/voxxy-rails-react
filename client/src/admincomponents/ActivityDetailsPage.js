@@ -10,6 +10,7 @@ import UpdateActivityModal from './UpdateActivityModal';
 import PinnedActivityCard from './PinnedActivityCard';
 import LoadingScreen from '../components/LoadingScreen.js';
 import ActivityHeader from './ActivityHeader.js';
+import VantaWrapper from '../components/VantaWrapper.js';
 
 function ActivityDetailsPage({ activityId, onBack }) {
   const { user, setUser } = useContext(UserContext);
@@ -152,48 +153,50 @@ function ActivityDetailsPage({ activityId, onBack }) {
   const hasManyItems = pinnedActivities.length >= 1;
 
   return (
-    <div ref={topRef}>
-      <PageContainer>
-        <ActivityHeader
-          activity={currentActivity}
-          isOwner={isOwner}
-          onBack={onBack}
-          onEdit={() => setShowModal(true)}
-          onDelete={handleDelete}
-          onInvite={handleInvite}
-        />
-        <SmallSection>
-          <PinnedScrollContainer style={{ justifyContent: hasManyItems ? 'flex-start' : 'center' }}>
-            {pinnedActivities.length > 0 ? (
-              pinnedActivities.map((pinned) => (
-                <PinnedActivityCard
-                  key={pinned.id}
-                  isOwner={isOwner}
-                  setPinnedActivities={setPinnedActivities}
-                  pinned={pinned}
-                />
-              ))
-            ) : (
-              <TextContainer>
-                <PinnedTitle>🎉 Your pinned activities are saved for easy access!</PinnedTitle>
-                <SubTitle>Found a restaurant that’s a perfect match? Click (or tap) on it to pin it to your list! Once pinned, you can vote and leave a comment to share your thoughts with the group.
-                  <br></br><br></br>
-                  If your group’s preferences change, Chat with Voxxy to explore new AI-powered recommendations and refine your choices!</SubTitle>
-              </TextContainer>
-            )}
-          </PinnedScrollContainer>
-        </SmallSection>
-        <AIRecommendations setPinnedActivities={setPinnedActivities} activity={currentActivity} setRefreshTrigger={setRefreshTrigger} />
-
-        {showModal && (
-          <UpdateActivityModal
+    <VantaWrapper>
+      <div ref={topRef}>
+        <PageContainer>
+          <ActivityHeader
             activity={currentActivity}
-            onClose={() => setShowModal(false)}
-            onUpdate={handleUpdate}
+            isOwner={isOwner}
+            onBack={onBack}
+            onEdit={() => setShowModal(true)}
+            onDelete={handleDelete}
+            onInvite={handleInvite}
           />
-        )}
-      </PageContainer>
-    </div>
+          <SmallSection>
+            <PinnedScrollContainer style={{ justifyContent: hasManyItems ? 'flex-start' : 'center' }}>
+              {pinnedActivities.length > 0 ? (
+                pinnedActivities.map((pinned) => (
+                  <PinnedActivityCard
+                    key={pinned.id}
+                    isOwner={isOwner}
+                    setPinnedActivities={setPinnedActivities}
+                    pinned={pinned}
+                  />
+                ))
+              ) : (
+                <TextContainer>
+                  <PinnedTitle>🎉 Your pinned activities are saved for easy access!</PinnedTitle>
+                  <SubTitle>Found a restaurant that’s a perfect match? Click (or tap) on it to pin it to your list! Once pinned, you can vote and leave a comment to share your thoughts with the group.
+                    <br></br><br></br>
+                    If your group’s preferences change, Chat with Voxxy to explore new AI-powered recommendations and refine your choices!</SubTitle>
+                </TextContainer>
+              )}
+            </PinnedScrollContainer>
+          </SmallSection>
+          <AIRecommendations setPinnedActivities={setPinnedActivities} activity={currentActivity} setRefreshTrigger={setRefreshTrigger} />
+
+          {showModal && (
+            <UpdateActivityModal
+              activity={currentActivity}
+              onClose={() => setShowModal(false)}
+              onUpdate={handleUpdate}
+            />
+          )}
+        </PageContainer>
+      </div>
+    </VantaWrapper>
   );
 }
 

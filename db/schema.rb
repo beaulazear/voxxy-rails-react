@@ -28,7 +28,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_18_115039) do
     t.time "date_time"
     t.date "date_day"
     t.text "welcome_message"
-    t.boolean "completed", default: false
+    t.boolean "completed", default: false, null: false
     t.index ["user_id"], name: "index_activities_on_user_id"
   end
 

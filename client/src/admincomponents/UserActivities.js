@@ -9,6 +9,7 @@ import Profile from './Profile.js';
 import Woman from '../assets/Woman.jpg'
 import YourCommunity from './YourCommunity.js';
 import NoBoardsDisplay from './NoBoardsDisplay.js';
+import VantaWrapperTwo from '../components/VantaWrapperTwo.js';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -16,7 +17,7 @@ const fadeIn = keyframes`
 `;
 
 const moveLeft = keyframes`
-  from { transform: translateX(100%); } /* Start offscreen right */
+  from { transform: translateX(80%); } /* Start offscreen right */
   to { transform: translateX(-100%); } /* Move offscreen left */
 `;
 
@@ -47,9 +48,10 @@ const FullWidthWrapper = styled.div`
 `;
 
 const MovingHeader = styled.h2`
+  font-family: 'Montserrat', sans-serif;
   font-size: clamp(1.8rem, 4vw, 2.5rem);
   font-weight: bold;
-  color: #000;
+  color: #fff;
   white-space: nowrap;
   position: absolute;
   top: 30%; /* Center vertically */
@@ -221,7 +223,6 @@ export const Button = styled.button`
 
 const Padding = styled.div`
   padding-bottom: 50px;
-  background: linear-gradient(-45deg, #9b59b6, #bb80d5, #dab8f0, #ffffff);;
 `
 
 const ButtonContainer = styled.div`
@@ -385,7 +386,7 @@ function UserActivities() {
   }
 
   return (
-    <>
+    <VantaWrapperTwo>
       <Padding>
         <DashboardContainer ref={topRef}>
           <FullWidthWrapper>
@@ -452,7 +453,7 @@ function UserActivities() {
         </DashboardContainer>
       </Padding>
       <VoxxyFooter handleBack={handleBack} handleShowProfile={handleShowProfile} handleShowActivities={handleShowActivities} />
-    </>
+    </VantaWrapperTwo>
   );
 }
 

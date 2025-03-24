@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 import { Button } from 'antd';
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { UserContext } from '../context/user';
-import Voxxy_header from '../assets/Voxxy_header.jpeg'
+// import Voxxy_header from '../assets/Voxxy_header.jpeg'; // Logo image commented out
 
 const NavbarContainer = styled.div`
   display: flex;
@@ -43,7 +43,7 @@ const StyledButton = styled(Button)`
 
 const IconButton = styled(NavLink)`
   font-size: 1.8rem;
-  color: black;
+  color: #fff;
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
 
@@ -53,20 +53,23 @@ const IconButton = styled(NavLink)`
   }
 `;
 
-const LogoLink = styled(NavLink)`
-  display: flex;
-  align-items: center;
+const HeaderLink = styled(NavLink)`
   text-decoration: none;
 `;
 
-const LogoImage = styled.img`
-  max-width: 150px; /* Adjust size */
-  width: auto;
-  height: 40px;
-  
+const VoxxyHeader = styled.h1`
+  color: #fff; /* default color */
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0;
+
+  /* When the 'landing' class is present, override color to black */
+  &.landing {
+    color: #000;
+  }
+
   @media (max-width: 768px) {
-    max-width: 120px; /* Slightly smaller for mobile */
-    height: 35px;
+    font-size: 1.5rem;
   }
 `;
 
@@ -75,9 +78,16 @@ const Navbar = () => {
 
   return (
     <NavbarContainer>
-      <LogoLink to="/">
-        <LogoImage src={Voxxy_header} alt="Voxie Logo" />
-      </LogoLink>
+      {/* Replacing logo with Voxxy text header */}
+      {user ? (
+        <HeaderLink to="/">
+          <VoxxyHeader>VoxxyAI</VoxxyHeader>
+        </HeaderLink>
+      ) : (
+        <HeaderLink to="/">
+          <VoxxyHeader className='landing'>VoxxyAI</VoxxyHeader>
+        </HeaderLink>
+      )}
       <MenuContainer>
         {user && (
           <>
@@ -89,10 +99,14 @@ const Navbar = () => {
         {!user && (
           <>
             <StyledButton>
-              <NavLink to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>Sign Up</NavLink>
+              <NavLink to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>
+                Sign Up
+              </NavLink>
             </StyledButton>
             <StyledButton>
-              <NavLink to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>Log In</NavLink>
+              <NavLink to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>
+                Log In
+              </NavLink>
             </StyledButton>
           </>
         )}

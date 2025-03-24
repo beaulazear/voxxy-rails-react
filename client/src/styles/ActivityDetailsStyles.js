@@ -18,7 +18,6 @@ export const PageContainer = styled.div`
   padding: 1.5rem;
   padding-bottom: 40px;
   box-sizing: border-box;
-  background: linear-gradient(-45deg, #6a1b9a, #8e44ad, #b67fdd, #e0b3f3);
   background-size: 400% 400%;
   animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
 `;

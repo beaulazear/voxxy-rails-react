@@ -235,6 +235,7 @@ const CommunityTitle = styled.p`
   padding: 1.5rem 2.5rem 1rem;
   margin: 0;
   max-width: 1200px;
+  color: #fff;
 
   @media (max-width: 768px) {
     padding: 0.5rem;

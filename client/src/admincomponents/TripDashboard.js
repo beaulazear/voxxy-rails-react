@@ -5,6 +5,7 @@ import StartNewAdventure from './StartNewAdventure';
 import RestaurantChat from './RestaurantChat';
 import CuisineChat from './CuisineChat';
 import PostRestaurantPopup from './PostRestaurantPopup'; // Import the new popup
+import VantaWrapper from '../components/VantaWrapper';
 
 const fadeIn = keyframes`
   from {
@@ -24,7 +25,6 @@ const gradientAnimation = keyframes`
 `;
 
 export const PageContainer = styled.div`
-  background: linear-gradient(-45deg, #9b59b6, #bb80d5, #dab8f0, #ffffff);  min-height: 100vh;
   height: auto;
   width: 100%;
   animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
@@ -114,47 +114,49 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
   };
 
   return (
-    <PageContainer ref={dashboardRef}>
-      <DashboardContainer>
-        <StartNewAdventure setShowActivities={setShowActivities} onTripSelect={handleTripSelect} />
-      </DashboardContainer>
-      {selectedTrip === 'Lets Eat' && (
-        <>
-          <DimmedOverlay />
-          <RestaurantChat onClose={handleRestaurantChatClose} />
-        </>
-      )}
+    <VantaWrapper>
+      <PageContainer ref={dashboardRef}>
+        <DashboardContainer>
+          <StartNewAdventure setShowActivities={setShowActivities} onTripSelect={handleTripSelect} />
+        </DashboardContainer>
+        {selectedTrip === 'Lets Eat' && (
+          <>
+            <DimmedOverlay />
+            <RestaurantChat onClose={handleRestaurantChatClose} />
+          </>
+        )}
 
-      {/* Render the PostRestaurantPopup once RestaurantChat is done */}
-      {showPostRestaurantPopup && (
-        <PostRestaurantPopup
-          onChat={() => {
-            setShowCuisineChat(true);
-            setShowPostRestaurantPopup(false);
-          }}
-          onSkip={() => {
-            setShowPostRestaurantPopup(false);
-            // Optionally, update board state or set selected activity here if needed
-            setSelectedActivityId(activityIdCreated);
-          }}
-        />
-      )}
+        {/* Render the PostRestaurantPopup once RestaurantChat is done */}
+        {showPostRestaurantPopup && (
+          <PostRestaurantPopup
+            onChat={() => {
+              setShowCuisineChat(true);
+              setShowPostRestaurantPopup(false);
+            }}
+            onSkip={() => {
+              setShowPostRestaurantPopup(false);
+              // Optionally, update board state or set selected activity here if needed
+              setSelectedActivityId(activityIdCreated);
+            }}
+          />
+        )}
 
-      {/* Render CuisineChat if user chooses to chat with Voxxy */}
-      {showCuisineChat && (
-        <CuisineChat
-          activityId={activityIdCreated}
-          onClose={() => {
-            setShowCuisineChat(false);
-            setSelectedActivityId(activityIdCreated); // Redirect back to board
-          }}
-          onChatComplete={() => {
-            setShowCuisineChat(false);
-            setSelectedActivityId(activityIdCreated); // Redirect back to board
-          }}
-        />
-      )}
-    </PageContainer>
+        {/* Render CuisineChat if user chooses to chat with Voxxy */}
+        {showCuisineChat && (
+          <CuisineChat
+            activityId={activityIdCreated}
+            onClose={() => {
+              setShowCuisineChat(false);
+              setSelectedActivityId(activityIdCreated); // Redirect back to board
+            }}
+            onChatComplete={() => {
+              setShowCuisineChat(false);
+              setSelectedActivityId(activityIdCreated); // Redirect back to board
+            }}
+          />
+        )}
+      </PageContainer>
+    </VantaWrapper>
   );
 }
 
