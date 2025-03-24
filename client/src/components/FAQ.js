@@ -2,6 +2,7 @@ import React from "react";
 import { Accordion } from "react-bootstrap";
 import styled, { keyframes } from "styled-components";
 import { NavLink } from "react-router-dom";
+import VantaWrapperTwo from "./VantaWrapperTwo";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -153,21 +154,23 @@ const FAQ = () => {
   ];
 
   return (
-    <FAQContainer>
-      <HeaderContainer>
-        <Title>FAQ's</Title>
-        <BackButton to="/">Home</BackButton>
-      </HeaderContainer>
+    <VantaWrapperTwo>
+      <FAQContainer>
+        <HeaderContainer>
+          <Title>FAQ's</Title>
+          <BackButton to="/">Home</BackButton>
+        </HeaderContainer>
 
-      <StyledAccordion defaultActiveKey="0">
-        {faqs.map(({ key, question, answer }) => (
-          <Accordion.Item eventKey={key} key={key}>
-            <Accordion.Header>{question}</Accordion.Header>
-            <Accordion.Body>{answer}</Accordion.Body>
-          </Accordion.Item>
-        ))}
-      </StyledAccordion>
-    </FAQContainer>
+        <StyledAccordion defaultActiveKey="0">
+          {faqs.map(({ key, question, answer }) => (
+            <Accordion.Item eventKey={key} key={key}>
+              <Accordion.Header>{question}</Accordion.Header>
+              <Accordion.Body>{answer}</Accordion.Body>
+            </Accordion.Item>
+          ))}
+        </StyledAccordion>
+      </FAQContainer>
+    </VantaWrapperTwo>
   );
 };
 
