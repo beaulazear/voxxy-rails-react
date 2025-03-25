@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { UserContext } from "../context/user.js";
 import styled, { keyframes } from 'styled-components';
+import LoadingScreenUser from './LoadingScreenUser';
 
 const fadeInUp = keyframes`
   from {
@@ -191,193 +192,229 @@ const TypingBubble = styled.div`
 `;
 
 function CuisineChat({ onClose, activityId, onChatComplete }) {
-    const [answers, setAnswers] = useState([]);
-    const [currentInput, setCurrentInput] = useState("");
-    const [isTyping, setIsTyping] = useState(false);
-    const [messages, setMessages] = useState([{ text: "Hey hey, party people!  Voxxy here—your friendly get-together assitant. Your crew is making plans, and I’m here to help pick the perfect spot. Let’s do a quick vibe check!", isUser: false }]);
-    const [step, setStep] = useState(0);
-
-    const { setUser } = useContext(UserContext);
-    const inputRef = useRef(null);
-    const chatBodyRef = useRef(null);
-
-    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
-
-    const questionsRef = useRef([
-        "What’s the food & drink mood? Are we craving anything specific (sushi, tacos, cocktails), or open to surprises?",
-        "Any deal-breakers? (Like, “No pizza, please” or “I need gluten-free options.”)",
-        "What’s the vibe? Fancy, casual, outdoor seating, rooftop views, great cocktails, good music—what matters most??",
-        "What’s the budget range you’d like to stay close to (low, mid, high)?",
-    ]);
-
-    const questions = questionsRef.current;
-
-    useEffect(() => {
-        if (chatBodyRef.current) {
-            chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
-        }
-    }, [messages]);
-
-    useEffect(() => {
-        setIsTyping(true);
-        const timer = setTimeout(() => {
-            setMessages(prev => [
-                ...prev,
-                { text: questions[0], isUser: false }
-            ]);
-            setIsTyping(false);
-        }, 1000);
-
-        return () => clearTimeout(timer);
-    }, [questions]);
-
-    function handleInputFocus() {
-        if (inputRef.current) {
-            inputRef.current.focus();
-        }
+  const [answers, setAnswers] = useState([]);
+  const [currentInput, setCurrentInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [messages, setMessages] = useState([
+    {
+      text: "Hey hey, party people! Voxxy here—your friendly get-together assitant. Your crew is making plans, and I’m here to help pick the perfect spot. Let’s do a quick vibe check!",
+      isUser: false
     }
+  ]);
+  const [step, setStep] = useState(0);
 
-    const handleNext = () => {
-        if (!currentInput.trim()) return;
-    
-        const userMessage = { text: currentInput, isUser: true };
-        const userAnswer = { question: questions[step], answer: currentInput };
-    
-        setMessages((prev) => [...prev, userMessage]);
-        setCurrentInput("");
-        setAnswers((prev) => [...prev, userAnswer]);
-    
-        const nextStep = step + 1;
-    
-        if (nextStep < questions.length) {
-            setIsTyping(true);
-            setTimeout(() => {
-                setMessages((prev) => [
-                    ...prev,
-                    { text: questions[nextStep], isUser: false }
-                ]);
-                setIsTyping(false);
-                setStep(nextStep);
-            }, 1000); // delay for typing bubble
-        } else {
-            setStep(nextStep);
-            // Append final message before closing the chat
-            setMessages((prev) => [
-                ...prev,
-                { 
-                  text: "Got it! I’m pulling together the best spots that check all the boxes. Give me a sec, and I’ll drop the recommendations in just a moment!", 
-                  isUser: false 
-                }
-            ]);
-            // Delay submission so the user can see the final message
-            setTimeout(() => {
-                handleSubmit();
-            }, 1500);
+  // NEW: track if loading screen is shown
+  const [showLoading, setShowLoading] = useState(false);
+
+  const { setUser } = useContext(UserContext);
+  const inputRef = useRef(null);
+  const chatBodyRef = useRef(null);
+
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
+  const questionsRef = useRef([
+    "What’s the food & drink mood? Are we craving anything specific (sushi, tacos, cocktails), or open to surprises?",
+    "Any deal-breakers? (Like, “No pizza, please” or “I need gluten-free options.”)",
+    "What’s the vibe? Fancy, casual, outdoor seating, rooftop views, great cocktails, good music—what matters most??",
+    "What’s the budget range you’d like to stay close to (low, mid, high)?",
+  ]);
+
+  const questions = questionsRef.current;
+
+  useEffect(() => {
+    if (chatBodyRef.current) {
+      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  // Ask first question
+  useEffect(() => {
+    setIsTyping(true);
+    const timer = setTimeout(() => {
+      setMessages((prev) => [...prev, { text: questions[0], isUser: false }]);
+      setIsTyping(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [questions]);
+
+  function handleInputFocus() {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }
+
+  const handleNext = () => {
+    if (!currentInput.trim()) return;
+
+    const userMessage = { text: currentInput, isUser: true };
+    const userAnswer = { question: questions[step], answer: currentInput };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setCurrentInput("");
+    setAnswers((prev) => [...prev, userAnswer]);
+
+    const nextStep = step + 1;
+
+    // If there are more questions, ask next question
+    if (nextStep < questions.length) {
+      setIsTyping(true);
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev,
+          { text: questions[nextStep], isUser: false }
+        ]);
+        setIsTyping(false);
+        setStep(nextStep);
+      }, 1000);
+    } else {
+      // No more questions -> final message
+      setStep(nextStep);
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: "Got it! I’m pulling together the best spots that check all the boxes. Give me a sec, and I’ll drop the recommendations in just a moment!",
+          isUser: false
         }
-    };
+      ]);
+      // Let the user see that final message for ~1.5s
+      setTimeout(() => {
+        // Then show the loading screen
+        setShowLoading(true);
+      }, 1500);
+    }
+  };
 
-    const handleSubmit = async () => {
-        const formattedNotes = answers.map((item) => `${item.question}\nAnswer: ${item.answer}`).join("\n\n");
+  // Called after the loading screen finishes
+  const handleSubmit = async () => {
+    const formattedNotes = answers
+      .map((item) => `${item.question}\nAnswer: ${item.answer}`)
+      .join("\n\n");
 
-        try {
-            const response = await fetch(`${API_URL}/responses`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ response: { notes: formattedNotes, activity_id: activityId } }),
-            });
+    try {
+      const response = await fetch(`${API_URL}/responses`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          response: { notes: formattedNotes, activity_id: activityId }
+        }),
+      });
 
-            if (response.ok) {
-                const newResponse = await response.json();
+      if (response.ok) {
+        const newResponse = await response.json();
 
-                setUser((prevUser) => {
-                    const updatedActivities = prevUser.activities.map((activity) => {
-                        if (activity.id === activityId) {
-                            return {
-                                ...activity,
-                                responses: [...activity.responses || [], newResponse]
-                            };
-                        }
-                        return activity;
-                    });
-
-                    const updatedParticipantActivities = prevUser.participant_activities.map((participant) => {
-                        if (participant.activity.id === activityId) {
-                            return {
-                                ...participant,
-                                activity: {
-                                    ...participant.activity,
-                                    responses: [...participant.activity.responses || [], newResponse]
-                                }
-                            };
-                        }
-                        return participant;
-                    });
-
-                    return {
-                        ...prevUser,
-                        activities: updatedActivities,
-                        participant_activities: updatedParticipantActivities
-                    };
-                });
-                onChatComplete();
-            } else {
-                const errorData = await response.json();
-                console.error('❌ Failed to save response:', errorData);
+        setUser((prevUser) => {
+          const updatedActivities = prevUser.activities.map((activity) => {
+            if (activity.id === activityId) {
+              return {
+                ...activity,
+                responses: [...(activity.responses || []), newResponse]
+              };
             }
-        } catch (error) {
-            console.error('❌ Error:', error);
-        }
-        onClose();
-    };
+            return activity;
+          });
 
-    const handleKeyDown = (e) => {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            handleNext();
-        }
-    };
+          const updatedParticipantActivities = prevUser.participant_activities.map((participant) => {
+            if (participant.activity.id === activityId) {
+              return {
+                ...participant,
+                activity: {
+                  ...participant.activity,
+                  responses: [...(participant.activity.responses || []), newResponse]
+                }
+              };
+            }
+            return participant;
+          });
 
-    return (
+          return {
+            ...prevUser,
+            activities: updatedActivities,
+            participant_activities: updatedParticipantActivities
+          };
+        });
+
+        onChatComplete(); // proceed to next step in your app
+      } else {
+        const errorData = await response.json();
+        console.error('❌ Failed to save response:', errorData);
+      }
+    } catch (error) {
+      console.error('❌ Error:', error);
+    }
+    // Close chat after everything is done
+    onClose();
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleNext();
+    }
+  };
+
+  // If showLoading is true, display the LoadingScreenUser;
+  // once it completes (2s), it will call handleSubmit().
+  return (
+    <>
+      {showLoading && (
+        <LoadingScreenUser onComplete={handleSubmit} />
+      )}
+
+      {!showLoading && (
         <>
-            <Overlay onClick={onClose} />
-            <ChatContainer onClick={(e) => e.stopPropagation()}>
-                <ChatHeader>
-                    <BackButton onClick={onClose}>
-                        <svg viewBox="0 0 24 24">
-                            <path d="M15.5 3.5L7 12l8.5 8.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                        Back
-                    </BackButton>
-                    Chat with Voxxy
-                </ChatHeader>
-                <ChatBody ref={chatBodyRef}>
-                    {messages.map((msg, index) => (
-                        <Message key={index} $isUser={msg.isUser}>
-                            {msg.text}
-                        </Message>
-                    ))}
-                    {isTyping && (
-                        <Message $isUser={false}>
-                            <TypingBubble>
-                                <span></span><span></span><span></span>
-                            </TypingBubble>
-                        </Message>
-                    )}
-                </ChatBody>
-                <ChatFooter onClick={handleInputFocus}>
-                    <Input
-                        ref={inputRef}
-                        value={currentInput}
-                        onChange={(e) => setCurrentInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Type your response..."
-                    />
-                    <SendButton onClick={handleNext}>▶</SendButton>
-                </ChatFooter>
-            </ChatContainer>
+          <Overlay onClick={onClose} />
+          <ChatContainer onClick={(e) => e.stopPropagation()}>
+            <ChatHeader>
+              <BackButton onClick={onClose}>
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M15.5 3.5L7 12l8.5 8.5"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                Back
+              </BackButton>
+              Chat with Voxxy
+            </ChatHeader>
+
+            <ChatBody ref={chatBodyRef}>
+              {messages.map((msg, index) => (
+                <Message key={index} $isUser={msg.isUser}>
+                  {msg.text}
+                </Message>
+              ))}
+              {isTyping && (
+                <Message $isUser={false}>
+                  <TypingBubble>
+                    <span></span><span></span><span></span>
+                  </TypingBubble>
+                </Message>
+              )}
+            </ChatBody>
+
+            <ChatFooter onClick={handleInputFocus}>
+              <Input
+                ref={inputRef}
+                value={currentInput}
+                onChange={(e) => setCurrentInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Type your response..."
+              />
+              <SendButton onClick={handleNext}>
+                ▶
+              </SendButton>
+            </ChatFooter>
+          </ChatContainer>
         </>
-    );
+      )}
+    </>
+  );
 }
 
 export default CuisineChat;
