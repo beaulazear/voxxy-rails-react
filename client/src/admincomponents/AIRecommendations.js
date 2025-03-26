@@ -206,19 +206,19 @@ const AIRecommendations = ({
                   <ExplanationText>{rec.reason}</ExplanationText>
                 </ExplanationContainer>
               )}
-              <Details>
-                <DetailItem>⏰ {rec.hours || "N/A"}</DetailItem>
-                <DetailItem>💸 {rec.price_range || "N/A"}</DetailItem>
-                <DetailItem>📍 {rec.address || "N/A"}</DetailItem>
+              <InlineDetails>
+                <span>⏰ {rec.hours || "N/A"}</span>
+                <span>💸 {rec.price_range || "N/A"}</span>
+                <span>📍 {rec.address || "N/A"}</span>
                 {rec.website && (
-                  <DetailItem>
+                  <span>
                     🌐{" "}
                     <a href={rec.website} target="_blank" rel="noopener noreferrer">
                       {rec.website}
                     </a>
-                  </DetailItem>
+                  </span>
                 )}
-              </Details>
+              </InlineDetails>
               {rec.photos && rec.photos.length > 0 && (
                 <PhotosContainer>
                   {rec.photos.slice(0, 3).map((photo, idx) => (
@@ -286,6 +286,42 @@ const AIRecommendations = ({
 
 export default AIRecommendations;
 
+const RecommendationItem = styled.div`
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px; /* slightly reduced padding */
+  width: 350px;
+  min-width: 350px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* reduced gap between elements */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  }
+`;
+
+const InlineDetails = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #666;
+  align-items: left;
+  text-align: left;
+`;
+
+const ExplanationContainer = styled.div`
+  background: #f1f1f1;
+  padding: 8px;
+  border-left: 4px solid #a8a8a8;
+  border-radius: 8px;
+  text-align: left;
+`;
+
 const Title = styled.h2`
   color: white;
   text-align: center;
@@ -320,24 +356,6 @@ const RecommendationList = styled.div`
   justify-content: center;
 `;
 
-const RecommendationItem = styled.div`
-  background: #fff;
-  border-radius: 16px;
-  padding: 20px;
-  width: 350px;
-  min-width: 350px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-  }
-`;
-
 const RestaurantName = styled.h2`
   font-size: 1.6rem;
   font-weight: bold;
@@ -350,27 +368,6 @@ const Description = styled.p`
   font-size: 1rem;
   color: #555;
   line-height: 1.6;
-  text-align: left;
-`;
-
-const Details = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-weight: 500;
-  text-align: left;
-`;
-
-const DetailItem = styled.span`
-  font-size: 0.95rem;
-  color: #666;
-`;
-
-const ExplanationContainer = styled.div`
-  background: #f1f1f1;
-  padding: 10px;
-  border-left: 4px solid #a8a8a8;
-  border-radius: 8px;
   text-align: left;
 `;
 

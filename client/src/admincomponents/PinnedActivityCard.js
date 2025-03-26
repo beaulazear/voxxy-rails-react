@@ -127,19 +127,19 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
             <ExplanationText>{pinned.reason}</ExplanationText>
           </ExplanationContainer>
         )}
-        <Details>
-          <DetailItem>⏰ {pinned.hours || "N/A"}</DetailItem>
-          <DetailItem>💸 {pinned.price_range || "N/A"}</DetailItem>
-          <DetailItem>📍 {pinned.address || "N/A"}</DetailItem>
+        <InlineDetails>
+          <span>⏰ {pinned.hours || "N/A"}</span>
+          <span>💸 {pinned.price_range || "N/A"}</span>
+          <span>📍 {pinned.address || "N/A"}</span>
           {pinned.website && (
-            <DetailItem>
+            <span>
               🌐{" "}
               <a href={pinned.website} target="_blank" rel="noopener noreferrer">
                 {pinned.website}
               </a>
-            </DetailItem>
+            </span>
           )}
-        </Details>
+        </InlineDetails>
         {pinned.photos && pinned.photos.length > 0 && (
           <PhotosContainer>
             {pinned.photos.slice(0, 3).map((photo, idx) => (
@@ -192,10 +192,22 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
 
 export default PinnedActivityCard;
 
+// Create an inline container for the details
+const InlineDetails = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #666;
+  align-items: center;
+`;
+
+// Adjust the card container to slightly reduce vertical padding
 const Card = styled.div`
   background: #fff;
   border-radius: 12px;
-  padding: 30px 20px 20px;
+  padding: 20px 15px 15px; /* reduced padding compared to before */
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
@@ -212,6 +224,15 @@ const Card = styled.div`
     transform: scale(1.01);
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
   }
+`;
+
+// Reduce the padding and margin on the explanation container
+const ExplanationContainer = styled.div`
+  background: #f1f1f1;
+  padding: 8px;
+  border-left: 4px solid #a8a8a8;
+  border-radius: 8px;
+  margin: 4px 0;
 `;
 
 const PinnedBadge = styled.div`
@@ -282,14 +303,6 @@ const Description = styled.p`
   line-height: 1.4;
 `;
 
-const ExplanationContainer = styled.div`
-  background: #f1f1f1;
-  padding: 10px;
-  border-left: 4px solid #a8a8a8;
-  border-radius: 8px;
-  margin: 8px 0;
-`;
-
 const ExplanationTitle = styled.h4`
   margin: 0 0 6px;
   font-size: 1rem;
@@ -300,23 +313,6 @@ const ExplanationText = styled.p`
   margin: 0;
   font-size: 0.9rem;
   color: #666;
-`;
-
-const Details = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-weight: 500;
-`;
-
-const DetailItem = styled.span`
-  font-size: 0.95rem;
-  color: #666;
-  padding: 4px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  &:last-child {
-    border-bottom: none;
-  }
 `;
 
 const PhotosContainer = styled.div`
