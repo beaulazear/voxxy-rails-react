@@ -391,6 +391,9 @@ const PinButton = styled.button`
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   transition: transform 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   &:hover {
     transform: scale(1.1);
   }
