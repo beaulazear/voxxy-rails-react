@@ -71,7 +71,6 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
             setLikedBy(data.voters || []);
             setHasLiked(true);
 
-            // ✅ Immediately store the correct vote ID
             setPinnedActivities(prevPinnedActivities =>
               prevPinnedActivities.map(activity =>
                 activity.id === pinned.id

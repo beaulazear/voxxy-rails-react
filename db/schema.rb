@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_18_115039) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_26_002116) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -64,6 +64,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_18_115039) do
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "reviews"
+    t.text "photos"
     t.index ["activity_id"], name: "index_pinned_activities_on_activity_id"
   end
 
