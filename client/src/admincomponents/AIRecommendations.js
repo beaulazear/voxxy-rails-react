@@ -147,8 +147,9 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
     }
   };
 
-  // Function: Create a pinned activity.
   const createPinnedActivity = async (rec) => {
+    console.log("Creating pinned activity with reviews:", rec.reviews);
+    console.log("Creating pinned activity with photos:", rec.photos);
     try {
       const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
       const res = await fetch(`${API_URL}/activities/${id}/pinned_activities`, {
@@ -163,6 +164,8 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
             price_range: rec.price_range || "",
             address: rec.address || "",
             votes: 0,
+            reviews: rec.reviews || [],
+            photos: rec.photos || [],
           },
         }),
       });

@@ -11,6 +11,8 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
   const [likedBy, setLikedBy] = useState(pinned.voters || []);
   const [hasLiked, setHasLiked] = useState(false);
 
+  console.log(pinned)
+
   useEffect(() => {
     if (user) {
       setHasLiked(likedBy.some((voter) => voter.id === user.id));

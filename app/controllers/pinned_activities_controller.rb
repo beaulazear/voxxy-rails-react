@@ -2,6 +2,7 @@ class PinnedActivitiesController < ApplicationController
   before_action :authorized
 
   def create
+    Rails.logger.info("Pinned Activity Params: #{params[:pinned_activity].inspect}")
     activity = Activity.find(params[:activity_id])
     pinned_activity = activity.pinned_activities.build(pinned_activity_params)
 
@@ -63,8 +64,24 @@ class PinnedActivitiesController < ApplicationController
       :price_range,
       :address,
       :description,
-      reviews: [],
-      photos: []
+      reviews: [
+        :author_name,
+        :author_url,
+        :language,
+        :original_language,
+        :profile_photo_url,
+        :rating,
+        :relative_time_description,
+        :text,
+        :time,
+        :translated
+      ],
+      photos: [
+        :height,
+        :html_attributions,
+        :photo_reference,
+        :width
+      ]
     )
   end
 end
