@@ -154,6 +154,8 @@ const AIRecommendations = ({
             votes: 0,
             reviews: rec.reviews || [],
             photos: rec.photos || [],
+            reason: rec.reason || "",
+            website: rec.website || ""
           },
         }),
       });
@@ -167,12 +169,20 @@ const AIRecommendations = ({
     }
   };
 
+  if (loading) {
+    return (
+      <RecommendationsContainer>
+        <LoadingHeader>Loading recommendations...</LoadingHeader>
+      </RecommendationsContainer>
+    );
+  }
+
   return (
     <RecommendationsContainer>
       <Title>AI Recommendations</Title>
-        <ChatButton>
-          <StyledButton onClick={() => setShowChat(true)}>Chat with Voxxy</StyledButton>
-        </ChatButton>
+      <ChatButton>
+        <StyledButton onClick={() => setShowChat(true)}>Chat with Voxxy</StyledButton>
+      </ChatButton>
       {error && <ErrorText>{error}</ErrorText>}
       <RecommendationList>
         {/* Render pinned activities first */}
@@ -282,6 +292,12 @@ const Title = styled.h2`
   margin-bottom: 15px;
 `;
 
+const LoadingHeader = styled.h2`
+  color: white;
+  text-align: center;
+  margin: 2rem 0;
+`;
+
 const RecommendationsContainer = styled.div`
   padding: 2rem;
   border-radius: 16px;
@@ -334,6 +350,7 @@ const Description = styled.p`
   font-size: 1rem;
   color: #555;
   line-height: 1.6;
+  text-align: left;
 `;
 
 const Details = styled.div`
@@ -341,6 +358,7 @@ const Details = styled.div`
   flex-direction: column;
   gap: 6px;
   font-weight: 500;
+  text-align: left;
 `;
 
 const DetailItem = styled.span`
@@ -353,6 +371,7 @@ const ExplanationContainer = styled.div`
   padding: 10px;
   border-left: 4px solid #a8a8a8;
   border-radius: 8px;
+  text-align: left;
 `;
 
 const ExplanationTitle = styled.h4`
@@ -386,7 +405,6 @@ const PhotoThumbnail = styled.img`
 
 const ButtonContainer = styled.div`
   display: flex;
-  justify-content: center;
   gap: 10px;
 `;
 
@@ -407,7 +425,7 @@ const ReviewsButton = styled.button`
 
 const UnpinButton = styled.button`
   background: ${(props) =>
-    props.$isDelete ? "red" : "linear-gradient(135deg, #6a1b9a, #8e44ad)"};
+    props.$isDelete ? "red" : "green"};
   color: #fff;
   border: none;
   padding: 6px 10px;
@@ -416,7 +434,7 @@ const UnpinButton = styled.button`
   cursor: pointer;
   &:hover {
     background: ${(props) =>
-    props.$isDelete ? "darkred" : "linear-gradient(135deg, #4e0f63, #6a1b8a)"};
+    props.$isDelete ? "darkred" : "darkgreen"};
   }
 `;
 

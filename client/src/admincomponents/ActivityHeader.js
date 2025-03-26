@@ -140,7 +140,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
       <HostName>
         Hosted by: {isOwner ? "You" : activity?.user?.name || "Unknown"}
       </HostName>
-      <ActivityDetails>
+      <ActivityDetails onClick={onEdit}>
         {activity.date_day ? <>📆 {activity.date_day}</> : <>📆 Date: TBD </>}
         {activity.date_time ? (
           <>⏰ {extractHoursAndMinutes(activity.date_time)}</>
@@ -149,7 +149,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
         )}
       </ActivityDetails>
 
-      <EntryMessage>
+      <EntryMessage onClick={onEdit}>
         {activity.welcome_message ||
           "Welcome to this activity! This is a placeholder for a detailed description about what to expect, how it works, and any important details. Soon, you will be able to customize this message to fit your needs!"}
       </EntryMessage>
@@ -237,7 +237,7 @@ export const TopBar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
 
   @media (min-width: 768px) {
     margin-bottom: 0;

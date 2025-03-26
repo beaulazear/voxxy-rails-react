@@ -20,7 +20,19 @@ class PinnedActivitiesController < ApplicationController
       pinned_activities = activity.pinned_activities.includes(:comments, :votes)
 
       render json: pinned_activities.as_json(
-        only: [ :id, :title, :hours, :price_range, :address, :description, :activity_id, :reviews, :photos ],
+        only: [
+          :id,
+          :title,
+          :hours,
+          :price_range,
+          :address,
+          :description,
+          :activity_id,
+          :reviews,
+          :photos,
+          :reason,
+          :website
+        ],
         methods: [ :vote_count ],
         include: {
           comments: {
@@ -64,6 +76,8 @@ class PinnedActivitiesController < ApplicationController
       :price_range,
       :address,
       :description,
+      :reason,
+      :website,
       reviews: [
         :author_name,
         :author_url,

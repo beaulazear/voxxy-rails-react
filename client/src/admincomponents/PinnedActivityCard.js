@@ -100,7 +100,7 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
       });
   }
 
-  console.log(pinned)
+  console.log(pinned);
 
   return (
     <>
@@ -120,10 +120,25 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
           </LikeSection>
         </Header>
         <Description>{pinned.description}</Description>
+        {/* Explanation section for the new "reason" field */}
+        {pinned.reason && (
+          <ExplanationContainer>
+            <ExplanationTitle>Why was this chosen?</ExplanationTitle>
+            <ExplanationText>{pinned.reason}</ExplanationText>
+          </ExplanationContainer>
+        )}
         <Details>
           <DetailItem>⏰ {pinned.hours || "N/A"}</DetailItem>
           <DetailItem>💸 {pinned.price_range || "N/A"}</DetailItem>
           <DetailItem>📍 {pinned.address || "N/A"}</DetailItem>
+          {pinned.website && (
+            <DetailItem>
+              🌐{" "}
+              <a href={pinned.website} target="_blank" rel="noopener noreferrer">
+                {pinned.website}
+              </a>
+            </DetailItem>
+          )}
         </Details>
         {pinned.photos && pinned.photos.length > 0 && (
           <PhotosContainer>
@@ -137,13 +152,13 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
           </PhotosContainer>
         )}
         <ButtonContainer>
-          {isOwner && (
-            <UnpinButton onClick={handleDelete}>Unpin</UnpinButton>
-          )}
           {pinned.reviews && pinned.reviews.length > 0 && (
             <ReviewsButton onClick={() => setShowReviews(true)}>
               Reviews ({pinned.reviews.length})
             </ReviewsButton>
+          )}
+          {isOwner && (
+            <UnpinButton onClick={handleDelete}>Unpin</UnpinButton>
           )}
         </ButtonContainer>
       </Card>
@@ -180,8 +195,6 @@ export default PinnedActivityCard;
 const Card = styled.div`
   background: #fff;
   border-radius: 12px;
-  /* Reduced overall vertical padding for a more compact look,
-     but add extra top padding so the badge has room */
   padding: 30px 20px 20px;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -189,7 +202,6 @@ const Card = styled.div`
   flex-direction: column;
   gap: 8px;
   position: relative;
-  /* Fixed width to match recommendations */
   width: 350px;
   min-width: 350px;
   max-width: 350px;
@@ -226,7 +238,6 @@ const Title = styled.h3`
   font-weight: bold;
   color: #222;
   margin-bottom: 4px;
-  /* Add left margin so text doesn't clash with the badge */
   margin-left: 50px;
 `;
 
@@ -271,6 +282,26 @@ const Description = styled.p`
   line-height: 1.4;
 `;
 
+const ExplanationContainer = styled.div`
+  background: #f1f1f1;
+  padding: 10px;
+  border-left: 4px solid #a8a8a8;
+  border-radius: 8px;
+  margin: 8px 0;
+`;
+
+const ExplanationTitle = styled.h4`
+  margin: 0 0 6px;
+  font-size: 1rem;
+  color: #444;
+`;
+
+const ExplanationText = styled.p`
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+`;
+
 const Details = styled.div`
   display: flex;
   flex-direction: column;
@@ -312,8 +343,7 @@ const ButtonContainer = styled.div`
 `;
 
 const ReviewsButton = styled.button`
-  background: ${(props) =>
-    props.$isDelete ? "red" : "linear-gradient(135deg, #6a1b9a, #8e44ad)"};
+  background: linear-gradient(135deg, #6a1b9a, #8e44ad);
   color: #fff;
   border: none;
   padding: 6px 10px;
@@ -321,14 +351,12 @@ const ReviewsButton = styled.button`
   font-size: 0.85rem;
   cursor: pointer;
   &:hover {
-    background: ${(props) =>
-    props.$isDelete ? "darkred" : "linear-gradient(135deg, #4e0f63, #6a1b8a)"};
+    background: linear-gradient(135deg, #4e0f63, #6a1b8a);
   }
 `;
 
 const UnpinButton = styled.button`
-  background: ${(props) =>
-    props.$isDelete ? "red" : "linear-gradient(135deg, #6a1b9a, #8e44ad)"};
+  background: red;
   color: #fff;
   border: none;
   padding: 6px 10px;
@@ -336,8 +364,7 @@ const UnpinButton = styled.button`
   font-size: 0.85rem;
   cursor: pointer;
   &:hover {
-    background: ${(props) =>
-    props.$isDelete ? "darkred" : "linear-gradient(135deg, #4e0f63, #6a1b8a)"};
+    background: darkred;
   }
 `;
 
