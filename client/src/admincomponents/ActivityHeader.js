@@ -3,7 +3,6 @@ import { UserContext } from "../context/user.js";
 import styled from "styled-components";
 import { LeftOutlined, EditOutlined, DeleteOutlined, UserAddOutlined, LogoutOutlined } from "@ant-design/icons";
 import Woman from "../assets/Woman.jpg";
-import ActivityCommentSection from './ActivityCommentSection.js';
 import YourCommunity from './YourCommunity.js';
 
 const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }) => {
@@ -80,32 +79,32 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
     return isoString.slice(11, 16); // Extracts "HH:MM" from "2000-01-01T12:15:00.000Z"
   }
 
-  const handleSendThankYou = async () => {
-    const confirmSend = window.confirm(
-      "Are you sure you want to send a thank-you email to all participants? 📩 This will notify every participant in the activity."
-    );
+  // const handleSendThankYou = async () => {
+  //   const confirmSend = window.confirm(
+  //     "Are you sure you want to send a thank-you email to all participants? 📩 This will notify every participant in the activity."
+  //   );
 
-    if (!confirmSend) return;
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activity.id}/send_thank_you`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-        }
-      );
+  //   if (!confirmSend) return;
+  //   try {
+  //     const response = await fetch(
+  //       `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activity.id}/send_thank_you`,
+  //       {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         credentials: "include",
+  //       }
+  //     );
 
-      if (response.ok) {
-        alert("Thank-you emails sent successfully! 🎉");
-      } else {
-        alert("Failed to send thank-you emails. Try again later.");
-      }
-    } catch (error) {
-      console.error("Error sending thank-you emails:", error);
-      alert("Something went wrong!");
-    }
-  };
+  //     if (response.ok) {
+  //       alert("Thank-you emails sent successfully! 🎉");
+  //     } else {
+  //       alert("Failed to send thank-you emails. Try again later.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error sending thank-you emails:", error);
+  //     alert("Something went wrong!");
+  //   }
+  // };
 
   const handleLeaveActivity = async () => {
     const confirmLeave = window.confirm(
@@ -226,7 +225,6 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
               })}
           </ParticipantsScroll>
         </ParticipantsRow>
-        <ActivityCommentSection activity={activity} />
       </ParticipantsSection>
 
       {selectedParticipant && (

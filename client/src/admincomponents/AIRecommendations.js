@@ -7,27 +7,30 @@ import {
 } from "../styles/ActivityDetailsStyles";
 import RestaurantMap from "./RestaurantMap";
 import CuisineChat from "./CuisineChat";
+import PinnedActivityCard from "./PinnedActivityCard";
 
-const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger }) => {
-  // Local state for recommendations, loading status, errors, and chat modal.
+const AIRecommendations = ({
+  activity,
+  setPinnedActivities,
+  setRefreshTrigger,
+  pinnedActivities,
+  isOwner,
+}) => {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showChat, setShowChat] = useState(false);
-  // State to track which recommendation's reviews are shown in a modal.
   const [selectedRecForReviews, setSelectedRecForReviews] = useState(null);
 
-  // Destructure necessary fields from the activity object.
   const { id, responses, activity_location, date_notes } = activity;
   const responsesCompleted = responses?.length > 0;
 
-  // Function: Fetch recommendations using detailed user responses.
   const fetchRecommendations = useCallback(async () => {
     if (!responses || responses.length === 0) {
       alert("No responses found for this activity.");
       return;
     }
-    if (recommendations.length > 0) return; // Avoid duplicate fetch
+    if (recommendations.length > 0) return;
     setLoading(true);
     setError("");
     try {
@@ -55,13 +58,12 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
     }
   }, [responses, activity_location, date_notes, recommendations.length]);
 
-  // Function: Fetch trending recommendations based solely on activity details.
   const fetchTrendingRecommendations = useCallback(async () => {
     if (!activity_location || !date_notes) {
       alert("Activity details missing for recommendations.");
       return;
     }
-    if (recommendations.length > 0) return; // Avoid duplicate fetch
+    if (recommendations.length > 0) return;
     setLoading(true);
     setError("");
     try {
@@ -85,10 +87,8 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
     }
   }, [activity_location, date_notes, recommendations.length]);
 
-  // useEffect: Check for cached recommendations on mount.
   useEffect(() => {
-    if (recommendations.length > 0) return; // Already loaded
-
+    if (recommendations.length > 0) return;
     const fetchRecommendationsCache = async () => {
       setLoading(true);
       try {
@@ -119,7 +119,6 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
         setLoading(false);
       }
     };
-
     fetchRecommendationsCache();
   }, [
     id,
@@ -131,7 +130,6 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
     fetchTrendingRecommendations,
   ]);
 
-  // Handler: Trigger the appropriate fetch based on responses completion.
   const handleFetchRecommendations = async () => {
     if (responsesCompleted) {
       await fetchRecommendations();
@@ -140,7 +138,6 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
     }
   };
 
-  // Handler: Pin a recommendation to the activity.
   const handlePinActivity = (rec) => {
     if (window.confirm(`Do you want to pin "${rec.name}" to this activity?`)) {
       createPinnedActivity(rec);
@@ -179,12 +176,21 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
     }
   };
 
-  console.log(recommendations);
-
   return (
     <RecommendationsContainer>
       {error && <ErrorText>{error}</ErrorText>}
       <RecommendationList>
+        {/* Render pinned activities first */}
+        {pinnedActivities.length > 0 &&
+          pinnedActivities.map((pinned) => (
+            <PinnedActivityCard
+              key={pinned.id}
+              isOwner={isOwner}
+              setPinnedActivities={setPinnedActivities}
+              pinned={pinned}
+            />
+          ))}
+        {/* Header for recommendations */}
         <RecommendationItem>
           {recommendations.length > 0 ? (
             <>
@@ -243,7 +249,6 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
                   </DetailItem>
                 )}
               </Details>
-              {/* Display photos if available */}
               {rec.photos && rec.photos.length > 0 && (
                 <PhotosContainer>
                   {rec.photos.slice(0, 3).map((photo, idx) => (
@@ -255,10 +260,9 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
                   ))}
                 </PhotosContainer>
               )}
-              {/* Show Reviews button if reviews exist */}
               {rec.reviews && rec.reviews.length > 0 && (
                 <ReviewsButton onClick={() => setSelectedRecForReviews(rec)}>
-                  Reviews
+                  Reviews ({rec.reviews.length})
                 </ReviewsButton>
               )}
             </RecommendationItem>
@@ -278,7 +282,6 @@ const AIRecommendations = ({ activity, setPinnedActivities, setRefreshTrigger })
           />
         </>
       )}
-      {/* Modal for displaying reviews */}
       {selectedRecForReviews && (
         <>
           <DimmedOverlay onClick={() => setSelectedRecForReviews(null)} />
@@ -386,7 +389,7 @@ const PinButton = styled.button`
   height: 40px;
   font-size: 1.4rem;
   cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   transition: transform 0.2s ease-in-out;
   &:hover {
     transform: scale(1.1);
@@ -411,8 +414,6 @@ const ExplanationText = styled.p`
   font-size: 0.9rem;
   color: #666;
 `;
-
-/* New Styled Components for Photos and Reviews */
 
 const PhotosContainer = styled.div`
   display: flex;
@@ -446,37 +447,6 @@ const ReviewsButton = styled.button`
   }
 `;
 
-const ReviewItem = styled.div`
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-`;
-
-const ReviewAuthorImage = styled.img`
-  height: 40px;
-  width: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-`;
-
-const ReviewTextContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const ReviewAuthor = styled.span`
-  font-weight: bold;
-  font-size: 0.95rem;
-`;
-
-const ReviewText = styled.p`
-  margin: 0;
-  font-size: 0.85rem;
-  color: #555;
-`;
-
-/* Styled Components for the Reviews Modal */
-
 const ModalContainer = styled.div`
   position: fixed;
   top: 50%;
@@ -490,7 +460,7 @@ const ModalContainer = styled.div`
   width: 90%;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
 `;
 
 const ModalHeader = styled.div`
@@ -518,4 +488,33 @@ const CloseButton = styled.button`
 const ModalContent = styled.div`
   max-height: 60vh;
   overflow-y: auto;
+`;
+
+const ReviewItem = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+`;
+
+const ReviewAuthorImage = styled.img`
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+`;
+
+const ReviewTextContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const ReviewAuthor = styled.span`
+  font-weight: bold;
+  font-size: 0.95rem;
+`;
+
+const ReviewText = styled.p`
+  margin: 0;
+  font-size: 0.85rem;
+  color: #555;
 `;

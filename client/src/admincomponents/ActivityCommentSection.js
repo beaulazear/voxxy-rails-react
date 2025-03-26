@@ -9,7 +9,6 @@ const CommentsSection = ({ activity }) => {
   const [newComment, setNewComment] = useState("");
   const { user } = useContext(UserContext);
   const commentsListRef = useRef(null);
-  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     if (commentsListRef.current) {
@@ -55,51 +54,46 @@ const CommentsSection = ({ activity }) => {
 
   return (
     <CommentsSectionWrapper>
-      <ToggleButton onClick={() => setIsExpanded((prev) => !prev)}>
-        {isExpanded ? "Hide Comments" : "View Activity Comments"}
-      </ToggleButton>
-      {isExpanded && (
-        <CommentsContainer>
-          <CommentsList ref={commentsListRef}>
-            {comments.length > 0 ? (
-              comments.map((comment) => {
-                const isOwnComment = comment.user.id === user.id;
-                return (
-                  <CommentWrapper key={comment.id} $isOwnComment={isOwnComment}>
-                    {!isOwnComment && (
-                      <Avatar src={comment.user.avatar || Woman} alt={comment.user.name} />
-                    )}
-                    <CommentBubble $isOwnComment={isOwnComment}>
-                      <CommentHeader>
-                        <CommentAuthor>{comment.user.name}</CommentAuthor>
-                        <Timestamp>{formatTimestamp(comment.created_at)}</Timestamp>
-                      </CommentHeader>
-                      <CommentText>{comment.content}</CommentText>
-                    </CommentBubble>
-                    {isOwnComment && (
-                      <Avatar src={comment.user.avatar || Woman} alt={comment.user.name} />
-                    )}
-                  </CommentWrapper>
-                );
-              })
-            ) : (
-              <NoComments>No messages yet. Start the conversation!</NoComments>
-            )}
-            <div />
-          </CommentsList>
-          <CommentInputContainer>
-            <CommentInput
-              type="text"
-              placeholder="Write a message..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-            />
-            <SendButton onClick={handleCommentSubmit}>
-              <SendOutlined />
-            </SendButton>
-          </CommentInputContainer>
-        </CommentsContainer>
-      )}
+      <Title>Voxxy Group Chat</Title>
+      <CommentsContainer>
+        <CommentsList ref={commentsListRef}>
+          {comments.length > 0 ? (
+            comments.map((comment) => {
+              const isOwnComment = comment.user.id === user.id;
+              return (
+                <CommentWrapper key={comment.id} $isOwnComment={isOwnComment}>
+                  {!isOwnComment && (
+                    <Avatar src={comment.user.avatar || Woman} alt={comment.user.name} />
+                  )}
+                  <CommentBubble $isOwnComment={isOwnComment}>
+                    <CommentHeader>
+                      <CommentAuthor>{comment.user.name}</CommentAuthor>
+                      <Timestamp>{formatTimestamp(comment.created_at)}</Timestamp>
+                    </CommentHeader>
+                    <CommentText>{comment.content}</CommentText>
+                  </CommentBubble>
+                  {isOwnComment && (
+                    <Avatar src={comment.user.avatar || Woman} alt={comment.user.name} />
+                  )}
+                </CommentWrapper>
+              );
+            })
+          ) : (
+            <NoComments>No messages yet. Start the conversation!</NoComments>
+          )}
+        </CommentsList>
+        <CommentInputContainer>
+          <CommentInput
+            type="text"
+            placeholder="Write a message..."
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+          />
+          <SendButton onClick={handleCommentSubmit}>
+            <SendOutlined />
+          </SendButton>
+        </CommentInputContainer>
+      </CommentsContainer>
     </CommentsSectionWrapper>
   );
 };
@@ -107,32 +101,20 @@ const CommentsSection = ({ activity }) => {
 export default CommentsSection;
 
 const CommentsSectionWrapper = styled.div`
-  width: 100%;
+  width: 90%;
+  margin: 20px auto;
+  /* No internal background so it uses the parent's dark background */
 `;
 
-const ToggleButton = styled.button`
-  background: #8e44ad;
+const Title = styled.h2`
   color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  margin: auto;
-  margin-bottom: 10px;
-  display: block;
-  width: 225px;
   text-align: center;
-
-  &:hover {
-    background: #6a1b9a;
-  }
+  margin-bottom: 15px;
 `;
 
 const CommentsContainer = styled.div`
-  background: white;
   width: 100%;
-  padding: 0;
-  margin: 0;
+  /* Transparent container styling */
 `;
 
 const CommentsList = styled.div`
@@ -142,13 +124,14 @@ const CommentsList = styled.div`
   max-height: 350px;
   overflow-y: auto;
   padding: 10px;
-  width: 100%;
+  border-bottom: 1px solid #444;
+  background: transparent;
 
   &::-webkit-scrollbar {
     width: 5px;
   }
   &::-webkit-scrollbar-thumb {
-    background-color: #8e44ad;
+    background-color: #888;
     border-radius: 5px;
   }
 `;
@@ -161,12 +144,11 @@ const CommentWrapper = styled.div`
 `;
 
 const CommentBubble = styled.div`
-  background: ${({ $isOwnComment }) => ($isOwnComment ? "#8e44ad" : "#f1f1f1")};
-  color: ${({ $isOwnComment }) => ($isOwnComment ? "white" : "black")};
+  background: ${({ $isOwnComment }) => ($isOwnComment ? "#2F80ED" : "#4F4F4F")};
+  color: white;
   padding: 12px;
   border-radius: 12px;
   max-width: 60%;
-  position: relative;
   text-align: left;
   display: flex;
   flex-direction: column;
@@ -184,6 +166,7 @@ const Avatar = styled.img`
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid #fff;
 `;
 
 const CommentAuthor = styled.span`
@@ -199,15 +182,16 @@ const CommentText = styled.p`
 
 const Timestamp = styled.span`
   font-size: 0.75rem;
-  color: #bbb;
+  color: #ccc;
   margin-left: 10px;
 `;
 
 const NoComments = styled.p`
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   font-style: italic;
-  color: #666;
+  color: #ccc;
   text-align: center;
+  margin: 20px 0;
 `;
 
 const CommentInputContainer = styled.div`
@@ -221,12 +205,18 @@ const CommentInput = styled.input`
   flex: 1;
   padding: 10px;
   font-size: 1rem;
-  border: 1px solid #ccc;
+  background: #333;
+  color: #fff;
+  border: 1px solid #555;
   border-radius: 8px;
+
+  &::placeholder {
+    color: #aaa;
+  }
 `;
 
 const SendButton = styled.button`
-  background: #8e44ad;
+  background: #2F80ED;
   color: white;
   border: none;
   padding: 10px;
@@ -238,6 +228,6 @@ const SendButton = styled.button`
   font-size: 1.2rem;
 
   &:hover {
-    background: #6a1b9a;
+    background: #1c60b3;
   }
 `;

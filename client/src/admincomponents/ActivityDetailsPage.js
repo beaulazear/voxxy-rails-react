@@ -1,16 +1,14 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import { UserContext } from '../context/user';
-import styled from 'styled-components';
 import {
   PageContainer,
-  SmallSection,
 } from "../styles/ActivityDetailsStyles";
 import AIRecommendations from "./AIRecommendations";
 import UpdateActivityModal from './UpdateActivityModal';
-import PinnedActivityCard from './PinnedActivityCard';
 import LoadingScreen from '../components/LoadingScreen.js';
 import ActivityHeader from './ActivityHeader.js';
 import VantaWrapper from '../components/VantaWrapper.js';
+import ActivityCommentSection from './ActivityCommentSection.js'
 
 function ActivityDetailsPage({ activityId, onBack }) {
   const { user, setUser } = useContext(UserContext);
@@ -150,8 +148,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
     }
   }
 
-  const hasManyItems = pinnedActivities.length >= 1;
-
   return (
     <VantaWrapper>
       <div ref={topRef}>
@@ -164,29 +160,8 @@ function ActivityDetailsPage({ activityId, onBack }) {
             onDelete={handleDelete}
             onInvite={handleInvite}
           />
-          <SmallSection>
-            <PinnedScrollContainer style={{ justifyContent: hasManyItems ? 'flex-start' : 'center' }}>
-              {pinnedActivities.length > 0 ? (
-                pinnedActivities.map((pinned) => (
-                  <PinnedActivityCard
-                    key={pinned.id}
-                    isOwner={isOwner}
-                    setPinnedActivities={setPinnedActivities}
-                    pinned={pinned}
-                  />
-                ))
-              ) : (
-                <TextContainer>
-                  <PinnedTitle>🎉 Your pinned activities are saved for easy access!</PinnedTitle>
-                  <SubTitle>Found a restaurant that’s a perfect match? Click (or tap) on it to pin it to your list! Once pinned, you can vote and leave a comment to share your thoughts with the group.
-                    <br></br><br></br>
-                    If your group’s preferences change, Chat with Voxxy to explore new AI-powered recommendations and refine your choices!</SubTitle>
-                </TextContainer>
-              )}
-            </PinnedScrollContainer>
-          </SmallSection>
-          <AIRecommendations setPinnedActivities={setPinnedActivities} activity={currentActivity} setRefreshTrigger={setRefreshTrigger} />
-
+          <AIRecommendations isOwner={isOwner} pinnedActivities={pinnedActivities} setPinnedActivities={setPinnedActivities} activity={currentActivity} setRefreshTrigger={setRefreshTrigger} />
+          <ActivityCommentSection activity={currentActivity} />
           {showModal && (
             <UpdateActivityModal
               activity={currentActivity}
@@ -201,54 +176,3 @@ function ActivityDetailsPage({ activityId, onBack }) {
 }
 
 export default ActivityDetailsPage;
-
-const TextContainer = styled.div`
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  position: relative;
-  border-left: 8px solid #FFC75F;
-  min-width: 300px;
-  max-width: 600px;
-  cursor: pointer;
-  text-align: left;
-
-  &:hover {
-    transform: scale(1.01);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
-  }
-`
-
-const SubTitle = styled.div`
-  font-size: 1rem;
-  color: #444;
-  line-height: 1.5;
-`
-
-const PinnedTitle = styled.h2`
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: #222;
-  margin-bottom: 6px;
-`;
-
-const PinnedScrollContainer = styled.div`
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  padding-bottom: 10px;
-  scrollbar-width: none; /* Hide scrollbar for Firefox */
-  -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
-  margin-left: -3rem;
-  margin-right: -3rem;
-  padding: 10px;
-
-  &::-webkit-scrollbar {
-    display: none; /* Hide scrollbar for Chrome/Safari */
-  }
-`;

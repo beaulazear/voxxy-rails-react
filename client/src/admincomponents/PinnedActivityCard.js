@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import { UserContext } from "../context/user";
-import Woman from '../assets/Woman.jpg';
+import Woman from "../assets/Woman.jpg";
+import { ChatButton, StyledButton, DimmedOverlay } from "../styles/ActivityDetailsStyles";
 
 const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
   const { user } = useContext(UserContext);
@@ -10,8 +11,7 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
   const [likes, setLikes] = useState(pinned.vote_count || 0);
   const [likedBy, setLikedBy] = useState(pinned.voters || []);
   const [hasLiked, setHasLiked] = useState(false);
-
-  console.log(pinned)
+  const [showReviews, setShowReviews] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -25,31 +25,25 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
         console.error("No votes found for this activity");
         return;
       }
-
-      const userVote = pinned.votes.find(vote => vote.user_id === user.id);
+      const userVote = pinned.votes.find((vote) => vote.user_id === user.id);
       if (!userVote) {
         console.error("User vote not found in frontend state!");
         return;
       }
-
       const voteId = userVote.id;
       const url = `${API_URL}/pinned_activities/${pinned.id}/votes/${voteId}`;
-
       fetch(url, {
         method: "DELETE",
         credentials: "include",
       })
-        .then(res => res.json())
+        .then((res) => res.json())
         .then((data) => {
-          console.log("Response from DELETE request:", data);
-
           if (data.success) {
             setLikes(data.votes.length);
             setLikedBy(data.voters || []);
             setHasLiked(false);
-
-            setPinnedActivities(prevPinnedActivities =>
-              prevPinnedActivities.map(activity =>
+            setPinnedActivities((prev) =>
+              prev.map((activity) =>
                 activity.id === pinned.id
                   ? { ...activity, votes: [...data.votes], voters: [...data.voters] }
                   : activity
@@ -57,24 +51,20 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
             );
           }
         })
-        .catch(err => console.error("Error unliking activity:", err));
-
+        .catch((err) => console.error("Error unliking activity:", err));
     } else {
       fetch(`${API_URL}/pinned_activities/${pinned.id}/votes`, {
         method: "POST",
         credentials: "include",
       })
-        .then(res => res.json())
+        .then((res) => res.json())
         .then((data) => {
-          console.log("Response from POST request:", data);
-
           if (data.success) {
             setLikes(data.votes.length);
             setLikedBy(data.voters || []);
             setHasLiked(true);
-
-            setPinnedActivities(prevPinnedActivities =>
-              prevPinnedActivities.map(activity =>
+            setPinnedActivities((prev) =>
+              prev.map((activity) =>
                 activity.id === pinned.id
                   ? { ...activity, votes: [...data.votes], voters: [...data.voters] }
                   : activity
@@ -82,7 +72,7 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
             );
           }
         })
-        .catch(err => console.error("Error liking activity:", err));
+        .catch((err) => console.error("Error liking activity:", err));
     }
   }
 
@@ -90,9 +80,7 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this pinned activity? This cannot be undone."
     );
-
     if (!confirmDelete) return;
-
     fetch(`${API_URL}/activities/${pinned.activity_id}/pinned_activities/${pinned.id}`, {
       method: "DELETE",
       credentials: "include",
@@ -104,11 +92,7 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
         return res.json();
       })
       .then(() => {
-        setPinnedActivities((prevPinned) =>
-          prevPinned.filter((p) => p.id !== pinned.id)
-        );
-
-        console.log("Pinned activity deleted successfully");
+        setPinnedActivities((prev) => prev.filter((p) => p.id !== pinned.id));
       })
       .catch((error) => {
         console.error("Error deleting pinned activity:", error);
@@ -117,85 +101,116 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
   }
 
   return (
-    <Card>
-      <Header>
-        <Title>{pinned.title}</Title>
-        <LikeSection>
-          <LikeButton onClick={handleLike} $liked={hasLiked}>
-            {hasLiked ? "❤️" : "🤍"} {likes}
-          </LikeButton>
-          <AvatarList>
-            {likedBy.slice(0, 5).map((voter) => (
-              <Avatar key={voter.id} src={voter.avatar || Woman} alt={voter.name} />
+    <>
+      <Card>
+        <PinnedBadge>Pinned</PinnedBadge>
+        <Header>
+          <Title>{pinned.title}</Title>
+          <LikeSection>
+            <LikeButton onClick={handleLike} $liked={hasLiked}>
+              {hasLiked ? "❤️" : "🤍"} {likes}
+            </LikeButton>
+            <AvatarList>
+              {likedBy.slice(0, 5).map((voter) => (
+                <Avatar key={voter.id} src={voter.avatar || Woman} alt={voter.name} />
+              ))}
+            </AvatarList>
+          </LikeSection>
+        </Header>
+        <Description>{pinned.description}</Description>
+        <Details>
+          <DetailItem>⏰ {pinned.hours || "N/A"}</DetailItem>
+          <DetailItem>💸 {pinned.price_range || "N/A"}</DetailItem>
+          <DetailItem>📍 {pinned.address || "N/A"}</DetailItem>
+          {isOwner && (
+            <ChatButton>
+              <StyledButton onClick={handleDelete}>Delete</StyledButton>
+            </ChatButton>
+          )}
+        </Details>
+        {pinned.photos && pinned.photos.length > 0 && (
+          <PhotosContainer>
+            {pinned.photos.slice(0, 3).map((photo, idx) => (
+              <PhotoThumbnail
+                key={idx}
+                src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}`}
+                alt={`${pinned.title} photo ${idx + 1}`}
+              />
             ))}
-          </AvatarList>
-        </LikeSection>
-      </Header>
-
-      <Description>{pinned.description}</Description>
-      <Details>
-        <DetailItem>⏰ {pinned.hours || "N/A"}</DetailItem>
-        <DetailItem>💸 {pinned.price_range || "N/A"}</DetailItem>
-        <DetailItem>📍 {pinned.address || "N/A"}</DetailItem>
-        {isOwner && (
-          <ChatButton>
-            <StyledButton onClick={handleDelete}>Delete</StyledButton>
-          </ChatButton>
+          </PhotosContainer>
         )}
-      </Details>
-    </Card>
+        {pinned.reviews && pinned.reviews.length > 0 && (
+          <ReviewsButton onClick={() => setShowReviews(true)}>
+            Reviews ({pinned.reviews.length})
+          </ReviewsButton>
+        )}
+      </Card>
+      {showReviews && (
+        <>
+          <DimmedOverlay onClick={() => setShowReviews(false)} />
+          <ModalContainer>
+            <ModalHeader>
+              <ModalTitle>Reviews for {pinned.title}</ModalTitle>
+              <CloseButton onClick={() => setShowReviews(false)}>×</CloseButton>
+            </ModalHeader>
+            <ModalContent>
+              {pinned.reviews.map((review, idx) => (
+                <ReviewItem key={idx}>
+                  {review.profile_photo_url && (
+                    <ReviewAuthorImage src={review.profile_photo_url} alt={review.author_name} />
+                  )}
+                  <ReviewTextContainer>
+                    <ReviewAuthor>{review.author_name}</ReviewAuthor>
+                    <ReviewText>{review.text}</ReviewText>
+                  </ReviewTextContainer>
+                </ReviewItem>
+              ))}
+            </ModalContent>
+          </ModalContainer>
+        </>
+      )}
+    </>
   );
 };
 
 export default PinnedActivityCard;
 
-export const StyledButton = styled.button`
-  padding: 0.75rem 1.5rem;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  background: red;
-  margin-top: auto;
-
-  &:hover {
-    background: darkred;
-  }
-`;
-
-export const ChatButton = styled.div`
-  display: flex;
-  justify-content: center;
-  flex-grow: 1;
-  align-items: flex-end;
-  margin-top: auto;
-  width: 100%;
-  bottom: 0;
-`;
-
 const Card = styled.div`
   background: #fff;
   border-radius: 12px;
-  padding: 20px;
+  /* Reduced overall vertical padding for a more compact look,
+     but add extra top padding so the badge has room */
+  padding: 30px 20px 20px;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   position: relative;
-  border-left: 8px solid #FFB400;
-  min-width: 300px;
+  /* Fixed width to match recommendations */
+  width: 350px;
+  min-width: 350px;
+  max-width: 350px;
+  margin: 0 10px;
   cursor: pointer;
   text-align: left;
-  max-width: 600px;
-
   &:hover {
     transform: scale(1.01);
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
   }
+`;
+
+const PinnedBadge = styled.div`
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  background: #8e44ad;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  z-index: 2;
 `;
 
 const Header = styled.div`
@@ -205,26 +220,27 @@ const Header = styled.div`
 `;
 
 const Title = styled.h3`
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: bold;
   color: #222;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
+  /* Add left margin so text doesn't clash with the badge */
+  margin-left: 50px;
 `;
 
 const LikeSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 `;
 
 const LikeButton = styled.button`
   background: none;
   border: none;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
   color: ${({ $liked }) => ($liked ? "red" : "#888")};
-
   &:hover {
     transform: scale(1.1);
   }
@@ -242,32 +258,134 @@ const Avatar = styled.img`
   object-fit: cover;
   border: 2px solid white;
   margin-left: -8px;
-
   &:first-child {
     margin-left: 0;
   }
 `;
 
 const Description = styled.p`
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #444;
-  line-height: 1.5;
+  line-height: 1.4;
 `;
 
 const Details = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   font-weight: 500;
 `;
 
 const DetailItem = styled.span`
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #666;
-  padding: 6px 0;
+  padding: 4px 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-
   &:last-child {
     border-bottom: none;
   }
+`;
+
+const PhotosContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+`;
+
+const PhotoThumbnail = styled.img`
+  height: 100px;
+  width: 100px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid #ddd;
+`;
+
+const ReviewsButton = styled.button`
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  align-self: flex-end;
+  margin-top: auto;
+  &:hover {
+    background: #0056b3;
+  }
+`;
+
+const ModalContainer = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  z-index: 1001;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+`;
+
+const ModalTitle = styled.h3`
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+`;
+
+const CloseButton = styled.button`
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+`;
+
+const ModalContent = styled.div`
+  max-height: 60vh;
+  overflow-y: auto;
+`;
+
+const ReviewItem = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+`;
+
+const ReviewAuthorImage = styled.img`
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+`;
+
+const ReviewTextContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const ReviewAuthor = styled.span`
+  font-weight: bold;
+  font-size: 0.95rem;
+`;
+
+const ReviewText = styled.p`
+  margin: 0;
+  font-size: 0.85rem;
+  color: #555;
 `;
