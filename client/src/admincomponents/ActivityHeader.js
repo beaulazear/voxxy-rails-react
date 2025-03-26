@@ -9,10 +9,10 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
   const [showInvitePopup, setShowInvitePopup] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [selectedParticipant, setSelectedParticipant] = useState(null);
-  const { setUser } = useContext(UserContext)
+  const { setUser } = useContext(UserContext);
 
   const handleParticipantClick = (participant) => {
-    setShowInvitePopup(null)
+    setShowInvitePopup(null);
     setSelectedParticipant(participant);
   };
 
@@ -74,37 +74,9 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
   ];
 
   function extractHoursAndMinutes(isoString) {
-    if (!isoString) return "Time: TBD"; // Handle missing data
-
-    return isoString.slice(11, 16); // Extracts "HH:MM" from "2000-01-01T12:15:00.000Z"
+    if (!isoString) return "Time: TBD";
+    return isoString.slice(11, 16);
   }
-
-  // const handleSendThankYou = async () => {
-  //   const confirmSend = window.confirm(
-  //     "Are you sure you want to send a thank-you email to all participants? 📩 This will notify every participant in the activity."
-  //   );
-
-  //   if (!confirmSend) return;
-  //   try {
-  //     const response = await fetch(
-  //       `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activity.id}/send_thank_you`,
-  //       {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         credentials: "include",
-  //       }
-  //     );
-
-  //     if (response.ok) {
-  //       alert("Thank-you emails sent successfully! 🎉");
-  //     } else {
-  //       alert("Failed to send thank-you emails. Try again later.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error sending thank-you emails:", error);
-  //     alert("Something went wrong!");
-  //   }
-  // };
 
   const handleLeaveActivity = async () => {
     const confirmLeave = window.confirm(
@@ -165,23 +137,17 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
         )}
       </TopBar>
       <Title>{activity.emoji} {activity.activity_name}</Title>
-      <HostInfo>
-        Hosted by: <strong>{isOwner ? "You" : activity?.user?.name || "Unknown"}</strong>
-        <br></br>
-        {activity.date_day ? <span> 📆 {activity.date_day}</span> : <span> 📆 Date: TBD</span>}
+      <HostName>
+        Hosted by: {isOwner ? "You" : activity?.user?.name || "Unknown"}
+      </HostName>
+      <ActivityDetails>
+        {activity.date_day ? <>📆 {activity.date_day}</> : <>📆 Date: TBD </>}
         {activity.date_time ? (
-          <span> ⏰ {extractHoursAndMinutes(activity.date_time)}</span>
+          <>⏰ {extractHoursAndMinutes(activity.date_time)}</>
         ) : (
-          <span> ⏰ Time: TBD</span>
+          <>⏰ Time: TBD</>
         )}
-        <br></br>
-        {((!activity.date_time || !activity.date_day) && isOwner) && (
-          <>
-            <span>Edit the activity to change the date + time.</span>
-          </>
-        )}
-        {/* {isOwner && (<InviteButton onClick={handleSendThankYou}>📩 Send Thank You Email</InviteButton>)} */}
-      </HostInfo>
+      </ActivityDetails>
 
       <EntryMessage>
         {activity.welcome_message ||
@@ -190,39 +156,34 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
 
       <ParticipantsSection>
         <ParticipantsTitle>Voxxy Board Participants</ParticipantsTitle>
-        {isOwner && (
-          <InviteButton onClick={handleInviteClick}>
-            <UserAddOutlined style={{ width: '85%' }} /> Invite
-          </InviteButton>
-        )}
-
         <ParticipantsRow>
           <ParticipantsScroll>
-            {allParticipants.filter((p) => p.confirmed).map((participant, index) => {
-              return (
+            {isOwner && (
+              <InviteCircle title="Invite a participant" onClick={handleInviteClick}>
+                <UserAddOutlined />
+              </InviteCircle>
+            )}
+            {allParticipants.filter((p) => p.confirmed).map((participant, index) => (
+              <ParticipantCircle
+                key={index}
+                title={participant.name}
+                onClick={() => handleParticipantClick(participant)}
+                $pending={false}
+              >
+                <ParticipantImage src={participant.avatar} alt={participant.name} />
+              </ParticipantCircle>
+            ))}
+            {isOwner &&
+              allParticipants.filter((p) => !p.confirmed).map((participant, index) => (
                 <ParticipantCircle
-                  key={index}
-                  title={participant.name}
+                  key={`pending-${index}`}
+                  title={`${participant.name} (Pending)`}
+                  $pending={true}
                   onClick={() => handleParticipantClick(participant)}
-                  $pending={!participant.confirmed}
                 >
                   <ParticipantImage src={participant.avatar} alt={participant.name} />
                 </ParticipantCircle>
-              );
-            })}
-            {isOwner &&
-              allParticipants.filter((p) => !p.confirmed).map((participant, index) => {
-                return (
-                  <ParticipantCircle
-                    key={`pending-${index}`}
-                    title={`${participant.name} (Pending)`}
-                    $pending
-                    onClick={() => handleParticipantClick(participant)} // 🟣 Make pending participants clickable
-                  >
-                    <ParticipantImage src={participant.avatar} alt={participant.name} />
-                  </ParticipantCircle>
-                );
-              })}
+              ))}
           </ParticipantsScroll>
         </ParticipantsRow>
       </ParticipantsSection>
@@ -262,25 +223,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
 
 export default HeaderSection;
 
-const LeaveActivityButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #e74c3c, #c0392b);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-
-  &:hover {
-    background: linear-gradient(135deg, #c0392b, #a83227);
-  }
-`;
-
+/* Styled Components */
 export const HeaderContainer = styled.div`
   background: white;
   padding: 1rem;
@@ -319,11 +262,26 @@ export const Title = styled.h1`
   font-weight: bold;
   text-align: center;
   color: #4e0f63;
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.5rem 0;
+`;
 
-  @media (min-width: 768px) {
-    margin: 0;
-  }
+/* New styled components for streamlined details */
+export const HostName = styled.p`
+  font-size: 1rem;
+  color: #555;
+  text-align: center;
+  margin: 0.3rem 0;
+`;
+
+export const ActivityDetails = styled.div`
+  font-size: 0.9rem;
+  color: #777;
+  text-align: center;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
 `;
 
 export const ActionButtons = styled.div`
@@ -352,22 +310,17 @@ export const DeleteIcon = styled(EditIcon)`
   }
 `;
 
-export const DetailsContainer = styled.div`
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-
-export const DetailItem = styled.div`
-  font-size: 1rem;
-  padding: 0.5rem;
+export const EntryMessage = styled.p`
   background: #f7f7f7;
-  border-radius: 8px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #444;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+  max-width: 450px;
+  margin: 0 auto;
 `;
 
 export const ParticipantsSection = styled.div`
@@ -382,22 +335,15 @@ export const ParticipantsTitle = styled.h3`
   font-size: 1.2rem;
   font-weight: bold;
   color: #4e0f63;
-  margin-bottom: 0rem;
+  margin-bottom: 0;
   text-align: center;
-`;
-
-export const ParticipantImage = styled.img`
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
 `;
 
 export const ParticipantsRow = styled.div`
   display: flex;
   align-items: center;
   margin-top: 1rem;
-  overflow: hidden; /* Prevent layout shifting */
+  overflow: hidden;
   width: 100%;
 `;
 
@@ -405,13 +351,13 @@ export const ParticipantsScroll = styled.div`
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;
-  white-space: nowrap; /* Prevent wrapping */
+  white-space: nowrap;
   padding-bottom: 10px;
   scrollbar-width: thin;
   -ms-overflow-style: none;
 
   &::-webkit-scrollbar {
-    display: none; /* Hide scrollbar on WebKit browsers */
+    display: none;
   }
 `;
 
@@ -422,7 +368,7 @@ export const ParticipantCircle = styled.div`
   background: ${({ $pending }) => ($pending ? "#aaa" : "#4a0d5c")};
   color: white;
   text-transform: uppercase;
-  flex-shrink: 0; /* Keeps items in one row */
+  flex-shrink: 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -430,69 +376,45 @@ export const ParticipantCircle = styled.div`
   overflow: hidden;
   padding: 10px;
 
-  /* Ensure initials show properly */
   .initials {
     white-space: nowrap;
   }
 `;
 
-export const ParticipantText = styled.span`
-  font-size: 0.9rem;
-  font-weight: normal;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: inline-block;
-  transition: opacity 0.3s ease-in-out, max-width 0.3s ease-in-out;
+export const ParticipantImage = styled.img`
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 `;
 
-export const InviteButton = styled.button`
-  flex-shrink: 0;
+// Styled InviteCircle so it matches participant circles
+const InviteCircle = styled(ParticipantCircle)`
+  background: #8e44ad;
+  border: 2px dashed white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const LeaveActivityButton = styled.button`
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #6a1b9a, #8e44ad);
-  color: #fff;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
   border: none;
   border-radius: 6px;
   font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
-  margin: .8rem auto;
+  transition: all 0.2s ease-in-out;
 
   &:hover {
-    background: linear-gradient(135deg, #4e0f63, #6a1b8a);
+    background: linear-gradient(135deg, #c0392b, #a83227);
   }
-`;
-
-export const HostInfo = styled.p`
-  text-align: center;
-  font-size: 1rem;
-  color: #666;
-  font-weight: 500;
-  margin-bottom: 1rem;
-
-  span {
-    display: inline-block;
-    margin-left: 8px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: #333;
-  }
-`;
-
-export const EntryMessage = styled.p`
-  background: #f7f7f7;
-  padding: 1rem;
-  border-radius: 10px;
-  font-size: 1rem;
-  color: #444;
-  text-align: center;
-  margin-bottom: 1.5rem;
-  line-height: 1.5;
-  max-width: 450px;
-  margin: 0 auto;
 `;
 
 const ParticipantPopupOverlay = styled.div`

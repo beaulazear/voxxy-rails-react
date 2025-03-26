@@ -27,6 +27,16 @@ export const ChatButton = styled.div`
   justify-content: center;
   margin-top: 1rem;
   margin-bottom: 1rem;
+
+  @media (max-width: 768px) {
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  @media (max-width: 480px) {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 export const StyledButton = styled.button`
@@ -38,10 +48,24 @@ export const StyledButton = styled.button`
   cursor: pointer;
   transition: background 0.3s ease;
   color: white;
-  background: ${(props) => (props.$isDelete ? "red" : "linear-gradient(135deg, #6a1b9a, #8e44ad)")};
+  background: ${(props) =>
+    props.$isDelete ? "red" : "linear-gradient(135deg, #6a1b9a, #8e44ad)"};
 
   &:hover {
-    background: ${(props) => (props.$isDelete ? "darkred" : "linear-gradient(135deg, #4e0f63, #6a1b8a)")};
+    background: ${(props) =>
+      props.$isDelete
+        ? "darkred"
+        : "linear-gradient(135deg, #4e0f63, #6a1b8a)"};
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
   }
 `;
 

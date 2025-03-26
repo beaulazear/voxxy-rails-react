@@ -81,11 +81,11 @@ const Navbar = () => {
       {/* Replacing logo with Voxxy text header */}
       {user ? (
         <HeaderLink to="/">
-          <VoxxyHeader>VoxxyAI</VoxxyHeader>
+          <VoxxyHeader>Voxxy</VoxxyHeader>
         </HeaderLink>
       ) : (
         <HeaderLink to="/">
-          <VoxxyHeader className='landing'>VoxxyAI</VoxxyHeader>
+          <VoxxyHeader className='landing'>Voxxy</VoxxyHeader>
         </HeaderLink>
       )}
       <MenuContainer>

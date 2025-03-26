@@ -103,6 +103,7 @@ export default CommentsSection;
 const CommentsSectionWrapper = styled.div`
   width: 90%;
   margin: 20px auto;
+  margin-top: 0;
   /* No internal background so it uses the parent's dark background */
 `;
 
@@ -144,7 +145,7 @@ const CommentWrapper = styled.div`
 `;
 
 const CommentBubble = styled.div`
-  background: ${({ $isOwnComment }) => ($isOwnComment ? "#2F80ED" : "#4F4F4F")};
+  background: ${({ $isOwnComment }) => ($isOwnComment ? "linear-gradient(135deg, #6a1b9a, #8e44ad)" : "#4F4F4F")};
   color: white;
   padding: 12px;
   border-radius: 12px;
@@ -209,6 +210,7 @@ const CommentInput = styled.input`
   color: #fff;
   border: 1px solid #555;
   border-radius: 8px;
+  opacity: 0.6;
 
   &::placeholder {
     color: #aaa;

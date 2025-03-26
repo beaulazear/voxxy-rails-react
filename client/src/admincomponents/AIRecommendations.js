@@ -23,7 +23,6 @@ const AIRecommendations = ({
   const [selectedRecForReviews, setSelectedRecForReviews] = useState(null);
 
   const { id, responses, activity_location, date_notes } = activity;
-  const responsesCompleted = responses?.length > 0;
 
   const fetchRecommendations = useCallback(async () => {
     if (!responses || responses.length === 0) {
@@ -130,14 +129,6 @@ const AIRecommendations = ({
     fetchTrendingRecommendations,
   ]);
 
-  const handleFetchRecommendations = async () => {
-    if (responsesCompleted) {
-      await fetchRecommendations();
-    } else {
-      await fetchTrendingRecommendations();
-    }
-  };
-
   const handlePinActivity = (rec) => {
     if (window.confirm(`Do you want to pin "${rec.name}" to this activity?`)) {
       createPinnedActivity(rec);
@@ -178,6 +169,10 @@ const AIRecommendations = ({
 
   return (
     <RecommendationsContainer>
+      <Title>AI Recommendations</Title>
+        <ChatButton>
+          <StyledButton onClick={() => setShowChat(true)}>Chat with Voxxy</StyledButton>
+        </ChatButton>
       {error && <ErrorText>{error}</ErrorText>}
       <RecommendationList>
         {/* Render pinned activities first */}
@@ -190,44 +185,9 @@ const AIRecommendations = ({
               pinned={pinned}
             />
           ))}
-        {/* Header for recommendations */}
-        <RecommendationItem>
-          {recommendations.length > 0 ? (
-            <>
-              <RestaurantName>🍽️ Your AI-powered recommendations are here!</RestaurantName>
-              <Description>
-                Click on a recommendation to pin it to your list.
-                <br />
-                <br />
-                Want to refine your options? Chat with Voxxy to update preferences and generate new recommendations.
-              </Description>
-            </>
-          ) : (
-            <>
-              <RestaurantName>🤖 No recommendations yet!</RestaurantName>
-              <Description>
-                Voxxy creates personalized restaurant suggestions based on what your group enjoys.
-                <br />
-                <br />
-                {responsesCompleted
-                  ? "Have a chat with Voxxy to share preferences and see tailored recommendations."
-                  : "Since detailed responses are missing, we're showing trending restaurant options based on the activity details."}
-              </Description>
-            </>
-          )}
-          <ChatButton>
-            <StyledButton onClick={() => setShowChat(true)}>Chat with Voxxy</StyledButton>
-          </ChatButton>
-          {recommendations.length === 0 && (
-            <ChatButton onClick={handleFetchRecommendations} disabled={loading}>
-              <StyledButton>{loading ? "Loading..." : "Find Restaurants"}</StyledButton>
-            </ChatButton>
-          )}
-        </RecommendationItem>
         {recommendations.length > 0 &&
           recommendations.map((rec, index) => (
             <RecommendationItem key={index}>
-              <PinButton onClick={() => handlePinActivity(rec)}>➕</PinButton>
               <RestaurantName>{rec.name}</RestaurantName>
               <Description>{rec.description || "No description available."}</Description>
               {rec.reason && (
@@ -260,15 +220,19 @@ const AIRecommendations = ({
                   ))}
                 </PhotosContainer>
               )}
-              {rec.reviews && rec.reviews.length > 0 && (
-                <ReviewsButton onClick={() => setSelectedRecForReviews(rec)}>
-                  Reviews ({rec.reviews.length})
-                </ReviewsButton>
-              )}
+              <ButtonContainer>
+                {rec.reviews && rec.reviews.length > 0 && (
+                  <ReviewsButton onClick={() => setSelectedRecForReviews(rec)}>
+                    Reviews ({rec.reviews.length})
+                  </ReviewsButton>
+                )}
+                <UnpinButton onClick={() => handlePinActivity(rec)}>Pin Restaurant</UnpinButton>
+              </ButtonContainer>
             </RecommendationItem>
           ))}
       </RecommendationList>
       {recommendations.length > 0 && <RestaurantMap recommendations={recommendations} />}
+
       {showChat && (
         <>
           <DimmedOverlay onClick={() => setShowChat(false)} />
@@ -311,6 +275,12 @@ const AIRecommendations = ({
 };
 
 export default AIRecommendations;
+
+const Title = styled.h2`
+  color: white;
+  text-align: center;
+  margin-bottom: 15px;
+`;
 
 const RecommendationsContainer = styled.div`
   padding: 2rem;
@@ -378,27 +348,6 @@ const DetailItem = styled.span`
   color: #666;
 `;
 
-const PinButton = styled.button`
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: #ffda79;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 1.4rem;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  transition: transform 0.2s ease-in-out;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  &:hover {
-    transform: scale(1.1);
-  }
-`;
-
 const ExplanationContainer = styled.div`
   background: #f1f1f1;
   padding: 10px;
@@ -435,18 +384,39 @@ const PhotoThumbnail = styled.img`
   border: 2px solid #ddd;
 `;
 
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+`;
+
 const ReviewsButton = styled.button`
-  background: #007bff;
+  background: ${(props) =>
+    props.$isDelete ? "red" : "linear-gradient(135deg, #6a1b9a, #8e44ad)"};
   color: #fff;
   border: none;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 4px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
-  align-self: flex-end;
-  margin-top: auto;
   &:hover {
-    background: #0056b3;
+    background: ${(props) =>
+    props.$isDelete ? "darkred" : "linear-gradient(135deg, #4e0f63, #6a1b8a)"};
+  }
+`;
+
+const UnpinButton = styled.button`
+  background: ${(props) =>
+    props.$isDelete ? "red" : "linear-gradient(135deg, #6a1b9a, #8e44ad)"};
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  &:hover {
+    background: ${(props) =>
+    props.$isDelete ? "darkred" : "linear-gradient(135deg, #4e0f63, #6a1b8a)"};
   }
 `;
 

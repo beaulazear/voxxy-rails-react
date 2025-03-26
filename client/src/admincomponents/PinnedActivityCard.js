@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import { UserContext } from "../context/user";
 import Woman from "../assets/Woman.jpg";
-import { ChatButton, StyledButton, DimmedOverlay } from "../styles/ActivityDetailsStyles";
+import { DimmedOverlay } from "../styles/ActivityDetailsStyles";
 
 const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
   const { user } = useContext(UserContext);
@@ -100,6 +100,8 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
       });
   }
 
+  console.log(pinned)
+
   return (
     <>
       <Card>
@@ -122,11 +124,6 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
           <DetailItem>⏰ {pinned.hours || "N/A"}</DetailItem>
           <DetailItem>💸 {pinned.price_range || "N/A"}</DetailItem>
           <DetailItem>📍 {pinned.address || "N/A"}</DetailItem>
-          {isOwner && (
-            <ChatButton>
-              <StyledButton onClick={handleDelete}>Delete</StyledButton>
-            </ChatButton>
-          )}
         </Details>
         {pinned.photos && pinned.photos.length > 0 && (
           <PhotosContainer>
@@ -139,11 +136,16 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
             ))}
           </PhotosContainer>
         )}
-        {pinned.reviews && pinned.reviews.length > 0 && (
-          <ReviewsButton onClick={() => setShowReviews(true)}>
-            Reviews ({pinned.reviews.length})
-          </ReviewsButton>
-        )}
+        <ButtonContainer>
+          {isOwner && (
+            <UnpinButton onClick={handleDelete}>Unpin</UnpinButton>
+          )}
+          {pinned.reviews && pinned.reviews.length > 0 && (
+            <ReviewsButton onClick={() => setShowReviews(true)}>
+              Reviews ({pinned.reviews.length})
+            </ReviewsButton>
+          )}
+        </ButtonContainer>
       </Card>
       {showReviews && (
         <>
@@ -303,18 +305,39 @@ const PhotoThumbnail = styled.img`
   border: 2px solid #ddd;
 `;
 
+const ButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
 const ReviewsButton = styled.button`
-  background: #007bff;
+  background: ${(props) =>
+    props.$isDelete ? "red" : "linear-gradient(135deg, #6a1b9a, #8e44ad)"};
   color: #fff;
   border: none;
   padding: 6px 10px;
   border-radius: 4px;
   font-size: 0.85rem;
   cursor: pointer;
-  align-self: flex-end;
-  margin-top: auto;
   &:hover {
-    background: #0056b3;
+    background: ${(props) =>
+    props.$isDelete ? "darkred" : "linear-gradient(135deg, #4e0f63, #6a1b8a)"};
+  }
+`;
+
+const UnpinButton = styled.button`
+  background: ${(props) =>
+    props.$isDelete ? "red" : "linear-gradient(135deg, #6a1b9a, #8e44ad)"};
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  &:hover {
+    background: ${(props) =>
+    props.$isDelete ? "darkred" : "linear-gradient(135deg, #4e0f63, #6a1b8a)"};
   }
 `;
 
