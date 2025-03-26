@@ -179,10 +179,9 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
         {((!activity.date_time || !activity.date_day) && isOwner) && (
           <>
             <span>Edit the activity to change the date + time.</span>
-            <br></br>
           </>
         )}
-        {isOwner && (<InviteButton onClick={handleSendThankYou}>📩 Send Thank You Email</InviteButton>)}
+        {/* {isOwner && (<InviteButton onClick={handleSendThankYou}>📩 Send Thank You Email</InviteButton>)} */}
       </HostInfo>
 
       <EntryMessage>

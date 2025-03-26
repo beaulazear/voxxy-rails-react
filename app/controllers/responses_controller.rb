@@ -2,7 +2,6 @@ class ResponsesController < ApplicationController
     before_action :authorized
 
     def create
-      # Find the activity either by direct ownership or by being a participant
       activity = current_user.activities.find_by(id: params[:response][:activity_id]) ||
                  Activity.joins(:participants)
                          .where(id: params[:response][:activity_id], participants: { id: current_user.id })
@@ -12,12 +11,10 @@ class ResponsesController < ApplicationController
         return render json: { error: "Activity not found" }, status: :not_found
       end
 
-      # Build the new response
       response = activity.responses.build(response_params)
       response.user_id = current_user.id
 
       if response.save
-        # After successful save, remove any other responses this user had for the same activity
         activity.responses
                 .where(user_id: current_user.id)
                 .where.not(id: response.id)

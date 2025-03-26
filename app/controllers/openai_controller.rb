@@ -1,198 +1,233 @@
 require "openai"
+require "net/http"
+require "uri"
 
 class OpenaiController < ApplicationController
-    skip_before_action :authorized, only: [ :generate_haiku ]
+  skip_before_action :authorized, only: [ :generate_haiku ]
 
-    def generate_haiku
-        Rails.logger.debug "OPENAI_API_KEY: #{ENV['OPENAI_API_KEY']}"
+  def generate_haiku
+    Rails.logger.debug "OPENAI_API_KEY: #{ENV['OPENAI_API_KEY']}"
 
-        client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
+    client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
 
-        begin
-          response = client.chat(
-            parameters: {
-              model: "gpt-4",
-              messages: [
-                { role: "user", content: params[:prompt] }
-              ]
-            }
-          )
-          render json: { haiku: response.dig("choices", 0, "message", "content") }
-        rescue Faraday::TooManyRequestsError => e
-          Rails.logger.error "Too many requests: #{e.message}"
-          sleep(1)
-          retry
-        end
-    end
-
-    def restaurant_recommendations
-        user_responses = params[:responses]
-        activity_location = params[:activity_location]
-        date_notes = params[:date_notes]
-
-        if user_responses.blank?
-          render json: { error: "No responses provided" }, status: :unprocessable_entity
-          return
-        end
-
-        cache_key = generate_cache_key(user_responses, activity_location, date_notes)
-
-        recommendations = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
-          fetch_recommendations_from_openai(user_responses, activity_location, date_notes)
-        end
-
-        if recommendations.present?
-          render json: { recommendations: recommendations }, status: :ok
-        else
-          render json: { error: "Failed to generate recommendations" }, status: :unprocessable_entity
-        end
-    end
-
-    def check_cached_recommendations
-      activity = Activity.find_by(id: params[:activity_id])
-      return render json: { error: "Activity not found" }, status: :not_found unless activity
-
-      cache_key = generate_cache_key(activity.responses.map(&:notes).join("\n\n"), activity.activity_location, activity.date_notes)
-
-      recommendations = Rails.cache.read(cache_key)
-
-      if recommendations.present?
-        render json: { recommendations: recommendations }
-      else
-        render json: { recommendations: [] }, status: :ok
-      end
-    end
-
-    def trending_recommendations
-      activity_location = params[:activity_location]
-      date_notes = params[:date_notes]
-
-      if activity_location.blank? || date_notes.blank?
-        render json: { error: "Missing required details" }, status: :unprocessable_entity
-        return
-      end
-
-      cache_key = "trending_recommendations_#{Digest::SHA256.hexdigest("#{activity_location}-#{date_notes}")}"
-
-      recommendations = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
-        fetch_trending_recommendations_from_openai(activity_location, date_notes)
-      end
-
-      if recommendations.present?
-        render json: { recommendations: recommendations }, status: :ok
-      else
-        render json: { error: "Failed to generate trending recommendations" }, status: :unprocessable_entity
-      end
-    end
-
-    private
-
-    def fetch_trending_recommendations_from_openai(activity_location, date_notes)
-      client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
-
-      prompt = <<~PROMPT
-        You are an AI assistant that provides restaurant recommendations based solely on location and timing.
-        The event is taking place in #{activity_location}, planned for #{date_notes}.
-        Recommend 5 trending or popular restaurants in the area.
-        Provide each recommendation in **valid JSON format** using the following structure:
-
-        {
-          "restaurants": [
-            {
-              "name": "Restaurant Name",
-              "price_range": "$ - $$$$",
-              "description": "Short description of the restaurant, including cuisine type and atmosphere.",
-              "reason": "Explain why this restaurant is trending or popular in this area.",
-              "hours": "Hours of operation (e.g., Mon-Fri: 9 AM - 10 PM, Sat-Sun: 8 AM - 11 PM)",
-              "website": "Valid website link or null if unknown",
-              "address": "Restaurant address or 'Not available'"
-            }
-          ]
-        }
-        - The response must be valid JSON.
-      PROMPT
-
+    begin
       response = client.chat(
         parameters: {
-          model: "gpt-3.5-turbo",
+          model: "gpt-4",
           messages: [
-            { role: "system", content: "You are an AI assistant that provides structured restaurant recommendations in JSON format." },
-            { role: "user", content: prompt }
-          ],
-          temperature: 0.7
+            { role: "user", content: params[:prompt] }
+          ]
         }
       )
+      render json: { haiku: response.dig("choices", 0, "message", "content") }
+    rescue Faraday::TooManyRequestsError => e
+      Rails.logger.error "Too many requests: #{e.message}"
+      sleep(1)
+      retry
+    end
+  end
 
-      recommendations_json = response.dig("choices", 0, "message", "content")
+  def restaurant_recommendations
+    user_responses = params[:responses]
+    activity_location = params[:activity_location]
+    date_notes = params[:date_notes]
 
-      begin
-        JSON.parse(recommendations_json)["restaurants"]
-      rescue JSON::ParserError
-        nil
-      end
+    if user_responses.blank?
+      render json: { error: "No responses provided" }, status: :unprocessable_entity
+      return
     end
 
-    def format_recommendation(rec)
+    cache_key = generate_cache_key(user_responses, activity_location, date_notes)
+
+    recommendations = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+      fetch_recommendations_from_openai(user_responses, activity_location, date_notes)
+    end
+
+    if recommendations.present?
+      render json: { recommendations: recommendations }, status: :ok
+    else
+      render json: { error: "Failed to generate recommendations" }, status: :unprocessable_entity
+    end
+  end
+
+  def check_cached_recommendations
+    activity = Activity.find_by(id: params[:activity_id])
+    return render json: { error: "Activity not found" }, status: :not_found unless activity
+
+    cache_key = generate_cache_key(activity.responses.map(&:notes).join("\n\n"), activity.activity_location, activity.date_notes)
+    recommendations = Rails.cache.read(cache_key)
+
+    if recommendations.present?
+      render json: { recommendations: recommendations }
+    else
+      render json: { recommendations: [] }, status: :ok
+    end
+  end
+
+  def trending_recommendations
+    activity_location = params[:activity_location]
+    date_notes = params[:date_notes]
+
+    if activity_location.blank? || date_notes.blank?
+      render json: { error: "Missing required details" }, status: :unprocessable_entity
+      return
+    end
+
+    cache_key = "trending_recommendations_#{Digest::SHA256.hexdigest("#{activity_location}-#{date_notes}")}"
+
+    recommendations = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+      fetch_trending_recommendations_from_openai(activity_location, date_notes)
+    end
+
+    if recommendations.present?
+      render json: { recommendations: recommendations }, status: :ok
+    else
+      render json: { error: "Failed to generate trending recommendations" }, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def fetch_trending_recommendations_from_openai(activity_location, date_notes)
+    client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
+    prompt = <<~PROMPT
+      You are an AI assistant that provides restaurant recommendations based solely on location and timing.
+      The event is taking place in #{activity_location}, planned for #{date_notes}.
+      Recommend 5 trending or popular restaurants in the area.
+      Provide each recommendation in **valid JSON format** using the following structure:
+
       {
-        name: rec.name,
-        description: rec.description,
-        hours: rec.hours,
-        reason: rec.reason,
-        price_range: rec.price_range,
-        address: rec.address,
-        website: rec.website
+        "restaurants": [
+          {
+            "name": "Restaurant Name",
+            "price_range": "$ - $$$$",
+            "description": "Short description of the restaurant, including cuisine type and atmosphere.",
+            "reason": "Explain why this restaurant is trending or popular in this area.",
+            "hours": "Hours of operation (e.g., Mon-Fri: 9 AM - 10 PM, Sat-Sun: 8 AM - 11 PM)",
+            "website": "Valid website link or null if unknown",
+            "address": "Restaurant address or 'Not available'"
+          }
+        ]
       }
+      - The response must be valid JSON.
+    PROMPT
+
+    response = client.chat(
+      parameters: {
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: "You are an AI assistant that provides structured restaurant recommendations in JSON format." },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.7
+      }
+    )
+
+    recommendations_json = response.dig("choices", 0, "message", "content")
+
+    begin
+      recommendations = JSON.parse(recommendations_json)["restaurants"]
+      enrich_recommendations(recommendations)
+    rescue JSON::ParserError
+      nil
     end
+  end
 
-    def generate_cache_key(user_responses, activity_location, date_notes)
-      hash_input = "#{user_responses}-#{activity_location}-#{date_notes}"
-      "recommendations_#{Digest::SHA256.hexdigest(hash_input)}"
+  def fetch_recommendations_from_openai(user_responses, activity_location, date_notes)
+    client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
+    prompt = <<~PROMPT
+      You are an AI assistant that provides restaurant recommendations based on user preferences.
+      The user has provided the following preferences: #{user_responses}.
+      This event will take place in #{activity_location}, and it is planned for #{date_notes}.
+
+      Considering these details, recommend 5 restaurants that best match the user's preferences and location.
+      Provide each recommendation in **valid JSON format** using the following structure:
+
+      {
+        "restaurants": [
+          {
+            "name": "Restaurant Name",
+            "price_range": "$ - $$$$",
+            "description": "Short description of the restaurant, including cuisine type and atmosphere.",
+            "reason": "Explain why this recommendation was chosen based on user feedback.",
+            "hours": "Hours of operation (e.g., Mon-Fri: 9 AM - 10 PM, Sat-Sun: 8 AM - 11 PM)",
+            "website": "Valid website link or null if unknown",
+            "address": "Restaurant address or 'Not available'"
+          }
+        ]
+      }
+      - The response must be valid JSON.
+    PROMPT
+
+    response = client.chat(
+      parameters: {
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: "You are an AI assistant that provides structured restaurant recommendations in JSON format." },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.7
+      }
+    )
+
+    recommendations_json = response.dig("choices", 0, "message", "content")
+
+    begin
+      recommendations = JSON.parse(recommendations_json)["restaurants"]
+      enrich_recommendations(recommendations)
+    rescue JSON::ParserError
+      nil
     end
+  end
 
-    def fetch_recommendations_from_openai(user_responses, activity_location, date_notes)
-      client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
+  # Iterate over recommendations and enrich each with Google Places details.
+  def enrich_recommendations(recommendations)
+    recommendations.map { |rec| enrich_recommendation(rec) }
+  end
 
-      prompt = <<~PROMPT
-        You are an AI assistant that provides restaurant recommendations based on user preferences.
-        The user has provided the following preferences: #{user_responses}.
-        This event will take place in #{activity_location}, and it is planned for #{date_notes}.
+  # Enrich a single recommendation by querying Google Places for photos and reviews.
+  def enrich_recommendation(rec)
+    # Build a query string using the restaurant's name and address.
+    query = CGI.escape("#{rec['name']} #{rec['address']}")
+    find_place_url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=#{query}&inputtype=textquery&fields=place_id&key=#{ENV['PLACES_KEY']}"
 
-        Considering these details, recommend 5 restaurants that best match the user's preferences and location.
-        Provide each recommendation in **valid JSON format** using the following structure:
+    begin
+      find_place_response = Net::HTTP.get_response(URI(find_place_url))
+      find_place_data = JSON.parse(find_place_response.body)
 
-        {
-          "restaurants": [
-            {
-              "name": "Restaurant Name",
-              "price_range": "$ - $$$$",
-              "description": "Short description of the restaurant, including cuisine type and atmosphere.",
-              "reason": "Explain why this recommendation was chosen based on user feedback.",
-              "hours": "Hours of operation (e.g., Mon-Fri: 9 AM - 10 PM, Sat-Sun: 8 AM - 11 PM)",
-              "website": "Valid website link or null if unknown",
-              "address": "Restaurant address or 'Not available'"
-            }
-          ]
-        }
-        - The response must be valid JSON.
-      PROMPT
+      if find_place_data["candidates"] && find_place_data["candidates"].any?
+        place_id = find_place_data["candidates"].first["place_id"]
 
-      response = client.chat(
-        parameters: {
-          model: "gpt-3.5-turbo",
-          messages: [
-            { role: "system", content: "You are an AI assistant that provides structured restaurant recommendations in JSON format." },
-            { role: "user", content: prompt }
-          ],
-          temperature: 0.7
-        }
-      )
+        details_url = "https://maps.googleapis.com/maps/api/place/details/json?place_id=#{place_id}&fields=photos,reviews&key=#{ENV['PLACES_KEY']}"
+        details_response = Net::HTTP.get_response(URI(details_url))
+        details_data = JSON.parse(details_response.body)
 
-      recommendations_json = response.dig("choices", 0, "message", "content")
-
-      begin
-        JSON.parse(recommendations_json)["restaurants"]
-      rescue JSON::ParserError
-        nil
+        if details_data["result"]
+          rec["photos"] = details_data["result"]["photos"] || []
+          rec["reviews"] = details_data["result"]["reviews"] || []
+        end
       end
+    rescue StandardError => e
+      Rails.logger.error "Error enriching recommendation #{rec['name']}: #{e.message}"
     end
+
+    rec
+  end
+
+  def generate_cache_key(user_responses, activity_location, date_notes)
+    hash_input = "#{user_responses}-#{activity_location}-#{date_notes}"
+    "recommendations_#{Digest::SHA256.hexdigest(hash_input)}"
+  end
+
+  def format_recommendation(rec)
+    {
+      name: rec.name,
+      description: rec.description,
+      hours: rec.hours,
+      reason: rec.reason,
+      price_range: rec.price_range,
+      address: rec.address,
+      website: rec.website
+    }
+  end
 end
