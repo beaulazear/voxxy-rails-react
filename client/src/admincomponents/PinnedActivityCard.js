@@ -205,7 +205,7 @@ const Card = styled.div`
   width: 350px;
   min-width: 350px;
   max-width: 350px;
-  margin: 0 10px;
+  margin: 0;
   cursor: pointer;
   text-align: left;
   &:hover {

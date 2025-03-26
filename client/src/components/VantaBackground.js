@@ -11,10 +11,10 @@ const VantaBackground = () => {
             gyroControls: false,
             minHeight: 200.0,
             minWidth: 200.0,
-            highlightColor: 0x9b59b6, // Lighter purple for highlights
-            midtoneColor: 0xaf7ac5,   // Softer midtone purple
-            lowlightColor: 0x8e44ad,  // Lightened lowlight purple
-            baseColor: 0xb39ddb,      // Light purple base background
+            highlightColor: 0x8c4aa7,
+            midtoneColor: 0xa06bb6,
+            lowlightColor: 0x7f359e,
+            baseColor: 0xa48ecc,
             blurFactor: 0.6,
             zoom: 1,
             speed: 1,
