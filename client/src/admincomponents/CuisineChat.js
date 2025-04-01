@@ -354,8 +354,6 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
     }
   };
 
-  // If showLoading is true, display the LoadingScreenUser;
-  // once it completes (2s), it will call handleSubmit().
   return (
     <>
       {showLoading && (

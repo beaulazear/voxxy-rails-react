@@ -107,6 +107,7 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
   const handleRestaurantChatClose = (id) => {
     if (id) {
       setActivityIdCreated(id);
+      setSelectedTrip(null);
       setShowPostRestaurantPopup(true);
     } else {
       setSelectedTrip(null);

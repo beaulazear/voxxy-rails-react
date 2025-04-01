@@ -100,8 +100,6 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
       });
   }
 
-  console.log(pinned);
-
   return (
     <>
       <Card>

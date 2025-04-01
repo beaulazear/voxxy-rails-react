@@ -8,6 +8,7 @@ import {
 import RestaurantMap from "./RestaurantMap";
 import CuisineChat from "./CuisineChat";
 import PinnedActivityCard from "./PinnedActivityCard";
+import LoadingScreenUser from "./LoadingScreenUser"; // Import the loading component
 
 const AIRecommendations = ({
   activity,
@@ -170,11 +171,7 @@ const AIRecommendations = ({
   };
 
   if (loading) {
-    return (
-      <RecommendationsContainer>
-        <LoadingHeader>Loading recommendations...</LoadingHeader>
-      </RecommendationsContainer>
-    );
+    return <LoadingScreenUser autoDismiss={false} />;
   }
 
   return (
@@ -326,12 +323,6 @@ const Title = styled.h2`
   color: white;
   text-align: center;
   margin-bottom: 15px;
-`;
-
-const LoadingHeader = styled.h2`
-  color: white;
-  text-align: center;
-  margin: 2rem 0;
 `;
 
 const RecommendationsContainer = styled.div`

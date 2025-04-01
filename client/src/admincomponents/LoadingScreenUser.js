@@ -1,83 +1,76 @@
 import React, { useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
+import voxxyLogo from '../assets/Voxxy.png'; // adjust path as needed
 
-const Overlay = styled.div`
+// Define animation first
+const fadeInPulse = keyframes`
+  0% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.03); }
+  100% { opacity: 0.7; transform: scale(1); }
+`;
+
+const Backdrop = styled.div`
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: #fff; /* or any background you like */
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: 9999; /* ensure it appears on top */
+  z-index: 9998;
+`;
+
+const Modal = styled.div`
+  background: white;
+  padding: 30px 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  max-width: 90%;
+  width: 420px;
+`;
+
+const Logo = styled.img`
+  width: 100px;
+  margin-bottom: 20px;
+  animation: ${fadeInPulse} 1.8s ease-in-out infinite;
 `;
 
 const Title = styled.h2`
-  font-size: 1.2rem;
-  font-weight: 500;
+  font-size: 1.3rem;
+  font-weight: 600;
   margin-bottom: 10px;
   color: #6c63ff;
   font-family: 'Arial', sans-serif;
 `;
 
 const SubText = styled.p`
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 20px;
+  font-size: 0.95rem;
+  color: #555;
   font-family: 'Arial', sans-serif;
 `;
 
-const fillAnimation = keyframes`
-  0% {
-    stroke-dashoffset: 226.19; /* length around the circle's perimeter */
-  }
-  100% {
-    stroke-dashoffset: 0;
-  }
-`;
+function LoadingScreenUser({ onComplete, autoDismiss = true }) {
+  useEffect(() => {
+    if (autoDismiss && onComplete) {
+      const timer = setTimeout(() => {
+        onComplete();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [onComplete, autoDismiss]);
 
-const SvgContainer = styled.svg`
-  width: 80px;
-  height: 80px;
-  margin-bottom: 15px;
-`;
-
-const BackgroundCircle = styled.circle`
-  stroke: #eee;
-  stroke-width: 8;
-  fill: none;
-`;
-
-const ProgressCircle = styled.circle`
-  stroke: #6c63ff;
-  stroke-width: 8;
-  fill: none;
-  stroke-dasharray: 226.19;
-  stroke-dashoffset: 226.19;
-  animation: ${fillAnimation} 2s linear forwards;
-`;
-
-function LoadingScreenUser({ onComplete }) {
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            onComplete();
-        }, 2000);
-        return () => clearTimeout(timer);
-    }, [onComplete]);
-
-    return (
-        <Overlay>
-            <Title>Finding the perfect spots...</Title>
-            <SubText>Searching for the best restaurant recommendations based on your preferences</SubText>
-            <SvgContainer viewBox="0 0 80 80">
-                <BackgroundCircle cx="40" cy="40" r="36" />
-                <ProgressCircle cx="40" cy="40" r="36" />
-            </SvgContainer>
-        </Overlay>
-    );
+  return (
+    <Backdrop>
+      <Modal>
+        <Logo src={voxxyLogo} alt="Voxxy logo" />
+        <Title>Planning the perfect experience...</Title>
+        <SubText>Hold tight while Voxxy finds your best match ✨</SubText>
+      </Modal>
+    </Backdrop>
+  );
 }
 
 export default LoadingScreenUser;
