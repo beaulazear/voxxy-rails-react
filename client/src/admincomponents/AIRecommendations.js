@@ -137,8 +137,6 @@ const AIRecommendations = ({
   };
 
   const createPinnedActivity = async (rec) => {
-    console.log("Creating pinned activity with reviews:", rec.reviews);
-    console.log("Creating pinned activity with photos:", rec.photos);
     try {
       const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
       const res = await fetch(`${API_URL}/activities/${id}/pinned_activities`, {

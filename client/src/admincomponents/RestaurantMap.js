@@ -3,7 +3,6 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import styled from "styled-components";
-import SmallerLoading from "../components/SmallerLoading";
 
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
@@ -77,7 +76,12 @@ const RestaurantMap = ({ recommendations }) => {
     }, [recommendations]);
 
     if (loading) {
-        return <SmallerLoading title={'Map View'} />;
+        return (
+            <ChatButton>
+                <StyledButton>
+                    Map Loading...
+                </StyledButton>
+            </ChatButton>)
     }
 
     return (

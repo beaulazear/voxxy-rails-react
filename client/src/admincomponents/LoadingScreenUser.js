@@ -1,14 +1,20 @@
 import React, { useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import voxxyLogo from '../assets/Voxxy.png'; // adjust path as needed
+import voxxyLogo from '../assets/Voxxy_header.jpeg'; // adjust path as needed
 
-// Define animation first
+// Animations
 const fadeInPulse = keyframes`
   0% { opacity: 0.7; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.03); }
   100% { opacity: 0.7; transform: scale(1); }
 `;
 
+const spin = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
+// Styled Components
 const Backdrop = styled.div`
   position: fixed;
   top: 0;
@@ -52,6 +58,16 @@ const SubText = styled.p`
   font-family: 'Arial', sans-serif;
 `;
 
+const Spinner = styled.div`
+  margin: 20px auto 0;
+  width: 40px;
+  height: 40px;
+  border: 3px solid #ccc;
+  border-top: 3px solid #6c63ff;
+  border-radius: 50%;
+  animation: ${spin} 1s linear infinite;
+`;
+
 function LoadingScreenUser({ onComplete, autoDismiss = true }) {
   useEffect(() => {
     if (autoDismiss && onComplete) {
@@ -66,8 +82,9 @@ function LoadingScreenUser({ onComplete, autoDismiss = true }) {
     <Backdrop>
       <Modal>
         <Logo src={voxxyLogo} alt="Voxxy logo" />
-        <Title>Planning the perfect experience...</Title>
-        <SubText>Hold tight while Voxxy finds your best match ✨</SubText>
+        <Title>Loading your board...</Title>
+        <SubText>Voxxy is finding the best restaurant matches based on everyone's preferences 🍽️</SubText>
+        <Spinner />
       </Modal>
     </Backdrop>
   );
