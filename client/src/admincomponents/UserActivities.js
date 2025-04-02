@@ -405,9 +405,12 @@ function UserActivities() {
                 style={{ animationPlayState: startAnimation ? "running" : "paused" }}
               >
                 {intro}
-              </MovingHeader>            </HeroContainer>
+              </MovingHeader>
+            </HeroContainer>
           </FullWidthWrapper>
           <PendingInvites />
+
+          <h1 style={{color: 'white'}}>Staging</h1>
 
           <ButtonContainer>
             <FilterButton
