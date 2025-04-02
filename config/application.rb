@@ -27,7 +27,8 @@ module VoxxyRails
         resource "*",
           headers: :any,
           methods: [ :get, :post, :put, :patch, :delete, :options, :head ],
-          credentials: true
+          credentials: true,
+          expose: [ "Access-Control-Allow-Origin" ] # ← optional but sometimes needed
       end
     end
   end
