@@ -20,11 +20,14 @@ module VoxxyRails
     # CORS configuration for development and production
     config.middleware.insert_before 0, Rack::Cors do
       allow do
-        origins "http://localhost:3000", "https://www.voxxyai.com" # Frontend URLs
+        origins "http://localhost:3000",
+                "https://www.voxxyai.com",
+                "https://voxxy-rails-react-staging.onrender.com"
+
         resource "*",
           headers: :any,
           methods: [ :get, :post, :put, :patch, :delete, :options, :head ],
-          credentials: true # Ensure cookies are included for cross-origin requests
+          credentials: true
       end
     end
   end
