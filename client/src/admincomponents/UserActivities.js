@@ -276,6 +276,15 @@ function UserActivities() {
   const [showProfile, setShowProfile] = useState(false)
   const [intro, setIntro] = useState("");
   const [filterType, setFilterType] = useState("upcoming"); // 🔹 Sorting state
+  const [startAnimation, setStartAnimation] = useState(false);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setStartAnimation(true);
+    }, 150); // small delay to allow full mount/render
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   const topRef = useRef(null)
 
@@ -391,8 +400,12 @@ function UserActivities() {
         <DashboardContainer ref={topRef}>
           <FullWidthWrapper>
             <HeroContainer>
-              <MovingHeader>{intro}</MovingHeader>
-            </HeroContainer>
+              <MovingHeader
+                key={intro}
+                style={{ animationPlayState: startAnimation ? "running" : "paused" }}
+              >
+                {intro}
+              </MovingHeader>            </HeroContainer>
           </FullWidthWrapper>
           <PendingInvites />
 
