@@ -22,7 +22,8 @@ module VoxxyRails
       allow do
         origins "http://localhost:3000",
                 "https://www.voxxyai.com",
-                "https://voxxy-rails-react-staging.onrender.com"
+                "https://voxxy-rails-react-staging.onrender.com",
+                "192.168.1.20"
 
         resource "*",
           headers: :any,
