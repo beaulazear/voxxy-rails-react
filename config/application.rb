@@ -17,14 +17,18 @@ module VoxxyRails
     # Initialize configuration defaults for originally generated Rails version
     config.load_defaults 7.2
 
+    local_ip = ENV.fetch("LOCAL_IP", nil)
+    allowed_origins = [
+      "http://localhost:3000",
+      "https://www.voxxyai.com",
+      "https://voxxy-rails-react-staging.onrender.com"
+    ]
+    allowed_origins << local_ip if local_ip
+
     # CORS configuration for development and production
     config.middleware.insert_before 0, Rack::Cors do
       allow do
-        origins "http://localhost:3000",
-                "https://www.voxxyai.com",
-                "https://voxxy-rails-react-staging.onrender.com",
-                ENV["LOCAL_IP"]
-
+        origins(*allowed_origins)
         resource "*",
           headers: :any,
           methods: [ :get, :post, :put, :patch, :delete, :options, :head ],
