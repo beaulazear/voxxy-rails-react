@@ -23,7 +23,7 @@ module VoxxyRails
         origins "http://localhost:3000",
                 "https://www.voxxyai.com",
                 "https://voxxy-rails-react-staging.onrender.com",
-                "192.168.1.20"
+                ENV["LOCAL_IP"]
 
         resource "*",
           headers: :any,
