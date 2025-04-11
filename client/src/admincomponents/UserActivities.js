@@ -223,6 +223,7 @@ export const Button = styled.button`
 
 const Padding = styled.div`
   padding-bottom: 50px;
+  padding-top: 80px;
 `
 
 const ButtonContainer = styled.div`
@@ -289,9 +290,6 @@ function UserActivities() {
   const topRef = useRef(null)
 
   useEffect(() => {
-    if (topRef.current) {
-      topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
 
     const defaultIntros = [
       "🚀 Adventure Mode: Activated!",
@@ -409,9 +407,6 @@ function UserActivities() {
             </HeroContainer>
           </FullWidthWrapper>
           <PendingInvites />
-
-          <h1 style={{color: 'white'}}>Staging</h1>
-
           <ButtonContainer>
             <FilterButton
               $active={filterType === "upcoming"}

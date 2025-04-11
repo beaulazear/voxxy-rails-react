@@ -15,6 +15,7 @@ import ResetPassword from './components/ResetPassword.js';
 import LandingPage from './components/LandingPage.js';
 import UserActivities from './admincomponents/UserActivities.js';
 import FAQ from './components/FAQ.js';
+import TryVoxxy from './components/TryVoxxy.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -59,7 +60,7 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/verification" element={<Verification />} />
         <Route path="/faq" element={<FAQ />} />
-
+        <Route path="/try-voxxy" element={<TryVoxxy />} />
 
         {isLoggedIn && !isConfirmed && (
           <Route path="/confirm-email" element={<ConfirmEmail />} />

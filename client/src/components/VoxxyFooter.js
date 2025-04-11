@@ -5,6 +5,13 @@ import { PlusCircleOutlined, HomeOutlined } from "@ant-design/icons";
 import { UserContext } from "../context/user";
 import Woman from "../assets/Woman.jpg";
 
+const colors = {
+  background: '13, 11, 31', // using numeric values to format in rgba
+  foreground: '#FFFFFF',
+  primary: 'rgba(157,96,248,1)',
+  border: 'rgba(255,255,255,0.2)',
+};
+
 const FooterContainer = styled.div`
   position: fixed;
   bottom: 0;
@@ -17,7 +24,9 @@ const FooterContainer = styled.div`
   box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
   z-index: 1000;
   overflow: hidden; /* Ensures the pseudo-element stays within bounds */
-  background: transparent; /* Remove background here */
+  transition: background 0.2s ease;
+  background-color: ${({ $scrolled }) =>
+    $scrolled ? `rgba(${colors.background}, 0.95)` : `rgba(${colors.background}, 0.8)`};
 
   &::before {
     content: "";
@@ -26,8 +35,6 @@ const FooterContainer = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, #4e0f63, #6a1b8a);
-    opacity: 0.7; /* Adjust opacity as needed */
     z-index: -1; /* Place it behind the content */
   }
 

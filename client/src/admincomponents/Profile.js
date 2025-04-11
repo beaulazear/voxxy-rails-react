@@ -27,7 +27,7 @@ const gradientAnimation = keyframes`
 
 const Container = styled.div`
   animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
-  padding-top: 10px;
+  padding-top: 100px;
 `;
 
 const ProfileContainer = styled.div`

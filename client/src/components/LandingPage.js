@@ -1,49 +1,24 @@
 import React, { useEffect, useState, useCallback } from "react";
-import styled, { css, keyframes } from "styled-components";
-import HeroSection from "./HeroSection";
+import styled, { css } from "styled-components";
 import IntroductionSection from "./IntroductionSection";
 import HowVoxxyWorks from "./HowVoxxyWorks";
 import AboutSection from "./AboutSection";
 import BenefitsSection from "./BenefitsSection";
-import CallToActionSection from "./CallToActionSection";
 import Footer from "./Footer";
 
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const fadeOut = keyframes`
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-10px); }
-`;
-
-const HeroWrapper = styled.div`
-  position: fixed;
-  width: 100%;
-  height: 80vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: ${({ $isFadingOut }) =>
-    $isFadingOut
-      ? css`${fadeOut} 1.2s ease-in-out forwards`
-      : css`${fadeIn} 1s ease-out forwards`};
-`;
-
 const ContentContainer = styled.div`
+  background-color: #0D0B1F; /* fixed background color without quotes */
   opacity: ${({ $isVisible }) => ($isVisible ? "1" : "0")};
-  transition: opacity 1s ease-in-out;
-  margin-top: 0; /* Ensures content starts sooner */
-  padding-top: 2rem; /* Add slight spacing instead of a huge margin */
+  transition: opacity 0.7s ease-in-out;
+  margin-top: 0;
+  padding-top: 1rem;
 `;
 
 const StaggeredContent = styled.div`
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-  
+
   ${({ $isVisible }) =>
     $isVisible &&
     css`
@@ -53,19 +28,20 @@ const StaggeredContent = styled.div`
 `;
 
 const LandingPage = () => {
-  const [showHero, setShowHero] = useState(true);
   const [showContent, setShowContent] = useState(false);
-  const [visibleSections, setVisibleSections] = useState(["introduction"]);
+  // Initially set visibleSections to include all section IDs
+  const [visibleSections, setVisibleSections] = useState([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-
-    setTimeout(() => {
-      setShowHero(false);
-      setShowContent(true);
-    }, 3000);
+    // Instead of waiting for scroll, make all sections visible immediately.
+    setVisibleSections(["introduction", "howVoxxyWorks", "about", "benefits"]);
+    setShowContent(true);
   }, []);
 
+  // Optionally, you can remove the scroll handler since it's no longer needed.
+  // If you want to maintain it (for additional lazy-loading on longer pages),
+  // you can leave it as is.
   const handleScroll = useCallback(() => {
     const sections = document.querySelectorAll(".staggered-section");
     sections.forEach((section) => {
@@ -82,13 +58,7 @@ const LandingPage = () => {
   }, [handleScroll]);
 
   return (
-    <>
-      {showHero && (
-        <HeroWrapper $isFadingOut={!showHero}>
-          <HeroSection />
-        </HeroWrapper>
-      )}
-
+    <div style={{ background: "#0D0B1F" }}>
       <ContentContainer $isVisible={showContent}>
         <StaggeredContent id="introduction" className="staggered-section" $isVisible={visibleSections.includes("introduction")}>
           <IntroductionSection />
@@ -106,13 +76,9 @@ const LandingPage = () => {
           <BenefitsSection />
         </StaggeredContent>
 
-        <StaggeredContent id="cta" className="staggered-section" $isVisible={visibleSections.includes("cta")}>
-          <CallToActionSection />
-        </StaggeredContent>
-
         <Footer />
       </ContentContainer>
-    </>
+    </div>
   );
 };
 

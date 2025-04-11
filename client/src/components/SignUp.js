@@ -7,30 +7,33 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem 1rem;
+  padding: 5rem; /* Ensure enough top spacing so it doesn't hit the navbar */
+  background-color: #0D0B1F;
   min-height: 100vh;
 `;
 
 const FormContainer = styled.div`
   max-width: 400px;
   padding: 2rem;
-  background: #fff;
-  border: 1px solid #ddd;
+  background: #17132F;
+  border: 1px solid #333;
   border-radius: 12px;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  margin-bottom: 2rem;
 `;
 
 const Heading = styled.h1`
   font-size: 1.5rem;
   font-weight: 500;
   margin-bottom: 1.5rem;
+  color: #FFFFFF;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
 `;
 
 const InputGroup = styled.div`
@@ -39,7 +42,7 @@ const InputGroup = styled.div`
 
   label {
     font-size: 0.875rem;
-    color: #333;
+    color: #ccc;
     margin-bottom: 0.25rem;
     display: block;
   }
@@ -48,11 +51,14 @@ const InputGroup = styled.div`
     width: 100%;
     padding: 0.75rem;
     font-size: 1rem;
-    border: 1px solid #ddd;
+    border: 1px solid #444;
     border-radius: 8px;
+    background-color: #222;
+    color: #fff;
+    transition: border-color 0.2s ease;
 
     &:focus {
-      border-color: #6c63ff;
+      border-color: #9D60F8;
       outline: none;
     }
   }
@@ -63,29 +69,30 @@ const SubmitButton = styled.button`
   padding: 0.75rem;
   font-size: 1rem;
   color: #fff;
-  background: linear-gradient(135deg, #6a1b9a, #8e44ad);
+  background: linear-gradient(135deg, #9D60F8, #B279FA);
   border: none;
   border-radius: 50px;
   cursor: pointer;
   width: 100%;
+  transition: background 0.3s ease;
 
   &:hover {
-    background: linear-gradient(135deg, #4e0f63, #6a1b8a);
+    background: linear-gradient(135deg, #8b4ee4, #a070e8);
   }
 
   &:disabled {
-    background: #f2e7ff;
+    background: #555;
     cursor: not-allowed;
   }
 `;
 
 const TermsNote = styled.p`
   font-size: 0.875rem;
-  color: #555;
+  color: #ccc;
   margin-top: 1rem;
 
   a {
-    color: #6c63ff;
+    color: #9D60F8;
     text-decoration: none;
 
     &:hover {
@@ -98,7 +105,7 @@ const Divider = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 2rem auto;
+  margin: 0.5rem auto;
   width: 100%;
   max-width: 400px;
   text-align: center;
@@ -108,13 +115,13 @@ const Divider = styled.div`
     content: '';
     flex: 1;
     height: 1px;
-    background: #ddd;
+    background: #444;
   }
 
   span {
     margin: 0 1.5rem;
     font-size: 1.2rem;
-    color: #555;
+    color: #ccc;
     white-space: nowrap;
   }
 `;
@@ -122,34 +129,37 @@ const Divider = styled.div`
 const Footer = styled.div`
   text-align: center;
   width: 100%;
-  padding: 0 1rem;
+  padding: 2rem 1rem;
 
   button {
-    border: 1px solid #000;
+    border: 1px solid #9D60F8;
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
     border-radius: 50px;
     background: transparent;
     cursor: pointer;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
     width: 100%;
     max-width: 400px;
     box-sizing: border-box;
+    color: #9D60F8;
+    transition: background 0.3s ease;
 
     &:hover {
-      background: #f9f9f9;
+      background: rgba(157, 96, 248, 0.1);
     }
   }
 
   p {
     font-size: 0.875rem;
+    color: #ccc;
+    margin-top: 1rem;
   }
 `;
 
 const SignUp = () => {
   const [searchParams] = useSearchParams();
   const invitedEmail = searchParams.get("invited_email") || "";
-  // const activityId = searchParams.get("activity_id");
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState(invitedEmail);
@@ -210,7 +220,13 @@ const SignUp = () => {
         <Form onSubmit={handleSubmit}>
           <InputGroup>
             <label htmlFor="name">What should we call you?</label>
-            <input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+            <input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
           </InputGroup>
           <InputGroup>
             <label htmlFor="email">What’s your email?</label>
@@ -225,7 +241,13 @@ const SignUp = () => {
           </InputGroup>
           <InputGroup>
             <label htmlFor="password">Create a password</label>
-            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
           </InputGroup>
           <InputGroup>
             <label htmlFor="passwordConfirmation">Confirm your password</label>

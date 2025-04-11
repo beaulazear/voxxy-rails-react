@@ -29,6 +29,7 @@ export const PageContainer = styled.div`
   width: 100%;
   animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
   padding-bottom: 40px;
+  padding-top: 90px;
 `;
 
 const DashboardContainer = styled.div`

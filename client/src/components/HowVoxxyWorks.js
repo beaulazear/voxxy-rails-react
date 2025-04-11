@@ -1,283 +1,170 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import styled from 'styled-components';
-import WalkingAroundImage from '../assets/WalkingAround.png';
-import OrganizingImage from '../assets/Organizing.png'; // Placeholder
-import PlanningImage from '../assets/Planning.png';
-import GroupCallImage from '../assets/GroupCall.png'
+import { Calendar, UtensilsCrossed, Film, Star } from 'lucide-react';
+
+const colors = {
+  // Updated to a slightly lighter background for this section
+  sectionBackground: '#17132F',
+  card: '#1B1831',
+  foreground: '#FFFFFF',
+  muted: '#BEBEBE',
+  primary: '#9D60F8',
+};
 
 const SectionContainer = styled.section`
+  background-color: ${colors.sectionBackground};
+  padding: 4rem 1rem;
   text-align: center;
-  padding: 4rem 2rem;
+  color: ${colors.foreground};
+`;
+
+const SectionInner = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  border-radius: 16px;
+`;
 
-  @media (max-width: 768px) {
-    padding: 2rem 1rem;
-  }
+// Small “For Any Occasion” heading at the top
+const SmallHeading = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: ${colors.primary};
+  opacity: 0.9;
 `;
 
 const Title = styled.h2`
-  font-size: clamp(2rem, 4vw, 2.5rem);
-  font-weight: bold;
-  margin-bottom: 2rem;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  margin-bottom: 1rem;
 `;
 
-const TabsContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  overflow-x: auto;
-  white-space: nowrap;
-  padding-bottom: 1rem;
-  margin: 0 auto 2rem;
-  max-width: fit-content; /* Ensures the container is only as wide as the tabs */
-
-  &::-webkit-scrollbar {
-    height: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #c7d2fe;
-    border-radius: 10px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: #f3f4f6;
-  }
-
-  @media (max-width: 768px) {
-    justify-content: flex-start;
-  }
+const Subtitle = styled.p`
+  font-size: 1rem;
+  color: ${colors.muted};
+  max-width: 600px;
+  margin: 0.5rem auto 3rem auto;
+  line-height: 1.6;
 `;
 
-const Tab = styled.div`
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  cursor: pointer;
-  text-align: center;
-  padding: 1rem;
-  width: clamp(120px, 15vw, 200px);
-  height: fit-content;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  white-space: normal;
-
-  &:hover {
-    background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
-  }
-
-  &.active {
-    background: linear-gradient(135deg, #c7d2fe, #e0e7ff);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  @media (max-width: 768px) {
-    flex-shrink: 0;
-  }
+// Card layout container
+const CardsWrapper = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
 `;
 
-const TabText = styled.p`
-  font-size: clamp(0.9rem, 1.2vw, 1rem);
-  font-weight: 600;
-  color: ${(props) => (props.active ? '#000' : '#444')};
-  margin: 0;
-  text-align: left;
-`;
-
-const ContentContainer = styled.div`
-  display: flex;
-  align-items: left;
-  justify-content: center;
-  gap: 2rem;
-  background: #ffffff;
-  border-radius: 16px;
+// Individual card
+const Card = styled.div`
+  background-color: ${colors.card};
+  border-radius: 1rem;
   padding: 2rem;
-  box-shadow: 0 8px 20px rgba(173, 151, 255, 0.3);
-  height: 400px;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    text-align: center;
-    height: auto;
-    padding: 1.5rem;
-  }
-`;
-
-const TextContainer = styled.div`
-  flex: 1;
   text-align: left;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`;
-
-const ContentTitle = styled.h3`
-  font-size: clamp(1.5rem, 2.5vw, 1.8rem);
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  text-align: left;
-`;
-
-const ContentDescription = styled.p`
-  font-size: clamp(1rem, 1.8vw, 1.1rem);
-  color: #555;
-  line-height: 1.5;
-`;
-
-const ImageContainer = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  img {
-    width: 100%;
-    max-width: 350px;
-    height: auto;
-  }
-
-  @media (max-width: 768px) {
-    max-width: 300px;
-    margin: 0 auto;
-    justify-content:
-    align-items: center;
-  }
-`;
-
-const ButtonsContainer = styled.div`
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-
-  @media (max-width: 768px) {
-    flex-wrap: wrap;
-  }
-`;
-
-const CTAButton = styled.button`
-  padding: 0.7rem .9rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  font-weight: 500;
-  width: 100px;
-
-  &:first-child {
-    background: linear-gradient(135deg, #f3f4f6, #e0e7ff);
-    color: #000;
-  }
-
-  &:last-child {
-    background: linear-gradient(135deg, #c7d2fe, #e0e7ff);
-    color: #000;
-  }
+  align-items: flex-start;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 
   &:hover {
-    opacity: 0.9;
+    background-color: #221e3a; /* Slightly lighter or darker shade for hover */
   }
 `;
 
-const HowVoxxyWorks = () => {
-  const [activeTab, setActiveTab] = useState('tab1');
+const IconWrapper = styled.div`
+  background-color: rgba(157, 96, 248, 0.15);
+  border-radius: 50%;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+`;
 
-  const navigate = useNavigate()
+const CardTitle = styled.h4`
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: ${colors.foreground};
+`;
 
-  const handleLoginClick = () => {
-    navigate('/login')
-  }
+const CardText = styled.p`
+  font-size: 0.95rem;
+  color: ${colors.muted};
+  line-height: 1.4;
+  margin-bottom: 1rem;
+`;
 
-  const handleSignupClick = () => {
-    navigate('/signup')
-  }
+// const LearnMoreLink = styled.a`
+//   font-size: 0.9rem;
+//   font-weight: 600;
+//   color: ${colors.primary};
+//   text-decoration: none;
+//   &:hover {
+//     text-decoration: underline;
+//   }
+// `;
 
-  const contentData = {
-    tab1: {
-      title: 'Finallyyyy make it out of the group chat',
-      description:
-        'We’ve all been there: endless group chats filled with “We should totally go on that trip!” or “Let’s plan a dinner soon!”—but somehow, it never happens. Voxxy takes those good intentions, organizes them into clear action steps, and gets your group from “someday” to “it’s happening.”',
-      image: WalkingAroundImage,
-      buttons: true,
-    },
-    tab2: {
-      title: 'Every Voice Heard, Every Preference Counted',
-      description:
-        'Voxxy turns scattered group prefences into actionable insights. By collecting and analyzing everyone’s input, Voxxy delivers summaries that make decision-making fast, easy, and frustration-free.',
-      image: GroupCallImage,
-      buttons: false,
-    },
-    tab3: {
-      title: 'Your group’s central hub for plans, tasks, and updates.',
-      description:
-        'Keeping track of who needs to do what—and by when—shouldn’t feel like detective work. The Voxxy Board centralizes all your trip details, deadlines, and updates in one easy-to-find place, so nothing slips through the cracks.',
-      image: OrganizingImage,
-      buttons: true,
-    },
-    tab4: {
-      title: 'Because great plans rely on great follow-through',
-      description:
-        'No more last-minute scrambles. Voxxy sends friendly reminders to ensure tasks—like booking tickets or making payments—are done on time, keeping your group’s plans smooth and stress-free.',
-      image: PlanningImage,
-      buttons: false,
-    },
-  };
-
-  const { title, description, image, buttons } = contentData[activeTab];
-
+export default function PerfectForAnyGroupActivity() {
   return (
     <SectionContainer>
-      <Title>How Voxxy Brings Us Together</Title>
-      <TabsContainer>
-        <Tab
-          className={activeTab === 'tab1' ? 'active' : ''}
-          onClick={() => setActiveTab('tab1')}
-        >
-          <TabText>Say Goodbye to Endless Text Chains</TabText>
-        </Tab>
-        <Tab
-          className={activeTab === 'tab2' ? 'active' : ''}
-          onClick={() => setActiveTab('tab2')}
-        >
-          <TabText>Plans That Fit Everyone's Needs</TabText>
-        </Tab>
-        <Tab
-          className={activeTab === 'tab3' ? 'active' : ''}
-          onClick={() => setActiveTab('tab3')}
-        >
-          <TabText>Stay Organized with the Voxxy Board</TabText>
-        </Tab>
-        <Tab
-          className={activeTab === 'tab4' ? 'active' : ''}
-          onClick={() => setActiveTab('tab4')}
-        >
-          <TabText>Never Miss Deadlines with Task Reminders</TabText>
-        </Tab>
-      </TabsContainer>
-      <ContentContainer>
-        <ImageContainer>
-          <img src={image} alt="Feature Illustration" />
-        </ImageContainer>
-        <TextContainer>
-          <ContentTitle>{title}</ContentTitle>
-          <ContentDescription>{description}</ContentDescription>
-          {buttons && (
-            <ButtonsContainer>
-              <CTAButton onClick={handleSignupClick}>Sign Up</CTAButton>
-              <CTAButton onClick={handleLoginClick}>Log In</CTAButton>
-            </ButtonsContainer>
-          )}
-        </TextContainer>
-      </ContentContainer>
+      <SectionInner>
+        <SmallHeading>For Any Occasion</SmallHeading>
+        <Title>Perfect for any group activity</Title>
+        <Subtitle>
+          Whether it’s a weekend getaway, dinner with friends, or movie night, Voxxy
+          makes planning effortless.
+        </Subtitle>
+
+        <CardsWrapper>
+          <Card>
+            <IconWrapper>
+              <Calendar size={20} color={colors.primary} />
+            </IconWrapper>
+            <CardTitle>Trip Planning</CardTitle>
+            <CardText>
+              Coordinate travel itineraries, book accommodations, and more.
+              Let Voxxy handle the details.
+            </CardText>
+            {/* <LearnMoreLink href="#trip-planning">Learn more</LearnMoreLink> */}
+          </Card>
+
+          <Card>
+            <IconWrapper>
+              <UtensilsCrossed size={20} color={colors.primary} />
+            </IconWrapper>
+            <CardTitle>Group Meals</CardTitle>
+            <CardText>
+              Find places that fit everyone’s tastes and dietary needs, and manage RSVPs.
+            </CardText>
+            {/* <LearnMoreLink href="#group-meals">Learn more</LearnMoreLink> */}
+          </Card>
+
+          <Card>
+            <IconWrapper>
+              <Film size={20} color={colors.primary} />
+            </IconWrapper>
+            <CardTitle>Movie Nights</CardTitle>
+            <CardText>
+              Pick a venue, see what’s playing, and figure out who’s bringing snacks.
+            </CardText>
+            {/* <LearnMoreLink href="#movie-nights">Learn more</LearnMoreLink> */}
+          </Card>
+
+          <Card>
+            <IconWrapper>
+              <Star size={20} color={colors.primary} />
+            </IconWrapper>
+            <CardTitle>Special Events</CardTitle>
+            <CardText>
+              Plan reunions, bachelorette parties, anniversaries, and
+              celebrate without the stress.
+            </CardText>
+            {/* <LearnMoreLink href="#special-events">Learn more</LearnMoreLink> */}
+          </Card>
+        </CardsWrapper>
+      </SectionInner>
     </SectionContainer>
   );
-};
-
-export default HowVoxxyWorks;
+}

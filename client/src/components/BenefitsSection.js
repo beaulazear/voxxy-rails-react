@@ -1,128 +1,93 @@
 import React from 'react';
 import styled from 'styled-components';
-import BikingImage from '../assets/Biking.png';
-import CommentsImage from '../assets/Comments.png';
-import TargetImage from '../assets/Target.png';
 
 const BenefitsContainer = styled.section`
+  background: linear-gradient(90deg, #b279fa, #9d60f8); 
   padding: 4rem 2rem;
-  max-width: 1100px;
   margin: 0 auto;
-  
+  text-align: center;
+
   @media (max-width: 768px) {
     padding: 2rem 1rem;
   }
 `;
 
+// 2. Main heading
 const Title = styled.h2`
-  font-size: clamp(2rem, 4vw, 2.5rem);
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 3rem;
-  color: #000;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 1rem;
 `;
 
-const BenefitItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  margin-bottom: 3rem;
-
-  &:nth-child(even) {
-    flex-direction: row-reverse;
-  }
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  @media (max-width: 768px) {
-    flex-direction: column !important;
-    text-align: center;
-    gap: 1.5rem;
-    align-items: center;
-    justify-content: center;
-  }
-`;
-
-const BenefitText = styled.div`
-text-align: left;
-  flex: 1;
-`;
-
-const BenefitTitle = styled.h3`
-  font-size: clamp(1.2rem, 2.5vw, 1.5rem);
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  color: #000;
-`;
-
-const BenefitSubtitle = styled.p`
-  font-size: clamp(1rem, 2vw, 1.2rem);
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  color: #666;
-`;
-
-const BenefitDescription = styled.p`
-  font-size: clamp(0.9rem, 1.8vw, 1rem);
-  color: #444;
+// 3. Subtitle text
+const Subtitle = styled.p`
+  font-size: 1rem;
   line-height: 1.6;
+  color: #f0f0f0;
+  max-width: 600px;
+  margin: 0 auto 2.5rem auto;
 `;
 
-const BenefitImage = styled.img`
-  width: 100%;
-  max-width: 300px;
-  height: auto;
-  object-fit: contain;
-  flex-shrink: 0;
+// 4. Container for the call-to-action buttons/links
+const CTAContainer = styled.div`
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+`;
 
-  @media (max-width: 768px) {
-    max-width: 250px;
-    margin: 0 auto;
+// 5. Primary solid button
+const PrimaryButton = styled.a`
+  display: inline-block;
+  background-color: #ffffff;
+  color: #9d60f8;
+  padding: 0.8rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #8b4ee4; /* Slightly darker shade of your primary color */
   }
 `;
 
-const Benefits = () => (
-    <BenefitsContainer>
-        <Title>More Than Just Planning: The Voxxy Way</Title>
-        <BenefitItem>
-            <BenefitImage src={BikingImage} alt="Enjoy the Journey" />
-            <BenefitText>
-                <BenefitTitle>Enjoy the Journey, Not Just the Event</BenefitTitle>
-                <BenefitSubtitle>
-                    From first idea to final memory, Voxxy is with you every step of the way.
-                </BenefitSubtitle>
-                <BenefitDescription>
-                    Voxxy handles the entire planning process—from the first idea, coordinating flights, setting dates, and finalizing itineraries—to keep everyone aligned from start to finish.
-                </BenefitDescription>
-            </BenefitText>
-        </BenefitItem>
-        <BenefitItem>
-            <BenefitImage src={CommentsImage} alt="Conversations That Drive Decisions" />
-            <BenefitText>
-                <BenefitTitle>Conversations That Drive Decisions</BenefitTitle>
-                <BenefitSubtitle>
-                    Everyone gets a voice, and every voice leads to action.
-                </BenefitSubtitle>
-                <BenefitDescription>
-                    Voxxy doesn’t rely on endless group chats. It uses smart, time-flexible conversations to gather input from everyone individually and consolidates their thoughts into clear, actionable decisions everyone can agree on.
-                </BenefitDescription>
-            </BenefitText>
-        </BenefitItem>
-        <BenefitItem>
-            <BenefitImage src={TargetImage} alt="A Living Plan That Evolves With You" />
-            <BenefitText>
-                <BenefitTitle>A Living Plan That Evolves With You</BenefitTitle>
-                <BenefitSubtitle>
-                    Stay connected before, during, and after the plan comes to life.
-                </BenefitSubtitle>
-                <BenefitDescription>
-                    With Voxxy, planning doesn’t stop once the itinerary is set. Log flight details, pin lodging locations, share restaurant picks, update dates, track tasks, and keep conversations alive—all in one shared space.
-                </BenefitDescription>
-            </BenefitText>
-        </BenefitItem>
-    </BenefitsContainer>
-);
+// 6. Secondary link or button
+const SecondaryLink = styled.a`
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  transition: background-color 0.2s ease, color 0.2s ease;
 
-export default Benefits;
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+  }
+`;
+
+export default function Benefits() {
+  return (
+    <BenefitsContainer>
+      {/* Main Heading */}
+      <Title>Start planning your next adventure today</Title>
+
+      {/* Subtitle */}
+      <Subtitle>
+        Join thousands of friend groups using Voxxy to create memorable
+        experiences together.
+      </Subtitle>
+
+      {/* CTA Buttons */}
+      <CTAContainer>
+        <PrimaryButton href="#get-started">Get started for free</PrimaryButton>
+        <SecondaryLink href="#learn-more">Learn more</SecondaryLink>
+      </CTAContainer>
+    </BenefitsContainer>
+  );
+}
