@@ -15,6 +15,7 @@ const PageContainer = styled.div`
 
 const FormContainer = styled.div`
   max-width: 400px;
+  min-width: 350px;
   padding: 2rem;
   background: #17132F;
   border: 1px solid #333;

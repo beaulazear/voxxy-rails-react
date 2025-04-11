@@ -174,6 +174,7 @@ export default function Navbar() {
         navigate('/');
       });
     }
+    setShowMobileNav(false)
   };
 
   const isInnerPage =
@@ -239,10 +240,7 @@ export default function Navbar() {
               <NavLinkItem to="/dashboard" onClick={() => setShowMobileNav(false)}>
                 Dashboard
               </NavLinkItem>
-              <NavLinkItem to="/profile" onClick={() => setShowMobileNav(false)}>
-                Profile
-              </NavLinkItem>
-              <NavLinkItem to="/logout" onClick={() => setShowMobileNav(false)}>
+              <NavLinkItem to="/logout" onClick={handleLogout}>
                 Log Out
               </NavLinkItem>
             </>
