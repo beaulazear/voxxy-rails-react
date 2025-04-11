@@ -98,12 +98,12 @@ const RestaurantMap = ({ recommendations }) => {
                         onClick={() => setShowMap(false)}
                         style={{
                             position: "absolute",
-                            top: "10px",
+                            top: "110px",
                             right: "10px",
                             padding: "8px 15px",
                             fontSize: "1.2rem",
                             cursor: "pointer",
-                            zIndex: 1100,
+                            zIndex: 9999, // Increase the z-index here
                         }}
                     >
                         Back
