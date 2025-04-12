@@ -7,7 +7,7 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 5rem; /* Ensure enough top spacing so it doesn't hit the navbar */
+  padding: 5.5rem; /* Ensure enough top spacing so it doesn't hit the navbar */
   background-color: #0D0B1F;
   min-height: 100vh;
 `;

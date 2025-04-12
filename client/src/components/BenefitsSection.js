@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 const BenefitsContainer = styled.section`
   background: linear-gradient(90deg, #b279fa, #9d60f8); 
@@ -38,7 +39,7 @@ const CTAContainer = styled.div`
 `;
 
 // 5. Primary solid button
-const PrimaryButton = styled.a`
+const PrimaryButton = styled(Link)`
   display: inline-block;
   background-color: #ffffff;
   color: #9d60f8;
@@ -55,7 +56,7 @@ const PrimaryButton = styled.a`
 `;
 
 // 6. Secondary link or button
-const SecondaryLink = styled.a`
+const SecondaryLink = styled(Link)`
   display: inline-block;
   padding: 0.8rem 1.5rem;
   border-radius: 9999px;
@@ -83,10 +84,9 @@ export default function Benefits() {
         experiences together.
       </Subtitle>
 
-      {/* CTA Buttons */}
       <CTAContainer>
-        <PrimaryButton href="#get-started">Get started for free</PrimaryButton>
-        <SecondaryLink href="#learn-more">Learn more</SecondaryLink>
+        <PrimaryButton to='/signup'>Get started for free</PrimaryButton>
+        <SecondaryLink to="/learn-more">Learn more</SecondaryLink>
       </CTAContainer>
     </BenefitsContainer>
   );

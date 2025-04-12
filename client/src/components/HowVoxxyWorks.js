@@ -1,9 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Calendar, UtensilsCrossed, Film, Star } from 'lucide-react';
+import { Link, useNavigate } from "react-router-dom";
+import mixpanel from 'mixpanel-browser'; // ✅ Make sure mixpanel is imported
 
 const colors = {
-  // Updated to a slightly lighter background for this section
   sectionBackground: '#17132F',
   card: '#1B1831',
   foreground: '#FFFFFF',
@@ -23,7 +24,6 @@ const SectionInner = styled.div`
   margin: 0 auto;
 `;
 
-// Small “For Any Occasion” heading at the top
 const SmallHeading = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
@@ -46,7 +46,6 @@ const Subtitle = styled.p`
   line-height: 1.6;
 `;
 
-// Card layout container
 const CardsWrapper = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -54,7 +53,6 @@ const CardsWrapper = styled.div`
   margin-top: 2rem;
 `;
 
-// Individual card
 const Card = styled.div`
   background-color: ${colors.card};
   border-radius: 1rem;
@@ -96,17 +94,30 @@ const CardText = styled.p`
   margin-bottom: 1rem;
 `;
 
-// const LearnMoreLink = styled.a`
-//   font-size: 0.9rem;
-//   font-weight: 600;
-//   color: ${colors.primary};
-//   text-decoration: none;
-//   &:hover {
-//     text-decoration: underline;
-//   }
-// `;
+const LearnMoreLink = styled.div`
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: ${colors.primary};
+  text-decoration: none;
+  cursor: pointer; /* 👈 Add this line */
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
 
 export default function PerfectForAnyGroupActivity() {
+  const navigate = useNavigate();
+
+  const handleTrackAndNavigate = (featureName) => {
+    if (process.env.NODE_ENV === "production") {
+      mixpanel.track("Feature Link Clicked", {
+        feature: featureName
+      });
+    }
+    navigate("/learn-more");
+  };
+
   return (
     <SectionContainer>
       <SectionInner>
@@ -127,7 +138,9 @@ export default function PerfectForAnyGroupActivity() {
               Coordinate travel itineraries, book accommodations, and more.
               Let Voxxy handle the details.
             </CardText>
-            {/* <LearnMoreLink href="#trip-planning">Learn more</LearnMoreLink> */}
+            <LearnMoreLink onClick={() => handleTrackAndNavigate("Trip Planning")}>
+              Learn more
+            </LearnMoreLink>
           </Card>
 
           <Card>
@@ -138,7 +151,9 @@ export default function PerfectForAnyGroupActivity() {
             <CardText>
               Find places that fit everyone’s tastes and dietary needs, and manage RSVPs.
             </CardText>
-            {/* <LearnMoreLink href="#group-meals">Learn more</LearnMoreLink> */}
+            <LearnMoreLink onClick={() => handleTrackAndNavigate("Group Meals")}>
+              Learn more
+            </LearnMoreLink>
           </Card>
 
           <Card>
@@ -149,7 +164,9 @@ export default function PerfectForAnyGroupActivity() {
             <CardText>
               Pick a venue, see what’s playing, and figure out who’s bringing snacks.
             </CardText>
-            {/* <LearnMoreLink href="#movie-nights">Learn more</LearnMoreLink> */}
+            <LearnMoreLink onClick={() => handleTrackAndNavigate("Movie Nights")}>
+              Learn more
+            </LearnMoreLink>
           </Card>
 
           <Card>
@@ -161,7 +178,9 @@ export default function PerfectForAnyGroupActivity() {
               Plan reunions, bachelorette parties, anniversaries, and
               celebrate without the stress.
             </CardText>
-            {/* <LearnMoreLink href="#special-events">Learn more</LearnMoreLink> */}
+            <LearnMoreLink onClick={() => handleTrackAndNavigate("Special Events")}>
+              Learn more
+            </LearnMoreLink>
           </Card>
         </CardsWrapper>
       </SectionInner>

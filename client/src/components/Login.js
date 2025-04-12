@@ -8,7 +8,7 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 5rem; /* Increased top padding from 2rem to 4rem */
+  padding: 5.5rem; /* Increased top padding from 2rem to 4rem */
   background-color: #0D0B1F;
   min-height: 100vh;
 `;

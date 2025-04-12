@@ -16,6 +16,7 @@ import LandingPage from './components/LandingPage.js';
 import UserActivities from './admincomponents/UserActivities.js';
 import FAQ from './components/FAQ.js';
 import TryVoxxy from './components/TryVoxxy.js';
+import LearnMorePage from './components/LearnMorePage.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -61,6 +62,7 @@ function App() {
         <Route path="/verification" element={<Verification />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/try-voxxy" element={<TryVoxxy />} />
+        <Route path='/learn-more' element={<LearnMorePage />} />
 
         {isLoggedIn && !isConfirmed && (
           <Route path="/confirm-email" element={<ConfirmEmail />} />
