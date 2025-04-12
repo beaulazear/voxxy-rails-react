@@ -4,6 +4,14 @@ import styled, { keyframes } from "styled-components";
 import { NavLink } from "react-router-dom";
 import VantaWrapperTwo from "./VantaWrapperTwo";
 
+const colors = {
+  background: "#0D0B1F",
+  foreground: "#FFFFFF",
+  muted: "#A8A8A8",
+  primary: "rgba(157,96,248,1)",
+  cardBackground: "rgba(27,24,49,0.95)",
+};
+
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -13,11 +21,9 @@ const FAQContainer = styled.div`
   max-width: 1000px;
   margin: 100px auto;
   padding: 3rem;
-  background: white;
   border-radius: 16px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
-  text-align: left;
   animation: ${fadeIn} 0.8s ease-in-out;
+  color: ${colors.foreground};
 
   @media (max-width: 1024px) {
     padding: 2.5rem;
@@ -35,46 +41,50 @@ const HeaderContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.8rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
 `;
 
 const Title = styled.h2`
-  font-size: clamp(1.8rem, 3vw, 2.5rem);
-  font-weight: 800;
-  color: #4e0f63;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700;
+  color: ${colors.primary};
   margin: 0;
 `;
 
 const StyledAccordion = styled(Accordion)`
   .accordion-item {
     border: none;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
     border-radius: 12px;
-    overflow: hidden;
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    background: ${colors.background};
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   }
 
   .accordion-header {
-    background: white;
+    background: transparent;
   }
 
   .accordion-button {
     font-size: clamp(1rem, 2.5vw, 1.4rem);
-    font-weight: 700;
-    color: #6a1b9a;
-    background: white;
+    font-weight: 600;
+    background: transparent;
+    color: ${colors.primary};
     padding: 1.2rem;
     border: none;
     box-shadow: none;
     transition: all 0.2s ease-in-out;
 
     &:hover {
-      background: rgba(106, 27, 154, 0.05);
+      background: rgba(157, 96, 248, 0.1);
     }
 
     &:focus {
       box-shadow: none;
+    }
+
+    &::after {
+      filter: invert(80%);
     }
   }
 
@@ -82,9 +92,10 @@ const StyledAccordion = styled(Accordion)`
     font-size: clamp(1rem, 2vw, 1.2rem);
     line-height: 1.8;
     padding: 1.5rem;
-    background: #f9f9f9;
-    border-radius: 8px;
-    color: #333;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0 0 12px 12px;
+    color: ${colors.muted};
+    text-align: left;
 
     @media (max-width: 768px) {
       padding: 1.2rem;
@@ -93,23 +104,24 @@ const StyledAccordion = styled(Accordion)`
 `;
 
 export const BackButton = styled(NavLink)`
-  padding: 0.6rem 1.2rem;
-  background: linear-gradient(135deg, #6a1b9a, #8e44ad);
+  padding: 0.6rem 1.3rem;
+  background: linear-gradient(135deg, #9d60f8, #6245fa);
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: bold;
+  font-size: 1rem;
+  font-weight: 600;
   text-decoration: none;
   transition: all 0.3s ease-in-out;
 
   &:hover {
-    background: linear-gradient(135deg, #4e0f63, #6a1b8a);
+    background: linear-gradient(135deg, #7d40d4, #4c2cb9);
   }
 
   @media (max-width: 768px) {
-    font-size: 1rem;
+    font-size: 0.95rem;
     padding: 0.5rem 1rem;
+    margin-top: 1rem;
   }
 `;
 
@@ -157,7 +169,7 @@ const FAQ = () => {
     <VantaWrapperTwo>
       <FAQContainer>
         <HeaderContainer>
-          <Title>FAQ's</Title>
+          <Title>FAQs</Title>
           <BackButton to="/">Home</BackButton>
         </HeaderContainer>
 
