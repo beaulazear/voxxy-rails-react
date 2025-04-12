@@ -61,12 +61,11 @@ const LinkList = styled.ul`
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Two columns so links come in sets of two */
   row-gap: 0.75rem;
   column-gap: 1rem;
 `;
 
-const FooterLink = styled.a`
+const FooterLink = styled(Link)`
   display: inline-block;
   color: #0D0B1F;
   font-size: 0.95rem;
@@ -105,10 +104,8 @@ export default function Footer() {
           <div>
             <ColumnHeading>Product</ColumnHeading>
             <LinkList>
-              <li><FooterLink href="#">Features</FooterLink></li>
-              <li><FooterLink href="#">How it works</FooterLink></li>
-              <li><FooterLink href="#">Pricing</FooterLink></li>
-              <li><FooterLink href="#">About</FooterLink></li>
+              <li><FooterLink to="/learn-more">How it works</FooterLink></li>
+              <li><FooterLink to="/learn-more">About</FooterLink></li>
             </LinkList>
           </div>
 
@@ -120,8 +117,6 @@ export default function Footer() {
                   Help Center
                 </Link>
               </li>
-              <li><FooterLink href="#">Privacy</FooterLink></li>
-              <li><FooterLink href="#">Terms</FooterLink></li>
               <li><FooterLink href="mailto:team@voxxyAI.com">Contact Us</FooterLink></li>
             </LinkList>
           </div>

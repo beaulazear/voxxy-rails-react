@@ -127,7 +127,7 @@ export default function UniversalFeatures() {
 
             <ButtonRow>
                 <CTAButton to="/signup">Create Your Account</CTAButton>
-                <CTAButton to="/try" variant="outline">Try Voxxy First</CTAButton>
+                <CTAButton to="/try-voxxy" variant="outline">Try Voxxy First</CTAButton>
             </ButtonRow>
         </SectionWrapper>
     );

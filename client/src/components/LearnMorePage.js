@@ -1,6 +1,11 @@
 import React, { useEffect } from "react";
+import {
+    MapIcon,
+    Users,
+    CalendarIcon,
+    CheckIcon
+} from 'lucide-react';
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 import tripplanning from '../assets/tripplanning.jpeg';
 import groupmeal from '../assets/groupmeals.jpeg';
 import movienight from '../assets/movienight.jpg';
@@ -16,6 +21,21 @@ const colors = {
     cardBackground: 'rgba(27,24,49,0.95)',
 };
 
+const HeadingWithIcon = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+
+  svg {
+    color: ${colors.primary};
+    width: 1.5em;
+    height: 1.5em;
+  }
+`;
+
 const PageWrapper = styled.div`
   background-color: #0D0B1F;
   color: #ffffff;
@@ -23,7 +43,7 @@ const PageWrapper = styled.div`
 `;
 
 const HeroSection = styled.section`
-  padding: 6rem 2rem 3rem;
+  padding: 7rem 2rem 3rem;
   text-align: center;
   max-width: 1200px;
   margin: 0 auto;
@@ -70,16 +90,6 @@ const FeatureTextWrapper = styled.div`
   flex-direction: column;
   gap: 1.25rem;
   text-align: left;
-
-  @media (max-width: 1024px) {
-    text-align: center;
-  }
-`;
-
-const FeatureHeading = styled.h2`
-  font-size: 1.75rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
 `;
 
 const FeatureDescription = styled.p`
@@ -155,7 +165,10 @@ export default function LearnMorePage() {
 
             <FeatureSection $reverse={false}>
                 <FeatureTextWrapper>
-                    <FeatureHeading>Trip Planning</FeatureHeading>
+                    <HeadingWithIcon>
+                        <MapIcon />
+                        Trip Planning
+                    </HeadingWithIcon>
                     <FeatureDescription>
                         Coordinate travel dates, locations, accommodations, and activities with input from everyone.
                     </FeatureDescription>
@@ -180,7 +193,10 @@ export default function LearnMorePage() {
 
             <FeatureSection $reverse={true}>
                 <FeatureTextWrapper>
-                    <FeatureHeading>Group Meals</FeatureHeading>
+                    <HeadingWithIcon>
+                        <Users />
+                        Group Meals
+                    </HeadingWithIcon>
                     <FeatureDescription>
                         Find restaurants everyone will love, schedule dates that work, and manage RSVPs.
                     </FeatureDescription>
@@ -205,7 +221,10 @@ export default function LearnMorePage() {
 
             <FeatureSection $reverse={false}>
                 <FeatureTextWrapper>
-                    <FeatureHeading>Movie Nights</FeatureHeading>
+                    <HeadingWithIcon>
+                        <CalendarIcon />
+                        Movie Nights
+                    </HeadingWithIcon>
                     <FeatureDescription>
                         Vote on what to watch, when to meet, and who's bringing what.
                     </FeatureDescription>
@@ -230,7 +249,10 @@ export default function LearnMorePage() {
 
             <FeatureSection $reverse={true}>
                 <FeatureTextWrapper>
-                    <FeatureHeading>Special Events</FeatureHeading>
+                    <HeadingWithIcon>
+                        <CheckIcon />
+                        Special Events
+                    </HeadingWithIcon>
                     <FeatureDescription>
                         Plan birthdays, bachelorette parties, and other celebrations without the stress.
                     </FeatureDescription>

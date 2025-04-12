@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Calendar, UtensilsCrossed, Film, Star } from 'lucide-react';
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import mixpanel from 'mixpanel-browser'; // ✅ Make sure mixpanel is imported
 
 const colors = {
@@ -99,7 +99,7 @@ const LearnMoreLink = styled.div`
   font-weight: 600;
   color: ${colors.primary};
   text-decoration: none;
-  cursor: pointer; /* 👈 Add this line */
+  cursor: pointer;
 
   &:hover {
     text-decoration: underline;

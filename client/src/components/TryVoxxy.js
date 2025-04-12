@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from "react";
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar } from 'lucide-react';
@@ -155,6 +155,11 @@ const CTAButton = styled(Link)`
 `;
 
 export default function TryVoxxy() {
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <PageContainer>
       <Main>
@@ -167,7 +172,7 @@ export default function TryVoxxy() {
               Take a quick quiz to get recommendations on the perfect spot for your group meals.
             </Description>
           </TitleSection>
-          
+
           <CardWrapper>
             <Card>
               <IconWrapper>
@@ -184,7 +189,7 @@ export default function TryVoxxy() {
               </div>
             </Card>
           </CardWrapper>
-          
+
           <CTASection>
             <CTAHeading>Ready to get started?</CTAHeading>
             <CTAButtons>
