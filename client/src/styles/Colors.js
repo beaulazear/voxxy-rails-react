@@ -9,6 +9,7 @@ const colors = {
   
     // 🎨 Core Backgrounds
     background: '#201925',       // Main page background
+    backgroundTwo: '#251C2C',
     cardBackground: '#2a1e30',   // Dashboard & recommendation cards
   
     // 🟪 Primary UI Elements
