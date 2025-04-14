@@ -24,7 +24,7 @@ const Title = styled(Heading1)`
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 1.5rem;
-  color: #d8d1dd;
+  color: ${colors.textPrimary}
 `;
 
 const GradientText = styled.span`
