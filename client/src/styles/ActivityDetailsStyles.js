@@ -17,6 +17,7 @@ export const PageContainer = styled.div`
   min-height: 100vh;
   padding: 1.5rem;
   padding-bottom: 40px;
+  padding-top: 80px;
   box-sizing: border-box;
   background-size: 400% 400%;
   animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
