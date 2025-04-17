@@ -3,18 +3,11 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar } from 'lucide-react';
 import Footer from './Footer';
-
-const colors = {
-  background: '#0D0B1F',
-  foreground: '#FFFFFF',
-  muted: '#A8A8A8',
-  primary: 'rgba(157,96,248,1)',
-  cardBackground: 'rgba(27,24,49,0.95)',
-};
+import colors from '../styles/Colors'; // make sure filename matches (lowercase 'colors.js')
 
 const PageContainer = styled.div`
   min-height: 100vh;
-  background-color: ${colors.background};
+  background-color: ${colors.backgroundTwo};
   display: flex;
   flex-direction: column;
 `;
@@ -47,14 +40,18 @@ const Title = styled.h1`
 `;
 
 const GradientText = styled.span`
-  background: linear-gradient(90deg, ${colors.primary} 0%, rgba(98,69,250,1) 100%);
+  background: linear-gradient(
+    90deg,
+    ${colors.gradient.start} 0%,
+    ${colors.gradient.end} 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 `;
 
 const Description = styled.p`
   font-size: 1.125rem;
-  color: ${colors.muted};
+  color: ${colors.textSecondary};
   max-width: 32rem;
   margin: 0 auto;
 `;
@@ -71,6 +68,12 @@ const Card = styled.div`
   flex-direction: column;
   border-radius: 1rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  text-align: left;
+
+  &:hover {
+    box-shadow: 0 0 20px #592566, 0 0 40px #592566;
+    background-color: ${colors.cardBackground}; /* keep same background, or tweak if you like */
+  }
 `;
 
 const IconWrapper = styled.div`
@@ -88,12 +91,12 @@ const IconWrapper = styled.div`
 const CardTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: ${colors.foreground};
+  color: ${colors.textPrimary};
   margin-bottom: 1rem;
 `;
 
 const CardText = styled.p`
-  color: ${colors.muted};
+  color: ${colors.textSecondary};
   margin-bottom: 1.5rem;
 `;
 
@@ -102,8 +105,8 @@ const StyledLink = styled(Link)`
   justify-content: center;
   align-items: center;
   width: 100%;
-  background-color: ${colors.primary};
-  color: ${colors.foreground};
+  background-color: ${colors.primaryButton};
+  color: ${colors.textPrimary};
   padding: 0.75rem;
   border-radius: 9999px;
   text-decoration: none;
@@ -123,7 +126,7 @@ const CTASection = styled.div`
 const CTAHeading = styled.h2`
   font-size: 1.875rem;
   font-weight: bold;
-  color: ${colors.foreground};
+  color: ${colors.textPrimary};
   margin-bottom: 1.5rem;
 `;
 
@@ -145,8 +148,8 @@ const CTAButton = styled(Link)`
   border-radius: 9999px;
   font-weight: 600;
   text-decoration: none;
-  background-color: ${colors.primary};
-  color: ${colors.foreground};
+  background-color: ${colors.primaryButton};
+  color: ${colors.textPrimary};
   transition: background-color 0.2s ease;
 
   &:hover {
@@ -176,7 +179,7 @@ export default function TryVoxxy() {
           <CardWrapper>
             <Card>
               <IconWrapper>
-                <Calendar size={24} color={colors.primary} />
+                <Calendar size={24} color={colors.primaryButton} />
               </IconWrapper>
               <CardTitle>Plan a Group Restaurant Visit</CardTitle>
               <CardText>

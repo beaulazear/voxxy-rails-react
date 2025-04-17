@@ -71,12 +71,9 @@ const PrimaryButton = styled(Link)`
 
 const GradientButton = styled.a`
   display: inline-block;
-  background: linear-gradient(
-    90deg,
-    ${colors.gradient.start} 0%,
-    ${colors.gradient.end} 100%
-  );
-  color: ${colors.textPrimary};
+  background: none;
+  border: solid 1px;
+  color: ${colors.primaryButton};
   padding: 0.8rem 1.5rem;
   border-radius: 9999px;
   font-weight: 500;
@@ -85,7 +82,8 @@ const GradientButton = styled.a`
   transition: opacity 0.2s ease;
 
   &:hover {
-    opacity: 0.9;
+    box-shadow: 0 0 10px #592566, 0 0 20px #592566;
+    background-color: ${colors.cardBackground}; /* keep same background, or tweak if you like */
   }
 `;
 

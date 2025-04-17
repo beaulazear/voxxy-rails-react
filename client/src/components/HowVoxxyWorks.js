@@ -54,11 +54,12 @@ const Card = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 
   &:hover {
-    background-color: ${colors.purple3}; /* Grayish purple on hover */
+    box-shadow: 0 0 20px #592566, 0 0 40px #592566;
+    background-color: ${colors.cardBackground}; /* keep same background, or tweak if you like */
   }
 `;
 

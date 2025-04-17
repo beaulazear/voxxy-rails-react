@@ -8,7 +8,7 @@ const PageContainer = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 5.5rem; /* Ensure enough top spacing so it doesn't hit the navbar */
-  background-color: #0D0B1F;
+  background-color: #251C2C;
   min-height: 100vh;
 `;
 
@@ -16,7 +16,7 @@ const FormContainer = styled.div`
   max-width: 400px;
   min-width: 350px;
   padding: 2rem;
-  background: #17132F;
+  background: #2a1e30;
   border: 1px solid #333;
   border-radius: 12px;
   text-align: center;
