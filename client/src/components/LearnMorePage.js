@@ -14,7 +14,7 @@ import UniversalFeatures from "./UniversalFeatures";
 import Footer from "./Footer";
 
 const colors = {
-    background: '#0D0B1F',
+    background: '#251C2C',
     foreground: '#FFFFFF',
     muted: '#A8A8A8',
     primary: 'rgba(157,96,248,1)',
@@ -37,7 +37,7 @@ const HeadingWithIcon = styled.div`
 `;
 
 const PageWrapper = styled.div`
-  background-color: #0D0B1F;
+  background-color: #251C2C;
   color: #ffffff;
   min-height: 100vh;
 `;
@@ -56,7 +56,11 @@ const HeroTitle = styled.h1`
 `;
 
 const GradientText = styled.span`
-  background: linear-gradient(90deg, ${colors.primary} 0%, rgba(98,69,250,1) 100%);
+  background: linear-gradient(
+    90deg,
+    #B931D6 0%,
+    #9051E1 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 `;
@@ -77,6 +81,7 @@ const FeatureSection = styled.section`
   align-items: center;
   gap: 2rem;
   flex-direction: ${({ $reverse }) => ($reverse ? "row-reverse" : "row")};
+  background-color: #251C2C;
 
   @media (max-width: 1024px) {
     flex-direction: column;

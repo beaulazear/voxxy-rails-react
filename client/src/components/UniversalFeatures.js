@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { CalendarDays, MessageSquareText, CheckCircle, Vote } from "lucide-react";
 
 const SectionWrapper = styled.section`
-  background-color: #0D0B1F;
+  background-color: #251C2C;
   padding: 4rem 2rem;
   text-align: center;
 `;
@@ -30,7 +30,7 @@ const CardsContainer = styled.div`
 `;
 
 const FeatureCard = styled.div`
-  background-color: rgba(27,24,49,0.95);
+  background-color: #2a1e30;
   border-radius: 1rem;
   padding: 2rem;
   flex: 1 1 250px;
@@ -42,6 +42,10 @@ const FeatureCard = styled.div`
     color: #9D60F8;
     margin-bottom: 1rem;
   }
+
+    &:hover {
+      box-shadow: 0 0 20px #592566, 0 0 40px #592566;
+    }
 `;
 
 const FeatureTitle = styled.h3`
@@ -65,7 +69,7 @@ const ButtonRow = styled.div`
 
 const CTAButton = styled(Link)`
   background: ${({ variant }) =>
-        variant === "outline" ? "transparent" : "linear-gradient(90deg, rgba(157,96,248,1) 0%, rgba(98,69,250,1) 100%)"};
+        variant === "outline" ? "transparent" : "#cc31e8"};
   color: ${({ variant }) => (variant === "outline" ? "#fff" : "#fff")};
   border: ${({ variant }) => (variant === "outline" ? "1px solid #9D60F8" : "none")};
   padding: 0.75rem 1.5rem;

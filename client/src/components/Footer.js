@@ -120,6 +120,14 @@ export default function Footer() {
               <li><FooterLink href="mailto:team@voxxyAI.com">Contact Us</FooterLink></li>
             </LinkList>
           </div>
+          <div>
+            <ColumnHeading>Company</ColumnHeading>
+            <LinkList>
+            <li>
+              <Link to='/about-us' style={{ textDecoration: 'none', color: '#0D0B1F' }}>About Us</Link>
+            </li>
+            </LinkList>
+          </div>
         </TopRow>
 
         <BottomRow>
