@@ -39,7 +39,7 @@ const BrandName = styled.h3`
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
-  color: rgba(157, 96, 248, 1);
+  color: #B931D6;
 `;
 
 const BrandDescription = styled.p`

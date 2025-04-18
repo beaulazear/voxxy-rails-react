@@ -7,7 +7,7 @@ import colors from '../styles/Colors'; // make sure filename matches (lowercase 
 
 const PageContainer = styled.div`
   min-height: 100vh;
-  background-color: ${colors.backgroundTwo};
+  background-color: ${colors.background};
   display: flex;
   flex-direction: column;
 `;
@@ -42,8 +42,8 @@ const Title = styled.h1`
 const GradientText = styled.span`
   background: linear-gradient(
     90deg,
-    ${colors.gradient.start} 0%,
-    ${colors.gradient.end} 100%
+    #B931D6 0%,
+    #9051E1 100%
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -52,7 +52,7 @@ const GradientText = styled.span`
 const Description = styled.p`
   font-size: 1.125rem;
   color: ${colors.textSecondary};
-  max-width: 32rem;
+  max-width: 40rem;
   margin: 0 auto;
 `;
 
