@@ -13,6 +13,7 @@ Rails.application.routes.draw do
     resources :comments, only: [ :index, :create ]
     resources :votes, only: [ :create, :destroy ]
   end
+  resources :waitlists, only: [ :index, :show, :create, :update, :destroy ]
 
   get "/verify", to: "users#verify"
   post "/resend_verification", to: "users#resend_verification"

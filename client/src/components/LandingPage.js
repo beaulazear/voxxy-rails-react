@@ -5,6 +5,7 @@ import HowVoxxyWorks from "./HowVoxxyWorks";
 import AboutSection from "./AboutSection";
 import BenefitsSection from "./BenefitsSection";
 import Footer from "./Footer";
+import WaitlistForm from "./WaitlistForm";
 
 const ContentContainer = styled.div`
   background-color: #0D0B1F; /* fixed background color without quotes */
@@ -70,6 +71,10 @@ const LandingPage = () => {
 
         <StaggeredContent id="about" className="staggered-section" $isVisible={visibleSections.includes("about")}>
           <AboutSection />
+        </StaggeredContent>
+
+        <StaggeredContent id="benefits" className="staggered-section" $isVisible={visibleSections.includes("benefits")}>
+          <WaitlistForm />
         </StaggeredContent>
 
         <StaggeredContent id="benefits" className="staggered-section" $isVisible={visibleSections.includes("benefits")}>
