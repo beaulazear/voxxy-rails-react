@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Calendar, UtensilsCrossed, Film, Star } from 'lucide-react';
+import { Calendar, UtensilsCrossed, Film, Star, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import mixpanel from 'mixpanel-browser';
 import colors from '../styles/Colors'; // ✅ centralized color palette
@@ -19,7 +19,7 @@ const SectionInner = styled.div`
 `;
 
 const SmallHeading = styled.h3`
-  font-size: 1.25rem;
+  font-size: 1.20rem;
   font-weight: 600;
   margin-bottom: 1rem;
   color: ${colors.primaryButton};
@@ -27,7 +27,7 @@ const SmallHeading = styled.h3`
 `;
 
 const Title = styled(Heading1)`
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
   margin-bottom: 1rem;
   color: ${colors.textPrimary};
 `;
@@ -64,7 +64,8 @@ const Card = styled.div`
 `;
 
 const IconWrapper = styled.div`
-  background-color: rgba(157, 96, 248, 0.15); /* soft purple icon bg */
+  background-color: #CC31E8;
+  color: white;
   border-radius: 50%;
   width: 3rem;
   height: 3rem;
@@ -91,12 +92,12 @@ const CardText = styled.p`
 const LearnMoreLink = styled.div`
   font-size: 0.9rem;
   font-weight: 600;
-  color: ${colors.primaryButton};
+  color: #CC31E8;
   text-decoration: none;
   cursor: pointer;
 
   &:hover {
-    text-decoration: underline;
+    font-weight: 800;
   }
 `;
 
@@ -125,7 +126,7 @@ export default function PerfectForAnyGroupActivity() {
         <CardsWrapper>
           <Card>
             <IconWrapper>
-              <Calendar size={20} color={colors.primaryButton} />
+              <Calendar size={20} color={colors.textPrimary} />
             </IconWrapper>
             <CardTitle>Trip Planning</CardTitle>
             <CardText>
@@ -133,39 +134,39 @@ export default function PerfectForAnyGroupActivity() {
               Let Voxxy handle the details.
             </CardText>
             <LearnMoreLink onClick={() => handleTrackAndNavigate('Trip Planning')}>
-              Learn more
+              Learn more <ArrowRight />
             </LearnMoreLink>
           </Card>
 
           <Card>
             <IconWrapper>
-              <UtensilsCrossed size={20} color={colors.primaryButton} />
+              <UtensilsCrossed size={20} color={colors.textPrimary} />
             </IconWrapper>
             <CardTitle>Group Meals</CardTitle>
             <CardText>
               Find places that fit everyone’s tastes and dietary needs, and manage RSVPs.
             </CardText>
             <LearnMoreLink onClick={() => handleTrackAndNavigate('Group Meals')}>
-              Learn more
+              Learn more <ArrowRight />
             </LearnMoreLink>
           </Card>
 
           <Card>
             <IconWrapper>
-              <Film size={20} color={colors.primaryButton} />
+              <Film size={20} color={colors.textPrimary} />
             </IconWrapper>
             <CardTitle>Movie Nights</CardTitle>
             <CardText>
               Pick a venue, see what’s playing, and figure out who’s bringing snacks.
             </CardText>
             <LearnMoreLink onClick={() => handleTrackAndNavigate('Movie Nights')}>
-              Learn more
+              Learn more <ArrowRight />
             </LearnMoreLink>
           </Card>
 
           <Card>
             <IconWrapper>
-              <Star size={20} color={colors.primaryButton} />
+              <Star size={20} color={colors.textPrimary} />
             </IconWrapper>
             <CardTitle>Special Events</CardTitle>
             <CardText>
@@ -173,7 +174,7 @@ export default function PerfectForAnyGroupActivity() {
               celebrate without the stress.
             </CardText>
             <LearnMoreLink onClick={() => handleTrackAndNavigate('Special Events')}>
-              Learn more
+              Learn more <ArrowRight />
             </LearnMoreLink>
           </Card>
         </CardsWrapper>
