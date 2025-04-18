@@ -8,7 +8,7 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 5.5rem; /* Increased top padding from 2rem to 4rem */
+  padding: 5.5rem;
   background-color: #251C2C;
   min-height: 100vh;
 `;
@@ -22,7 +22,7 @@ const FormContainer = styled.div`
   border-radius: 12px;
   text-align: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  margin-bottom: 2rem; /* Add spacing between the form and the footer */
+  margin-bottom: 2rem;
 `;
 
 const Heading = styled.h1`

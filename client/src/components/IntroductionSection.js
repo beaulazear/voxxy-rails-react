@@ -30,8 +30,8 @@ const Title = styled(Heading1)`
 const GradientText = styled.span`
   background: linear-gradient(
     90deg,
-    ${colors.gradient.start} 0%,
-    ${colors.gradient.end} 100%
+    #B931D6 0%,
+    #9051E1 100%
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

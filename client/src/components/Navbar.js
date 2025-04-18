@@ -49,7 +49,11 @@ const LogoLink = styled(Link)`
 const LogoText = styled.span`
   font-size: 1.5rem;
   font-weight: bold;
-  background: linear-gradient(90deg, ${colors.gradient.start} 0%, ${colors.gradient.end} 100%);
+  background: linear-gradient(
+    90deg,
+    #B931D6 0%,
+    #9051E1 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 `;
