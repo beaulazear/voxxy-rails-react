@@ -3,7 +3,14 @@ require "net/http"
 require "uri"
 
 class OpenaiController < ApplicationController
-  skip_before_action :authorized, only: [ :generate_haiku ]
+  skip_before_action :authorized, only: [
+    :generate_haiku,
+    :restaurant_recommendations,     # spelling fixed
+    :check_cached_recommendations,   # spelling fixed
+    :trending_recommendations,       # if you want this public too
+    :try_voxxy_recommendations,
+    :try_voxxy_cached
+  ]
 
   def generate_haiku
     Rails.logger.debug "OPENAI_API_KEY: #{ENV['OPENAI_API_KEY']}"
@@ -85,6 +92,56 @@ class OpenaiController < ApplicationController
       render json: { error: "Failed to generate trending recommendations" }, status: :unprocessable_entity
     end
   end
+
+  def try_voxxy_recommendations
+    ip       = request.remote_ip
+    rate_key = "try_voxxy_rate:#{ip}"
+    cache_key = "try_voxxy_last:#{ip}"
+
+    # Rate-limit: if already posted within the last hour, re-serve or throttle
+    if Rails.cache.exist?(rate_key)
+      if (last = Rails.cache.read(cache_key))
+        return render json: { recommendations: last }, status: :ok
+      else
+        minutes_left = ((Rails.cache.read(rate_key) - Time.current) / 60.0).ceil
+        return render json: { error: "Rate limit exceeded. Try again in #{minutes_left} minute(s)." }, status: :too_many_requests
+      end
+    end
+
+    # First POST in this hour: set rate-limit key
+    Rails.cache.write(rate_key, Time.current + 1.hour, expires_in: 1.hour)
+
+    # Validate inputs
+    user_responses    = params[:responses]
+    activity_location = params[:activity_location]
+    date_notes        = params[:date_notes]
+
+    if user_responses.blank? || activity_location.blank? || date_notes.blank?
+      return render json: { error: "Missing required parameters" }, status: :unprocessable_entity
+    end
+
+    # Fetch from OpenAI
+    recs = fetch_recommendations_from_openai(user_responses, activity_location, date_notes)
+
+    if recs
+      Rails.cache.write(cache_key, recs, expires_in: 1.hour)
+      render json: { recommendations: recs }, status: :ok
+    else
+      render json: { error: "Failed to generate recommendations" }, status: :unprocessable_entity
+    end
+  end
+
+    def try_voxxy_cached
+      ip        = request.remote_ip
+      cache_key = "try_voxxy_last:#{ip}"
+      recs = Rails.cache.read(cache_key)
+
+      if recs.present?
+        render json: { recommendations: recs }, status: :ok
+      else
+        render json: { error: "No cached recommendations" }, status: :not_found
+      end
+    end
 
   private
 
@@ -180,12 +237,10 @@ class OpenaiController < ApplicationController
     end
   end
 
-  # Iterate over recommendations and enrich each with Google Places details.
   def enrich_recommendations(recommendations)
     recommendations.map { |rec| enrich_recommendation(rec) }
   end
 
-  # Enrich a single recommendation by querying Google Places for photos and reviews.
   def enrich_recommendation(rec)
     # Build a query string using the restaurant's name and address.
     query = CGI.escape("#{rec['name']} #{rec['address']}")
