@@ -26,7 +26,9 @@ const Container = styled.div`
 `;
 
 // Title
-const TitleSection = styled.div` margin-bottom: 3rem; `;
+const TitleSection = styled.div`
+ padding: 0px; 
+ `;
 const Title = styled.h1`
   font-size: 2.5rem;
   font-weight: bold;
@@ -43,7 +45,7 @@ const Description = styled.p`
   font-size: 1.125rem;
   color: ${colors.textSecondary};
   max-width: 40rem;
-  margin: 0 auto 4rem;
+  margin: 0 auto 2rem;
 `;
 
 // Card for planning

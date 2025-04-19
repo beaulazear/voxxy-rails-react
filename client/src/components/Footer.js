@@ -52,7 +52,7 @@ const BrandDescription = styled.p`
 const ColumnHeading = styled.h4`
   font-size: 0.95rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1.25rem;
   color: #0D0B1F;
 `;
 
