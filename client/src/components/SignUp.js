@@ -22,7 +22,7 @@ const SectionInner = styled.div`
 
 const Title = styled(Heading1)`
   font-size: clamp(1.6rem, 5vw, 2.8rem);
-  max-width: 700px;
+  max-width: 1000px;
   margin-bottom: 1rem;
   color: ${colors.textPrimary};
 `;

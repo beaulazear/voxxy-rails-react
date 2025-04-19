@@ -119,7 +119,7 @@ const StepCard = styled.div`
 const PurpleBar = styled.div`
   width: 6px;
   background-color: ${colors.primary};
-  height: 120px;
+  align-self: stretch;
 `;
 
 const StepIcon = styled.div`
