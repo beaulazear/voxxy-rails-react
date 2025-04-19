@@ -184,6 +184,42 @@ const DetailLink = styled.a`
   display: inline-block; margin-bottom: 0.75rem;
   color: ${colors.primaryButton}; text-decoration: underline;
 `;
+// CTA Section
+const CTASection = styled.div`
+  text-align: center;
+  margin-bottom: 3rem;
+`;
+const CTAHeading = styled.h2`
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: ${colors.textPrimary};
+  margin-bottom: 1.5rem;
+`;
+const CTAButtons = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    justify-content: center;
+  }
+`;
+const CTAButton = styled(Link)`
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  text-decoration: none;
+  background-color: ${colors.primaryButton};
+  color: ${colors.textPrimary};
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(157,96,248,0.9);
+  }
+`;
 
 export default function TryVoxxy() {
   const [recommendations, setRecommendations] = useState([]);
@@ -197,6 +233,9 @@ export default function TryVoxxy() {
   const [selectedRec, setSelectedRec] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
+  const [fetchingLocation, setFetchingLocation] = useState(false);
+  const [showSignupModal, setShowSignupModal] = useState(false);
+
   console.log(recommendations)
 
   useEffect(() => {
@@ -209,17 +248,25 @@ export default function TryVoxxy() {
 
   const openPlan = () => setShowPlanModal(true);
   const closePlan = () => setShowPlanModal(false);
+
   const useCurrentLocation = () => {
     if (!navigator.geolocation) return;
+    setFetchingLocation(true);
     navigator.geolocation.getCurrentPosition(({ coords }) => {
       setEventLocation(`${coords.latitude},${coords.longitude}`);
+      setFetchingLocation(false);
+    }, () => {
+      setFetchingLocation(false);
+      alert("Unable to fetch location");
     });
   };
+
   const submitPlan = () => {
     if (!eventLocation.trim() || !dateNotes) return;
     setShowPlanModal(false);
     setChatOpen(true);
   };
+
   const handleChatClose = () => setChatOpen(false);
   const handleChatComplete = recs => setRecommendations(recs);
 
@@ -237,6 +284,14 @@ export default function TryVoxxy() {
             <Description>Take a quick quiz to get recommendations on the perfect spot for your group meals.</Description>
           )}
         </TitleSection>
+
+        {recommendations.length > 0 && (
+          <div style={{ marginBottom: '2rem' }}>
+            <Button onClick={() => setShowSignupModal(true)}>
+              Refresh Choices
+            </Button>
+          </div>
+        )}
 
         {recommendations.length > 0 ? (
           <RecommendationsList>
@@ -262,15 +317,29 @@ export default function TryVoxxy() {
           </Card></CardWrapper>
         ))}
 
-        <Footer />
+        {/* CTA Section */}
+        <CTASection>
+          <CTAHeading>Ready to get started?</CTAHeading>
+          <CTAButtons>
+            <CTAButton to="/signup">Create Your Account</CTAButton>
+          </CTAButtons>
+        </CTASection>
+
       </Container></Main>
+      <Footer />
 
       {showPlanModal && (
         <Overlay onClick={closePlan}><Modal onClick={e => e.stopPropagation()}>
           <CloseButton onClick={closePlan}><X size={20} /></CloseButton>
-          <h3 style={{ color: 'white', marginBottom: '1rem' }}>Enter Event Details</h3>
+          <h3 style={{ color: 'white', marginBottom: '1.25rem' }}>Enter Event Details</h3>
+
           <Input placeholder="Location" value={eventLocation} onChange={e => setEventLocation(e.target.value)} />
-          <Button onClick={useCurrentLocation}>Use Current Location</Button>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <Button onClick={useCurrentLocation}>Use Current Location</Button>
+            {fetchingLocation && <span style={{ color: colors.textSecondary, fontSize: '0.875rem' }}>Fetching location...</span>}
+          </div>
+
           <Select value={dateNotes} onChange={e => setDateNotes(e.target.value)}>
             <option value="" disabled>Select outing type</option>
             <option value="Brunch">Brunch</option>
@@ -278,7 +347,10 @@ export default function TryVoxxy() {
             <option value="Dinner">Dinner</option>
             <option value="Late-night drinks">Late-night drinks</option>
           </Select>
-          <div style={{ textAlign: 'right' }}><Button onClick={submitPlan}>Continue</Button></div>
+
+          <div style={{ textAlign: 'right' }}>
+            <Button onClick={submitPlan}>Continue</Button>
+          </div>
         </Modal></Overlay>
       )}
 
@@ -297,6 +369,20 @@ export default function TryVoxxy() {
           <PhotoGallery>{(selectedRec.photos || []).map((url, i) => <Photo key={i} src={url.photo_reference ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${url.photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}` : url} />)}</PhotoGallery>
         </DetailModalContent></Overlay>
       )}
+
+      {showSignupModal && (
+        <Overlay onClick={() => setShowSignupModal(false)}>
+          <Modal onClick={e => e.stopPropagation()}>
+            <CloseButton onClick={() => setShowSignupModal(false)}><X size={20} /></CloseButton>
+            <h3 style={{ color: 'white', marginBottom: '1rem' }}>Sign Up to Unlock More</h3>
+            <p style={{ color: colors.textSecondary, marginBottom: '1.5rem' }}>
+              You’ve reached your free limit. Create a Voxxy account to generate more recommendations, invite friends, and save your picks!
+            </p>
+            <CTAButton to="/signup">Create an Account</CTAButton>
+          </Modal>
+        </Overlay>
+      )}
+
     </PageContainer>
   );
 }
