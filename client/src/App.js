@@ -18,6 +18,7 @@ import FAQ from './components/FAQ.js';
 import TryVoxxy from './components/TryVoxxy.js';
 import LearnMorePage from './components/LearnMorePage.js';
 import AboutUsPage from './components/AboutUsSection.js';
+import Blogs from './components/Blogs.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -65,6 +66,7 @@ function App() {
         <Route path="/try-voxxy" element={<TryVoxxy />} />
         <Route path='/learn-more' element={<LearnMorePage />} />
         <Route path='/about-us' element={<AboutUsPage />} />
+        <Route path='/blogs' element={<Blogs />} />
 
         {isLoggedIn && !isConfirmed && (
           <Route path="/confirm-email" element={<ConfirmEmail />} />

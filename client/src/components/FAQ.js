@@ -227,9 +227,9 @@ const FAQ = () => {
     { title: "Finalize Your Plans", description: "Vote on the final selection, confirm details, and Voxxy will help with reservations or bookings if needed. Add to your calendar with one click and get ready to enjoy your perfectly planned event!" },
   ];
 
-    useEffect(() => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }, []);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   return (
     <div style={{ backgroundColor: '#201925', margin: 0, padding: 0 }}>

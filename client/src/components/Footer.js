@@ -104,8 +104,8 @@ export default function Footer() {
           <div>
             <ColumnHeading>Product</ColumnHeading>
             <LinkList>
-              <li><FooterLink to="/learn-more">How it works</FooterLink></li>
-              <li><FooterLink to="/learn-more">About</FooterLink></li>
+              <li><FooterLink to="/faq">How it works</FooterLink></li>
+              <li><FooterLink to="/about-us">Pricing</FooterLink></li>
             </LinkList>
           </div>
 
@@ -125,6 +125,9 @@ export default function Footer() {
             <LinkList>
             <li>
               <Link to='/about-us' style={{ textDecoration: 'none', color: '#0D0B1F' }}>About Us</Link>
+            </li>
+            <li>
+              <Link to='/blogs' style={{ textDecoration: 'none', color: '#0D0B1F' }}>Blog</Link>
             </li>
             </LinkList>
           </div>
