@@ -198,6 +198,7 @@ export default function Navbar() {
               {user ? (
                 <>
                   <NavLinkItem to="/dashboard">Dashboard</NavLinkItem>
+                  <NavLinkItem to="/faq">Help Center</NavLinkItem>
                   <SolidButton onClick={handleLogout} style={{ marginLeft: '16px' }}>
                     Log Out
                   </SolidButton>
@@ -234,6 +235,9 @@ export default function Navbar() {
             <>
               <NavLinkItem to="/dashboard" onClick={() => setShowMobileNav(false)}>
                 Dashboard
+              </NavLinkItem>
+              <NavLinkItem to="/faq" onClick={() => setShowMobileNav(false)}>
+                Help Center
               </NavLinkItem>
               <NavLinkItem to="/logout" onClick={handleLogout}>
                 Log Out

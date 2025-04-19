@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Accordion } from "react-bootstrap";
 import styled, { keyframes } from "styled-components";
 import Footer from '../components/Footer';
+import { UserContext } from "../context/user";
 
 const colors = {
   background: "#0D0B1F",
@@ -119,7 +120,7 @@ const StepCard = styled.div`
 const PurpleBar = styled.div`
   width: 6px;
   background-color: ${colors.primary};
-  height: 100px;
+  height: 120px;
 `;
 
 const StepIcon = styled.div`
@@ -164,6 +165,7 @@ const StepDescription = styled.p`
 
 const FAQ = () => {
   const [selectedTab, setSelectedTab] = useState("faq");
+  const { user } = useContext(UserContext)
 
   const faqs = [
     { key: "1", question: "What is Voxxy?", answer: "Voxxy is an AI-powered platform that simplifies group decision-making and planning. Whether you're organizing a dinner, planning a trip, or coordinating any group activity, Voxxy helps everyone's preferences be heard and makes the planning process fun instead of frustrating." },
@@ -231,6 +233,7 @@ const FAQ = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+
   return (
     <div style={{ backgroundColor: '#201925', margin: 0, padding: 0 }}>
       <FAQContainer>
@@ -270,7 +273,7 @@ const FAQ = () => {
           </>
         )}
       </FAQContainer>
-      <Footer />
+    <Footer />
     </div>
   );
 };

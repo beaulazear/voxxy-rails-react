@@ -8,7 +8,7 @@ import {
 import RestaurantMap from "./RestaurantMap";
 import CuisineChat from "./CuisineChat";
 import PinnedActivityCard from "./PinnedActivityCard";
-import LoadingScreenUser from "./LoadingScreenUser"; // Import the loading component
+import LoadingScreenUser from "./LoadingScreenUser";
 
 const AIRecommendations = ({
   activity,
@@ -47,7 +47,10 @@ const AIRecommendations = ({
       });
       if (res.ok) {
         const data = await res.json();
-        setRecommendations(data.recommendations);
+        const filtered = data.recommendations.filter(
+          rec => !pinnedActivities.some(p => p.title === rec.name)
+        );
+        setRecommendations(filtered);
       } else {
         setError("⚠️ OpenAI rate limit reached. Try again later.");
       }
@@ -56,7 +59,7 @@ const AIRecommendations = ({
     } finally {
       setLoading(false);
     }
-  }, [responses, activity_location, date_notes, recommendations.length]);
+  }, [responses, activity_location, date_notes, recommendations.length, pinnedActivities]);
 
   const fetchTrendingRecommendations = useCallback(async () => {
     if (!activity_location || !date_notes) {
@@ -76,7 +79,10 @@ const AIRecommendations = ({
       });
       if (res.ok) {
         const data = await res.json();
-        setRecommendations(data.recommendations);
+        const filtered = data.recommendations.filter(
+          rec => !pinnedActivities.some(p => p.title === rec.name)
+        );
+        setRecommendations(filtered);
       } else {
         setError("⚠️ OpenAI rate limit reached. Try again later.");
       }
@@ -85,7 +91,7 @@ const AIRecommendations = ({
     } finally {
       setLoading(false);
     }
-  }, [activity_location, date_notes, recommendations.length]);
+  }, [activity_location, date_notes, recommendations.length, pinnedActivities]);
 
   useEffect(() => {
     if (recommendations.length > 0) return;
@@ -99,7 +105,10 @@ const AIRecommendations = ({
         if (res.ok) {
           const data = await res.json();
           if (data.recommendations && data.recommendations.length > 0) {
-            setRecommendations(data.recommendations);
+            const filtered = data.recommendations.filter(
+              rec => !pinnedActivities.some(p => p.title === rec.name)
+            );
+            setRecommendations(filtered);
           } else {
             console.warn("No cached recommendations found.");
             if (responses?.length > 0) {
@@ -128,6 +137,7 @@ const AIRecommendations = ({
     recommendations.length,
     fetchRecommendations,
     fetchTrendingRecommendations,
+    pinnedActivities
   ]);
 
   const handlePinActivity = (rec) => {
@@ -160,13 +170,17 @@ const AIRecommendations = ({
       });
       if (!res.ok) throw new Error("Failed to pin activity");
       const newPinnedActivity = await res.json();
-      alert(`"${newPinnedActivity.title}" has been pinned!`);
       setPinnedActivities((prevPinned) => [...prevPinned, newPinnedActivity]);
+      setRecommendations(prev => prev.filter(r => r.name !== rec.name));
     } catch (err) {
       console.error("Error pinning activity:", err);
       alert("Something went wrong while pinning the activity.");
     }
   };
+
+  const displayedRecommendations = recommendations.filter(
+    rec => !pinnedActivities.some(p => p.title === rec.name)
+  );
 
   if (loading) {
     return <LoadingScreenUser autoDismiss={false} />;
@@ -180,7 +194,6 @@ const AIRecommendations = ({
       </ChatButton>
       {error && <ErrorText>{error}</ErrorText>}
       <RecommendationList>
-        {/* Render pinned activities first */}
         {pinnedActivities.length > 0 &&
           pinnedActivities.map((pinned) => (
             <PinnedActivityCard
@@ -190,7 +203,7 @@ const AIRecommendations = ({
               pinned={pinned}
             />
           ))}
-        {recommendations.length > 0 &&
+        {displayedRecommendations.length > 0 &&
           recommendations.map((rec, index) => (
             <RecommendationItem key={index}>
               <RestaurantName>{rec.name}</RestaurantName>
