@@ -4,7 +4,7 @@ import { Mail, Smartphone, Bell } from 'lucide-react';
 import { Heading1, MutedText } from '../styles/Typography'
 
 const colors = {
-    sectionBackground: '#201925',
+    sectionBackground: '#251C2C',
     cardBackground: '#2a1e30',
     inputBackground: '#0D0B1F',
     border: '#3B3355',
@@ -36,7 +36,6 @@ const Subtitle = styled(MutedText)`
 
 const FormWrapper = styled.section`
   background-color: ${colors.sectionBackground};
-  padding: 10px;
   padding-bottom: 50px;
   display: flex;
   justify-content: center;
@@ -166,7 +165,7 @@ export default function WaitlistForm() {
     };
 
     return (
-        <div style={{paddingTop: '50px', backgroundColor: '#201925'}}>
+        <div style={{paddingTop: '50px', backgroundColor: '#251C2C', padding: '20px'}}>
             <SmallHeading>Stay Connected</SmallHeading>
             <Title>Get notified about Voxxy Updates</Title>
             <Subtitle>Sign up to be the first to know about our mobile app launch or to receive product
