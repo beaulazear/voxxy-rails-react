@@ -3,6 +3,36 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { UserContext } from '../context/user';
 import styled from 'styled-components';
 import mixpanel from 'mixpanel-browser';
+import colors from "../styles/Colors";
+import { Heading1, MutedText } from '../styles/Typography'; // ✅ optional if you want to use Heading components
+import { Sparkles } from 'lucide-react';
+
+
+const SectionContainer = styled.section`
+  min-width: 350px;
+  background-color: ${colors.backgroundTwo};
+  padding: 1rem .5rem;
+  text-align: center;
+  color: ${colors.textPrimary};
+`;
+
+const SectionInner = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+`;
+
+const Title = styled(Heading1)`
+  font-size: clamp(1.6rem, 5vw, 2.8rem);
+  margin-bottom: 1rem;
+  color: ${colors.textPrimary};
+`;
+
+const Subtitle = styled(MutedText)`
+  font-size: 1rem;
+  max-width: 600px;
+  margin: 0.5rem auto 3rem auto;
+  line-height: 1.6;
+`;
 
 const PageContainer = styled.div`
   display: flex;
@@ -16,12 +46,8 @@ const PageContainer = styled.div`
 const FormContainer = styled.div`
   max-width: 400px;
   min-width: 350px;
-  padding: 2rem;
-  background: #2a1e30;
-  border: 1px solid #333;
   border-radius: 12px;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   margin-bottom: 2rem;
 `;
 
@@ -127,7 +153,6 @@ const Divider = styled.div`
   }
 `;
 
-// Updated Footer with additional top padding for extra space around its elements
 const Footer = styled.div`
   text-align: center;
   width: 100%;
@@ -228,6 +253,12 @@ const Login = () => {
 
   return (
     <PageContainer>
+      <SectionContainer>
+        <SectionInner>
+          <Title><Sparkles size={28} style={{color: '#cc31e8', height: 'fit-content'}}/> Welcome to Voxxy Beta</Title>
+          <Subtitle>You’re getting full access to the Voxxy experience and joining us as we rapidly grow and evolve. As an early user, your feedback will directly shape our product direction and help build the future of group planning.</Subtitle>
+        </SectionInner>
+      </SectionContainer>
       <FormContainer>
         <Heading>Log in to your account</Heading>
         <Form onSubmit={handleSubmit}>

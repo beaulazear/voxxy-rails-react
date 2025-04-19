@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { Accordion } from "react-bootstrap";
 import styled, { keyframes } from "styled-components";
 import Footer from '../components/Footer';
-import { UserContext } from "../context/user";
 
 const colors = {
   background: "#0D0B1F",
@@ -165,7 +164,6 @@ const StepDescription = styled.p`
 
 const FAQ = () => {
   const [selectedTab, setSelectedTab] = useState("faq");
-  const { user } = useContext(UserContext)
 
   const faqs = [
     { key: "1", question: "What is Voxxy?", answer: "Voxxy is an AI-powered platform that simplifies group decision-making and planning. Whether you're organizing a dinner, planning a trip, or coordinating any group activity, Voxxy helps everyone's preferences be heard and makes the planning process fun instead of frustrating." },
@@ -202,7 +200,7 @@ const FAQ = () => {
     },
     {
       key: "5",
-      question: "How do I invite other to my plan?",
+      question: "How do I invite others to my plan?",
       answer: `
         <p>After creating a plan, you'll see options to invite others through:</p>
         <ul>

@@ -2,12 +2,43 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/user';
 import styled from 'styled-components';
+import colors from "../styles/Colors";
+import { Heading1, MutedText } from '../styles/Typography'; // ✅ optional if you want to use Heading components
+import { Sparkles } from 'lucide-react';
+
+
+const SectionContainer = styled.section`
+  min-width: 350px;
+  background-color: ${colors.backgroundTwo};
+  padding: 1rem .5rem;
+  text-align: center;
+  color: ${colors.textPrimary};
+`;
+
+const SectionInner = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+`;
+
+const Title = styled(Heading1)`
+  font-size: clamp(1.6rem, 5vw, 2.8rem);
+  max-width: 700px;
+  margin-bottom: 1rem;
+  color: ${colors.textPrimary};
+`;
+
+const Subtitle = styled(MutedText)`
+  font-size: 1rem;
+  max-width: 600px;
+  margin: 0.5rem auto 3rem auto;
+  line-height: 1.6;
+`;
 
 const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 5.5rem; /* Ensure enough top spacing so it doesn't hit the navbar */
+  padding: 5.5rem;
   background-color: #251C2C;
   min-height: 100vh;
 `;
@@ -15,12 +46,8 @@ const PageContainer = styled.div`
 const FormContainer = styled.div`
   max-width: 400px;
   min-width: 350px;
-  padding: 2rem;
-  background: #2a1e30;
-  border: 1px solid #333;
   border-radius: 12px;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   margin-bottom: 2rem;
 `;
 
@@ -216,6 +243,12 @@ const SignUp = () => {
 
   return (
     <PageContainer>
+      <SectionContainer>
+        <SectionInner>
+          <Title><Sparkles size={28} style={{ color: '#cc31e8', height: 'fit-content' }} /> Be one of the first to experience Voxxy!</Title>
+          <Subtitle>As a beta user, you’ll get early access to new features, special perks, and a direct line to share feedback. Help shape the future of group planning as we grow and improve together.</Subtitle>
+        </SectionInner>
+      </SectionContainer>
       <FormContainer>
         <Heading>Create an account</Heading>
         <Form onSubmit={handleSubmit}>
