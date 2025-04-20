@@ -82,7 +82,7 @@ function LoadingScreenUser({ onComplete, autoDismiss = true }) {
     <Backdrop>
       <Modal>
         <Logo src={voxxyLogo} alt="Voxxy logo" />
-        <Title>Loading your board...</Title>
+        <Title>Finding Perfect Restaurant Matches</Title>
         <SubText>We're analyzing your preferences to curate the best recommendations...</SubText>
         <Spinner />
       </Modal>
