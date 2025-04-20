@@ -1,4 +1,5 @@
 class WaitlistsController < ApplicationController
+    before_action :authorized
     before_action :set_waitlist, only: [ :show, :update, :destroy ]
     skip_before_action :authorized, only: [ :create ]
 

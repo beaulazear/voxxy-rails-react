@@ -19,6 +19,7 @@ import TryVoxxy from './components/TryVoxxy.js';
 import LearnMorePage from './components/LearnMorePage.js';
 import AboutUsPage from './components/AboutUsSection.js';
 import Blogs from './components/Blogs.js';
+import AdminPage from './admincomponents/AdminPage.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -46,6 +47,7 @@ function App() {
 
   const isLoggedIn = user && user.email && Object.keys(user).length > 0;
   const isConfirmed = user && user.confirmed_at;
+  const isAdmin = user && user.admin;
 
   if (loading) {
     return <LoadingScreen />;
@@ -71,6 +73,10 @@ function App() {
 
         {isLoggedIn && !isConfirmed && (
           <Route path="/confirm-email" element={<ConfirmEmail />} />
+        )}
+
+        {isAdmin && (
+          <Route path='/voxxyad' element={<AdminPage />} />
         )}
 
         <Route path="*" element={<Navigate to="/" replace />} />

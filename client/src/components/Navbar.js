@@ -151,6 +151,8 @@ export default function Navbar() {
   const [showMobileNav, setShowMobileNav] = useState(false);
   const navigate = useNavigate();
 
+  const isAdmin = user && user.admin;
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll);
@@ -195,6 +197,9 @@ export default function Navbar() {
 
             {/* Desktop Navigation */}
             <DesktopNav>
+              {isAdmin && (
+                <NavLinkItem to="/voxxyad">Admin</NavLinkItem>
+              )}
               {user ? (
                 <>
                   <NavLinkItem to="/dashboard">Dashboard</NavLinkItem>
@@ -231,6 +236,11 @@ export default function Navbar() {
           <MobileMenuCloseButton onClick={() => setShowMobileNav(false)}>
             <X size={24} />
           </MobileMenuCloseButton>
+          {isAdmin && (
+            <NavLinkItem to="/voxxyad" onClick={() => setShowMobileNav(false)}>
+              Admin
+            </NavLinkItem>
+          )}
           {user ? (
             <>
               <NavLinkItem to="/dashboard" onClick={() => setShowMobileNav(false)}>
