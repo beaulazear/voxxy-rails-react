@@ -1,5 +1,7 @@
 # app/controllers/bug_reports_controller.rb
 class BugReportsController < ApplicationController
+  skip_before_action :authorized, only: [ :create ]
+
     def index
       @bug_reports = BugReport.all
       render json: @bug_reports

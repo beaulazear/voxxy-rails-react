@@ -1,5 +1,7 @@
 # app/controllers/contacts_controller.rb
 class ContactsController < ApplicationController
+  skip_before_action :authorized, only: [ :create ]
+
     def index
       @contacts = Contact.all
       render json: @contacts

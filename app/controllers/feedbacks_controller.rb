@@ -1,5 +1,7 @@
 # app/controllers/feedbacks_controller.rb
 class FeedbacksController < ApplicationController
+  skip_before_action :authorized, only: [ :create ]
+
     def index
       @feedbacks = Feedback.all
       render json: @feedbacks
