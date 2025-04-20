@@ -3,8 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Menu, ArrowLeft, X } from 'lucide-react';
 import { UserContext } from '../context/user';
+import colors from '../styles/Colors'; // ✅ using your palette
 
-// Custom hook to determine mobile viewport
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   useEffect(() => {
@@ -15,23 +15,16 @@ function useIsMobile() {
   return isMobile;
 }
 
-const colors = {
-  background: '13, 11, 31', // using numeric values to format in rgba
-  foreground: '#FFFFFF',
-  primary: 'rgba(157,96,248,1)',
-  border: 'rgba(255,255,255,0.2)',
-};
-
 const StyledNav = styled.nav`
   width: 100%;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid;
   backdrop-filter: blur(8px);
   position: fixed;
   top: 0;
   z-index: 50;
   transition: background 0.2s ease;
   background-color: ${({ $scrolled }) =>
-    $scrolled ? `rgba(${colors.background}, 0.95)` : `rgba(${colors.background}, 0.8)`};
+    $scrolled ? `rgba(32, 25, 37, 0.95)` : `rgba(32, 25, 37, 0.8)`}; /* from colors.background */
 `;
 
 const NavContainer = styled.div`
@@ -56,7 +49,11 @@ const LogoLink = styled(Link)`
 const LogoText = styled.span`
   font-size: 1.5rem;
   font-weight: bold;
-  background: linear-gradient(90deg, ${colors.primary} 0%, rgba(98,69,250,1) 100%);
+  background: linear-gradient(
+    90deg,
+    #B931D6 0%,
+    #9051E1 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 `;
@@ -74,12 +71,12 @@ const NavLinkItem = styled(Link)`
   padding: 8px 12px;
   font-size: 0.875rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
+  color: ${colors.textSecondary};
   text-decoration: none;
   border-radius: 4px;
   transition: color 0.2s ease;
   &:hover {
-    color: ${colors.primary};
+    color: ${colors.primaryButton};
   }
 `;
 
@@ -89,11 +86,11 @@ const SolidButton = styled(Link)`
   font-weight: 500;
   text-decoration: none;
   border-radius: 4px;
-  background-color: ${colors.primary};
-  color: #fff;
+  background-color: ${colors.primaryButton};
+  color: ${colors.textPrimary};
   transition: background-color 0.2s ease;
   &:hover {
-    background-color: rgba(157,96,248,0.9);
+    background-color: ${colors.hoverHighlight};
   }
 `;
 
@@ -102,19 +99,19 @@ const OutlineButton = styled(Link)`
   font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
-  border: 1px solid rgba(157,96,248,0.6);
+  border: 1px solid ${colors.primarySolid}; /* or hoverHighlight if preferred */
   border-radius: 4px;
-  color: ${colors.primary};
+  color: ${colors.primarySolid};
   transition: background-color 0.2s ease;
   &:hover {
-    background-color: rgba(157,96,248,0.1);
+    background-color: rgba(157, 96, 248, 0.1);
   }
 `;
 
 const MobileMenuButton = styled.button`
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.8);
+  color: ${colors.textSecondary};
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -129,7 +126,7 @@ const MobileMenuOverlay = styled.div`
   right: 0;
   width: 80%;
   height: 100%;
-  background-color: rgba(${colors.background}, 0.95);
+  background-color: rgba(32, 25, 37, 0.95); /* matches colors.background with alpha */
   backdrop-filter: blur(8px);
   z-index: 60;
   padding: 2rem;
@@ -142,7 +139,7 @@ const MobileMenuCloseButton = styled.button`
   align-self: flex-end;
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.8);
+  color: ${colors.textSecondary};
   cursor: pointer;
 `;
 
@@ -152,7 +149,6 @@ export default function Navbar() {
   const isMobile = useIsMobile();
   const [scrolled, setScrolled] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -162,19 +158,18 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = () => {
-    const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
-
-    const confirmation = window.confirm("Are you sure you want to log out?");
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+    const confirmation = window.confirm('Are you sure you want to log out?');
     if (confirmation) {
       fetch(`${API_URL}/logout`, {
-        method: "DELETE",
+        method: 'DELETE',
         credentials: 'include',
       }).then(() => {
         setUser(null);
         navigate('/');
       });
     }
-    setShowMobileNav(false)
+    setShowMobileNav(false);
   };
 
   const isInnerPage =
@@ -203,6 +198,7 @@ export default function Navbar() {
               {user ? (
                 <>
                   <NavLinkItem to="/dashboard">Dashboard</NavLinkItem>
+                  <NavLinkItem to="/faq">Help Center</NavLinkItem>
                   <SolidButton onClick={handleLogout} style={{ marginLeft: '16px' }}>
                     Log Out
                   </SolidButton>
@@ -239,6 +235,9 @@ export default function Navbar() {
             <>
               <NavLinkItem to="/dashboard" onClick={() => setShowMobileNav(false)}>
                 Dashboard
+              </NavLinkItem>
+              <NavLinkItem to="/faq" onClick={() => setShowMobileNav(false)}>
+                Help Center
               </NavLinkItem>
               <NavLinkItem to="/logout" onClick={handleLogout}>
                 Log Out

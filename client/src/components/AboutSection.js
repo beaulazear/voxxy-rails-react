@@ -1,17 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Users, CalendarClock, CheckSquare, MessageCircle, Zap } from 'lucide-react';
-
-const colors = {
-  background: '#0D0B1F',      // Dark section background
-  card: '#1B1831',            // Card background (slightly lighter than section)
-  textPrimary: '#FFFFFF',     // Main text color (white)
-  textMuted: '#BEBEBE',       // Secondary text color
-  accent: '#9D60F8',          // Accent color (for icons, etc.)
-};
+import {
+  Users,
+  CalendarClock,
+  CheckSquare,
+  MessageCircle,
+  Zap,
+} from 'lucide-react';
+import colors from '../styles/Colors'; // ✅ centralized color palette
+import { Heading1, MutedText } from '../styles/Typography'; // ✅ optional typography imports
 
 const DarkSection = styled.section`
-  background-color: ${colors.background};
+  background-color: ${colors.backgroundTwo};
   padding: 4rem 1.5rem;
   text-align: center;
 `;
@@ -24,36 +24,32 @@ const SectionContainer = styled.div`
 const SmallHeading = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
-  color: ${colors.accent};
+  color: ${colors.primaryButton};
   margin-bottom: 1rem;
   opacity: 0.9;
 `;
 
-const Title = styled.h2`
+const Title = styled(Heading1)`
   font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 700;
-  color: ${colors.textPrimary};
   margin-bottom: 1rem;
+  color: ${colors.textPrimary};
 `;
 
-const Subtitle = styled.p`
+const Subtitle = styled(MutedText)`
   font-size: 1rem;
   line-height: 1.6;
-  color: ${colors.textMuted};
   max-width: 700px;
   margin: 0 auto 3rem auto;
 `;
 
-// Update grid: ensuring cards are wider
 const CardsWrapper = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 1.5rem;
 `;
 
-// Updated Card with horizontal layout
 const Card = styled.div`
-  background-color: ${colors.card};
+  background-color: ${colors.cardBackground};
   border-radius: 1rem;
   padding: 1.5rem;
   display: flex;
@@ -62,11 +58,11 @@ const Card = styled.div`
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 
   &:hover {
-    background-color: #221e3a;
+    box-shadow: 0 0 20px #592566, 0 0 40px #592566;
+    background-color: ${colors.cardBackground}; /* keep same background, or tweak if you like */
   }
 `;
 
-// Icon stays on the left with a right margin
 const IconWrapper = styled.div`
   width: 3rem;
   height: 3rem;
@@ -78,7 +74,6 @@ const IconWrapper = styled.div`
   margin-right: 1.5rem;
 `;
 
-// New text container for card text
 const TextContainer = styled.div`
   flex: 1;
   text-align: left;
@@ -106,11 +101,11 @@ export default function AboutSection() {
         <Subtitle>
           Voxxy helps your group create memorable experiences without the usual planning headaches.
         </Subtitle>
+
         <CardsWrapper>
-          {/* Card 1 */}
           <Card>
             <IconWrapper>
-              <Users size={20} color={colors.accent} />
+              <Users size={20} color={colors.primaryButton} />
             </IconWrapper>
             <TextContainer>
               <CardTitle>Group Decision Making</CardTitle>
@@ -120,10 +115,9 @@ export default function AboutSection() {
             </TextContainer>
           </Card>
 
-          {/* Card 2 */}
           <Card>
             <IconWrapper>
-              <CalendarClock size={20} color={colors.accent} />
+              <CalendarClock size={20} color={colors.primaryButton} />
             </IconWrapper>
             <TextContainer>
               <CardTitle>Smart Scheduling</CardTitle>
@@ -133,10 +127,9 @@ export default function AboutSection() {
             </TextContainer>
           </Card>
 
-          {/* Card 3 */}
           <Card>
             <IconWrapper>
-              <CheckSquare size={20} color={colors.accent} />
+              <CheckSquare size={20} color={colors.primaryButton} />
             </IconWrapper>
             <TextContainer>
               <CardTitle>Task Management</CardTitle>
@@ -146,10 +139,9 @@ export default function AboutSection() {
             </TextContainer>
           </Card>
 
-          {/* Card 4 */}
           <Card>
             <IconWrapper>
-              <MessageCircle size={20} color={colors.accent} />
+              <MessageCircle size={20} color={colors.primaryButton} />
             </IconWrapper>
             <TextContainer>
               <CardTitle>Integrated Messaging</CardTitle>
@@ -161,7 +153,7 @@ export default function AboutSection() {
 
           <Card>
             <IconWrapper>
-              <Zap size={20} color={colors.accent} />
+              <Zap size={20} color={colors.primaryButton} />
             </IconWrapper>
             <TextContainer>
               <CardTitle>AI Recommendations</CardTitle>
@@ -170,7 +162,6 @@ export default function AboutSection() {
               </CardText>
             </TextContainer>
           </Card>
-
         </CardsWrapper>
       </SectionContainer>
     </DarkSection>

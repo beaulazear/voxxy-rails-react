@@ -39,7 +39,7 @@ const BrandName = styled.h3`
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
-  color: rgba(157, 96, 248, 1);
+  color: #B931D6;
 `;
 
 const BrandDescription = styled.p`
@@ -52,7 +52,7 @@ const BrandDescription = styled.p`
 const ColumnHeading = styled.h4`
   font-size: 0.95rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1.25rem;
   color: #0D0B1F;
 `;
 
@@ -104,8 +104,8 @@ export default function Footer() {
           <div>
             <ColumnHeading>Product</ColumnHeading>
             <LinkList>
-              <li><FooterLink to="/learn-more">How it works</FooterLink></li>
-              <li><FooterLink to="/learn-more">About</FooterLink></li>
+              <li><FooterLink to="/faq">How it works</FooterLink></li>
+              <li><FooterLink to="/about-us">Pricing</FooterLink></li>
             </LinkList>
           </div>
 
@@ -118,6 +118,28 @@ export default function Footer() {
                 </Link>
               </li>
               <li><FooterLink href="mailto:team@voxxyAI.com">Contact Us</FooterLink></li>
+            </LinkList>
+          </div>
+          <div>
+            <ColumnHeading>Company</ColumnHeading>
+            <LinkList>
+            <li>
+              <Link to='/about-us' style={{ textDecoration: 'none', color: '#0D0B1F' }}>About Us</Link>
+            </li>
+            <li>
+              <Link to='/blogs' style={{ textDecoration: 'none', color: '#0D0B1F' }}>Blog</Link>
+            </li>
+            </LinkList>
+          </div>
+          <div>
+            <ColumnHeading>Legal</ColumnHeading>
+            <LinkList>
+            <li>
+              <Link to='/' style={{ textDecoration: 'none', color: '#0D0B1F' }}>Terms</Link>
+            </li>
+            <li>
+              <Link to='/' style={{ textDecoration: 'none', color: '#0D0B1F' }}>Privacy</Link>
+            </li>
             </LinkList>
           </div>
         </TopRow>

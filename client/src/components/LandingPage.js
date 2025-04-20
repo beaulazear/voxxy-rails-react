@@ -5,6 +5,7 @@ import HowVoxxyWorks from "./HowVoxxyWorks";
 import AboutSection from "./AboutSection";
 import BenefitsSection from "./BenefitsSection";
 import Footer from "./Footer";
+import WaitlistForm from "./WaitlistForm";
 
 const ContentContainer = styled.div`
   background-color: #0D0B1F; /* fixed background color without quotes */
@@ -29,19 +30,14 @@ const StaggeredContent = styled.div`
 
 const LandingPage = () => {
   const [showContent, setShowContent] = useState(false);
-  // Initially set visibleSections to include all section IDs
   const [visibleSections, setVisibleSections] = useState([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    // Instead of waiting for scroll, make all sections visible immediately.
     setVisibleSections(["introduction", "howVoxxyWorks", "about", "benefits"]);
     setShowContent(true);
   }, []);
 
-  // Optionally, you can remove the scroll handler since it's no longer needed.
-  // If you want to maintain it (for additional lazy-loading on longer pages),
-  // you can leave it as is.
   const handleScroll = useCallback(() => {
     const sections = document.querySelectorAll(".staggered-section");
     sections.forEach((section) => {
@@ -58,7 +54,7 @@ const LandingPage = () => {
   }, [handleScroll]);
 
   return (
-    <div style={{ background: "#0D0B1F" }}>
+    <div style={{ background: "#201925" }}>
       <ContentContainer $isVisible={showContent}>
         <StaggeredContent id="introduction" className="staggered-section" $isVisible={visibleSections.includes("introduction")}>
           <IntroductionSection />
@@ -70,6 +66,10 @@ const LandingPage = () => {
 
         <StaggeredContent id="about" className="staggered-section" $isVisible={visibleSections.includes("about")}>
           <AboutSection />
+        </StaggeredContent>
+
+        <StaggeredContent id="benefits" className="staggered-section" $isVisible={visibleSections.includes("benefits")}>
+          <WaitlistForm />
         </StaggeredContent>
 
         <StaggeredContent id="benefits" className="staggered-section" $isVisible={visibleSections.includes("benefits")}>

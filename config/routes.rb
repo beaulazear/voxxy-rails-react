@@ -13,6 +13,7 @@ Rails.application.routes.draw do
     resources :comments, only: [ :index, :create ]
     resources :votes, only: [ :create, :destroy ]
   end
+  resources :waitlists, only: [ :index, :show, :create, :update, :destroy ]
 
   get "/verify", to: "users#verify"
   post "/resend_verification", to: "users#resend_verification"
@@ -29,6 +30,8 @@ Rails.application.routes.draw do
   post "/api/openai/restaurant_recommendations", to: "openai#restaurant_recommendations"
   get "/check_cached_recommendations", to: "openai#check_cached_recommendations"
   post "/api/openai/trending_recommendations", to: "openai#trending_recommendations"
+  post "/try_voxxy_recommendations", to: "openai#try_voxxy_recommendations"
+  get "/try_voxxy_cached",         to: "openai#try_voxxy_cached"
 
   post "/activities/:id/send_thank_you", to: "activities#send_thank_you"
 
