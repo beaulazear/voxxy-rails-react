@@ -67,6 +67,7 @@ function App() {
         <Route path='/learn-more' element={<LearnMorePage />} />
         <Route path='/about-us' element={<AboutUsPage />} />
         <Route path='/blogs' element={<Blogs />} />
+        <Route path='/loading' element={<LoadingScreen />} />
 
         {isLoggedIn && !isConfirmed && (
           <Route path="/confirm-email" element={<ConfirmEmail />} />
