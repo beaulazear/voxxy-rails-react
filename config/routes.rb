@@ -14,6 +14,9 @@ Rails.application.routes.draw do
     resources :votes, only: [ :create, :destroy ]
   end
   resources :waitlists, only: [ :index, :show, :create, :update, :destroy ]
+  resources :feedbacks, only: [ :index, :show, :create ]
+  resources :contacts, only: [ :index, :show, :create ]
+  resources :bug_reports, only: [ :index, :show, :create ]
 
   get "/verify", to: "users#verify"
   post "/resend_verification", to: "users#resend_verification"

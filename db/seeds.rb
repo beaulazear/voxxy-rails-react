@@ -8,7 +8,8 @@ user = User.create(
   email: "testing@gmail.com",
   password: "testingpass",
   password_confirmation: "testingpass",
-  confirmed_at: Time.current # Mark the user as confirmed
+  confirmed_at: Time.current,
+  admin: true
 )
 
 if user.persisted?

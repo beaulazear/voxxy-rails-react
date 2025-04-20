@@ -20,6 +20,7 @@ import LearnMorePage from './components/LearnMorePage.js';
 import AboutUsPage from './components/AboutUsSection.js';
 import Blogs from './components/Blogs.js';
 import AdminPage from './admincomponents/AdminPage.js';
+import ContactUs from './components/ContactUs.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -70,6 +71,7 @@ function App() {
         <Route path='/about-us' element={<AboutUsPage />} />
         <Route path='/blogs' element={<Blogs />} />
         <Route path='/loading' element={<LoadingScreen />} />
+        <Route path='/contact' element={<ContactUs />} />
 
         {isLoggedIn && !isConfirmed && (
           <Route path="/confirm-email" element={<ConfirmEmail />} />

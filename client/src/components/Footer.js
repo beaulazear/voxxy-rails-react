@@ -117,29 +117,33 @@ export default function Footer() {
                   Help Center
                 </Link>
               </li>
-              <li><FooterLink href="mailto:team@voxxyAI.com">Contact Us</FooterLink></li>
+              <li>
+                <Link to="/contact" style={{ textDecoration: 'none', color: '#0D0B1F' }}>
+                  Contact Us
+                </Link>
+              </li>
             </LinkList>
           </div>
           <div>
             <ColumnHeading>Company</ColumnHeading>
             <LinkList>
-            <li>
-              <Link to='/about-us' style={{ textDecoration: 'none', color: '#0D0B1F' }}>About Us</Link>
-            </li>
-            <li>
-              <Link to='/blogs' style={{ textDecoration: 'none', color: '#0D0B1F' }}>Blog</Link>
-            </li>
+              <li>
+                <Link to='/about-us' style={{ textDecoration: 'none', color: '#0D0B1F' }}>About Us</Link>
+              </li>
+              <li>
+                <Link to='/blogs' style={{ textDecoration: 'none', color: '#0D0B1F' }}>Blog</Link>
+              </li>
             </LinkList>
           </div>
           <div>
             <ColumnHeading>Legal</ColumnHeading>
             <LinkList>
-            <li>
-              <Link to='/' style={{ textDecoration: 'none', color: '#0D0B1F' }}>Terms</Link>
-            </li>
-            <li>
-              <Link to='/' style={{ textDecoration: 'none', color: '#0D0B1F' }}>Privacy</Link>
-            </li>
+              <li>
+                <Link to='/' style={{ textDecoration: 'none', color: '#0D0B1F' }}>Terms</Link>
+              </li>
+              <li>
+                <Link to='/' style={{ textDecoration: 'none', color: '#0D0B1F' }}>Privacy</Link>
+              </li>
             </LinkList>
           </div>
         </TopRow>

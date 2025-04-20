@@ -68,63 +68,65 @@ const ListItem = styled.div`
 `;
 
 export default function AdminPage() {
-    const [waitlists, setWaitlists] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+  const [waitlists, setWaitlists] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
-        fetch(`${API_URL}/waitlists`, {
-            credentials: 'include'
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Fetch error ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                setWaitlists(data);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error(err);
-                setError(err.message);
-                setLoading(false);
-            });
-    }, []);
+  useEffect(() => {
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+    fetch(`${API_URL}/waitlists`, {
+      credentials: 'include'
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Fetch error ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        const cutoff = new Date('2025-04-01');
+        const filtered = data.filter(entry => new Date(entry.created_at) >= cutoff);
+        setWaitlists(filtered);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
 
-    return (
-        <>
-            <AdminHero>
-                <AdminHeroContainer>
-                    <AdminTitle>Welcome to the <GradientText>Admin Dashboard</GradientText></AdminTitle>
-                    <AdminSubtitle>
-                        Here you can review and manage all waitlist entries. Get insights at a glance and take action as needed.
-                    </AdminSubtitle>
-                </AdminHeroContainer>
-            </AdminHero>
+  return (
+    <>
+      <AdminHero>
+        <AdminHeroContainer>
+          <AdminTitle>Welcome to the <GradientText>Admin Dashboard</GradientText></AdminTitle>
+          <AdminSubtitle>
+            Here you can review and manage all waitlist entries. Get insights at a glance and take action as needed.
+          </AdminSubtitle>
+        </AdminHeroContainer>
+      </AdminHero>
 
-            <ListSection>
-                <ListContainer>
-                    {loading && <MutedText>Loading waitlist...</MutedText>}
-                    {error && <MutedText>Error: {error}</MutedText>}
-                    {!loading && !error && waitlists.length === 0 && (
-                        <MutedText>No waitlist entries found.</MutedText>
-                    )}
-                    {!loading && !error && waitlists.map(entry => (
-                        <ListItem key={entry.id}>
-                            <h3>{entry.name}</h3>
-                            <p>Email: {entry.email}</p>
-                            <p>Product Opt-in: {entry.product ? 'Yes' : 'No'}</p>
-                            <p>Mobile Opt-in: {entry.mobile ? 'Yes' : 'No'}</p>
-                            <p>Requested At: {new Date(entry.created_at).toLocaleString()}</p>
-                        </ListItem>
-                    ))}
-                </ListContainer>
-            </ListSection>
-        </>
-    );
+      <ListSection>
+        <ListContainer>
+          {loading && <MutedText>Loading waitlist...</MutedText>}
+          {error && <MutedText>Error: {error}</MutedText>}
+          {!loading && !error && waitlists.length === 0 && (
+            <MutedText>No waitlist entries found.</MutedText>
+          )}
+          {!loading && !error && waitlists.map(entry => (
+            <ListItem key={entry.id}>
+              <h3>{entry.name}</h3>
+              <p>Email: {entry.email}</p>
+              <p>Product Opt-in: {entry.product ? 'Yes' : 'No'}</p>
+              <p>Mobile Opt-in: {entry.mobile ? 'Yes' : 'No'}</p>
+              <p>Requested At: {new Date(entry.created_at).toLocaleString()}</p>
+            </ListItem>
+          ))}
+        </ListContainer>
+      </ListSection>
+    </>
+  );
 }
 
 const GradientText = styled.span`
