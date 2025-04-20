@@ -9,6 +9,7 @@ import RestaurantMap from "./RestaurantMap";
 import CuisineChat from "./CuisineChat";
 import PinnedActivityCard from "./PinnedActivityCard";
 import LoadingScreenUser from "./LoadingScreenUser";
+import mixpanel from 'mixpanel-browser';
 
 const AIRecommendations = ({
   activity,
@@ -146,6 +147,15 @@ const AIRecommendations = ({
     }
   };
 
+  function handleStartChat() {
+    if (process.env.NODE_ENV === 'production') {
+      mixpanel.track('Chat with Voxxy Clicked', {
+        activity: activity.id,
+      });
+    }
+    setShowChat(true)
+  }
+
   const createPinnedActivity = async (rec) => {
     try {
       const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
@@ -169,6 +179,11 @@ const AIRecommendations = ({
         }),
       });
       if (!res.ok) throw new Error("Failed to pin activity");
+      if (process.env.NODE_ENV === 'production') {
+        mixpanel.track('New Pinned', {
+          activity: activity.id,
+        });
+      }
       const newPinnedActivity = await res.json();
       setPinnedActivities((prevPinned) => [...prevPinned, newPinnedActivity]);
       setRecommendations(prev => prev.filter(r => r.name !== rec.name));
@@ -190,7 +205,7 @@ const AIRecommendations = ({
     <RecommendationsContainer>
       <Title>AI Recommendations</Title>
       <ChatButton>
-        <StyledButton onClick={() => setShowChat(true)}>Chat with Voxxy</StyledButton>
+        <StyledButton onClick={handleStartChat}>Chat with Voxxy</StyledButton>
       </ChatButton>
       {error && <ErrorText>{error}</ErrorText>}
       <RecommendationList>

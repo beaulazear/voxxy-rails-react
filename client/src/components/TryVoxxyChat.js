@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 import LoadingScreenUser from '../admincomponents/LoadingScreenUser';
 import colors from '../styles/Colors';
+import mixpanel from 'mixpanel-browser';
 
 const fadeInUp = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -196,6 +197,9 @@ function TryVoxxyChat({ onClose, onChatComplete, eventLocation, dateNotes }) {
 
   const handleSubmit = async () => {
     const formatted = answers.map(a => `${a.question}\nAnswer: ${a.answer}`).join("\n\n");
+    if (process.env.NODE_ENV === 'production') {
+      mixpanel.track('Try Voxxy Chat Complete');
+    }
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/try_voxxy_recommendations`, {
         method: 'POST',
@@ -214,22 +218,22 @@ function TryVoxxyChat({ onClose, onChatComplete, eventLocation, dateNotes }) {
   return (
     <>
       {showLoading ? (
-        <LoadingScreenUser onComplete={handleSubmit}/>
+        <LoadingScreenUser onComplete={handleSubmit} />
       ) : (
         <>
-          <Overlay onClick={onClose}/>
+          <Overlay onClick={onClose} />
           <ChatContainer onClick={e => e.stopPropagation()}>
             <ChatHeader>
               <BackButton onClick={onClose}>
-                <svg viewBox="0 0 24 24"><path d="M15.5 3.5L7 12l8.5 8.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M15.5 3.5L7 12l8.5 8.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 Back
               </BackButton>
               Chat with Voxxy
             </ChatHeader>
 
             <ChatBody ref={chatBodyRef}>
-              {messages.map((m,i) => <Message key={i} $isUser={m.isUser}>{m.text}</Message>)}
-              {isTyping && <Message><TypingBubble><span/><span/><span/></TypingBubble></Message>}
+              {messages.map((m, i) => <Message key={i} $isUser={m.isUser}>{m.text}</Message>)}
+              {isTyping && <Message><TypingBubble><span /><span /><span /></TypingBubble></Message>}
             </ChatBody>
 
             <ChatFooter>

@@ -4,12 +4,13 @@ import styled from "styled-components";
 import { LeftOutlined, EditOutlined, DeleteOutlined, UserAddOutlined, LogoutOutlined } from "@ant-design/icons";
 import Woman from "../assets/Woman.jpg";
 import YourCommunity from './YourCommunity.js';
+import mixpanel from 'mixpanel-browser';
 
 const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }) => {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [selectedParticipant, setSelectedParticipant] = useState(null);
-  const { setUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
   const handleParticipantClick = (participant) => {
     setShowInvitePopup(null);
@@ -32,6 +33,11 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
   const handleInviteSubmit = () => {
     if (!inviteEmail) return alert("Please enter a valid email.");
     onInvite(inviteEmail);
+    if (process.env.NODE_ENV === 'production') {
+      mixpanel.track('Participant Invited', {
+        user: user.id,
+      });
+    }
     setInviteEmail("");
     setShowInvitePopup(false);
   };

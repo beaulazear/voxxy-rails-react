@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { UserContext } from '../context/user';
+import mixpanel from 'mixpanel-browser';
 
 const fadeInUp = keyframes`
   from {
@@ -198,7 +199,7 @@ function RestaurantChat({ onClose }) {
     { text: "Voxxy here! I’m here to make planning this get-together smooth and stress-free. Let’s lock in the details real quick!", isUser: false }
   ]);
   const [step, setStep] = useState(0);
-  const { setUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const inputRef = useRef(null);
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -288,6 +289,11 @@ function RestaurantChat({ onClose }) {
 
       if (response.ok) {
         const data = await response.json();
+        if (process.env.NODE_ENV === 'production') {
+          mixpanel.track('Voxxy Chat 1 Completed', {
+            user: user.id,
+          });
+        }
         setUser((prevUser) => ({
           ...prevUser,
           activities: [

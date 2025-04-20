@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { UserContext } from "../context/user.js";
 import styled, { keyframes } from 'styled-components';
 import LoadingScreenUser from './LoadingScreenUser';
+import mixpanel from 'mixpanel-browser';
 
 const fadeInUp = keyframes`
   from {
@@ -206,7 +207,7 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
   // NEW: track if loading screen is shown
   const [showLoading, setShowLoading] = useState(false);
 
-  const { setUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const inputRef = useRef(null);
   const chatBodyRef = useRef(null);
 
@@ -287,6 +288,13 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
 
   // Called after the loading screen finishes
   const handleSubmit = async () => {
+
+    if (process.env.NODE_ENV === 'production') {
+      mixpanel.track('Voxxy Chat 2 Completed', {
+        name: user.name,
+      });
+    }
+
     const formattedNotes = answers
       .map((item) => `${item.question}\nAnswer: ${item.answer}`)
       .join("\n\n");

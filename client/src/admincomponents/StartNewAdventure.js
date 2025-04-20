@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
+import mixpanel from 'mixpanel-browser';
 
 const rainAnimation = keyframes`
   0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity: 1; }
@@ -104,6 +105,12 @@ function StartNewAdventure({ onTripSelect }) {
 
   const handleSelection = (name) => {
     if (name === "Lets Eat") {
+      if (process.env.NODE_ENV === 'production') {
+        mixpanel.track('Lets Eat Clicked', {
+          name: name,
+        });
+      }
+
       triggerEmojiRain();
     }
     onTripSelect(name);

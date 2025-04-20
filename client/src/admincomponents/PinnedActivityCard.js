@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { UserContext } from "../context/user";
 import Woman from "../assets/Woman.jpg";
 import { DimmedOverlay } from "../styles/ActivityDetailsStyles";
+import mixpanel from 'mixpanel-browser';
 
 const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
   const { user } = useContext(UserContext);
@@ -20,6 +21,11 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
   }, [likedBy, user]);
 
   function handleLike() {
+    if (process.env.NODE_ENV === 'production') {
+      mixpanel.track('Pinned Activity Voted On', {
+        user: user.id,
+      });
+    }
     if (hasLiked) {
       if (!Array.isArray(pinned.votes) || pinned.votes.length === 0) {
         console.error("No votes found for this activity");

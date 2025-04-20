@@ -6,6 +6,7 @@ import RestaurantChat from './RestaurantChat';
 import CuisineChat from './CuisineChat';
 import PostRestaurantPopup from './PostRestaurantPopup'; // Import the new popup
 import VantaWrapper from '../components/VantaWrapper';
+import mixpanel from 'mixpanel-browser';
 
 const fadeIn = keyframes`
   from {
@@ -87,7 +88,7 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
     if (dashboardRef.current) {
       dashboardRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  }, []); // Runs only when the component mounts
+  }, []);
 
   const handleTripSelect = (tripName) => {
     if (tripName === 'Lets Eat') {
@@ -128,7 +129,6 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
           </>
         )}
 
-        {/* Render the PostRestaurantPopup once RestaurantChat is done */}
         {showPostRestaurantPopup && (
           <PostRestaurantPopup
             onChat={() => {
@@ -136,24 +136,27 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
               setShowPostRestaurantPopup(false);
             }}
             onSkip={() => {
+              if (process.env.NODE_ENV === 'production') {
+                mixpanel.track('Chat Skipped', {
+                  name: user.name,
+                });
+              }
               setShowPostRestaurantPopup(false);
-              // Optionally, update board state or set selected activity here if needed
               setSelectedActivityId(activityIdCreated);
             }}
           />
         )}
 
-        {/* Render CuisineChat if user chooses to chat with Voxxy */}
         {showCuisineChat && (
           <CuisineChat
             activityId={activityIdCreated}
             onClose={() => {
               setShowCuisineChat(false);
-              setSelectedActivityId(activityIdCreated); // Redirect back to board
+              setSelectedActivityId(activityIdCreated);
             }}
             onChatComplete={() => {
               setShowCuisineChat(false);
-              setSelectedActivityId(activityIdCreated); // Redirect back to board
+              setSelectedActivityId(activityIdCreated);
             }}
           />
         )}
