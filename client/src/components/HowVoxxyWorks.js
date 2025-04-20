@@ -110,7 +110,8 @@ export default function PerfectForAnyGroupActivity() {
         feature: featureName,
       });
     }
-    navigate('/learn-more');
+    const slug = featureName.toLowerCase().replace(/\s+/g, '-');
+    navigate(`/learn-more#${slug}`);
   };
 
   return (
