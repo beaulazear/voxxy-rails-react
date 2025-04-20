@@ -1,25 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import styled, { keyframes } from 'styled-components';
-import Voxxy from '../assets/Voxxy.png';
 
 const colors = {
-  background: '#0D0B1F',
+  background: '#201925',
   textPrimary: '#FFFFFF',
-  accent: '#9D60F8',
-  muted: '#A8A8A8',
+  accent: '#cc31e8',
+  faded: 'rgba(157, 96, 248, 0.15)',
 };
 
 // Animations
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
 const spin = keyframes`
-  0% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(180deg) scale(1.05); }
-  100% { transform: rotate(360deg) scale(1); }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 `;
 
 // Styled Components
@@ -32,71 +24,74 @@ const LoadingSection = styled.div`
   justify-content: center;
   padding: 2rem 1rem;
   text-align: center;
-  animation: ${fadeIn} 1s ease-in-out;
 `;
 
-const Logo = styled.img`
-  width: 130px;
-  height: 130px;
-  animation: ${spin} 3s infinite ease-in-out;
-  margin-bottom: 2rem;
+const SpinnerContainer = styled.div`
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 6px solid ${colors.faded};
+    box-sizing: border-box;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 6px solid transparent;
+    border-top: 6px solid ${colors.accent};
+    box-sizing: border-box;
+    animation: ${spin} 1s linear infinite;
+  }
 
   @media (max-width: 640px) {
-    width: 100px;
-    height: 100px;
+    width: 70px;
+    height: 70px;
+
+    &::before,
+    &::after {
+      border-width: 4px;
+    }
   }
 `;
 
 const Title = styled.h1`
-  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
   font-weight: 700;
   color: ${colors.textPrimary};
-  margin-bottom: 0.75rem;
+  margin-top: 2rem;
 `;
 
 const Subtitle = styled.p`
-  font-size: 1.2rem;
-  color: ${colors.muted};
-  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  color: ${colors.accent};
+  margin-top: 0.5rem;
 
   @media (max-width: 640px) {
     font-size: 1rem;
   }
 `;
 
-const CountdownText = styled.p`
-  font-size: 1rem;
-  color: ${colors.accent};
-  font-weight: 500;
-
-  @media (max-width: 640px) {
-    font-size: 0.95rem;
-  }
-`;
-
 const LoadingScreen = () => {
-  const [countdown, setCountdown] = useState(10);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (countdown === 0) {
-      navigate('/');
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setCountdown((prev) => Math.max(prev - 1, 0));
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [countdown, navigate]);
-
   return (
     <LoadingSection>
-      <Logo src={Voxxy} alt="Voxxy Logo" />
-      <Title>Loading Your Voxxy Experience</Title>
-      <Subtitle>Hang tight — great things are on the way.</Subtitle>
-      <CountdownText>Redirecting in {countdown} second{countdown !== 1 ? 's' : ''}...</CountdownText>
+      <SpinnerContainer />
+      <Title>Your Voxxy experience is loading...</Title>
+      <Subtitle>Let’s plan your next adventure</Subtitle>
     </LoadingSection>
   );
 };

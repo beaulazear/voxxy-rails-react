@@ -7,7 +7,6 @@ import { EditOutlined, SaveOutlined, LogoutOutlined, DeleteOutlined } from "@ant
 import Woman from "../assets/Woman.jpg";
 import ChooseAvatar from "./ChooseAvatar";
 import VantaWrapperTwo from "../components/VantaWrapperTwo";
-import MakeAdminButton from "./MakeAdminButton";
 
 const fadeIn = keyframes`
   from {
@@ -227,7 +226,6 @@ const Profile = () => {
               <StyledButton className="delete" icon={<DeleteOutlined />} onClick={() => handleDeleteProfile()}>
                 Delete Your Account
               </StyledButton>
-              <MakeAdminButton />
             </>
           ) : (
             <EditContainer>

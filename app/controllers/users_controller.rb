@@ -138,13 +138,13 @@ class UsersController < ApplicationController
     end
   end
 
-  def make_admin
-    if current_user.update(admin: true)
-      render json: { message: "You are now an admin.", user: current_user }, status: :ok
-    else
-      render json: { error: "Failed to update admin status." }, status: :unprocessable_entity
-    end
-  end
+  # def make_admin
+  #   if current_user.update(admin: true)
+  #     render json: { message: "You are now an admin.", user: current_user }, status: :ok
+  #   else
+  #     render json: { error: "Failed to update admin status." }, status: :unprocessable_entity
+  #   end
+  # end
 
   private
 
