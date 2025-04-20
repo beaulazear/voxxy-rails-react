@@ -32,13 +32,12 @@ const AdminSubtitle = styled(MutedText)`
   line-height: 1.6;
 `;
 
-// Tabs
 const TabContainer = styled.div`
   display: flex;
   gap: 1rem;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 0 1rem;            /* give a little breathing room on the sides */
+  padding: 0 1rem;
   background-color: ${colors.background};
   /* hide native scrollbar */
   &::-webkit-scrollbar {
@@ -47,7 +46,7 @@ const TabContainer = styled.div`
 `;
 
 const Tab = styled.button`
-  flex: 0 0 auto;             /* prevent shrinking so items stay inline */
+  flex: 0 0 auto;
   background: transparent;
   border: none;
   border-bottom: 2px solid ${({ $active }) => $active ? colors.accent : 'transparent'};
@@ -64,7 +63,6 @@ const Tab = styled.button`
   }
 `;
 
-// Listing Section
 const ListSection = styled.section`
   background-color: ${colors.cardBackground || colors.card};
   padding: 2rem 1.5rem;
@@ -86,7 +84,6 @@ const ListItem = styled.div`
   p { margin: 0.25rem 0; color: ${colors.textMuted}; font-size: 0.95rem; }
 `;
 
-// Gradient text
 const GradientText = styled.span`
   background: linear-gradient(90deg, #B931D6 0%, #9051E1 100%);
   -webkit-background-clip: text;
@@ -105,7 +102,6 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Data stores for each endpoint
   const [waitlists, setWaitlists] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
   const [contacts, setContacts] = useState([]);
@@ -135,14 +131,19 @@ export default function AdminDashboard() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Select data based on active tab
   const dataMap = {
     waitlists,
     feedbacks,
     contacts,
     bugs,
   };
-  const displayData = dataMap[activeTab] || [];
+  let displayData = dataMap[activeTab] || [];
+  if (activeTab === 'waitlists') {
+    displayData = displayData.filter(item => {
+      const created = new Date(item.created_at);
+      return created >= new Date('2025-04-01');
+    });
+  }
 
   return (
     <>
