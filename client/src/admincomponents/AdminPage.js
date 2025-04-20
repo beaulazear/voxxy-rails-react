@@ -35,11 +35,19 @@ const AdminSubtitle = styled(MutedText)`
 // Tabs
 const TabContainer = styled.div`
   display: flex;
-  justify-content: center;
   gap: 1rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 1rem;            /* give a little breathing room on the sides */
   background-color: ${colors.background};
+  /* hide native scrollbar */
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
+
 const Tab = styled.button`
+  flex: 0 0 auto;             /* prevent shrinking so items stay inline */
   background: transparent;
   border: none;
   border-bottom: 2px solid ${({ $active }) => $active ? colors.accent : 'transparent'};
@@ -50,6 +58,7 @@ const Tab = styled.button`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+
   &:hover {
     color: ${colors.accent};
   }
