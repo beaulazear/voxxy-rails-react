@@ -25,6 +25,7 @@ Rails.application.routes.draw do
   post "login", to: "sessions#create"
   delete "logout", to: "sessions#destroy"
   get "/me", to: "users#show"
+  patch "/make_admin", to: "users#make_admin"
 
   post "/api/openai/haiku", to: "openai#generate_haiku"
   post "/api/openai/restaurant_recommendations", to: "openai#restaurant_recommendations"
