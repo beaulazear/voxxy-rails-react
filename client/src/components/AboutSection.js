@@ -12,7 +12,7 @@ import { Heading1, MutedText } from '../styles/Typography'; // ✅ optional typo
 
 const DarkSection = styled.section`
   background-color: ${colors.backgroundTwo};
-  padding: 0rem 1.5rem;
+  padding: 0.5rem 1.5rem;
   text-align: center;
 `;
 

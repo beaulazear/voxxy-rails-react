@@ -165,7 +165,7 @@ export default function WaitlistForm() {
     };
 
     return (
-        <div style={{paddingTop: '50px', backgroundColor: '#251C2C', padding: '20px'}}>
+        <div style={{paddingTop: '50px', backgroundColor: '#251C2C', padding: '4rem 1.5rem' }}>
             <SmallHeading>Stay Connected</SmallHeading>
             <Title>Get notified about Voxxy Updates</Title>
             <Subtitle>Sign up to be the first to know about our mobile app launch or to receive product
