@@ -5,6 +5,7 @@ import { ArrowRight, Calendar, X } from 'lucide-react';
 import Footer from './Footer';
 import colors from '../styles/Colors';
 import TryVoxxyChat from './TryVoxxyChat';
+import mixpanel from 'mixpanel-browser';
 
 // Layout
 const PageContainer = styled.div`
@@ -248,7 +249,12 @@ export default function TryVoxxy() {
       .finally(() => setLoadingCache(false));
   }, []);
 
-  const openPlan = () => setShowPlanModal(true);
+  const openPlan = () => {
+    if (process.env.NODE_ENV === 'production') {
+      mixpanel.track('Try Voxxy Clicked');
+    }
+    setShowPlanModal(true);
+  }
   const closePlan = () => setShowPlanModal(false);
 
   const useCurrentLocation = () => {

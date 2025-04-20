@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import colors from "../styles/Colors";
 import { Heading1, MutedText } from '../styles/Typography'; // ✅ optional if you want to use Heading components
 import { Sparkles } from 'lucide-react';
-
+import mixpanel from 'mixpanel-browser';
 
 const SectionContainer = styled.section`
   min-width: 350px;
@@ -200,6 +200,9 @@ const SignUp = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    if (process.env.NODE_ENV === 'production') {
+      mixpanel.track('Signup Page Loaded');
+    }
   }, []);
 
   const handleSubmit = async (e) => {
@@ -225,6 +228,13 @@ const SignUp = () => {
       const data = await response.json();
 
       if (response.ok) {
+
+        if (process.env.NODE_ENV === 'production') {
+          mixpanel.track('Signup form completed, account created', {
+            userId: data.id,
+          });
+        }
+
         setUser({
           id: data.id,
           name: data.name,

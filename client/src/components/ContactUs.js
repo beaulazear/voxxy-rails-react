@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Mail, Star, Bug } from 'lucide-react';
 import { Heading1, MutedText } from '../styles/Typography';
 import Footer from './Footer';
+import mixpanel from 'mixpanel-browser';
 
 const colors = {
     sectionBackground: '#251C2C',
@@ -162,6 +163,14 @@ export default function ContactUs() {
     // Bug
     const [bugDesc, setBugDesc] = useState('');
     const [steps, setSteps] = useState('');
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+
+        if (process.env.NODE_ENV === 'production') {
+            mixpanel.track('Contact Us Page Loaded');
+        }
+    }, []);
 
     const resetFields = () => {
         setName(''); setEmail('');

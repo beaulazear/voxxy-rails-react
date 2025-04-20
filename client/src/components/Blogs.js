@@ -4,6 +4,7 @@ import Footer from "./Footer";
 import styled from "styled-components";
 import colors from "../styles/Colors";
 import { Heading1, MutedText } from '../styles/Typography'; // ✅ optional if you want to use Heading components
+import mixpanel from 'mixpanel-browser';
 
 const SectionContainer = styled.section`
   background-color: ${colors.backgroundTwo};
@@ -32,20 +33,25 @@ const Subtitle = styled(MutedText)`
 
 export default function Blogs() {
 
-    useEffect(() => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    }, []);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
-    return (
-        <div style={{ paddingTop: '100px', backgroundColor: '#251C2C' }}>
-            <SectionContainer>
-                <SectionInner>
-                    <Title>Blogs Coming Soon</Title>
-                    <Subtitle>We're working hard to bring you valuable content about group planning, travel tips, and making memories together. Stay tuned!</Subtitle>
-                </SectionInner>
-            </SectionContainer>
-            <WaitlistForm />
-            <Footer />
-        </div>
-    )
+    if (process.env.NODE_ENV === 'production') {
+      mixpanel.track('Blogs Page Loaded');
+    }
+    
+  }, []);
+
+  return (
+    <div style={{ paddingTop: '100px', backgroundColor: '#251C2C' }}>
+      <SectionContainer>
+        <SectionInner>
+          <Title>Blogs Coming Soon</Title>
+          <Subtitle>We're working hard to bring you valuable content about group planning, travel tips, and making memories together. Stay tuned!</Subtitle>
+        </SectionInner>
+      </SectionContainer>
+      <WaitlistForm />
+      <Footer />
+    </div>
+  )
 }
