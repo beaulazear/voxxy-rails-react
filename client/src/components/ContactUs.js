@@ -41,8 +41,8 @@ const Tab = styled.button`
   background: transparent;
   border: none;
   border-bottom: 2px solid
-    ${({ active }) => (active ? colors.accent : 'transparent')};
-  color: ${({ active }) => (active ? colors.textPrimary : colors.textMuted)};
+    ${({ $active }) => ($active ? colors.accent : 'transparent')};
+  color: ${({ $active }) => ($active ? colors.textPrimary : colors.textMuted)};
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   cursor: pointer;
@@ -219,7 +219,11 @@ export default function ContactUs() {
             <Subtitle>We're here to help! Choose how you'd like to reach us & we will be in touch shortly.</Subtitle>
             <TabContainer>
                 {tabs.map(({ key, label, icon: Icon }) => (
-                    <Tab key={key} active={active === key} onClick={() => setActive(key)}>
+                    <Tab
+                        key={key}
+                        $active={active === key}
+                        onClick={() => setActive(key)}
+                    >
                         <Icon size={20} /> {label}
                     </Tab>
                 ))}
