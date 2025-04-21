@@ -142,12 +142,15 @@ const CloseButton = styled.button`
   color: ${colors.textSecondary};
 `;
 const Input = styled.input`
-  width: 100%; padding: 0.75rem; margin-bottom: 1rem;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.875rem;
   background: ${colors.backgroundTwo};
   color: white;
   border: 1px solid ${colors.lightBorder};
   border-radius: 0.5rem;
 `;
+
 const Select = styled.select`
   width: 100%; padding: 0.75rem; margin-bottom: 1rem;
   background: ${colors.backgroundTwo};
@@ -221,6 +224,24 @@ const CTAButton = styled(Link)`
 
   &:hover {
     background-color: rgba(157,96,248,0.9);
+  }
+`;
+
+const SecondaryButton = styled.button`
+  background: ${colors.backgroundTwo};
+  color: white;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid ${colors.lightBorder};
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background-color: ${colors.primaryButton};
+    border-color: ${colors.primaryButton};
   }
 `;
 
@@ -337,29 +358,57 @@ export default function TryVoxxy() {
       <Footer />
 
       {showPlanModal && (
-        <Overlay onClick={closePlan}><Modal onClick={e => e.stopPropagation()}>
-          <CloseButton onClick={closePlan}><X size={20} /></CloseButton>
-          <h3 style={{ color: 'white', marginBottom: '1.25rem' }}>Enter Event Details</h3>
+        <Overlay onClick={closePlan}>
+          <Modal onClick={e => e.stopPropagation()}>
+            <CloseButton onClick={closePlan}><X size={20} /></CloseButton>
 
-          <Input placeholder="Location" value={eventLocation} onChange={e => setEventLocation(e.target.value)} />
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h3 style={{ color: 'white', fontSize: '1.5rem', marginBottom: '0.5rem', textAlign: 'left' }}>
+                Where and when?
+              </h3>
+              <p style={{ color: colors.textSecondary, fontSize: '1rem', textAlign: 'left' }}>
+                Help us find dining options in your area.
+              </p>
+            </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <Button onClick={useCurrentLocation}>Use Current Location</Button>
-            {fetchingLocation && <span style={{ color: colors.textSecondary, fontSize: '0.875rem' }}>Fetching location...</span>}
-          </div>
+            <div style={{ marginBottom: '1rem', textAlign: 'left' }}>
+              <label style={{ display: 'block', marginBottom: '0.4rem', color: colors.textSecondary, fontSize: '0.8rem' }}>
+                Location
+              </label>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <Input
+                  placeholder="Enter a city or zip code"
+                  value={eventLocation}
+                  onChange={e => setEventLocation(e.target.value)}
+                  style={{ flexGrow: 1 }}
+                />
+                <SecondaryButton onClick={useCurrentLocation}>Use Current</SecondaryButton>
+              </div>
+              {fetchingLocation && (
+                <span style={{ color: colors.textSecondary, fontSize: '0.75rem', display: 'block', marginTop: '0.4rem' }}>
+                  Fetching location...
+                </span>
+              )}
+            </div>
 
-          <Select value={dateNotes} onChange={e => setDateNotes(e.target.value)}>
-            <option value="" disabled>Select outing type</option>
-            <option value="Brunch">Brunch</option>
-            <option value="Lunch">Lunch</option>
-            <option value="Dinner">Dinner</option>
-            <option value="Late-night drinks">Late-night drinks</option>
-          </Select>
+            <div style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: colors.textSecondary, fontSize: '0.875rem' }}>
+                Outing Type
+              </label>
+              <Select value={dateNotes} onChange={e => setDateNotes(e.target.value)}>
+                <option value="" disabled>Select outing type</option>
+                <option value="Brunch">Brunch</option>
+                <option value="Lunch">Lunch</option>
+                <option value="Dinner">Dinner</option>
+                <option value="Late-night drinks">Late-night drinks</option>
+              </Select>
+            </div>
 
-          <div style={{ textAlign: 'right' }}>
-            <Button onClick={submitPlan}>Continue</Button>
-          </div>
-        </Modal></Overlay>
+            <div style={{ textAlign: 'right' }}>
+              <Button onClick={submitPlan}>Continue</Button>
+            </div>
+          </Modal>
+        </Overlay>
       )}
 
       {chatOpen && <TryVoxxyChat eventLocation={eventLocation} dateNotes={dateNotes} onClose={handleChatClose} onChatComplete={recs => { handleChatComplete(recs); handleChatClose(); }} />}

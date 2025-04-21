@@ -1,9 +1,9 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Voxxy",
+  "name": "Voxxy AI Inc",
   "icons": [
     {
-      "src": "vlogo.webp",
+      "src": "v_no_bg.png",
       "sizes": "64x64 32x32 24x24 16x16 192x192 512x512",
       "type": "image/x-icon"
     }

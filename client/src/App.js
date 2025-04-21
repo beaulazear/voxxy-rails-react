@@ -1,7 +1,6 @@
 import './App.css';
 import React, { useContext, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import mixpanel from 'mixpanel-browser';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { UserContext } from "./context/user.js";
 import Navbar from './components/Navbar';
@@ -29,20 +28,6 @@ function App() {
   useEffect(() => {
     if (!loading && user && !user.confirmed_at) {
       navigate("/confirm-email");
-    }
-    if (process.env.NODE_ENV === "production") {
-      if (user) {
-        mixpanel.identify(user.id);
-        mixpanel.track("App Loaded", {
-          "status": "Logged In",
-          "user_id": user.id,
-          "email": user.email
-        });
-      } else {
-        mixpanel.track("App Loaded", {
-          "status": "Not Logged In"
-        });
-      }
     }
   }, [loading, user, navigate]);
 

@@ -27,12 +27,13 @@ const Title = styled(Heading1)`
   color: ${colors.textPrimary}
 `;
 
+//THE Gradient for voxxy logos and headers.
 const GradientText = styled.span`
-  background: linear-gradient(
-    90deg,
-    #B931D6 0%,
-    #9051E1 100%
-  );
+  background: linear-gradient(to right,
+    hsl(291, 80%, 55%, 0.9),
+    hsl(262, 95%, 70%, 0.9),
+    hsl(267, 90%, 65%, 0.9));
+
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 `;
