@@ -3,7 +3,10 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
 const BenefitsContainer = styled.section`
-  background: linear-gradient(135deg, #B178FA, #9C60F7); 
+  background: linear-gradient(to right,
+    hsl(291, 80%, 55%, 0.9),
+    hsl(262, 95%, 70%, 0.9),
+    hsl(267, 90%, 65%, 0.9)); 
   padding: 4rem 2rem;
   margin: 0 auto;
   text-align: center;
