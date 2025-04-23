@@ -129,6 +129,18 @@ export default function AboutSection() {
 
           <Card>
             <IconWrapper>
+              <Users size={20} color={colors.primaryButton} />
+            </IconWrapper>
+            <TextContainer>
+              <CardTitle>Budget Tracking</CardTitle>
+              <CardText>
+                Stay on top of group expenses with shared budgets and payment reminders.
+              </CardText>
+            </TextContainer>
+          </Card>
+
+          <Card>
+            <IconWrapper>
               <CheckSquare size={20} color={colors.primaryButton} />
             </IconWrapper>
             <TextContainer>

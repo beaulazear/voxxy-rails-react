@@ -69,7 +69,7 @@ const ButtonRow = styled.div`
 
 const CTAButton = styled(Link)`
   background: ${({ variant }) =>
-        variant === "outline" ? "transparent" : "#cc31e8"};
+    variant === "outline" ? "transparent" : "#cc31e8"};
   color: ${({ variant }) => (variant === "outline" ? "#fff" : "#fff")};
   border: ${({ variant }) => (variant === "outline" ? "1px solid #9D60F8" : "none")};
   padding: 0.75rem 1.5rem;
@@ -84,55 +84,63 @@ const CTAButton = styled(Link)`
 `;
 
 export default function UniversalFeatures() {
-    return (
-        <SectionWrapper>
-            <SectionTitle>Features Across All Activities</SectionTitle>
-            <SectionSubtitle>
-                No matter what type of event you're planning, Voxxy provides these essential tools.
-            </SectionSubtitle>
+  return (
+    <SectionWrapper>
+      <SectionTitle>Features Across All Activities</SectionTitle>
+      <SectionSubtitle>
+        No matter what type of event you're planning, Voxxy provides these essential tools.
+      </SectionSubtitle>
 
-            <CardsContainer>
-                <FeatureCard>
-                    <CalendarDays size={28} />
-                    <FeatureTitle>Smart Scheduling</FeatureTitle>
-                    <FeatureText>
-                        Find the perfect date and time that works for everyone with our AI-powered scheduling system.
-                    </FeatureText>
-                </FeatureCard>
+      <CardsContainer>
+        <FeatureCard>
+          <CalendarDays size={28} />
+          <FeatureTitle>Smart Scheduling</FeatureTitle>
+          <FeatureText>
+            Find the perfect date and time that works for everyone with our AI-powered scheduling system.
+          </FeatureText>
+        </FeatureCard>
 
-                <FeatureCard>
-                    <MessageSquareText size={28} />
-                    <FeatureTitle>Integrated Messaging</FeatureTitle>
-                    <FeatureText>
-                        Keep all planning conversations in one place without jumping between apps.
-                    </FeatureText>
-                </FeatureCard>
+        <FeatureCard>
+          <CalendarDays size={28} />
+          <FeatureTitle>Budget Tracking</FeatureTitle>
+          <FeatureText>
+            Keep finances transparent and organized with shared budgets and payment reminders.
+          </FeatureText>
+        </FeatureCard>
 
-                <FeatureCard>
-                    <CheckCircle size={28} />
-                    <FeatureTitle>Task Management</FeatureTitle>
-                    <FeatureText>
-                        Assign tasks to group members and track completion to ensure nothing falls through the cracks.
-                    </FeatureText>
-                </FeatureCard>
+        <FeatureCard>
+          <MessageSquareText size={28} />
+          <FeatureTitle>Integrated Messaging</FeatureTitle>
+          <FeatureText>
+            Keep all planning conversations in one place without jumping between apps.
+          </FeatureText>
+        </FeatureCard>
 
-                <FeatureCard>
-                    <Vote size={28} />
-                    <FeatureTitle>Democratic Decision Making</FeatureTitle>
-                    <FeatureText>
-                        Built-in voting features ensure everyone's voice is heard when making group decisions.
-                    </FeatureText>
-                </FeatureCard>
-            </CardsContainer>
+        <FeatureCard>
+          <CheckCircle size={28} />
+          <FeatureTitle>Task Management</FeatureTitle>
+          <FeatureText>
+            Assign tasks to group members and track completion to ensure nothing falls through the cracks.
+          </FeatureText>
+        </FeatureCard>
 
-            <h3 style={{ fontSize: "1.125rem", color: "#fff", marginBottom: "1rem" }}>
-                Ready to simplify your group planning?
-            </h3>
+        <FeatureCard>
+          <Vote size={28} />
+          <FeatureTitle>Democratic Decision Making</FeatureTitle>
+          <FeatureText>
+            Built-in voting features ensure everyone's voice is heard when making group decisions.
+          </FeatureText>
+        </FeatureCard>
+      </CardsContainer>
 
-            <ButtonRow>
-                <CTAButton to="/signup">Create Your Account</CTAButton>
-                <CTAButton to="/try-voxxy" variant="outline">Try Voxxy First</CTAButton>
-            </ButtonRow>
-        </SectionWrapper>
-    );
+      <h3 style={{ fontSize: "1.125rem", color: "#fff", marginBottom: "1rem" }}>
+        Ready to simplify your group planning?
+      </h3>
+
+      <ButtonRow>
+        <CTAButton to="/signup">Create Your Account</CTAButton>
+        <CTAButton to="/try-voxxy" variant="outline">Try Voxxy First</CTAButton>
+      </ButtonRow>
+    </SectionWrapper>
+  );
 }
