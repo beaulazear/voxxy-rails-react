@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Mail, Smartphone, Bell } from 'lucide-react';
+import { Mail, Check } from 'lucide-react';
 import { Heading1, MutedText } from '../styles/Typography'
 
 const colors = {
-    sectionBackground: '#251C2C',
-    cardBackground: '#2a1e30',
-    inputBackground: '#0D0B1F',
-    border: '#3B3355',
-    textPrimary: '#FFFFFF',
-    textMuted: '#BEBEBE',
-    accent: '#9D60F8',
+  sectionBackground: '#251C2C',
+  cardBackground: '#2a1e30',
+  inputBackground: '#0D0B1F',
+  border: '#3B3355',
+  textPrimary: '#FFFFFF',
+  textMuted: '#7A7A85',
+  accent: '#9D60F8',
 };
 
 const SmallHeading = styled.h3`
-  font-size: 1.20rem;
+  font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #cc31e8;
+  color: ${colors.accent};
   opacity: 0.9;
 `;
 
@@ -30,13 +30,14 @@ const Title = styled(Heading1)`
 const Subtitle = styled(MutedText)`
   font-size: 1rem;
   max-width: 600px;
-  margin: 0.5rem auto 3rem auto;
+  margin: 0.5rem auto 3rem;
   line-height: 1.6;
+  color: ${colors.textMuted};
 `;
 
 const FormWrapper = styled.section`
   background-color: ${colors.sectionBackground};
-  padding-bottom: 50px;
+  padding: 4rem 1.5rem 2rem;
   display: flex;
   justify-content: center;
 `;
@@ -47,7 +48,7 @@ const Card = styled.div`
   padding: 2rem;
   width: 100%;
   max-width: 450px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 `;
 
 const Field = styled.div`
@@ -85,24 +86,34 @@ const StyledInput = styled.input`
 const CheckboxGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
 `;
 
 const CheckboxLabel = styled.label`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: ${({ checked }) => (checked ? colors.textPrimary : colors.textMuted)};
-  font-size: 1rem;
+  gap: 0.75rem;
   cursor: pointer;
-
-  svg {
-    flex-shrink: 0;
-  }
+  user-select: none;
+  color: ${({ checked }) => (checked ? colors.textPrimary : colors.textMuted)};
 `;
 
 const HiddenCheckbox = styled.input.attrs({ type: 'checkbox' })`
-  display: none;
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+`;
+
+const StyledCheckbox = styled.div`
+  width: 1.25rem;
+  height: 1.25rem;
+  background: ${({ checked }) => (checked ? colors.accent : 'transparent')};
+  border: 2px solid ${colors.border};
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 150ms, border-color 150ms;
 `;
 
 const SubmitButton = styled.button`
@@ -123,105 +134,107 @@ const SubmitButton = styled.button`
 `;
 
 export default function WaitlistForm() {
-    const [email, setEmail] = useState('');
-    const [mobile, setMobile] = useState(true);
-    const [product, setProduct] = useState(false);
-    const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [mobile, setMobile] = useState(true);
+  const [product, setProduct] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-    const toggleMobile = () => {
-        // prevent unchecking if it's the only one selected
-        if (mobile && !product) return;
-        setMobile((prev) => !prev);
-    };
+  const toggleMobile = () => {
+    if (mobile && !product) return;
+    setMobile(prev => !prev);
+  };
 
-    const toggleProduct = () => {
-        if (product && !mobile) return;
-        setProduct((prev) => !prev);
-    };
+  const toggleProduct = () => {
+    if (product && !mobile) return;
+    setProduct(prev => !prev);
+  };
 
-    const canSubmit = email && (mobile || product);
+  const canSubmit = email && (mobile || product);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!canSubmit) return;
-        setLoading(true);
-        try {
-            const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/waitlists`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ waitlist: { email, mobile, product } }),
-                credentials: 'include',
-            });
-            if (!res.ok) throw new Error('Network response was not ok');
-            setEmail('');
-            setMobile(false);
-            setProduct(false);
-            alert('Thanks for joining the waitlist!');
-        } catch (err) {
-            console.error(err);
-            alert('Oops, something went wrong.');
+  const handleSubmit = async e => {
+    e.preventDefault();
+    if (!canSubmit) return;
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/waitlists`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ waitlist: { email, mobile, product } }),
+          credentials: 'include',
         }
-        setLoading(false);
-    };
+      );
+      if (!res.ok) throw new Error('Network response was not ok');
+      setEmail('');
+      setMobile(false);
+      setProduct(false);
+      alert('Thanks for joining the waitlist!');
+    } catch {
+      alert('Oops, something went wrong.');
+    }
+    setLoading(false);
+  };
 
-    return (
-        <div style={{paddingTop: '50px', backgroundColor: '#251C2C', padding: '4rem 1.5rem' }}>
-            <SmallHeading>Stay Connected</SmallHeading>
-            <Title>Get notified about Voxxy Updates</Title>
-            <Subtitle>Sign up to be the first to know about our mobile app launch or to receive product
-                updates and special offers.</Subtitle>
-            <FormWrapper>
-                <Card>
-                    <form onSubmit={handleSubmit}>
-                        <Field>
-                            <Label htmlFor="email">Email</Label>
-                            <InputWrapper>
-                                <Mail color={colors.textMuted} />
-                                <StyledInput
-                                    id="email"
-                                    type="email"
-                                    placeholder="your@email.com"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                />
-                            </InputWrapper>
-                        </Field>
+  return (
+    <div style={{ backgroundColor: colors.sectionBackground }}>
+      <SmallHeading>Stay Connected</SmallHeading>
+      <Title>Get notified about Voxxy Updates</Title>
+      <Subtitle>
+        Sign up to be the first to know about our mobile app launch or to receive product
+        updates and special offers.
+      </Subtitle>
+      <FormWrapper>
+        <Card>
+          <form onSubmit={handleSubmit}>
+            <Field>
+              <Label htmlFor="email">Email</Label>
+              <InputWrapper>
+                <Mail color={colors.textMuted} />
+                <StyledInput
+                  id="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  required
+                />
+              </InputWrapper>
+            </Field>
 
-                        <Field>
-                            <Label>I'm interested in:</Label>
-                            <CheckboxGroup>
-                                <CheckboxLabel checked={mobile}>
-                                    <HiddenCheckbox
-                                        name="mobile"
-                                        checked={mobile}
-                                        onChange={toggleMobile}
-                                    />
-                                    <Smartphone
-                                        size={20}
-                                        color={mobile ? colors.accent : colors.border}
-                                    />
-                                    Mobile app waitlist
-                                </CheckboxLabel>
+            <Field>
+              <Label>I'm interested in:</Label>
+              <CheckboxGroup>
+                <CheckboxLabel checked={mobile}>
+                  <HiddenCheckbox
+                    checked={mobile}
+                    onChange={toggleMobile}
+                  />
+                  <StyledCheckbox checked={mobile}>
+                    {mobile && <Check size={14} color={colors.textPrimary} />}
+                  </StyledCheckbox>
+                  Mobile app waitlist
+                </CheckboxLabel>
 
-                                <CheckboxLabel checked={product}>
-                                    <HiddenCheckbox
-                                        name="product"
-                                        checked={product}
-                                        onChange={toggleProduct}
-                                    />
-                                    <Bell size={20} color={product ? colors.accent : colors.border} />
-                                    Product updates
-                                </CheckboxLabel>
-                            </CheckboxGroup>
-                        </Field>
+                <CheckboxLabel checked={product}>
+                  <HiddenCheckbox
+                    checked={product}
+                    onChange={toggleProduct}
+                  />
+                  <StyledCheckbox checked={product}>
+                    {product && <Check size={14} color={colors.textPrimary} />}
+                  </StyledCheckbox>
+                  Product updates
+                </CheckboxLabel>
+              </CheckboxGroup>
+            </Field>
 
-                        <SubmitButton type="submit" disabled={!canSubmit || loading}>
-                            {loading ? 'Joining...' : 'Join Waitlist'}
-                        </SubmitButton>
-                    </form>
-                </Card>
-            </FormWrapper>
-        </div>
-    );
+            <SubmitButton type="submit" disabled={!canSubmit || loading}>
+              {loading ? 'Joining...' : 'Join Waitlist'}
+            </SubmitButton>
+          </form>
+        </Card>
+      </FormWrapper>
+    </div>
+  );
 }

@@ -251,6 +251,8 @@ export default function TryVoxxy() {
 
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [eventLocation, setEventLocation] = useState('');
+  const [usingCurrentLocation, setUsingCurrentLocation] = useState(false);
+  const [coords, setCoords] = useState(null);
   const [dateNotes, setDateNotes] = useState('');
 
   const [chatOpen, setChatOpen] = useState(false);
@@ -259,8 +261,6 @@ export default function TryVoxxy() {
 
   const [fetchingLocation, setFetchingLocation] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
-
-  console.log(recommendations)
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/try_voxxy_cached`)
@@ -282,7 +282,9 @@ export default function TryVoxxy() {
     if (!navigator.geolocation) return;
     setFetchingLocation(true);
     navigator.geolocation.getCurrentPosition(({ coords }) => {
-      setEventLocation(`${coords.latitude},${coords.longitude}`);
+      setCoords({ lat: coords.latitude, lng: coords.longitude });
+      setUsingCurrentLocation(true);
+      setEventLocation('Using current location');
       setFetchingLocation(false);
     }, () => {
       setFetchingLocation(false);
@@ -379,7 +381,11 @@ export default function TryVoxxy() {
                 <Input
                   placeholder="Enter a city or zip code"
                   value={eventLocation}
-                  onChange={e => setEventLocation(e.target.value)}
+                  onChange={e => {
+                    setUsingCurrentLocation(false);
+                    setEventLocation(e.target.value);
+                  }}
+                  readOnly={usingCurrentLocation}
                   style={{ flexGrow: 1 }}
                 />
                 <SecondaryButton onClick={useCurrentLocation}>Use Current</SecondaryButton>
@@ -411,7 +417,7 @@ export default function TryVoxxy() {
         </Overlay>
       )}
 
-      {chatOpen && <TryVoxxyChat eventLocation={eventLocation} dateNotes={dateNotes} onClose={handleChatClose} onChatComplete={recs => { handleChatComplete(recs); handleChatClose(); }} />}
+      {chatOpen && <TryVoxxyChat eventLocation={usingCurrentLocation && coords ? coords : eventLocation} dateNotes={dateNotes} onClose={handleChatClose} onChatComplete={recs => { handleChatComplete(recs); handleChatClose(); }} />}
 
       {showDetailModal && selectedRec && (
         <Overlay onClick={closeDetail}><DetailModalContent onClick={e => e.stopPropagation()}>
