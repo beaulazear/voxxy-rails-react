@@ -16,7 +16,6 @@ const BenefitsContainer = styled.section`
   }
 `;
 
-// 2. Main heading
 const Title = styled.h2`
   font-size: clamp(2rem, 5vw, 3rem);
   font-weight: 700;
@@ -24,7 +23,6 @@ const Title = styled.h2`
   margin-bottom: 1rem;
 `;
 
-// 3. Subtitle text
 const Subtitle = styled.p`
   font-size: 1rem;
   line-height: 1.6;
@@ -33,7 +31,6 @@ const Subtitle = styled.p`
   margin: 0 auto 2.5rem auto;
 `;
 
-// 4. Container for the call-to-action buttons/links
 const CTAContainer = styled.div`
   display: flex;
   gap: 1rem;
@@ -41,7 +38,6 @@ const CTAContainer = styled.div`
   flex-wrap: wrap;
 `;
 
-// 5. Primary solid button
 const PrimaryButton = styled(Link)`
   display: inline-block;
   background-color: #ffffff;
@@ -58,7 +54,6 @@ const PrimaryButton = styled(Link)`
   }
 `;
 
-// 6. Secondary link or button
 const SecondaryLink = styled(Link)`
   display: inline-block;
   padding: 0.8rem 1.5rem;
@@ -78,10 +73,8 @@ const SecondaryLink = styled(Link)`
 export default function Benefits() {
   return (
     <BenefitsContainer>
-      {/* Main Heading */}
       <Title>Start planning your next adventure today</Title>
 
-      {/* Subtitle */}
       <Subtitle>
         Join thousands of friend groups using Voxxy to create memorable
         experiences together.
