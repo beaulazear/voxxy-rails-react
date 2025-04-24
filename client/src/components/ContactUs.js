@@ -20,7 +20,7 @@ const Title = styled(Heading1)`
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 1.5rem;
-  color: ${colors.textPrimary}
+  color: ${colors.accent};
 `;
 
 const Subtitle = styled(MutedText)`
@@ -61,6 +61,15 @@ const FormWrapper = styled.section`
   padding: 50px 20px;
   display: flex;
   justify-content: center;
+`;
+
+const FormTitle = styled.h2`
+  font-size: clamp(1rem, 3vw, 2rem);
+  font-weight: 400;
+  margin: 0 auto;
+  padding-bottom: 15px;
+  color: #fff;
+  text-align: center;
 `;
 
 const Card = styled.div`
@@ -164,6 +173,12 @@ export default function ContactUs() {
     const [bugDesc, setBugDesc] = useState('');
     const [steps, setSteps] = useState('');
 
+    const formTitles = {
+        feedback: 'Leave Your Feedback',
+        contact: 'Send Us a Message',
+        bug: 'Report a Bug',
+    };
+
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -226,6 +241,7 @@ export default function ContactUs() {
         <div style={{ backgroundColor: colors.sectionBackground, paddingTop: '100px' }}>
             <Title>Contact Us</Title>
             <Subtitle>We're here to help! Choose how you'd like to reach us & we will be in touch shortly.</Subtitle>
+            <FormTitle>{formTitles[active]}</FormTitle>
             <TabContainer>
                 {tabs.map(({ key, label, icon: Icon }) => (
                     <Tab
