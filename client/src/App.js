@@ -20,6 +20,8 @@ import AboutUsPage from './components/AboutUsSection.js';
 import Blogs from './components/Blogs.js';
 import AdminPage from './admincomponents/AdminPage.js';
 import ContactUs from './components/ContactUs.js';
+import PrivacyPolicyPage from './components/PrivacyPolicyPage.js';
+import TermsOfServicePage from './components/TermsOfServicePage.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -57,6 +59,8 @@ function App() {
         <Route path='/blogs' element={<Blogs />} />
         <Route path='/loading' element={<LoadingScreen />} />
         <Route path='/contact' element={<ContactUs />} />
+        <Route path='/privacy' element={<PrivacyPolicyPage />} />
+        <Route path='/terms' element={<TermsOfServicePage />} />
 
         {isLoggedIn && !isConfirmed && (
           <Route path="/confirm-email" element={<ConfirmEmail />} />

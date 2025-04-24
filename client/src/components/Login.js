@@ -287,8 +287,8 @@ const Login = () => {
         {error && <p style={{ color: 'red', marginTop: '1rem' }}>{error}</p>}
         <TextLink>
           By continuing, you agree to the{' '}
-          <a href="/terms">Terms of use</a> and{' '}
-          <a href="/privacy">Privacy Policy</a>.
+          <a href="/#terms">Terms of use</a> and{' '}
+          <a href="/#privacy">Privacy Policy</a>.
         </TextLink>
         <TextLink>
           <span

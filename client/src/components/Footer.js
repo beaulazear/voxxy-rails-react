@@ -139,10 +139,10 @@ export default function Footer() {
             <ColumnHeading>Legal</ColumnHeading>
             <LinkList>
               <li>
-                <Link to='/' style={{ textDecoration: 'none', color: '#0D0B1F' }}>Terms</Link>
+                <Link to='/terms' style={{ textDecoration: 'none', color: '#0D0B1F' }}>Terms</Link>
               </li>
               <li>
-                <Link to='/' style={{ textDecoration: 'none', color: '#0D0B1F' }}>Privacy</Link>
+                <Link to='/privacy' style={{ textDecoration: 'none', color: '#0D0B1F' }}>Privacy</Link>
               </li>
             </LinkList>
           </div>

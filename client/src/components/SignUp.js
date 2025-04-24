@@ -307,7 +307,7 @@ const SignUp = () => {
         </Form>
         <TermsNote>
           By creating an account, you agree to the{' '}
-          <a href="/terms">Terms of use</a> and <a href="/privacy">Privacy Policy</a>.
+          <a href="/#terms">Terms of use</a> and <a href="/#privacy">Privacy Policy</a>.
         </TermsNote>
         {errors.length > 0 && (
           <ul style={{ color: 'red', marginTop: '1rem', fontSize: '0.875rem' }}>
