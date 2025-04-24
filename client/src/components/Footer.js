@@ -105,7 +105,7 @@ export default function Footer() {
             <ColumnHeading>Product</ColumnHeading>
             <LinkList>
               <li><FooterLink to="/faq">How it works</FooterLink></li>
-              <li><FooterLink to="/about-us">Pricing</FooterLink></li>
+              <li><FooterLink to="/pricing">Pricing</FooterLink></li>
             </LinkList>
           </div>
 
