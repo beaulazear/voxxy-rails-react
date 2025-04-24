@@ -156,11 +156,11 @@ export default function PerfectForAnyGroupActivity() {
             <IconWrapper>
               <Film size={20} color={colors.textPrimary} />
             </IconWrapper>
-            <CardTitle>Movie Nights</CardTitle>
+            <CardTitle>Family Reunions</CardTitle>
             <CardText>
-              Pick a venue, see what’s playing, and figure out who’s bringing snacks.
+              Make it easy to coordinate multiple households, book lodging, and get everyone on the same page.
             </CardText>
-            <LearnMoreLink onClick={() => handleTrackAndNavigate('Movie Nights')}>
+            <LearnMoreLink onClick={() => handleTrackAndNavigate('Family Reunions')}>
               Learn more <ArrowRight />
             </LearnMoreLink>
           </Card>

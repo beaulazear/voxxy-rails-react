@@ -240,27 +240,27 @@ export default function LearnMorePage() {
         </FeatureImageWrapper>
       </FeatureSection>
 
-      <FeatureSection id="movie-nights" $reverse={false}>
+      <FeatureSection id="family-reunions" $reverse={false}>
         <FeatureTextWrapper>
           <HeadingWithIcon>
             <CalendarIcon />
-            Movie Nights
+            Family Reunions
           </HeadingWithIcon>
           <FeatureDescription>
-            Vote on what to watch, when to meet, and who's bringing what.
+            Bring the whole family together - without the stress.
           </FeatureDescription>
 
           <KeyFeaturesHeading>Key Features</KeyFeaturesHeading>
           <KeyFeaturesList>
-            <li>Movie and show recommendation engine</li>
-            <li>Voting system for content selection</li>
-            <li>Streaming service availability checker</li>
-            <li>Snack and supplies assignment</li>
-            <li>Scheduling with automatic calendar invites</li>
+            <li>Collect preferences from everyone on dates, locations, and activities</li>
+            <li>Suggest lodging that works for large or multi-household groups</li>
+            <li>Voting system to align on key decisions without endless group messages</li>
+            <li>Assign action items like booking hotels, sending invites, or organizing meals</li>
+            <li>Voxxy Board to track RSVPs, travel plans, and shared resources</li>
           </KeyFeaturesList>
 
           <ClosingText>
-            End the 'what should we watch?' debate once and for all with democratic voting and personalized recommendations.
+            Whether you're planning a backyard BBQ or a destination reunion, Voxxy helps you stay organized, keep everyone in the loop, and make memories that last.
           </ClosingText>
         </FeatureTextWrapper>
         <FeatureImageWrapper>
