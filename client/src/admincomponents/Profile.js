@@ -6,7 +6,6 @@ import { UserContext } from "../context/user";
 import { EditOutlined, SaveOutlined, LogoutOutlined, DeleteOutlined } from "@ant-design/icons";
 import Woman from "../assets/Woman.jpg";
 import ChooseAvatar from "./ChooseAvatar";
-import VantaWrapperTwo from "../components/VantaWrapperTwo";
 
 const fadeIn = keyframes`
   from {
@@ -29,6 +28,7 @@ const Container = styled.div`
   animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
   padding-top: 100px;
   padding-bottom: 50px;
+  background-color: #201925; /* matches your Padding bg */
 `;
 
 const ProfileContainer = styled.div`
@@ -36,7 +36,7 @@ const ProfileContainer = styled.div`
   margin: 50px auto;
   margin-top: 15px;
   padding: 2.5rem;
-  background: white;
+  background-color: #2A1E30;
   border-radius: 16px;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
   text-align: center;
@@ -53,6 +53,7 @@ const AvatarContainer = styled.div`
   position: relative;
   margin-bottom: 1.5rem;
   animation: ${fadeIn} 0.8s ease-in-out;
+  background-color: #2A1E30;
 
   .profile-avatar {
     width: 120px;
@@ -65,7 +66,7 @@ const AvatarContainer = styled.div`
 const UserName = styled.h2`
   font-size: 1.8rem;
   font-weight: 700;
-  color: #4e0f63;
+  color: #fff;
   margin-bottom: 1rem;
   transition: all 0.3s ease-in-out;
 
@@ -202,43 +203,41 @@ const Profile = () => {
   }
 
   return (
-    <VantaWrapperTwo>
-      <Container>
-        <ProfileContainer>
-          <AvatarContainer>
-            <Avatar
-              src={user?.avatar || Woman}
-              className="profile-avatar"
-              size={120}
-            />
-          </AvatarContainer>
+    <Container>
+      <ProfileContainer>
+        <AvatarContainer>
+          <Avatar
+            src={user?.avatar || Woman}
+            className="profile-avatar"
+            size={120}
+          />
+        </AvatarContainer>
 
-          {!isEditing ? (
-            <>
-              <UserName>{user?.name || "User"}</UserName>
-              <StyledButton icon={<EditOutlined />} onClick={() => setIsEditing(true)}>
-                Edit Name
-              </StyledButton>
-              <StyledButton className="cancel" icon={<LogoutOutlined />} onClick={() => handleLogout()}>
-                Logout
-              </StyledButton>
-              <br></br><br></br>
-              <StyledButton className="delete" icon={<DeleteOutlined />} onClick={() => handleDeleteProfile()}>
-                Delete Your Account
-              </StyledButton>
-            </>
-          ) : (
-            <EditContainer>
-              <StyledInput value={newName} onChange={(e) => setNewName(e.target.value)} />
-              <StyledButton icon={<SaveOutlined />} onClick={handleSave}>
-                Save
-              </StyledButton>
-            </EditContainer>
-          )}
-        </ProfileContainer>
-        <ChooseAvatar />
-      </Container>
-    </VantaWrapperTwo>
+        {!isEditing ? (
+          <>
+            <UserName>{user?.name || "User"}</UserName>
+            <StyledButton icon={<EditOutlined />} onClick={() => setIsEditing(true)}>
+              Edit Name
+            </StyledButton>
+            <StyledButton className="cancel" icon={<LogoutOutlined />} onClick={() => handleLogout()}>
+              Logout
+            </StyledButton>
+            <br></br><br></br>
+            <StyledButton className="delete" icon={<DeleteOutlined />} onClick={() => handleDeleteProfile()}>
+              Delete Your Account
+            </StyledButton>
+          </>
+        ) : (
+          <EditContainer>
+            <StyledInput value={newName} onChange={(e) => setNewName(e.target.value)} />
+            <StyledButton icon={<SaveOutlined />} onClick={handleSave}>
+              Save
+            </StyledButton>
+          </EditContainer>
+        )}
+      </ProfileContainer>
+      <ChooseAvatar />
+    </Container>
   );
 };
 

@@ -18,61 +18,70 @@ const EmojiRain = styled.div`
   transform: rotate(${({ $rotation }) => $rotation}deg);
 `;
 
+const SectionWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
 const SectionTitle = styled.p`
-  font-size: clamp(1.7rem, 2.7vw, 2.2rem);
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
   margin: 0;
-  color: #fff;
+  color: #ffffff;
+  text-align: center;
 `;
 
 const CardGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
-  align-items: stretch;
-  justify-content: start;
-  margin: 1rem 0;
-  box-sizing: border-box;
-
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 960px;
+  margin-top: 1rem;
+  
   @media (max-width: 768px) {
-    grid-template-columns: repeat(2, minmax(160px, 1fr));
-    gap: 0.75rem;
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+    gap: 1rem;
   }
 
   @media (max-width: 480px) {
-    grid-template-columns: repeat(2, minmax(140px, 1fr));
-    gap: 0.5rem;
-  }
-
-  @media (max-width: 360px) {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
+    grid-template-columns: repeat(1, minmax(120px, 1fr));
+    gap: 0.75rem;
   }
 `;
 
 const ActivityCard = styled.div.withConfig({
   shouldForwardProp: (prop) => prop !== 'active',
 })`
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: ${({ active }) => (active ? '#fff' : '#e0e0e0')};
+  background: #3a2a40;
   border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
-  padding: 15px;
-  max-width: 250px;
-  overflow: hidden;
-  pointer-events: ${({ active }) => (active ? 'auto' : 'none')};
-  opacity: ${({ active }) => (active ? '1' : '0.6')};
+  padding: 1.5rem;
+  color: #fff;
+  cursor: ${({ active }) => (active ? 'pointer' : 'default')};
+  opacity: ${({ active }) => (active ? 1 : 0.5)};
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 2px solid transparent;
+  ${({ active }) => active && `
+    border-image: linear-gradient(135deg,
+      hsl(291, 80%, 55%, 0.9),
+      hsl(262, 95%, 70%, 0.9),
+      hsl(267, 90%, 65%, 0.9)
+    ) 1;
+  `}
 
   &:hover {
     transform: ${({ active }) => (active ? 'translateY(-5px)' : 'none')};
+    box-shadow: ${({ active }) => (active ? '0 8px 16px rgba(0,0,0,0.2)' : 'none')};
   }
 
   .emoji {
-    font-size: 4rem;
-    margin-top: 1rem;
+    font-size: 3.5rem;
+    margin-bottom: 0.5rem;
     line-height: 1;
   }
 `;
@@ -80,11 +89,11 @@ const ActivityCard = styled.div.withConfig({
 const ActivityName = styled.h3.withConfig({
   shouldForwardProp: (prop) => prop !== 'active',
 })`
-  font-size: clamp(1.1rem, 1.4vw, 1.4rem);
+  font-size: clamp(1rem, 1.5vw, 1.3rem);
   font-weight: 500;
-  color: ${({ active }) => (active ? '#222' : '#777')};
-  margin: 0.3rem 0;
-  padding: 0;
+  color: #fff;
+  margin: 0.25rem 0 0;
+  text-align: center;
 `;
 
 function StartNewAdventure({ onTripSelect }) {
@@ -106,11 +115,8 @@ function StartNewAdventure({ onTripSelect }) {
   const handleSelection = (name) => {
     if (name === "Lets Eat") {
       if (process.env.NODE_ENV === 'production') {
-        mixpanel.track('Lets Eat Clicked', {
-          name: name,
-        });
+        mixpanel.track('Lets Eat Clicked', { name });
       }
-
       triggerEmojiRain();
     }
     onTripSelect(name);
@@ -124,41 +130,39 @@ function StartNewAdventure({ onTripSelect }) {
       duration: Math.random() * 1 + 1.5,
       rotation: Math.random() * 360,
     }));
-
     setEmojiRain(emojis);
-
-    setTimeout(() => {
-      setEmojiRain([]);
-    }, 2000);
+    setTimeout(() => setEmojiRain([]), 2000);
   };
 
   return (
     <>
-      {emojiRain.map((emoji) => (
+      {emojiRain.map(({ id, left, size, duration, rotation }) => (
         <EmojiRain
-          key={emoji.id}
-          $left={emoji.left}
-          $size={emoji.size}
-          $duration={emoji.duration}
-          $rotation={emoji.rotation}
+          key={id}
+          $left={left}
+          $size={size}
+          $duration={duration}
+          $rotation={rotation}
         >
           🍜
         </EmojiRain>
       ))}
 
-      <SectionTitle>Choose An Activity</SectionTitle>
-      <CardGrid>
-        {adventures.map(({ name, emoji, active }) => (
-          <ActivityCard
-            key={name}
-            active={active}
-            onClick={active ? () => handleSelection(name) : undefined}
-          >
-            <div className="emoji">{emoji}</div>
-            <ActivityName active={active}>{name}</ActivityName>
-          </ActivityCard>
-        ))}
-      </CardGrid>
+      <SectionWrapper>
+        <SectionTitle>Choose An Activity</SectionTitle>
+        <CardGrid>
+          {adventures.map(({ name, emoji, active }) => (
+            <ActivityCard
+              key={name}
+              active={active}
+              onClick={active ? () => handleSelection(name) : undefined}
+            >
+              <div className="emoji">{emoji}</div>
+              <ActivityName active={active}>{name}</ActivityName>
+            </ActivityCard>
+          ))}
+        </CardGrid>
+      </SectionWrapper>
     </>
   );
 }

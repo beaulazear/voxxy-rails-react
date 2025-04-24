@@ -4,8 +4,7 @@ import { UserContext } from '../context/user';
 import StartNewAdventure from './StartNewAdventure';
 import RestaurantChat from './RestaurantChat';
 import CuisineChat from './CuisineChat';
-import PostRestaurantPopup from './PostRestaurantPopup'; // Import the new popup
-import VantaWrapper from '../components/VantaWrapper';
+import PostRestaurantPopup from './PostRestaurantPopup';
 import mixpanel from 'mixpanel-browser';
 
 const fadeIn = keyframes`
@@ -26,14 +25,23 @@ const gradientAnimation = keyframes`
 `;
 
 export const PageContainer = styled.div`
-  height: auto;
   width: 100%;
   animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
-  padding-bottom: 40px;
-  padding-top: 90px;
+  padding-top: 100px;
+  padding-bottom: 50px;
+  background-color: #2A1E30;
+
+  /* full-viewport stretch on desktop */
+  @media (min-width: 1024px) {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-height: 100vh;
+  }
 `;
 
 const DashboardContainer = styled.div`
+  flex: 1;
   display: flex;
   flex-direction: column;
   padding: 2rem;
@@ -117,51 +125,50 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
   };
 
   return (
-    <VantaWrapper>
-      <PageContainer ref={dashboardRef}>
-        <DashboardContainer>
-          <StartNewAdventure setShowActivities={setShowActivities} onTripSelect={handleTripSelect} />
-        </DashboardContainer>
-        {selectedTrip === 'Lets Eat' && (
-          <>
-            <DimmedOverlay />
-            <RestaurantChat onClose={handleRestaurantChatClose} />
-          </>
-        )}
+    <PageContainer ref={dashboardRef}>
+      <DashboardContainer>
+        <StartNewAdventure setShowActivities={setShowActivities} onTripSelect={handleTripSelect} />
+      </DashboardContainer>
 
-        {showPostRestaurantPopup && (
-          <PostRestaurantPopup
-            onChat={() => {
-              setShowCuisineChat(true);
-              setShowPostRestaurantPopup(false);
-            }}
-            onSkip={() => {
-              if (process.env.NODE_ENV === 'production') {
-                mixpanel.track('Chat Skipped', {
-                  name: user.name,
-                });
-              }
-              setShowPostRestaurantPopup(false);
-              setSelectedActivityId(activityIdCreated);
-            }}
-          />
-        )}
+      {selectedTrip === 'Lets Eat' && (
+        <>
+          <DimmedOverlay />
+          <RestaurantChat onClose={handleRestaurantChatClose} />
+        </>
+      )}
 
-        {showCuisineChat && (
-          <CuisineChat
-            activityId={activityIdCreated}
-            onClose={() => {
-              setShowCuisineChat(false);
-              setSelectedActivityId(activityIdCreated);
-            }}
-            onChatComplete={() => {
-              setShowCuisineChat(false);
-              setSelectedActivityId(activityIdCreated);
-            }}
-          />
-        )}
-      </PageContainer>
-    </VantaWrapper>
+      {showPostRestaurantPopup && (
+        <PostRestaurantPopup
+          onChat={() => {
+            setShowCuisineChat(true);
+            setShowPostRestaurantPopup(false);
+          }}
+          onSkip={() => {
+            if (process.env.NODE_ENV === 'production') {
+              mixpanel.track('Chat Skipped', {
+                name: user.name,
+              });
+            }
+            setShowPostRestaurantPopup(false);
+            setSelectedActivityId(activityIdCreated);
+          }}
+        />
+      )}
+
+      {showCuisineChat && (
+        <CuisineChat
+          activityId={activityIdCreated}
+          onClose={() => {
+            setShowCuisineChat(false);
+            setSelectedActivityId(activityIdCreated);
+          }}
+          onChatComplete={() => {
+            setShowCuisineChat(false);
+            setSelectedActivityId(activityIdCreated);
+          }}
+        />
+      )}
+    </PageContainer>
   );
 }
 

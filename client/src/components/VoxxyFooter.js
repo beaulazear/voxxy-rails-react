@@ -26,7 +26,7 @@ const FooterContainer = styled.div`
   overflow: hidden; /* Ensures the pseudo-element stays within bounds */
   transition: background 0.2s ease;
   background-color: ${({ $scrolled }) =>
-    $scrolled ? `rgba(${colors.background}, 0.95)` : `rgba(${colors.background}, 0.8)`};
+    $scrolled ? `rgba(${colors.background})` : `rgba(${colors.background})`};
 
   &::before {
     content: "";

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef, useEffect } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { UserContext } from '../context/user';
 import ActivityDetailsPage from './ActivityDetailsPage';
@@ -9,58 +9,46 @@ import Profile from './Profile.js';
 import Woman from '../assets/Woman.jpg'
 import YourCommunity from './YourCommunity.js';
 import NoBoardsDisplay from './NoBoardsDisplay.js';
-import VantaWrapperTwo from '../components/VantaWrapperTwo.js';
 
 const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const moveLeft = keyframes`
-  from { transform: translateX(80%); } /* Start offscreen right */
-  to { transform: translateX(-100%); } /* Move offscreen left */
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 `;
 
 const HeroContainer = styled.div`
   width: 100%;
   display: flex;
-  justify-content: center;
-  height: 80px; /* Ensure enough space for the text */
-  position: relative;
-  right: 0;
-  left: 0;
-  padding: 1rem 0; /* Adds top/bottom spacing */
-  overflow: hidden; /* Prevents white space issue */
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 2rem 1rem;
+  background-color: #201925; /* matches your Padding bg */
+  text-align: left;
 
   @media (max-width: 768px) {
-    padding: 0rem;
-    height: 50px;
+    padding: .5rem;
+    justify-content: center;
   }
 `;
 
-const FullWidthWrapper = styled.div`
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-`;
-
-const MovingHeader = styled.h2`
+const HeroTitle = styled.h2`
   font-family: 'Montserrat', sans-serif;
   font-size: clamp(1.8rem, 4vw, 2.5rem);
   font-weight: bold;
   color: #fff;
-  white-space: nowrap;
-  position: absolute;
-  top: 30%; /* Center vertically */
-  transform: translateY(-50%); /* Keeps it aligned properly */
-  animation: ${moveLeft} 10s linear infinite; /* Moves right to left */ 
+  margin: 0;
+`;
 
-  @media (max-width: 768px) {
-    top: 10%;
-  }
+const HeroSubtitle = styled.p`
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: #fff;
+  margin: 0.5rem 0 0;
 `;
 
 const DashboardContainer = styled.div`
@@ -71,10 +59,6 @@ const DashboardContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   animation: ${fadeIn} 0.8s ease-in-out;
-  
-  @media (min-width: 100px) {
-    pading: 5rem;
-  }
 `;
 
 const CardGrid = styled.div`
@@ -89,15 +73,12 @@ const CardGrid = styled.div`
   margin-right: -2rem;
   margin-bottom: 1rem;
 
-  /* Hide scrollbar for Webkit browsers (Chrome, Safari) */
   &::-webkit-scrollbar {
     display: none;
   }
 
-  /* Hide scrollbar for Firefox */
   scrollbar-width: none;
 
-  /* Hide scrollbar for Edge and IE */
   -ms-overflow-style: none;
 `;
 
@@ -224,6 +205,7 @@ export const Button = styled.button`
 const Padding = styled.div`
   padding-bottom: 50px;
   padding-top: 80px;
+  background-color: #201925;
 `
 
 const ButtonContainer = styled.div`
@@ -275,53 +257,9 @@ function UserActivities() {
   const [selectedActivityId, setSelectedActivityId] = useState(null);
   const [showActivities, setShowActivities] = useState(false);
   const [showProfile, setShowProfile] = useState(false)
-  const [intro, setIntro] = useState("");
   const [filterType, setFilterType] = useState("upcoming"); // 🔹 Sorting state
-  const [startAnimation, setStartAnimation] = useState(false);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setStartAnimation(true);
-    }, 150); // small delay to allow full mount/render
-
-    return () => clearTimeout(timeout);
-  }, []);
 
   const topRef = useRef(null)
-
-  useEffect(() => {
-
-    const defaultIntros = [
-      "🚀 Adventure Mode: Activated!",
-      "🌎 Big plans, even bigger memories!",
-      "🎭 Voxxy is live—Let’s make magic!",
-      "🔥 Your next great story starts now!",
-      "🎉 Fun times ahead—Are you ready?",
-      "🌟 New plans, new people, new energy!",
-      "🛸 Plans loading… let’s take off!",
-      "💬 Less talk, more action—Let’s go!",
-      "🎯 Mission: Good vibes & great company!",
-      "🔮 The best memories haven’t happened yet!"
-    ];
-
-    if (user?.name) {
-      const personalizedIntros = [
-        `🚀 ${user.name}, let's turn plans into reality!`,
-        `🎉 Get ready, ${user.name}—It’s Voxxy time!`,
-        `🔥 ${user.name}, your adventure starts now!`,
-        `💫 Big ideas, big moves—Let's go, ${user.name}!`,
-        `🌎 New plans, new places—You in, ${user.name}?`,
-        `🎭 Lights, camera, action! Right, ${user.name}?`,
-        `💬 No more ghosted plans, ${user.name}. Let’s do this!`,
-        `🔮 ${user.name}, the best moments are ahead!`,
-        `🎯 ${user.name}, let’s make today unforgettable!`,
-        `💥 Ready to make moves, ${user.name}? Let’s hit start!`
-      ];
-      setIntro(personalizedIntros[Math.floor(Math.random() * personalizedIntros.length)]);
-    } else {
-      setIntro(defaultIntros[Math.floor(Math.random() * defaultIntros.length)]);
-    }
-  }, [user]);
 
   const handleActivityClick = (activity) => {
     setSelectedActivityId(activity.id);
@@ -393,19 +331,13 @@ function UserActivities() {
   }
 
   return (
-    <VantaWrapperTwo>
+    <>
       <Padding>
         <DashboardContainer ref={topRef}>
-          <FullWidthWrapper>
-            <HeroContainer>
-              <MovingHeader
-                key={intro}
-                style={{ animationPlayState: startAnimation ? "running" : "paused" }}
-              >
-                {intro}
-              </MovingHeader>
-            </HeroContainer>
-          </FullWidthWrapper>
+          <HeroContainer>
+            <HeroTitle>Welcome back, {user.name}! 👋</HeroTitle>
+            <HeroSubtitle>What are you planning today?</HeroSubtitle>
+          </HeroContainer>
           <PendingInvites />
           <ButtonContainer>
             <FilterButton
@@ -464,7 +396,7 @@ function UserActivities() {
         </DashboardContainer>
       </Padding>
       <VoxxyFooter handleBack={handleBack} handleShowProfile={handleShowProfile} handleShowActivities={handleShowActivities} />
-    </VantaWrapperTwo>
+    </>
   );
 }
 

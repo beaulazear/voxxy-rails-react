@@ -46,7 +46,7 @@ const AvatarContainer = styled.div`
   max-width: 500px;
   margin: 80px auto;
   padding: 2.5rem;
-  background: white;
+  background-color: #2A1E30;
   border-radius: 16px;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
   text-align: center;
@@ -64,7 +64,7 @@ const AvatarContainer = styled.div`
 const Title = styled.h2`
   font-size: 1.8rem;
   font-weight: bold;
-  color: #4e0f63;
+  color: #fff;
   margin-bottom: 1rem;
   transition: all 0.3s ease-in-out;
 

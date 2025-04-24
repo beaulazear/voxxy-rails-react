@@ -7,7 +7,6 @@ import AIRecommendations from "./AIRecommendations";
 import UpdateActivityModal from './UpdateActivityModal';
 import LoadingScreen from '../components/LoadingScreen.js';
 import ActivityHeader from './ActivityHeader.js';
-import VantaWrapper from '../components/VantaWrapper.js';
 import ActivityCommentSection from './ActivityCommentSection.js'
 
 function ActivityDetailsPage({ activityId, onBack }) {
@@ -149,7 +148,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
   }
 
   return (
-    <VantaWrapper>
       <div ref={topRef}>
         <PageContainer>
           <ActivityHeader
@@ -171,7 +169,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
           )}
         </PageContainer>
       </div>
-    </VantaWrapper>
   );
 }
 
