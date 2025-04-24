@@ -1,69 +1,125 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import colors from "../styles/Colors";
+import { Heading1, MutedText } from '../styles/Typography';
 
-const Container = styled.div`
-  max-width: 400px;
-  margin: 3rem auto;
-  padding: 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+// ─── Shared layout & typography ────────────────────────────────────────────────
+const PageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5.5rem;
+  background-color: #251C2C;
+  min-height: 100vh;
+`;
+
+const SectionContainer = styled.section`
+  min-width: 350px;
+  background-color: ${colors.backgroundTwo};
+  padding: 1rem 0.5rem;
   text-align: center;
-  font-family: 'Inter', sans-serif;
+  color: ${colors.textPrimary};
 `;
 
-const Title = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #000;
-  margin-bottom: 0.5rem;
+const SectionInner = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
 `;
 
-const Subtitle = styled.p`
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 1.5rem;
+const Title = styled(Heading1)`
+  font-size: clamp(1.6rem, 5vw, 2.8rem);
+  max-width: 1000px;
+  margin-bottom: 1rem;
+  color: ${colors.textPrimary};
 `;
 
-const Input = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  margin: 0.5rem 0;
+const Subtitle = styled(MutedText)`
   font-size: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  outline: none;
+  max-width: 600px;
+  margin: 0.5rem auto 3rem auto;
+  line-height: 1.6;
 `;
 
-const Button = styled.button`
-  width: 100%;
-  padding: 0.75rem;
-  margin-top: 1rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: white;
-  background-color: #a488f4;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s;
+// ─── Form styling ─────────────────────────────────────────────────────────────
+const FormContainer = styled.div`
+  max-width: 400px;
+  min-width: 350px;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 2rem;
+`;
 
-  &:hover {
-    background-color: #8b6fe8;
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
+
+const InputGroup = styled.div`
+  text-align: left;
+  width: 93%;
+
+  label {
+    font-size: 0.875rem;
+    color: #ccc;
+    margin-bottom: 0.25rem;
+    display: block;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #444;
+    border-radius: 8px;
+    background-color: #222;
+    color: #fff;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: #9D60F8;
+      outline: none;
+    }
   }
 `;
 
-const ErrorText = styled.p`
-  color: red;
+const SubmitButton = styled.button`
+  margin-top: 1.5rem;
+  padding: 0.75rem;
+  font-size: 1rem;
+  color: #fff;
+  background: linear-gradient(135deg, #9D60F8, #B279FA);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.3s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, #8b4ee4, #a070e8);
+  }
+
+  &:disabled {
+    background: #555;
+    cursor: not-allowed;
+  }
+`;
+
+const ErrorList = styled.ul`
+  color: #f88;
+  margin-top: 1rem;
   font-size: 0.875rem;
-  margin-top: 0.5rem;
+  text-align: left;
+  padding-left: 1rem;
 `;
 
 const SuccessContainer = styled.div`
   text-align: center;
+  padding: 2rem 0;
 `;
 
+// ─── Component ───────────────────────────────────────────────────────────────
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
@@ -83,6 +139,7 @@ const ResetPassword = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError('');
 
     if (password !== passwordConfirmation) {
       setError('Passwords do not match.');
@@ -100,45 +157,61 @@ const ResetPassword = () => {
       })
       .then(() => {
         setSuccess(true);
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
+        setTimeout(() => navigate('/login'), 2000);
       })
       .catch((err) => setError(err.message));
   };
 
   return (
-    <Container>
-      {!success ? (
-        <>
+    <PageContainer>
+      <SectionContainer>
+        <SectionInner>
           <Title>Reset your password</Title>
           <Subtitle>Enter your new password below</Subtitle>
-          <form onSubmit={handleSubmit}>
-            <Input
-              type="password"
-              placeholder="New Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <Input
-              type="password"
-              placeholder="Confirm New Password"
-              value={passwordConfirmation}
-              onChange={(e) => setPasswordConfirmation(e.target.value)}
-              required
-            />
-            {error && <ErrorText>{error}</ErrorText>}
-            <Button type="submit">Reset Password</Button>
-          </form>
-        </>
-      ) : (
-        <SuccessContainer>
-          <Title>Password reset successful</Title>
-          <Subtitle>You’ll be redirected to login shortly...</Subtitle>
-        </SuccessContainer>
-      )}
-    </Container>
+        </SectionInner>
+      </SectionContainer>
+
+      <FormContainer>
+        {!success ? (
+          <Form onSubmit={handleSubmit}>
+            <InputGroup>
+              <label htmlFor="new-password">New password</label>
+              <input
+                id="new-password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </InputGroup>
+
+            <InputGroup>
+              <label htmlFor="confirm-password">Confirm new password</label>
+              <input
+                id="confirm-password"
+                type="password"
+                value={passwordConfirmation}
+                onChange={(e) => setPasswordConfirmation(e.target.value)}
+                required
+              />
+            </InputGroup>
+
+            {error && (
+              <ErrorList>
+                <li>{error}</li>
+              </ErrorList>
+            )}
+
+            <SubmitButton type="submit">Reset Password</SubmitButton>
+          </Form>
+        ) : (
+          <SuccessContainer>
+            <Title>Password reset successful</Title>
+            <Subtitle>You’ll be redirected to login shortly...</Subtitle>
+          </SuccessContainer>
+        )}
+      </FormContainer>
+    </PageContainer>
   );
 };
 

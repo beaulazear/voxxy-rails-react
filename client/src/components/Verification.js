@@ -1,52 +1,55 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
+import colors from "../styles/Colors";
+import { Heading1, MutedText } from "../styles/Typography";
+import { CheckCircle } from "lucide-react";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const Container = styled.div`
-  max-width: 400px;
-  margin: 3rem auto;
-  padding: 2rem;
-  background: white;
+const PageContainer = styled.div`
+  background-color: ${colors.background};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6rem 1rem;
+  min-height: 100vh;
+`;
+
+const MessageCard = styled.div`
+  background-color: ${colors.backgroundTwo};
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 500px;
   text-align: center;
-  font-family: 'Inter', sans-serif;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   animation: ${fadeIn} 0.8s ease-out;
 `;
 
 const IconWrapper = styled.div`
-  width: 50px;
-  height: 50px;
-  background: #f2e8ff;
+  width: 60px;
+  height: 60px;
+  background-color: rgba(157, 96, 248, 0.15);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 1rem;
+  margin: 0 auto 1.5rem;
 `;
 
-const Icon = styled.img`
-  width: 24px;
-  height: 24px;
-  filter: invert(38%) sepia(66%) saturate(750%) hue-rotate(230deg);
+const Title = styled(Heading1)`
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  margin-bottom: 1rem;
+  color: ${colors.textPrimary};
 `;
 
-const Title = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #000;
-  margin-bottom: 0.5rem;
-`;
-
-const Message = styled.p`
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 1.5rem;
+const Message = styled(MutedText)`
+  font-size: 1rem;
+  color: ${colors.textMuted};
 `;
 
 const Verification = () => {
@@ -60,13 +63,18 @@ const Verification = () => {
   }, [navigate]);
 
   return (
-    <Container>
-      <IconWrapper>
-        <Icon src="/email-icon.svg" alt="Check Icon" />
-      </IconWrapper>
-      <Title>Email Verified Successfully!</Title>
-      <Message>Thank you for verifying your email. You will be redirected to the login page shortly.</Message>
-    </Container>
+    <PageContainer>
+      <MessageCard>
+        <IconWrapper>
+          <CheckCircle size={32} color={colors.textPrimary} />
+        </IconWrapper>
+        <Title>Email Verified Successfully!</Title>
+        <Message>
+          Thank you for verifying your email. You will be redirected to the
+          login page shortly.
+        </Message>
+      </MessageCard>
+    </PageContainer>
   );
 };
 
