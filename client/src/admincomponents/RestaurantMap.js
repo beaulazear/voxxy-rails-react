@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import ReactDOM from "react-dom";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import styled from "styled-components";
 import colors from '../styles/Colors';
-
-import markerIcon from "leaflet/dist/images/marker-icon.png";
+import SmallTriangle from '../assets/SmallTriangle.png';
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
-const defaultIcon = new L.Icon({
-    iconUrl: markerIcon,
-    shadowUrl: markerShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
+const triangleIcon = new L.Icon({
+    iconUrl: SmallTriangle,
+    shadowUrl: markerShadow,        // optional, you can leave this off
+    iconSize: [30, 30],             // tweak to whatever fits
+    iconAnchor: [15, 30],           // point of the icon which corresponds to the marker’s location (half width, full height)
+    popupAnchor: [0, -30],          // where popups should open relative to the iconAnchor
 });
 
 const FitBoundsToMarkers = ({ locations }) => {
@@ -93,41 +93,51 @@ const RestaurantMap = ({ recommendations }) => {
                         Map View
                     </StyledButton>
                 </ChatButton>
-            ) : (
-                <div style={{ height: "100vh", width: "100vw", position: "fixed", top: 0, left: 0, backgroundColor: "#fff", zIndex: 1000 }}>
+            ) : ReactDOM.createPortal(
+                <FullScreenOverlay>
                     <button
                         onClick={() => setShowMap(false)}
                         style={{
                             position: "absolute",
-                            top: "110px",
+                            top: "10px",
                             right: "10px",
                             padding: "8px 15px",
                             fontSize: "1.2rem",
                             cursor: "pointer",
-                            zIndex: 9999, // Increase the z-index here
+                            zIndex: 10001,
                         }}
                     >
                         Back
                     </button>
 
-                    <MapContainer center={[40.7128, -74.006]} zoom={12} style={{ height: "100%", width: "100%" }}>
+                    <MapContainer
+                        center={[40.7128, -74.006]}
+                        zoom={12}
+                        style={{ height: "100%", width: "100%" }}
+                    >
                         <TileLayer
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                            attribution='&copy; OpenStreetMap contributors'
                         />
-
-                        {locations.length > 0 && <FitBoundsToMarkers locations={locations} />}
-
-                        {locations.map((location, index) => (
-                            <Marker key={index} position={[location.lat, location.lon]} icon={defaultIcon}>
+                        {locations.length > 0 && (
+                            <FitBoundsToMarkers locations={locations} />
+                        )}
+                        {locations.map((loc, i) => (
+                            <Marker
+                                key={i}
+                                position={[loc.lat, loc.lon]}
+                                icon={triangleIcon}
+                            >
                                 <Popup>
-                                    <strong>{location.name}</strong> <br />
-                                    📍 {location.address}
+                                    <strong>{loc.name}</strong>
+                                    <br />
+                                    📍 {loc.address}
                                 </Popup>
                             </Marker>
                         ))}
                     </MapContainer>
-                </div>
+                </FullScreenOverlay>,
+                document.body
             )}
         </div>
     );
@@ -156,4 +166,14 @@ export const StyledButton = styled.button`
   &:hover {
     background: rgba(157,96,248,0.9);
   }
+`;
+
+export const FullScreenOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #fff;
+  z-index: 9999;
 `;
