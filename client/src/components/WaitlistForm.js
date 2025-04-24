@@ -37,7 +37,8 @@ const Subtitle = styled(MutedText)`
 
 const FormWrapper = styled.section`
   background-color: ${colors.sectionBackground};
-  padding: 4rem 1.5rem 2rem;
+  padding: 4rem 1.5rem;
+  padding-top: .5rem;
   display: flex;
   justify-content: center;
 `;

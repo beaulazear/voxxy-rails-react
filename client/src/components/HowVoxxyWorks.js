@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Calendar, UtensilsCrossed, Film, Star, ArrowRight } from 'lucide-react';
+import { Calendar, UtensilsCrossed, Users, Star, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import mixpanel from 'mixpanel-browser';
 import colors from '../styles/Colors'; // ✅ centralized color palette
@@ -154,7 +154,7 @@ export default function PerfectForAnyGroupActivity() {
 
           <Card>
             <IconWrapper>
-              <Film size={20} color={colors.textPrimary} />
+              <Users size={20} color={colors.textPrimary} />
             </IconWrapper>
             <CardTitle>Family Reunions</CardTitle>
             <CardText>

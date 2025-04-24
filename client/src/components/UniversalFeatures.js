@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import { CalendarDays, MessageSquareText, CheckCircle, Vote } from "lucide-react";
+import { CalendarDays, MessageSquareText, CheckCircle, Vote, CircleDollarSign } from "lucide-react";
 
 const SectionWrapper = styled.section`
   background-color: #251C2C;
@@ -101,7 +101,7 @@ export default function UniversalFeatures() {
         </FeatureCard>
 
         <FeatureCard>
-          <CalendarDays size={28} />
+          <CircleDollarSign size={28} />
           <FeatureTitle>Budget Tracking</FeatureTitle>
           <FeatureText>
             Keep finances transparent and organized with shared budgets and payment reminders.

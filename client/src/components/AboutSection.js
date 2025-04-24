@@ -6,6 +6,7 @@ import {
   CheckSquare,
   MessageCircle,
   Zap,
+  CircleDollarSign
 } from 'lucide-react';
 import colors from '../styles/Colors'; // ✅ centralized color palette
 import { Heading1, MutedText } from '../styles/Typography'; // ✅ optional typography imports
@@ -130,7 +131,7 @@ export default function AboutSection() {
 
           <Card>
             <IconWrapper>
-              <Users size={20} color={colors.primaryButton} />
+              <CircleDollarSign size={20} color={colors.primaryButton} />
             </IconWrapper>
             <TextContainer>
               <CardTitle>Budget Tracking</CardTitle>
