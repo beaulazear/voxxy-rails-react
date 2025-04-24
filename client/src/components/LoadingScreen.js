@@ -8,13 +8,11 @@ const colors = {
   faded: 'rgba(157, 96, 248, 0.15)',
 };
 
-// Animations
 const spin = keyframes`
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 `;
 
-// Styled Components
 const LoadingSection = styled.div`
   background-color: ${colors.background};
   min-height: 100vh;

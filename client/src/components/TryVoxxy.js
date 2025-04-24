@@ -6,8 +6,8 @@ import Footer from './Footer';
 import colors from '../styles/Colors';
 import TryVoxxyChat from './TryVoxxyChat';
 import mixpanel from 'mixpanel-browser';
+import RestaurantMap from "../admincomponents/RestaurantMap";
 
-// Layout
 const PageContainer = styled.div`
   min-height: 100vh;
   background-color: ${colors.background};
@@ -245,6 +245,14 @@ const SecondaryButton = styled.button`
   }
 `;
 
+const ActionsWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+`;
+
 export default function TryVoxxy() {
   const [recommendations, setRecommendations] = useState([]);
   const [loadingCache, setLoadingCache] = useState(true);
@@ -280,16 +288,22 @@ export default function TryVoxxy() {
 
   const useCurrentLocation = () => {
     if (!navigator.geolocation) return;
-    setFetchingLocation(true);
-    navigator.geolocation.getCurrentPosition(({ coords }) => {
-      setCoords({ lat: coords.latitude, lng: coords.longitude });
-      setUsingCurrentLocation(true);
-      setEventLocation('Using current location');
-      setFetchingLocation(false);
-    }, () => {
-      setFetchingLocation(false);
-      alert("Unable to fetch location");
-    });
+    if (!usingCurrentLocation) {
+      setFetchingLocation(true);
+      navigator.geolocation.getCurrentPosition(({ coords }) => {
+        setCoords({ lat: coords.latitude, lng: coords.longitude });
+        setUsingCurrentLocation(true);
+        setEventLocation('Using current location');
+        setFetchingLocation(false);
+      }, () => {
+        setFetchingLocation(false);
+        alert("Unable to fetch location");
+      });
+    } else {
+      setCoords(null)
+      setUsingCurrentLocation(false)
+      setEventLocation('');
+    }
   };
 
   const submitPlan = () => {
@@ -317,11 +331,12 @@ export default function TryVoxxy() {
         </TitleSection>
 
         {recommendations.length > 0 && (
-          <div style={{ marginBottom: '2rem' }}>
+          <ActionsWrapper>
             <Button onClick={() => setShowSignupModal(true)}>
               Refresh Choices
             </Button>
-          </div>
+            <RestaurantMap recommendations={recommendations} />
+          </ActionsWrapper>
         )}
 
         {recommendations.length > 0 ? (
@@ -388,7 +403,7 @@ export default function TryVoxxy() {
                   readOnly={usingCurrentLocation}
                   style={{ flexGrow: 1 }}
                 />
-                <SecondaryButton onClick={useCurrentLocation}>Use Current</SecondaryButton>
+                <SecondaryButton onClick={useCurrentLocation}>{usingCurrentLocation ? 'Clear Field' : 'Use Current'}</SecondaryButton>
               </div>
               {fetchingLocation && (
                 <span style={{ color: colors.textSecondary, fontSize: '0.75rem', display: 'block', marginTop: '0.4rem' }}>
