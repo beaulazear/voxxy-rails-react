@@ -40,6 +40,7 @@ const HeroContainer = styled.div`
 const TextContainer = styled.div`
   display: flex;
   flex-direction: column;
+  padding-right: 40px;
 `;
 
 const HeroTitle = styled.h2`
