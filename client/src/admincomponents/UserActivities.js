@@ -22,6 +22,7 @@ const fadeIn = keyframes`
 
 const HeroContainer = styled.div`
   width: 100%;
+  box-sizing: border-box; 
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -31,7 +32,7 @@ const HeroContainer = styled.div`
   text-align: left;
 
   @media (max-width: 768px) {
-    padding: .5rem;
+    padding: 0.5rem;
     flex-direction: column;
     align-items: flex-start;
   }
