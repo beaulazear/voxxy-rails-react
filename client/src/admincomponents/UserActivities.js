@@ -21,6 +21,8 @@ const fadeIn = keyframes`
 `;
 
 const HeroContainer = styled.div`
+  width: 100%;
+  box-sizing: border-box; 
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -54,7 +56,7 @@ const HeroSubtitle = styled.p`
   font-family: 'Inter', sans-serif;
   font-size: clamp(1rem, 2.5vw, 1.25rem);
   color: #fff;
-  margin: 0 auto;
+  margin: 0.5rem 0 0;
 `;
 
 const HelpIcon = styled.div`
