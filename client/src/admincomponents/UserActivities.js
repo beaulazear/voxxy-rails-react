@@ -4,7 +4,6 @@ import { UserContext } from '../context/user';
 import ActivityDetailsPage from './ActivityDetailsPage';
 import PendingInvites from './PendingInvites';
 import TripDashboard from './TripDashboard.js';
-import Woman from '../assets/Woman.jpg'
 import YourCommunity from './YourCommunity.js';
 import NoBoardsDisplay from './NoBoardsDisplay.js';
 import { HelpCircle, X } from 'lucide-react';
@@ -160,126 +159,6 @@ const DashboardContainer = styled.div`
   }
 `;
 
-const CardGrid = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-top: 0;
-  overflow-x: auto;
-  white-space: nowrap;
-  padding: 0 1rem 10px; /* Add side padding for smooth scrolling */
-  scroll-snap-type: x mandatory; 
-  margin-left: -2rem;
-  margin-right: -2rem;
-  margin-bottom: 1rem;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  scrollbar-width: none;
-
-  -ms-overflow-style: none;
-`;
-
-
-const ActivityCard = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  padding: 1rem;
-  cursor: pointer;
-  position: relative;
-  height: 200px; /* Slightly increased for better spacing */
-  width: 240px; /* Increased for better text layout */
-  flex-shrink: 0;
-  overflow: hidden;
-  color: white;
-  background-image: ${({ $emoji }) =>
-    `url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><text x='10' y='30' font-size='30' fill='rgba(255,255,255,1)'>${$emoji || '🍜'}</text><text x='50' y='70' font-size='30' fill='rgba(255,255,255,1)'>${$emoji || '🍜'}</text></svg>")`};
-  background-size: 75px 75px;
-  background-repeat: repeat;
-  background-color: white;
-  scroll-snap-align: center;
-  text-align: left;
-  backdrop-filter: blur(5px); /* Softens emoji background */
-
-  &:hover {
-    transform: translateY(4px);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
-  }
-
-  .content {
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 100%;
-    width: 100%;
-    padding: 1rem;
-  }
-
-  h3 {
-    font-size: 1rem;
-    font-weight: 700;
-    margin: 0;
-    color: white;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 8px 14px;
-    border-radius: 19px;
-    max-width: 100%;
-    text-align: center;
-    width: fit-content;
-    backdrop-filter: blur(2px);
-  }
-
-  .host-info {
-    display: flex;
-    align-items: center;
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 6px 12px;
-    border-radius: 8px;
-    position: absolute;
-    bottom: 50px;
-    left: 8px;
-    backdrop-filter: blur(3px);
-    width: fit-content;
-    right: auto;
-  }
-
-  .host-avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid white;
-    margin-right: 5px;
-  }
-
-  .date-time {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: #fff;
-    background: rgba(0, 0, 0, .8);
-    padding: 6px 12px;
-    border-radius: 6px;
-    position: absolute;
-    bottom: 10px;
-    left: 8px;
-    text-align: center;
-    backdrop-filter: blur(3px);
-    width: calc(90% - 16px);
-    right: auto;
-  }
-`;
-
 export const Button = styled.button`
   padding: 0.5rem 1rem;
   background: linear-gradient(135deg,  #8e44ad, #6a1b9a);
@@ -307,47 +186,114 @@ const Padding = styled.div`
   background-color: #201925;
 `
 
-const ButtonContainer = styled.div`
+const FilterRow = styled.div`
   display: flex;
   gap: 1rem;
-  padding: 1.5rem 2.5rem 1rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  justify-content: flex-start;
-
-  @media (max-width: 768px) {
-    padding: 1rem;
-    justify-content: center;
-  }
+  padding: 1rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
 `;
 
 const FilterButton = styled.button`
-  padding: 0.7rem 1.4rem;
-  font-size: 1rem;
-  font-weight: bold;
-  color: white;
-  background: ${({ $active }) => ($active ? '#6a1b9a' : 'rgba(255, 255, 255, 0.2)')};
-  border: 2px solid white;
-  border-radius: 50px;
+  flex-shrink: 0;
+  padding: 0.6rem 1.2rem;
+  background: ${({ $active }) =>
+    $active
+      ? 'linear-gradient(135deg, #8e44ad, #6a1b9a)'
+      : 'rgba(255, 255, 255, 0.1)'};
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
 
   &:hover {
-    background: white;
-    color: #8e44ad;
+    background: ${({ $active }) =>
+    $active
+      ? 'linear-gradient(135deg, #7b3ea1, #5a1675)'
+      : 'rgba(255, 255, 255, 0.2)'};
+  }
+`;
+
+const NewBoardButton = styled.button`
+  flex-shrink: 0;
+  padding: 0.6rem 1.2rem;
+  background: linear-gradient(135deg, #1f7a8c, #295f72);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, #17606f, #1f4f5b);
+  }
+`;
+
+const CardGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+  margin: 0 auto;
+  padding: 1rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    padding: 1rem 0;
+  }
+`;
+
+const ActivityCard = styled.div`
+  background: #2C1E33;
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 200px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
   }
 
-  @media (max-width: 600px) {
-    /* 🔹 Smaller buttons for mobile */
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+  .content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
   }
 
-  @media (max-width: 400px) {
-    /* 🔹 Even smaller buttons for very small screens */
-    padding: 0.4rem 0.8rem;
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .host-info {
     font-size: 0.85rem;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-top: 0.5rem;
+  }
+
+  .date-time {
+    font-size: 0.85rem;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-top: 0.5rem;
   }
 `;
 
@@ -453,51 +399,41 @@ function UserActivities() {
             </HelpOverlay>
           )}
           <PendingInvites />
-          <ButtonContainer>
+          <FilterRow>
             <FilterButton
               $active={filterType === "upcoming"}
               onClick={() => setFilterType("upcoming")}
             >
               Upcoming Boards
             </FilterButton>
+
             <FilterButton
               $active={filterType === "past"}
               onClick={() => setFilterType("past")}
             >
               Past Boards
             </FilterButton>
-          </ButtonContainer>
+
+            <NewBoardButton onClick={() => setShowActivities(true)}>
+              + New Board
+            </NewBoardButton>
+          </FilterRow>
 
           {filteredActivities.length > 0 ? (
             <CardGrid>
-              {filteredActivities.map((activity) => (
+              {filteredActivities.map(activity => (
                 <ActivityCard
                   key={activity.id}
                   onClick={() => handleActivityClick(activity)}
-                  $emoji={activity.emoji}
                 >
                   <div className="content">
                     <h3>{activity.activity_name}</h3>
                     <div className="host-info">
-                      {activity.user ? (
-                        <>
-                          <img className="host-avatar" src={activity.user.avatar || Woman} alt={activity.user.name || "Unknown User"} />
-                          <span>{activity.user.name}</span>
-                        </>
-                      ) : (
-                        <span>Host: Unknown</span>
-                      )}
+                      <span>{activity.user?.name || "Host: Unknown"}</span>
                     </div>
                     <div className="date-time">
-                      {activity.date_day ? (
-                        <span> 📆 {activity.date_day}</span>
-                      ) : (
-                        <span> 📆 Date: TBD</span>
-                      )}
-                      {activity.date_time ? (
-                        <span> ⏰ {extractHoursAndMinutes(activity.date_time)}</span>) : (
-                        <span> ⏰ Time: TBD</span>
-                      )}
+                      {activity.date_day ? `📆 ${activity.date_day}` : "📆 TBD"}{" "}
+                      {activity.date_time ? `⏰ ${extractHoursAndMinutes(activity.date_time)}` : "⏰ TBD"}
                     </div>
                   </div>
                 </ActivityCard>
