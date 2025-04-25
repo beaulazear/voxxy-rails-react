@@ -102,21 +102,25 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
   );
 }
 
-const CommunityContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-right: -2rem;
-  margin-left: -2rem;
-`;
+ const CommunityContainer = styled.div`
+   display: flex;
+   flex-direction: column;
+   padding: 0 1rem;           /* give it the same horizontal padding as the rest */
+   max-width: 1200px;
+   margin: 0 auto;            /* center within the parent */
+   box-sizing: border-box;
+   background-color: #201925; /* match your dashboard bg */
+ `;
 
 const AvatarScrollContainer = styled.div`
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  max-width: 100vw;
-  white-space: nowrap;
-  scrollbar-width: thin;
-  scroll-snap-type: x mandatory;
+   width: 100%;
+   box-sizing: border-box;
+   overflow-x: auto;
+   overflow-y: hidden;
+   padding: 0.5rem 0;
+   white-space: nowrap;
+   scrollbar-width: thin;
+   scroll-snap-type: x mandatory;
 
   &::-webkit-scrollbar {
     height: 5px;
