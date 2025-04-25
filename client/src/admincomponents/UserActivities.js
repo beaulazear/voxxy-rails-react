@@ -4,8 +4,6 @@ import { UserContext } from '../context/user';
 import ActivityDetailsPage from './ActivityDetailsPage';
 import PendingInvites from './PendingInvites';
 import TripDashboard from './TripDashboard.js';
-import VoxxyFooter from '../components/VoxxyFooter.js';
-import Profile from './Profile.js';
 import Woman from '../assets/Woman.jpg'
 import YourCommunity from './YourCommunity.js';
 import NoBoardsDisplay from './NoBoardsDisplay.js';
@@ -49,7 +47,7 @@ const HeroTitle = styled.h2`
   font-size: clamp(1.8rem, 4vw, 2.5rem);
   font-weight: bold;
   color: #fff;
-  margin: 0;
+  margin: 0 auto;
 `;
 
 const HeroSubtitle = styled.p`
@@ -154,6 +152,10 @@ const DashboardContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   animation: ${fadeIn} 0.8s ease-in-out;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 `;
 
 const CardGrid = styled.div`
@@ -351,7 +353,6 @@ function UserActivities() {
   const { user } = useContext(UserContext);
   const [selectedActivityId, setSelectedActivityId] = useState(null);
   const [showActivities, setShowActivities] = useState(false);
-  const [showProfile, setShowProfile] = useState(false)
   const [filterType, setFilterType] = useState("upcoming");
   const [helpVisible, setHelpVisible] = useState(false);
 
@@ -364,20 +365,7 @@ function UserActivities() {
   const handleBack = () => {
     setSelectedActivityId(null);
     setShowActivities(false)
-    setShowProfile(false)
   };
-
-  const handleShowActivities = () => {
-    setShowProfile(false)
-    setSelectedActivityId(null);
-    setShowActivities(true)
-  }
-
-  const handleShowProfile = () => {
-    setSelectedActivityId(null);
-    setShowActivities(false)
-    setShowProfile(true)
-  }
 
   const toggleHelp = () => setHelpVisible(v => !v);
 
@@ -405,7 +393,6 @@ function UserActivities() {
     return (
       <>
         <ActivityDetailsPage activityId={selectedActivityId} onBack={handleBack} />;
-        <VoxxyFooter handleBack={handleBack} handleShowProfile={handleShowProfile} handleShowActivities={handleShowActivities} />
       </>
     )
   }
@@ -414,19 +401,10 @@ function UserActivities() {
     return (
       <>
         <TripDashboard setShowActivities={setShowActivities} setSelectedActivityId={setSelectedActivityId} />;
-        <VoxxyFooter handleBack={handleBack} handleShowProfile={handleShowProfile} handleShowActivities={handleShowActivities} />
       </>
     )
   }
 
-  if (showProfile) {
-    return (
-      <>
-        <Profile />
-        <VoxxyFooter handleBack={handleBack} handleShowProfile={handleShowProfile} handleShowActivities={handleShowActivities} />
-      </>
-    )
-  }
 
   return (
     <>
@@ -529,7 +507,6 @@ function UserActivities() {
           <YourCommunity />
         </DashboardContainer>
       </Padding>
-      <VoxxyFooter handleBack={handleBack} handleShowProfile={handleShowProfile} handleShowActivities={handleShowActivities} />
     </>
   );
 }

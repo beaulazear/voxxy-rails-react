@@ -195,7 +195,6 @@ export default function Navbar() {
               </LogoLink>
             </div>
 
-            {/* Desktop Navigation */}
             <DesktopNav>
               {isAdmin && (
                 <NavLinkItem to="/voxxyad">Admin</NavLinkItem>
@@ -204,6 +203,7 @@ export default function Navbar() {
                 <>
                   <NavLinkItem to="/dashboard">Dashboard</NavLinkItem>
                   <NavLinkItem to="/faq">Help Center</NavLinkItem>
+                  <NavLinkItem to="/profile">Profile</NavLinkItem>
                   <SolidButton onClick={handleLogout} style={{ marginLeft: '16px' }}>
                     Log Out
                   </SolidButton>
@@ -222,7 +222,6 @@ export default function Navbar() {
               )}
             </DesktopNav>
 
-            {/* Mobile menu button */}
             <MobileMenuButton onClick={() => setShowMobileNav(true)}>
               <Menu size={24} />
             </MobileMenuButton>
@@ -230,7 +229,6 @@ export default function Navbar() {
         </NavContainer>
       </StyledNav>
 
-      {/* Mobile Menu Overlay */}
       {showMobileNav && (
         <MobileMenuOverlay>
           <MobileMenuCloseButton onClick={() => setShowMobileNav(false)}>
@@ -248,6 +246,9 @@ export default function Navbar() {
               </NavLinkItem>
               <NavLinkItem to="/faq" onClick={() => setShowMobileNav(false)}>
                 Help Center
+              </NavLinkItem>
+              <NavLinkItem to="/profile" onClick={() => setShowMobileNav(false)}>
+                Profile
               </NavLinkItem>
               <NavLinkItem to="/logout" onClick={handleLogout}>
                 Log Out
