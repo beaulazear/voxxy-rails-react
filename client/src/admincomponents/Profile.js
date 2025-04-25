@@ -28,7 +28,7 @@ const Container = styled.div`
   animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
   padding-top: 100px;
   padding-bottom: 50px;
-  background-color: #201925; /* matches your Padding bg */
+  background-color: #201925;
 `;
 
 const ProfileContainer = styled.div`

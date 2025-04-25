@@ -9,6 +9,7 @@ import Profile from './Profile.js';
 import Woman from '../assets/Woman.jpg'
 import YourCommunity from './YourCommunity.js';
 import NoBoardsDisplay from './NoBoardsDisplay.js';
+import { HelpCircle, X } from 'lucide-react';
 
 const fadeIn = keyframes`
   from {
@@ -24,16 +25,23 @@ const fadeIn = keyframes`
 const HeroContainer = styled.div`
   width: 100%;
   display: flex;
-  flex-direction: column;
   align-items: flex-start;
+  justify-content: space-between;
   padding: 2rem 1rem;
-  background-color: #201925; /* matches your Padding bg */
+  background-color: #201925;
+  position: relative;
   text-align: left;
 
   @media (max-width: 768px) {
     padding: .5rem;
-    justify-content: center;
+    flex-direction: column;
+    align-items: flex-start;
   }
+`;
+
+const TextContainer = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
 
 const HeroTitle = styled.h2`
@@ -49,6 +57,93 @@ const HeroSubtitle = styled.p`
   font-size: clamp(1rem, 2.5vw, 1.25rem);
   color: #fff;
   margin: 0.5rem 0 0;
+`;
+
+const HelpIcon = styled.div`
+  position: absolute;
+  top: 1.5rem;      /* tweak this to vertically align with your title */
+  right: 1rem;      /* distance from the right edge */
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #fff;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
+const HelpOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+`;
+
+const HelpPopup = styled.div`
+  position: fixed;
+  top: 5rem;
+  right: 1rem;
+  background: #fff;
+  background-color: #2C1E33;
+  padding: 1rem;
+  width: 300px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px #fff;
+  z-index: 1001;
+
+  @media (max-width: 600px) {
+    right: 0.5rem;
+    width: 260px;
+  }
+`;
+
+const PopupHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  color: #fff;
+`;
+
+const PopupTitle = styled.h4`
+  margin: 0;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+`;
+
+const CloseButton = styled.button`
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #fff;
+`;
+
+const PopupList = styled.ol`
+  margin: 0;
+  padding-left: 1.2rem;
+  text-align: left;
+  color: #fff;
+
+  li {
+    margin-bottom: 0.75rem;
+
+    strong {
+      display: block;
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.3;
+    }
+  }
 `;
 
 const DashboardContainer = styled.div`
@@ -257,7 +352,8 @@ function UserActivities() {
   const [selectedActivityId, setSelectedActivityId] = useState(null);
   const [showActivities, setShowActivities] = useState(false);
   const [showProfile, setShowProfile] = useState(false)
-  const [filterType, setFilterType] = useState("upcoming"); // 🔹 Sorting state
+  const [filterType, setFilterType] = useState("upcoming");
+  const [helpVisible, setHelpVisible] = useState(false);
 
   const topRef = useRef(null)
 
@@ -282,6 +378,8 @@ function UserActivities() {
     setShowActivities(false)
     setShowProfile(true)
   }
+
+  const toggleHelp = () => setHelpVisible(v => !v);
 
   function extractHoursAndMinutes(isoString) {
     if (!isoString) return "Time: TBD";
@@ -335,9 +433,45 @@ function UserActivities() {
       <Padding>
         <DashboardContainer ref={topRef}>
           <HeroContainer>
-            <HeroTitle>Welcome back, {user.name}! 👋</HeroTitle>
-            <HeroSubtitle>What are you planning today?</HeroSubtitle>
+            <TextContainer>
+              <HeroTitle>Welcome back, {user.name}! 👋</HeroTitle>
+              <HeroSubtitle>What are you planning today?</HeroSubtitle>
+            </TextContainer>
+            <HelpIcon onClick={toggleHelp}>
+              <HelpCircle size={24} />
+            </HelpIcon>
           </HeroContainer>
+
+          {helpVisible && (
+            <HelpOverlay onClick={toggleHelp}>
+              <HelpPopup onClick={e => e.stopPropagation()}>
+                <PopupHeader>
+                  <PopupTitle>How to use this page</PopupTitle>
+                  <CloseButton onClick={toggleHelp}>
+                    <X size={16} />
+                  </CloseButton>
+                </PopupHeader>
+                <PopupList>
+                  <li>
+                    <strong>Add People to the Board</strong>
+                    <p>Click on a board and use the 'Add Guest' button to invite others to collaborate on your plans.</p>
+                  </li>
+                  <li>
+                    <strong>Take the Preference Quiz</strong>
+                    <p>Click 'Take Quiz' in any board to help us personalize recommendations based on everyone's preferences.</p>
+                  </li>
+                  <li>
+                    <strong>View Itinerary</strong>
+                    <p>Open a board and check the itinerary section to see all planned activities and details.</p>
+                  </li>
+                  <li>
+                    <strong>Manage Tasks</strong>
+                    <p>Use the task list in each board to track action items and assign responsibilities.</p>
+                  </li>
+                </PopupList>
+              </HelpPopup>
+            </HelpOverlay>
+          )}
           <PendingInvites />
           <ButtonContainer>
             <FilterButton
