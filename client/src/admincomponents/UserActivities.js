@@ -21,8 +21,6 @@ const fadeIn = keyframes`
 `;
 
 const HeroContainer = styled.div`
-  width: 100%;
-  box-sizing: border-box; 
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -41,7 +39,7 @@ const HeroContainer = styled.div`
 const TextContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding-right: 40px;
+  padding-right: 50px;
 `;
 
 const HeroTitle = styled.h2`
@@ -56,7 +54,7 @@ const HeroSubtitle = styled.p`
   font-family: 'Inter', sans-serif;
   font-size: clamp(1rem, 2.5vw, 1.25rem);
   color: #fff;
-  margin: 0.5rem 0 0;
+  margin: 0 auto;
 `;
 
 const HelpIcon = styled.div`
