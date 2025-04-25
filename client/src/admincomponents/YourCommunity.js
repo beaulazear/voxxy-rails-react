@@ -105,7 +105,6 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
  const CommunityContainer = styled.div`
    display: flex;
    flex-direction: column;
-   padding: 0 1rem;           /* give it the same horizontal padding as the rest */
    max-width: 1200px;
    margin: 0 auto;            /* center within the parent */
    box-sizing: border-box;
@@ -115,7 +114,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
 const AvatarScrollContainer = styled.div`
    width: 100%;
    box-sizing: border-box;
-   overflow-x: auto;
+   overflow-x: hidden;
    overflow-y: hidden;
    padding: 0.5rem 0;
    white-space: nowrap;
