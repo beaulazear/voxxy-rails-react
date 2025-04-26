@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { UserContext } from "../context/user";
 import Woman from "../assets/Woman.jpg"; // Fallback avatar
 import NoCommunityMembers from "./NoCommunityMembers";
-import Friends from "../assets/Friends.svg";
 
 export default function YourCommunity({ showInvitePopup, onSelectUser }) {
   const { user } = useContext(UserContext);
@@ -11,7 +10,6 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
 
   if (!user) return null;
 
-  // Consolidate participants and hosts into a unique list
   const allUsersMap = new Map();
   user.activities?.forEach(activity => {
     activity.participants?.forEach(participant => {
@@ -86,12 +84,10 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
           </ModalContent>
         </ModalOverlay>
       )}
-      <Image src={Friends} alt="People connecting and making friends" />
     </CommunityContainer>
   );
 }
 
-// Styled components
 const CommunityContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -197,13 +193,4 @@ const CloseButton = styled.button`
   &:hover {
     background: rgba(255, 255, 255, 0.8);
   }
-`;
-
-const Image = styled.img`
-  display: block;
-  margin: 2rem auto 0;
-  width: 50%;
-  max-width: 400px;
-  height: auto;
-  border-radius: 12px;
 `;

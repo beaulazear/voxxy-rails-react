@@ -235,8 +235,9 @@ const NewBoardButton = styled.button`
 `;
 
 const CardGrid = styled.div`
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem;
   margin: 0 auto;
   padding: 1rem;
@@ -255,7 +256,9 @@ const ActivityCard = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 200px;
+  /* let it size to its content, but don’t shrink below 160px */
+  min-height: 160px;
+  height: auto;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
 
@@ -272,21 +275,24 @@ const ActivityCard = styled.div`
     height: 100%;
   }
 
+  .type-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    background: #7b298d;
+    padding: 4px 10px;
+    border-radius: 999px;
+    display: inline-block;
+    width: fit-content;
+  }
+
   h3 {
     margin: 0;
     font-size: 1.1rem;
     font-weight: 700;
   }
 
-  .host-info {
-    font-size: 0.85rem;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 4px 8px;
-    border-radius: 6px;
-    display: inline-block;
-    margin-top: 0.5rem;
-  }
-
+  .host-info,
   .date-time {
     font-size: 0.85rem;
     background: rgba(0, 0, 0, 0.5);
@@ -294,6 +300,10 @@ const ActivityCard = styled.div`
     border-radius: 6px;
     display: inline-block;
     margin-top: 0.5rem;
+  }
+
+  @media (max-width: 768px) {
+    min-height: 140px;
   }
 `;
 
@@ -427,13 +437,22 @@ function UserActivities() {
                   onClick={() => handleActivityClick(activity)}
                 >
                   <div className="content">
-                    <h3>{activity.activity_name}</h3>
-                    <div className="host-info">
-                      <span>{activity.user?.name || "Host: Unknown"}</span>
+
+                    <div className="type-label">
+                      {activity.activity_type} {activity.emoji}
                     </div>
+
+                    <h3>{activity.activity_name}</h3>
+
+                    <div className="host-info">
+                      <span>Host: {activity.user?.name || "Host: Unknown"}</span>
+                    </div>
+
                     <div className="date-time">
                       {activity.date_day ? `📆 ${activity.date_day}` : "📆 TBD"}{" "}
-                      {activity.date_time ? `⏰ ${extractHoursAndMinutes(activity.date_time)}` : "⏰ TBD"}
+                      {activity.date_time
+                        ? `⏰ ${extractHoursAndMinutes(activity.date_time)}`
+                        : "⏰ TBD"}
                     </div>
                   </div>
                 </ActivityCard>
