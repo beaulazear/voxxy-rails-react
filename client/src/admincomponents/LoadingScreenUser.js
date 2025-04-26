@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import voxxyLogo from '../assets/Voxxy_header.jpeg'; // adjust path as needed
+import voxxyLogo from '../assets/v_no_bg.svg'; // adjust path as needed
 
-// Animations
 const fadeInPulse = keyframes`
   0% { opacity: 0.7; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.03); }
@@ -14,7 +13,6 @@ const spin = keyframes`
   100% { transform: rotate(360deg); }
 `;
 
-// Styled Components
 const Backdrop = styled.div`
   position: fixed;
   top: 0;
@@ -48,7 +46,7 @@ const Title = styled.h2`
   font-size: 1.3rem;
   font-weight: 600;
   margin-bottom: 10px;
-  color: #6c63ff;
+  color: #cc31e8;
   font-family: 'Arial', sans-serif;
 `;
 

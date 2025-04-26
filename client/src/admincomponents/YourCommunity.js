@@ -122,7 +122,7 @@ const CommunityTitle = styled.h2`
 
 const UserList = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
   gap: 1rem;
   width: 100%;
 `;
@@ -133,15 +133,14 @@ const UserCard = styled.div`
   align-items: center;
   text-align: center;
   padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   cursor: pointer;
   transition: transform 0.2s;
   padding-bottom: 0;
+  width: fit-content;
 
   &:hover {
     transform: scale(1.03);
-    background: rgba(255, 255, 255, 0.1);
   }
 `;
 

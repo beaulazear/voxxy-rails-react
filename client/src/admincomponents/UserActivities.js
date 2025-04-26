@@ -256,8 +256,8 @@ const ActivityCard = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  /* let it size to its content, but don’t shrink below 160px */
   min-height: 160px;
+  max-width: 410px;
   height: auto;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;

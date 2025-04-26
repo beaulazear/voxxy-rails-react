@@ -229,7 +229,6 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
 
 export default HeaderSection;
 
-/* Styled Components */
 export const HeaderContainer = styled.div`
   background: #2A1E30;
   padding: 1rem;
@@ -322,7 +321,7 @@ export const EntryMessage = styled.p`
   border-radius: 10px;
   font-size: 1rem;
   color: #fff;
-  text-align: center;
+  text-align: left;
   margin-bottom: 1.5rem;
   line-height: 1.5;
   max-width: 450px;
@@ -394,7 +393,6 @@ export const ParticipantImage = styled.img`
   object-fit: cover;
 `;
 
-// Styled InviteCircle so it matches participant circles
 const InviteCircle = styled(ParticipantCircle)`
   background: #8e44ad;
   border: 2px dashed white;
@@ -439,7 +437,7 @@ const ParticipantPopupOverlay = styled.div`
 `;
 
 const ParticipantPopupContent = styled.div`
-  background: linear-gradient(135deg, #6a1b9a, #8e44ad);
+  background: #201925;
   padding: 2rem;
   border-radius: 18px;
   max-width: 420px;

@@ -50,7 +50,7 @@ export const StyledButton = styled.button`
   transition: background 0.3s ease;
   color: white;
   background: ${(props) =>
-    props.$isDelete ? "red" : "linear-gradient(135deg, #6a1b9a, #8e44ad)"};
+    props.$isDelete ? "red" : "#cc31e8"};
 
   &:hover {
     background: ${(props) =>

@@ -203,13 +203,13 @@ const InlineDetails = styled.div`
   gap: 8px;
   font-weight: 500;
   font-size: 0.9rem;
-  color: #666;
+  color: #FFFFFF;
   align-items: center;
 `;
 
 // Adjust the card container to slightly reduce vertical padding
 const Card = styled.div`
-  background: #fff;
+  background: #2A1E30;
   border-radius: 12px;
   padding: 20px 15px 15px; /* reduced padding compared to before */
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
@@ -232,7 +232,7 @@ const Card = styled.div`
 
 // Reduce the padding and margin on the explanation container
 const ExplanationContainer = styled.div`
-  background: #f1f1f1;
+  background: #45314F;
   padding: 8px;
   border-left: 4px solid #a8a8a8;
   border-radius: 8px;
@@ -261,7 +261,7 @@ const Header = styled.div`
 const Title = styled.h3`
   font-size: 1.3rem;
   font-weight: bold;
-  color: #222;
+  color: #FFFFFF;
   margin-bottom: 4px;
   margin-left: 50px;
 `;
@@ -303,20 +303,20 @@ const Avatar = styled.img`
 
 const Description = styled.p`
   font-size: 0.95rem;
-  color: #444;
+  color: #FFFFFF;
   line-height: 1.4;
 `;
 
 const ExplanationTitle = styled.h4`
   margin: 0 0 6px;
   font-size: 1rem;
-  color: #444;
+  color: #FFFFFF;
 `;
 
 const ExplanationText = styled.p`
   margin: 0;
   font-size: 0.9rem;
-  color: #666;
+  color: #FFFFFF;
 `;
 
 const PhotosContainer = styled.div`
@@ -373,7 +373,7 @@ const ModalContainer = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #fff;
+  background: #2A1E30;
   border-radius: 16px;
   padding: 20px;
   z-index: 1001;
@@ -396,7 +396,7 @@ const ModalHeader = styled.div`
 const ModalTitle = styled.h3`
   margin: 0;
   font-size: 1.2rem;
-  color: #333;
+  color: #FFFFFF;
 `;
 
 const CloseButton = styled.button`
@@ -404,6 +404,7 @@ const CloseButton = styled.button`
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
+  color: #FFFFFF;
 `;
 
 const ModalContent = styled.div`
@@ -415,6 +416,7 @@ const ReviewItem = styled.div`
   display: flex;
   gap: 8px;
   margin-bottom: 8px;
+  color: #FFFFFF;
 `;
 
 const ReviewAuthorImage = styled.img`
@@ -427,6 +429,7 @@ const ReviewAuthorImage = styled.img`
 const ReviewTextContainer = styled.div`
   display: flex;
   flex-direction: column;
+  text-align: left;
 `;
 
 const ReviewAuthor = styled.span`
@@ -437,5 +440,5 @@ const ReviewAuthor = styled.span`
 const ReviewText = styled.p`
   margin: 0;
   font-size: 0.85rem;
-  color: #555;
+  color: #FFFFFF;
 `;

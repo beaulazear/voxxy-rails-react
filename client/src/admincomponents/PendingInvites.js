@@ -1,89 +1,108 @@
 import React, { useContext } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { UserContext } from "../context/user";
-import StayingHome from "../assets/StayingHome.png"; // Your uploaded image
+import Friends from "../assets/Friends.svg"; // Your uploaded image
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
 
 const InviteContainer = styled.div`
-  display: flex;
-  flex-direction: column;
+  animation: ${fadeIn} 0.8s ease-out;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1rem;
 `;
 
 const InviteGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem;
-  justify-content: start;
-  margin-top: 1rem;
 
   @media (max-width: 768px) {
-    grid-template-columns: repeat(2, minmax(180px, 1fr));
-  }
-
-  @media (max-width: 480px) {
     grid-template-columns: 1fr;
   }
 `;
 
 const InviteCard = styled.div`
-  background: #fff;
+  background: #2C1E33;
+  color: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  padding: 1.2rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
-  text-align: left;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  justify-content: space-between;
+  transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
+  min-width: 310px;
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+    transform: translateY(-4px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
   }
 
-  .emoji {
-    font-size: 3rem;
-    margin-bottom: 0.75rem;
+  .content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .type-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    background: #7b298d;
+    padding: 4px 10px;
+    border-radius: 999px;
+    display: inline-block;
+    width: fit-content;
   }
 
   h3 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 0.3rem;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
   }
 
-  p {
-    font-size: 0.95rem;
-    color: #555;
-    margin-bottom: 0.4rem;
+  .location,
+  .host-info {
+    font-size: 0.85rem;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-top: 0.5rem;
   }
-`;
 
-const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
+  .button-group {
+    padding: 0 1rem 1rem;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+  }
 `;
 
 const Button = styled.button`
-  padding: 0.6rem 1.2rem;
-  font-size: 1rem;
+  flex: 1;
+  padding: 0.6rem 1rem;
+  font-size: 0.95rem;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  transition: all 0.2s ease-in-out;
-  background: ${(props) => (props.$decline ? "#ff4d4d" : "#6a1b9a")};
-  color: white;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  background: ${(props) =>
+        props.$decline
+            ? "linear-gradient(135deg, #e74c3c, #c0392b)"
+            : "linear-gradient(135deg, #8e44ad, #6a1b9a)"};
+  color: #fff;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 
   &:hover {
-    background: ${(props) => (props.$decline ? "#d93636" : "#8e44ad")};
-    transform: scale(1.05);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
   }
 `;
 
@@ -98,6 +117,7 @@ const NoBoardsContainer = styled.div`
   padding-top: 0rem;
   text-align: left;
   padding-bottom: 25px;
+  animation: ${fadeIn} 0.8s ease-out;
 
   @media (max-width: 1024px) {
     gap: 1rem;
@@ -143,6 +163,8 @@ const Message = styled.p`
   @media (max-width: 768px) {
     text-align: center;
     font-size: 1rem;
+    padding-right: 3rem;
+    padding-left: 3rem;
   }
 `;
 
@@ -224,28 +246,43 @@ const PendingInvites = () => {
         }
     };
 
+    function extractHoursAndMinutes(isoString) {
+        if (!isoString) return "Time: TBD";
+        return isoString.slice(11, 16);
+    }
+
     return (
         <InviteContainer>
             {pendingInvites.length > 0 ? (
                 <InviteGrid>
                     {pendingInvites.map((invite) => (
-                        <InviteCard key={invite.id}>
-                            <div className="emoji">{invite.activity.emoji || "📅"}</div>
-                            <h3>{invite.activity.activity_name}</h3>
-                            <p>📍 {invite.activity.activity_location}</p>
-                            <p>👤 Host: {invite.activity.user.name}</p>
-                            <ButtonContainer>
+                        <InviteCard key={invite.id} onClick={() => { }}>
+                            <div className="content">
+                                <div className="type-label">
+                                    {invite.activity.activity_type} {invite.activity.emoji}
+                                </div>
+                                <h3>{invite.activity.activity_name}</h3>
+                                <div className="location">
+
+                                    {invite.activity.date_day ? `📆 ${invite.activity.date_day}` : "📆 TBD"}{" "}
+                                    {invite.activity.date_time
+                                        ? `⏰ ${extractHoursAndMinutes(invite.activity.date_time)}`
+                                        : "⏰ TBD"}
+                                </div>
+                                <div className="host-info">👤 Host: {invite.activity.user.name} 📍 {invite.activity.activity_location}</div>
+                            </div>
+                            <div className="button-group">
                                 <Button onClick={() => handleAccept(invite)}>Accept</Button>
                                 <Button $decline onClick={() => handleDecline(invite)}>Decline</Button>
-                            </ButtonContainer>
+                            </div>
                         </InviteCard>
                     ))}
                 </InviteGrid>
             ) : (
                 <NoBoardsContainer>
-                    <Image src={StayingHome} alt="Friends enjoying a meal" />
+                    <Image src={Friends} alt="No Invites" />
                     <Message>
-                        No boards! Don’t wait for your friends to invite you—be the one to start the next activity! 🎉
+                        No invites! Don’t wait for your friends to invite you—be the one to start the next activity! 🎉
                     </Message>
                 </NoBoardsContainer>
             )}

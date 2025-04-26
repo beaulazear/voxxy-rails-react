@@ -1,6 +1,11 @@
 import React from "react";
-import styled from "styled-components";
-import Friends from "../assets/FriendLunch.svg"; // Your uploaded image
+import styled, { keyframes } from "styled-components";
+import Friends from "../assets/FriendLunch.svg";
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
 
 const NoBoardsContainer = styled.div`
   display: flex;
@@ -13,6 +18,7 @@ const NoBoardsContainer = styled.div`
   padding-top: 0rem;
   text-align: left;
   padding-bottom: 25px;
+  animation: ${fadeIn} 0.8s ease-out;
 
   @media (max-width: 1024px) {
     gap: 1rem;
@@ -58,6 +64,8 @@ const Message = styled.p`
   @media (max-width: 768px) {
     text-align: center;
     font-size: 1rem;
+    padding-right: 3rem;
+    padding-left: 3rem;
   }
 `;
 

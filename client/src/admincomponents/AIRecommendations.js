@@ -310,7 +310,7 @@ const AIRecommendations = ({
 export default AIRecommendations;
 
 const RecommendationItem = styled.div`
-  background: #fff;
+  background: #2A1E30;
   border-radius: 16px;
   padding: 16px; /* slightly reduced padding */
   width: 350px;
@@ -332,13 +332,13 @@ const InlineDetails = styled.div`
   gap: 8px;
   font-weight: 500;
   font-size: 0.9rem;
-  color: #666;
+  color: #FFFFFF;
   align-items: left;
   text-align: left;
 `;
 
 const ExplanationContainer = styled.div`
-  background: #f1f1f1;
+  background: #45314F;
   padding: 8px;
   border-left: 4px solid #a8a8a8;
   border-radius: 8px;
@@ -346,7 +346,7 @@ const ExplanationContainer = styled.div`
 `;
 
 const Title = styled.h2`
-  color: white;
+  color: #FFFFFF;
   text-align: center;
   margin-bottom: 15px;
 `;
@@ -371,19 +371,20 @@ const RecommendationList = styled.div`
   gap: 20px;
   padding: 10px;
   justify-content: center;
+  margin-bottom: 1rem;
 `;
 
 const RestaurantName = styled.h2`
   font-size: 1.6rem;
   font-weight: bold;
-  color: #333;
+  color: #FFFFFF;
   margin-bottom: 6px;
   padding-right: 28px;
 `;
 
 const Description = styled.p`
   font-size: 1rem;
-  color: #555;
+  color: #FFFFFF;
   line-height: 1.6;
   text-align: left;
 `;
@@ -391,13 +392,13 @@ const Description = styled.p`
 const ExplanationTitle = styled.h4`
   margin: 0 0 6px;
   font-size: 1rem;
-  color: #444;
+  color: #FFFFFF;
 `;
 
 const ExplanationText = styled.p`
   margin: 0;
   font-size: 0.9rem;
-  color: #666;
+  color: #FFFFFF;
 `;
 
 const PhotosContainer = styled.div`
@@ -457,7 +458,7 @@ const ModalContainer = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #fff;
+  background: #2A1E30;
   border-radius: 16px;
   padding: 20px;
   z-index: 1001;
@@ -475,12 +476,13 @@ const ModalHeader = styled.div`
   border-bottom: 1px solid #ddd;
   padding-bottom: 10px;
   margin-bottom: 10px;
+  color: #fff;
 `;
 
 const ModalTitle = styled.h3`
   margin: 0;
   font-size: 1.2rem;
-  color: #333;
+  color: #fff;
 `;
 
 const CloseButton = styled.button`
@@ -488,17 +490,19 @@ const CloseButton = styled.button`
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
+  color: #fff;
 `;
 
 const ModalContent = styled.div`
   max-height: 60vh;
   overflow-y: auto;
-`;
+  `;
 
 const ReviewItem = styled.div`
   display: flex;
   gap: 8px;
   margin-bottom: 8px;
+    color: #fff;
 `;
 
 const ReviewAuthorImage = styled.img`
@@ -511,6 +515,8 @@ const ReviewAuthorImage = styled.img`
 const ReviewTextContainer = styled.div`
   display: flex;
   flex-direction: column;
+  color: #fff;
+  text-align: left;
 `;
 
 const ReviewAuthor = styled.span`
@@ -521,5 +527,5 @@ const ReviewAuthor = styled.span`
 const ReviewText = styled.p`
   margin: 0;
   font-size: 0.85rem;
-  color: #555;
+  color: #fff;
 `;
