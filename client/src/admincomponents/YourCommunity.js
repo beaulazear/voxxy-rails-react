@@ -107,7 +107,7 @@ const CommunityTitle = styled.h2`
 
 const UserList = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
   gap: 1rem;
   width: 100%;
 `;
