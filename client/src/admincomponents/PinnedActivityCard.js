@@ -196,7 +196,6 @@ const PinnedActivityCard = ({ pinned, setPinnedActivities, isOwner }) => {
 
 export default PinnedActivityCard;
 
-// Create an inline container for the details
 const InlineDetails = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -207,11 +206,10 @@ const InlineDetails = styled.div`
   align-items: center;
 `;
 
-// Adjust the card container to slightly reduce vertical padding
 const Card = styled.div`
   background: #2A1E30;
   border-radius: 12px;
-  padding: 20px 15px 15px; /* reduced padding compared to before */
+  padding: 20px 15px 15px;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;

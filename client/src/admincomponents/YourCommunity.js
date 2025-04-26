@@ -51,13 +51,11 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
     return <NoCommunityMembers />;
   }
 
-  // Sort alphabetically by full name
   const sortedUsers = communityUsers.sort((a, b) =>
     a.user.name.localeCompare(b.user.name)
   );
 
-  // Determine which users to display
-  const displayedUsers = showAll ? sortedUsers : sortedUsers.slice(0, 4);
+  const displayedUsers = showAll ? sortedUsers : sortedUsers.slice(0, 6);
 
   return (
     <CommunityContainer>
@@ -133,6 +131,7 @@ const UserCard = styled.div`
   align-items: center;
   text-align: center;
   padding: 0.75rem;
+  margin: 0 auto;
   border-radius: 12px;
   cursor: pointer;
   transition: transform 0.2s;

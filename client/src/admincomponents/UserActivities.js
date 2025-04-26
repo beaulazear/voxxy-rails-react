@@ -188,6 +188,8 @@ const Padding = styled.div`
 
 const FilterRow = styled.div`
   display: flex;
+  margin-left: -1rem;
+  margin-right: -1rem;
   gap: 1rem;
   padding: 1rem;
   overflow-x: auto;
