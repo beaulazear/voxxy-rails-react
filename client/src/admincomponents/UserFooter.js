@@ -11,7 +11,6 @@ const FooterContainer = styled.footer`
   font-size: 0.85rem;
   border-top: 1px solid #e0e0e0;
 
-  position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;

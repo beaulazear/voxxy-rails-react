@@ -1,20 +1,14 @@
 import React, { useContext } from "react";
 import styled from "styled-components";
 import { UserContext } from "../context/user";
+import StayingHome from "../assets/StayingHome.png"; // Your uploaded image
 
 const InviteContainer = styled.div`
   display: flex;
   flex-direction: column;
   max-width: 1200px;
-  margin: 0;
-`;
-
-const SectionTitle = styled.p`
-  font-size: clamp(1.5rem, 2.5vw, 2rem);
-  margin: 0;
-  text-align: left;
-  font-weight: 600;
-  color: #333;
+  margin: 0 auto;
+  padding: 1rem;
 `;
 
 const InviteGrid = styled.div`
@@ -43,7 +37,6 @@ const InviteCard = styled.div`
   text-align: left;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   cursor: pointer;
-  position: relative;
 
   &:hover {
     transform: translateY(-5px);
@@ -94,16 +87,70 @@ const Button = styled.button`
   }
 `;
 
+const NoBoardsContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1100px;
+  margin: auto 0;
+  padding-top: 0rem;
+  text-align: left;
+  padding-bottom: 25px;
+
+  @media (max-width: 1024px) {
+    gap: 1rem;
+    max-width: 900px;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+`;
+
+const Image = styled.img`
+  width: 50%;
+  max-width: 450px;
+  height: auto;
+  border-radius: 12px;
+  flex-shrink: 0;
+
+  @media (max-width: 1024px) {
+    width: 55%;
+    max-width: 380px;
+  }
+
+  @media (max-width: 768px) {
+    width: 85%;
+    max-width: 320px;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    max-width: 280px;
+  }
+`;
+
+const Message = styled.p`
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+
+  @media (max-width: 768px) {
+    text-align: center;
+    font-size: 1rem;
+  }
+`;
+
 const PendingInvites = () => {
     const { user, setUser } = useContext(UserContext);
-
-    const pendingInvites = user?.participant_activities?.filter(invite => !invite.accepted) || [];
-
-    if (pendingInvites.length === 0) {
-        return null;
-    }
-
-    console.log(user)
+    const pendingInvites = user?.participant_activities?.filter(
+        (invite) => !invite.accepted
+    ) || [];
 
     const handleAccept = async (invite) => {
         try {
@@ -124,12 +171,12 @@ const PendingInvites = () => {
 
             const updatedActivity = await response.json();
 
-            console.log(updatedActivity)
-
             setUser((prevUser) => ({
                 ...prevUser,
                 participant_activities: prevUser.participant_activities.map((p) =>
-                    p.activity.id === updatedActivity.id ? { ...p, accepted: true, activity: updatedActivity } : p
+                    p.activity.id === updatedActivity.id
+                        ? { ...p, accepted: true, activity: updatedActivity }
+                        : p
                 ),
                 activities: prevUser.activities.map((activity) =>
                     activity.id === updatedActivity.id
@@ -164,13 +211,11 @@ const PendingInvites = () => {
             );
 
             if (response.ok) {
-                alert("Invite declined.");
                 setUser((prevUser) => ({
                     ...prevUser,
-                    participant_activities: prevUser.participant_activities.filter(
-                        (p) => p.activity.id !== invite.activity.id
-                    ),
+                    participant_activities: prevUser.participant_activities.filter((p) => p.activity.id !== invite.activity.id),
                 }));
+                alert("Invite declined.");
             } else {
                 alert("Failed to decline invite.");
             }
@@ -181,21 +226,29 @@ const PendingInvites = () => {
 
     return (
         <InviteContainer>
-            <SectionTitle>Pending Invites</SectionTitle>
-            <InviteGrid>
-                {pendingInvites.map((invite) => (
-                    <InviteCard key={invite.id}>
-                        <div className="emoji">{invite.activity.emoji || "📅"}</div>
-                        <h3>{invite.activity.activity_name}</h3>
-                        <p>📍 {invite.activity.activity_location}</p>
-                        <p>👤 Host: {invite.activity.user.name}</p>
-                        <ButtonContainer>
-                            <Button onClick={() => handleAccept(invite)}>Accept</Button>
-                            <Button $decline onClick={() => handleDecline(invite)}>Decline</Button>
-                        </ButtonContainer>
-                    </InviteCard>
-                ))}
-            </InviteGrid>
+            {pendingInvites.length > 0 ? (
+                <InviteGrid>
+                    {pendingInvites.map((invite) => (
+                        <InviteCard key={invite.id}>
+                            <div className="emoji">{invite.activity.emoji || "📅"}</div>
+                            <h3>{invite.activity.activity_name}</h3>
+                            <p>📍 {invite.activity.activity_location}</p>
+                            <p>👤 Host: {invite.activity.user.name}</p>
+                            <ButtonContainer>
+                                <Button onClick={() => handleAccept(invite)}>Accept</Button>
+                                <Button $decline onClick={() => handleDecline(invite)}>Decline</Button>
+                            </ButtonContainer>
+                        </InviteCard>
+                    ))}
+                </InviteGrid>
+            ) : (
+                <NoBoardsContainer>
+                    <Image src={StayingHome} alt="Friends enjoying a meal" />
+                    <Message>
+                        No boards! Don’t wait for your friends to invite you—be the one to start the next activity! 🎉
+                    </Message>
+                </NoBoardsContainer>
+            )}
         </InviteContainer>
     );
 };

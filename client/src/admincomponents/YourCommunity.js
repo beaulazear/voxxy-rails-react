@@ -1,12 +1,13 @@
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 import { UserContext } from "../context/user";
-import Woman from "../assets/Woman.jpg"; // Fallback avatar
+import Woman from "../assets/Woman.jpg";
 import NoCommunityMembers from "./NoCommunityMembers";
 
 export default function YourCommunity({ showInvitePopup, onSelectUser }) {
   const { user } = useContext(UserContext);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [showAll, setShowAll] = useState(false);
 
   if (!user) return null;
 
@@ -50,11 +51,19 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
     return <NoCommunityMembers />;
   }
 
+  // Sort alphabetically by full name
+  const sortedUsers = communityUsers.sort((a, b) =>
+    a.user.name.localeCompare(b.user.name)
+  );
+
+  // Determine which users to display
+  const displayedUsers = showAll ? sortedUsers : sortedUsers.slice(0, 4);
+
   return (
     <CommunityContainer>
       <CommunityTitle>Your Voxxy Crew 🎭</CommunityTitle>
       <UserList>
-        {communityUsers.map(({ user, activities }) => (
+        {displayedUsers.map(({ user, activities }) => (
           <UserCard
             key={user.id}
             onClick={() =>
@@ -68,6 +77,12 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
           </UserCard>
         ))}
       </UserList>
+
+      {sortedUsers.length > 4 && (
+        <ViewAllButton onClick={() => setShowAll(prev => !prev)}>
+          {showAll ? "Show Less" : "View All"}
+        </ViewAllButton>
+      )}
 
       {selectedUser && !showInvitePopup && (
         <ModalOverlay onClick={() => setSelectedUser(null)}>
@@ -107,7 +122,7 @@ const CommunityTitle = styled.h2`
 
 const UserList = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
   gap: 1rem;
   width: 100%;
 `;
@@ -144,6 +159,19 @@ const UserName = styled.p`
   color: white;
   margin-top: 0.5rem;
   white-space: nowrap;
+`;
+
+const ViewAllButton = styled.button`
+  margin-top: 1rem;
+  align-self: center;
+  background: none;
+  border: none;
+  color: #9d60f8;
+  cursor: pointer;
+  font-size: 1rem;
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const ModalOverlay = styled.div`

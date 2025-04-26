@@ -29,7 +29,7 @@ const Backdrop = styled.div`
 `;
 
 const Modal = styled.div`
-  background: white;
+  background: #2A1E30;
   padding: 30px 40px;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -49,12 +49,6 @@ const Title = styled.h2`
   font-weight: 600;
   margin-bottom: 10px;
   color: #6c63ff;
-  font-family: 'Arial', sans-serif;
-`;
-
-const SubText = styled.p`
-  font-size: 0.95rem;
-  color: #555;
   font-family: 'Arial', sans-serif;
 `;
 
@@ -82,8 +76,7 @@ function LoadingScreenUser({ onComplete, autoDismiss = true }) {
     <Backdrop>
       <Modal>
         <Logo src={voxxyLogo} alt="Voxxy logo" />
-        <Title>Finding Perfect Restaurant Matches</Title>
-        <SubText>We're analyzing your preferences to curate the best recommendations...</SubText>
+        <Title>Finding Your Perfect Restaurant Matches...</Title>
         <Spinner />
       </Modal>
     </Backdrop>

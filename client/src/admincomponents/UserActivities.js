@@ -334,18 +334,14 @@ function UserActivities() {
 
   const allActivities = [
     ...(user?.activities || []),
-    ...(user?.participant_activities?.filter(activity => activity.accepted).map(p => p.activity) || [])
+    ...(user?.participant_activities
+      ?.filter(activity => activity.accepted)
+      .map(p => p.activity) || [])
   ];
-
   const uniqueActivities = [...new Map(allActivities.map(a => [a.id, a])).values()];
-
   const filteredActivities = uniqueActivities
-    .filter(activity => (filterType === "upcoming" ? !activity.completed : activity.completed)) // ✅ Filtering Logic
-    .sort((a, b) => {
-      const dateA = a.date_day ? new Date(a.date_day).setHours(0, 0, 0, 0) : Infinity;
-      const dateB = b.date_day ? new Date(b.date_day).setHours(0, 0, 0, 0) : Infinity;
-      return dateA - dateB;
-    });
+    .filter(activity => (filterType === "upcoming" ? !activity.completed : activity.completed))
+    .sort((a, b) => new Date(a.date_day) - new Date(b.date_day));
 
   if (selectedActivityId) {
     return (
@@ -408,7 +404,6 @@ function UserActivities() {
               </HelpPopup>
             </HelpOverlay>
           )}
-          <PendingInvites />
           <FilterRow>
             <FilterButton
               $active={filterType === "upcoming"}
@@ -424,12 +419,21 @@ function UserActivities() {
               Past
             </FilterButton>
 
+            <FilterButton
+              $active={filterType === "invites"}
+              onClick={() => setFilterType("invites")}
+            >
+              Invites
+            </FilterButton>
+
             <NewBoardButton onClick={() => setShowActivities(true)}>
               + New
             </NewBoardButton>
           </FilterRow>
 
-          {filteredActivities.length > 0 ? (
+          {filterType === "invites" ? (
+            <PendingInvites />
+          ) : filteredActivities.length > 0 ? (
             <CardGrid>
               {filteredActivities.map(activity => (
                 <ActivityCard
