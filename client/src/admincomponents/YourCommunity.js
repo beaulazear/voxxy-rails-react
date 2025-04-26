@@ -64,7 +64,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
             }
           >
             <Avatar src={user.avatar || Woman} alt={user.name} />
-            <UserName>{user.name}</UserName>
+            <UserName>{user.name.split(' ')[0]}</UserName>
           </UserCard>
         ))}
       </UserList>
@@ -105,10 +105,9 @@ const CommunityTitle = styled.h2`
   margin-bottom: 1rem;
 `;
 
-// Responsive grid list instead of horizontal scroll
 const UserList = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
   gap: 1rem;
   width: 100%;
 `;
@@ -123,6 +122,7 @@ const UserCard = styled.div`
   border-radius: 12px;
   cursor: pointer;
   transition: transform 0.2s;
+  padding-bottom: 0;
 
   &:hover {
     transform: scale(1.03);
