@@ -148,7 +148,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
   }
 
   return (
-      <div ref={topRef}>
+      <div style={{backgroundColor: '#201925'}} ref={topRef}>
         <PageContainer>
           <ActivityHeader
             activity={currentActivity}

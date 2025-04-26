@@ -11,86 +11,75 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
 
   if (!user) return null;
 
-  const allUsers = new Map();
-
+  // Consolidate participants and hosts into a unique list
+  const allUsersMap = new Map();
   user.activities?.forEach(activity => {
     activity.participants?.forEach(participant => {
       if (participant.id !== user.id) {
-        allUsers.set(participant.id, {
-          user: participant,
-          activities: new Set([activity.activity_name])
-        });
-      }
-    });
-  });
-
-  user.participant_activities?.forEach(participant_activity => {
-    const activity = participant_activity.activity;
-    if (!activity) return;
-
-    if (activity.user?.id !== user.id) {
-      if (allUsers.has(activity.user.id)) {
-        allUsers.get(activity.user.id).activities.add(activity.activity_name);
-      } else {
-        allUsers.set(activity.user.id, {
-          user: activity.user,
-          activities: new Set([activity.activity_name])
-        });
-      }
-    }
-
-    activity.participants?.forEach(participant => {
-      if (participant.id !== user.id) {
-        if (allUsers.has(participant.id)) {
-          allUsers.get(participant.id).activities.add(activity.activity_name);
-        } else {
-          allUsers.set(participant.id, {
-            user: participant,
-            activities: new Set([activity.activity_name])
-          });
+        if (!allUsersMap.has(participant.id)) {
+          allUsersMap.set(participant.id, { user: participant, activities: new Set() });
         }
+        allUsersMap.get(participant.id).activities.add(activity.activity_name);
       }
     });
   });
+  user.participant_activities?.forEach(partActivity => {
+    const { activity } = partActivity;
+    if (activity && activity.user?.id !== user.id) {
+      const host = activity.user;
+      if (!allUsersMap.has(host.id)) {
+        allUsersMap.set(host.id, { user: host, activities: new Set() });
+      }
+      allUsersMap.get(host.id).activities.add(activity.activity_name);
 
-  let recentUsers = Array.from(allUsers.values()).map(entry => ({
-    user: entry.user,
-    activities: Array.from(entry.activities)
+      activity.participants?.forEach(participant => {
+        if (participant.id !== user.id) {
+          if (!allUsersMap.has(participant.id)) {
+            allUsersMap.set(participant.id, { user: participant, activities: new Set() });
+          }
+          allUsersMap.get(participant.id).activities.add(activity.activity_name);
+        }
+      });
+    }
+  });
+
+  const communityUsers = Array.from(allUsersMap.values()).map(({ user, activities }) => ({
+    user,
+    activities: Array.from(activities),
   }));
 
-  if (recentUsers.length === 0) {
+  if (communityUsers.length === 0) {
     return <NoCommunityMembers />;
   }
+
   return (
     <CommunityContainer>
       <CommunityTitle>Your Voxxy Crew 🎭</CommunityTitle>
-      <AvatarScrollContainer>
-        <AvatarGrid>
-          {recentUsers.map(({ user, activities }) => (
-            <UserCard
-              key={user.id}
-              onClick={() =>
-                showInvitePopup
-                  ? onSelectUser(user)
-                  : setSelectedUser({ user, activities })
-              }
-            >
-              <Avatar src={user.avatar || Woman} alt={user.name} />
-              <UserName>{user.name}</UserName>
-            </UserCard>
-          ))}
-        </AvatarGrid>
-      </AvatarScrollContainer>
+      <UserList>
+        {communityUsers.map(({ user, activities }) => (
+          <UserCard
+            key={user.id}
+            onClick={() =>
+              showInvitePopup
+                ? onSelectUser(user)
+                : setSelectedUser({ user, activities })
+            }
+          >
+            <Avatar src={user.avatar || Woman} alt={user.name} />
+            <UserName>{user.name}</UserName>
+          </UserCard>
+        ))}
+      </UserList>
 
       {selectedUser && !showInvitePopup && (
         <ModalOverlay onClick={() => setSelectedUser(null)}>
-          <ModalContent onClick={(e) => e.stopPropagation()}>
+          <ModalContent onClick={e => e.stopPropagation()}>
             <h2>{selectedUser.user.name}</h2>
             <h3>{selectedUser.user.email}</h3>
             <h4>Mutual Activities</h4>
             <ActivityList>
-              {selectedUser.activities.map((activity, index) => (
-                <li key={index}>{activity}</li>
+              {selectedUser.activities.map((act, idx) => (
+                <li key={idx}>{act}</li>
               ))}
             </ActivityList>
             <CloseButton onClick={() => setSelectedUser(null)}>Close</CloseButton>
@@ -102,42 +91,30 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
   );
 }
 
- const CommunityContainer = styled.div`
-   display: flex;
-   flex-direction: column;
-   max-width: 1200px;
-   margin: 0 auto;            /* center within the parent */
-   box-sizing: border-box;
-   background-color: #201925; /* match your dashboard bg */
- `;
-
-const AvatarScrollContainer = styled.div`
-   width: 100%;
-   box-sizing: border-box;
-   overflow-x: hidden;
-   overflow-y: hidden;
-   padding: 0.5rem 0;
-   white-space: nowrap;
-   scrollbar-width: thin;
-   scroll-snap-type: x mandatory;
-
-  &::-webkit-scrollbar {
-    height: 5px;
-    background: rgba(255, 255, 255, 0.3);
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #8e44ad;
-    border-radius: 5px;
-  }
+// Styled components
+const CommunityContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  background-color: #201925;
+  box-sizing: border-box;
 `;
 
-const AvatarGrid = styled.div`
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  gap: .7rem;
-  width: max-content;
+const CommunityTitle = styled.h2`
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 1rem;
+`;
+
+// Responsive grid list instead of horizontal scroll
+const UserList = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 1rem;
+  width: 100%;
 `;
 
 const UserCard = styled.div`
@@ -145,15 +122,15 @@ const UserCard = styled.div`
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 12px;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
-  min-width: 90px;
-  flex-shrink: 0;
-  scroll-snap-align: center;
   cursor: pointer;
+  transition: transform 0.2s;
 
   &:hover {
-    transform: scale(1.05);
+    transform: scale(1.03);
+    background: rgba(255, 255, 255, 0.1);
   }
 `;
 
@@ -166,10 +143,10 @@ const Avatar = styled.img`
 `;
 
 const UserName = styled.p`
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: white;
-  margin-top: 8px;
+  margin-top: 0.5rem;
   white-space: nowrap;
 `;
 
@@ -177,13 +154,13 @@ const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   backdrop-filter: blur(10px);
   background: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 1000;
 `;
 
@@ -191,33 +168,24 @@ const ModalContent = styled.div`
   background: linear-gradient(135deg, #6a1b9a, #8e44ad);
   padding: 2rem;
   border-radius: 18px;
-  max-width: 420px;
   width: 90%;
+  max-width: 400px;
   text-align: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   color: white;
-  
-  @media (max-width: 600px) {
-    margin: 1rem;
-  }
 `;
 
 const ActivityList = styled.ul`
   list-style: none;
-  padding: 0;
-  margin: 0;
-  text-align: center;
+  padding: 1rem;
+  margin: 1rem 0;
   background: rgba(255, 255, 255, 0.2);
   border-radius: 12px;
-  padding: 1rem;
-  overflow: hidden;
-  max-height: 300px;
+  max-height: 250px;
   overflow-y: auto;
 `;
 
 const CloseButton = styled.button`
-  margin-top: 1rem;
-  padding: 0.7rem 1.4rem;
+  padding: 0.75rem 1.5rem;
   background: white;
   color: #6a1b9a;
   border: none;
@@ -231,44 +199,11 @@ const CloseButton = styled.button`
   }
 `;
 
-const CommunityTitle = styled.p`
-  font-size: clamp(1.5rem, 2.5vw, 2rem);
-  font-weight: 600;
-  text-align: left;
-  padding: 1.5rem 2.5rem 1rem;
-  margin: 0;
-  max-width: 1200px;
-  color: #fff;
-
-  @media (max-width: 768px) {
-    padding: 0.5rem;
-    text-align: center;
-  }
-`;
-
 const Image = styled.img`
   display: block;
-  margin: 2rem auto;  /* Centers the image horizontally */
+  margin: 2rem auto 0;
   width: 50%;
-  max-width: 450px;
+  max-width: 400px;
   height: auto;
   border-radius: 12px;
-  flex-shrink: 0;
-  margin-top: -4vh;
-  margin-bottom: 0px;
-
-  @media (max-width: 1024px) {
-    width: 55%;
-    max-width: 380px;
-  }
-
-  @media (max-width: 768px) {
-    width: 70%;
-    max-width: 320px;
-  }
-
-  @media (max-width: 480px) {
-    width: 85%;
-    max-width: 280px;
-  }
 `;

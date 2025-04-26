@@ -404,18 +404,18 @@ function UserActivities() {
               $active={filterType === "upcoming"}
               onClick={() => setFilterType("upcoming")}
             >
-              Upcoming Boards
+              Upcoming
             </FilterButton>
 
             <FilterButton
               $active={filterType === "past"}
               onClick={() => setFilterType("past")}
             >
-              Past Boards
+              Past
             </FilterButton>
 
             <NewBoardButton onClick={() => setShowActivities(true)}>
-              + New Board
+              + New
             </NewBoardButton>
           </FilterRow>
 

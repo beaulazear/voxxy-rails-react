@@ -231,7 +231,7 @@ export default HeaderSection;
 
 /* Styled Components */
 export const HeaderContainer = styled.div`
-  background: white;
+  background: #2A1E30;
   padding: 1rem;
   border-radius: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
@@ -256,9 +256,10 @@ export const BackButton = styled.button`
   font-size: 1.5rem;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  color: #fff;
 
   &:hover {
-    color: #6a1b9a;
+    color: #fff;
     transform: scale(1.1);
   }
 `;
@@ -267,21 +268,21 @@ export const Title = styled.h1`
   font-size: clamp(1.5rem, 2.5vw, 2.2rem);
   font-weight: bold;
   text-align: center;
-  color: #4e0f63;
+  color: #fff;
   margin: 0 0 0.5rem 0;
 `;
 
 /* New styled components for streamlined details */
 export const HostName = styled.p`
   font-size: 1rem;
-  color: #555;
+  color: #fff;
   text-align: center;
   margin: 0.3rem 0;
 `;
 
 export const ActivityDetails = styled.div`
   font-size: 0.9rem;
-  color: #777;
+  color: #fff;
   text-align: center;
   margin-bottom: 1rem;
   display: flex;
@@ -317,11 +318,10 @@ export const DeleteIcon = styled(EditIcon)`
 `;
 
 export const EntryMessage = styled.p`
-  background: #f7f7f7;
   padding: 1rem;
   border-radius: 10px;
   font-size: 1rem;
-  color: #444;
+  color: #fff;
   text-align: center;
   margin-bottom: 1.5rem;
   line-height: 1.5;
@@ -340,7 +340,7 @@ export const ParticipantsSection = styled.div`
 export const ParticipantsTitle = styled.h3`
   font-size: 1.2rem;
   font-weight: bold;
-  color: #4e0f63;
+  color: #fff;
   margin-bottom: 0;
   text-align: center;
 `;
