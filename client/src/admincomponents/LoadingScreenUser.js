@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import voxxyLogo from '../assets/v_no_bg.svg'; // adjust path as needed
+import HEADER from '../assets/HEADER.svg'; // adjust path as needed
 
 const fadeInPulse = keyframes`
   0% { opacity: 0.7; transform: scale(1); }
@@ -73,7 +73,7 @@ function LoadingScreenUser({ onComplete, autoDismiss = true }) {
   return (
     <Backdrop>
       <Modal>
-        <Logo src={voxxyLogo} alt="Voxxy logo" />
+        <Logo src={HEADER} alt="Voxxy logo" />
         <Title>Finding Your Perfect Restaurant Matches...</Title>
         <Spinner />
       </Modal>

@@ -3,7 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Menu, ArrowLeft, X } from 'lucide-react';
 import { UserContext } from '../context/user';
-import colors from '../styles/Colors'; // ✅ using your palette
+import colors from '../styles/Colors';
+import HEADER from '../assets/HEADER.svg'; // Scalable Voxxy Header SVG
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -24,7 +25,7 @@ const StyledNav = styled.nav`
   z-index: 50;
   transition: background 0.2s ease;
   background-color: ${({ $scrolled }) =>
-    $scrolled ? `rgba(32, 25, 37, 0.95)` : `rgba(32, 25, 37, 0.8)`}; /* from colors.background */
+    $scrolled ? `rgba(32, 25, 37, 0.95)` : `rgba(32, 25, 37, 0.8)`};
 `;
 
 const NavContainer = styled.div`
@@ -46,16 +47,12 @@ const LogoLink = styled(Link)`
   text-decoration: none;
 `;
 
-const LogoText = styled.span`
-  font-size: 1.5rem;
-  font-weight: bold;
-  background: linear-gradient(
-    90deg,
-    #B931D6 0%,
-    #9051E1 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+const LogoImage = styled.img`
+  height: 36px;
+  width: auto;
+  @media (max-width: 480px) {
+    height: 30px;
+  }
 `;
 
 const DesktopNav = styled.div`
@@ -99,7 +96,7 @@ const OutlineButton = styled(Link)`
   font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
-  border: 1px solid ${colors.primarySolid}; /* or hoverHighlight if preferred */
+  border: 1px solid ${colors.primarySolid};
   border-radius: 4px;
   color: ${colors.primarySolid};
   transition: background-color 0.2s ease;
@@ -126,7 +123,7 @@ const MobileMenuOverlay = styled.div`
   right: 0;
   width: 80%;
   height: 100%;
-  background-color: rgba(32, 25, 37, 0.95); /* matches colors.background with alpha */
+  background-color: rgba(32, 25, 37, 0.95);
   backdrop-filter: blur(8px);
   z-index: 60;
   padding: 2rem;
@@ -191,7 +188,7 @@ export default function Navbar() {
                 </MobileMenuButton>
               ) : null}
               <LogoLink to="/">
-                <LogoText>Voxxy</LogoText>
+                <LogoImage src={HEADER} alt="Voxxy Logo" />
               </LogoLink>
             </div>
 
