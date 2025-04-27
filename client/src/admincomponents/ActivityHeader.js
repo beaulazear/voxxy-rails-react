@@ -446,6 +446,8 @@ const ParticipantPopupContent = styled.div`
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   color: white;
   animation: slideUp 0.3s ease-in-out;
+  max-height: 90vh;
+  overflow-y: auto;
 
   @media (max-width: 600px) {
     margin: 1rem;

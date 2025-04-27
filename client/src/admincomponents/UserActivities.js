@@ -152,6 +152,7 @@ const DashboardContainer = styled.div`
   gap: .5px;
   max-width: 1200px;
   margin: 0 auto;
+  margin-bottom: 1rem;
   animation: ${fadeIn} 0.8s ease-in-out;
 
   @media (max-width: 768px) {

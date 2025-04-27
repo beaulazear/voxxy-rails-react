@@ -103,7 +103,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
 
 const CommunityContainer = styled.div`
   align-self: stretch;
-  width: fit-content;
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 1rem;

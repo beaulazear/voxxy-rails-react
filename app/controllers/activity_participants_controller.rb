@@ -45,22 +45,22 @@ class ActivityParticipantsController < ApplicationController
       activity = participant.activity
       activity.update!(group_size: activity.group_size + 1)
 
-      # Create welcome comment
       new_comment = activity.comments.create!(
         user_id: user.id,
         content: "#{user.name} has joined the chat 🎉" # 👈 Now includes user's name
         )
 
-      # 🔥 Force reload activity to ensure new comment appears
       activity.reload
 
       # Return the updated activity including participants and comments
       updated_activity = {
         id: activity.id,
         activity_name: activity.activity_name,
+        activity_type: activity.activity_type,
         activity_location: activity.activity_location,
         emoji: activity.emoji,
         group_size: activity.group_size,
+        date_notes: activity.date_notes,
         date_day: activity.date_day,
         date_time: activity.date_time,
         user: activity.user ? { id: activity.user.id, name: activity.user.name, email: activity.user.email, avatar: activity.user.avatar } : nil,
@@ -87,7 +87,7 @@ class ActivityParticipantsController < ApplicationController
 
       render json: activity_participants.as_json(
         include: {
-          user: { only: [ :id, :name, :email, :avatar ] }, # Include full user data
+          user: { only: [ :id, :name, :email, :avatar ] },
           activity: {
             only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :completed ],
             include: { user: { only: [ :id, :name, :email, :avatar ] } }
