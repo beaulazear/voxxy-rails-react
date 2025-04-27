@@ -91,7 +91,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
               : act
           ),
         };
-        console.log("🔄 Updated User Context:", updatedUser);
         return updatedUser;
       });
 

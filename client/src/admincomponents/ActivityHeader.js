@@ -407,7 +407,6 @@ export const LeaveActivityButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #e74c3c, #c0392b);
   color: white;
   border: none;
   border-radius: 6px;
@@ -415,9 +414,10 @@ export const LeaveActivityButton = styled.button`
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  background: #2A1E30;
 
   &:hover {
-    background: linear-gradient(135deg, #c0392b, #a83227);
+  color: red;
   }
 `;
 

@@ -311,9 +311,14 @@ const ActivityCard = styled.div`
 
 function UserActivities() {
   const { user } = useContext(UserContext);
+
+  const pendingInvitesCount = user?.participant_activities
+    ?.filter(invite => !invite.accepted)
+    .length || 0;
+
   const [selectedActivityId, setSelectedActivityId] = useState(null);
   const [showActivities, setShowActivities] = useState(false);
-  const [filterType, setFilterType] = useState("upcoming");
+  const [filterType, setFilterType] = useState(pendingInvitesCount > 0 ? "invites" : "upcoming");
   const [helpVisible, setHelpVisible] = useState(false);
 
   const topRef = useRef(null)
@@ -348,7 +353,7 @@ function UserActivities() {
   if (selectedActivityId) {
     return (
       <>
-        <ActivityDetailsPage activityId={selectedActivityId} onBack={handleBack} />;
+        <ActivityDetailsPage activityId={selectedActivityId} onBack={handleBack} />
       </>
     )
   }
@@ -356,7 +361,7 @@ function UserActivities() {
   if (showActivities) {
     return (
       <>
-        <TripDashboard setShowActivities={setShowActivities} setSelectedActivityId={setSelectedActivityId} />;
+        <TripDashboard setShowActivities={setShowActivities} setSelectedActivityId={setSelectedActivityId} />
       </>
     )
   }
@@ -425,7 +430,7 @@ function UserActivities() {
               $active={filterType === "invites"}
               onClick={() => setFilterType("invites")}
             >
-              Invites
+              Invites {pendingInvitesCount > 0 ? `(${pendingInvitesCount})` : ""}
             </FilterButton>
 
             <NewBoardButton onClick={() => setShowActivities(true)}>
