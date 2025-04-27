@@ -55,7 +55,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
     a.user.name.localeCompare(b.user.name)
   );
 
-  const displayedUsers = showAll ? sortedUsers : sortedUsers.slice(0, 6);
+  const displayedUsers = showAll ? sortedUsers : sortedUsers.slice(0, 8);
 
   return (
     <CommunityContainer>
