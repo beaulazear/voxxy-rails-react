@@ -32,7 +32,7 @@ export const PageContainer = styled.div`
   background-color: #2A1E30;
 
   /* full-viewport stretch on desktop */
-  @media (min-width: 1024px) {
+  @media (min-width: 850px) {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;

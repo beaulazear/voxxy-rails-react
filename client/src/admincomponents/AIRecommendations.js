@@ -25,7 +25,6 @@ const AIRecommendations = ({
   const [selectedRecForReviews, setSelectedRecForReviews] = useState(null);
 
   const { id, responses, activity_location, date_notes } = activity;
-  console.log(date_notes, activity_location, activity)
 
   const fetchRecommendations = useCallback(async () => {
     if (!responses || responses.length === 0) {
@@ -276,6 +275,7 @@ const AIRecommendations = ({
             onChatComplete={() => {
               setRefreshTrigger((prev) => !prev);
               setShowChat(false);
+              window.alert('New preferences submitted! Since Voxxy is currently in beta, recommendations refresh once an hour — your updates may take a little time to appear.')
             }}
           />
         </>

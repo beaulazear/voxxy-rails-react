@@ -401,12 +401,8 @@ function UserActivities() {
                     <p>Click 'Take Quiz' in any board to help us personalize recommendations based on everyone's preferences.</p>
                   </li>
                   <li>
-                    <strong>View Itinerary</strong>
-                    <p>Open a board and check the itinerary section to see all planned activities and details.</p>
-                  </li>
-                  <li>
-                    <strong>Manage Tasks</strong>
-                    <p>Use the task list in each board to track action items and assign responsibilities.</p>
+                    <strong>Vote on Recommendations</strong>
+                    <p>Pin your favorite recommendations to save them to the board. Participants can view and vote on pinned activities to help the group decide.</p>
                   </li>
                 </PopupList>
               </HelpPopup>
