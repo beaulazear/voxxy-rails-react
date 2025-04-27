@@ -47,12 +47,11 @@ class ActivityParticipantsController < ApplicationController
 
       new_comment = activity.comments.create!(
         user_id: user.id,
-        content: "#{user.name} has joined the chat 🎉" # 👈 Now includes user's name
+        content: "#{user.name} has joined the chat 🎉"
         )
 
       activity.reload
 
-      # Return the updated activity including participants and comments
       updated_activity = {
         id: activity.id,
         activity_name: activity.activity_name,

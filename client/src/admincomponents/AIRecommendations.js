@@ -265,7 +265,7 @@ const AIRecommendations = ({
             </RecommendationItem>
           ))}
       </RecommendationList>
-      {/* {recommendations.length > 0 && <RestaurantMap recommendations={recommendations} />} */}
+      {recommendations.length > 0 && <RestaurantMap recommendations={recommendations} />}
 
       {showChat && (
         <>
