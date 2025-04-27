@@ -159,6 +159,8 @@ const Message = styled.p`
   color: rgba(255, 255, 255, 0.85);
   margin-bottom: 1.25rem;
   line-height: 1.5;
+  padding-right: 5rem;
+  padding-left: 5rem;
 
   @media (max-width: 768px) {
     text-align: center;

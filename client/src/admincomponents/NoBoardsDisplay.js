@@ -60,6 +60,8 @@ const Message = styled.p`
   color: rgba(255, 255, 255, 0.85);
   margin-bottom: 1.25rem;
   line-height: 1.5;
+  padding-right: 5rem;
+  padding-left: 5rem;
 
   @media (max-width: 768px) {
     text-align: center;
@@ -74,7 +76,7 @@ export default function NoBoardsDisplay() {
     <NoBoardsContainer>
       <Image src={Friends} alt="Friends enjoying a meal" />
         <Message>
-          No boards! Don’t wait for your friends to invite you—be the one to start the next activity! 🎉
+          No boards yet! Don’t wait for your friends to invite you—be the one to start the next activity! 🎉
         </Message>
     </NoBoardsContainer>
   );

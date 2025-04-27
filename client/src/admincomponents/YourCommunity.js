@@ -102,8 +102,8 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
 }
 
 const CommunityContainer = styled.div`
-  display: flex;
-  flex-direction: column;
+  align-self: stretch;
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 1rem;
@@ -115,12 +115,13 @@ const CommunityTitle = styled.h2`
   font-size: clamp(1.5rem, 2.5vw, 2rem);
   font-weight: 600;
   color: #fff;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 `;
 
 const UserList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  justify-items: center;
   gap: 1rem;
   width: 100%;
 `;
@@ -131,12 +132,11 @@ const UserCard = styled.div`
   align-items: center;
   text-align: center;
   padding: 0.75rem;
-  margin: 0 auto;
+  width: 100%;  
   border-radius: 12px;
   cursor: pointer;
   transition: transform 0.2s;
   padding-bottom: 0;
-  width: fit-content;
 
   &:hover {
     transform: scale(1.03);

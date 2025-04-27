@@ -90,7 +90,7 @@ const HelpPopup = styled.div`
   padding: 1rem;
   width: 300px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px #fff;
+  box-shadow: 0 2px 4px #8e44ad;
   z-index: 1001;
 
   @media (max-width: 600px) {
