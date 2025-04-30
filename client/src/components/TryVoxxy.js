@@ -270,8 +270,18 @@ export default function TryVoxxy() {
   const [fetchingLocation, setFetchingLocation] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
 
+  const getOrCreateSessionToken = () => {
+    let token = localStorage.getItem('voxxy_token');
+    if (!token) {
+      token = crypto.randomUUID();
+      localStorage.setItem('voxxy_token', token);
+    }
+    return token;
+  };
+
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/try_voxxy_cached`)
+    const token = getOrCreateSessionToken();
+    fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/try_voxxy_cached?session_token=${token}`)
       .then(res => res.ok ? res.json() : Promise.reject())
       .then(data => setRecommendations(data.recommendations || []))
       .catch(() => { })

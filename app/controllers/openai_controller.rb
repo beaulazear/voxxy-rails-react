@@ -94,9 +94,14 @@ class OpenaiController < ApplicationController
   end
 
   def try_voxxy_recommendations
-    ip       = request.remote_ip
-    rate_key = "try_voxxy_rate:#{ip}"
-    cache_key = "try_voxxy_last:#{ip}"
+    session_token = request.headers["X-Session-Token"] || params[:session_token]
+
+    if session_token.blank?
+      return render json: { error: "Missing session token" }, status: :unauthorized
+    end
+
+    rate_key  = "try_voxxy_rate:#{session_token}"
+    cache_key = "try_voxxy_last:#{session_token}"
 
     # Rate-limit: if already posted within the last hour, re-serve or throttle
     if Rails.cache.exist?(rate_key)
@@ -131,17 +136,20 @@ class OpenaiController < ApplicationController
     end
   end
 
-    def try_voxxy_cached
-      ip        = request.remote_ip
-      cache_key = "try_voxxy_last:#{ip}"
-      recs = Rails.cache.read(cache_key)
+  def try_voxxy_cached
+    session_token = request.headers["X-Session-Token"] || params[:session_token]
 
-      if recs.present?
-        render json: { recommendations: recs }, status: :ok
-      else
-        render json: { error: "No cached recommendations" }, status: :not_found
-      end
+    if session_token.blank?
+      return render json: { error: "Missing session token" }, status: :unauthorized
     end
+
+    cache_key = "try_voxxy_last:#{session_token}"
+    if (cached = Rails.cache.read(cache_key))
+      render json: { recommendations: cached }, status: :ok
+    else
+      render json: { recommendations: [] }, status: :ok
+    end
+  end
 
   private
 

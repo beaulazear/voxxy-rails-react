@@ -156,6 +156,15 @@ function TryVoxxyChat({ onClose, onChatComplete, eventLocation, dateNotes }) {
   ]);
   const questions = questionsRef.current;
 
+  const getOrCreateSessionToken = () => {
+    let token = localStorage.getItem('voxxy_token');
+    if (!token) {
+      token = crypto.randomUUID();
+      localStorage.setItem('voxxy_token', token);
+    }
+    return token;
+  };
+
   useEffect(() => {
     setIsTyping(true);
     const timer = setTimeout(() => {
@@ -197,13 +206,19 @@ function TryVoxxyChat({ onClose, onChatComplete, eventLocation, dateNotes }) {
 
   const handleSubmit = async () => {
     const formatted = answers.map(a => `${a.question}\nAnswer: ${a.answer}`).join("\n\n");
+    const token = getOrCreateSessionToken();
+
     if (process.env.NODE_ENV === 'production') {
       mixpanel.track('Try Voxxy Chat Complete');
     }
+
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/try_voxxy_recommendations`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': token
+        },
         body: JSON.stringify({ responses: formatted, activity_location: eventLocation, date_notes: dateNotes })
       });
       const data = await res.json();
@@ -212,6 +227,7 @@ function TryVoxxyChat({ onClose, onChatComplete, eventLocation, dateNotes }) {
       console.error(err);
       onChatComplete([]);
     }
+
     onClose();
   };
 
