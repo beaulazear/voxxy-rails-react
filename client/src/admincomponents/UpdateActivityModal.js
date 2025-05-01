@@ -74,8 +74,21 @@ const Input = styled.input`
 
   &:focus {
     border-color: #6c5ce7;
-    background: white;
     outline: none;
+  }
+
+  &:-webkit-autofill {
+    box-shadow: 0 0 0px 1000px #201925 inset !important;
+    -webkit-text-fill-color: #fff !important;
+  }
+
+  &:-webkit-autofill:focus {
+    box-shadow: 0 0 0px 1000px #201925 inset !important;
+    -webkit-text-fill-color: #fff !important;
+  }
+
+  &::placeholder {
+    color: #aaa;
   }
 `;
 
