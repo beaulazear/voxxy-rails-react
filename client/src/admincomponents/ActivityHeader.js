@@ -146,7 +146,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
       <HostName>
         Hosted by: {isOwner ? "You" : activity?.user?.name || "Unknown"}
       </HostName>
-      <ActivityDetails onClick={onEdit}>
+      <ActivityDetails onClick={isOwner ? onEdit : undefined}>
         {activity.date_day ? <>📆 {activity.date_day}</> : <>📆 Date: TBD </>}
         {activity.date_time ? (
           <>⏰ {extractHoursAndMinutes(activity.date_time)}</>
@@ -155,7 +155,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
         )}
       </ActivityDetails>
 
-      <EntryMessage onClick={onEdit}>
+      <EntryMessage onClick={isOwner ? onEdit : undefined}>
         {activity.welcome_message ||
           "Welcome to this activity! This is a placeholder for a detailed description about what to expect, how it works, and any important details. Soon, you will be able to customize this message to fit your needs!"}
       </EntryMessage>

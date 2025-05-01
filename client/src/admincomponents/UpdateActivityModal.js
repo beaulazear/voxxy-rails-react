@@ -1,29 +1,5 @@
 import React, { useState } from 'react';
-import styled, { keyframes } from 'styled-components';
-import Tom from '../assets/Tom.png';
-
-const flyAnimation = keyframes`
-  0% {
-    transform: translate(-10vw, 60vh) scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(110vw, -10vh) scale(1.5);
-    opacity: 0;
-  }
-`;
-
-const Bird = styled.img`
-  position: fixed;
-  bottom: 30vh;
-  left: -10vw;
-  width: 250px;
-  height: auto;
-  opacity: 0;
-  filter: drop-shadow(10px 10px 15px rgba(0, 0, 0, 0.4));
-  animation: ${({ $isFlying }) => ($isFlying ? flyAnimation : 'none')} 2s ease-in-out forwards;
-  z-index: 1000;
-`;
+import styled from 'styled-components';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -39,7 +15,7 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContainer = styled.div`
-  background: white;
+  background: #2C1E33;
   padding: 1.5rem;
   border-radius: 10px;
   width: 95%;
@@ -59,6 +35,7 @@ const ModalHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+  color: #fff;
 `;
 
 const CloseButton = styled.button`
@@ -83,7 +60,7 @@ const Form = styled.form`
 const Label = styled.label`
   font-size: 0.9rem;
   font-weight: 600;
-  color: #333;
+  color: #fff;
 `;
 
 const Input = styled.input`
@@ -92,7 +69,8 @@ const Input = styled.input`
   font-size: 0.9rem;
   border: 1px solid #ddd;
   border-radius: 6px;
-  background: #f9f9f9;
+  background: #201925;
+  color: #fff;
 
   &:focus {
     border-color: #6c5ce7;
@@ -105,10 +83,11 @@ const ToggleContainer = styled.label`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #f9f9f9;
+  background: #201925;
   padding: 0.5rem;
   border-radius: 6px;
   cursor: pointer;
+  color: #fff;
 `;
 
 const ToggleSwitch = styled.input`
@@ -143,8 +122,6 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
     completed: activity.completed || false,
   });
 
-  const [isFlying, setIsFlying] = useState(false);
-
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
@@ -170,13 +147,8 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
         throw new Error("Failed to update activity");
       }
 
-      setIsFlying(true);
-
-      setTimeout(() => {
-        onUpdate(data);
-        setIsFlying(false);
-        onClose();
-      }, 2100);
+      onUpdate(data);
+      onClose();
     } catch (error) {
       console.error("Error updating activity:", error);
     }
@@ -184,7 +156,6 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
 
   return (
     <>
-      {isFlying && <Bird src={Tom} $isFlying={isFlying} alt="Flying bird" />}
       <ModalOverlay>
         <ModalContainer>
           <ModalHeader>
@@ -210,7 +181,6 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
             <Label>Welcome Message</Label>
             <Input type="text" name="welcome_message" value={formData.welcome_message} onChange={handleChange} />
 
-            {/* ✅ Completed Toggle */}
             <ToggleContainer>
               <span>Mark as Completed:</span>
               <ToggleSwitch
