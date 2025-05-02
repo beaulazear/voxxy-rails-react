@@ -15,6 +15,7 @@ class ContactsController < ApplicationController
     def create
       @contact = Contact.new(contact_params)
       if @contact.save
+        SubmissionNotifierService.notify(:contact, @contact)
         render json: @contact, status: :created
       else
         render json: { errors: @contact.errors.full_messages }, status: :unprocessable_entity

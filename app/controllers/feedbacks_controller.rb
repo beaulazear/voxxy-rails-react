@@ -15,6 +15,7 @@ class FeedbacksController < ApplicationController
     def create
       @feedback = Feedback.new(feedback_params)
       if @feedback.save
+        SubmissionNotifierService.notify(:feedback, @feedback)
         render json: @feedback, status: :created
       else
         render json: { errors: @feedback.errors.full_messages }, status: :unprocessable_entity

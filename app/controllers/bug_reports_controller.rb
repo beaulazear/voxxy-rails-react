@@ -15,6 +15,7 @@ class BugReportsController < ApplicationController
     def create
       @bug_report = BugReport.new(bug_report_params)
       if @bug_report.save
+        SubmissionNotifierService.notify(:bug_report, @bug_report)
         render json: @bug_report, status: :created
       else
         render json: { errors: @bug_report.errors.full_messages }, status: :unprocessable_entity
