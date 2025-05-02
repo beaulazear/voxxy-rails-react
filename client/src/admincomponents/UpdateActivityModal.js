@@ -87,6 +87,15 @@ const Input = styled.input`
     -webkit-text-fill-color: #fff !important;
   }
 
+  &::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(2);
+    cursor: pointer;        /* keep pointer cursor */
+  }
+  &::-moz-color-swatch-button {
+    filter: invert(1) brightness(2);
+    cursor: pointer;
+  }
+
   &::placeholder {
     color: #aaa;
   }
