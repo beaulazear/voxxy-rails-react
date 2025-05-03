@@ -225,7 +225,7 @@ export default function AIRecommendations({
   return (
     <Container>
       <TopBar>
-        <Heading>Restaurant Options</Heading>
+        <Heading>Restaurants</Heading>
         <ChatButton onClick={handleStartChat}>Chat with Voxxy</ChatButton>
       </TopBar>
 
@@ -375,15 +375,20 @@ const Container = styled.div`
 `;
 
 const TopBar = styled.div`
-  display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+  display: flex;
 `;
 
 const Heading = styled.h2`
   font-size: 1.75rem;
   margin: 0;
+  text-align: left;
+
+  @media (max-width: 600px) {
+    font-size: 1.5rem;
+  }
 `;
 
 const ChatButton = styled.button`
@@ -396,6 +401,10 @@ const ChatButton = styled.button`
   font-weight: 600;
   &:hover {
     background: #7a3fc1;
+  }
+
+  @media (max-width: 600px) {
+  font-size: 12px;
   }
 `;
 
@@ -444,6 +453,7 @@ const ListTop = styled.div`
 
 const ListName = styled.span`
   font-weight: 600;
+  text-align: left;
 `;
 
 const ListMeta = styled.span`
@@ -513,6 +523,7 @@ const DetailModalContent = styled.div`
   width: 24rem;
   color: #fff;
   z-index: 1001;
+  text-align: left;
 `;
 
 const DetailClose = styled.button`
