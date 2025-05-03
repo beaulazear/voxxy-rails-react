@@ -4,24 +4,30 @@ namespace :activities do
     today = Date.current
     puts "[#{Time.current}] Starting complete_past (today=#{today})"
 
-    count = 0
+    updated = 0
+    emailed  = 0
+
     Activity
       .where("date_day < ? AND completed = ?", today, false)
       .find_each(batch_size: 100) do |activity|
         begin
-          Activity.transaction do
-            activity.update!(completed: true)
-            Rails.logger.info "  ✓ Marked Activity ##{activity.id} complete"
-            ActivityCompletionEmailService.send_completion_emails(activity)
-            Rails.logger.info "    → Emails sent for ##{activity.id}"
-          end
-
-          count += 1
+          activity.update!(completed: true)
+          Rails.logger.info "  ✓ Marked Activity ##{activity.id} complete"
+          updated += 1
         rescue => e
-          Rails.logger.error "‼️ Failed to process Activity ##{activity.id}: #{e.class} – #{e.message}"
+          Rails.logger.error "‼️ Failed to mark ##{activity.id} complete: #{e.message}"
+          next
+        end
+
+        begin
+          ActivityCompletionEmailService.send_completion_emails(activity)
+          Rails.logger.info "    → Emails sent for ##{activity.id}"
+          emailed += 1
+        rescue => e
+          Rails.logger.error "‼️ Failed to email for ##{activity.id}: #{e.class} – #{e.message}"
         end
       end
 
-    puts "Done! #{count} activities marked complete."
+    puts "Done! #{updated} activities marked complete, #{emailed} email batches sent."
   end
 end
