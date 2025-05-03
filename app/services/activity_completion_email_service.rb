@@ -15,7 +15,8 @@ class ActivityCompletionEmailService
     contact_url = URI::HTTP.build(
       host: host,
       port: port,
-      path: "/#/contact"
+      path: "/",
+      fragment: "contact"
     ).to_s
 
     recipient_emails = []
