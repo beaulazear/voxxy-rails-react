@@ -7,6 +7,7 @@ import TripDashboard from './TripDashboard.js';
 import YourCommunity from './YourCommunity.js';
 import NoBoardsDisplay from './NoBoardsDisplay.js';
 import { HelpCircle, X } from 'lucide-react';
+import GroupMeals from '../assets/groupmeals.jpeg';
 
 const fadeIn = keyframes`
   from {
@@ -240,7 +241,7 @@ const NewBoardButton = styled.button`
 const CardGrid = styled.div`
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 320px));
   gap: 1rem;
   margin: 0 auto;
   padding: 1rem;
@@ -252,61 +253,88 @@ const CardGrid = styled.div`
 `;
 
 const ActivityCard = styled.div`
-  background: #2C1E33;
-  color: #fff;
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%;
+  margin: 0 auto;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+`;
+
+const ImageContainer = styled.div`
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background-image: url(${GroupMeals});
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.5s ease;
+  
+  ${ActivityCard}:hover & {
+    transform: scale(1.1);
+  }
+`;
+
+const CardLabel = styled.div`
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 35%;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  min-height: 160px;
-  max-width: 410px;
-  height: auto;
-  overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
-  }
-
-  .content {
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
-  }
-
-  .type-label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    background: #7b298d;
-    padding: 4px 10px;
-    border-radius: 999px;
-    display: inline-block;
-    width: fit-content;
-  }
+  justify-content: center;
+  padding: 0.75rem 1rem;
 
   h3 {
     margin: 0;
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-align: left;
   }
 
-  .host-info,
-  .date-time {
-    font-size: 0.85rem;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 4px 8px;
-    border-radius: 6px;
-    display: inline-block;
-    margin-top: 0.5rem;
+  .meta {
+    font-size: 0.8rem;
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+  }
+`;
+
+const TypeTag = styled.div`
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #7b298d;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+`;
+
+const ViewBoard = styled.div`
+  margin-top: auto;         /* push it to the bottom */
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #CC31E8;
+
+  &:hover {
+    color: #7B298C;
   }
 
-  @media (max-width: 768px) {
-    min-height: 140px;
+  span {
+    margin-left: 0.25rem;
+    transition: transform 0.2s;
+  }
+  &:hover span {
+    transform: translateX(3px);
   }
 `;
 
@@ -444,25 +472,24 @@ function UserActivities() {
                   key={activity.id}
                   onClick={() => handleActivityClick(activity)}
                 >
-                  <div className="content">
+                  <ImageContainer />
 
-                    <div className="type-label">
-                      {activity.activity_type} {activity.emoji}
-                    </div>
+                  <TypeTag>
+                    {activity.activity_type}
+                  </TypeTag>
 
+                  <CardLabel>
                     <h3>{activity.activity_name}</h3>
-
-                    <div className="host-info">
-                      <span>Host: {activity.user?.name || "Host: Unknown"}</span>
+                    <div className="meta">
+                      <span>Host: {activity.user?.name || 'Unknown'}</span>
+                      <span>
+                      {activity.date_day || 'TBD'} · {activity.date_time ? extractHoursAndMinutes(activity.date_time) : 'TBD'}
+                      </span>
                     </div>
-
-                    <div className="date-time">
-                      {activity.date_day ? `📆 ${activity.date_day}` : "📆 TBD"}{" "}
-                      {activity.date_time
-                        ? `⏰ ${extractHoursAndMinutes(activity.date_time)}`
-                        : "⏰ TBD"}
-                    </div>
-                  </div>
+                    <ViewBoard>
+                      View board <span>→</span>
+                    </ViewBoard>
+                  </CardLabel>
                 </ActivityCard>
               ))}
             </CardGrid>
