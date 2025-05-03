@@ -152,12 +152,12 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
             <span>{activity.activity_type + ' 🍜' || "N/A"}</span>
           </MetaItem>
           <MetaItem>
-            <label>Host:</label>
-            <span>{isOwner ? "You" : activity.user?.name || "Unknown"}</span>
-          </MetaItem>
-          <MetaItem>
             <label>Location:</label>
             <span>{activity.activity_location || "TBD"}</span>
+          </MetaItem>
+          <MetaItem>
+            <label>Host:</label>
+            <span>{isOwner ? "You" : activity.user?.name || "Unknown"}</span>
           </MetaItem>
           <MetaItem>
             <label>Date:</label>
