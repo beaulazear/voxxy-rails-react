@@ -38,6 +38,7 @@ Rails.application.routes.draw do
   get "/try_voxxy_cached",         to: "openai#try_voxxy_cached"
 
   post "/activities/:id/send_thank_you", to: "activities#send_thank_you"
+  post "/activities/:id/mark_complete", to: "activities#mark_complete"
 
   get "/test", to: "application#test"
 

@@ -101,23 +101,6 @@ const Input = styled.input`
   }
 `;
 
-const ToggleContainer = styled.label`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #201925;
-  padding: 0.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  color: #fff;
-`;
-
-const ToggleSwitch = styled.input`
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-`;
-
 const Button = styled.button`
   padding: 0.7rem 1rem;
   border: none;
@@ -133,6 +116,16 @@ const Button = styled.button`
   }
 `;
 
+const ErrorList = styled.ul`
+  background: #ffe6e6;
+  color: #900;
+  border: 1px solid #f5c2c2;
+  padding: 0.5rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  li { margin-left: 1rem; }
+`;
+
 function UpdateActivityModal({ activity, onClose, onUpdate }) {
   const [formData, setFormData] = useState({
     activity_name: activity.activity_name || "",
@@ -141,82 +134,109 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
     date_day: activity.date_day || "",
     date_time: activity.date_time || "",
     welcome_message: activity.welcome_message || "",
-    completed: activity.completed || false,
   });
+  const [errors, setErrors] = useState([]);
+
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
-  function handleToggleCompleted() {
-    setFormData({ ...formData, completed: !formData.completed });
-  }
-
   async function handleSubmit(e) {
     e.preventDefault();
-
+    setErrors([]);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activity.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error("Failed to update activity");
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activity.id}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(formData),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        setErrors(data.errors || [data.error] || ["Unknown error"]);
+      } else {
+        onUpdate(data);
+        onClose();
       }
-
-      onUpdate(data);
-      onClose();
-    } catch (error) {
-      console.error("Error updating activity:", error);
+    } catch (err) {
+      setErrors([err.message]);
     }
   }
 
   return (
-    <>
-      <ModalOverlay>
-        <ModalContainer>
-          <ModalHeader>
-            <h2>Update Activity</h2>
-            <CloseButton onClick={onClose}>✕</CloseButton>
-          </ModalHeader>
-          <Form onSubmit={handleSubmit}>
-            <Label>Activity Name</Label>
-            <Input type="text" name="activity_name" value={formData.activity_name} onChange={handleChange} required />
+    <ModalOverlay>
+      <ModalContainer>
+        <ModalHeader>
+          <h2>Update Activity</h2>
+          <CloseButton onClick={onClose}>✕</CloseButton>
+        </ModalHeader>
 
-            <Label>Location</Label>
-            <Input type="text" name="activity_location" value={formData.activity_location} onChange={handleChange} required />
+        {errors.length > 0 && (
+          <ErrorList>
+            {errors.map((err, idx) => <li key={idx}>{err}</li>)}
+          </ErrorList>
+        )}
 
-            <Label>Time of Day</Label>
-            <Input type="text" name="date_notes" value={formData.date_notes} onChange={handleChange} required />
+        <Form onSubmit={handleSubmit}>
+          <Label>Activity Name</Label>
+          <Input
+            type="text"
+            name="activity_name"
+            value={formData.activity_name}
+            onChange={handleChange}
+            required
+          />
 
-            <Label>Date</Label>
-            <Input type="date" name="date_day" value={formData.date_day} onChange={handleChange} />
+          <Label>Location</Label>
+          <Input
+            type="text"
+            name="activity_location"
+            value={formData.activity_location}
+            onChange={handleChange}
+            required
+          />
 
-            <Label>Time</Label>
-            <Input type="time" name="date_time" value={formData.date_time} onChange={handleChange} />
+          <Label>Time of Day</Label>
+          <Input
+            type="text"
+            name="date_notes"
+            value={formData.date_notes}
+            onChange={handleChange}
+            required
+          />
 
-            <Label>Welcome Message</Label>
-            <Input type="text" name="welcome_message" value={formData.welcome_message} onChange={handleChange} />
+          <Label>Date</Label>
+          <Input
+            type="date"
+            name="date_day"
+            value={formData.date_day}
+            onChange={handleChange}
+          />
 
-            <ToggleContainer>
-              <span>Mark as Completed:</span>
-              <ToggleSwitch
-                type="checkbox"
-                checked={formData.completed}
-                onChange={handleToggleCompleted}
-              />
-            </ToggleContainer>
+          <Label>Time</Label>
+          <Input
+            type="time"
+            name="date_time"
+            value={formData.date_time}
+            onChange={handleChange}
+          />
 
-            <Button type="submit">Update Activity</Button>
-          </Form>
-        </ModalContainer>
-      </ModalOverlay>
-    </>
+          <Label>Welcome Message</Label>
+          <Input
+            type="text"
+            name="welcome_message"
+            value={formData.welcome_message}
+            onChange={handleChange}
+          />
+
+          <Button type="submit">Update Activity</Button>
+        </Form>
+      </ModalContainer>
+    </ModalOverlay>
   );
 }
 

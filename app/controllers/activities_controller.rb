@@ -96,6 +96,19 @@ class ActivitiesController < ApplicationController
       render json: { error: e.message }, status: :unprocessable_entity
     end
 
+    def mark_complete
+      activity = Activity.find_by(id: params[:id])
+      return render(json: { error: "Activity not found" }, status: :not_found) unless activity
+
+      if activity.update(completed: true)
+        ActivityCompletionEmailService.send_completion_emails(activity)
+        render json: { message: "Activity marked complete and emails sent" }
+      else
+        Rails.logger.error "❌ Activity update failed: #{activity.errors.full_messages}"
+        render json: { error: activity.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+
     private
 
     def activity_params
