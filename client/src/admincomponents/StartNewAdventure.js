@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import mixpanel from 'mixpanel-browser';
+import { Heading1, MutedText } from '../styles/Typography';
+import colors from '../styles/Colors';
 
 const rainAnimation = keyframes`
   0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity: 1; }
@@ -23,13 +25,8 @@ const SectionWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-`;
-
-const SectionTitle = styled.p`
-  font-size: clamp(1.8rem, 3vw, 2.4rem);
-  margin: 0;
-  color: #ffffff;
-  text-align: center;
+  padding-right: 3rem;
+  padding-left: 3rem;
 `;
 
 const CardGrid = styled.div`
@@ -38,7 +35,6 @@ const CardGrid = styled.div`
   gap: 1.5rem;
   width: 100%;
   max-width: 960px;
-  margin-top: 1rem;
   
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, minmax(140px, 1fr));
@@ -49,6 +45,11 @@ const CardGrid = styled.div`
     grid-template-columns: repeat(1, minmax(120px, 1fr));
     gap: 0.75rem;
   }
+`;
+const GradientText = styled.span`
+  background: linear-gradient(90deg, #B931D6 0%, #9051E1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 `;
 
 const ActivityCard = styled.div.withConfig({
@@ -96,11 +97,39 @@ const ActivityName = styled.h3.withConfig({
   text-align: center;
 `;
 
+const AdminHero = styled.section`
+  background-color: ${colors.background};
+  color: ${colors.textPrimary};
+  text-align: center;
+  padding: 1rem 1.5rem;
+  padding-top: 120px;
+  box-sizing: border-box;
+`;
+const AdminHeroContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+`;
+const AdminTitle = styled(Heading1)`
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  color: ${colors.textPrimary};
+`;
+const AdminSubtitle = styled(MutedText)`
+  font-size: 1.125rem;
+  color: ${colors.textMuted};
+  max-width: 700px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.6;
+`;
+
 function StartNewAdventure({ onTripSelect }) {
   const [emojiRain, setEmojiRain] = useState([]);
 
   const adventures = [
     { name: 'Lets Eat', emoji: '🍜', active: true },
+    { name: 'Lets Meet', emoji: '⏰', active: true },
     { name: 'Movie Night', emoji: '🎥', active: false },
     { name: 'Ski Trip', emoji: '🎿', active: false },
     { name: 'Kids Play Date', emoji: '👩‍👧‍👦', active: false },
@@ -108,7 +137,6 @@ function StartNewAdventure({ onTripSelect }) {
     { name: 'Game Night', emoji: '🎮', active: false },
     { name: 'Family Reunion', emoji: '👨‍👩‍👧‍👦', active: false },
     { name: 'Road Trip', emoji: '🚗', active: false },
-    { name: 'Lets Meet', emoji: '⏰', active: false },
     { name: 'Trip to Iceland', emoji: '🇮🇸', active: false },
   ];
 
@@ -147,9 +175,18 @@ function StartNewAdventure({ onTripSelect }) {
           🍜
         </EmojiRain>
       ))}
-
+      <AdminHero>
+        <AdminHeroContainer>
+          <AdminTitle>
+            New <GradientText>Voxxy</GradientText> Board
+          </AdminTitle>
+          <AdminSubtitle>
+           Choose an activity to start planning!
+          </AdminSubtitle>
+        </AdminHeroContainer>
+      </AdminHero>
       <SectionWrapper>
-        <SectionTitle>Choose An Activity</SectionTitle>
+
         <CardGrid>
           {adventures.map(({ name, emoji, active }) => (
             <ActivityCard

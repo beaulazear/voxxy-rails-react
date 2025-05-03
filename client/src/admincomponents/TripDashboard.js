@@ -27,9 +27,8 @@ const gradientAnimation = keyframes`
 export const PageContainer = styled.div`
   width: 100%;
   animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
-  padding-top: 100px;
   padding-bottom: 50px;
-  background-color: #2A1E30;
+  background-color: #201925;
 
   /* full-viewport stretch on desktop */
   @media (min-width: 850px) {
@@ -38,17 +37,6 @@ export const PageContainer = styled.div`
     box-sizing: border-box;
     min-height: 100vh;
   }
-`;
-
-const DashboardContainer = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  gap: 1.5rem;
-  position: relative;
 `;
 
 const LoadingScreen = styled.div`
@@ -126,9 +114,7 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
 
   return (
     <PageContainer ref={dashboardRef}>
-      <DashboardContainer>
-        <StartNewAdventure setShowActivities={setShowActivities} onTripSelect={handleTripSelect} />
-      </DashboardContainer>
+      <StartNewAdventure setShowActivities={setShowActivities} onTripSelect={handleTripSelect} />
 
       {selectedTrip === 'Lets Eat' && (
         <>
