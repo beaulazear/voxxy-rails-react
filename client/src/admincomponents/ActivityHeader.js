@@ -344,6 +344,7 @@ const LeaveButton = styled.button`
 
 const Title = styled.h1`
   margin: 0 auto 0.75rem;
+  margin-top: 1rem;
   text-align: center;
   font-size: clamp(1.75rem, 3vw, 2.4rem);
   color: #fff;

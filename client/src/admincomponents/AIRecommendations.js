@@ -224,10 +224,19 @@ export default function AIRecommendations({
 
   return (
     <Container>
-      <TopBar>
-        <Heading>Restaurants</Heading>
-        <ChatButton onClick={handleStartChat}>Chat with Voxxy</ChatButton>
-      </TopBar>
+      {recommendations.length === 0 && pinnedActivities.length === 0 ? (
+        <>
+          <Heading style={{textAlign: 'center', paddingBottom: '1rem'}}>Restaurant Options</Heading>
+          <p style={{ paddingBottom: '1rem' }}>
+            Nothing to see here.. yet! Tell Voxxy what you’re craving or let us whip up recommendations for you. ✨
+          </p>
+        </>
+      ) : (
+        <TopBar>
+          <Heading>Restaurants</Heading>
+          <ChatButton onClick={handleStartChat}>Chat with Voxxy</ChatButton>
+        </TopBar>
+      )}
 
       {error && <ErrorText>{error}</ErrorText>}
 
@@ -270,9 +279,13 @@ export default function AIRecommendations({
             </ListItem>
           ))}
         {!recommendations.length && (
-          <FetchButton onClick={fetchRecommendations}>
-            Generate Recommendations
-          </FetchButton>
+          <>
+            <ChatButton onClick={handleStartChat}>Chat with Voxxy</ChatButton>
+            <FetchButton onClick={fetchRecommendations}>
+              Generate Recommendations
+            </FetchButton>
+          </>
+
         )}
         {recommendations
           .filter((r) =>
@@ -364,8 +377,6 @@ export default function AIRecommendations({
     </Container>
   );
 }
-
-// ─── Styled Components ─────────────────────────────────────────────────────────
 
 const Container = styled.div`
   max-width: 40rem;
