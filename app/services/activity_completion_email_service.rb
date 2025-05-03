@@ -9,9 +9,14 @@ class ActivityCompletionEmailService
     from    = SendGrid::Email.new(email: "team@voxxyai.com", name: "Voxxy Team")
     subject = "🎉 Thanks for Completing Your Voxxy Activity!"
 
-    host        = Rails.application.config.action_mailer.default_url_options[:host]
-    port        = Rails.application.config.action_mailer.default_url_options[:port]
-    contact_url = URI::HTTP.build(host: host, port: port, path: "/contact").to_s
+    host = Rails.application.config.action_mailer.default_url_options[:host]
+    port = Rails.application.config.action_mailer.default_url_options[:port]
+
+    contact_url = URI::HTTP.build(
+      host: host,
+      port: port,
+      path: "/#/contact"
+    ).to_s
 
     recipient_emails = []
     recipient_emails << activity.user.email if activity.respond_to?(:user) && activity.user&.email
