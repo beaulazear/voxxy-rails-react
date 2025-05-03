@@ -534,7 +534,7 @@ export const ParticipantImage = styled.img`
 `;
 
 const InviteCircle = styled(ParticipantCircle)`
-  background: #8e44ad;
+  background: #9051e1;
   border: 2px dashed white;
   cursor: pointer;
   display: flex;

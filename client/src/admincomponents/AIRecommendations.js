@@ -226,14 +226,17 @@ export default function AIRecommendations({
     <Container>
       {recommendations.length === 0 && pinnedActivities.length === 0 ? (
         <>
-          <Heading style={{textAlign: 'center', paddingBottom: '1rem'}}>Restaurant Options</Heading>
+          <TopBar>
+            <Heading>Restaurant Options</Heading>
+            <ChatButton onClick={handleStartChat}>Chat with Voxxy</ChatButton>
+          </TopBar>
           <p style={{ paddingBottom: '1rem' }}>
-            Nothing to see here.. yet! Tell Voxxy what you’re craving or let us whip up recommendations for you. ✨
+            Tell Voxxy what you’re craving or let us whip up recommendations for you. ✨
           </p>
         </>
       ) : (
         <TopBar>
-          <Heading>Restaurants</Heading>
+          <Heading>Restaurant Options</Heading>
           <ChatButton onClick={handleStartChat}>Chat with Voxxy</ChatButton>
         </TopBar>
       )}
@@ -280,7 +283,6 @@ export default function AIRecommendations({
           ))}
         {!recommendations.length && (
           <>
-            <ChatButton onClick={handleStartChat}>Chat with Voxxy</ChatButton>
             <FetchButton onClick={fetchRecommendations}>
               Generate Recommendations
             </FetchButton>
@@ -398,7 +400,6 @@ const Heading = styled.h2`
   text-align: left;
 
   @media (max-width: 600px) {
-    font-size: 1.5rem;
   }
 `;
 
