@@ -436,7 +436,7 @@ function UserActivities() {
           </FilterRow>
 
           {filterType === "invites" ? (
-            <PendingInvites />
+            <PendingInvites handleActivityClick={handleActivityClick} />
           ) : filteredActivities.length > 0 ? (
             <CardGrid>
               {filteredActivities.map(activity => (

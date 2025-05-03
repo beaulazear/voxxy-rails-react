@@ -170,7 +170,7 @@ const Message = styled.p`
   }
 `;
 
-const PendingInvites = () => {
+const PendingInvites = ({ handleActivityClick }) => {
     const { user, setUser } = useContext(UserContext);
     const pendingInvites = user?.participant_activities?.filter(
         (invite) => !invite.accepted
@@ -217,7 +217,7 @@ const PendingInvites = () => {
                 ),
             }));
 
-            alert("Invite accepted!");
+            handleActivityClick(updatedActivity)
         } catch (error) {
             console.error("❌ Error accepting invite:", error);
         }
