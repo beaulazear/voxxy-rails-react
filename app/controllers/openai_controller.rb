@@ -35,16 +35,18 @@ class OpenaiController < ApplicationController
   end
 
   def restaurant_recommendations
-    user_responses = params[:responses]
-    activity_location = params[:activity_location]
-    date_notes = params[:date_notes]
+    user_responses     = params[:responses]
+    activity_location  = params[:activity_location]
+    date_notes         = params[:date_notes]
+    activity_id        = params[:activity_id]
 
     if user_responses.blank?
       render json: { error: "No responses provided" }, status: :unprocessable_entity
       return
     end
 
-    cache_key = generate_cache_key(user_responses, activity_location, date_notes)
+    cache_key = "activity_#{activity_id}_" \
+                "#{generate_cache_key(user_responses, activity_location, date_notes)}"
 
     recommendations = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
       fetch_recommendations_from_openai(user_responses, activity_location, date_notes)
@@ -61,26 +63,36 @@ class OpenaiController < ApplicationController
     activity = Activity.find_by(id: params[:activity_id])
     return render json: { error: "Activity not found" }, status: :not_found unless activity
 
-    cache_key = generate_cache_key(activity.responses.map(&:notes).join("\n\n"), activity.activity_location, activity.date_notes)
-    recommendations = Rails.cache.read(cache_key)
+    restaurant_key = "activity_#{activity.id}_" \
+                     "#{generate_cache_key(activity.responses.map(&:notes).join("\n\n"),
+                                             activity.activity_location,
+                                             activity.date_notes)}"
 
-    if recommendations.present?
-      render json: { recommendations: recommendations }
-    else
-      render json: { recommendations: [] }, status: :ok
-    end
+    trending_key = "activity_#{activity.id}_" \
+                   "trending_recommendations_" \
+                   "#{Digest::SHA256.hexdigest("#{activity.activity_location}-#{activity.date_notes}")}"
+
+    recommendations =
+      Rails.cache.read(restaurant_key) ||
+      Rails.cache.read(trending_key) ||
+      []
+
+    render json: { recommendations: recommendations }, status: :ok
   end
 
   def trending_recommendations
     activity_location = params[:activity_location]
-    date_notes = params[:date_notes]
+    date_notes        = params[:date_notes]
+    activity_id       = params[:activity_id]
 
     if activity_location.blank? || date_notes.blank?
       render json: { error: "Missing required details" }, status: :unprocessable_entity
       return
     end
 
-    cache_key = "trending_recommendations_#{Digest::SHA256.hexdigest("#{activity_location}-#{date_notes}")}"
+    cache_key = "activity_#{activity_id}_" \
+                "trending_recommendations_" \
+                "#{Digest::SHA256.hexdigest("#{activity_location}-#{date_notes}")}"
 
     recommendations = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
       fetch_trending_recommendations_from_openai(activity_location, date_notes)
@@ -103,7 +115,6 @@ class OpenaiController < ApplicationController
     rate_key  = "try_voxxy_rate:#{session_token}"
     cache_key = "try_voxxy_last:#{session_token}"
 
-    # Rate-limit: if already posted within the last hour, re-serve or throttle
     if Rails.cache.exist?(rate_key)
       if (last = Rails.cache.read(cache_key))
         return render json: { recommendations: last }, status: :ok

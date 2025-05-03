@@ -26,48 +26,73 @@ const AIRecommendations = ({
 
   const { id, responses, activity_location, date_notes } = activity;
 
+  useEffect(() => {
+    const loadCache = async () => {
+      setLoading(true);
+      console.log('starting cache check')
+      try {
+        const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+        const res = await fetch(
+          `${API_URL}/check_cached_recommendations?activity_id=${id}`,
+          { credentials: "include" }
+        );
+        if (res.ok) {
+          console.log('cache check ok')
+          const data = await res.json();
+          console.log(data)
+          if (data.recommendations?.length) {
+            const cached = data.recommendations.filter(
+              rec => !pinnedActivities.some(p => p.title === rec.name)
+            );
+            console.log('cache', cached)
+            setRecommendations(cached);
+          }
+        }
+      } catch (err) {
+        console.warn("Cache fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadCache();
+  }, [id, pinnedActivities, activity_location, date_notes]);
+
   const fetchRecommendations = useCallback(async () => {
-    if (!responses || responses.length === 0) {
-      alert("No responses found for this activity.");
-      return;
-    }
-    if (recommendations.length > 0) return;
     setLoading(true);
     setError("");
     try {
+      if (!responses?.length) {
+        return alert("No responses found—using trending instead.");
+      }
       const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
       const res = await fetch(`${API_URL}/api/openai/restaurant_recommendations`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          responses: responses.map((res) => res.notes).join("\n\n"),
+          responses: responses.map(r => r.notes).join("\n\n"),
           activity_location,
           date_notes,
+          activity_id: activity.id,
         }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        const filtered = data.recommendations.filter(
-          rec => !pinnedActivities.some(p => p.title === rec.name)
-        );
-        setRecommendations(filtered);
-      } else {
-        setError("⚠️ OpenAI rate limit reached. Try again later.");
-      }
+      if (!res.ok) throw new Error(res.status === 429
+        ? "⚠️ Rate limit—try again later."
+        : "❌ Error fetching recommendations."
+      );
+      const { recommendations: dataRecs } = await res.json();
+      const fresh = dataRecs.filter(
+        rec => !pinnedActivities.some(p => p.title === rec.name)
+      );
+      setRecommendations(fresh);
     } catch (err) {
-      setError("❌ Error fetching recommendations.");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [responses, activity_location, date_notes, recommendations.length, pinnedActivities]);
+  }, [responses, activity_location, date_notes, pinnedActivities]);
 
   const fetchTrendingRecommendations = useCallback(async () => {
-    if (!activity_location || !date_notes) {
-      alert("Activity details missing for recommendations.");
-      return;
-    }
-    if (recommendations.length > 0) return;
     setLoading(true);
     setError("");
     try {
@@ -76,70 +101,27 @@ const AIRecommendations = ({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ activity_location, date_notes }),
+        body: JSON.stringify({
+          activity_location,
+          date_notes,
+          activity_id: activity.id,
+        }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        const filtered = data.recommendations.filter(
-          rec => !pinnedActivities.some(p => p.title === rec.name)
-        );
-        setRecommendations(filtered);
-      } else {
-        setError("⚠️ OpenAI rate limit reached. Try again later.");
-      }
+      if (!res.ok) throw new Error(res.status === 429
+        ? "⚠️ Rate limit—try again later."
+        : "❌ Error fetching trending recommendations."
+      );
+      const { recommendations: dataRecs } = await res.json();
+      const fresh = dataRecs.filter(
+        rec => !pinnedActivities.some(p => p.title === rec.name)
+      );
+      setRecommendations(fresh);
     } catch (err) {
-      setError("❌ Error fetching trending recommendations.");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [activity_location, date_notes, recommendations.length, pinnedActivities]);
-
-  useEffect(() => {
-    if (recommendations.length > 0) return;
-    const fetchRecommendationsCache = async () => {
-      setLoading(true);
-      try {
-        const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
-        const res = await fetch(`${API_URL}/check_cached_recommendations?activity_id=${id}`, {
-          credentials: "include",
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.recommendations && data.recommendations.length > 0) {
-            const filtered = data.recommendations.filter(
-              rec => !pinnedActivities.some(p => p.title === rec.name)
-            );
-            setRecommendations(filtered);
-          } else {
-            console.warn("No cached recommendations found.");
-            if (responses?.length > 0) {
-              await fetchRecommendations();
-            } else {
-              await fetchTrendingRecommendations();
-            }
-          }
-        } else {
-          console.warn("Unexpected response status:", res.status);
-          setRecommendations([]);
-        }
-      } catch (err) {
-        console.error("Error fetching cached recommendations:", err);
-        setRecommendations([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRecommendationsCache();
-  }, [
-    id,
-    activity_location,
-    date_notes,
-    responses,
-    recommendations.length,
-    fetchRecommendations,
-    fetchTrendingRecommendations,
-    pinnedActivities
-  ]);
+  }, [activity_location, date_notes, pinnedActivities]);
 
   const handlePinActivity = (rec) => {
     if (window.confirm(`Do you want to pin "${rec.name}" to this activity?`)) {
@@ -207,6 +189,19 @@ const AIRecommendations = ({
       <ChatButton>
         <StyledButton onClick={handleStartChat}>Chat with Voxxy</StyledButton>
       </ChatButton>
+      {!recommendations.length && (
+        <ChatButton>
+          <StyledButton
+            onClick={() =>
+              responses?.length
+                ? fetchRecommendations()
+                : fetchTrendingRecommendations()
+            }
+          >
+            Generate Recommendations
+          </StyledButton>
+        </ChatButton>
+      )}
       {error && <ErrorText>{error}</ErrorText>}
       <RecommendationList>
         {pinnedActivities.length > 0 &&
