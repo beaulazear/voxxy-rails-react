@@ -328,7 +328,7 @@ export default function AIRecommendations({
             activityId={id}
             onClose={() => setShowChat(false)}
             onChatComplete={() => {
-              setRefreshTrigger((p) => !p);
+              fetchRecommendations();
               setShowChat(false);
             }}
           />

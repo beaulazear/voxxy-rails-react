@@ -204,7 +204,6 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
   ]);
   const [step, setStep] = useState(0);
 
-  // NEW: track if loading screen is shown
   const [showLoading, setShowLoading] = useState(false);
 
   const { user, setUser } = useContext(UserContext);
@@ -228,7 +227,6 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
     }
   }, [messages]);
 
-  // Ask first question
   useEffect(() => {
     setIsTyping(true);
     const timer = setTimeout(() => {
@@ -278,15 +276,12 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
           isUser: false
         }
       ]);
-      // Let the user see that final message for ~1.5s
       setTimeout(() => {
-        // Then show the loading screen
         setShowLoading(true);
       }, 1500);
     }
   };
 
-  // Called after the loading screen finishes
   const handleSubmit = async () => {
 
     if (process.env.NODE_ENV === 'production') {
@@ -343,7 +338,7 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
           };
         });
 
-        onChatComplete(); // proceed to next step in your app
+        onChatComplete();
       } else {
         const errorData = await response.json();
         console.error('❌ Failed to save response:', errorData);
