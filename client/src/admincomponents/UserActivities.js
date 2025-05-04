@@ -252,7 +252,7 @@ const CardGrid = styled.div`
   }
 `;
 
-const ActivityCard = styled.div`
+export const ActivityCard = styled.div`
   position: relative;
   width: 100%;
   padding-bottom: 100%;
@@ -263,7 +263,7 @@ const ActivityCard = styled.div`
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 `;
 
-const ImageContainer = styled.div`
+export const ImageContainer = styled.div`
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
   background-image: url(${GroupMeals});
@@ -276,7 +276,7 @@ const ImageContainer = styled.div`
   }
 `;
 
-const CardLabel = styled.div`
+export const CardLabel = styled.div`
   position: absolute;
   bottom: 0;
   width: 100%;
@@ -303,7 +303,7 @@ const CardLabel = styled.div`
   }
 `;
 
-const TypeTag = styled.div`
+export const TypeTag = styled.div`
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;

@@ -1,7 +1,8 @@
 import React, { useContext } from "react";
 import styled, { keyframes } from "styled-components";
 import { UserContext } from "../context/user";
-import Friends from "../assets/Friends.svg"; // Your uploaded image
+import Friends from "../assets/Friends.svg";
+import GroupMeals from '../assets/groupmeals.jpeg';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -9,79 +10,97 @@ const fadeIn = keyframes`
 `;
 
 const InviteContainer = styled.div`
-  animation: ${fadeIn} 0.8s ease-out;
-  max-width: 1200px;
-  margin: 0 auto;
 `;
 
 const InviteGrid = styled.div`
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 320px));
   gap: 1rem;
+  margin: 0 auto;
+  padding: 1rem;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    padding: 1rem 0;
   }
 `;
 
 const InviteCard = styled.div`
-  background: #2C1E33;
-  color: #fff;
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%;
+  margin: 0 auto;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  cursor: default;
+  &:hover { transform: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+
+  .button-group {
+    position: relative;
+    width: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    justify-content: center;
+  }
+`;
+
+export const ImageContainer = styled.div`
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background-image: url(${GroupMeals});
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.5s ease;
+  
+  ${InviteCard}:hover & {
+    transform: scale(1.1);
+  }
+`;
+
+export const CardLabel = styled.div`
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 50%;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  transition: transform 0.2s, box-shadow 0.2s;
-  cursor: pointer;
-  min-width: 310px;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
-  }
-
-  .content {
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-
-  .type-label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    background: #7b298d;
-    padding: 4px 10px;
-    border-radius: 999px;
-    display: inline-block;
-    width: fit-content;
-  }
+  justify-content: center;
+  padding: 0.75rem 1rem;
 
   h3 {
     margin: 0;
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-align: left;
   }
 
-  .location,
-  .host-info {
-    font-size: 0.85rem;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 4px 8px;
-    border-radius: 6px;
-    display: inline-block;
-    margin-top: 0.5rem;
-  }
-
-  .button-group {
-    padding: 0 1rem 1rem;
+  .meta {
+    font-size: 0.8rem;
+    margin-top: .5rem;
+    margin-bottom: 1rem;
     display: flex;
-    gap: 0.75rem;
-    justify-content: center;
+    justify-content: space-between;
   }
+`;
+
+export const TypeTag = styled.div`
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #7b298d;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
 `;
 
 const Button = styled.button`
@@ -93,16 +112,16 @@ const Button = styled.button`
   cursor: pointer;
   font-weight: bold;
   transition: transform 0.2s, box-shadow 0.2s;
-  background: ${(props) =>
-        props.$decline
-            ? "linear-gradient(135deg, #e74c3c, #c0392b)"
-            : "linear-gradient(135deg, #8e44ad, #6a1b9a)"};
+  background: ${({ $decline }) =>
+    $decline
+      ? "linear-gradient(135deg, #e74c3c, #c0392b)"
+      : "linear-gradient(135deg, #8e44ad, #6a1b9a)"};
   color: #fff;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
 
   &:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
   }
 `;
 
@@ -171,125 +190,125 @@ const Message = styled.p`
 `;
 
 const PendingInvites = ({ handleActivityClick }) => {
-    const { user, setUser } = useContext(UserContext);
-    const pendingInvites = user?.participant_activities?.filter(
-        (invite) => !invite.accepted
-    ) || [];
+  const { user, setUser } = useContext(UserContext);
+  const pendingInvites = user?.participant_activities?.filter(
+    (invite) => !invite.accepted
+  ) || [];
 
-    const handleAccept = async (invite) => {
-        try {
-            const response = await fetch(
-                `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activity_participants/accept`,
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify({ email: user.email, activity_id: invite.activity.id }),
-                }
-            );
-
-            if (!response.ok) {
-                alert("Failed to accept invite.");
-                return;
-            }
-
-            const updatedActivity = await response.json();
-
-            setUser((prevUser) => ({
-                ...prevUser,
-                participant_activities: prevUser.participant_activities.map((p) =>
-                    p.activity.id === updatedActivity.id
-                        ? { ...p, accepted: true, activity: updatedActivity }
-                        : p
-                ),
-                activities: prevUser.activities.map((activity) =>
-                    activity.id === updatedActivity.id
-                        ? {
-                            ...updatedActivity,
-                            participants: [
-                                ...(updatedActivity.participants || []),
-                                { id: user.id, name: user.name, email: user.email },
-                            ],
-                            group_size: updatedActivity.group_size + 1,
-                            comments: updatedActivity.comments,
-                        }
-                        : activity
-                ),
-            }));
-
-            handleActivityClick(updatedActivity)
-        } catch (error) {
-            console.error("❌ Error accepting invite:", error);
+  const handleAccept = async (invite) => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activity_participants/accept`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ email: user.email, activity_id: invite.activity.id }),
         }
-    };
+      );
 
-    const handleDecline = async (invite) => {
-        try {
-            const response = await fetch(
-                `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activity_participants/${invite.id}`,
-                {
-                    method: "DELETE",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                }
-            );
+      if (!response.ok) {
+        alert("Failed to accept invite.");
+        return;
+      }
 
-            if (response.ok) {
-                setUser((prevUser) => ({
-                    ...prevUser,
-                    participant_activities: prevUser.participant_activities.filter((p) => p.activity.id !== invite.activity.id),
-                }));
-                alert("Invite declined.");
-            } else {
-                alert("Failed to decline invite.");
+      const updatedActivity = await response.json();
+
+      setUser((prevUser) => ({
+        ...prevUser,
+        participant_activities: prevUser.participant_activities.map((p) =>
+          p.activity.id === updatedActivity.id
+            ? { ...p, accepted: true, activity: updatedActivity }
+            : p
+        ),
+        activities: prevUser.activities.map((activity) =>
+          activity.id === updatedActivity.id
+            ? {
+              ...updatedActivity,
+              participants: [
+                ...(updatedActivity.participants || []),
+                { id: user.id, name: user.name, email: user.email },
+              ],
+              group_size: updatedActivity.group_size + 1,
+              comments: updatedActivity.comments,
             }
-        } catch (error) {
-            console.error("❌ Error declining invite:", error);
-        }
-    };
+            : activity
+        ),
+      }));
 
-    function extractHoursAndMinutes(isoString) {
-        if (!isoString) return "Time: TBD";
-        return isoString.slice(11, 16);
+      handleActivityClick(updatedActivity)
+    } catch (error) {
+      console.error("❌ Error accepting invite:", error);
     }
+  };
 
-    return (
-        <InviteContainer>
-            {pendingInvites.length > 0 ? (
-                <InviteGrid>
-                    {pendingInvites.map((invite) => (
-                        <InviteCard key={invite.id} onClick={() => { }}>
-                            <div className="content">
-                                <div className="type-label">
-                                    {invite.activity.activity_type} {invite.activity.emoji}
-                                </div>
-                                <h3>{invite.activity.activity_name}</h3>
-                                <div className="location">
+  const handleDecline = async (invite) => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activity_participants/${invite.id}`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        }
+      );
 
-                                    {invite.activity.date_day ? `📆 ${invite.activity.date_day}` : "📆 TBD"}{" "}
-                                    {invite.activity.date_time
-                                        ? `⏰ ${extractHoursAndMinutes(invite.activity.date_time)}`
-                                        : "⏰ TBD"}
-                                </div>
-                                <div className="host-info">👤 Host: {invite.activity.user.name} 📍 {invite.activity.activity_location}</div>
-                            </div>
-                            <div className="button-group">
-                                <Button onClick={() => handleAccept(invite)}>Accept</Button>
-                                <Button $decline onClick={() => handleDecline(invite)}>Decline</Button>
-                            </div>
-                        </InviteCard>
-                    ))}
-                </InviteGrid>
-            ) : (
-                <NoBoardsContainer>
-                    <Image src={Friends} alt="No Invites" />
-                    <Message>
-                        No invites! Don’t wait for your friends to invite you—be the one to start the next activity! 🎉
-                    </Message>
-                </NoBoardsContainer>
-            )}
-        </InviteContainer>
-    );
+      if (response.ok) {
+        setUser((prevUser) => ({
+          ...prevUser,
+          participant_activities: prevUser.participant_activities.filter((p) => p.activity.id !== invite.activity.id),
+        }));
+        alert("Invite declined.");
+      } else {
+        alert("Failed to decline invite.");
+      }
+    } catch (error) {
+      console.error("❌ Error declining invite:", error);
+    }
+  };
+
+  function extractHoursAndMinutes(isoString) {
+    if (!isoString) return "Time: TBD";
+    return isoString.slice(11, 16);
+  }
+
+  return (
+    <InviteContainer>
+      {pendingInvites.length > 0 ? (
+        <InviteGrid>
+          {pendingInvites.map(invite => (
+            <InviteCard key={invite.id}>
+              <ImageContainer className="image-bg" />
+              <TypeTag>
+                {invite.activity.activity_type}
+              </TypeTag>
+              <CardLabel>
+                <h3>{invite.activity.activity_name}</h3>
+                <div className="meta">
+                  <span>Host: {invite.activity.user.name}</span>
+                  <span>
+                    {invite.activity.date_day || "TBD"} ·{" "}
+                    {invite.activity.date_time?.slice(11, 16) || "TBD"}
+                  </span>
+                </div>
+                <div className="button-group">
+                  <Button onClick={() => handleAccept(invite)}>Accept</Button>
+                  <Button $decline onClick={() => handleDecline(invite)}>Decline</Button>
+                </div>
+              </CardLabel>
+            </InviteCard>
+          ))}
+        </InviteGrid>
+      ) : (
+        <NoBoardsContainer>
+          <Image src={Friends} alt="No Invites" />
+          <Message>
+            No invites! Don’t wait for your friends—be the one to start the next activity! 🎉
+          </Message>
+        </NoBoardsContainer>
+      )}
+    </InviteContainer>
+  );
 };
 
 export default PendingInvites;

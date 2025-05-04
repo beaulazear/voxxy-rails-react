@@ -67,7 +67,8 @@ export default function AIRecommendations({
     setError("");
     try {
       if (!responses?.length) {
-        return fetchTrending();
+        await fetchTrending();
+        return;
       }
       const res = await fetch(
         `${API_URL}/api/openai/restaurant_recommendations`,

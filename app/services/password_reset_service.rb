@@ -23,7 +23,7 @@ class PasswordResetService
           <body style="font-family: Arial, sans-serif; text-align: center; background-color: #f9f9f9; padding: 30px;">
         #{'    '}
             <!-- Voxxy Logo -->
-            <img src="https://res.cloudinary.com/dgtpgywhl/image/upload/v1746365141/Voxxy_Header_syvpzb.svg"#{' '}
+            <img src="https://res.cloudinary.com/dgtpgywhl/image/upload/v1746365141/Voxxy_Header_syvpzb.png"#{' '}
                  alt="Voxxy Logo" width="300" style="margin-bottom: 20px;">
 
             <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
