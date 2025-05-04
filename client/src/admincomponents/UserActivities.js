@@ -6,8 +6,8 @@ import PendingInvites from './PendingInvites';
 import TripDashboard from './TripDashboard.js';
 import YourCommunity from './YourCommunity.js';
 import NoBoardsDisplay from './NoBoardsDisplay.js';
-import { HelpCircle, X } from 'lucide-react';
-import LetsEatCard from '../assets/LetsEatCard.jpeg';
+import { HelpCircle, X, User, Users, CalendarDays, Clock } from 'lucide-react';
+import LetUsEatTwo from '../assets/LetUsEatTwo.jpeg';
 
 const fadeIn = keyframes`
   from {
@@ -266,7 +266,7 @@ export const ActivityCard = styled.div`
 export const ImageContainer = styled.div`
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
-  background-image: url(${LetsEatCard});
+  background-image: url(${LetUsEatTwo});
   background-size: cover;
   background-position: center;
   transition: transform 0.5s ease;
@@ -280,7 +280,7 @@ export const CardLabel = styled.div`
   position: absolute;
   bottom: 0;
   width: 100%;
-  height: 35%;
+  height: 25%;
   background: rgba(0, 0, 0, 0.8);
   color: #fff;
   display: flex;
@@ -291,7 +291,6 @@ export const CardLabel = styled.div`
   h3 {
     margin: 0;
     margin-top: 1rem;
-    margin-bottom: 1rem;
     font-size: 1.3rem;
     font-weight: 600;
     text-align: left;
@@ -312,6 +311,21 @@ export const TypeTag = styled.div`
   background: #7b298d;
   padding: 0.25rem 0.6rem;
   border-radius: 999px;
+  border: 2px solid black;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+`;
+
+export const HostTag = styled.div`
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  background: #7b298d;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  border: 2px solid black;
   font-size: 0.75rem;
   font-weight: 600;
   color: #fff;
@@ -319,7 +333,7 @@ export const TypeTag = styled.div`
 `;
 
 const ViewBoard = styled.div`
-  margin-top: auto;         /* push it to the bottom */
+  margin-top: 1rem;
   font-size: 0.85rem;
   font-weight: 500;
   display: flex;
@@ -365,11 +379,6 @@ function UserActivities() {
 
   const toggleHelp = () => setHelpVisible(v => !v);
 
-  function extractHoursAndMinutes(isoString) {
-    if (!isoString) return "Time: TBD";
-    return isoString.slice(11, 16);
-  }
-
   const allActivities = [
     ...(user?.activities || []),
     ...(user?.participant_activities
@@ -380,6 +389,36 @@ function UserActivities() {
   const filteredActivities = uniqueActivities
     .filter(activity => (filterType === "upcoming" ? !activity.completed : activity.completed))
     .sort((a, b) => new Date(a.date_day) - new Date(b.date_day));
+
+  function getOrdinalSuffix(day) {
+    if (day >= 11 && day <= 13) return "th";
+    switch (day % 10) {
+      case 1: return "st";
+      case 2: return "nd";
+      case 3: return "rd";
+      default: return "th";
+    }
+  }
+
+  function formatDate(dateString) {
+    if (!dateString) return "TBD";
+    const d = new Date(dateString);
+    const month = d.toLocaleString("en-US", { month: "long" });     // “May”
+    const day = d.getDate();                                     //  5
+    return `${month} ${day}${getOrdinalSuffix(day)}`;               // “May 5th”
+  }
+
+  function formatTime(timeString) {
+    if (!timeString) return "TBD";
+    // "2000-01-01T22:15:00.000Z" → "22:15:00.000Z"
+    const timePortion = timeString.split("T")[1];
+    // "22:15:00.000Z" → ["22", "15", ...]
+    const [rawHour, rawMin] = timePortion.split(":");
+    let hour = parseInt(rawHour, 10);
+    const suffix = hour >= 12 ? "pm" : "am";
+    hour = hour % 12 || 12;            // convert 0→12, 13→1, etc.
+    return `${hour}:${rawMin} ${suffix}`;
+  }
 
   if (selectedActivityId) {
     return (
@@ -396,7 +435,6 @@ function UserActivities() {
       </>
     )
   }
-
 
   return (
     <>
@@ -476,21 +514,28 @@ function UserActivities() {
                 >
                   <ImageContainer />
 
+                  <HostTag>
+                    <User style={{ paddingBottom: '2px' }} size={14} /> {activity.user?.name || 'Unknown'}
+                  </HostTag>
+
                   <TypeTag>
-                    {activity.activity_type}
+                    {'🍽️ ' + activity.activity_type}
                   </TypeTag>
 
                   <CardLabel>
-                    <h3>{activity.activity_name}</h3>
+                    <div className='meta'>
+                      <span><h3>{activity.activity_name}</h3></span>
+                      <span><ViewBoard>View board <span>→</span></ViewBoard></span>
+                    </div>
                     <div className="meta">
-                      <span>Host: {activity.user?.name || 'Unknown'}</span>
                       <span>
-                      {activity.date_day || 'TBD'} · {activity.date_time ? extractHoursAndMinutes(activity.date_time) : 'TBD'}
+                        <CalendarDays style={{ paddingBottom: '2px' }} size={20} />{formatDate(activity.date_day) || 'TBD'} · <Clock style={{ paddingBottom: '2px' }} size={21} />{formatTime(activity.date_time) || 'TBD'}
+                      </span>
+                      <span>
+                        {activity.participants.length + 1}<Users style={{ paddingBottom: '3px' }} size={21} />
                       </span>
                     </div>
-                    <ViewBoard>
-                      View board <span>→</span>
-                    </ViewBoard>
+
                   </CardLabel>
                 </ActivityCard>
               ))}
