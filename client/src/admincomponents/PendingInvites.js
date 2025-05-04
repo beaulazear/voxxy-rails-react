@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import styled, { keyframes } from "styled-components";
 import { UserContext } from "../context/user";
 import Friends from "../assets/Friends.svg";
-import GroupMeals from '../assets/groupmeals.jpeg';
+import LetsEatCard from '../assets/LetsEatCard.jpeg';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -41,10 +41,8 @@ const InviteCard = styled.div`
   .button-group {
     position: relative;
     width: 100%;
-    background: rgba(0,0,0,0.6);
     display: flex;
     gap: 0.75rem;
-    padding: 0.75rem 1rem;
     justify-content: center;
   }
 `;
@@ -52,7 +50,7 @@ const InviteCard = styled.div`
 export const ImageContainer = styled.div`
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
-  background-image: url(${GroupMeals});
+  background-image: url(${LetsEatCard});
   background-size: cover;
   background-position: center;
   transition: transform 0.5s ease;
@@ -66,7 +64,7 @@ export const CardLabel = styled.div`
   position: absolute;
   bottom: 0;
   width: 100%;
-  height: 50%;
+  height: 45%;
   background: rgba(0, 0, 0, 0.8);
   color: #fff;
   display: flex;

@@ -7,7 +7,7 @@ import TripDashboard from './TripDashboard.js';
 import YourCommunity from './YourCommunity.js';
 import NoBoardsDisplay from './NoBoardsDisplay.js';
 import { HelpCircle, X } from 'lucide-react';
-import GroupMeals from '../assets/groupmeals.jpeg';
+import LetsEatCard from '../assets/LetsEatCard.jpeg';
 
 const fadeIn = keyframes`
   from {
@@ -266,7 +266,7 @@ export const ActivityCard = styled.div`
 export const ImageContainer = styled.div`
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
-  background-image: url(${GroupMeals});
+  background-image: url(${LetsEatCard});
   background-size: cover;
   background-position: center;
   transition: transform 0.5s ease;
@@ -290,6 +290,8 @@ export const CardLabel = styled.div`
 
   h3 {
     margin: 0;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
     font-size: 1.3rem;
     font-weight: 600;
     text-align: left;
@@ -297,7 +299,7 @@ export const CardLabel = styled.div`
 
   .meta {
     font-size: 0.8rem;
-    margin-top: 1rem;
+    margin-bottom: .5rem;
     display: flex;
     justify-content: space-between;
   }
