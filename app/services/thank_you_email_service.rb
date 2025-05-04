@@ -19,7 +19,7 @@ class ThankYouEmailService
         value: <<~HTML
           <html>
             <body style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
-              <img src="https://res.cloudinary.com/dgtpgywhl/image/upload/v1742052456/VOXXY_FULL_2_gdzqjx.jpg"
+              <img src="https://res.cloudinary.com/dgtpgywhl/image/upload/v1746365141/Voxxy_Header_syvpzb.svg"
                    alt="Voxxy Logo" width="400"
                    style="max-width: 100%; height: auto; margin-bottom: 20px;">
           #{'    '}
