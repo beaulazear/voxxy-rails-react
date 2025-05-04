@@ -7,7 +7,7 @@ import TripDashboard from './TripDashboard.js';
 import YourCommunity from './YourCommunity.js';
 import NoBoardsDisplay from './NoBoardsDisplay.js';
 import { HelpCircle, X, User, Users, CalendarDays, Clock } from 'lucide-react';
-import LetUsEatTwo from '../assets/LetUsEatTwo.jpeg';
+import LetsEatThree from '../assets/LetsEatThree.jpeg';
 
 const fadeIn = keyframes`
   from {
@@ -266,7 +266,7 @@ export const ActivityCard = styled.div`
 export const ImageContainer = styled.div`
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
-  background-image: url(${LetUsEatTwo});
+  background-image: url(${LetsEatThree});
   background-size: cover;
   background-position: center;
   transition: transform 0.5s ease;
