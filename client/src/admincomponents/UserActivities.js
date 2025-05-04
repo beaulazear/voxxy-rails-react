@@ -333,7 +333,6 @@ export const HostTag = styled.div`
 `;
 
 const ViewBoard = styled.div`
-  margin-top: 1rem;
   font-size: 0.85rem;
   font-weight: 500;
   display: flex;
@@ -525,15 +524,15 @@ function UserActivities() {
                   <CardLabel>
                     <div className='meta'>
                       <span><h3>{activity.activity_name}</h3></span>
-                      <span><ViewBoard>View board <span>→</span></ViewBoard></span>
+                      <span style={{ marginTop: '1rem', fontSize: '16px' }}>
+                        {activity.participants.length + 1}<Users style={{paddingBottom: '3px'}}size={18} />
+                      </span>
                     </div>
                     <div className="meta">
                       <span>
                         <CalendarDays style={{ paddingBottom: '2px' }} size={20} />{formatDate(activity.date_day) || 'TBD'} · <Clock style={{ paddingBottom: '2px' }} size={21} />{formatTime(activity.date_time) || 'TBD'}
                       </span>
-                      <span>
-                        {activity.participants.length + 1}<Users style={{ paddingBottom: '3px' }} size={21} />
-                      </span>
+                      <span><ViewBoard>View board <span>→</span></ViewBoard></span>
                     </div>
 
                   </CardLabel>
