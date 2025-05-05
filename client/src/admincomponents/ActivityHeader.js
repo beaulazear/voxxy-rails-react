@@ -259,7 +259,7 @@ const HeaderContainer = styled.div`
 
 const IconButton = styled.button`
   position: absolute;
-  top: 1rem;
+  top: 0rem;
   background: none;
   border: none;
   color: #fff;
@@ -281,7 +281,7 @@ const IconButtonLeft = styled(IconButton)`
 
 const ButtonGroup = styled.div`
   position: absolute;
-  top: .5rem;
+  top: 0rem;
   right: 0rem;
   display: flex;
   gap: 0.75rem;
@@ -317,8 +317,8 @@ const DeleteButton = styled.button`
 
 const LeaveButton = styled.button`
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 0rem;
+  right: 0rem;
   background: #a02e2e;
   color: #fff;
   border: none;
@@ -339,8 +339,8 @@ const LeaveButton = styled.button`
 const Title = styled.h1`
   margin: 0 auto 0.75rem;
   margin-top: 1rem;
-  padding-left: 2rem;
-  padding-right: 2rem;
+  padding-left: 5rem;
+  padding-right: 5rem;
   text-align: center;
   font-size: clamp(1.75rem, 3vw, 2.4rem);
   color: #fff;
