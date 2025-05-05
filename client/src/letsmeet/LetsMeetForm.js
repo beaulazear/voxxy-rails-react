@@ -59,6 +59,7 @@ const Label = styled.label`
   margin-bottom: 0.4rem;
   font-weight: 600;
   color: #ddd;
+  text-align: left;
 `;
 
 const Input = styled.input`
@@ -91,8 +92,8 @@ const Tabs = styled.div`
 const Tab = styled.button`
   flex: 1;
   padding: 0.5rem;
-  background: ${({ active }) => (active ? '#6c63ff' : '#333')};
-  color: ${({ active }) => (active ? 'white' : '#ccc')};
+  background: ${({ $active }) => ($active ? "#6c63ff" : "#333")};
+  color: ${({ $active }) => ($active ? "white"   : "#ccc")};
   border: none;
   cursor: pointer;
   font-size: 0.9rem;
@@ -103,7 +104,6 @@ const ButtonRow = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 1rem 1.5rem;
-  background: #111;
 `;
 
 const Button = styled.button`
@@ -115,6 +115,23 @@ const Button = styled.button`
   font-size: 0.9rem;
   cursor: pointer;
   &:disabled { opacity: 0.5; cursor: not-allowed; }
+`;
+
+const ModalHeader = styled.div`
+  padding: 0 1.5rem 1rem;
+  text-align: left;
+`;
+const Title = styled.h2`
+  color: #fff;
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+  text-align: left;
+`;
+const Subtitle = styled.p`
+  color: #aaa;
+  margin: 0;
+  font-size: 0.9rem;
+  text-align: left;
 `;
 
 export default function LetsMeetFormModal({ onClose }) {
@@ -131,7 +148,15 @@ export default function LetsMeetFormModal({ onClose }) {
     const [participantsInput, setParticipantsInput] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
-    const percent = (step - 1) / 2 * 100;
+    const totalSteps = 3;
+    const percent = (step / totalSteps) * 100;
+
+    const headers = [
+        { title: "Tell us about your meeting", subtitle: "Basic information to help coordinate with your group." },
+        { title: "Choose your preferred dates", subtitle: "Select when you'd like to meet with your group." },
+        { title: "Invite people", subtitle: "Invite others to find a time that works for everyone. (optional)" },
+    ];
+    const { title, subtitle } = headers[step - 1];
 
     const dateNotes = () => {
         if (tab === 'single') return singleDate;
@@ -191,11 +216,14 @@ export default function LetsMeetFormModal({ onClose }) {
                     <ProgressBar percent={percent} />
                 </ProgressBarContainer>
                 <StepLabel>
-                    Step {step} of 3 –{' '}
-                    {step === 1 ? 'Basic info' :
-                        step === 2 ? 'Pick your date' :
-                            'Invite people'}
+                    Step {step} of {totalSteps}
                 </StepLabel>
+
+                {/* your new title & subtitle */}
+                <ModalHeader>
+                    <Title>{title}</Title>
+                    <Subtitle>{subtitle}</Subtitle>
+                </ModalHeader>
 
                 <StepContent>
                     {step === 1 && (
@@ -221,9 +249,9 @@ export default function LetsMeetFormModal({ onClose }) {
                     {step === 2 && (
                         <>
                             <Tabs>
-                                <Tab active={tab === 'single'} onClick={() => setTab('single')}>Single Date</Tab>
-                                <Tab active={tab === 'range'} onClick={() => setTab('range')}>Date Range</Tab>
-                                <Tab active={tab === 'open'} onClick={() => setTab('open')}>Open Dates</Tab>
+                                <Tab $active={tab === 'single'} onClick={() => setTab('single')}>Single Date</Tab>
+                                <Tab $active={tab === 'range'} onClick={() => setTab('range')}>Date Range</Tab>
+                                <Tab $active={tab === 'open'} onClick={() => setTab('open')}>Open Dates</Tab>
                             </Tabs>
                             {tab === 'single' && (
                                 <>
