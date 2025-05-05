@@ -265,11 +265,6 @@ const PendingInvites = ({ handleActivityClick }) => {
     }
   };
 
-  function extractHoursAndMinutes(isoString) {
-    if (!isoString) return "Time: TBD";
-    return isoString.slice(11, 16);
-  }
-
   return (
     <InviteContainer>
       {pendingInvites.length > 0 ? (

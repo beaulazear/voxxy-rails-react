@@ -175,9 +175,6 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
 
 
         <EntryMessage onClick={isOwner ? onEdit : undefined}>
-        <HostName>
-          Welcome Message
-        </HostName>
           {activity.welcome_message ||
             "Welcome to this activity! … customize this message to fit your needs!"}
         </EntryMessage>
@@ -255,12 +252,10 @@ export default HeaderSection;
 
 const HeaderContainer = styled.div`
   position: relative;
-  background: #2a1e30;
-  padding: 2.5rem 1rem 1rem;
+  padding: 2.5rem .5rem .5rem;
   border-radius: 16px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
-  margin: 1rem auto;
-  max-width: 600px;
+  margin: auto;
+  max-width: 800px;
 `;
 
 const IconButton = styled.button`
@@ -282,13 +277,13 @@ const IconButton = styled.button`
 `;
 
 const IconButtonLeft = styled(IconButton)`
-  left: 1rem;
+  left: 0rem;
 `;
 
 const ButtonGroup = styled.div`
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: .5rem;
+  right: 0rem;
   display: flex;
   gap: 0.75rem;
 `;
@@ -379,20 +374,13 @@ const MetaItem = styled.div`
   }
 `;
 
-const HostName = styled.p`
-  text-align: center;
-  color: #fff;
-  font-weight: bold;
-  margin: 0 0 1rem;
-`;
-
-const EntryMessage = styled.p`
-  background: #3b2846;
+const EntryMessage = styled.div`
   padding: 1rem;
   border-radius: 10px;
+  font-weight: 500;
   color: #fff;
   line-height: 1.5;
-  margin: 0 auto 1.5rem;
+  margin: 0 auto;
   max-width: 450px;
   cursor: ${({ onClick }) => (onClick ? "pointer" : "default")};
 `;
