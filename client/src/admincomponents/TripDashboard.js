@@ -6,6 +6,7 @@ import RestaurantChat from './RestaurantChat';
 import CuisineChat from './CuisineChat';
 import PostRestaurantPopup from './PostRestaurantPopup';
 import mixpanel from 'mixpanel-browser';
+import LetsMeetForm from '../letsmeet/LetsMeetForm';
 
 const fadeIn = keyframes`
   from {
@@ -87,10 +88,17 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
   }, []);
 
   const handleTripSelect = (tripName) => {
-    if (tripName === 'Lets Eat') {
-      setSelectedTrip('Lets Eat');
-    } else {
-      alert(`Selected Trip: ${tripName}`);
+    switch (tripName) {
+      case 'Lets Eat':
+        setSelectedTrip('Lets Eat');
+        break;
+
+      case 'Lets Meet':
+        setSelectedTrip('Lets Meet');
+        break;
+
+      default:
+        alert(`Selected Trip: ${tripName}`);
     }
   };
 
@@ -112,6 +120,15 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
     }
   };
 
+  const handleLetsMeetClose = (id) => {
+    if (id) {
+      setSelectedActivityId(id);
+      setSelectedTrip(null);
+    } else {
+      setSelectedTrip(null);
+    }
+  };
+
   return (
     <PageContainer ref={dashboardRef}>
       <StartNewAdventure setShowActivities={setShowActivities} onTripSelect={handleTripSelect} />
@@ -120,6 +137,12 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
         <>
           <DimmedOverlay />
           <RestaurantChat onClose={handleRestaurantChatClose} />
+        </>
+      )}
+
+      {selectedTrip === 'Lets Meet' && (
+        <>
+          <LetsMeetForm onClose={handleLetsMeetClose}/>
         </>
       )}
 

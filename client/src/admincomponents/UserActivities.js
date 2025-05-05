@@ -8,6 +8,7 @@ import YourCommunity from './YourCommunity.js';
 import NoBoardsDisplay from './NoBoardsDisplay.js';
 import { HelpCircle, X, User, Users, CalendarDays, Clock } from 'lucide-react';
 import LetsEatThree from '../assets/LetsEatThree.jpeg';
+import LetsMeetCardThree from '../assets/LetsMeetCardThree.jpeg';
 
 const fadeIn = keyframes`
   from {
@@ -266,7 +267,7 @@ export const ActivityCard = styled.div`
 export const ImageContainer = styled.div`
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
-  background-image: url(${LetsEatThree});
+  background-image: url(${props => props.$bgimage});
   background-size: cover;
   background-position: center;
   transition: transform 0.5s ease;
@@ -506,38 +507,42 @@ function UserActivities() {
             <PendingInvites handleActivityClick={handleActivityClick} />
           ) : filteredActivities.length > 0 ? (
             <CardGrid>
-              {filteredActivities.map(activity => (
-                <ActivityCard
-                  key={activity.id}
-                  onClick={() => handleActivityClick(activity)}
-                >
-                  <ImageContainer />
+              {filteredActivities.map(activity => {
+                const isMeeting = activity.activity_type.toLowerCase() === 'meeting';
+                return (
 
-                  <HostTag>
-                    <User style={{ paddingBottom: '2px' }} size={14} /> {activity.user?.name || 'Unknown'}
-                  </HostTag>
+                  <ActivityCard
+                    key={activity.id}
+                    onClick={() => handleActivityClick(activity)}
+                  >
+                    <ImageContainer $bgimage={isMeeting ? LetsMeetCardThree : LetsEatThree} />
 
-                  <TypeTag>
-                    {'🍽️ ' + activity.activity_type}
-                  </TypeTag>
+                    <HostTag>
+                      <User style={{ paddingBottom: '2px' }} size={14} /> {activity.user?.name || 'Unknown'}
+                    </HostTag>
 
-                  <CardLabel>
-                    <div className='meta'>
-                      <span><h3>{activity.activity_name}</h3></span>
-                      <span style={{ marginTop: '1rem', fontSize: '16px' }}>
-                        {activity.participants.length + 1}<Users style={{paddingBottom: '3px'}}size={18} />
-                      </span>
-                    </div>
-                    <div className="meta">
-                      <span>
-                        <CalendarDays style={{ paddingBottom: '2px' }} size={20} />{formatDate(activity.date_day) || 'TBD'} · <Clock style={{ paddingBottom: '2px' }} size={21} />{formatTime(activity.date_time) || 'TBD'}
-                      </span>
-                      <span><ViewBoard>View board <span>→</span></ViewBoard></span>
-                    </div>
+                    <TypeTag>
+                      {activity.emoji + ' ' + activity.activity_type}
+                    </TypeTag>
 
-                  </CardLabel>
-                </ActivityCard>
-              ))}
+                    <CardLabel>
+                      <div className='meta'>
+                        <span><h3>{activity.activity_name}</h3></span>
+                        <span style={{ marginTop: '1rem', fontSize: '16px' }}>
+                          {activity.participants.length + 1}<Users style={{ paddingBottom: '3px' }} size={18} />
+                        </span>
+                      </div>
+                      <div className="meta">
+                        <span>
+                          <CalendarDays style={{ paddingBottom: '2px' }} size={20} />{formatDate(activity.date_day) || 'TBD'} · <Clock style={{ paddingBottom: '2px' }} size={21} />{formatTime(activity.date_time) || 'TBD'}
+                        </span>
+                        <span><ViewBoard>View board <span>→</span></ViewBoard></span>
+                      </div>
+
+                    </CardLabel>
+                  </ActivityCard>
+                );
+              })}
             </CardGrid>
           ) : (
             <NoBoardsDisplay onCreateBoard={() => setShowActivities(true)} />

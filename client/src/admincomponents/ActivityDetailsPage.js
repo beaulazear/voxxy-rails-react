@@ -147,27 +147,29 @@ function ActivityDetailsPage({ activityId, onBack }) {
   }
 
   return (
-      <div style={{backgroundColor: '#201925'}} ref={topRef}>
-        <PageContainer>
-          <ActivityHeader
-            activity={currentActivity}
-            isOwner={isOwner}
-            onBack={onBack}
-            onEdit={() => setShowModal(true)}
-            onDelete={handleDelete}
-            onInvite={handleInvite}
-          />
+    <div style={{ backgroundColor: '#201925' }} ref={topRef}>
+      <PageContainer>
+        <ActivityHeader
+          activity={currentActivity}
+          isOwner={isOwner}
+          onBack={onBack}
+          onEdit={() => setShowModal(true)}
+          onDelete={handleDelete}
+          onInvite={handleInvite}
+        />
+        {currentActivity.activity_type === 'Restaurant' && (
           <AIRecommendations isOwner={isOwner} pinnedActivities={pinnedActivities} setPinnedActivities={setPinnedActivities} activity={currentActivity} setRefreshTrigger={setRefreshTrigger} />
-          <ActivityCommentSection activity={currentActivity} />
-          {showModal && (
-            <UpdateActivityModal
-              activity={currentActivity}
-              onClose={() => setShowModal(false)}
-              onUpdate={handleUpdate}
-            />
-          )}
-        </PageContainer>
-      </div>
+        )}
+        <ActivityCommentSection activity={currentActivity} />
+        {showModal && (
+          <UpdateActivityModal
+            activity={currentActivity}
+            onClose={() => setShowModal(false)}
+            onUpdate={handleUpdate}
+          />
+        )}
+      </PageContainer>
+    </div>
   );
 }
 

@@ -149,7 +149,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
         <MetaRow>
           <MetaItem>
             <label>Activty Type:</label>
-            <span>{activity.activity_type + ' 🍜' || "N/A"}</span>
+            <span>{activity.activity_type + ' ' + activity.emoji || "N/A"}</span>
           </MetaItem>
           <MetaItem>
             <label>Location:</label>
@@ -252,7 +252,6 @@ export default HeaderSection;
 
 const HeaderContainer = styled.div`
   position: relative;
-  padding: 2.5rem .5rem .5rem;
   border-radius: 16px;
   margin: auto;
   max-width: 800px;
@@ -340,6 +339,8 @@ const LeaveButton = styled.button`
 const Title = styled.h1`
   margin: 0 auto 0.75rem;
   margin-top: 1rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
   text-align: center;
   font-size: clamp(1.75rem, 3vw, 2.4rem);
   color: #fff;

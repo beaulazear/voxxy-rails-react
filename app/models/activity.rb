@@ -6,7 +6,7 @@ class Activity < ApplicationRecord
     has_many :pinned_activities, dependent: :destroy
     has_many :comments, dependent: :destroy
 
-    validates :activity_name, :activity_type, :activity_location, :date_notes, presence: true
+    validates :activity_name, :activity_type, :date_notes, presence: true
     validate :date_day_must_be_in_future, if: -> { date_day.present? }
 
     private

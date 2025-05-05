@@ -2,11 +2,17 @@ class ActivitiesController < ApplicationController
     before_action :authorized
 
     def create
-      activity = current_user.activities.build(activity_params)
+      activity = current_user.activities.build(activity_params.except(:participants))
       if activity.save
+        invite_emails = activity_params[:participants] || []
+        invite_emails.each { |email| invite_participant(email, activity) }
         render json: activity.as_json(
           only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message ],
-          include: { user: { only: [ :id, :name, :email, :avatar ] } }
+          include: {
+            user: { only: [ :id, :name, :email, :avatar ] },
+            activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] },
+            participants: { only: [ :id, :name, :email, :avatar ] }
+          }
         ), status: :created
       else
         render json: { errors: activity.errors.full_messages }, status: :unprocessable_entity
@@ -112,6 +118,27 @@ class ActivitiesController < ApplicationController
     private
 
     def activity_params
-      params.require(:activity).permit(:activity_name, :activity_type, :activity_location, :group_size, :date_notes, :active, :emoji, :date_day, :date_time, :welcome_message, :completed)
+      params.require(:activity).permit(:activity_name, :activity_type, :activity_location, :group_size, :date_notes, :active, :emoji, :date_day, :date_time, :welcome_message, :completed, participants: [])
+    end
+
+    def invite_participant(raw_email, activity)
+      invited_email = raw_email.to_s.strip.downcase
+      return if invited_email.blank?
+
+      participant = ActivityParticipant.find_or_initialize_by(
+        activity_id: activity.id,
+        invited_email: invited_email
+      )
+
+      return if participant.persisted?  # already invited
+
+      if (user = User.find_by("lower(email) = ?", invited_email))
+        participant.user_id = user.id
+      end
+
+      participant.accepted = false
+      participant.save!
+
+      InviteUserService.send_invitation(activity, invited_email, current_user)
     end
 end
