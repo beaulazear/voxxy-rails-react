@@ -70,7 +70,7 @@ const Header = styled.h2`
   letter-spacing: 1px;
 `;
 
-export default function LetsMeetScheduler({ activityId, onClose, onChatComplete, currentActivity }) {
+export default function LetsMeetScheduler({ activityId, currentActivity }) {
     const { user, setUser } = useContext(UserContext);
 
     const [selectedDates, setSelectedDates] = useState([]);
@@ -158,12 +158,9 @@ export default function LetsMeetScheduler({ activityId, onClose, onChatComplete,
                 );
                 return { ...prev, activities: updActs, participant_activities: updPart };
             });
-            onChatComplete();
         } catch (err) {
             console.error("❌ Error saving availability:", err);
         }
-
-        onClose();
     };
 
     if (responseSubmitted) {
