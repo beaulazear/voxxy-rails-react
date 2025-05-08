@@ -25,7 +25,6 @@ const ModalContainer = styled.div`
   overflow: hidden;
 `;
 
-// Progress bar right at top
 const ProgressBarContainer = styled.div`
   height: 6px;
   background: #333;
@@ -38,7 +37,6 @@ const ProgressBar = styled.div`
   transition: width 0.3s ease;
 `;
 
-// Smaller step label under the bar
 const StepLabel = styled.div`
   padding: 0.75rem 1.5rem 0.5rem;
   font-size: 0.85rem;
@@ -46,7 +44,6 @@ const StepLabel = styled.div`
   text-align: center;
 `;
 
-// Dark header removed––we’ll just use subtitle under step label
 const StepContent = styled.div`
   padding: 1.5rem;
   flex: 1;
@@ -219,7 +216,6 @@ export default function LetsMeetFormModal({ onClose }) {
                     Step {step} of {totalSteps}
                 </StepLabel>
 
-                {/* your new title & subtitle */}
                 <ModalHeader>
                     <Title>{title}</Title>
                     <Subtitle>{subtitle}</Subtitle>

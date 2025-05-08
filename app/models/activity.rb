@@ -9,13 +9,23 @@ class Activity < ApplicationRecord
     validates :activity_name, :activity_type, :date_notes, presence: true
     validate :date_day_must_be_in_future, if: -> { date_day.present? }
 
-    private
-
-    def date_day_must_be_in_future
-      return if will_save_change_to_completed? && completed
-
-      if date_day < Date.today
-        errors.add(:date_day, "must be a future date")
+  def availability_tally
+    tally = Hash.new(0)
+    responses.each do |r|
+      r.availability.each do |date, times|
+        times.each { |time| tally["#{date} #{time}"] += 1 }
       end
     end
+    tally
+  end
+
+  private
+
+  def date_day_must_be_in_future
+    return if will_save_change_to_completed? && completed
+
+    if date_day < Date.today
+        errors.add(:date_day, "must be a future date")
+    end
+  end
 end
