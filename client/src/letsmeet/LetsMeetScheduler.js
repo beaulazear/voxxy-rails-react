@@ -1,7 +1,7 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useMemo } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-import { format, parse } from "date-fns";
+import { format, parse, parseISO } from "date-fns";
 import styled from "styled-components";
 import mixpanel from "mixpanel-browser";
 import { UserContext } from "../context/user";
@@ -77,14 +77,57 @@ export default function LetsMeetScheduler({ activityId, currentActivity }) {
     const [slotsByDate, setSlotsByDate] = useState({});
     const [openAll, setOpenAll] = useState(false);
 
-    const responseSubmitted = currentActivity.responses.find(res => res.notes === 'LetsMeetAvailabilityResponse' && res.user_id === user.id)
+    const responseSubmitted = currentActivity.responses.some(
+        (res) =>
+            res.notes === "LetsMeetAvailabilityResponse" && res.user_id === user.id
+    );
+
+    // parse the date_notes once
+    const { disabledDays, availableLabel } = useMemo(() => {
+        const note = currentActivity.date_notes;
+        const today = new Date();
+
+        if (note === "open") {
+            return {
+                disabledDays: { before: today },
+                availableLabel: "Any future date",
+            };
+        }
+
+        const rangeMatch = note.match(
+            /^(\d{4}-\d{2}-\d{2}) to (\d{4}-\d{2}-\d{2})$/
+        );
+        if (rangeMatch) {
+            const [, startStr, endStr] = rangeMatch;
+            const start = parseISO(startStr);
+            const end = parseISO(endStr);
+            return {
+                disabledDays: [{ before: start }, { after: end }],
+                availableLabel: `Between ${format(start, "MMM d, yyyy")} and ${format(
+                    end,
+                    "MMM d, yyyy"
+                )}`,
+            };
+        }
+
+        const singleMatch = note.match(/^\d{4}-\d{2}-\d{2}$/);
+        if (singleMatch) {
+            const only = parseISO(note);
+            return {
+                disabledDays: [{ before: only }, { after: only }],
+                availableLabel: `Only ${format(only, "MMMM d, yyyy")}`,
+            };
+        }
+
+        return { disabledDays: [], availableLabel: "" };
+    }, [currentActivity.date_notes]);
 
     const timeSlots = Array.from({ length: 13 }, (_, i) => {
-        const hour24 = 9 + i; // 9–21
+        const hour24 = 9 + i;
         return `${String(hour24).padStart(2, "0")}:00`;
     });
 
-    const formatDisplay = timeStr => {
+    const formatDisplay = (timeStr) => {
         const parsed = parse(timeStr, "HH:mm", new Date());
         return format(parsed, "h:mm a");
     };
@@ -92,10 +135,9 @@ export default function LetsMeetScheduler({ activityId, currentActivity }) {
     function handleSelect(dates) {
         const arr = dates || [];
         setSelectedDates(arr);
-
         if (arr.length) setOpenAll(false);
 
-        setSlotsByDate(prev =>
+        setSlotsByDate((prev) =>
             arr.reduce((acc, dateObj) => {
                 const key = format(dateObj, "yyyy-MM-dd");
                 acc[key] = prev[key] || [];
@@ -105,12 +147,12 @@ export default function LetsMeetScheduler({ activityId, currentActivity }) {
     }
 
     function toggleSlot(date, time) {
-        setSlotsByDate(prev => {
+        setSlotsByDate((prev) => {
             const times = prev[date] || [];
             return {
                 ...prev,
                 [date]: times.includes(time)
-                    ? times.filter(t => t !== time)
+                    ? times.filter((t) => t !== time)
                     : [...times, time],
             };
         });
@@ -122,29 +164,32 @@ export default function LetsMeetScheduler({ activityId, currentActivity }) {
         }
 
         const availability = openAll ? { open: true } : slotsByDate;
-        const notes = 'LetsMeetAvailabilityResponse'
+        const notes = "LetsMeetAvailabilityResponse";
 
         try {
-            const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/responses`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({
-                    response: { activity_id: activityId, availability, notes },
-                }),
-            });
+            const res = await fetch(
+                `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/responses`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        response: { activity_id: activityId, availability, notes },
+                    }),
+                }
+            );
             if (!res.ok) {
                 console.error("❌ Failed to save availability:", await res.json());
                 return;
             }
             const newResponse = await res.json();
-            setUser(prev => {
-                const updActs = prev.activities.map(act =>
+            setUser((prev) => {
+                const updActs = prev.activities.map((act) =>
                     act.id === activityId
                         ? { ...act, responses: [...(act.responses || []), newResponse] }
                         : act
                 );
-                const updPart = prev.participant_activities.map(part =>
+                const updPart = prev.participant_activities.map((part) =>
                     part.activity.id === activityId
                         ? {
                             ...part,
@@ -164,20 +209,22 @@ export default function LetsMeetScheduler({ activityId, currentActivity }) {
 
     if (responseSubmitted) {
         return (
-            <>
-                <Header style={{margin: '2rem'}}>Thank you for submitting your availability</Header>
-            </>
-        )
+            <Header style={{ margin: "2rem" }}>
+                Thank you for submitting your availability
+            </Header>
+        );
     }
 
     return (
         <SchedulerWrapper>
             <h3 style={{ color: "#fff" }}>Submit Your Availability</h3>
+            <p style={{ color: "#ddd", fontStyle: "italic" }}>{availableLabel}</p>
 
             <WhiteDayPicker
                 mode="multiple"
                 selected={selectedDates}
                 onSelect={handleSelect}
+                disabled={disabledDays}
             />
 
             <label style={{ color: "#fff", margin: "1rem 0" }}>
@@ -185,7 +232,7 @@ export default function LetsMeetScheduler({ activityId, currentActivity }) {
                     type="checkbox"
                     checked={openAll}
                     disabled={selectedDates.length > 0}
-                    onChange={e => setOpenAll(e.target.checked)}
+                    onChange={(e) => setOpenAll(e.target.checked)}
                 />{" "}
                 Open availability (any time)
             </label>
@@ -193,15 +240,18 @@ export default function LetsMeetScheduler({ activityId, currentActivity }) {
             {!openAll && selectedDates.length > 0 && (
                 <>
                     <h4 style={{ color: "#fff" }}>Pick time slots</h4>
-                    {selectedDates.map(dateObj => {
+                    {selectedDates.map((dateObj) => {
                         const key = format(dateObj, "yyyy-MM-dd");
                         return (
-                            <div key={key} style={{ marginBottom: "1rem", width: "100%" }}>
+                            <div
+                                key={key}
+                                style={{ marginBottom: "1rem", width: "100%" }}
+                            >
                                 <strong style={{ color: "#fff" }}>
                                     {format(dateObj, "MMMM d, yyyy")}
                                 </strong>
                                 <div style={{ display: "flex", flexWrap: "wrap" }}>
-                                    {timeSlots.map(time => (
+                                    {timeSlots.map((time) => (
                                         <SlotButton
                                             key={time}
                                             $selected={slotsByDate[key]?.includes(time)}

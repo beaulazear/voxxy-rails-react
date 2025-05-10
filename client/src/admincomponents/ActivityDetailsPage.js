@@ -162,9 +162,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
           <AIRecommendations isOwner={isOwner} pinnedActivities={pinnedActivities} setPinnedActivities={setPinnedActivities} activity={currentActivity} setRefreshTrigger={setRefreshTrigger} />
         )}
         {currentActivity.activity_type === 'Meeting' && (
-          <>
-            <TimeSlots currentActivity={currentActivity} />
-          </>
+          <TimeSlots currentActivity={currentActivity} />
         )}
         <ActivityCommentSection activity={currentActivity} />
         {showModal && (

@@ -7,7 +7,7 @@ import LetsMeetScheduler from './LetsMeetScheduler';
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  margin-bottom: 1rem;
 `;
 
 const Card = styled.div`
@@ -17,7 +17,8 @@ const Card = styled.div`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
   text-align: left;
   margin: 1rem auto;
-  width: 600px;
+  max-width: 600px;
+  width: 100%;
 `;
 
 const CardHeader = styled.div`
@@ -95,16 +96,15 @@ export default function TimeSlots({ currentActivity }) {
     const [activeTab, setActiveTab] = useState('available');
 
     const activityId = currentActivity.id;
+    console.log(currentActivity)
 
     useEffect(() => {
-        // fetch pinned slots
         fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activityId}/time_slots`, {
             method: 'GET', credentials: 'include', headers: { 'Content-Type': 'application/json' }
         })
             .then(res => res.json())
             .then(data => setPinned(data));
 
-        // build availability
         const availResponses = currentActivity.responses.filter(
             res => res.notes === 'LetsMeetAvailabilityResponse' && res.availability
         );
