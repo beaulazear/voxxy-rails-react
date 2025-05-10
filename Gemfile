@@ -25,7 +25,7 @@ gem "dotenv-rails", groups: [ :development, :test ]
 gem "sendgrid-ruby", "~> 6.7.0"
 gem "ruby-openai"
 gem "httparty"
-gem "redis", "~> 4.0"
+gem "redis", "~> 5.3"
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
