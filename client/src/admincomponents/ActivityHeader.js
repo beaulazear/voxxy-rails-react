@@ -142,6 +142,12 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
     return `${monthName} ${dayNum}${getOrdinalSuffix(dayNum)}`;
   }
 
+  function getShareUrl(activityId) {
+    const apiOrigin = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+    return `${apiOrigin}/activities/${activityId}/share`;
+  }
+  const shareUrl = getShareUrl(activity.id);
+
   return (
     <>
       <HeaderContainer>
@@ -192,8 +198,19 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
                 : "TBD"}
             </span>
           </MetaItem>
+          <MetaItem>
+            <label>Share Link:</label>
+            <span>
+              <a
+                href={shareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View Now
+              </a>
+            </span>
+          </MetaItem>
         </MetaRow>
-
 
         <EntryMessage onClick={isOwner ? onEdit : undefined}>
           {activity.welcome_message ||
