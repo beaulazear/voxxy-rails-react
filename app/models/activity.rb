@@ -5,6 +5,7 @@ class Activity < ApplicationRecord
     has_many :participants, -> { distinct.joins(:activity_participants).where(activity_participants: { accepted: true }) }, through: :activity_participants, source: :user
     has_many :pinned_activities, dependent: :destroy
     has_many :comments, dependent: :destroy
+    has_many :time_slots, dependent: :destroy
 
     validates :activity_name, :activity_type, :date_notes, presence: true
     validate :date_day_must_be_in_future, if: -> { date_day.present? }

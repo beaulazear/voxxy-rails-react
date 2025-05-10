@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_05_225727) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_08_205310) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -111,6 +111,27 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_05_225727) do
     t.index ["activity_id"], name: "index_responses_on_activity_id"
   end
 
+  create_table "time_slot_votes", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "time_slot_id", null: false
+    t.boolean "upvote", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["time_slot_id"], name: "index_time_slot_votes_on_time_slot_id"
+    t.index ["user_id", "time_slot_id"], name: "index_time_slot_votes_on_user_id_and_time_slot_id", unique: true
+    t.index ["user_id"], name: "index_time_slot_votes_on_user_id"
+  end
+
+  create_table "time_slots", force: :cascade do |t|
+    t.bigint "activity_id", null: false
+    t.date "date", null: false
+    t.time "time", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["activity_id", "date", "time"], name: "index_time_slots_on_activity_id_and_date_and_time", unique: true
+    t.index ["activity_id"], name: "index_time_slots_on_activity_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -154,6 +175,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_05_225727) do
   add_foreign_key "pinned_activities", "activities"
   add_foreign_key "responses", "activities"
   add_foreign_key "responses", "users", on_delete: :cascade
+  add_foreign_key "time_slot_votes", "time_slots"
+  add_foreign_key "time_slot_votes", "users"
+  add_foreign_key "time_slots", "activities"
   add_foreign_key "votes", "pinned_activities"
   add_foreign_key "votes", "users"
 end

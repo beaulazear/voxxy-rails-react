@@ -78,7 +78,6 @@ export default function LetsMeetScheduler({ activityId, currentActivity }) {
     const [openAll, setOpenAll] = useState(false);
 
     const responseSubmitted = currentActivity.responses.find(res => res.notes === 'LetsMeetAvailabilityResponse' && res.user_id === user.id)
-    console.log(responseSubmitted)
 
     const timeSlots = Array.from({ length: 13 }, (_, i) => {
         const hour24 = 9 + i; // 9–21

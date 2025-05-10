@@ -4,6 +4,12 @@ Rails.application.routes.draw do
   resources :activities, only: [ :create, :destroy, :update, :index, :show ] do
     resources :pinned_activities, only: [ :index, :create, :update, :destroy ]
     resources :comments, only: [ :index, :create ]
+    resources :time_slots, only: [ :index, :create, :destroy ] do
+      member do
+        post :vote
+        post :unvote
+      end
+    end
   end
   resource :password_reset, only: [ :create, :update ]
   resources :activity_participants, only: [ :index ] do
