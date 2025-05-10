@@ -25,27 +25,25 @@ const SectionWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-right: 3rem;
-  padding-left: 3rem;
+  padding: 0 3rem;
 `;
 
 const CardGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(180px, 2fr));
   gap: 1.5rem;
   width: 100%;
   max-width: 960px;
-  
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, minmax(140px, 1fr));
     gap: 1rem;
   }
-
   @media (max-width: 480px) {
     grid-template-columns: repeat(1, minmax(120px, 1fr));
     gap: 0.75rem;
   }
 `;
+
 const GradientText = styled.span`
   background: linear-gradient(90deg, #B931D6 0%, #9051E1 100%);
   -webkit-background-clip: text;
@@ -74,12 +72,10 @@ const ActivityCard = styled.div.withConfig({
       hsl(267, 90%, 65%, 0.9)
     ) 1;
   `}
-
   &:hover {
     transform: ${({ active }) => (active ? 'translateY(-5px)' : 'none')};
     box-shadow: ${({ active }) => (active ? '0 8px 16px rgba(0,0,0,0.2)' : 'none')};
   }
-
   .emoji {
     font-size: 3.5rem;
     margin-bottom: 0.5rem;
@@ -93,8 +89,17 @@ const ActivityName = styled.h3.withConfig({
   font-size: clamp(1rem, 1.5vw, 1.3rem);
   font-weight: 500;
   color: #fff;
-  margin: 0.25rem 0 0;
+  margin: 0.25rem 0;
   text-align: center;
+`;
+
+const Description = styled.p`
+  font-size: 0.875rem;
+  color: #ccc;
+  text-align: center;
+  margin: 0.5rem 0 0;
+  max-height: 3rem;
+  overflow: hidden;
 `;
 
 const AdminHero = styled.section`
@@ -128,20 +133,19 @@ function StartNewAdventure({ onTripSelect }) {
   const [emojiRain, setEmojiRain] = useState([]);
 
   const adventures = [
-    { name: 'Lets Eat', emoji: '🍜', active: true },
-    { name: 'Lets Meet', emoji: '⏰', active: true },
-    { name: 'Movie Night', emoji: '🎥', active: false },
-    { name: 'Ski Trip', emoji: '🎿', active: false },
-    { name: 'Kids Play Date', emoji: '👩‍👧‍👦', active: false },
-    { name: 'Find a Destination', emoji: '🗺️', active: false },
-    { name: 'Game Night', emoji: '🎮', active: false },
-    { name: 'Family Reunion', emoji: '👨‍👩‍👧‍👦', active: false },
-    { name: 'Road Trip', emoji: '🚗', active: false },
-    { name: 'Trip to Iceland', emoji: '🇮🇸', active: false },
+    { name: 'Lets Eat', emoji: '🍜', active: true, description: 'Personalized restaurant recommendations.' },
+    { name: 'Lets Meet', emoji: '⏰', active: true, description: 'Find a time that works for everyone.' },
+    { name: 'Movie Night', emoji: '🎥', active: false, description: 'Plan your perfect movie night.' },
+    { name: 'Ski Trip', emoji: '🎿', active: false, description: 'Organize your next ski adventure.' },
+    { name: 'Kids Play Date', emoji: '👩‍👧‍👦', active: false, description: 'Coordinate a fun playdate for little ones with ease.' },
+    { name: 'Find a Destination', emoji: '🗺️', active: false, description: 'Discover new travel destinations.' },
+    { name: 'Game Night', emoji: '🎮', active: false, description: 'Pick games and set up a memorable game night.' },
+    { name: 'Family Reunion', emoji: '👨‍👩‍👧‍👦', active: false, description: 'Plan a family gathering with activities and meals.' },
+    { name: 'Road Trip', emoji: '🚗', active: false, description: 'Map out your road trip route and must-see stops.' },
   ];
 
   const handleSelection = (name) => {
-    if (name === "Lets Eat") {
+    if (name === 'Lets Eat') {
       if (process.env.NODE_ENV === 'production') {
         mixpanel.track('Lets Eat Clicked', { name });
       }
@@ -151,13 +155,7 @@ function StartNewAdventure({ onTripSelect }) {
   };
 
   const triggerEmojiRain = () => {
-    const emojis = Array.from({ length: 40 }).map((_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      size: Math.random() * 1.5 + 1,
-      duration: Math.random() * 1 + 1.5,
-      rotation: Math.random() * 360,
-    }));
+    const emojis = Array.from({ length: 40 }).map((_, i) => ({ id: i, left: Math.random() * 100, size: Math.random() * 1.5 + 1, duration: Math.random() * 1 + 1.5, rotation: Math.random() * 360 }));
     setEmojiRain(emojis);
     setTimeout(() => setEmojiRain([]), 2000);
   };
@@ -165,43 +163,29 @@ function StartNewAdventure({ onTripSelect }) {
   return (
     <>
       {emojiRain.map(({ id, left, size, duration, rotation }) => (
-        <EmojiRain
-          key={id}
-          $left={left}
-          $size={size}
-          $duration={duration}
-          $rotation={rotation}
-        >
-          🍜
-        </EmojiRain>
+        <EmojiRain key={id} $left={left} $size={size} $duration={duration} $rotation={rotation}>🍜</EmojiRain>
       ))}
       <AdminHero>
         <AdminHeroContainer>
           <AdminTitle>
             New <GradientText>Voxxy</GradientText> Board
           </AdminTitle>
-          <AdminSubtitle>
-           Choose an activity to start planning!
-          </AdminSubtitle>
+          <AdminSubtitle>Choose an activity to start planning!</AdminSubtitle>
         </AdminHeroContainer>
       </AdminHero>
       <SectionWrapper>
-
         <CardGrid>
-          {adventures.map(({ name, emoji, active }) => (
-            <ActivityCard
-              key={name}
-              active={active}
-              onClick={active ? () => handleSelection(name) : undefined}
-            >
+          {adventures.map(({ name, emoji, active, description }) => (
+            <ActivityCard key={name} active={active} onClick={active ? () => handleSelection(name) : undefined}>
               <div className="emoji">{emoji}</div>
               <ActivityName active={active}>{name}</ActivityName>
+              <Description>{description}</Description>
             </ActivityCard>
           ))}
         </CardGrid>
       </SectionWrapper>
     </>
-  );
+  )
 }
 
 export default StartNewAdventure;
