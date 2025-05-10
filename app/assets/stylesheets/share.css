@@ -1,0 +1,152 @@
+/* page background & centering */
+body {
+    background-color: #f2f4f6;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.share-page {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* header */
+.share-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.voxxy-logo {
+    max-width: 220px;
+    width: 100%;
+    height: auto;
+}
+
+/* activity card */
+.activity-card {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+/* top bar */
+.activity-main {
+    background: #4f46e5;
+    color: #fff;
+    padding: 1.25rem 1.5rem;
+    text-align: center;
+}
+
+.activity-title {
+    font-size: 1.75rem;
+    margin: 0 0 0.5rem;
+    line-height: 1.2;
+}
+
+.activity-meta .badge {
+    display: inline-block;
+    margin: 0.25rem 0.25rem 0 0;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8125rem;
+}
+
+/* details grid */
+.activity-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.25rem;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.activity-details h4 {
+    margin: 0 0 0.25rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.activity-details p {
+    margin: 0;
+    color: #4b5563;
+    line-height: 1.4;
+}
+
+/* time slots list */
+.time-slots ul {
+    list-style: none;
+    padding: 0;
+    margin: 0.25rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.time-slots li {
+    background: #f3f4f6;
+    padding: 0.4rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    color: #374151;
+}
+
+/* participants */
+.participants-section {
+    padding: 1.5rem;
+}
+
+.participants-section h3 {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+    color: #111827;
+}
+
+.participants-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.participants-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #f9fafb;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+}
+
+.participants-list .avatar {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    background: #d1d5db;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    color: #374151;
+}
+
+.participants-list .name {
+    font-weight: 500;
+    color: #111827;
+}
+
+@media (min-width: 1024px) {
+    .activity-main {
+        text-align: left;
+        padding: 2rem 2.5rem;
+    }
+
+    .activity-title {
+        font-size: 2.25rem;
+    }
+}

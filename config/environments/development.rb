@@ -8,6 +8,11 @@ Rails.application.configure do
   # since you don't have to restart the web server when you make code changes.
   config.enable_reloading = true
 
+  # this should be true in development:
+  config.assets.debug       = true
+  config.assets.compile     = true
+  config.assets.digest      = false
+
   config.session_store :cookie_store,
   key: "_session_id",
   same_site: :lax,

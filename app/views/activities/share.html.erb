@@ -1,13 +1,245 @@
-<div class="share-page" style="max-width:600px;margin:2rem auto">
-  <h1><%= @activity.activity_name %></h1>
-  <p><strong>Type:</strong> <%= @activity.activity_type %></p>
-  <p><strong>When:</strong> <%= @activity.date_notes %></p>
-  <p><strong>Where:</strong> <%= @activity.activity_location.presence || 'TBD' %></p>
-  <h3>Participants</h3>
-  <ul>
-    <% @activity.participants.each do |p| %>
-      <li><%= p.name %></li>
-    <% end %>
-  </ul>
-  <%#…any other read-only bits…%>
+<%#–– Inline share‑page styles ––%>
+<style>
+  /* page background & centering */
+  body {
+    background-color: #1f1324; /* deep charcoal */
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  .share-page {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+
+  /* header */
+  .share-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .voxxy-logo {
+    max-width: 220px;
+    width: 100%;
+    height: auto;
+  }
+
+  /* activity card */
+  .activity-card {
+    background: #2c1e33; /* dark purple */
+    border-radius: 1rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+    color: #fff;
+  }
+
+  /* top bar */
+  .activity-main {
+    background: #4a0d5c; /* richer purple */
+    color: #fff;
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .activity-title {
+    font-size: 2rem;
+    margin: 0 0 0.5rem;
+    line-height: 1.2;
+    font-weight: 700;
+  }
+
+  .activity-meta {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .activity-meta .badge {
+    color: #fff;
+    border-radius: 999px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .activity-meta .emoji {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  /* details grid */
+  .activity-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    padding: 1.5rem;
+    border-bottom: 1px solid #432748;
+  }
+
+  .activity-details h4 {
+    margin: 0 0 0.25rem;
+    font-weight: 600;
+    color: #ccc;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+  }
+
+  .activity-details p {
+    margin: 0;
+    color: #eee;
+    line-height: 1.4;
+  }
+
+  /* time slots list */
+  .time-slots ul {
+    list-style: none;
+    padding: 0;
+    margin: 0.25rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .time-slots li {
+    background: #3a2845; /* darker tile */
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    color: #fff;
+  }
+
+  /* participants */
+  .participants-section {
+    padding: 1.5rem;
+  }
+
+  .participants-section h3 {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .participants-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+  }
+
+  .participants-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #3a2845;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+  }
+
+  .participants-list .avatar {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    background: #9051e1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    color: #fff;
+  }
+
+  .participants-list .name {
+    font-weight: 500;
+    color: #fff;
+    font-size: 0.95rem;
+  }
+
+  @media (min-width: 1024px) {
+    .activity-main {
+      text-align: left;
+      padding: 2rem 2.5rem;
+    }
+    .activity-title {
+      font-size: 2.5rem;
+    }
+  }
+</style>
+
+<div class="share-page">
+  <header class="share-header">
+    <%= image_tag 'HEADER.svg', alt: 'Voxxy', class: 'voxxy-logo' %>
+  </header>
+
+  <section class="activity-card">
+    <div class="activity-main">
+      <h1 class="activity-title"><%= @activity.activity_name %></h1>
+      <div class="activity-meta">
+        <span class="badge">Activity Type: <%= @activity.activity_type %></span>
+        <% if @activity.emoji.present? %>
+          <span class="emoji"><%= @activity.emoji %></span>
+        <% end %>
+        <span class="badge">Host: <%= @activity.user.name %></span>
+        <span class="badge"><%= pluralize(@activity.participants.size, 'Participant') %></span>
+      </div>
+    </div>
+
+<div class="activity-details">
+  <div class="detail">
+    <h4>When</h4>
+    <p><%= @activity.date_notes %></p>
+  </div>
+  <div class="detail">
+    <h4>Where</h4>
+    <p><%= @activity.activity_location.presence || 'TBD' %></p>
+  </div>
+
+  <% if @activity.time_slots.any? %>
+    <div class="detail time-slots">
+      <h4>Time Slots</h4>
+      <ul>
+        <% @activity.time_slots.each do |ts| %>
+          <li>
+            <time datetime="<%= ts.date %>"><%= ts.date.strftime("%b %-d") %></time>
+            at
+            <time><%= ts.time.strftime("%-l:%M %P") %></time>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% if @activity.pinned_activities.any? %>
+    <div class="detail pinned-activities">
+      <h4>Pinned Activities</h4>
+      <ul>
+        <% @activity.pinned_activities.each do |pin| %>
+          <li>
+            <strong><%= pin.title %></strong>
+            <% if pin.reason.present? %>
+              – <em><%= pin.reason %></em>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>
+
+    <div class="participants-section">
+      <h3>Who's Joining (<%= @activity.participants.size %>)</h3>
+      <ul class="participants-list">
+        <% @activity.participants.each do |p| %>
+          <li>
+            <span class="avatar"><%= avatar_for(p) %></span>
+            <span class="name"><%= p.name %></span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </section>
 </div>
