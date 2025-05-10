@@ -121,6 +121,27 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
     }
   };
 
+  function getOrdinalSuffix(day) {
+    if (day >= 11 && day <= 13) return "th";
+    switch (day % 10) {
+      case 1: return "st";
+      case 2: return "nd";
+      case 3: return "rd";
+      default: return "th";
+    }
+  }
+
+  function formatDate(dateString) {
+    if (!dateString) return "TBD";
+    // split "2025-05-18" → [2025, 5, 18]
+    const [year, month, day] = dateString.split("-").map(Number);
+    // monthIndex is 0-based!
+    const d = new Date(year, month - 1, day);
+    const monthName = d.toLocaleString("en-US", { month: "long" });
+    const dayNum = d.getDate();
+    return `${monthName} ${dayNum}${getOrdinalSuffix(dayNum)}`;
+  }
+
   return (
     <>
       <HeaderContainer>
@@ -161,7 +182,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
           </MetaItem>
           <MetaItem>
             <label>Date:</label>
-            <span>{activity.date_day || "TBD"}</span>
+            <span>{formatDate(activity.date_day) || "TBD"}</span>
           </MetaItem>
           <MetaItem>
             <label>Time:</label>

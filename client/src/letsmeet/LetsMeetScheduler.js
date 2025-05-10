@@ -195,7 +195,7 @@ export default function LetsMeetScheduler({ activityId, currentActivity, respons
 
     if (responseSubmitted) {
         return (
-            <p style={{ color: '#fff', margin: '1.5rem', textAlign: 'center' }}>Thank you for submitting your availability! 🎉 Pin your top available times so users can vote on them.</p>
+            <p style={{ color: '#fff', margin: '1.5rem'}}>Thank you for submitting your availability! 🎉 Pin your top available times so users can vote on them.</p>
         );
     }
 

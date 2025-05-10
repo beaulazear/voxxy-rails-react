@@ -90,7 +90,7 @@ const Tab = styled.button`
   flex: 1;
   padding: 0.5rem;
   background: ${({ $active }) => ($active ? "#6c63ff" : "#333")};
-  color: ${({ $active }) => ($active ? "white"   : "#ccc")};
+  color: ${({ $active }) => ($active ? "white" : "#ccc")};
   border: none;
   cursor: pointer;
   font-size: 0.9rem;
@@ -173,7 +173,8 @@ export default function LetsMeetFormModal({ onClose }) {
 
     const handleSubmit = async () => {
         setSubmitting(true);
-        const payload = {
+
+        const basePayload = {
             activity_type: 'Meeting',
             activity_name: activityName,
             welcome_message: welcomeMessage,
@@ -181,6 +182,11 @@ export default function LetsMeetFormModal({ onClose }) {
             participants: participantEmails,
             group_size: participantEmails.length + 1,
             emoji: '👥',
+        };
+
+        const payload = {
+            ...basePayload,
+            ...(tab === 'single' && { date_day: singleDate }),
         };
 
         try {

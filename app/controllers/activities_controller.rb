@@ -23,7 +23,7 @@ class ActivitiesController < ApplicationController
       activity = current_user.activities.find_by(id: params[:id])
 
       if activity.update(activity_params)
-        render json: activity.to_json(include: [ :participants, :activity_participants ]), status: :ok
+        render json: activity.to_json(include: [ :participants, :activity_participants, :responses ]), status: :ok
       else
         Rails.logger.error "❌ Activity update failed: #{activity.errors.full_messages}"
         render json: { error: activity.errors.full_messages }, status: :unprocessable_entity

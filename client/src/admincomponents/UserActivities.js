@@ -402,10 +402,11 @@ function UserActivities() {
 
   function formatDate(dateString) {
     if (!dateString) return "TBD";
-    const d = new Date(dateString);
-    const month = d.toLocaleString("en-US", { month: "long" });     // “May”
-    const day = d.getDate();                                     //  5
-    return `${month} ${day}${getOrdinalSuffix(day)}`;               // “May 5th”
+    const [year, month, day] = dateString.split("-").map(Number);
+    const d = new Date(year, month - 1, day);
+    const monthName = d.toLocaleString("en-US", { month: "long" });
+    const dayNum = d.getDate();
+    return `${monthName} ${dayNum}${getOrdinalSuffix(dayNum)}`;
   }
 
   function formatTime(timeString) {

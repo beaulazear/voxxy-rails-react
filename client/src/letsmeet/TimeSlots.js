@@ -186,10 +186,12 @@ export default function TimeSlots({ currentActivity }) {
                                 <div>
                                     <strong>{formattedDate}</strong> @ {formattedTime}
                                 </div>
-                                <ActionButton $active={slot.user_voted} onClick={() => toggleVote(slot)}>
-                                    {slot.user_voted ? <HeartPulse color={'red'} size={16} /> : <Heart size={16} />}
-                                    <span>{slot.votes_count}</span>
-                                </ActionButton>
+                                <CountWrapper>
+                                    <ActionButton $active={slot.user_voted} onClick={() => toggleVote(slot)}>
+                                        {slot.user_voted ? <HeartPulse color={'red'} size={16} /> : <Heart size={16} />}
+                                        <span style={{marginLeft: '4px', color: '#fff'}}>{slot.votes_count}</span>
+                                    </ActionButton>
+                                </CountWrapper>
                             </TimeItem>
                         );
                     })}
