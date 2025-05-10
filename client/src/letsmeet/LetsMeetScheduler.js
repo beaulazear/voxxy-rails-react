@@ -165,7 +165,7 @@ export default function LetsMeetScheduler({ activityId, currentActivity }) {
     if (responseSubmitted) {
         return (
             <>
-                <Header>Thank you for submitting your availability</Header>
+                <Header style={{margin: '2rem'}}>Thank you for submitting your availability</Header>
             </>
         )
     }

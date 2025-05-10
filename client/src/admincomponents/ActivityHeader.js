@@ -387,7 +387,7 @@ const EntryMessage = styled.div`
 `;
 
 export const AttendeeContainer = styled.div`
-  background: #2A1E30;
+  background: #2C1E33;
   padding: 1rem;
   border-radius: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
