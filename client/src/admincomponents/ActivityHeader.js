@@ -465,7 +465,7 @@ export const ParticipantsSection = styled.div`
 `;
 
 export const ParticipantsTitle = styled.h4`
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   color: #fff;
   margin-bottom: 0;
   font-weight: bold;

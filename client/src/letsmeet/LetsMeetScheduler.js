@@ -62,27 +62,13 @@ const SubmitButton = styled.button`
   }
 `;
 
-const Header = styled.h2`
-  color: #ffffff;
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-`;
-
-export default function LetsMeetScheduler({ activityId, currentActivity }) {
+export default function LetsMeetScheduler({ activityId, currentActivity, responseSubmitted }) {
     const { user, setUser } = useContext(UserContext);
 
     const [selectedDates, setSelectedDates] = useState([]);
     const [slotsByDate, setSlotsByDate] = useState({});
     const [openAll, setOpenAll] = useState(false);
 
-    const responseSubmitted = currentActivity.responses.some(
-        (res) =>
-            res.notes === "LetsMeetAvailabilityResponse" && res.user_id === user.id
-    );
-
-    // parse the date_notes once
     const { disabledDays, availableLabel } = useMemo(() => {
         const note = currentActivity.date_notes;
         const today = new Date();
@@ -209,9 +195,7 @@ export default function LetsMeetScheduler({ activityId, currentActivity }) {
 
     if (responseSubmitted) {
         return (
-            <Header style={{ margin: "2rem" }}>
-                Thank you for submitting your availability
-            </Header>
+            <p style={{ color: '#fff', margin: '1.5rem', textAlign: 'center' }}>Thank you for submitting your availability! 🎉 Pin your top available times so users can vote on them.</p>
         );
     }
 

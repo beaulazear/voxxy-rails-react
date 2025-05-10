@@ -33,7 +33,7 @@ const ProgressBarContainer = styled.div`
 const ProgressBar = styled.div`
   height: 6px;
   background: #6c63ff;
-  width: ${({ percent }) => percent}%;
+  width: ${({ $percent }) => $percent}%;
   transition: width 0.3s ease;
 `;
 
@@ -104,9 +104,9 @@ const ButtonRow = styled.div`
 `;
 
 const Button = styled.button`
-  background: ${({ primary }) => (primary ? '#6c63ff' : 'transparent')};
-  color: ${({ primary }) => (primary ? 'white' : '#6c63ff')};
-  border: ${({ primary }) => (primary ? 'none' : '1px solid #6c63ff')};
+  background: ${({ $primary }) => ($primary ? '#6c63ff' : 'transparent')};
+  color: ${({ $primary }) => ($primary ? 'white' : '#6c63ff')};
+  border: ${({ $primary }) => ($primary ? 'none' : '1px solid #6c63ff')};
   padding: 0.5rem 1rem;
   border-radius: 6px;
   font-size: 0.9rem;
@@ -210,7 +210,7 @@ export default function LetsMeetFormModal({ onClose }) {
             <Overlay onClick={() => onClose()} />
             <ModalContainer onClick={e => e.stopPropagation()}>
                 <ProgressBarContainer>
-                    <ProgressBar percent={percent} />
+                    <ProgressBar $percent={percent} />
                 </ProgressBarContainer>
                 <StepLabel>
                     Step {step} of {totalSteps}
@@ -300,7 +300,7 @@ export default function LetsMeetFormModal({ onClose }) {
                         <Button onClick={() => setStep(step - 1)} disabled={submitting}>Back</Button>
                     ) : <div />}
                     <Button
-                        primary
+                        $primary
                         onClick={handleNext}
                         disabled={
                             submitting ||

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import styled from 'styled-components';
 import { format, parseISO } from 'date-fns';
-import { Users, Heart, HeartPulse, Tag } from 'lucide-react';
+import { Users, Heart, HeartPulse, Tag, Clock } from 'lucide-react';
 import LetsMeetScheduler from './LetsMeetScheduler';
+import { UserContext } from "../context/user";
 
 const Container = styled.div`
   display: flex;
@@ -29,10 +30,12 @@ const CardHeader = styled.div`
 `;
 
 const Title = styled.h2`
+  font-size: 1.3rem;
   color: #fff;
-  font-size: 1.5rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  margin-bottom: 0;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 0;
 `;
 
 const Tabs = styled.div`
@@ -91,12 +94,18 @@ const CountWrapper = styled.div`
 `;
 
 export default function TimeSlots({ currentActivity }) {
+    const { user } = useContext(UserContext);
+
+    const responseSubmitted = currentActivity.responses.some(
+        (res) =>
+            res.notes === "LetsMeetAvailabilityResponse" && res.user_id === user.id
+    );
+
     const [pinned, setPinned] = useState([]);
     const [availabilityMap, setAvailabilityMap] = useState({});
-    const [activeTab, setActiveTab] = useState('available');
+    const [activeTab, setActiveTab] = useState(responseSubmitted ? 'available' : 'yours');
 
     const activityId = currentActivity.id;
-    console.log(currentActivity)
 
     useEffect(() => {
         fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activityId}/time_slots`, {
@@ -161,6 +170,9 @@ export default function TimeSlots({ currentActivity }) {
                     <Title>Pinned Time Slots</Title>
                     <Tag size={20} color="#888" />
                 </CardHeader>
+                {pinned.length === 0 && (
+                    <p style={{ color: '#fff', margin: '1.5rem' }}>No pinned time slots yet. Submit your availability and pin the time slots you want most!</p>
+                )}
                 <TimeList>
                     {pinned.map(slot => {
                         const dateObj = parseISO(slot.date);
@@ -187,6 +199,7 @@ export default function TimeSlots({ currentActivity }) {
             <Card>
                 <CardHeader>
                     <Title>Available Time Slots</Title>
+                    <Clock size={20} color="#888" />
                 </CardHeader>
                 <Tabs>
                     <TabButton
@@ -198,6 +211,10 @@ export default function TimeSlots({ currentActivity }) {
                         onClick={() => setActiveTab('yours')}
                     >Your Availability</TabButton>
                 </Tabs>
+
+                {currentActivity.responses.length === 0 & activeTab === 'available' && (
+                    <p style={{ color: '#fff', margin: '1.5rem' }}>No available times yet! Submit your availability to pin and vote on times to meet.</p>
+                )}
 
                 {activeTab === 'available' ? (
                     Object.entries(availabilityMap).map(([dateStr, timesObj]) => {
@@ -224,7 +241,7 @@ export default function TimeSlots({ currentActivity }) {
                                                     <Users size={12} /> {count}
                                                 </CountWrapper>
                                                 <ActionButton onClick={() => handlePin(dateStr, time)}>
-                                                <Tag size={16} color="#888" />
+                                                    <Tag size={16} color="#888" />
                                                 </ActionButton>
                                             </TimeItem>
                                         );
@@ -234,7 +251,7 @@ export default function TimeSlots({ currentActivity }) {
                         );
                     })
                 ) : (
-                    <LetsMeetScheduler currentActivity={currentActivity} activityId={currentActivity.id} />
+                    <LetsMeetScheduler onClose={() => setActiveTab('available')} responseSubmitted={responseSubmitted} currentActivity={currentActivity} activityId={currentActivity.id} />
                 )}
             </Card>
         </Container>
