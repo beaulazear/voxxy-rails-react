@@ -235,7 +235,6 @@
       <ul class="participants-list">
         <% @activity.participants.each do |p| %>
           <li>
-            <span class="avatar"><%= avatar_for(p) %></span>
             <span class="name"><%= p.name %></span>
           </li>
         <% end %>
