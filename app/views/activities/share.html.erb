@@ -1,0 +1,13 @@
+<div class="share-page" style="max-width:600px;margin:2rem auto">
+  <h1><%= @activity.activity_name %></h1>
+  <p><strong>Type:</strong> <%= @activity.activity_type %></p>
+  <p><strong>When:</strong> <%= @activity.date_notes %></p>
+  <p><strong>Where:</strong> <%= @activity.activity_location.presence || 'TBD' %></p>
+  <h3>Participants</h3>
+  <ul>
+    <% @activity.participants.each do |p| %>
+      <li><%= p.name %></li>
+    <% end %>
+  </ul>
+  <%#…any other read-only bits…%>
+</div>

@@ -2,6 +2,9 @@ Rails.application.routes.draw do
   resources :responses, only: [ :index, :create, :destroy ]
   resources :users, only: [ :create, :destroy, :update ]
   resources :activities, only: [ :create, :destroy, :update, :index, :show ] do
+    member do
+      get :share
+    end
     resources :pinned_activities, only: [ :index, :create, :update, :destroy ]
     resources :comments, only: [ :index, :create ]
     resources :time_slots, only: [ :index, :create, :destroy ] do

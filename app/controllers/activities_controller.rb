@@ -115,6 +115,19 @@ class ActivitiesController < ApplicationController
       end
     end
 
+    def share
+      @activity = Activity
+        .includes(:participants, :time_slots, :comments)
+        .find(params[:id])
+
+      if request.format.json?
+        render json: @activity,
+               serializer: FinalizedActivitySerializer
+      else
+        render :share   # renders app/views/activities/share.html.erb
+      end
+    end
+
     private
 
     def activity_params
