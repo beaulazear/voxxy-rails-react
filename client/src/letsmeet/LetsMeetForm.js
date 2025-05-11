@@ -176,6 +176,7 @@ export default function LetsMeetFormModal({ onClose }) {
 
         const basePayload = {
             activity_type: 'Meeting',
+            activity_location: 'TBD',
             activity_name: activityName,
             welcome_message: welcomeMessage,
             date_notes: dateNotes(),

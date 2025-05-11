@@ -1,5 +1,13 @@
 class ActivitiesController < HtmlController
-    before_action :authorized
+  skip_before_action :verify_authenticity_token,
+  if: -> { request.format.json? && !action_name.eql?("share") }
+
+  protect_from_forgery with: :exception, only: [ :share ]
+
+  protect_from_forgery with: :null_session,
+  if: -> { request.format.json? }
+
+  before_action :authorized
 
     def create
       activity = current_user.activities.build(activity_params.except(:participants))

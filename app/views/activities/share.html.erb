@@ -33,7 +33,7 @@
           <h4>Time Slots</h4>
           <ul>
             <% @activity.time_slots.each do |ts| %>
-              <li><time datetime="<%= ts.date %>"><%= ts.date.strftime("%b %-d") %></time> at <time><%= ts.time.strftime("%-l:%M %P") %></time></li>
+              <li><time datetime="<%= ts.date %>"><%= ts.date.strftime("%b %-d") %></time> at <time><%= ts.time.strftime("%-l:%M %P") %></time> - <%= ts.votes_count %> votes</li>
             <% end %>
           </ul>
         </div>
