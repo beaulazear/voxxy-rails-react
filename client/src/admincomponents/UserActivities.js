@@ -7,8 +7,8 @@ import TripDashboard from './TripDashboard.js';
 import YourCommunity from './YourCommunity.js';
 import NoBoardsDisplay from './NoBoardsDisplay.js';
 import { HelpCircle, X, User, Users, CalendarDays, Clock } from 'lucide-react';
-import CustomEat from '../assets/CustomEat.jpeg';
-import CustomMeet from '../assets/CustomMeet.jpeg';
+import groupmeals from '../assets/groupmeals.jpeg';
+import LetsMeetCardThree from '../assets/LetsMeetCardThree.jpeg';
 
 const fadeIn = keyframes`
   from {
@@ -516,7 +516,7 @@ function UserActivities() {
                     key={activity.id}
                     onClick={() => handleActivityClick(activity)}
                   >
-                    <ImageContainer $bgimage={isMeeting ? CustomMeet : CustomEat} />
+                    <ImageContainer $bgimage={isMeeting ? LetsMeetCardThree : groupmeals} />
 
                     <HostTag>
                       <User style={{ paddingBottom: '2px' }} size={14} /> {activity.user?.name || 'Unknown'}
