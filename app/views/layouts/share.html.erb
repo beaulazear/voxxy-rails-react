@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= @activity.activity_name %> | Voxxy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <style>
+    /* page background & centering */
+    body {
+        background-color: #1f1324; /* deep charcoal */
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #fff;
+        line-height: 1.5;
+    }
+
+    .share-page {
+        width: 100%;
+        max-width: 100%;
+        margin: 1rem auto;
+        padding: 0 1.25rem;
+        box-sizing: border-box;
+    }
+
+    /* header */
+    .share-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .voxxy-logo {
+        max-width: 220px;
+        width: 75%;
+        height: auto;
+        margin: 40px;
+    }
+
+    /* activity card */
+    .activity-card {
+        background: #2c1e33; /* dark purple */
+        border-radius: 1rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    /* top bar */
+    .activity-main {
+        background: #4a0d5c; /* richer purple */
+        color: #fff;
+        padding: 1.25rem;
+        text-align: center;
+    }
+
+    .activity-title {
+        font-size: 1.75rem;
+        margin: 0 0 0.5rem;
+        line-height: 1.2;
+        font-weight: 700;
+    }
+
+    .activity-meta {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .badge {
+        color: #fff;
+        background: rgba(0,0,0,0.2);
+        border-radius: 999px;
+        padding: 0.4rem 0.8rem;
+        font-weight: 500;
+    }
+
+    .emoji {
+        font-size: 1.25rem;
+        line-height: 1;
+    }
+
+    .activity-details {
+        display: block;
+        padding: 1rem;
+        border-top: 1px solid #432748;
+    }
+
+    .detail {
+        margin-bottom: 1rem;
+    }
+        
+    .pinned-activities  {
+        padding: 1rem;
+        border-top: 1px solid #432748;
+        margin: 10px;
+    }
+
+    .pinned-list-item  {
+        margin: 15px;
+    }
+
+    .activity-details h4 {
+        margin: 0 0 0.25rem;
+        font-weight: 600;
+        color: #ccc;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+    }
+
+    .activity-details p {
+        margin: 0;
+        color: #eee;
+        font-size: 1rem;
+    }
+
+    .time-slots ul {
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .time-slots li {
+        background: #3a2845;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .participants-section {
+        padding: 1rem;
+    }
+
+    .participants-section h3 {
+        margin: 0 0 0.75rem;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .participants-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .participants-list li {
+        flex: 1 1 calc(50% - 0.75rem);
+        display: flex;
+        align-items: center;
+        background: #3a2845;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .participants-list .name {
+        flex: 1;
+        font-weight: 500;
+    }
+
+    @media (min-width: 640px) {
+        .activity-title { font-size: 2rem; }
+        .activity-main { padding: 1.5rem; }
+        .share-page { padding: 0 2rem; }
+    }
+
+    @media (min-width: 1024px) {
+        .share-page { max-width: 800px; margin: 2rem auto; }
+        .activity-main { text-align: left; padding: 2rem 2.5rem; }
+        .activity-title { font-size: 2.5rem; }
+        .activity-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; border-top: none; border-bottom: 1px solid #432748; }
+    }
+    </style>
+  </head>
+  <body>
+    <%= yield %>
+  </body>
+</html>

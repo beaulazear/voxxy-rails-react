@@ -1,4 +1,4 @@
-class ActivitiesController < ApplicationController
+class ActivitiesController < HtmlController
     before_action :authorized
 
     def create
@@ -116,14 +116,12 @@ class ActivitiesController < ApplicationController
     end
 
     def share
-      @activity = Activity
-      .includes(:participants, :time_slots, :comments)
-      .find(params[:id])
+      @activity = Activity.includes(:participants, :time_slots, :comments)
+                          .find(params[:id])
 
-      if request.format.json?
-        render json: @activity, serializer: FinalizedActivitySerializer
-      else
-        render :share
+      respond_to do |format|
+        format.json { render json: @activity, serializer: FinalizedActivitySerializer }
+        format.html { render layout: "share" }
       end
     end
 
