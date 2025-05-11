@@ -92,12 +92,17 @@
         
     .pinned-activities  {
         padding: 1rem;
-        border-top: 1px solid #432748;
         margin: 10px;
+        width: 100%;
     }
 
     .pinned-list-item  {
-        margin: 15px;
+        padding: 10px;
+        padding-right: 30px;
+    }
+
+    .pinned-title  {
+        margin: 10px;
     }
 
     .activity-details h4 {
@@ -172,7 +177,7 @@
 
     @media (min-width: 1024px) {
         .share-page { max-width: 800px; margin: 2rem auto; }
-        .activity-main { text-align: left; padding: 2rem 2.5rem; }
+        .activity-main { padding: 2rem 2.5rem; }
         .activity-title { font-size: 2.5rem; }
         .activity-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; border-top: none; border-bottom: 1px solid #432748; }
     }

@@ -39,17 +39,18 @@
         </div>
       <% end %>
 
-      <% if @activity.pinned_activities.any? %>
-        <div>
-          <h4>Pinned Activities:</h4>
-          <ul class="detail pinned-activities">
-            <% @activity.pinned_activities.each do |pin| %>
-              <li class="pinned-list-item"><strong><%= pin.title %></strong> <% if pin.reason.present? %>– <em><%= pin.reason %></em><% end %></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
     </div>
+
+    <% if @activity.pinned_activities.any? %>
+      <div>
+        <h4 class="pinned-title">Pinned Activities:</h4>
+        <ul class="pinned-activities">
+          <% @activity.pinned_activities.each do |pin| %>
+            <li class="pinned-list-item"><strong><%= pin.title %></strong> <% if pin.reason.present? %>– <em><%= pin.reason %></em><% end %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
     <div class="participants-section">
       <h3>Who's Joining (<%= @activity.participants.size %>)</h3>
