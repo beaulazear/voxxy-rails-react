@@ -267,7 +267,7 @@ export const ActivityCard = styled.div`
 export const ImageContainer = styled.div`
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
-  background-image: url(${props => props.$bgimage});
+  background-image: ${props => `url("${props.$bgimage}")`};
   background-size: cover;
   background-position: center;
   transition: transform 0.5s ease;
@@ -421,6 +421,8 @@ function UserActivities() {
     return `${hour}:${rawMin} ${suffix}`;
   }
 
+  console.log(user)
+
   if (selectedActivityId) {
     return (
       <>
@@ -509,21 +511,32 @@ function UserActivities() {
           ) : filteredActivities.length > 0 ? (
             <CardGrid>
               {filteredActivities.map(activity => {
-                const isMeeting = activity.activity_type.toLowerCase() === 'meeting';
-                return (
+                const selectedPin = activity.pinned_activities?.find(p => p.selected);
 
+                let bgUrl;
+                if (selectedPin && selectedPin.photos?.length > 0) {
+                  const { photo_reference } = selectedPin.photos[0];
+                  bgUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}`;
+                  console.log("BG URL for pin:", bgUrl);
+                } else {
+                  bgUrl = activity.activity_type.toLowerCase() === 'meeting'
+                    ? LetsMeetCardThree
+                    : groupmeals;
+                }
+
+                return (
                   <ActivityCard
                     key={activity.id}
                     onClick={() => handleActivityClick(activity)}
                   >
-                    <ImageContainer $bgimage={isMeeting ? LetsMeetCardThree : groupmeals} />
+                    <ImageContainer $bgimage={bgUrl} />
 
                     <HostTag>
-                      <User style={{ paddingBottom: '2px' }} size={14} /> {activity.user?.name || 'Unknown'}
+                      <User size={14} style={{ paddingBottom: '2px' }} /> {activity.user?.name}
                     </HostTag>
 
                     <TypeTag>
-                      {activity.emoji + ' ' + activity.activity_type}
+                      {activity.emoji} {activity.activity_type}
                     </TypeTag>
 
                     <CardLabel>

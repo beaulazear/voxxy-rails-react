@@ -154,9 +154,9 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
         </IconButtonLeft>
         {isOwner ? (
           <ButtonGroup>
-            {/* <EditButton onClick={onEdit}>
+            <EditButton>
               <EditOutlined />
-            </EditButton> */}
+            </EditButton>
             <DeleteButton onClick={() => onDelete(activity.id)}>
               <DeleteOutlined />
             </DeleteButton>
