@@ -3,62 +3,104 @@
     <img src="/HEADER.svg" alt="Voxxy" class="voxxy-logo" />
   </header>
 
-  <section class="activity-card">
-    <div class="activity-main">
-      <h1 class="activity-title"><%= @activity.activity_name %></h1>
-      <div class="activity-meta">
-        <% if @activity.emoji.present? %> <span class="emoji"><%= @activity.emoji %></span> <% end %>
-        <span class="badge">Type: <%= @activity.activity_type %></span>
-        <span class="badge">Host: <%= @activity.user.name %></span>
-        <span class="badge"><%= pluralize(@activity.participants.size, 'Participant') %></span>
-      </div>
-    </div>
+  <%# Find the selected pinned activity %>
+  <% pinned = @activity.pinned_activities.find_by(selected: true) %>
+  <% if pinned %>
+    <%# Display welcome message from the activity at the top %>
 
-    <div class="activity-details">
-      <div class="detail">
-        <h4>Date Notes</h4>
-        <p><%= @activity.date_notes %></p>
-      </div>
-      <div class="detail">
-        <h4>When</h4>
-        <p><%= @activity.date_day.presence || 'TBD' %></p>
-      </div>
-      <div class="detail">
-        <h4>Where</h4>
-        <p><%= @activity.activity_location.presence || 'TBD' %></p>
+    <section class="activity-card">
+      <div class="activity-main">
+        <h1 class="activity-title"><%= pinned.title %></h1>
+        <%# Countdown if activity's date and time exist %>
+        <% if @activity.date_day.present? && @activity.date_time.present? %>
+          <div id="countdown" data-datetime="<%= @activity.date_day.to_time.change(hour: @activity.date_time.hour, min: @activity.date_time.min).iso8601 %>"></div>
+        <% end %>
+        <% if @activity.welcome_message.present? %>
+          <div class="welcome-message">
+            <p><%= @activity.welcome_message %></p>
+          </div>
+        <% end %>
+
+        <div class="activity-meta">
+          <% if @activity.emoji.present? %>
+            <span class="emoji"><%= @activity.emoji %></span>
+          <% end %>
+          <span class="badge">Type: <%= @activity.activity_type %></span>
+          <span class="badge">Host: <%= @activity.user.name %></span>
+          <span class="badge"><%= pluralize(@activity.participants.size, 'Participant') %></span>
+        </div>
       </div>
 
+      <%# Pinned activity details: photos, website, address, etc. %>
+      <div class="activity-details">
+        <% if pinned.website.present? %>
+          <div class="detail">
+            <h4>Website</h4>
+            <p><a href="<%= pinned.website %>" target="_blank" rel="noopener"><%= pinned.website %></a></p>
+          </div>
+        <% end %>
+
+        <% if pinned.address.present? %>
+          <div class="detail">
+            <h4>Address</h4>
+            <p><%= pinned.address %></p>
+          </div>
+        <% end %>
+      </div>
+
+      <%# Time Slots if any exist for the activity %>
       <% if @activity.time_slots.any? %>
         <div class="detail time-slots">
           <h4>Time Slots</h4>
           <ul>
             <% @activity.time_slots.each do |ts| %>
-              <li><time datetime="<%= ts.date %>"><%= ts.date.strftime("%b %-d") %></time> at <time><%= ts.time.strftime("%-l:%M %P") %></time> - <%= ts.votes_count %> votes</li>
+              <li>
+                <time datetime="<%= ts.date.iso8601 %>"><%= ts.date.strftime("%b %-d") %></time>
+                at <time datetime="<%= ts.time.strftime("%H:%M") %>"><%= ts.time.strftime("%-l:%M %P") %></time>
+                - <%= ts.votes_count %> votes
+              </li>
             <% end %>
           </ul>
         </div>
       <% end %>
 
-    </div>
-
-    <% if @activity.pinned_activities.any? %>
-      <div>
-        <h4 class="pinned-title">Pinned Activities:</h4>
-        <ul class="pinned-activities">
-          <% @activity.pinned_activities.each do |pin| %>
-            <li class="pinned-list-item"><strong><%= pin.title %></strong> <% if pin.reason.present? %>– <em><%= pin.reason %></em><% end %></li>
+      <%# Participants %>
+      <div class="participants-section">
+        <h3>Who's Joining (<%= @activity.participants.size %>)</h3>
+        <ul class="participants-list">
+          <% @activity.participants.each do |p| %>
+            <li><span class="name"><%= p.name %></span></li>
           <% end %>
         </ul>
       </div>
-    <% end %>
+    </section>
 
-    <div class="participants-section">
-      <h3>Who's Joining (<%= @activity.participants.size %>)</h3>
-      <ul class="participants-list">
-        <% @activity.participants.each do |p| %>
-          <li><span class="name"><%= p.name %></span></li>
-        <% end %>
-      </ul>
-    </div>
-  </section>
+    <%# Countdown script (if included above) %>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var countdownElem = document.getElementById('countdown');
+        if (!countdownElem) return;
+
+        var targetTime = new Date(countdownElem.dataset.datetime).getTime();
+        function updateCountdown() {
+          var now = new Date().getTime();
+          var diff = targetTime - now;
+          if (diff <= 0) {
+            countdownElem.textContent = 'Event started';
+            clearInterval(interval);
+            return;
+          }
+          var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          var hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+          var mins = Math.floor((diff / (1000 * 60)) % 60);
+          var secs = Math.floor((diff / 1000) % 60);
+          countdownElem.textContent = days + 'd ' + hours + 'h ' + mins + 'm ' + secs + 's';
+        }
+        updateCountdown();
+        var interval = setInterval(updateCountdown, 1000);
+      });
+    </script>
+  <% else %>
+    <p>No pinned activity selected.</p>
+  <% end %>
 </div>

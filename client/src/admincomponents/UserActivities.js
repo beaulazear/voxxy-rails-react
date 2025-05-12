@@ -510,6 +510,7 @@ function UserActivities() {
             <CardGrid>
               {filteredActivities.map(activity => {
                 const selectedPin = activity.pinned_activities?.find(p => p.selected);
+                console.log(selectedPin)
 
                 let bgUrl;
                 if (selectedPin && selectedPin.photos?.length > 0) {
