@@ -133,9 +133,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
 
   function formatDate(dateString) {
     if (!dateString) return "TBD";
-    // split "2025-05-18" → [2025, 5, 18]
     const [year, month, day] = dateString.split("-").map(Number);
-    // monthIndex is 0-based!
     const d = new Date(year, month - 1, day);
     const monthName = d.toLocaleString("en-US", { month: "long" });
     const dayNum = d.getDate();
@@ -179,10 +177,6 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
             <span>{activity.activity_type + ' ' + activity.emoji || "N/A"}</span>
           </MetaItem>
           <MetaItem>
-            <label>Location:</label>
-            <span>{activity.activity_location || "TBD"}</span>
-          </MetaItem>
-          <MetaItem>
             <label>Host:</label>
             <span>{isOwner ? "You" : activity.user?.name || "Unknown"}</span>
           </MetaItem>
@@ -198,24 +192,28 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
                 : "TBD"}
             </span>
           </MetaItem>
-          <MetaItem>
-            <label>Share Link:</label>
-            <span>
-              <a
-                href={shareUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View Now
-              </a>
-            </span>
-          </MetaItem>
+          {activity.finalized === true && (
+            <MetaItem>
+              <label>Share Link:</label>
+              <span>
+                <a
+                  href={shareUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View Now
+                </a>
+              </span>
+            </MetaItem>
+          )}
         </MetaRow>
-
         <EntryMessage onClick={isOwner ? onEdit : undefined}>
           {activity.welcome_message ||
             "Welcome to this activity! … customize this message to fit your needs!"}
         </EntryMessage>
+        {activity.finalized === false && (
+          <ChatButton onClick={onEdit}>Finalize Board</ChatButton>
+        )}
       </HeaderContainer>
       <AttendeeContainer>
         <ParticipantsSection>
@@ -287,6 +285,23 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
 };
 
 export default HeaderSection;
+
+const ChatButton = styled.button`
+  background: #9051e1;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-weight: 600;
+  &:hover {
+    background: #7a3fc1;
+  }
+
+  @media (max-width: 600px) {
+  font-size: 12px;
+  }
+`;
 
 const HeaderContainer = styled.div`
   position: relative;

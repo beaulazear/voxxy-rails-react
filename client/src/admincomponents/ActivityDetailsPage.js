@@ -9,6 +9,7 @@ import LoadingScreen from '../components/LoadingScreen.js';
 import ActivityHeader from './ActivityHeader.js';
 import ActivityCommentSection from './ActivityCommentSection.js';
 import TimeSlots from '../letsmeet/TimeSlots.js';
+import SelectedPinnedActivity from './SelectedPinnedActivity.js';
 
 function ActivityDetailsPage({ activityId, onBack }) {
   const { user, setUser } = useContext(UserContext);
@@ -16,6 +17,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
   const [showModal, setShowModal] = useState(false);
   const [currentActivity, setCurrentActivity] = useState(null);
   const [pinnedActivities, setPinnedActivities] = useState([]);
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null)
 
   const topRef = useRef(null)
 
@@ -37,7 +39,14 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
       fetch(`${API_URL}/activities/${activityId}/pinned_activities`, { credentials: "include" })
         .then((res) => res.json())
-        .then((data) => setPinnedActivities(data))
+        .then((data) => {
+          setPinnedActivities(data)
+          const selectedPin = data.find(p => p.selected === true);
+          console.log(data, selectedPin)
+          if (selectedPin) {
+            setSelectedRestaurant(selectedPin)
+          }
+        })
         .catch((error) => console.error("Error fetching pinned activities:", error));
     }
 
@@ -159,7 +168,14 @@ function ActivityDetailsPage({ activityId, onBack }) {
           onInvite={handleInvite}
         />
         {currentActivity.activity_type === 'Restaurant' && (
-          <AIRecommendations isOwner={isOwner} pinnedActivities={pinnedActivities} setPinnedActivities={setPinnedActivities} activity={currentActivity} setRefreshTrigger={setRefreshTrigger} />
+          <>
+            {currentActivity.finalized === false && (
+              <AIRecommendations isOwner={isOwner} pinnedActivities={pinnedActivities} setPinnedActivities={setPinnedActivities} activity={currentActivity} setRefreshTrigger={setRefreshTrigger} />
+            )}
+            {currentActivity.finalized && selectedRestaurant && (
+              <SelectedPinnedActivity pinned={selectedRestaurant} />
+            )}
+          </>
         )}
         {currentActivity.activity_type === 'Meeting' && (
           <TimeSlots currentActivity={currentActivity} />
@@ -167,6 +183,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
         <ActivityCommentSection activity={currentActivity} />
         {showModal && (
           <UpdateActivityModal
+            pinnedActivities={pinnedActivities}
             activity={currentActivity}
             onClose={() => setShowModal(false)}
             onUpdate={handleUpdate}

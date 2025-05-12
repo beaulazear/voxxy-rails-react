@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 const ModalOverlay = styled.div`
@@ -89,7 +89,7 @@ const Input = styled.input`
 
   &::-webkit-calendar-picker-indicator {
     filter: invert(1) brightness(2);
-    cursor: pointer;        /* keep pointer cursor */
+    cursor: pointer;
   }
   &::-moz-color-swatch-button {
     filter: invert(1) brightness(2);
@@ -126,25 +126,72 @@ const ErrorList = styled.ul`
   li { margin-left: 1rem; }
 `;
 
-function UpdateActivityModal({ activity, onClose, onUpdate }) {
+// New styled component for radio option
+const OptionList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+const OptionItem = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #201925;
+  padding: 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #fff;
+  border: 2px solid transparent;
+
+  &:hover {
+    border-color: #6c5ce7;
+  }
+
+  input {
+    accent-color: #6c5ce7;
+    cursor: pointer;
+  }
+`;
+
+function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities }) {
   const [formData, setFormData] = useState({
-    activity_name: activity.activity_name || "",
     activity_location: activity.activity_location || "",
-    date_notes: activity.date_notes || "",
     date_day: activity.date_day || "",
     date_time: activity.date_time || "",
     welcome_message: activity.welcome_message || "",
   });
   const [errors, setErrors] = useState([]);
 
+  const [selectedPinnedId, setSelectedPinnedId] = useState(null);
+
+  useEffect(() => {
+    if (pinnedActivities && pinnedActivities.length > 0) {
+      const top = pinnedActivities.reduce((prev, curr) =>
+        (curr.vote_count ?? 0) > (prev.vote_count ?? 0) ? curr : prev
+        , pinnedActivities[0]);
+      setSelectedPinnedId(top.id);
+    }
+  }, [pinnedActivities]);
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
+  function handleOptionChange(e) {
+    setSelectedPinnedId(parseInt(e.target.value, 10));
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setErrors([]);
+
+    const payload = {
+      ...formData,
+      selected_pinned_id: selectedPinnedId,
+      finalized: true
+    };
+
     try {
       const res = await fetch(
         `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activity.id}`,
@@ -152,7 +199,7 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify(formData),
+          body: JSON.stringify({ activity: payload }),
         }
       );
       const data = await res.json();
@@ -171,7 +218,7 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
     <ModalOverlay>
       <ModalContainer>
         <ModalHeader>
-          <h2>Update Activity</h2>
+          <h2>Review & Finalize</h2>
           <CloseButton onClick={onClose}>✕</CloseButton>
         </ModalHeader>
 
@@ -182,29 +229,11 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
         )}
 
         <Form onSubmit={handleSubmit}>
-          <Label>Activity Name</Label>
-          <Input
-            type="text"
-            name="activity_name"
-            value={formData.activity_name}
-            onChange={handleChange}
-            required
-          />
-
           <Label>Location</Label>
           <Input
             type="text"
             name="activity_location"
             value={formData.activity_location}
-            onChange={handleChange}
-            required
-          />
-
-          <Label>Time of Day</Label>
-          <Input
-            type="text"
-            name="date_notes"
-            value={formData.date_notes}
             onChange={handleChange}
             required
           />
@@ -225,7 +254,7 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
             onChange={handleChange}
           />
 
-          <Label>Welcome Message</Label>
+          <Label>Activity Message</Label>
           <Input
             type="text"
             name="welcome_message"
@@ -233,7 +262,23 @@ function UpdateActivityModal({ activity, onClose, onUpdate }) {
             onChange={handleChange}
           />
 
-          <Button type="submit">Update Activity</Button>
+          <Label>Select Finalized Activity</Label>
+          <OptionList>
+            {pinnedActivities.map((p) => (
+              <OptionItem key={p.id}>
+                <input
+                  type="radio"
+                  name="selectedPinned"
+                  value={p.id}
+                  checked={selectedPinnedId === p.id}
+                  onChange={handleOptionChange}
+                />
+                <span>{p.title} ({p.vote_count ?? 0} votes)</span>
+              </OptionItem>
+            ))}
+          </OptionList>
+
+          <Button type="submit">Finalize Activity</Button>
         </Form>
       </ModalContainer>
     </ModalOverlay>

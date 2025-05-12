@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_08_205310) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_11_192743) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -29,6 +29,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_08_205310) do
     t.date "date_day"
     t.text "welcome_message"
     t.boolean "completed", default: false, null: false
+    t.boolean "finalized", default: false
     t.index ["user_id"], name: "index_activities_on_user_id"
   end
 
@@ -98,6 +99,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_08_205310) do
     t.text "photos"
     t.text "reason"
     t.string "website"
+    t.boolean "selected", default: false, null: false
     t.index ["activity_id"], name: "index_pinned_activities_on_activity_id"
   end
 

@@ -15,7 +15,7 @@ class ActivitiesController < HtmlController
         invite_emails = activity_params[:participants] || []
         invite_emails.each { |email| invite_participant(email, activity) }
         render json: activity.as_json(
-          only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message ],
+          only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :finalized ],
           include: {
             user: { only: [ :id, :name, :email, :avatar ] },
             activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] },
@@ -28,14 +28,28 @@ class ActivitiesController < HtmlController
     end
 
     def update
-      activity = current_user.activities.find_by(id: params[:id])
+      activity = current_user.activities.find(params[:id])
 
-      if activity.update(activity_params)
-        render json: activity.to_json(include: [ :participants, :activity_participants, :responses ]), status: :ok
-      else
-        Rails.logger.error "❌ Activity update failed: #{activity.errors.full_messages}"
-        render json: { error: activity.errors.full_messages }, status: :unprocessable_entity
+      Activity.transaction do
+        if activity_params.key?(:finalized)
+          activity.finalized = activity_params[:finalized]
+        end
+
+        if activity_params.key?(:selected_pinned_id)
+          new_id = activity_params[:selected_pinned_id].to_i
+
+          activity.pinned_activities.where(selected: true).update_all(selected: false)
+          activity.pinned_activities.find(new_id).update!(selected: true)
+        end
+
+        activity.update!(activity_params.except(:finalized, :selected_pinned_id))
       end
+
+      render json: activity.to_json(include: [ :participants, :activity_participants, :responses ]), status: :ok
+
+    rescue ActiveRecord::RecordInvalid => invalid
+      Rails.logger.error "❌ Activity update failed: #{invalid.record.errors.full_messages}"
+      render json: { errors: invalid.record.errors.full_messages }, status: :unprocessable_entity
     end
 
     def destroy
@@ -52,7 +66,7 @@ class ActivitiesController < HtmlController
       activities = current_user.activities.includes(:user, :responses, :activity_participants, :participants)
 
       render json: activities.as_json(
-        only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :user_id, :date_day, :date_time, :welcome_message, :completed ],
+        only: [ :id, :activity_name, :activity_type, :finalized, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :user_id, :date_day, :date_time, :welcome_message, :completed ],
         include: {
           user: { only: [ :id, :name, :email ] },
           responses: { only: [ :id, :notes, :created_at, :user_id, :activity_id ] },
@@ -77,7 +91,7 @@ class ActivitiesController < HtmlController
         render json: user.as_json(
           include: {
             activities: {
-              only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :date_day, :date_time, :welcome_message, :completed ],
+              only: [ :id, :activity_name, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :date_day, :date_time, :welcome_message, :completed ],
               include: {
                 user: { only: [ :id, :name, :email, :avatar ] },
                 responses: { only: [ :id, :notes, :created_at ] },
@@ -88,7 +102,7 @@ class ActivitiesController < HtmlController
             }
           }
         ).merge("participant_activities" => participant_activities.as_json(
-          only: [ :id, :activity_name, :emoji, :user_id, :date_notes, :activity_location, :group_size, :date_day, :date_time, :welcome_message, :completed ],
+          only: [ :id, :activity_name, :emoji, :user_id, :date_notes, :finalized, :activity_location, :group_size, :date_day, :date_time, :welcome_message, :completed ],
           include: {
             user: { only: [ :id, :name, :email ] },
             participants: { only: [ :id, :name, :email, :avatar ] },
@@ -136,7 +150,7 @@ class ActivitiesController < HtmlController
     private
 
     def activity_params
-      params.require(:activity).permit(:activity_name, :activity_type, :activity_location, :group_size, :date_notes, :active, :emoji, :date_day, :date_time, :welcome_message, :completed, participants: [])
+      params.require(:activity).permit(:activity_name, :activity_type, :finalized, :selected_pinned_id, :activity_location, :group_size, :date_notes, :active, :emoji, :date_day, :date_time, :welcome_message, :completed, participants: [])
     end
 
     def invite_participant(raw_email, activity)
