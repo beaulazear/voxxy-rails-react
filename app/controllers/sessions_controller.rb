@@ -34,7 +34,20 @@ class SessionsController < ApplicationController
               responses: { only: [ :id, :notes, :availability, :created_at, :user_id, :activity_id ] },
               participants: { only: [ :id, :name, :email, :avatar ] },
               activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] },
-              comments: { include: { user: { only: [ :id, :name, :avatar ] } } }
+              comments: { include: { user: { only: [ :id, :name, :avatar ] } } },
+              pinned_activities: {
+                only: [ :id, :title, :hours, :price_range, :address, :selected,
+                        :description, :activity_id, :reviews, :photos, :reason, :website ],
+                methods: [ :vote_count ],
+                include: {
+                  comments: {
+                    only: [ :id, :content, :created_at ],
+                    include: { user: { only: [ :id, :name, :email, :avatar ] } }
+                  },
+                  voters: { only: [ :id, :name, :avatar ] },
+                  votes: { only: [ :id, :user_id ] }
+                }
+                }
             }
           }
         }
@@ -47,7 +60,20 @@ class SessionsController < ApplicationController
               user: { only: [ :id, :name, :email, :avatar ] },
               responses: { only: [ :id, :notes, :availability, :created_at, :user_id, :activity_id ] },
               participants: { only: [ :id, :name, :email, :avatar ] },
-              comments: { include: { user: { only: [ :id, :name, :avatar ] } } }
+              comments: { include: { user: { only: [ :id, :name, :avatar ] } } },
+              pinned_activities: {
+                only: [ :id, :title, :hours, :price_range, :address, :selected,
+                        :description, :activity_id, :reviews, :photos, :reason, :website ],
+                methods: [ :vote_count ],
+                include: {
+                  comments: {
+                    only: [ :id, :content, :created_at ],
+                    include: { user: { only: [ :id, :name, :email, :avatar ] } }
+                  },
+                  voters: { only: [ :id, :name, :avatar ] },
+                  votes: { only: [ :id, :user_id ] }
+                }
+                }
             }
           }
         }

@@ -421,8 +421,6 @@ function UserActivities() {
     return `${hour}:${rawMin} ${suffix}`;
   }
 
-  console.log(user)
-
   if (selectedActivityId) {
     return (
       <>
@@ -517,7 +515,6 @@ function UserActivities() {
                 if (selectedPin && selectedPin.photos?.length > 0) {
                   const { photo_reference } = selectedPin.photos[0];
                   bgUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}`;
-                  console.log("BG URL for pin:", bgUrl);
                 } else {
                   bgUrl = activity.activity_type.toLowerCase() === 'meeting'
                     ? LetsMeetCardThree

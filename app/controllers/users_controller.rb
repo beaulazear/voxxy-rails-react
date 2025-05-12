@@ -89,7 +89,7 @@ class UsersController < ApplicationController
                 voters: { only: [ :id, :name, :avatar ] },
                 votes: { only: [ :id, :user_id ] }
               }
-            }
+              }
             }
           }
         }

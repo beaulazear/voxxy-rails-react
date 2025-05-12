@@ -163,8 +163,6 @@ export default function TimeSlots({ currentActivity }) {
         return map;
     }, {});
 
-    console.log(currentActivity)
-
     return (
         <Container>
             <Card>

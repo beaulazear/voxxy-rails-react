@@ -42,7 +42,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
         .then((data) => {
           setPinnedActivities(data)
           const selectedPin = data.find(p => p.selected === true);
-          console.log(data, selectedPin)
           if (selectedPin) {
             setSelectedRestaurant(selectedPin)
           }
