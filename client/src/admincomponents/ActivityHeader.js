@@ -154,9 +154,9 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
         </IconButtonLeft>
         {isOwner ? (
           <ButtonGroup>
-            <EditButton onClick={onEdit}>
+            {/* <EditButton onClick={onEdit}>
               <EditOutlined />
-            </EditButton>
+            </EditButton> */}
             <DeleteButton onClick={() => onDelete(activity.id)}>
               <DeleteOutlined />
             </DeleteButton>
@@ -207,11 +207,11 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
             </MetaItem>
           )}
         </MetaRow>
-        <EntryMessage onClick={isOwner ? onEdit : undefined}>
+        <EntryMessage>
           {activity.welcome_message ||
             "Welcome to this activity! … customize this message to fit your needs!"}
         </EntryMessage>
-        {activity.finalized === false && (
+        {activity.finalized === false & isOwner && (
           <ChatButton onClick={onEdit}>Finalize Board</ChatButton>
         )}
       </HeaderContainer>

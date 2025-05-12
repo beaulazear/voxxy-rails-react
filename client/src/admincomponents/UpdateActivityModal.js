@@ -262,21 +262,25 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities }) 
             onChange={handleChange}
           />
 
-          <Label>Select Finalized Activity</Label>
-          <OptionList>
-            {pinnedActivities.map((p) => (
-              <OptionItem key={p.id}>
-                <input
-                  type="radio"
-                  name="selectedPinned"
-                  value={p.id}
-                  checked={selectedPinnedId === p.id}
-                  onChange={handleOptionChange}
-                />
-                <span>{p.title} ({p.vote_count ?? 0} votes)</span>
-              </OptionItem>
-            ))}
-          </OptionList>
+          {pinnedActivities.length > 0 && (
+            <>
+              <Label>Select Finalized Activity</Label>
+              <OptionList>
+                {pinnedActivities.map((p) => (
+                  <OptionItem key={p.id}>
+                    <input
+                      type="radio"
+                      name="selectedPinned"
+                      value={p.id}
+                      checked={selectedPinnedId === p.id}
+                      onChange={handleOptionChange}
+                    />
+                    <span>{p.title} ({p.vote_count ?? 0} votes)</span>
+                  </OptionItem>
+                ))}
+              </OptionList>
+            </>
+          )}
 
           <Button type="submit">Finalize Activity</Button>
         </Form>
