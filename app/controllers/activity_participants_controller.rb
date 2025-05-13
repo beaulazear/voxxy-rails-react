@@ -65,6 +65,7 @@ class ActivityParticipantsController < ApplicationController
         user: activity.user ? { id: activity.user.id, name: activity.user.name, email: activity.user.email, avatar: activity.user.avatar } : nil,
         participants: activity.participants.select(:id, :name, :email, :avatar),
         completed: false,
+        finalized: activity.finalized,
         comments: activity.comments.order(created_at: :asc).map do |comment|
           {
             id: comment.id,
@@ -75,6 +76,15 @@ class ActivityParticipantsController < ApplicationController
           }
         end
       }
+
+      updated_activity[:responses] = activity.responses.order(created_at: :asc).map do |res|
+        {
+          id:         res.id,
+          notes:      res.notes,
+          availability: res.availability,
+          user_id:    res.user_id
+        }
+      end
 
       render json: updated_activity, status: :ok
     rescue => e

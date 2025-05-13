@@ -96,7 +96,7 @@ const CountWrapper = styled.div`
 export default function TimeSlots({ currentActivity }) {
     const { user } = useContext(UserContext);
 
-    const responseSubmitted = currentActivity.responses.some(
+    const responseSubmitted = currentActivity.responses?.some(
         (res) =>
             res.notes === "LetsMeetAvailabilityResponse" && res.user_id === user.id
     );
@@ -189,7 +189,7 @@ export default function TimeSlots({ currentActivity }) {
                                 <CountWrapper>
                                     <ActionButton $active={slot.user_voted} onClick={() => toggleVote(slot)}>
                                         {slot.user_voted ? <HeartPulse color={'red'} size={16} /> : <Heart size={16} />}
-                                        <span style={{marginLeft: '4px', color: '#fff'}}>{slot.votes_count}</span>
+                                        <span style={{ marginLeft: '4px', color: '#fff' }}>{slot.votes_count}</span>
                                     </ActionButton>
                                 </CountWrapper>
                             </TimeItem>
@@ -214,9 +214,12 @@ export default function TimeSlots({ currentActivity }) {
                     >Your Availability</TabButton>
                 </Tabs>
 
-                {currentActivity.responses.length === 0 & activeTab === 'available' && (
-                    <p style={{ color: '#fff', margin: '1.5rem' }}>No available times yet! Submit your availability to pin and vote on times to meet.</p>
-                )}
+                {(!currentActivity.responses || currentActivity.responses.length === 0) &&
+                    activeTab === 'available' && (
+                        <p style={{ color: '#fff', margin: '1.5rem' }}>
+                            No available times yet! Submit your availability…
+                        </p>
+                    )}
 
                 {activeTab === 'available' ? (
                     Object.entries(availabilityMap).map(([dateStr, timesObj]) => {
