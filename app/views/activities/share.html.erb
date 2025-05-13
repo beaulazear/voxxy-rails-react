@@ -11,6 +11,23 @@
     <section class="activity-card">
       <div class="activity-main">
         <h1 class="activity-title"><%= pinned.title %></h1>
+                <div class="activity-meta">
+          <span class="badge">Type: <%= @activity.activity_type %> <span class="emoji"><%= @activity.emoji %></span></span>
+          <%# Formatted Date %>
+          <% if @activity.date_day.present? %>
+            <span class="badge">
+              Date: <%= @activity.date_day.strftime("%B") %> <%= @activity.date_day.day.ordinalize %>
+            </span>
+          <% end %>
+
+          <%# Formatted Time %>
+          <% if @activity.date_time.present? %>
+            <span class="badge">
+              Time: <%= @activity.date_time.strftime("%-l:%M%P") %>
+            </span>
+          <% end %>
+          <span class="badge">Host: <%= @activity.user.name %></span>
+        </div>
         <%# Countdown if activity's date and time exist %>
         <% if @activity.date_day.present? && @activity.date_time.present? %>
           <div id="countdown" data-datetime="<%= @activity.date_day.to_time.change(hour: @activity.date_time.hour, min: @activity.date_time.min).iso8601 %>"></div>
@@ -20,15 +37,6 @@
             <p><%= @activity.welcome_message %></p>
           </div>
         <% end %>
-
-        <div class="activity-meta">
-          <% if @activity.emoji.present? %>
-            <span class="emoji"><%= @activity.emoji %></span>
-          <% end %>
-          <span class="badge">Type: <%= @activity.activity_type %></span>
-          <span class="badge">Host: <%= @activity.user.name %></span>
-          <span class="badge"><%= pluralize(@activity.participants.size, 'Participant') %></span>
-        </div>
       </div>
 
       <%# Pinned activity details: photos, website, address, etc. %>
@@ -44,6 +52,20 @@
           <div class="detail">
             <h4>Address</h4>
             <p><%= pinned.address %></p>
+          </div>
+        <% end %>
+
+        <% if pinned.description.present? %>
+          <div class="detail">
+            <h4>Restaurant Description</h4>
+            <p><%= pinned.description %></p>
+          </div>
+        <% end %>
+
+        <% if pinned.reason.present? %>
+          <div class="detail">
+            <h4>Reason Picked</h4>
+            <p><%= pinned.reason %></p>
           </div>
         <% end %>
       </div>
