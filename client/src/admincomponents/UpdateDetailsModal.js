@@ -44,7 +44,7 @@ const Title = styled.h2`
   font-size: clamp(1.25rem, 4vw, 2rem);
   font-weight: 600;
   margin: 0 0 1.5rem;
-  color: ${colors.accent};
+  color: #fff;
   text-align: center;
 `;
 
@@ -70,6 +70,7 @@ const InputWrapper = styled.div`
 
 const StyledInput = styled.input`
   background: transparent;
+  color-scheme: dark;
   border: none;
   flex: 1;
   color: ${colors.textPrimary};

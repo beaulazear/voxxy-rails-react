@@ -195,11 +195,11 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
             <label>Host:</label>
             <span>{isOwner ? "You" : activity.user?.name || "Unknown"}</span>
           </MetaItem>
-          <MetaItem onClick={handleOpenUpdate}>
+          <MetaItem>
             <label>Date:</label>
             <span>{formatDate(activity.date_day) || "TBD"}</span>
           </MetaItem>
-          <MetaItem onClick={handleOpenUpdate}>
+          <MetaItem>
             <label>Time:</label>
             <span>
               {activity.date_time
@@ -222,7 +222,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
             </MetaItem>
           )}
         </MetaRow>
-        <EntryMessage onClick={handleOpenUpdate}>
+        <EntryMessage>
           {activity.welcome_message ||
             "Welcome to this activity! … customize this message to fit your needs!"}
         </EntryMessage>

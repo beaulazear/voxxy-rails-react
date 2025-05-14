@@ -2,7 +2,8 @@ import React, { useContext } from "react";
 import styled, { keyframes } from "styled-components";
 import { UserContext } from "../context/user";
 import Friends from "../assets/Friends.svg";
-import LetsEatCard from '../assets/LetsEatCard.jpeg';
+import groupmeals from '../assets/groupmeals.jpeg';
+import LetsMeetCardThree from '../assets/LetsMeetCardThree.jpeg';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -50,7 +51,7 @@ const InviteCard = styled.div`
 export const ImageContainer = styled.div`
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
-  background-image: url(${LetsEatCard});
+  background-image: ${props => `url("${props.$bgimage}")`};
   background-size: cover;
   background-position: center;
   transition: transform 0.5s ease;
@@ -59,6 +60,7 @@ export const ImageContainer = styled.div`
     transform: scale(1.1);
   }
 `;
+
 
 export const CardLabel = styled.div`
   position: absolute;
@@ -269,28 +271,35 @@ const PendingInvites = ({ handleActivityClick }) => {
     <InviteContainer>
       {pendingInvites.length > 0 ? (
         <InviteGrid>
-          {pendingInvites.map(invite => (
-            <InviteCard key={invite.id}>
-              <ImageContainer className="image-bg" />
-              <TypeTag>
-                {invite.activity.activity_type}
-              </TypeTag>
-              <CardLabel>
-                <h3>{invite.activity.activity_name}</h3>
-                <div className="meta">
-                  <span>Host: {invite.activity.user.name}</span>
-                  <span>
-                    {invite.activity.date_day || "TBD"} ·{" "}
-                    {invite.activity.date_time?.slice(11, 16) || "TBD"}
-                  </span>
-                </div>
-                <div className="button-group">
-                  <Button onClick={() => handleAccept(invite)}>Accept</Button>
-                  <Button $decline onClick={() => handleDecline(invite)}>Decline</Button>
-                </div>
-              </CardLabel>
-            </InviteCard>
-          ))}
+          {pendingInvites.map(invite => {
+            let bgUrl = invite.activity.activity_type.toLowerCase() === 'meeting'
+              ? LetsMeetCardThree
+              : groupmeals;
+
+            return (
+              <InviteCard key={invite.id}>
+                <ImageContainer $bgimage={bgUrl} className="image-bg" />
+                <TypeTag>
+                  {invite.activity.activity_type}
+                </TypeTag>
+                <CardLabel>
+                  <h3>{invite.activity.activity_name}</h3>
+                  <div className="meta">
+                    <span>Host: {invite.activity.user.name}</span>
+                    <span>
+                      {invite.activity.date_day || "TBD"} ·{" "}
+                      {invite.activity.date_time?.slice(11, 16) || "TBD"}
+                    </span>
+                  </div>
+                  <div className="button-group">
+                    <Button onClick={() => handleAccept(invite)}>Accept</Button>
+                    <Button $decline onClick={() => handleDecline(invite)}>Decline</Button>
+                  </div>
+                </CardLabel>
+              </InviteCard>
+            )
+          }
+          )}
         </InviteGrid>
       ) : (
         <NoBoardsContainer>
