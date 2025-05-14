@@ -62,7 +62,7 @@ const SubmitButton = styled.button`
   }
 `;
 
-export default function LetsMeetScheduler({ activityId, currentActivity, responseSubmitted }) {
+export default function LetsMeetScheduler({ activityId, currentActivity, responseSubmitted, onClose }) {
     const { user, setUser } = useContext(UserContext);
 
     const [selectedDates, setSelectedDates] = useState([]);
@@ -188,6 +188,7 @@ export default function LetsMeetScheduler({ activityId, currentActivity, respons
                 );
                 return { ...prev, activities: updActs, participant_activities: updPart };
             });
+            onClose()
         } catch (err) {
             console.error("❌ Error saving availability:", err);
         }

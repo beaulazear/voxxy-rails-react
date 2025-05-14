@@ -93,7 +93,7 @@ const CountWrapper = styled.div`
   gap: 4px;
 `;
 
-export default function TimeSlots({ currentActivity }) {
+export default function TimeSlots({ currentActivity, pinned, setPinned, toggleVote }) {
     const { user } = useContext(UserContext);
 
     const responseSubmitted = currentActivity.responses?.some(
@@ -101,18 +101,12 @@ export default function TimeSlots({ currentActivity }) {
             res.notes === "LetsMeetAvailabilityResponse" && res.user_id === user.id
     );
 
-    const [pinned, setPinned] = useState([]);
     const [availabilityMap, setAvailabilityMap] = useState({});
     const [activeTab, setActiveTab] = useState(responseSubmitted ? 'available' : 'yours');
 
     const activityId = currentActivity.id;
 
     useEffect(() => {
-        fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activityId}/time_slots`, {
-            method: 'GET', credentials: 'include', headers: { 'Content-Type': 'application/json' }
-        })
-            .then(res => res.json())
-            .then(data => setPinned(data));
 
         const availResponses = currentActivity.responses.filter(
             res => res.notes === 'LetsMeetAvailabilityResponse' && res.availability
@@ -135,25 +129,7 @@ export default function TimeSlots({ currentActivity }) {
             body: JSON.stringify({ date, time })
         })
             .then(res => res.json())
-            .then(newSlot => setPinned(prev => [newSlot, ...prev]));
-    };
-
-    const toggleVote = slot => {
-        const endpoint = slot.votes_count && slot.user_voted ? 'unvote' : 'vote';
-        fetch(
-            `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activityId}/time_slots/${slot.id}/${endpoint}`,
-            { method: 'POST', credentials: 'include' }
-        )
-            .then(res => res.json())
-            .then(({ votes_count }) => {
-                setPinned(prev => prev
-                    .map(s => s.id === slot.id
-                        ? { ...s, votes_count, user_voted: endpoint === 'vote' }
-                        : s
-                    )
-                    .sort((a, b) => b.votes_count - a.votes_count)
-                );
-            });
+            .then(newSlot => setPinned(newSlot));
     };
 
     const pinnedMap = pinned.reduce((map, slot) => {

@@ -183,39 +183,43 @@ export default function UpdateDetailsModal({ activity, onClose, onUpdate }) {
                             />
                         </InputWrapper>
                     </Field>
-                    <Field>
-                        <Label htmlFor="location">Location</Label>
-                        <InputWrapper>
-                            <StyledInput
-                                id="location"
-                                placeholder="Location"
-                                value={location}
-                                onChange={e => setLocation(e.target.value)}
-                            />
-                        </InputWrapper>
-                    </Field>
-                    <Field>
-                        <Label htmlFor="dateDay">Date</Label>
-                        <InputWrapper>
-                            <StyledInput
-                                id="dateDay"
-                                type="date"
-                                value={dateDay}
-                                onChange={e => setDateDay(e.target.value)}
-                            />
-                        </InputWrapper>
-                    </Field>
-                    <Field>
-                        <Label htmlFor="dateTime">Time</Label>
-                        <InputWrapper>
-                            <StyledInput
-                                id="dateTime"
-                                type="time"
-                                value={dateTime}
-                                onChange={e => setDateTime(e.target.value)}
-                            />
-                        </InputWrapper>
-                    </Field>
+                    {activity.activity_type !== 'Meeting' && (
+                        <>
+                            <Field>
+                                <Label htmlFor="location">Location</Label>
+                                <InputWrapper>
+                                    <StyledInput
+                                        id="location"
+                                        placeholder="Location"
+                                        value={location}
+                                        onChange={e => setLocation(e.target.value)}
+                                    />
+                                </InputWrapper>
+                            </Field>
+                            <Field>
+                                <Label htmlFor="dateDay">Date</Label>
+                                <InputWrapper>
+                                    <StyledInput
+                                        id="dateDay"
+                                        type="date"
+                                        value={dateDay}
+                                        onChange={e => setDateDay(e.target.value)}
+                                    />
+                                </InputWrapper>
+                            </Field>
+                            <Field>
+                                <Label htmlFor="dateTime">Time</Label>
+                                <InputWrapper>
+                                    <StyledInput
+                                        id="dateTime"
+                                        type="time"
+                                        value={dateTime}
+                                        onChange={e => setDateTime(e.target.value)}
+                                    />
+                                </InputWrapper>
+                            </Field>
+                        </>
+                    )}
                     <Field>
                         <Label htmlFor="welcomeMessage">Welcome Message</Label>
                         <StyledTextarea

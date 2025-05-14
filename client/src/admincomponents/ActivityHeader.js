@@ -226,9 +226,12 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
           {activity.welcome_message ||
             "Welcome to this activity! … customize this message to fit your needs!"}
         </EntryMessage>
-        {activity.finalized === false & isOwner && (
-          <ChatButton onClick={onEdit}>Finalize Board</ChatButton>
-        )}
+        {!activity.finalized &&
+          isOwner && (
+            <ChatButton onClick={onEdit}>
+              Finalize Board
+            </ChatButton>
+          )}
       </HeaderContainer>
       <AttendeeContainer>
         <ParticipantsSection>

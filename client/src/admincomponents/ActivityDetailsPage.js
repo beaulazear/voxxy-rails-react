@@ -18,8 +18,17 @@ function ActivityDetailsPage({ activityId, onBack }) {
   const [currentActivity, setCurrentActivity] = useState(null);
   const [pinnedActivities, setPinnedActivities] = useState([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null)
+  const [pinned, setPinned] = useState([]);
 
   const topRef = useRef(null)
+
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activityId}/time_slots`, {
+      method: 'GET', credentials: 'include', headers: { 'Content-Type': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(data => setPinned(data));
+  }, [activityId])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -49,7 +58,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
         .catch((error) => console.error("Error fetching pinned activities:", error));
     }
 
-    return () => clearTimeout(timer); // Cleanup function
+    return () => clearTimeout(timer);
 
   }, [user, activityId, refreshTrigger]);
 
@@ -155,6 +164,29 @@ function ActivityDetailsPage({ activityId, onBack }) {
     }
   }
 
+  function handleTimeSlotPin(newSlot) {
+    setPinned(prev => [newSlot, ...prev])
+  }
+
+
+  const toggleVote = slot => {
+    const endpoint = slot.votes_count && slot.user_voted ? 'unvote' : 'vote';
+    fetch(
+      `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activityId}/time_slots/${slot.id}/${endpoint}`,
+      { method: 'POST', credentials: 'include' }
+    )
+      .then(res => res.json())
+      .then(({ votes_count }) => {
+        setPinned(prev => prev
+          .map(s => s.id === slot.id
+            ? { ...s, votes_count, user_voted: endpoint === 'vote' }
+            : s
+          )
+          .sort((a, b) => b.votes_count - a.votes_count)
+        );
+      });
+  };
+
   return (
     <div style={{ backgroundColor: '#201925' }} ref={topRef}>
       <PageContainer>
@@ -177,11 +209,12 @@ function ActivityDetailsPage({ activityId, onBack }) {
           </>
         )}
         {currentActivity.activity_type === 'Meeting' && (
-          <TimeSlots currentActivity={currentActivity} />
+          <TimeSlots toggleVote={toggleVote} setPinned={handleTimeSlotPin} pinned={pinned} currentActivity={currentActivity} />
         )}
         <ActivityCommentSection activity={currentActivity} />
         {showModal && (
           <UpdateActivityModal
+            pinned={pinned}
             pinnedActivities={pinnedActivities}
             activity={currentActivity}
             onClose={() => setShowModal(false)}

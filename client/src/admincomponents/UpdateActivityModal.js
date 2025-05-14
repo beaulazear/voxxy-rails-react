@@ -59,6 +59,7 @@ const Input = styled.input`
   padding: 0.6rem;
   font-size: 0.9rem;
   border: 1px solid #ddd;
+  color-scheme: dark;
   border-radius: 6px;
   background: #201925;
   color: #fff;
@@ -93,6 +94,10 @@ const Button = styled.button`
   background: #6c5ce7;
   color: white;
   &:hover { opacity: 0.85; }
+  &:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
++ }
 `;
 
 const ErrorList = styled.ul`
@@ -124,7 +129,7 @@ const OptionItem = styled.label`
   input { accent-color: #6c5ce7; cursor: pointer; }
 `;
 
-function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities }) {
+function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities, pinned }) {
   const [formData, setFormData] = useState({
     activity_location: activity.activity_location || '',
     date_day: activity.date_day || '',
@@ -133,6 +138,21 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities }) 
   });
   const [errors, setErrors] = useState([]);
   const [selectedPinnedId, setSelectedPinnedId] = useState(null);
+  const [selectedTimeSlotId, setSelectedTimeSlotId] = useState(null);
+
+  const isRestaurant = activity.activity_type === 'Restaurant';
+  const allFieldsFilled =
+    formData.activity_location.trim() &&
+    formData.date_day &&
+    formData.date_time &&
+    formData.welcome_message.trim();
+
+  // and then our overall “can submit?” boolean:
+  const canSubmit =
+    // first: if there **are** time‑slots, we still need one chosen:
+    !(pinned?.length > 0 && selectedTimeSlotId == null)
+    // second: if it’s a restaurant activity, we also need a pinned choice + all fields:
+    && (!isRestaurant || (allFieldsFilled && selectedPinnedId != null));
 
   useEffect(() => {
     if (pinnedActivities?.length) {
@@ -144,6 +164,22 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities }) 
     }
   }, [pinnedActivities]);
 
+  function handleTimeSlotChange(e) {
+    let id;
+    if (e) {
+      id = +e.target.value;
+    } else {
+      id = pinned[0].id
+    }
+    const slot = pinned.find(ts => ts.id === id);
+    setSelectedTimeSlotId(id);
+    setFormData({
+      ...formData,
+      date_day: slot.date,
+      date_time: slot.time.slice(11, 16),
+    });
+  }
+
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
@@ -153,12 +189,31 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities }) 
   async function handleSubmit(e) {
     e.preventDefault();
     setErrors([]);
+
+    if (!canSubmit) {
+      const msgs = [];
+      if (pinned?.length > 0 && selectedTimeSlotId == null)
+        msgs.push('Please choose a time slot.');
+      if (isRestaurant && !selectedPinnedId)
+        msgs.push('Please choose a restaurant.');
+      if (isRestaurant && !allFieldsFilled)
+        msgs.push('Please fill out all the fields.');
+      setErrors(msgs);
+      return;
+    }
+
     const payload = {
       ...formData,
-      date_time: formData.date_day ? `${formData.date_day}T${formData.date_time}:00` : null,
-      selected_pinned_id: selectedPinnedId,
+      date_time: formData.date_day
+        ? `${formData.date_day}T${formData.date_time}:00`
+        : null,
       finalized: true,
     };
+
+    if (activity.activity_type !== 'Meeting') {
+      payload.selected_pinned_id = selectedPinnedId;
+    }
+
     try {
       const res = await fetch(
         `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activity.id}`,
@@ -170,6 +225,17 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities }) 
     } catch (err) {
       setErrors([err.message]);
     }
+  }
+  function formatTo12h(isoTimestamp) {
+    const timeHM = isoTimestamp.slice(11, 16);
+    let [hour, minute] = timeHM.split(':').map(Number);
+
+    const isPM = hour >= 12;
+    const suffix = isPM ? 'pm' : 'am';
+
+    hour = hour % 12 || 12;
+
+    return `${hour}:${minute.toString().padStart(2, '0')}${suffix}`;
   }
 
   return (
@@ -194,13 +260,47 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities }) 
               </OptionList>
             </>
           )}
-          <Label htmlFor="date_day">Date</Label>
-          <Input type="date" name="date_day" id="date_day" value={formData.date_day} onChange={handleChange} />
-          <Label htmlFor="date_time">Time</Label>
-          <Input type="time" name="date_time" id="date_time" value={formData.date_time} onChange={handleChange} />
+          {pinned?.length > 0 && (
+            <>
+              <Label>Select a Time Slot</Label>
+              <OptionList>
+                {pinned.map(slot => (
+                  <OptionItem key={slot.id}>
+                    <input
+                      type="radio"
+                      name="timeSlot"
+                      value={slot.id}
+                      checked={selectedTimeSlotId === slot.id}
+                      onChange={handleTimeSlotChange}
+                    />
+                    <span>
+                      {slot.date} @ {formatTo12h(slot.time)}
+                    </span>
+                  </OptionItem>
+                ))}
+              </OptionList>
+            </>
+          )}
+          {activity.activity_type === 'Restaurant' &&
+            pinnedActivities?.length === 0 && (
+              <p style={{ color: '#fff' }}>You can not finalize this activity until someone has pinned a restaurant.</p>
+            )}
+          {activity.activity_type !== 'Meeting' && (
+            <>
+              <Label htmlFor="date_day">Date</Label>
+              <Input type="date" name="date_day" id="date_day" value={formData.date_day} onChange={handleChange} />
+              <Label htmlFor="date_time">Time</Label>
+              <Input type="time" name="date_time" id="date_time" value={formData.date_time} onChange={handleChange} />
+            </>
+          )}
           <Label htmlFor="welcome_message">Activity Message</Label>
           <Textarea name="welcome_message" id="welcome_message" placeholder="Welcome message..." value={formData.welcome_message} onChange={handleChange} />
-          <Button type="submit">Finalize Activity</Button>
+          <Button
+            type="submit"
+            disabled={!canSubmit}
+          >
+            Finalize Activity
+          </Button>
         </Form>
       </ModalContainer>
     </ModalOverlay>
