@@ -5,12 +5,27 @@ import { LeftOutlined, EditOutlined, DeleteOutlined, UserAddOutlined, LogoutOutl
 import Woman from "../assets/Woman.jpg";
 import YourCommunity from './YourCommunity.js';
 import mixpanel from 'mixpanel-browser';
+import UpdateDetailsModal from "./UpdateDetailsModal.js";
 
 const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }) => {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [selectedParticipant, setSelectedParticipant] = useState(null);
+  const [showUpdate, setShowUpdate] = useState(false);
   const { user, setUser } = useContext(UserContext);
+
+
+  const handleOpenUpdate = () => setShowUpdate(true);
+  const handleCloseUpdate = () => setShowUpdate(false);
+
+  const handleUpdate = (updatedActivity) => {
+    setUser(prev => ({
+      ...prev,
+      activities: prev.activities.map(a =>
+        a.id === updatedActivity.id ? updatedActivity : a
+      )
+    }));
+  };
 
   const handleParticipantClick = (participant) => {
     setShowInvitePopup(null);
@@ -154,7 +169,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
         </IconButtonLeft>
         {isOwner ? (
           <ButtonGroup>
-            <EditButton>
+            <EditButton onClick={handleOpenUpdate}>
               <EditOutlined />
             </EditButton>
             <DeleteButton onClick={() => onDelete(activity.id)}>
@@ -180,11 +195,11 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
             <label>Host:</label>
             <span>{isOwner ? "You" : activity.user?.name || "Unknown"}</span>
           </MetaItem>
-          <MetaItem>
+          <MetaItem onClick={handleOpenUpdate}>
             <label>Date:</label>
             <span>{formatDate(activity.date_day) || "TBD"}</span>
           </MetaItem>
-          <MetaItem>
+          <MetaItem onClick={handleOpenUpdate}>
             <label>Time:</label>
             <span>
               {activity.date_time
@@ -207,7 +222,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
             </MetaItem>
           )}
         </MetaRow>
-        <EntryMessage>
+        <EntryMessage onClick={handleOpenUpdate}>
           {activity.welcome_message ||
             "Welcome to this activity! … customize this message to fit your needs!"}
         </EntryMessage>
@@ -249,6 +264,14 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
             </ParticipantsScroll>
           </ParticipantsRow>
         </ParticipantsSection>
+
+        {showUpdate && (
+          <UpdateDetailsModal
+            activity={activity}
+            onClose={handleCloseUpdate}
+            onUpdate={handleUpdate}
+          />
+        )}
 
         {selectedParticipant && (
           <ParticipantPopupOverlay onClick={closeParticipantPopup}>
@@ -412,18 +435,19 @@ const MetaRow = styled.div`
   justify-content: center;
   gap: 1rem;
   margin-bottom: 1rem;
+  margin-top: 1rem;
   flex-wrap: wrap;
 `;
 
 const MetaItem = styled.div`
   label {
-    font-size: 0.8rem;
+    font-size: 1rem;
     color: #ccc;
     margin-right: 0.25rem;
     text-transform: uppercase;
   }
   span {
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     color: #fff;
   }
 `;
