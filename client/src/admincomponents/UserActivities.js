@@ -419,9 +419,9 @@ function UserActivities() {
     .filter(activity => {
       switch (filterType) {
         case "inprogress":
-          return activity.finalized === false;
+          return activity.finalized === false && activity.completed === false;
         case "finalized":
-          return activity.finalized === true;
+          return activity.finalized === true && activity.completed === false;
         case "past":
           return activity.completed;
         default:
