@@ -1,5 +1,6 @@
 import React, { useContext, useState, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
+import Countdown from 'react-countdown';
 import { UserContext } from '../context/user';
 import ActivityDetailsPage from './ActivityDetailsPage';
 import PendingInvites from './PendingInvites';
@@ -37,6 +38,18 @@ const HeroContainer = styled.div`
     flex-direction: column;
     align-items: flex-start;
   }
+`;
+
+const CountdownContainer = styled.div`
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Digital-7 Mono', monospace;  /* pick your digital font or import one */
+  font-size: 2.5rem;
+  color: #fff;
 `;
 
 const TextContainer = styled.div`
@@ -363,7 +376,6 @@ function UserActivities() {
 
   const [selectedActivityId, setSelectedActivityId] = useState(null);
   const [showActivities, setShowActivities] = useState(false);
-  const [filterType, setFilterType] = useState(pendingInvitesCount > 0 ? "invites" : "upcoming");
   const [helpVisible, setHelpVisible] = useState(false);
 
   const topRef = useRef(null)
@@ -386,8 +398,30 @@ function UserActivities() {
       .map(p => p.activity) || [])
   ];
   const uniqueActivities = [...new Map(allActivities.map(a => [a.id, a])).values()];
+
+  const inProgressCount = uniqueActivities.filter(a => a.finalized === false).length;
+  const finalizedCount = uniqueActivities.filter(a => a.finalized === true).length;
+
+  const [filterType, setFilterType] = useState(() => {
+    if (pendingInvitesCount > 0) return "invites";
+    if (inProgressCount > 0) return "inprogress";
+    if (finalizedCount > 0) return "finalized";
+    return "past";
+  });
+
   const filteredActivities = uniqueActivities
-    .filter(activity => (filterType === "upcoming" ? !activity.completed : activity.completed))
+    .filter(activity => {
+      switch (filterType) {
+        case "inprogress":
+          return activity.finalized === false;
+        case "finalized":
+          return activity.finalized === true;
+        case "past":
+          return activity.completed;
+        default:
+          return true;
+      }
+    })
     .sort((a, b) => new Date(a.date_day) - new Date(b.date_day));
 
   function getOrdinalSuffix(day) {
@@ -479,10 +513,17 @@ function UserActivities() {
           )}
           <FilterRow>
             <FilterButton
-              $active={filterType === "upcoming"}
-              onClick={() => setFilterType("upcoming")}
+              $active={filterType === "finalized"}
+              onClick={() => setFilterType("finalized")}
             >
-              Upcoming
+              Finalized
+            </FilterButton>
+
+            <FilterButton
+              $active={filterType === "inprogress"}
+              onClick={() => setFilterType("inprogress")}
+            >
+              In Progress
             </FilterButton>
 
             <FilterButton
@@ -511,6 +552,21 @@ function UserActivities() {
               {filteredActivities.map(activity => {
                 const selectedPin = activity.pinned_activities?.find(p => p.selected);
 
+                console.log(activity)
+
+                const isFinalizedMeeting =
+                  activity.activity_type === 'Meeting' && activity.finalized === true;
+
+                const rawTime = activity.date_time
+                  ? activity.date_time.slice(11, 19)
+                  : null;
+
+                const localIso =
+                  activity.date_day && rawTime
+                    ? `${activity.date_day}T${rawTime}`
+                    : null;
+
+                const eventDateTime = localIso ? new Date(localIso) : null;
                 let bgUrl;
                 if (selectedPin && selectedPin.photos?.length > 0) {
                   const { photo_reference } = selectedPin.photos[0];
@@ -526,10 +582,30 @@ function UserActivities() {
                     key={activity.id}
                     onClick={() => handleActivityClick(activity)}
                   >
-                    <ImageContainer $bgimage={bgUrl} />
+                    {isFinalizedMeeting && eventDateTime ? (
+                      <CountdownContainer>
+                        <Countdown
+                          date={eventDateTime}
+                          renderer={({ days, hours, minutes, seconds, completed }) => {
+                            if (completed) {
+                              return <span>00:00:00</span>;
+                            }
+                            const pad = num => String(num).padStart(2, '0');
+                            return (
+                              <span>
+                                {pad(hours + days * 24)}:{pad(minutes)}:{pad(seconds)}
+                              </span>
+                            );
+                          }}
+                        />
+                      </CountdownContainer>
+                    ) : (
+                      <ImageContainer $bgimage={bgUrl} />
+                    )}
 
                     <HostTag>
-                      <User size={14} style={{ paddingBottom: '2px' }} /> {activity.user?.name}
+                      <User size={14} style={{ paddingBottom: '2px' }} />{' '}
+                      {activity.user?.name}
                     </HostTag>
 
                     <TypeTag>
