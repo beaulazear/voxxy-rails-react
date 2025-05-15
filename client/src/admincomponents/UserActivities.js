@@ -451,9 +451,7 @@ function UserActivities() {
 
   function formatTime(timeString) {
     if (!timeString) return "TBD";
-    // "2000-01-01T22:15:00.000Z" → "22:15:00.000Z"
     const timePortion = timeString.split("T")[1];
-    // "22:15:00.000Z" → ["22", "15", ...]
     const [rawHour, rawMin] = timePortion.split(":");
     let hour = parseInt(rawHour, 10);
     const suffix = hour >= 12 ? "pm" : "am";
@@ -557,8 +555,6 @@ function UserActivities() {
             <CardGrid>
               {filteredActivities.map(activity => {
                 const selectedPin = activity.pinned_activities?.find(p => p.selected);
-
-                console.log(activity)
 
                 const isFinalizedMeeting =
                   activity.activity_type === 'Meeting' && activity.finalized === true;

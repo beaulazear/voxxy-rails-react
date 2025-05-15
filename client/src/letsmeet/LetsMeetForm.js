@@ -16,7 +16,7 @@ const ModalContainer = styled.div`
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   width: 90%; max-width: 500px;
-  background: #1f1f1f;
+  background: #2C1E33;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.5);
   z-index: 999;
@@ -32,7 +32,7 @@ const ProgressBarContainer = styled.div`
 `;
 const ProgressBar = styled.div`
   height: 6px;
-  background: #6c63ff;
+  background: #cc31e8;
   width: ${({ $percent }) => $percent}%;
   transition: width 0.3s ease;
 `;
@@ -89,7 +89,7 @@ const Tabs = styled.div`
 const Tab = styled.button`
   flex: 1;
   padding: 0.5rem;
-  background: ${({ $active }) => ($active ? "#6c63ff" : "#333")};
+  background: ${({ $active }) => ($active ? "#cc31e8" : "#333")};
   color: ${({ $active }) => ($active ? "white" : "#ccc")};
   border: none;
   cursor: pointer;
@@ -104,7 +104,7 @@ const ButtonRow = styled.div`
 `;
 
 const Button = styled.button`
-  background: ${({ $primary }) => ($primary ? '#6c63ff' : 'transparent')};
+  background: ${({ $primary }) => ($primary ? '#cc31e8' : 'transparent')};
   color: ${({ $primary }) => ($primary ? 'white' : '#6c63ff')};
   border: ${({ $primary }) => ($primary ? 'none' : '1px solid #6c63ff')};
   padding: 0.5rem 1rem;
