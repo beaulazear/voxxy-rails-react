@@ -367,6 +367,12 @@ const ViewBoard = styled.div`
   }
 `;
 
+const CDTXT = styled.span`
+  ${ActivityCard}:hover & {
+    color: #7B298C;
+  }
+`
+
 function UserActivities() {
   const { user } = useContext(UserContext);
 
@@ -592,9 +598,9 @@ function UserActivities() {
                             }
                             const pad = num => String(num).padStart(2, '0');
                             return (
-                              <span>
+                              <CDTXT>
                                 {pad(hours + days * 24)}:{pad(minutes)}:{pad(seconds)}
-                              </span>
+                              </CDTXT>
                             );
                           }}
                         />
