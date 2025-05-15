@@ -1,118 +1,111 @@
-<div class="share-page">
-  <header class="share-header">
-    <img src="/HEADER.svg" alt="Voxxy" class="voxxy-logo" />
-  </header>
+ <div class="share-page">
+      <header class="share-header">
+        <img src="/HEADER.svg" alt="Voxxy logo" class="voxxy-logo" />
+      </header>
 
-  <%# Always show the main activity card %>
-  <section class="activity-card">
-    <div class="activity-main">
-      <h1 class="activity-title"><%= @activity.activity_name %></h1>
-      <div class="activity-meta">
-        <span class="badge">
-          Type: <%= @activity.activity_type %> <span class="emoji"><%= @activity.emoji %></span>
-        </span>
-        <% if @activity.date_day.present? %>
-          <span class="badge">
-            Date: <%= @activity.date_day.strftime("%B ") %><%= @activity.date_day.day.ordinalize %>
-          </span>
+      <!-- Main activity card -->
+      <section class="card">
+        <h2 class="activity-title"><%= @activity.emoji %> <%= @activity.activity_name %></h2>
+
+        <% if @activity.date_day.present? && @activity.date_time.present? %>
+          <div class="countdown-label">⏲ Event starts in ...</div>
+          <div id="countdown" data-datetime="<%= @activity.date_day.to_time.change(
+            hour: @activity.date_time.hour,
+            min:  @activity.date_time.min
+          ).iso8601 %>"></div>
         <% end %>
-        <% if @activity.date_time.present? %>
-          <span class="badge">
-            Time: <%= @activity.date_time.strftime("%-l:%M%P") %>
-          </span>
-        <% end %>
-        <span class="badge">Host: <%= @activity.user.name %></span>
-      </div>
+      </section>
 
-      <%# Countdown if date & time exist %>
-      <% if @activity.date_day.present? && @activity.date_time.present? %>
-        <div id="countdown"
-             data-datetime="<%= @activity.date_day.to_time.change(
-                              hour: @activity.date_time.hour,
-                              min:  @activity.date_time.min
-                            ).iso8601 %>">
-        </div>
-      <% end %>
-
+      <!-- Organizer message -->
       <% if @activity.welcome_message.present? %>
-        <div class="welcome-message">
-          <p><%= @activity.welcome_message %></p>
+        <div class="card">
+          <h2>🗣️ Message from Organizer</h2>
+          <p class='rest-desc'><%= @activity.welcome_message %></p>
         </div>
       <% end %>
-    </div>
 
-    <%# Pinned-specific details %>
-    <% if (pinned = @activity.pinned_activities.find_by(selected: true)) %>
-      <div class="activity-details">
-        <% if pinned.website.present? %>
-          <div class="detail">
-            <h4>Website</h4>
-            <p>
-              <a href="<%= pinned.website %>" target="_blank" rel="noopener">
-                <%= pinned.website %>
-              </a>
-            </p>
-          </div>
-        <% end %>
+      <!-- Final date & time -->
+      <% if @activity.date_day.present? && @activity.date_time.present? %>
+        <div class="card">
+          <h2>🗓 Final Date &amp; Time</h2>
+          <p>
+            <%= @activity.date_day.strftime("%A, %B %-d, %Y") %>
+            at
+            <%= @activity.date_time.strftime("%I:%M %p") %>
+          </p>
+        </div>
+      <% end %>
 
-        <% if pinned.address.present? %>
-          <div class="detail">
-            <h4>Address</h4>
-            <p><%= pinned.address %></p>
-          </div>
-        <% end %>
+      <!-- Final restaurant -->
+      <% if (pinned = @activity.pinned_activities.find_by(selected: true)) %>
+        <div class="card">
+          <h2>📍 Final Restaurant</h2>
+          <p class="rest-name"><%= pinned.title %></p>
+          <% if pinned.description.present? %>
+            <p class="rest-desc"><%= pinned.description %></p>
+          <% end %>
+          <p class="rest-address"><%= pinned.address %></p>
+          <p class="rest-price">Price: <%= pinned.price_range %></p>
+          <% if pinned.website.present? %>
+            <a href="<%= pinned.website %>" target="_blank" rel="noopener" class="maps-button">
+              Visit Website
+            </a>
+          <% end %>
+          <% if pinned.address.present? %>
+            <a href="https://maps.google.com?q=<%= CGI.escape(pinned.address) %>"
+               target="_blank" rel="noopener" class="maps-button">
+              Open in Maps
+            </a>
+          <% end %>
+        </div>
+      <% end %>
 
-        <% if pinned.description.present? %>
-          <div class="detail">
-            <h4>Restaurant Description</h4>
-            <p><%= pinned.description %></p>
-          </div>
-        <% end %>
-
-        <% if pinned.reason.present? %>
-          <div class="detail">
-            <h4>Reason Picked</h4>
-            <p><%= pinned.reason %></p>
-          </div>
-        <% end %>
+      <!-- Attendees -->
+      <div class="card">
+        <h2>👥 Attendee List</h2>
+        <ul class="attendee-pills">
+            <li class="pill">Organizer: <%= @activity.user.name %></li>
+          <% @activity.participants.each do |p| %>
+            <% first = p.name.split(" ").first %>
+            <li class="pill"><%= first %></li>
+          <% end %>
+        </ul>
       </div>
-    <% end %>
-
-    <%# Participants %>
-    <div class="participants-section">
-      <h3>Who's Joining (<%= @activity.participants.size %>)</h3>
-      <ul class="participants-list">
-        <% @activity.participants.each do |p| %>
-          <li><span class="name"><%= p.name %></span></li>
-        <% end %>
-      </ul>
+      <button class="share-button" id="sharePlan">Share Plan</button>
     </div>
-  </section>
 
-  <%# Countdown script %>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var countdownElem = document.getElementById('countdown');
-      if (!countdownElem) return;
-
-      var targetTime = new Date(countdownElem.dataset.datetime).getTime();
-      function updateCountdown() {
-        var now = new Date().getTime();
-        var diff = targetTime - now;
-        if (diff <= 0) {
-          countdownElem.textContent = 'Event started';
-          clearInterval(interval);
-          return;
+    <script>
+      // Countdown logic
+      document.addEventListener('DOMContentLoaded', function() {
+        var el = document.getElementById('countdown');
+        if (!el) return;
+        var target = new Date(el.dataset.datetime).getTime();
+        function updateCountdown() {
+          var diff = target - Date.now();
+          if (diff <= 0) {
+            el.innerHTML = '<div class="cd-card"><strong>00</strong><small>Started</small></div>';
+            clearInterval(timer);
+            return;
+          }
+          var days    = Math.floor(diff / (1e3 * 60 * 60 * 24)),
+              hours   = Math.floor((diff / (1e3 * 60 * 60)) % 24),
+              mins    = Math.floor((diff / (1e3 * 60)) % 60),
+              secs    = Math.floor((diff / 1e3) % 60);
+          function pad(n){ return String(n).padStart(2,'0'); }
+          el.innerHTML =
+            '<span class="cd-card"><strong>' + days  + '</strong><small>Days</small></span>' +
+            '<span class="cd-card"><strong>' + pad(hours)  + '</strong><small>Hours</small></span>' +
+            '<span class="cd-card"><strong>' + pad(mins)   + '</strong><small>Minutes</small></span>' +
+            '<span class="cd-card"><strong>' + pad(secs)   + '</strong><small>Seconds</small></span>';
         }
-        var days  = Math.floor(diff / (1000 * 60 * 60 * 24));
-        var hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        var mins  = Math.floor((diff / (1000 * 60)) % 60);
-        var secs  = Math.floor((diff / 1000) % 60);
-        countdownElem.textContent = days + 'd ' + hours + 'h ' +
-                                    mins + 'm ' + secs + 's';
-      }
-      updateCountdown();
-      var interval = setInterval(updateCountdown, 1000);
-    });
-  </script>
-</div>
+        updateCountdown();
+        var timer = setInterval(updateCountdown, 1000);
+      });
+
+      // Share Plan button
+      document.getElementById('sharePlan').addEventListener('click', function() {
+        navigator.clipboard.writeText(window.location.href)
+          .then(() => alert('Link copied to clipboard!'))
+          .catch(() => alert('Could not copy link'));
+      });
+    </script>

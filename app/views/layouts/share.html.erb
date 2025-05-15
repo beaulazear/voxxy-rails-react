@@ -4,196 +4,187 @@
     <title><%= @activity.activity_name %> | Voxxy</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <style>
-    /* page background & centering */
-    body {
-        background-color: #1f1324; /* deep charcoal */
+<style>
+      /* Base */
+      body {
+        background-color: #1f1324;
+        padding: 1rem;
         margin: 0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        color: #fff;
-        line-height: 1.5;
-    }
+        color: #f0f0f5;
+        line-height: 1.6;
+      }
+      a { color: #fff; text-decoration: none; }
+      a:hover { color: #b46bd2; }
 
-    a {
-        color: white;
-    }
-    a:hover {
-        color: #9F2FCE;
-    }
-    #countdown {
-        margin-top: 1rem;
-        font-size: 20px;
-    }
-    .welcome-message {
-        margin-bottom: 0;
-        padding: 0;
-    }
-
-    .share-page {
-        width: 100%;
-        max-width: 100%;
-        margin: 1rem auto;
-        padding: 0 1.25rem;
-        box-sizing: border-box;
-    }
-
-    /* header */
-    .share-header {
-        text-align: center;
-    }
-
-    .voxxy-logo {
-        max-width: 220px;
-        width: 75%;
-        height: auto;
-        margin: 30px;
-    }
-
-    /* activity card */
-    .activity-card {
-        background: #2c1e33; /* dark purple */
+      .share-page {
+        max-width: 500px;
+        margin: 2rem auto;
+        padding: 1rem;
+        background: #2C1E33;
         border-radius: 1rem;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
-        overflow: hidden;
-        margin-bottom: 1.5rem;
-    }
-
-    /* top bar */
-    .activity-main {
-        background: #4a0d5c; /* richer purple */
-        color: #fff;
-        padding: 1.25rem;
+        border: 1px solid #453050;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      }
+      .share-header {
         text-align: center;
-    }
-
-    .activity-title {
-        font-size: 1.75rem;
-        margin: 0 0 0.5rem;
-        line-height: 1.2;
-        font-weight: 700;
-    }
-
-    .activity-meta {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.5rem;
-        font-size: 0.875rem;
-    }
-
-    .badge {
-        color: #fff;
-        background: rgba(0,0,0,0.2);
-        border-radius: 999px;
-        padding: 0.4rem 0.8rem;
-        font-weight: 500;
-    }
-
-    .emoji {
-        font-size: 1.25rem;
-        line-height: 1;
-    }
-
-    .activity-details {
-        display: block;
-        padding: 1rem;
-        border-top: 1px solid #432748;
-    }
-
-    .detail {
         margin-bottom: 1rem;
-        min-width: 50%;
-    }
-        
-    .pinned-activities  {
-        padding: 1rem;
-        margin: 10px;
-        width: 100%;
-    }
+      }
+      .voxxy-logo {
+        width: 180px;
+        opacity: 0.9;
+      }
 
-    .pinned-list-item  {
-        padding: 10px;
-        padding-right: 30px;
-    }
-
-    .pinned-title  {
-        margin: 10px;
-    }
-
-    .activity-details h4 {
-        margin: 0 0 0.25rem;
+      /* Cards */
+      .card {
+        background: #341F3B;
+        border-radius: 1rem;
+        border: 1px solid #453050;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+        padding: 1.75rem 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+      .card h2 {
+        font-size: 1.3rem;
         font-weight: 600;
-        color: #ccc;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-    }
-
-    .activity-details p {
         margin: 0;
-        color: #eee;
+        padding-bottom: 0.75rem;
+        color: #ddd;
+        letter-spacing: 0.5px;
+      }
+      .card p {
+        margin: 0;
         font-size: 1rem;
-    }
+        color: #e5e5eb;
+        letter-spacing: 0.3px;
+      }
 
-    .time-slots ul {
+      /* Activity Title */
+      .activity-title {
+        font-size: 2.25rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem;
+        line-height: 1.1;
+        letter-spacing: 1px;
+        text-align: center;
+      }
+
+      /* Countdown */
+      .countdown-label {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: #ccc;
+        text-align: center;
+      }
+      #countdown {
+        display: flex;
+        justify-content: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+.cd-card {
+  display: inline-flex;        /* inline-flex lets them sit side‑by‑side as pills */
+  flex-direction: column;      /* stack children vertically */
+  align-items: center;         /* center the children horizontally */
+  justify-content: center;  
+  background: #3D2145;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-family: 'Digital-7 Mono', monospace;
+}
+
+.cd-card strong {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.cd-card small {
+  display: block;              /* make small a block so it sits on its own line */
+  margin-top: 0.25rem;         /* give a little breathing room */
+  font-size: 0.75rem;
+  color: #bbb;
+}
+
+      /* Buttons */
+      .maps-button, .share-button {
+        display: inline-block;
+        margin-top: 1rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        border: 1px solid #453050;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: background 0.2s;
+      }
+      .maps-button {
+        background: #201925;
+        color: #fff;
+      }
+      .maps-button:hover {
+        background: #9E69FB;   
+        color: #fff;     
+      }
+      .share-button {
+        background: #9E69FB;
+        color: #fff;
+        text-align: center;
+        margin: 0 auto;
+        justify-content: center;
+      }
+      .share-button:hover {
+        background: #E93EFF;
+      }
+
+      /* Attendee Pills */
+      .attendee-pills {
         list-style: none;
         padding: 0;
-        margin: 0.5rem 0 0;
+        margin: 0;
         display: flex;
         flex-wrap: wrap;
         gap: 0.5rem;
-    }
-
-    .time-slots li {
-        background: #3a2845;
+      }
+      .attendee-pills .pill {
+        background: #9E69FB;
         padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
+        border-radius: 999px;
         font-size: 0.9rem;
-    }
-
-    .participants-section {
-        padding: 1rem;
-    }
-
-    .participants-section h3 {
-        margin: 0 0 0.75rem;
-        font-size: 1.25rem;
-        font-weight: 600;
-    }
-
-    .participants-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-    }
-
-    .participants-list li {
-        flex: 1 1 calc(50% - 0.75rem);
-        display: flex;
-        align-items: center;
-        background: #3a2845;
-        padding: 0.75rem;
-        border-radius: 0.5rem;
-        font-size: 0.95rem;
-    }
-
-    .participants-list .name {
-        flex: 1;
         font-weight: 500;
-    }
+        color: #fff;
+      }
+            /* Restaurant details */
+      .rest-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: #fff;
+      }
+      .rest-desc {
+        font-size: 1rem;
+        font-style: italic;
+        margin-bottom: 0.5rem;
+        color: #ddd;
+      }
+      .rest-address {
+        font-size: 0.95rem;
+        color: #aaa;
+        margin-bottom: 0.75rem;
+      }
 
-    @media (min-width: 640px) {
-        .activity-title { font-size: 2rem; }
-        .activity-main { padding: 1.5rem; }
-        .share-page { padding: 0 2rem; }
-    }
-
-    @media (min-width: 1024px) {
-        .share-page { max-width: 800px; margin: 2rem auto; }
-        .activity-main { padding: 2rem 2.5rem; }
+      @media (min-width: 640px) {
         .activity-title { font-size: 2.5rem; }
+      }
+      @media (min-width: 1024px) {
+        .activity-title { font-size: 3rem; }
+      }
+      @media (max-width: 1024px) {
+        .cd-card strong {
+            font-size: 1.4rem;
+        }
+        .cd-card small {
+            font-size: 0.6rem;
+        }
     }
     </style>
   </head>
