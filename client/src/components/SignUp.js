@@ -9,8 +9,8 @@ import mixpanel from 'mixpanel-browser';
 
 const SectionContainer = styled.section`
   min-width: 350px;
-  background-color: ${colors.backgroundTwo};
-  padding: 1rem .5rem;
+  background-color: ${colors.background};
+  padding: 1rem 1rem;
   text-align: center;
   color: ${colors.textPrimary};
 `;
@@ -18,42 +18,44 @@ const SectionContainer = styled.section`
 const SectionInner = styled.div`
   max-width: 1200px;
   margin: 0 auto;
+  padding: 2rem 1rem;
 `;
 
 const Title = styled(Heading1)`
-  font-size: clamp(1.6rem, 5vw, 2.8rem);
-  max-width: 1000px;
-  margin-bottom: 1rem;
+  font-size: clamp(2.2rem, 5vw, 1.5rem);
+  max-width: 900px;
+  margin-bottom: 0.5rem;
   color: ${colors.textPrimary};
 `;
 
 const Subtitle = styled(MutedText)`
   font-size: 1rem;
-  max-width: 600px;
-  margin: 0.5rem auto 3rem auto;
-  line-height: 1.6;
+  max-width: 800px;
+  margin: 0.5rem auto .5rem auto;
+  line-height: 1.8;
 `;
 
 const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 5.5rem;
-  background-color: #251C2C;
+  padding: 8rem;
+  background-color: #201925;
   min-height: 100vh;
 `;
 
 const FormContainer = styled.div`
-  max-width: 400px;
-  min-width: 350px;
+  max-width: 900px;
+  min-width: 500px;
   border-radius: 12px;
   text-align: center;
   margin-bottom: 2rem;
+  
 `;
 
 const Heading = styled.h1`
-  font-size: 1.5rem;
-  font-weight: 500;
+  font-size: 2rem;
+  font-weight: 700;
   margin-bottom: 1.5rem;
   color: #FFFFFF;
 `;
@@ -61,32 +63,33 @@ const Heading = styled.h1`
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: .7rem;
 `;
 
 const InputGroup = styled.div`
   text-align: left;
-  width: 93%;
+  width: 100%;
 
   label {
-    font-size: 0.875rem;
-    color: #ccc;
+    font-size: 1rem;
+    color: #FFFFFF;
+    font-weight: 500;
     margin-bottom: 0.25rem;
     display: block;
   }
 
   input {
     width: 100%;
-    padding: 0.75rem;
-    font-size: 1rem;
-    border: 1px solid #444;
+    padding: 0.6rem;
+    font-size: .8rem;
+    border: 2px solid #442f4f;
     border-radius: 8px;
-    background-color: #222;
+    background-color: #211825;
     color: #fff;
     transition: border-color 0.2s ease;
 
     &:focus {
-      border-color: #9D60F8;
+      border-color: #cc31e8;
       outline: none;
     }
   }
@@ -97,7 +100,7 @@ const SubmitButton = styled.button`
   padding: 0.75rem;
   font-size: 1rem;
   color: #fff;
-  background: linear-gradient(135deg, #9D60F8, #B279FA);
+  background: #cc31e8;
   border: none;
   border-radius: 50px;
   cursor: pointer;
@@ -105,7 +108,7 @@ const SubmitButton = styled.button`
   transition: background 0.3s ease;
 
   &:hover {
-    background: linear-gradient(135deg, #8b4ee4, #a070e8);
+    background:rgb(232, 49, 226);
   }
 
   &:disabled {
@@ -120,7 +123,7 @@ const TermsNote = styled.p`
   margin-top: 1rem;
 
   a {
-    color: #9D60F8;
+    color: #cc31e8;
     text-decoration: none;
 
     &:hover {
@@ -160,7 +163,7 @@ const Footer = styled.div`
   padding: 2rem 1rem;
 
   button {
-    border: 1px solid #9D60F8;
+    border: 1px solid #cc31e8;;
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
     border-radius: 50px;
@@ -170,7 +173,7 @@ const Footer = styled.div`
     width: 100%;
     max-width: 400px;
     box-sizing: border-box;
-    color: #9D60F8;
+    color: #cc31e8;
     transition: background 0.3s ease;
 
     &:hover {
@@ -260,10 +263,10 @@ const SignUp = () => {
         </SectionInner>
       </SectionContainer>
       <FormContainer>
-        <Heading>Create an account</Heading>
+        <Heading>Create your account</Heading>
         <Form onSubmit={handleSubmit}>
           <InputGroup>
-            <label htmlFor="name">What should we call you?</label>
+            <label htmlFor="name">Full Name</label>
             <input
               id="name"
               type="text"
@@ -273,7 +276,7 @@ const SignUp = () => {
             />
           </InputGroup>
           <InputGroup>
-            <label htmlFor="email">What’s your email?</label>
+            <label htmlFor="email">Email</label>
             <input
               id="email"
               type="email"
@@ -284,7 +287,7 @@ const SignUp = () => {
             />
           </InputGroup>
           <InputGroup>
-            <label htmlFor="password">Create a password</label>
+            <label htmlFor="password">Password</label>
             <input
               id="password"
               type="password"
@@ -294,7 +297,7 @@ const SignUp = () => {
             />
           </InputGroup>
           <InputGroup>
-            <label htmlFor="passwordConfirmation">Confirm your password</label>
+            <label htmlFor="passwordConfirmation">Confirm Password</label>
             <input
               id="passwordConfirmation"
               type="password"
@@ -303,7 +306,7 @@ const SignUp = () => {
               required
             />
           </InputGroup>
-          <SubmitButton type="submit">Create an account</SubmitButton>
+          <SubmitButton type="submit">Create Account</SubmitButton>
         </Form>
         <TermsNote>
           By creating an account, you agree to the{' '}

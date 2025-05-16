@@ -10,8 +10,8 @@ import { Sparkles } from 'lucide-react';
 
 const SectionContainer = styled.section`
   min-width: 350px;
-  background-color: ${colors.backgroundTwo};
-  padding: 1rem .5rem;
+  background-color: transparent;
+  padding: 9rem 3rem 3rem;
   text-align: center;
   color: ${colors.textPrimary};
 `;
@@ -19,18 +19,20 @@ const SectionContainer = styled.section`
 const SectionInner = styled.div`
   max-width: 1200px;
   margin: 0 auto;
+
 `;
 
 const Title = styled(Heading1)`
-  font-size: clamp(1.6rem, 5vw, 2.8rem);
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
   margin-bottom: 1rem;
   color: ${colors.textPrimary};
+  
 `;
 
 const Subtitle = styled(MutedText)`
-  font-size: 1rem;
-  max-width: 600px;
-  margin: 0.5rem auto 3rem auto;
+  font-size: 1.1rem;
+  max-width: 750px;
+  margin: 0.5rem auto 0rem auto;
   line-height: 1.6;
 `;
 
@@ -38,65 +40,74 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 5.5rem;
-  background-color: #251C2C;
+  justify-content: center;
   min-height: 100vh;
+  background-color: #201925;
+  padding: 0 1rem;
 `;
 
 const FormContainer = styled.div`
   max-width: 400px;
-  min-width: 350px;
+  width: 100%;
   border-radius: 12px;
   text-align: center;
   margin-bottom: 2rem;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
 `;
 
 const Heading = styled.h1`
-  font-size: 1.5rem;
-  font-weight: 500;
+  font-size: 2rem;
+  font-weight: 700;
   margin-bottom: 1rem;
-  color: #FFFFFF;
+  color: #fff;
+  text-align: center;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 `;
 
 const InputGroup = styled.div`
   text-align: left;
+  width: 100%;
+  margin-bottom: 0.1rem;
 
   label {
-    font-size: 0.875rem;
-    color: #ccc;
-    margin-bottom: 0.25rem;
+    font-size: 1rem;
+    color: #fff;
+    margin-bottom: 0.3rem;
     display: block;
+    font-weight: 500;
   }
 
   input {
     width: 100%;
-    padding: 0.75rem;
+    padding: .5rem;
     font-size: 1rem;
-    border: 1px solid #444;
+    border: 1.5px solid  #592566;
     border-radius: 8px;
-    background-color: #222;
+    background-color: #211825;
     color: #fff;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s;
 
     &:focus {
-      border-color: #9D60F8;
+      border-color: #cc31e8;
       outline: none;
     }
   }
 `;
+
 
 const SubmitButton = styled.button`
   margin-top: 1.5rem;
   padding: 0.75rem;
   font-size: 1rem;
   color: #fff;
-  background: linear-gradient(135deg, #9D60F8, #B279FA);
+  background: #cc31e8;
   border: none;
   border-radius: 50px;
   cursor: pointer;
@@ -104,7 +115,7 @@ const SubmitButton = styled.button`
   transition: background 0.3s ease;
 
   &:hover {
-    background: linear-gradient(135deg, #8b4ee4, #a070e8);
+    background:rgb(232, 49, 226);
   }
 
   &:disabled {
@@ -114,14 +125,14 @@ const SubmitButton = styled.button`
 `;
 
 const TextLink = styled.p`
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   color: #ccc;
-  margin-top: 1rem;
+  margin-top: 1.25rem;
 
-  a {
-    color: #9D60F8;
+  a, span {
+    color: #cc31e8;
     text-decoration: none;
-
+    cursor: pointer;
     &:hover {
       text-decoration: underline;
     }
@@ -132,7 +143,7 @@ const Divider = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: .5rem auto;
+  margin: 0.5rem auto;
   width: 100%;
   max-width: 400px;
   text-align: center;
@@ -156,31 +167,33 @@ const Divider = styled.div`
 const Footer = styled.div`
   text-align: center;
   width: 100%;
-  padding: 2rem 1rem;  /* Increased padding from 0 1rem to 2rem 1rem */
+  padding: 2rem 1rem;
 
   button {
-    border: 1px solid #9D60F8;
+    border: 1.5px solid #cc31e8;
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
     border-radius: 50px;
     background: transparent;
     cursor: pointer;
-    margin-top: 1.5rem;  /* Added extra top margin */
+    margin-top: 1.5rem;
     width: 100%;
     max-width: 400px;
     box-sizing: border-box;
-    color: #9D60F8;
-    transition: background 0.3s ease;
+    color: #cc31e8;
+    font-weight: 600;
+    transition: background 0.3s, color 0.3s;
 
     &:hover {
       background: rgba(157, 96, 248, 0.1);
+      color: #fff;
     }
   }
 
   p {
     font-size: 0.875rem;
     color: #ccc;
-    margin-top: 1rem; /* Extra space above the terms */
+    margin-top: 1rem;
   }
 `;
 
@@ -305,11 +318,11 @@ const Login = () => {
         </Divider>
         <button onClick={() => navigate('/signup')}>Create an account</button>
         <p>
-          <a href="/terms" style={{ color: '#9D60F8' }}>
+          <a href="/terms" style={{ color: '#cc31e8' }}>
             Terms of Service
           </a>{' '}
           |{' '}
-          <a href="/privacy" style={{ color: '#9D60F8' }}>
+          <a href="/privacy" style={{ color: '#cc31e8' }}>
             Privacy Policy
           </a>
         </p>
