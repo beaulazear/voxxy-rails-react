@@ -28,11 +28,12 @@ const Title = styled(Heading1)`
 `;
 
 const Subtitle = styled(MutedText)`
-  font-size: 1rem;
-  max-width: 6500px;
-  margin: 0.5rem auto 3rem;
+  font-size: 1.1rem;
   line-height: 1.6;
-  color: ${colors.textMuted};
+  max-width: 750px;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  margin: 0.5rem auto 3rem auto;
 `;
 
 const FormWrapper = styled.section`

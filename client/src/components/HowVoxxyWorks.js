@@ -33,10 +33,10 @@ const Title = styled(Heading1)`
 `;
 
 const Subtitle = styled(MutedText)`
-  font-size: 1.2rem;
-  max-width: 700px;
-  margin: 0.5rem auto 3rem auto;
+  font-size: 1.1rem;
   line-height: 1.6;
+  max-width: 750px;
+  margin: 0.5rem auto 3rem auto;
 `;
 
 const CardsWrapper = styled.div`

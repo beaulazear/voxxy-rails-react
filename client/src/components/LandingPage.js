@@ -28,7 +28,7 @@ const StaggeredContent = styled.div`
     `}
 `;
 const SpacedStaggeredContent = styled(StaggeredContent)`
-  padding-top: 2rem; // This adds padding above the WaitlistForm`;
+`;
 
 
 const LandingPage = () => {
@@ -83,6 +83,6 @@ const LandingPage = () => {
       </ContentContainer>
     </div>
   );
-};
+}; 
 
 export default LandingPage;

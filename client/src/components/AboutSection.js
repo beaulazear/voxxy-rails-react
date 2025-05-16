@@ -21,7 +21,7 @@ const DarkSection = styled.section`
 const SectionContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 10rem 0;
+  padding: 3rem 0;
 `;
 
 const SmallHeading = styled.h3`
