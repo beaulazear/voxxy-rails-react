@@ -7,7 +7,7 @@ const BenefitsContainer = styled.section`
     hsl(291, 80%, 55%, 0.9),
     hsl(262, 95%, 70%, 0.9),
     hsl(267, 90%, 65%, 0.9)); 
-  padding: 4rem 2rem;
+  padding: 6rem 2rem;
   margin: 0 auto;
   text-align: center;
 
@@ -17,7 +17,7 @@ const BenefitsContainer = styled.section`
 `;
 
 const Title = styled.h2`
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(2rem, 5vw, 2.25rem);
   font-weight: 700;
   color: #ffffff;
   margin-bottom: 1rem;

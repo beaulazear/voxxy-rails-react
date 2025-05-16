@@ -8,7 +8,7 @@ import Footer from "./Footer";
 import WaitlistForm from "./WaitlistForm";
 
 const ContentContainer = styled.div`
-  background-color: #0D0B1F; /* fixed background color without quotes */
+  background-color: #251c2c; /* fixed background color without quotes */
   opacity: ${({ $isVisible }) => ($isVisible ? "1" : "0")};
   transition: opacity 0.7s ease-in-out;
   margin-top: 0;
@@ -27,6 +27,9 @@ const StaggeredContent = styled.div`
       transform: translateY(0);
     `}
 `;
+const SpacedStaggeredContent = styled(StaggeredContent)`
+  padding-top: 2rem; // This adds padding above the WaitlistForm`;
+
 
 const LandingPage = () => {
   const [showContent, setShowContent] = useState(false);
@@ -68,9 +71,9 @@ const LandingPage = () => {
           <AboutSection />
         </StaggeredContent>
 
-        <StaggeredContent id="benefits" className="staggered-section" $isVisible={visibleSections.includes("benefits")}>
-          <WaitlistForm />
-        </StaggeredContent>
+        <SpacedStaggeredContent id="benefits" className="staggered-section" $isVisible={visibleSections.includes("benefits")}>
+         <WaitlistForm />
+        </SpacedStaggeredContent>
 
         <StaggeredContent id="benefits" className="staggered-section" $isVisible={visibleSections.includes("benefits")}>
           <BenefitsSection />

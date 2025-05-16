@@ -37,6 +37,6 @@ export const ButtonText = styled.span`
 export const MutedText = styled.p`
   font-size: 0.9rem;
   font-weight: 400;
-  color: #888;
+  color: #dbd3de;
   line-height: 1.5;
 `;

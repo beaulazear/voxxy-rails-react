@@ -96,7 +96,7 @@ const OutlineButton = styled(Link)`
   font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
-  border: 1px solid ${colors.primarySolid};
+  border: .1px solid;
   border-radius: 4px;
   color: ${colors.primarySolid};
   transition: background-color 0.2s ease;

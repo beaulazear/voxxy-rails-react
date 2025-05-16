@@ -8,7 +8,7 @@ const HeroSection = styled.section`
   background-color: ${colors.background};zz
   color: ${colors.textPrimary};
   text-align: center;
-  padding: 6rem 1.5rem;
+  padding: 3rem 1.5rem;
   padding-top: 150px;
   box-sizing: border-box;
   overflow: hidden;
@@ -20,9 +20,9 @@ const HeroContainer = styled.div`
 `;
 
 const Title = styled(Heading1)`
-  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-size: clamp(2.5rem, 6vw, 3.75rem);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1;
   margin-bottom: 1.5rem;
   color: ${colors.textPrimary}
 `;

@@ -8,7 +8,7 @@ import { Heading1, MutedText } from '../styles/Typography'; // ✅ optional if y
 
 const SectionContainer = styled.section`
   background-color: ${colors.backgroundTwo};
-  padding: 4rem 1rem;
+  padding: 5rem 1rem;
   text-align: center;
   color: ${colors.textPrimary};
 `;
@@ -27,14 +27,14 @@ const SmallHeading = styled.h3`
 `;
 
 const Title = styled(Heading1)`
-  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-size: clamp(1.8rem, 5vw, 2.25rem);
   margin-bottom: 1rem;
   color: ${colors.textPrimary};
 `;
 
 const Subtitle = styled(MutedText)`
-  font-size: 1rem;
-  max-width: 600px;
+  font-size: 1.2rem;
+  max-width: 700px;
   margin: 0.5rem auto 3rem auto;
   line-height: 1.6;
 `;

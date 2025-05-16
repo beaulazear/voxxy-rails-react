@@ -33,7 +33,7 @@ const colors = {
     purple3: '#44334d',          // Grayish purple (good under white)
   
     // Legacy fallback
-    primarySolid: '#9D60F8',     // Keep for now in case anything references it
+    primarySolid: '#ffffff',     // Keep for now in case anything references it
   };
   
   export default colors;

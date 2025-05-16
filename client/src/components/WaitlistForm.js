@@ -6,11 +6,11 @@ import { Heading1, MutedText } from '../styles/Typography'
 const colors = {
   sectionBackground: '#251C2C',
   cardBackground: '#2a1e30',
-  inputBackground: '#0D0B1F',
-  border: '#3B3355',
+  inputBackground: '#211825',
+  border: '#442f4f',
   textPrimary: '#FFFFFF',
-  textMuted: '#7A7A85',
-  accent: '#9D60F8',
+  textMuted: '#dbd3de',
+  accent: '#cc31e8',
 };
 
 const SmallHeading = styled.h3`
@@ -22,14 +22,14 @@ const SmallHeading = styled.h3`
 `;
 
 const Title = styled(Heading1)`
-  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-size: clamp(1.8rem, 5vw, 2.25rem);
   margin-bottom: 1rem;
   color: ${colors.textPrimary};
 `;
 
 const Subtitle = styled(MutedText)`
   font-size: 1rem;
-  max-width: 600px;
+  max-width: 6500px;
   margin: 0.5rem auto 3rem;
   line-height: 1.6;
   color: ${colors.textMuted};
@@ -37,7 +37,7 @@ const Subtitle = styled(MutedText)`
 
 const FormWrapper = styled.section`
   background-color: ${colors.sectionBackground};
-  padding: 4rem 1.5rem;
+  padding: 7rem 1.5rem;
   padding-top: .5rem;
   display: flex;
   justify-content: center;
@@ -49,7 +49,14 @@ const Card = styled.div`
   padding: 2rem;
   width: 100%;
   max-width: 450px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  border: 1px solid ${colors.border};
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    border-color: ${colors.accent};
+    box-shadow: 0 0 10px ${colors.accent}, 0 0 50px ${colors.accent};
+  }
 `;
 
 const Field = styled.div`
@@ -60,7 +67,8 @@ const Label = styled.label`
   display: block;
   color: ${colors.textPrimary};
   font-size: 0.875rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.8rem;
+  text-align: left;
 `;
 
 const InputWrapper = styled.div`
@@ -69,7 +77,7 @@ const InputWrapper = styled.div`
   background-color: ${colors.inputBackground};
   border: 1px solid ${colors.border};
   border-radius: 0.5rem;
-  padding: 0.75rem;
+  padding: 0.45rem;
 `;
 
 const StyledInput = styled.input`
@@ -77,8 +85,9 @@ const StyledInput = styled.input`
   border: none;
   flex: 1;
   color: ${colors.textPrimary};
-  font-size: 1rem;
+  font-size: .885rem;
   outline: none;
+  padding-left: 0.5rem;
   &::placeholder {
     color: ${colors.textMuted};
   }
@@ -109,7 +118,7 @@ const StyledCheckbox = styled.div`
   width: 1.25rem;
   height: 1.25rem;
   background: ${({ checked }) => (checked ? colors.accent : 'transparent')};
-  border: 2px solid ${colors.border};
+  border: 1px solid ${colors.border};
   border-radius: 0.25rem;
   display: flex;
   align-items: center;
@@ -119,12 +128,12 @@ const StyledCheckbox = styled.div`
 
 const SubmitButton = styled.button`
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.55rem;
   background-color: ${colors.accent};
   color: ${colors.textPrimary};
   border: none;
   border-radius: 0.5rem;
-  font-size: 1rem;
+  font-size: .975rem;
   cursor: pointer;
   transition: background-color 0.2s ease;
   opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
@@ -180,10 +189,9 @@ export default function WaitlistForm() {
   return (
     <div style={{ backgroundColor: colors.sectionBackground }}>
       <SmallHeading>Stay Connected</SmallHeading>
-      <Title>Get notified about Voxxy Updates</Title>
+      <Title>Get product updates from Voxxy</Title>
       <Subtitle>
-        Sign up to be the first to know about our mobile app launch or to receive product
-        updates and special offers.
+        Sign up to follow our journey and get early access to new features, updates, and launch perks, all in one place.
       </Subtitle>
       <FormWrapper>
         <Card>
@@ -214,7 +222,7 @@ export default function WaitlistForm() {
                   <StyledCheckbox checked={mobile}>
                     {mobile && <Check size={14} color={colors.textPrimary} />}
                   </StyledCheckbox>
-                  Mobile app waitlist
+                 Beta List Sign Up
                 </CheckboxLabel>
 
                 <CheckboxLabel checked={product}>
@@ -225,7 +233,7 @@ export default function WaitlistForm() {
                   <StyledCheckbox checked={product}>
                     {product && <Check size={14} color={colors.textPrimary} />}
                   </StyledCheckbox>
-                  Product updates
+                  Product Updates
                 </CheckboxLabel>
               </CheckboxGroup>
             </Field>

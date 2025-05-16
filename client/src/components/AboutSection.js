@@ -21,10 +21,11 @@ const DarkSection = styled.section`
 const SectionContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
+  padding: 10rem 0;
 `;
 
 const SmallHeading = styled.h3`
-  font-size: 1.25rem;
+  font-size: 1.20rem;
   font-weight: 600;
   color: ${colors.primaryButton};
   margin-bottom: 1rem;
@@ -32,22 +33,30 @@ const SmallHeading = styled.h3`
 `;
 
 const Title = styled(Heading1)`
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(1.8rem, 5vw, 2.1rem);
   margin-bottom: 1rem;
   color: ${colors.textPrimary};
-`;
+  max-width: 700px;      // Add this line
+  margin-left: auto;     // Center horizontally
+  margin-right: auto;    // Center horizontally
+  text-align: center;    // Center text`;
 
 const Subtitle = styled(MutedText)`
-  font-size: 1rem;
+  font-size: 1.1rem;
   line-height: 1.6;
-  max-width: 700px;
-  margin: 0 auto 3rem auto;
+  max-width: 750px;
+  margin: 0.5rem auto 3rem auto;
 `;
 
 const CardsWrapper = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3rem;
+
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
 `;
 
 const Card = styled.div`
