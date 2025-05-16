@@ -9,8 +9,8 @@ import mixpanel from 'mixpanel-browser';
 
 const SectionContainer = styled.section`
   min-width: 350px;
-  background-color: ${colors.background};
-  padding: 1rem 1rem;
+  background-color: transparent;
+  padding: 9rem 3rem 3rem;
   text-align: center;
   color: ${colors.textPrimary};
 `;
@@ -18,13 +18,11 @@ const SectionContainer = styled.section`
 const SectionInner = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1rem;
 `;
 
 const Title = styled(Heading1)`
-  font-size: clamp(2.2rem, 5vw, 1.5rem);
-  max-width: 900px;
-  margin-bottom: 0.5rem;
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  margin-bottom: 1rem;
   color: ${colors.textPrimary};
 `;
 
@@ -39,14 +37,15 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8rem;
-  background-color: #201925;
+  justify-content: center;
   min-height: 100vh;
+  background-color: #201925;
+  padding: 0 1rem;
 `;
 
 const FormContainer = styled.div`
   max-width: 900px;
-  min-width: 500px;
+  min-width: 400px;
   border-radius: 12px;
   text-align: center;
   margin-bottom: 2rem;

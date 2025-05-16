@@ -19,14 +19,12 @@ const SectionContainer = styled.section`
 const SectionInner = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-
 `;
 
 const Title = styled(Heading1)`
   font-size: clamp(1.8rem, 5vw, 2.5rem);
   margin-bottom: 1rem;
   color: ${colors.textPrimary};
-  
 `;
 
 const Subtitle = styled(MutedText)`
