@@ -370,6 +370,7 @@ const ViewBoard = styled.div`
 const CDTXT = styled.span`
   ${ActivityCard}:hover & {
     color: #7B298C;
+    transform: scale(1.1);
   }
 `
 

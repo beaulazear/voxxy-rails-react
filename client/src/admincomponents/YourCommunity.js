@@ -1,185 +1,227 @@
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 import { UserContext } from "../context/user";
-import Woman from "../assets/Woman.jpg";
+import SmallTriangle from "../assets/SmallTriangle.png";
 import NoCommunityMembers from "./NoCommunityMembers";
+import colors from '../styles/Colors';
 
 export default function YourCommunity({ showInvitePopup, onSelectUser }) {
   const { user } = useContext(UserContext);
-  const [selectedUser, setSelectedUser] = useState(null);
   const [showAll, setShowAll] = useState(false);
+  const [selectedPeer, setSelectedPeer] = useState(null);
 
   if (!user) return null;
 
+  // Build map of peers with last activity, count and shared activities
   const allUsersMap = new Map();
-  user.activities?.forEach(activity => {
-    activity.participants?.forEach(participant => {
-      if (participant.id !== user.id) {
-        if (!allUsersMap.has(participant.id)) {
-          allUsersMap.set(participant.id, { user: participant, activities: new Set() });
+  user.activities?.forEach(act => {
+    act.participants?.forEach(p => {
+      if (p.id !== user.id) {
+        const existing = allUsersMap.get(p.id) || { user: p, lastDate: null, lastName: '', count: 0, sharedActivities: [] };
+        existing.count += 1;
+        existing.sharedActivities.push(act.activity_name);
+        const date = new Date(act.date_day);
+        if (!existing.lastDate || date > existing.lastDate) {
+          existing.lastDate = date;
+          existing.lastName = act.activity_name;
         }
-        allUsersMap.get(participant.id).activities.add(activity.activity_name);
+        allUsersMap.set(p.id, existing);
       }
     });
   });
-  user.participant_activities?.forEach(partActivity => {
-    const { activity } = partActivity;
-    if (activity && activity.user?.id !== user.id) {
-      const host = activity.user;
-      if (!allUsersMap.has(host.id)) {
-        allUsersMap.set(host.id, { user: host, activities: new Set() });
+  user.participant_activities?.forEach(pa => {
+    const { activity: act } = pa;
+    const host = act.user;
+    if (host?.id !== user.id) {
+      const existing = allUsersMap.get(host.id) || { user: host, lastDate: null, lastName: '', count: 0, sharedActivities: [] };
+      existing.count += 1;
+      existing.sharedActivities.push(act.activity_name);
+      const date = new Date(act.date_day);
+      if (!existing.lastDate || date > existing.lastDate) {
+        existing.lastDate = date;
+        existing.lastName = act.activity_name;
       }
-      allUsersMap.get(host.id).activities.add(activity.activity_name);
-
-      activity.participants?.forEach(participant => {
-        if (participant.id !== user.id) {
-          if (!allUsersMap.has(participant.id)) {
-            allUsersMap.set(participant.id, { user: participant, activities: new Set() });
-          }
-          allUsersMap.get(participant.id).activities.add(activity.activity_name);
-        }
-      });
+      allUsersMap.set(host.id, existing);
     }
+    act.participants?.forEach(p => {
+      if (p.id !== user.id) {
+        const existing = allUsersMap.get(p.id) || { user: p, lastDate: null, lastName: '', count: 0, sharedActivities: [] };
+        existing.count += 1;
+        existing.sharedActivities.push(act.activity_name);
+        const date = new Date(act.date_day);
+        if (!existing.lastDate || date > existing.lastDate) {
+          existing.lastDate = date;
+          existing.lastName = act.activity_name;
+        }
+        allUsersMap.set(p.id, existing);
+      }
+    });
   });
 
-  const communityUsers = Array.from(allUsersMap.values()).map(({ user, activities }) => ({
-    user,
-    activities: Array.from(activities),
-  }));
-
-  if (communityUsers.length === 0) {
-    return <NoCommunityMembers />;
+  function formatSince(iso) {
+    const d = new Date(iso);
+    return d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
   }
 
-  const sortedUsers = communityUsers.sort((a, b) =>
-    a.user.name.localeCompare(b.user.name)
-  );
+  // Sort by shared activity count descending, then by name
+  const community = Array.from(allUsersMap.values())
+    .sort((a, b) => b.count - a.count || a.user.name.localeCompare(b.user.name));
 
-  const displayedUsers = showAll ? sortedUsers : sortedUsers.slice(0, 8);
+  if (community.length === 0) return <NoCommunityMembers />;
+  const displayed = showAll ? community : community.slice(0, 8);
+
+  function handleCardClick(peerData) {
+    if (showInvitePopup && onSelectUser) {
+      onSelectUser(peerData.user);
+    } else {
+      setSelectedPeer(peerData);
+    }
+  }
 
   return (
-    <CommunityContainer>
-      <CommunityTitle>Your Voxxy Crew 🎭</CommunityTitle>
-      <UserList>
-        {displayedUsers.map(({ user, activities }) => (
-          <UserCard
-            key={user.id}
-            onClick={() =>
-              showInvitePopup
-                ? onSelectUser(user)
-                : setSelectedUser({ user, activities })
-            }
-          >
-            <Avatar src={user.avatar || Woman} alt={user.name} />
-            <UserName>{user.name.split(' ')[0]}</UserName>
-          </UserCard>
-        ))}
-      </UserList>
+    <>
+      <Wrapper>
+        <Header><TitleText>Your Voxxy Crew</TitleText> 🎭</Header>
+        <Grid>
+          {displayed.map(peerData => (
+            <Card
+              key={peerData.user.id}
+              onClick={() => handleCardClick(peerData)}
+            >
+              <Avatar
+                hasAvatar={!!peerData.user.avatar}
+                src={peerData.user.avatar || SmallTriangle}
+                alt={peerData.user.name}
+              />
+              <Info>
+                <PeerName>{peerData.user.name}</PeerName>
+                <LastAct>Last: <em>{peerData.lastName}</em></LastAct>
+                <Since>On Voxxy since {formatSince(peerData.user.created_at)}</Since>
+              </Info>
+            </Card>
+          ))}
+        </Grid>
+        {community.length > 8 && (
+          <Toggle onClick={() => setShowAll(v => !v)}>
+            {showAll ? 'Show Less' : 'View All'}
+          </Toggle>
+        )}
+      </Wrapper>
 
-      {sortedUsers.length > 4 && (
-        <ViewAllButton onClick={() => setShowAll(prev => !prev)}>
-          {showAll ? "Show Less" : "View All"}
-        </ViewAllButton>
-      )}
-
-      {selectedUser && !showInvitePopup && (
-        <ModalOverlay onClick={() => setSelectedUser(null)}>
+      {selectedPeer && !showInvitePopup && (
+        <ModalOverlay onClick={() => setSelectedPeer(null)}>
           <ModalContent onClick={e => e.stopPropagation()}>
-            <h2>{selectedUser.user.name}</h2>
-            <h3>{selectedUser.user.email}</h3>
-            <h4>Mutual Activities</h4>
-            <ActivityList>
-              {selectedUser.activities.map((act, idx) => (
-                <li key={idx}>{act}</li>
-              ))}
-            </ActivityList>
-            <CloseButton onClick={() => setSelectedUser(null)}>Close</CloseButton>
+            <CloseButton onClick={() => setSelectedPeer(null)}>×</CloseButton>
+            <ModalHeader>
+              <Avatar
+                hasAvatar={!!selectedPeer.user.avatar}
+                src={selectedPeer.user.avatar || SmallTriangle}
+                alt={selectedPeer.user.name}
+              />
+              <UserInfo>
+                <PeerName>{selectedPeer.user.name}</PeerName>
+                <Email>{selectedPeer.user.email}</Email>
+                <Since>On Voxxy since {formatSince(selectedPeer.user.created_at)}</Since>
+              </UserInfo>
+            </ModalHeader>
+            <ActivitiesList>
+              <p>Shared Activities ({selectedPeer.count})</p>
+              <ul>
+                {selectedPeer.sharedActivities.map((act, idx) => (
+                  <li key={idx}>{act}</li>
+                ))}
+              </ul>
+            </ActivitiesList>
           </ModalContent>
         </ModalOverlay>
       )}
-    </CommunityContainer>
+    </>
   );
 }
 
-const CommunityContainer = styled.div`
-  align-self: stretch;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
-  background-color: #201925;
-  box-sizing: border-box;
+const Since = styled.p`
+  font-size: 0.75rem;
+  color: ${colors.textSecondary};
+  margin: 0.25rem 0 0;
+  font-style: italic;
 `;
 
-const CommunityTitle = styled.h2`
-  font-size: clamp(1.5rem, 2.5vw, 2rem);
-  font-weight: 600;
-  color: #fff;
+const Wrapper = styled.div`
+  padding: 2rem;
+`;
+
+const Header = styled.h2`
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
   margin-bottom: 1.5rem;
 `;
 
-const UserList = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-  justify-items: center;
-  gap: 1rem;
-  width: 100%;
+const TitleText = styled.span`
+  background: linear-gradient(90deg, #B931D6 0%, #9051E1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-right: 0.5rem;
 `;
 
-const UserCard = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 0.75rem;
-  width: 100%;  
-  border-radius: 12px;
-  cursor: pointer;
-  transition: transform 0.2s;
-  padding-bottom: 0;
+const Grid = styled.div`
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+`;
 
-  &:hover {
-    transform: scale(1.03);
-  }
+const Card = styled.div`
+  background: ${colors.backgroundTwo};
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  &:hover { box-shadow: 0 0 20px rgba(153,85,230,0.4); transform: translateY(-4px); }
 `;
 
 const Avatar = styled.img`
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
+  width: 50px;
+  height: 50px;
   object-fit: cover;
-  border: 2px solid white;
+  border-radius: ${props => props.hasAvatar ? '50%' : '0'};
+  border: ${props => props.hasAvatar ? '2px solid white' : 'none'};
+  margin-right: 1rem;
 `;
 
-const UserName = styled.p`
-  font-size: 0.9rem;
+const Info = styled.div`
+  flex: 1;
+  text-align: left;
+`;
+
+const PeerName = styled.p`
+  font-size: 1.125rem;
   font-weight: 600;
-  color: white;
-  margin-top: 0.5rem;
-  white-space: nowrap;
+  color: ${colors.textPrimary};
+  margin: 0;
 `;
 
-const ViewAllButton = styled.button`
-  margin-top: 1rem;
-  align-self: center;
+const LastAct = styled.p`
+  font-size: 0.875rem;
+  color: ${colors.textSecondary};
+  margin: 0.25rem 0 0;
+`;
+
+const Toggle = styled.button`
+  margin-top: 1.5rem;
   background: none;
   border: none;
-  color: #9d60f8;
+  color: ${colors.primaryButton};
   cursor: pointer;
   font-size: 1rem;
-  &:hover {
-    text-decoration: underline;
-  }
+  &:hover { text-decoration: underline; }
 `;
 
 const ModalOverlay = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  backdrop-filter: blur(10px);
-  background: rgba(0, 0, 0, 0.5);
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -187,36 +229,50 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background: linear-gradient(135deg, #6a1b9a, #8e44ad);
+  background: ${colors.backgroundTwo};
   padding: 2rem;
-  border-radius: 18px;
-  width: 90%;
+  border-radius: 1rem;
   max-width: 400px;
-  text-align: center;
-  color: white;
-`;
-
-const ActivityList = styled.ul`
-  list-style: none;
-  padding: 1rem;
-  margin: 1rem 0;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  max-height: 250px;
-  overflow-y: auto;
+  width: 90%;
+  position: relative;
 `;
 
 const CloseButton = styled.button`
-  padding: 0.75rem 1.5rem;
-  background: white;
-  color: #6a1b9a;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
   border: none;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: bold;
+  font-size: 1.5rem;
   cursor: pointer;
+`;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.8);
+const ModalHeader = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+`;
+
+const UserInfo = styled.div`
+  margin-left: 1rem;
+`;
+
+const Email = styled.p`
+  font-size: 0.875rem;
+  color: ${colors.textSecondary};
+  margin: 0.25rem 0;
+`;
+
+const ActivitiesList = styled.div`
+  margin-top: 1rem;
+  text-align: left;
+  ul { padding-left: 1.2rem; margin: 0; }
+  li { margin-bottom: 0.25rem; font-size: 0.875rem; }
+
+  li {
+  color: #fff;
+  }
+  p {
+  color: #fff;
   }
 `;
