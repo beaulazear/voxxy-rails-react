@@ -77,7 +77,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
   }
 
   return (
-    <>
+    <div>
       <Wrapper>
         <Header><TitleText>Your Voxxy Crew 🎭</TitleText></Header>
         <Grid>
@@ -87,7 +87,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
               onClick={() => handleCardClick(peerData)}
             >
               <Avatar
-                hasAvatar={!!peerData.user.avatar}
+                $hasAvatar={!!peerData.user.avatar}
                 src={peerData.user.avatar || SmallTriangle}
                 alt={peerData.user.name}
               />
@@ -112,7 +112,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
             <CloseButton onClick={() => setSelectedPeer(null)}>×</CloseButton>
             <ModalHeader>
               <Avatar
-                hasAvatar={!!selectedPeer.user.avatar}
+                $hasAvatar={!!selectedPeer.user.avatar}
                 src={selectedPeer.user.avatar || SmallTriangle}
                 alt={selectedPeer.user.name}
               />
@@ -133,7 +133,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
           </ModalContent>
         </ModalOverlay>
       )}
-    </>
+    </div>
   );
 }
 
@@ -180,6 +180,7 @@ const Card = styled.div`
   border-radius: 1rem;
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
   &:hover { box-shadow: 0 0 20px rgba(153,85,230,0.4); transform: translateY(-4px); }
 `;
 
@@ -187,8 +188,8 @@ const Avatar = styled.img`
   width: 50px;
   height: 50px;
   object-fit: cover;
-  border-radius: ${props => props.hasAvatar ? '50%' : '0'};
-  border: ${props => props.hasAvatar ? '2px solid white' : 'none'};
+  border-radius: ${props => props.$hasAvatar ? '50%' : '0'};
+  border: ${props => props.$hasAvatar ? '2px solid white' : 'none'};
   margin-right: 1rem;
 `;
 
