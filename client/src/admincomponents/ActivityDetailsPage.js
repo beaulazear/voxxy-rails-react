@@ -66,8 +66,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
   const isOwner = user?.id === currentActivity?.user_id || user?.id === currentActivity?.user?.id;
 
-  console.log(currentActivity)
-
   const handleInvite = async (email) => {
 
     if (!email) return;
