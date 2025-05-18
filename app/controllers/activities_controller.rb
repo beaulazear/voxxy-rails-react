@@ -131,7 +131,7 @@ class ActivitiesController < HtmlController
 
       if activity.update(completed: true)
         ActivityCompletionEmailService.send_completion_emails(activity)
-        render json: { message: "Activity marked complete and emails sent" }
+        render json: activity, status: :ok
       else
         Rails.logger.error "❌ Activity update failed: #{activity.errors.full_messages}"
         render json: { error: activity.errors.full_messages }, status: :unprocessable_entity
