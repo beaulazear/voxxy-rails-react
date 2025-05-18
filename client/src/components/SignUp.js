@@ -13,6 +13,9 @@ const SectionContainer = styled.section`
   padding: 9rem 3rem 3rem;
   text-align: center;
   color: ${colors.textPrimary};
+  @media (max-width: 600px) {
+    padding: 7rem 2rem 2rem;
+  }
 `;
 
 const SectionInner = styled.div`
@@ -45,11 +48,10 @@ const PageContainer = styled.div`
 
 const FormContainer = styled.div`
   max-width: 900px;
-  min-width: 400px;
+  min-width: 300px;
   border-radius: 12px;
   text-align: center;
   margin-bottom: 2rem;
-  
 `;
 
 const Heading = styled.h1`

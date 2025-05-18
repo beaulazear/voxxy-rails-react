@@ -14,6 +14,9 @@ const SectionContainer = styled.section`
   padding: 9rem 3rem 3rem;
   text-align: center;
   color: ${colors.textPrimary};
+  @media (max-width: 600px) {
+    padding: 7rem 2rem 2rem;
+  }
 `;
 
 const SectionInner = styled.div`

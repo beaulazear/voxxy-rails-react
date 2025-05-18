@@ -103,6 +103,7 @@ class UsersController < ApplicationController
     user = User.find_by(confirmation_token: params[:token])
 
     if user&.verify!
+      NewUserEmailService.new_user_email_service(user)
       redirect_to "#{frontend_host}#/verification"
     else
       redirect_to "#{frontend_host}"
