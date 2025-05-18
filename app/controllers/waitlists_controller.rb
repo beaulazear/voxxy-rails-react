@@ -16,6 +16,7 @@ class WaitlistsController < ApplicationController
       @waitlist = Waitlist.new(waitlist_params)
       if @waitlist.save
         SubmissionNotifierService.notify(:waitlist, @waitlist)
+        WaitlistEmailService.send_waitlist_email(@waitlist.email)
         render json: @waitlist, status: :created
       else
         render json: { errors: @waitlist.errors.full_messages }, status: :unprocessable_entity
