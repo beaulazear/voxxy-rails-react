@@ -560,15 +560,18 @@ function UserActivities() {
                   activity.activity_type === 'Meeting' && activity.finalized === true;
 
                 const rawTime = activity.date_time
-                  ? activity.date_time.slice(11, 19)
+                  ? activity.date_time.slice(11, 19)   // e.g. "17:00:00"
                   : null;
 
-                const localIso =
-                  activity.date_day && rawTime
-                    ? `${activity.date_day}T${rawTime}`
-                    : null;
+                // 2. split date_day and rawTime into numeric parts
+                let eventDateTime = null;
+                if (activity.date_day && rawTime) {
+                  const [year, month, day] = activity.date_day.split('-').map(Number);    // e.g. [2025,5,21]
+                  const [hour, minute, second] = rawTime.split(':').map(Number);          // e.g. [17,0,0]
 
-                const eventDateTime = localIso ? new Date(localIso) : null;
+                  // monthIndex is zero‑based in JS Date
+                  eventDateTime = new Date(year, month - 1, day, hour, minute, second);
+                }
                 let bgUrl;
                 if (selectedPin && selectedPin.photos?.length > 0) {
                   const { photo_reference } = selectedPin.photos[0];
