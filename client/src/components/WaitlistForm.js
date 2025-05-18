@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Mail, Check } from 'lucide-react';
-import { Heading1, MutedText } from '../styles/Typography'
+import styled, { createGlobalStyle } from 'styled-components';
+import { Mail } from 'lucide-react';
+import { Heading1, MutedText } from '../styles/Typography';
 
 const colors = {
   sectionBackground: '#251C2C',
@@ -31,15 +31,27 @@ const Subtitle = styled(MutedText)`
   font-size: 1.1rem;
   line-height: 1.6;
   max-width: 750px;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  margin: 0.5rem auto 3rem auto;
+  text-align: center;
+  margin: 0.5rem auto 0rem auto;
+`;
+
+// Global override for autofill backgrounds
+const AutofillStyles = createGlobalStyle`
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus {
+    -webkit-text-fill-color: ${colors.textPrimary} !important;
+    transition: background-color 5000s ease-in-out 0s !important;
+    box-shadow: 0 0 0px 1000px ${colors.inputBackground} inset !important;
+  }
 `;
 
 const FormWrapper = styled.section`
   background-color: ${colors.sectionBackground};
-  padding: 7rem 1.5rem;
-  padding-top: .5rem;
+  padding: 1rem .5rem 6rem;
   display: flex;
   justify-content: center;
 `;
@@ -47,9 +59,8 @@ const FormWrapper = styled.section`
 const Card = styled.div`
   background-color: ${colors.cardBackground};
   border-radius: 1rem;
-  padding: 2rem;
   width: 100%;
-  max-width: 450px;
+  max-width: 500px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.4);
   border: 1px solid ${colors.border};
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -60,25 +71,14 @@ const Card = styled.div`
   }
 `;
 
-const Field = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-const Label = styled.label`
-  display: block;
-  color: ${colors.textPrimary};
-  font-size: 0.875rem;
-  margin-bottom: 0.8rem;
-  text-align: left;
-`;
-
-const InputWrapper = styled.div`
+const InputRow = styled.div`
   display: flex;
   align-items: center;
   background-color: ${colors.inputBackground};
   border: 1px solid ${colors.border};
-  border-radius: 0.5rem;
-  padding: 0.45rem;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  gap: 0.75rem;
 `;
 
 const StyledInput = styled.input`
@@ -86,56 +86,22 @@ const StyledInput = styled.input`
   border: none;
   flex: 1;
   color: ${colors.textPrimary};
-  font-size: .885rem;
+  font-size: 1rem;
   outline: none;
-  padding-left: 0.5rem;
   &::placeholder {
     color: ${colors.textMuted};
   }
 `;
 
-const CheckboxGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
-
-const CheckboxLabel = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  cursor: pointer;
-  user-select: none;
-  color: ${({ checked }) => (checked ? colors.textPrimary : colors.textMuted)};
-`;
-
-const HiddenCheckbox = styled.input.attrs({ type: 'checkbox' })`
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-`;
-
-const StyledCheckbox = styled.div`
-  width: 1.25rem;
-  height: 1.25rem;
-  background: ${({ checked }) => (checked ? colors.accent : 'transparent')};
-  border: 1px solid ${colors.border};
-  border-radius: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 150ms, border-color 150ms;
-`;
-
 const SubmitButton = styled.button`
-  width: 100%;
-  padding: 0.55rem;
+  padding: 0.5rem 1rem;
   background-color: ${colors.accent};
   color: ${colors.textPrimary};
   border: none;
-  border-radius: 0.5rem;
-  font-size: .975rem;
+  border-radius: 0.75rem;
+  font-size: 1rem;
   cursor: pointer;
+  white-space: nowrap;
   transition: background-color 0.2s ease;
   opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
 
@@ -144,104 +110,74 @@ const SubmitButton = styled.button`
   }
 `;
 
+const HeaderWrapper = styled.div`
+  padding: 2rem 1rem;
+`
+
 export default function WaitlistForm() {
   const [email, setEmail] = useState('');
-  const [mobile, setMobile] = useState(true);
-  const [product, setProduct] = useState(false);
+  const [isValid, setIsValid] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const toggleMobile = () => {
-    if (mobile && !product) return;
-    setMobile(prev => !prev);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const canSubmit = email && isValid;
+
+  const handleEmailChange = (e) => {
+    const val = e.target.value;
+    setEmail(val);
+    setIsValid(emailRegex.test(val));
   };
 
-  const toggleProduct = () => {
-    if (product && !mobile) return;
-    setProduct(prev => !prev);
-  };
-
-  const canSubmit = email && (mobile || product);
-
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;
     setLoading(true);
+
     try {
       const res = await fetch(
         `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/waitlists`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ waitlist: { email, mobile, product } }),
+          body: JSON.stringify({ waitlist: { email } }),
           credentials: 'include',
         }
       );
       if (!res.ok) throw new Error('Network response was not ok');
       setEmail('');
-      setMobile(false);
-      setProduct(false);
       alert('Thanks for joining the waitlist!');
     } catch {
       alert('Oops, something went wrong.');
     }
+
     setLoading(false);
   };
 
   return (
     <div style={{ backgroundColor: colors.sectionBackground }}>
-      <SmallHeading>Stay Connected</SmallHeading>
-      <Title>Get product updates from Voxxy</Title>
-      <Subtitle>
-        Sign up to follow our journey and get early access to new features, updates, and launch perks, all in one place.
-      </Subtitle>
+      <AutofillStyles />
+      <HeaderWrapper>
+        <SmallHeading>Stay Connected</SmallHeading>
+        <Title>Get product updates from Voxxy <Mail color={colors.textMuted} size={20} /></Title>
+        <Subtitle>
+          Sign up to follow our journey and get early access to new features, updates, and launch perks, all in one place.
+        </Subtitle>
+      </HeaderWrapper>
       <FormWrapper>
         <Card>
           <form onSubmit={handleSubmit}>
-            <Field>
-              <Label htmlFor="email">Email</Label>
-              <InputWrapper>
-                <Mail color={colors.textMuted} />
-                <StyledInput
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  required
-                />
-              </InputWrapper>
-            </Field>
-
-            <Field>
-              <Label>I'm interested in:</Label>
-              <CheckboxGroup>
-                <CheckboxLabel checked={mobile}>
-                  <HiddenCheckbox
-                    checked={mobile}
-                    onChange={toggleMobile}
-                  />
-                  <StyledCheckbox checked={mobile}>
-                    {mobile && <Check size={14} color={colors.textPrimary} />}
-                  </StyledCheckbox>
-                 Beta List Sign Up
-                </CheckboxLabel>
-
-                <CheckboxLabel checked={product}>
-                  <HiddenCheckbox
-                    checked={product}
-                    onChange={toggleProduct}
-                  />
-                  <StyledCheckbox checked={product}>
-                    {product && <Check size={14} color={colors.textPrimary} />}
-                  </StyledCheckbox>
-                  Product Updates
-                </CheckboxLabel>
-              </CheckboxGroup>
-            </Field>
-
-            <SubmitButton type="submit" disabled={!canSubmit || loading}>
-              {loading ? 'Joining...' : 'Join Waitlist'}
-            </SubmitButton>
+            <InputRow>
+              <StyledInput
+                type="email"
+                placeholder="your@email.com"
+                value={email}
+                onChange={handleEmailChange}
+                required
+              />
+              <SubmitButton type="submit" disabled={!canSubmit || loading}>
+                {loading ? 'Joining...' : 'Get Notified'}
+              </SubmitButton>
+            </InputRow>
           </form>
         </Card>
       </FormWrapper>
