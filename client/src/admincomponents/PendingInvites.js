@@ -132,13 +132,10 @@ const NoBoardsContainer = styled.div`
 `;
 
 const Message = styled.p`
-  font-family: 'Lato', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: clamp(1rem, 2.5vw, 1.25rem);
-  font-weight: 300;       /* light */
-  color: rgba(255,255,255,0.8);
-  margin-bottom: 1rem;
-  line-height: 1.6;
-  letter-spacing: -0.25px;
+  color: #fff;
+  margin: 0.5rem 0.5rem 0;
   text-align: left;
 `;
 

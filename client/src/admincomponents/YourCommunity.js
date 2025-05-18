@@ -12,7 +12,6 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
 
   if (!user) return null;
 
-  // Build map of peers with last activity, count and shared activities
   const allUsersMap = new Map();
   user.activities?.forEach(act => {
     act.participants?.forEach(p => {
@@ -63,12 +62,11 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
     return d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
   }
 
-  // Sort by shared activity count descending, then by name
   const community = Array.from(allUsersMap.values())
     .sort((a, b) => b.count - a.count || a.user.name.localeCompare(b.user.name));
 
   if (community.length === 0) return <NoCommunityMembers />;
-  const displayed = showAll ? community : community.slice(0, 8);
+  const displayed = showAll ? community : community.slice(0, 5);
 
   function handleCardClick(peerData) {
     if (showInvitePopup && onSelectUser) {
@@ -81,7 +79,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
   return (
     <>
       <Wrapper>
-        <Header><TitleText>Your Voxxy Crew</TitleText> 🎭</Header>
+        <Header><TitleText>Your Voxxy Crew 🎭</TitleText></Header>
         <Grid>
           {displayed.map(peerData => (
             <Card
@@ -147,21 +145,25 @@ const Since = styled.p`
 `;
 
 const Wrapper = styled.div`
-  padding: 2rem;
+  text-align: left;
 `;
 
 const Header = styled.h2`
   font-size: 2rem;
   display: flex;
-  align-items: center;
+  text-align: left;
   margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  padding-top: 40px;
+  padding-left: 1rem;
 `;
 
 const TitleText = styled.span`
-  background: linear-gradient(90deg, #B931D6 0%, #9051E1 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-right: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: bold;
+  color: #fff;
 `;
 
 const Grid = styled.div`

@@ -26,6 +26,12 @@ const Hero = styled.section`
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  padding: 3rem;
+
+  @media(max-width: 800px) {
+    padding: 1rem;
+    padding-top: 3rem;
+  }
 `;
 
 const Overlay = styled.div`
@@ -51,23 +57,19 @@ const Icon = styled.img`
 `;
 
 const Title = styled.h1`
-  font-family: 'Lato', sans-serif;
-  font-size: clamp(2.5rem, 4vw, 3rem);
-  font-weight: 500;
-  color: white;
-  margin: 0.5rem 0;
-  line-height: 1.3;
-  letter-spacing: -0.5px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: bold;
+  color: #fff;
+  padding: 1rem 0 0;
 `;
 
 const Subtitle = styled.p`
-  font-family: 'Lato', sans-serif;
-  font-size: clamp(1.25rem, 3vw, 1.5rem);
-  font-weight: 300;
-  color: rgba(255,255,255,0.8);
-  margin-bottom: 2rem;
-  line-height: 1.6;
-  letter-spacing: -0.25px;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: #fff;
+  margin: 0.5rem 0 1rem;
+  padding: 1rem;
 `;
 
 const ActionButton = styled.button`

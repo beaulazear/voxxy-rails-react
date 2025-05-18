@@ -41,8 +41,8 @@ const Row = styled.div`
 `;
 
 const TextContainer = styled.div`
+  text-align: left;
   @media (min-width: 768px) {
-    text-align: left;
     flex: 1;
     margin-right: 2rem;
   }
@@ -53,12 +53,8 @@ const Content = styled.div`
 `;
 
 const Message = styled.p`
-  font-family: 'Lato', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: clamp(1rem, 2.5vw, 1.25rem);
-  font-weight: 300;       /* light */
-  color: rgba(255,255,255,0.8);
-  margin-bottom: 1rem;
-  line-height: 1.6;
-  letter-spacing: -0.25px;
-  text-align: left;
+  color: #fff;
+  margin: 0.5rem 0.5rem 0;
 `;
