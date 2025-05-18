@@ -161,6 +161,8 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
   }
   const shareUrl = getShareUrl(activity.id);
 
+  console.log(activity)
+
   return (
     <>
       <HeaderContainer>
