@@ -11,7 +11,7 @@ export default function NoCommunityMembers() {
         <Icon src={SmallTriangle} alt="Voxxy icon" />
         <Title>Voxxy Community</Title>
         <Subtitle>
-          Nothing here yet. Grow your community by creating activities and inviting friends!
+          Grow your community by creating activities and inviting friends!
         </Subtitle>
         <ActionButton>Make Some Memories</ActionButton>
       </Content>

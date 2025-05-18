@@ -13,7 +13,7 @@ export default function NoBoardsDisplay() {
         <TextContainer>
           <Content>
             <Message>
-              Nothing to see here. Don’t wait for your friends to invite you—be the one to start the next activity! 🎉
+              Nothing to see here yet!
             </Message>
           </Content>
         </TextContainer>

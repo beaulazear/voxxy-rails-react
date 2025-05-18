@@ -257,7 +257,7 @@ const PendingInvites = ({ handleActivityClick }) => {
       ) : (
         <NoBoardsContainer>
           <Message>
-            No invites! Don’t wait for your friends—be the one to start the next activity! 🎉
+            No pending invites!
           </Message>
         </NoBoardsContainer>
       )}
