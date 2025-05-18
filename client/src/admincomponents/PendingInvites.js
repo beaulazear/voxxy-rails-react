@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import styled, { keyframes } from "styled-components";
 import { UserContext } from "../context/user";
-import Friends from "../assets/Friends.svg";
 import groupmeals from '../assets/groupmeals.jpeg';
 import LetsMeetCardThree from '../assets/LetsMeetCardThree.jpeg';
 
@@ -126,67 +125,21 @@ const Button = styled.button`
 `;
 
 const NoBoardsContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 2rem;
-  width: 100%;
-  max-width: 1100px;
-  margin: auto 0;
-  padding-top: 0rem;
-  text-align: left;
-  padding-bottom: 25px;
-  animation: ${fadeIn} 0.8s ease-out;
-
-  @media (max-width: 1024px) {
-    gap: 1rem;
-    max-width: 900px;
-  }
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    text-align: center;
-    gap: 1rem;
-  }
-`;
-
-const Image = styled.img`
-  width: 50%;
+  border-radius: 1rem;
   max-width: 450px;
-  height: auto;
-  border-radius: 12px;
-  flex-shrink: 0;
-
-  @media (max-width: 1024px) {
-    width: 55%;
-    max-width: 380px;
-  }
-
-  @media (max-width: 768px) {
-    width: 85%;
-    max-width: 320px;
-  }
-
-  @media (max-width: 480px) {
-    width: 100%;
-    max-width: 280px;
-  }
+  padding-left:0.5rem;
+  animation: ${fadeIn} 0.8s ease-out;
 `;
 
 const Message = styled.p`
-  font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.85);
-  margin-bottom: 1.25rem;
-  line-height: 1.5;
-  padding-right: 5rem;
-  padding-left: 5rem;
-
-  @media (max-width: 768px) {
-    text-align: center;
-    font-size: 1rem;
-    padding-right: 3rem;
-    padding-left: 3rem;
-  }
+  font-family: 'Lato', sans-serif;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  font-weight: 300;       /* light */
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  letter-spacing: -0.25px;
+  text-align: left;
 `;
 
 const PendingInvites = ({ handleActivityClick }) => {
@@ -303,7 +256,6 @@ const PendingInvites = ({ handleActivityClick }) => {
         </InviteGrid>
       ) : (
         <NoBoardsContainer>
-          <Image src={Friends} alt="No Invites" />
           <Message>
             No invites! Don’t wait for your friends—be the one to start the next activity! 🎉
           </Message>
