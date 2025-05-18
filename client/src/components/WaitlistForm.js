@@ -110,8 +110,12 @@ const SubmitButton = styled.button`
 `;
 
 const MessageText = styled.p`
-  margin: 0.5rem 1rem;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 750px;
+  text-align: center;
+  margin: 0.5rem auto 0.5rem;
+  padding: 1rem;
   color: ${({ $error }) => ($error ? colors.error : colors.success)};
  `;
 
@@ -165,7 +169,7 @@ export default function WaitlistForm() {
       }
 
       setEmail('');
-      setMessage('Thank you for joining the list! We’ll be in touch soon with exciting new Voxxy updates.');
+      setMessage('Thank you for joining the list! We’ll be in touch soon with exciting new Voxxy updates. 🎉');
       setIsError(false);
     } catch (err) {
       setMessage(err.message);
@@ -202,7 +206,8 @@ export default function WaitlistForm() {
                 {loading ? 'Joining...' : 'Get Notified'}
               </SubmitButton>
             </InputRow>
-            {message && <MessageText $error={isError}>{message}</MessageText>}          </form>
+            {message && <MessageText $error={isError}>{message}</MessageText>}
+          </form>
         </Card>
       </FormWrapper>
     </div>
