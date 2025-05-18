@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef } from 'react';
+import React, { useContext, useState, useRef, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import Countdown from 'react-countdown';
 import { UserContext } from '../context/user';
@@ -374,7 +374,7 @@ const CDTXT = styled.span`
 `
 
 function UserActivities() {
-  const { user } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
   const pendingInvitesCount = user?.participant_activities
     ?.filter(invite => !invite.accepted)
@@ -385,6 +385,74 @@ function UserActivities() {
   const [helpVisible, setHelpVisible] = useState(false);
 
   const topRef = useRef(null)
+
+  const processedRef = useRef(new Set())
+
+  useEffect(() => {
+    if (!user) return
+    const now = new Date()
+
+    // gather all unique activities, same as your render logic
+    const allActivities = [
+      ...(user.activities || []),
+      ...(user.participant_activities
+         ?.filter(p => p.accepted)
+         .map(p => p.activity) || [])
+    ]
+    const unique = [...new Map(allActivities.map(a => [a.id, a])).values()]
+
+    unique.forEach(activity => {
+      // only finalized meetings that haven’t been marked completed
+      if (
+        activity.activity_type === 'Meeting' &&
+        activity.finalized &&
+        !activity.completed &&
+        !processedRef.current.has(activity.id)
+      ) {
+        // parse local date_day + time slice
+        const rawTime = activity.date_time?.slice(11, 19)  // "17:00:00"
+        if (activity.date_day && rawTime) {
+          const [Y, M, D] = activity.date_day.split('-').map(Number)
+          const [h, m, s] = rawTime.split(':').map(Number)
+          const eventDate = new Date(Y, M-1, D, h, m, s)
+
+          if (eventDate < now) {
+            // fire off mark_complete
+            fetch(`/activities/${activity.id}/mark_complete`, {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+            })
+              .then(res => {
+                if (!res.ok) throw new Error('mark_complete failed')
+                return res.json()
+              })
+              .then(updatedAct => {
+                // merge it back into user context so `completed: true`
+                setUser(prev => {
+                  if (!prev) return prev
+                  // update in your activities array
+                  const newActs = prev.activities.map(a =>
+                    a.id === updatedAct.id ? updatedAct : a
+                  )
+                  // also update participant_activities as needed
+                  const newPart = prev.participant_activities.map(p =>
+                    p.activity.id === updatedAct.id
+                      ? { ...p, activity: updatedAct }
+                      : p
+                  )
+                  return { ...prev, activities: newActs, participant_activities: newPart }
+                })
+              })
+              .catch(console.error)
+
+            // mark as fired so we don’t retry
+            processedRef.current.add(activity.id)
+          }
+        }
+      }
+    })
+  }, [user, setUser])
 
   const handleActivityClick = (activity) => {
     setSelectedActivityId(activity.id);

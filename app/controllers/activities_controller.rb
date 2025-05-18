@@ -1,6 +1,7 @@
 class ActivitiesController < HtmlController
   skip_before_action :verify_authenticity_token,
   if: -> { request.format.json? && !action_name.eql?("share") }
+  skip_before_action :authorized, only: [ :share ]
 
   protect_from_forgery with: :exception, only: [ :share ]
 

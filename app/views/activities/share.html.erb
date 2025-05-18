@@ -7,13 +7,16 @@
       <section class="card">
         <h2 class="activity-title"><%= @activity.emoji %> <%= @activity.activity_name %></h2>
 
-        <% if @activity.date_day.present? && @activity.date_time.present? %>
-          <div class="countdown-label">⏲ Event starts in ...</div>
-          <div id="countdown" data-datetime="<%= @activity.date_day.to_time.change(
-            hour: @activity.date_time.hour,
-            min:  @activity.date_time.min
-          ).iso8601 %>"></div>
-        <% end %>
+      <% if @activity.date_day.present? && @activity.date_time.present? %>
+        <div class="countdown-label">⏲ Event starts in …</div>
+        <div
+          id="countdown"
+          data-day="<%= @activity.date_day %>"                     <%# "2025-05-21" %>
+          data-hour="<%= @activity.date_time.hour %>"              <%# 17 %>
+          data-minute="<%= @activity.date_time.min %>"             <%# 0  %>
+          data-second="<%= @activity.date_time.sec %>"             <%# 0  %>
+        ></div>
+      <% end %>
       </section>
 
       <!-- Organizer message -->
@@ -75,31 +78,41 @@
     </div>
 
     <script>
-      // Countdown logic
-      document.addEventListener('DOMContentLoaded', function() {
-        var el = document.getElementById('countdown');
-        if (!el) return;
-        var target = new Date(el.dataset.datetime).getTime();
-        function updateCountdown() {
-          var diff = target - Date.now();
+  document.addEventListener('DOMContentLoaded', function() {
+    const el = document.getElementById('countdown');
+    if (!el) return;
+
+    // pull out the individual pieces
+    const [year, month, day] = el.dataset.day.split('-').map(Number);
+    const hour   = parseInt(el.dataset.hour,   10);
+    const minute = parseInt(el.dataset.minute, 10);
+    const second = parseInt(el.dataset.second, 10);
+
+    // construct a local‑time Date(year, monthIndex, day, hour, minute, second)
+    const target = new Date(year, month - 1, day, hour, minute, second).getTime();
+
+    function updateCountdown() {
+          const diff = target - Date.now();
           if (diff <= 0) {
             el.innerHTML = '<div class="cd-card"><strong>00</strong><small>Started</small></div>';
             clearInterval(timer);
             return;
           }
-          var days    = Math.floor(diff / (1e3 * 60 * 60 * 24)),
-              hours   = Math.floor((diff / (1e3 * 60 * 60)) % 24),
-              mins    = Math.floor((diff / (1e3 * 60)) % 60),
-              secs    = Math.floor((diff / 1e3) % 60);
-          function pad(n){ return String(n).padStart(2,'0'); }
+          const days  = Math.floor(diff / (1000*60*60*24));
+          const hours = Math.floor((diff / (1000*60*60)) % 24);
+          const mins  = Math.floor((diff / (1000*60))     % 60);
+          const secs  = Math.floor((diff / 1000)          % 60);
+          const pad = n => String(n).padStart(2,'0');
+
           el.innerHTML =
-            '<span class="cd-card"><strong>' + days  + '</strong><small>Days</small></span>' +
-            '<span class="cd-card"><strong>' + pad(hours)  + '</strong><small>Hours</small></span>' +
-            '<span class="cd-card"><strong>' + pad(mins)   + '</strong><small>Minutes</small></span>' +
-            '<span class="cd-card"><strong>' + pad(secs)   + '</strong><small>Seconds</small></span>';
+            `<span class="cd-card"><strong>${pad(days)}</strong><small>Days</small></span>` +
+            `<span class="cd-card"><strong>${pad(hours)}</strong><small>Hours</small></span>` +
+            `<span class="cd-card"><strong>${pad(mins)}</strong><small>Minutes</small></span>` +
+            `<span class="cd-card"><strong>${pad(secs)}</strong><small>Seconds</small></span>`;
         }
+
         updateCountdown();
-        var timer = setInterval(updateCountdown, 1000);
+        const timer = setInterval(updateCountdown, 1000);
       });
 
       // Share Plan button
