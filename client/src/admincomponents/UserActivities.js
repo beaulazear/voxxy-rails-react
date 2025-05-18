@@ -383,6 +383,7 @@ function UserActivities() {
   const [selectedActivityId, setSelectedActivityId] = useState(null);
   const [showActivities, setShowActivities] = useState(false);
   const [helpVisible, setHelpVisible] = useState(false);
+  const [showAllPast, setShowAllPast] = useState(false);
 
   const topRef = useRef(null)
 
@@ -395,8 +396,8 @@ function UserActivities() {
     const allActivities = [
       ...(user.activities || []),
       ...(user.participant_activities
-         ?.filter(p => p.accepted)
-         .map(p => p.activity) || [])
+        ?.filter(p => p.accepted)
+        .map(p => p.activity) || [])
     ]
     const unique = [...new Map(allActivities.map(a => [a.id, a])).values()]
 
@@ -411,7 +412,7 @@ function UserActivities() {
         if (activity.date_day && rawTime) {
           const [Y, M, D] = activity.date_day.split('-').map(Number)
           const [h, m, s] = rawTime.split(':').map(Number)
-          const eventDate = new Date(Y, M-1, D, h, m, s)
+          const eventDate = new Date(Y, M - 1, D, h, m, s)
 
           if (eventDate < now) {
             fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activity.id}/mark_complete`, {
@@ -474,6 +475,10 @@ function UserActivities() {
     return "past";
   });
 
+  useEffect(() => {
+    setShowAllPast(false);
+  }, [filterType]);
+
   const filteredActivities = uniqueActivities
     .filter(activity => {
       switch (filterType) {
@@ -488,6 +493,16 @@ function UserActivities() {
       }
     })
     .sort((a, b) => new Date(a.date_day) - new Date(b.date_day));
+
+  // just before your render return:
+  const pastActivities = uniqueActivities
+    .filter(a => a.completed)
+    .sort((a, b) => new Date(b.date_day) - new Date(a.date_day));
+  // inside render, where you would map filteredActivities...
+  const activitiesToRender =
+    filterType === "past"
+      ? (showAllPast ? pastActivities : pastActivities.slice(0, 3))
+      : filteredActivities;  // unchanged for other tabs
 
   function getOrdinalSuffix(day) {
     if (day >= 11 && day <= 13) return "th";
@@ -611,90 +626,99 @@ function UserActivities() {
           {filterType === "invites" ? (
             <PendingInvites handleActivityClick={handleActivityClick} />
           ) : filteredActivities.length > 0 ? (
-            <CardGrid>
-              {filteredActivities.map(activity => {
-                const selectedPin = activity.pinned_activities?.find(p => p.selected);
+            <>
+              <CardGrid>
+                {activitiesToRender?.map(activity => {
+                  const selectedPin = activity.pinned_activities?.find(p => p.selected);
 
-                const isFinalizedMeeting =
-                  activity.activity_type === 'Meeting' && activity.finalized === true;
+                  const isFinalizedMeeting =
+                    activity.activity_type === 'Meeting' && activity.finalized === true;
 
-                const rawTime = activity.date_time
-                  ? activity.date_time.slice(11, 19)   // e.g. "17:00:00"
-                  : null;
+                  const rawTime = activity.date_time
+                    ? activity.date_time.slice(11, 19)   // e.g. "17:00:00"
+                    : null;
 
-                // 2. split date_day and rawTime into numeric parts
-                let eventDateTime = null;
-                if (activity.date_day && rawTime) {
-                  const [year, month, day] = activity.date_day.split('-').map(Number);    // e.g. [2025,5,21]
-                  const [hour, minute, second] = rawTime.split(':').map(Number);          // e.g. [17,0,0]
+                  // 2. split date_day and rawTime into numeric parts
+                  let eventDateTime = null;
+                  if (activity.date_day && rawTime) {
+                    const [year, month, day] = activity.date_day.split('-').map(Number);    // e.g. [2025,5,21]
+                    const [hour, minute, second] = rawTime.split(':').map(Number);          // e.g. [17,0,0]
 
-                  // monthIndex is zero‑based in JS Date
-                  eventDateTime = new Date(year, month - 1, day, hour, minute, second);
-                }
-                let bgUrl;
-                if (selectedPin && selectedPin.photos?.length > 0) {
-                  const { photo_reference } = selectedPin.photos[0];
-                  bgUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}`;
-                } else {
-                  bgUrl = activity.activity_type.toLowerCase() === 'meeting'
-                    ? LetsMeetCardThree
-                    : groupmeals;
-                }
+                    // monthIndex is zero‑based in JS Date
+                    eventDateTime = new Date(year, month - 1, day, hour, minute, second);
+                  }
+                  let bgUrl;
+                  if (selectedPin && selectedPin.photos?.length > 0) {
+                    const { photo_reference } = selectedPin.photos[0];
+                    bgUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}`;
+                  } else {
+                    bgUrl = activity.activity_type.toLowerCase() === 'meeting'
+                      ? LetsMeetCardThree
+                      : groupmeals;
+                  }
 
-                return (
-                  <ActivityCard
-                    key={activity.id}
-                    onClick={() => handleActivityClick(activity)}
-                  >
-                    {isFinalizedMeeting && eventDateTime ? (
-                      <CountdownContainer>
-                        <Countdown
-                          date={eventDateTime}
-                          renderer={({ days, hours, minutes, seconds, completed }) => {
-                            if (completed) {
-                              return <span>00:00:00</span>;
-                            }
-                            const pad = num => String(num).padStart(2, '0');
-                            return (
-                              <CDTXT>
-                                {pad(hours + days * 24)}:{pad(minutes)}:{pad(seconds)}
-                              </CDTXT>
-                            );
-                          }}
-                        />
-                      </CountdownContainer>
-                    ) : (
-                      <ImageContainer $bgimage={bgUrl} />
-                    )}
+                  return (
+                    <ActivityCard
+                      key={activity.id}
+                      onClick={() => handleActivityClick(activity)}
+                    >
+                      {isFinalizedMeeting && eventDateTime ? (
+                        <CountdownContainer>
+                          <Countdown
+                            date={eventDateTime}
+                            renderer={({ days, hours, minutes, seconds, completed }) => {
+                              if (completed) {
+                                return <span>00:00:00</span>;
+                              }
+                              const pad = num => String(num).padStart(2, '0');
+                              return (
+                                <CDTXT>
+                                  {pad(hours + days * 24)}:{pad(minutes)}:{pad(seconds)}
+                                </CDTXT>
+                              );
+                            }}
+                          />
+                        </CountdownContainer>
+                      ) : (
+                        <ImageContainer $bgimage={bgUrl} />
+                      )}
 
-                    <HostTag>
-                      <User size={14} style={{ paddingBottom: '2px' }} />{' '}
-                      {activity.user?.name}
-                    </HostTag>
+                      <HostTag>
+                        <User size={14} style={{ paddingBottom: '2px' }} />{' '}
+                        {activity.user?.name}
+                      </HostTag>
 
-                    <TypeTag>
-                      {activity.emoji} {activity.activity_type}
-                    </TypeTag>
+                      <TypeTag>
+                        {activity.emoji} {activity.activity_type}
+                      </TypeTag>
 
-                    <CardLabel>
-                      <div className='meta'>
-                        <span><h3>{activity.activity_name}</h3></span>
-                        <span style={{ marginTop: '1rem', fontSize: '16px' }}>
-                          {activity.participants.length + 1}<Users style={{ paddingBottom: '3px' }} size={18} />
-                        </span>
-                      </div>
-                      <div className="meta">
-                        <span>
-                          <CalendarDays style={{ paddingBottom: '2px' }} size={20} />{formatDate(activity.date_day) || 'TBD'} · <Clock style={{ paddingBottom: '2px' }} size={21} />{formatTime(activity.date_time) || 'TBD'}
-                        </span>
-                        <span><ViewBoard>View board <span>→</span></ViewBoard></span>
-                      </div>
+                      <CardLabel>
+                        <div className='meta'>
+                          <span><h3>{activity.activity_name}</h3></span>
+                          <span style={{ marginTop: '1rem', fontSize: '16px' }}>
+                            {activity.participants.length + 1}<Users style={{ paddingBottom: '3px' }} size={18} />
+                          </span>
+                        </div>
+                        <div className="meta">
+                          <span>
+                            <CalendarDays style={{ paddingBottom: '2px' }} size={20} />{formatDate(activity.date_day) || 'TBD'} · <Clock style={{ paddingBottom: '2px' }} size={21} />{formatTime(activity.date_time) || 'TBD'}
+                          </span>
+                          <span><ViewBoard>View board <span>→</span></ViewBoard></span>
+                        </div>
 
-                    </CardLabel>
-                  </ActivityCard>
-                );
-              })}
-            </CardGrid>
+                      </CardLabel>
+                    </ActivityCard>
+                  );
+                })}
+              </CardGrid>
+              {filterType === "past" && pastActivities.length > 3 && (
+                <div style={{ textAlign: 'center', margin: '1rem 0' }}>
+                  <Button onClick={() => setShowAllPast(sa => !sa)}>
+                    {showAllPast ? "Show Less" : "Display All"}
+                  </Button>
+                </div>
+              )}
+            </>
           ) : (
             <NoBoardsDisplay onCreateBoard={() => setShowActivities(true)} />
           )}

@@ -94,9 +94,14 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
     })),
   ];
 
-  function extractHoursAndMinutes(isoString) {
-    if (!isoString) return "Time: TBD";
-    return isoString.slice(11, 16);
+  function formatTime(timeString) {
+    if (!timeString) return "TBD";
+    const timePortion = timeString.split("T")[1];
+    const [rawHour, rawMin] = timePortion.split(":");
+    let hour = parseInt(rawHour, 10);
+    const suffix = hour >= 12 ? "pm" : "am";
+    hour = hour % 12 || 12;
+    return `${hour}:${rawMin} ${suffix}`;
   }
 
   const handleLeaveActivity = async () => {
@@ -204,9 +209,7 @@ const HeaderSection = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }
           <MetaItem>
             <label>Time:</label>
             <span>
-              {activity.date_time
-                ? extractHoursAndMinutes(activity.date_time)
-                : "TBD"}
+              {activity.date_time ? formatTime(activity.date_time) : "TBD"}
             </span>
           </MetaItem>
           {activity.finalized === true && (
