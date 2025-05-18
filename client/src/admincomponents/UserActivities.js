@@ -465,7 +465,7 @@ function UserActivities() {
   ];
   const uniqueActivities = [...new Map(allActivities.map(a => [a.id, a])).values()];
 
-  const inProgressCount = uniqueActivities.filter(a => a.finalized === false).length;
+  const inProgressCount = uniqueActivities.filter(a => a.finalized === false && !a.completed).length;
   const finalizedCount = uniqueActivities.filter(a => a.finalized === true).length;
 
   const [filterType, setFilterType] = useState(() => {
@@ -483,9 +483,9 @@ function UserActivities() {
     .filter(activity => {
       switch (filterType) {
         case "inprogress":
-          return activity.finalized === false && activity.completed === false;
+          return activity.finalized === false && !activity.completed;
         case "finalized":
-          return activity.finalized === true && activity.completed === false;
+          return activity.finalized === true && !activity.completed;
         case "past":
           return activity.completed;
         default:
@@ -494,15 +494,13 @@ function UserActivities() {
     })
     .sort((a, b) => new Date(a.date_day) - new Date(b.date_day));
 
-  // just before your render return:
   const pastActivities = uniqueActivities
     .filter(a => a.completed)
     .sort((a, b) => new Date(b.date_day) - new Date(a.date_day));
-  // inside render, where you would map filteredActivities...
   const activitiesToRender =
     filterType === "past"
       ? (showAllPast ? pastActivities : pastActivities.slice(0, 3))
-      : filteredActivities;  // unchanged for other tabs
+      : filteredActivities;
 
   function getOrdinalSuffix(day) {
     if (day >= 11 && day <= 13) return "th";
@@ -529,7 +527,7 @@ function UserActivities() {
     const [rawHour, rawMin] = timePortion.split(":");
     let hour = parseInt(rawHour, 10);
     const suffix = hour >= 12 ? "pm" : "am";
-    hour = hour % 12 || 12;            // convert 0→12, 13→1, etc.
+    hour = hour % 12 || 12;
     return `${hour}:${rawMin} ${suffix}`;
   }
 
@@ -728,5 +726,4 @@ function UserActivities() {
     </>
   );
 }
-
 export default UserActivities;
