@@ -11,6 +11,8 @@ const colors = {
   textPrimary: '#FFFFFF',
   textMuted: '#dbd3de',
   accent: '#cc31e8',
+  error: '#e55353',
+  success: '#FFFFFF',
 };
 
 const SmallHeading = styled.h3`
@@ -32,10 +34,9 @@ const Subtitle = styled(MutedText)`
   line-height: 1.6;
   max-width: 750px;
   text-align: center;
-  margin: 0.5rem auto 0rem auto;
+  margin: 0.5rem auto 0;
 `;
 
-// Global override for autofill backgrounds
 const AutofillStyles = createGlobalStyle`
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
@@ -64,7 +65,6 @@ const Card = styled.div`
   box-shadow: 0 4px 10px rgba(0,0,0,0.4);
   border: 1px solid ${colors.border};
   transition: border-color 0.2s, box-shadow 0.2s;
-
   &:hover {
     border-color: ${colors.accent};
     box-shadow: 0 0 10px ${colors.accent}, 0 0 50px ${colors.accent};
@@ -104,20 +104,27 @@ const SubmitButton = styled.button`
   white-space: nowrap;
   transition: background-color 0.2s ease;
   opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
-
   &:hover {
     background-color: ${({ disabled }) => (disabled ? colors.accent : '#7f3bdc')};
   }
 `;
 
+const MessageText = styled.p`
+  margin: 0.5rem 1rem;
+  font-size: 0.95rem;
+  color: ${({ $error }) => ($error ? colors.error : colors.success)};
+ `;
+
 const HeaderWrapper = styled.div`
   padding: 2rem 1rem;
-`
+`;
 
 export default function WaitlistForm() {
   const [email, setEmail] = useState('');
   const [isValid, setIsValid] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [isError, setIsError] = useState(false);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const canSubmit = email && isValid;
@@ -126,12 +133,17 @@ export default function WaitlistForm() {
     const val = e.target.value;
     setEmail(val);
     setIsValid(emailRegex.test(val));
+    // clear any previous message when editing
+    setMessage('');
+    setIsError(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;
     setLoading(true);
+    setMessage('');
+    setIsError(false);
 
     try {
       const res = await fetch(
@@ -143,14 +155,24 @@ export default function WaitlistForm() {
           credentials: 'include',
         }
       );
-      if (!res.ok) throw new Error('Network response was not ok');
-      setEmail('');
-      alert('Thanks for joining the waitlist!');
-    } catch {
-      alert('Oops, something went wrong.');
-    }
 
-    setLoading(false);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        const errMsg = data.errors
+          ? data.errors.join(', ')
+          : 'Something went wrong — please try again.';
+        throw new Error(errMsg);
+      }
+
+      setEmail('');
+      setMessage('Thank you for joining the list! We’ll be in touch soon with exciting new Voxxy updates.');
+      setIsError(false);
+    } catch (err) {
+      setMessage(err.message);
+      setIsError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -158,7 +180,9 @@ export default function WaitlistForm() {
       <AutofillStyles />
       <HeaderWrapper>
         <SmallHeading>Stay Connected</SmallHeading>
-        <Title>Get product updates from Voxxy <Mail color={colors.textMuted} size={20} /></Title>
+        <Title>
+          Get product updates from Voxxy <Mail color={colors.textMuted} size={20} />
+        </Title>
         <Subtitle>
           Sign up to follow our journey and get early access to new features, updates, and launch perks, all in one place.
         </Subtitle>
@@ -178,7 +202,7 @@ export default function WaitlistForm() {
                 {loading ? 'Joining...' : 'Get Notified'}
               </SubmitButton>
             </InputRow>
-          </form>
+            {message && <MessageText $error={isError}>{message}</MessageText>}          </form>
         </Card>
       </FormWrapper>
     </div>

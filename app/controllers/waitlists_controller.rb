@@ -19,7 +19,7 @@ class WaitlistsController < ApplicationController
         WaitlistEmailService.send_waitlist_email(@waitlist.email)
         render json: @waitlist, status: :created
       else
-        render json: { errors: @waitlist.errors.full_messages }, status: :unprocessable_entity
+        render json: { errors: @waitlist.errors[:email] }, status: :unprocessable_entity
       end
     end
 
