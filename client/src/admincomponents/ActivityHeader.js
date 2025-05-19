@@ -157,10 +157,6 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite 
         </TopBar>
 
         <Title>{activity.activity_name}</Title>
-        <Subtitle>
-          {activity.welcome_message || 'Welcome to this activity!'}
-        </Subtitle>
-
         <MetaRow>
           <MetaItem>
             <label><User size={16} /></label>
@@ -176,10 +172,13 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite 
           </MetaItem>
           {activity.finalized && (
             <MetaItem>
-              <label><a style={{ textDecoration: 'none' }} href={shareUrl} target="_blank" rel="noopener noreferrer"> Finalized Activity Link</a></label>
+              <label><a style={{ textDecoration: 'none', marginTop: '0rem' }} href={shareUrl} target="_blank" rel="noopener noreferrer"> Finalized Activity Link</a></label>
             </MetaItem>
           )}
         </MetaRow>
+        <Subtitle>
+          {activity.welcome_message || 'Welcome to this activity!'}
+        </Subtitle>
 
         {!activity.finalized && isOwner && (
           <ChatButton onClick={onEdit}>Finalize Board</ChatButton>
@@ -330,7 +329,6 @@ const HeaderContainer = styled.div`
   position: relative;
   border-radius: 16px;
   margin: 0 auto;
-  max-width: 450px;
   animation: ${fadeInUp} 0.4s ease forwards;
 `;
 
@@ -339,6 +337,8 @@ const TopBar = styled.div`
   grid-template-columns: max-content 1fr max-content;
   align-items: center;
   width: 100%;
+  max-width: 450px;
+  margin: auto;
 `;
 
 const LeftActionButtons = styled.div` justify-self: start; display: flex; `;
@@ -386,7 +386,7 @@ const Title = styled.h1`
   font-size: clamp(1.8rem, 4vw, 2.5rem);
   font-weight: bold;
   color: #fff;
-  margin: 1rem 1rem 0.5rem;
+  margin: 0.5rem 1rem 0.5rem;
   text-align: center;
 `;
 
@@ -395,10 +395,11 @@ const Subtitle = styled.p`
   font-size: clamp(1rem, 2.5vw, 1.3rem);
   font-weight: 300;
   color: rgba(255, 255, 255, 0.85);
-  max-width: 600px;
+  max-width: 800px;
   margin: 0.25rem auto 1rem;
   line-height: 1.5;
   text-align: center;
+  padding: 1rem;
 `;
 
 const MetaRow = styled.div`
@@ -461,12 +462,22 @@ const ParticipantsScroll = styled.div`
   overflow-x: auto;
   padding-bottom: 10px;
   margin: auto;
+
+  /* hide the scrollbar in WebKit, optional */
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+  }
 `;
 
 const ParticipantCircle = styled.div`
+  flex: 0 0 50px;      /* <-- prevent shrinking/growing */
   width: 50px;
   height: 50px;
-  border-radius: 75px;
+  border-radius: 50%;
   background: ${({ $pending }) => ($pending ? "#aaa" : "#4a0d5c")};
   overflow: hidden;
 `;

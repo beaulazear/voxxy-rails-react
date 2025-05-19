@@ -121,7 +121,7 @@ const MobileMenuOverlay = styled.div`
   position: fixed;
   top: 0;
   right: 0;
-  width: 80%;
+  width: 60%;
   height: 100%;
   background-color: rgba(32, 25, 37, 0.95);
   backdrop-filter: blur(8px);
@@ -187,7 +187,7 @@ export default function Navbar() {
                   <ArrowLeft size={20} />
                 </MobileMenuButton>
               ) : null}
-              <LogoLink to="/">
+              <LogoLink to="/dashboard">
                 <LogoImage src={GAYHEADER} alt="Voxxy Logo" />
               </LogoLink>
             </div>
