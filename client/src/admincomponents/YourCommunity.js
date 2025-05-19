@@ -79,7 +79,10 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
   return (
     <div>
       <Wrapper>
-        <Header><TitleText>Your Voxxy Crew 🎭</TitleText></Header>
+        <Header>
+          <TitleText>Your Voxxy Crew 🎭</TitleText>
+          <Subtitle>Friends you’ve Voxxed with.</Subtitle>
+        </Header>
         <Grid>
           {displayed.map(peerData => (
             <Card
@@ -136,6 +139,13 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
     </div>
   );
 }
+
+const Subtitle = styled.p`
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: #fff;
+  margin: 0.5rem 0 0;
+`;
 
 const Since = styled.p`
   font-size: 0.75rem;
