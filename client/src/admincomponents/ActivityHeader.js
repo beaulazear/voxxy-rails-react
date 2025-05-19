@@ -395,8 +395,8 @@ const Subtitle = styled.p`
   font-size: clamp(1rem, 2.5vw, 1.3rem);
   font-weight: 300;
   color: rgba(255, 255, 255, 0.85);
-  max-width: 800px;
-  margin: 0.25rem auto 1rem;
+  max-width: 600px;
+  margin: 0.25rem auto 0;
   line-height: 1.5;
   text-align: center;
   padding: 1rem;
@@ -412,11 +412,11 @@ const MetaRow = styled.div`
 const MetaItem = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.5rem;
   color: #fff;
 
   label { display: flex; align-items: center; }
-  span  { font-size: 1rem; }
+  span  { font-size: 1.25rem; }
 `;
 
 const ChatButton = styled.button`
@@ -427,7 +427,7 @@ const ChatButton = styled.button`
   border-radius: 9999px;
   font-weight: 600;
   cursor: pointer;
-  margin: 2rem;
+  margin: 1rem;;
 `;
 
 const AttendeeContainer = styled.div`
