@@ -53,58 +53,63 @@ const CommentsSection = ({ activity }) => {
   };
 
   return (
-    <CommentsSectionWrapper>
-      <Title>Voxxy Group Chat</Title>
-      <CommentsContainer>
-        <CommentsList ref={commentsListRef}>
-          {comments.length > 0 ? (
-            comments.map((comment) => {
-              const isOwnComment = comment.user.id === user.id;
-              return (
-                <CommentWrapper key={comment.id} $isOwnComment={isOwnComment}>
-                  {!isOwnComment && (
-                    <Avatar src={comment.user.avatar || Woman} alt={comment.user.name} />
-                  )}
-                  <CommentBubble $isOwnComment={isOwnComment}>
-                    <CommentHeader>
-                      <CommentAuthor>{comment.user.name}</CommentAuthor>
-                      <Timestamp>{formatTimestamp(comment.created_at)}</Timestamp>
-                    </CommentHeader>
-                    <CommentText>{comment.content}</CommentText>
-                  </CommentBubble>
-                  {isOwnComment && (
-                    <Avatar src={comment.user.avatar || Woman} alt={comment.user.name} />
-                  )}
-                </CommentWrapper>
-              );
-            })
-          ) : (
-            <NoComments>No messages yet. Start the conversation!</NoComments>
-          )}
-        </CommentsList>
-        <CommentInputContainer>
-          <CommentInput
-            type="text"
-            placeholder="Write a message..."
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-          />
-          <SendButton onClick={handleCommentSubmit}>
-            <SendOutlined />
-          </SendButton>
-        </CommentInputContainer>
-      </CommentsContainer>
-    </CommentsSectionWrapper>
+      <CommentsSectionWrapper>
+        <Title>Voxxy Group Chat</Title>
+        <CommentsContainer>
+          <CommentsList ref={commentsListRef}>
+            {comments.length > 0 ? (
+              comments.map((comment) => {
+                const isOwnComment = comment.user.id === user.id;
+                return (
+                  <CommentWrapper key={comment.id} $isOwnComment={isOwnComment}>
+                    {!isOwnComment && (
+                      <Avatar src={comment.user.avatar || Woman} alt={comment.user.name} />
+                    )}
+                    <CommentBubble $isOwnComment={isOwnComment}>
+                      <CommentHeader>
+                        <CommentAuthor>{comment.user.name}</CommentAuthor>
+                        <Timestamp>{formatTimestamp(comment.created_at)}</Timestamp>
+                      </CommentHeader>
+                      <CommentText>{comment.content}</CommentText>
+                    </CommentBubble>
+                    {isOwnComment && (
+                      <Avatar src={comment.user.avatar || Woman} alt={comment.user.name} />
+                    )}
+                  </CommentWrapper>
+                );
+              })
+            ) : (
+              <NoComments>No messages yet. Start the conversation!</NoComments>
+            )}
+          </CommentsList>
+          <CommentInputContainer>
+            <CommentInput
+              type="text"
+              placeholder="Write a message..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+            />
+            <SendButton onClick={handleCommentSubmit}>
+              <SendOutlined />
+            </SendButton>
+          </CommentInputContainer>
+        </CommentsContainer>
+      </CommentsSectionWrapper>
   );
 };
 
 export default CommentsSection;
 
 const CommentsSectionWrapper = styled.div`
-  width: 90%;
+  width: 85%;
   margin: 20px auto;
   margin-top: 0;
-  /* No internal background so it uses the parent's dark background */
+  max-width: 600px;
+  backgound-color: #2C1E33;
+
+  @media (max-width: 600px) {
+    width: 100%;
+  }
 `;
 
 const Title = styled.h2`
@@ -115,7 +120,6 @@ const Title = styled.h2`
 
 const CommentsContainer = styled.div`
   width: 100%;
-  /* Transparent container styling */
 `;
 
 const CommentsList = styled.div`
