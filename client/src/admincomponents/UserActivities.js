@@ -574,16 +574,24 @@ function UserActivities() {
                 </PopupHeader>
                 <PopupList>
                   <li>
-                    <strong>Add People to the Board</strong>
-                    <p>Click on a board and use the 'Add Guest' button to invite others to collaborate on your plans.</p>
+                    <strong>✨ Create a New Board</strong>
+                    <p>Kick things off by clicking “Create Board” to start planning your next adventure.</p>
                   </li>
                   <li>
-                    <strong>Take the Preference Quiz</strong>
-                    <p>Click 'Take Quiz' in any board to help us personalize recommendations based on everyone's preferences.</p>
+                    <strong>📩 Accept Invitations</strong>
+                    <p>See a board you’ve been invited to? Join in and start collaborating with your crew.</p>
                   </li>
                   <li>
-                    <strong>Vote on Recommendations</strong>
-                    <p>Pin your favorite recommendations to save them to the board. Participants can view and vote on pinned activities to help the group decide.</p>
+                    <strong>🕰 Revisit Past Boards</strong>
+                    <p>Scroll through your finalized activities to relive the moments or get inspo for what’s next.</p>
+                  </li>
+                  <li>
+                    <strong>🎭 Meet Your Voxxy Crew</strong>
+                    <p>Tap into your community! The “Voxxy Crew” section shows everyone you’ve planned with before.</p>
+                  </li>
+                  <li>
+                    <strong>⚙️ Edit Your Profile & Get Help</strong>
+                    <p>Need to update your info or ask a question? Use the top-right nav bar to visit your profile or the Help Center.</p>
                   </li>
                 </PopupList>
               </HelpPopup>
