@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Menu, ArrowLeft, X } from 'lucide-react';
 import { UserContext } from '../context/user';
 import colors from '../styles/Colors';
-import GAYHEADER from '../assets/GAYHEADER.svg'; // Scalable Voxxy Header SVG
+import HEADER from '../assets/HEADER.svg'; // Scalable Voxxy Header SVG
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -188,7 +188,7 @@ export default function Navbar() {
                 </MobileMenuButton>
               ) : null}
               <LogoLink to="/dashboard">
-                <LogoImage src={GAYHEADER} alt="Voxxy Logo" />
+                <LogoImage src={HEADER} alt="Voxxy Logo" />
               </LogoLink>
             </div>
 

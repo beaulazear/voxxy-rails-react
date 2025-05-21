@@ -12,6 +12,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
 
   if (!user) return null;
 
+  // build map of community peers
   const allUsersMap = new Map();
   user.activities?.forEach(act => {
     act.participants?.forEach(p => {
@@ -83,25 +84,30 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
           <TitleText>Your Voxxy Crew 🎭</TitleText>
           <Subtitle>Friends you’ve Voxxed with.</Subtitle>
         </Header>
-        <Grid>
-          {displayed.map(peerData => (
-            <Card
-              key={peerData.user.id}
-              onClick={() => handleCardClick(peerData)}
-            >
-              <Avatar
-                $hasAvatar={!!peerData.user.avatar}
-                src={peerData.user.avatar || SmallTriangle}
-                alt={peerData.user.name}
-              />
-              <Info>
-                <PeerName>{peerData.user.name}</PeerName>
-                <LastAct>Last: <em>{peerData.lastName}</em></LastAct>
-                <Since>On Voxxy since {formatSince(peerData.user.created_at)}</Since>
-              </Info>
-            </Card>
-          ))}
-        </Grid>
+
+        {/* Scrollable list container */}
+        <ScrollArea>
+          <Grid>
+            {displayed.map(peerData => (
+              <Card
+                key={peerData.user.id}
+                onClick={() => handleCardClick(peerData)}
+              >
+                <Avatar
+                  $hasAvatar={!!peerData.user.avatar}
+                  src={peerData.user.avatar || SmallTriangle}
+                  alt={peerData.user.name}
+                />
+                <Info>
+                  <PeerName>{peerData.user.name}</PeerName>
+                  <LastAct>Last: <em>{peerData.lastName}</em></LastAct>
+                  <Since>On Voxxy since {formatSince(peerData.user.created_at)}</Since>
+                </Info>
+              </Card>
+            ))}
+          </Grid>
+        </ScrollArea>
+
         {community.length > 8 && (
           <Toggle onClick={() => setShowAll(v => !v)}>
             {showAll ? 'Show Less' : 'View All'}
@@ -140,19 +146,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
   );
 }
 
-const Subtitle = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: clamp(1rem, 2.5vw, 1.25rem);
-  color: #fff;
-  margin: 0.5rem 0 0;
-`;
-
-const Since = styled.p`
-  font-size: 0.75rem;
-  color: ${colors.textSecondary};
-  margin: 0.25rem 0 0;
-  font-style: italic;
-`;
+// styled components
 
 const Wrapper = styled.div`
   text-align: left;
@@ -161,12 +155,10 @@ const Wrapper = styled.div`
 const Header = styled.h2`
   font-size: 2rem;
   display: flex;
-  text-align: left;
-  margin-bottom: 1.5rem;
-  display: flex;
   flex-direction: column;
   padding-top: 40px;
   padding-left: 1rem;
+  margin-bottom: 1.5rem;
 `;
 
 const TitleText = styled.span`
@@ -174,6 +166,28 @@ const TitleText = styled.span`
   font-size: clamp(1.8rem, 4vw, 2.5rem);
   font-weight: bold;
   color: #fff;
+`;
+
+const Subtitle = styled.p`
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: #fff;
+  margin: 0.5rem 0 1rem;
+`;
+
+const ScrollArea = styled.div`
+  overflow-y: auto;
+  padding-right: 1rem;          /* keep content from under the scrollbar */
+
+  /* hide scrollbar in Firefox */
+  scrollbar-width: none;
+  /* hide scrollbar in IE 10+ */
+  -ms-overflow-style: none;
+
+  /* hide scrollbar in WebKit browsers */
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const Grid = styled.div`
@@ -190,16 +204,20 @@ const Card = styled.div`
   border-radius: 1rem;
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
-  &:hover { box-shadow: 0 0 20px rgba(153,85,230,0.4); transform: translateY(-4px); }
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  &:hover {
+    box-shadow: 0 0 20px rgba(153,85,230,0.4);
+    transform: translateY(-4px);
+  }
 `;
 
 const Avatar = styled.img`
   width: 50px;
   height: 50px;
   object-fit: cover;
-  border-radius: ${props => props.$hasAvatar ? '50%' : '0'};
-  border: ${props => props.$hasAvatar ? '2px solid white' : 'none'};
+  border-radius: 50%;
+  border: ${props => props.$hasAvatar ? '2px solid white' : '4px solid white'};
   margin-right: 1rem;
 `;
 
@@ -219,6 +237,13 @@ const LastAct = styled.p`
   font-size: 0.875rem;
   color: ${colors.textSecondary};
   margin: 0.25rem 0 0;
+`;
+
+const Since = styled.p`
+  font-size: 0.75rem;
+  color: ${colors.textSecondary};
+  margin: 0.25rem 0 0;
+  font-style: italic;
 `;
 
 const Toggle = styled.button`
@@ -279,13 +304,14 @@ const Email = styled.p`
 const ActivitiesList = styled.div`
   margin-top: 1rem;
   text-align: left;
-  ul { padding-left: 1.2rem; margin: 0; }
-  li { margin-bottom: 0.25rem; font-size: 0.875rem; }
-
-  li {
-  color: #fff;
+  ul {
+    padding-left: 1.2rem;
+    margin: 0;
   }
-  p {
-  color: #fff;
+  li { 
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+    color: #fff;
   }
+  p { color: #fff; }
 `;
