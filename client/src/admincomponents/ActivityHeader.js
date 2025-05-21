@@ -300,7 +300,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite 
         <ParticipantPopupOverlay onClick={handleClosePopup}>
           <ParticipantPopupContent onClick={e => e.stopPropagation()}>
             <h2>Invite a Participant</h2>
-            <input
+            <DarkInput
               type="email"
               placeholder="Enter email..."
               value={inviteEmail}
@@ -319,6 +319,36 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite 
 };
 
 export default ActivityHeader;
+
+const DarkInput = styled.input`
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  background: rgba(255, 255, 255, 0.08);
+  color: #eee;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.2s, background 0.2s;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  &:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #9051e1;  /* accent color */
+    box-shadow: 0 0 0 3px rgba(144, 81, 225, 0.2);
+  }
+
+  &:disabled {
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.4);
+    cursor: not-allowed;
+  }
+`;
 
 const fadeInUp = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -524,6 +554,10 @@ const ParticipantPopupContent = styled.div`
   border-radius: 18px;
   text-align: center;
   max-width: 420px;
+  color: #fff;
+    
+  max-height: 80vh;      /* so the popup never exceeds viewport */
+  overflow-y: auto;      /* enable vertical scroll inside the popup */
 `;
 
 const ParticipantPopupActions = styled.div`
@@ -566,7 +600,10 @@ const PopupHeader = styled.div`
 `;
 
 const PopupTitle = styled.h4`
-  margin: 0; font-size: 1rem; font-weight: bold; color: #fff;
+  margin: 0;
+   font-size: 1rem; 
+   font-weight: bold;
+    color: #fff;
 `;
 
 const CloseButton = styled.button`
