@@ -17,15 +17,15 @@ class SessionsController < ApplicationController
     ).find_by(email: params[:email])
 
     if user&.authenticate(params[:password])
-      session[:user_id] = user.id
+      # Set session for web
+      session[:user_id] = user.id unless request.headers["X-Mobile-App"] == "true"
 
-      activity_participants = ActivityParticipant.includes(activity: [ :responses, :participants ]).where("user_id = ? OR invited_email = ?", user.id, user.email)
+      activity_participants = ActivityParticipant.includes(activity: [ :responses, :participants ])
+                                                 .where("user_id = ? OR invited_email = ?", user.id, user.email)
 
       participant_activities = activity_participants.map(&:activity).uniq
 
-      Rails.logger.info "User Data: #{user.as_json(include: { activities: { include: :responses } })}"
-
-      render json: user.as_json(
+      user_payload = user.as_json(
         include: {
           activities: {
             only: [ :id, :activity_name, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :date_day, :date_time, :welcome_message, :completed ],
@@ -47,11 +47,13 @@ class SessionsController < ApplicationController
                   voters: { only: [ :id, :name, :avatar ] },
                   votes: { only: [ :id, :user_id ] }
                 }
-                }
+              }
             }
           }
         }
-      ).merge("participant_activities" => activity_participants.as_json(
+      )
+
+      participant_data = activity_participants.as_json(
         only: [ :id, :accepted, :invited_email ],
         include: {
           activity: {
@@ -73,11 +75,21 @@ class SessionsController < ApplicationController
                   voters: { only: [ :id, :name, :avatar ] },
                   votes: { only: [ :id, :user_id ] }
                 }
-                }
+              }
             }
           }
         }
-      ))
+      )
+
+      full_payload = user_payload.merge("participant_activities" => participant_data)
+
+      # Return token only if mobile
+      if request.headers["X-Mobile-App"] == "true"
+        token = JsonWebToken.encode(user_id: user.id)
+        render json: full_payload.merge("token" => token)
+      else
+        render json: full_payload
+      end
     else
       render json: { error: "Invalid email or password" }, status: :unauthorized
     end
