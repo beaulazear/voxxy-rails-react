@@ -21,7 +21,9 @@ module VoxxyRails
     allowed_origins = [
       "http://localhost:3000",
       "https://www.voxxyai.com",
-      "https://voxxy-rails-react-staging.onrender.com"
+      "https://voxxy-rails-react-staging.onrender.com",
+      "http://192.168.1.123:8081", # mobile dev origin
+      "null" # React Native often uses 'null' as origin
     ]
     allowed_origins << local_ip if local_ip
 

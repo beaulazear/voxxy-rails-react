@@ -2,6 +2,8 @@ class SessionsController < ApplicationController
   skip_before_action :authorized, only: [ :create ]
 
   def create
+    puts "🔎 Request Origin: #{request.headers['Origin']}"
+
     user = User.includes(
       activities: [
         { responses: :activity },
