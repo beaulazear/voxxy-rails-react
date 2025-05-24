@@ -186,6 +186,7 @@ export default function AIRecommendations({
                   : a
               )
             );
+            setRefreshTrigger(f => !f)
           }
         });
     } else {
@@ -207,6 +208,7 @@ export default function AIRecommendations({
                   : a
               )
             );
+            setRefreshTrigger(f => !f)
           }
         });
     }
