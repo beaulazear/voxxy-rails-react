@@ -224,7 +224,6 @@ export default function AIRecommendations({
         <>
           <TopBar>
             <Heading>Restaurant Options</Heading>
-            <ChatButton onClick={handleStartChat}>Chat with Voxxy</ChatButton>
           </TopBar>
           <p style={{ paddingBottom: '1rem' }}>
             Tell Voxxy what you’re craving or let us whip up recommendations for you. ✨
@@ -381,29 +380,34 @@ export default function AIRecommendations({
           <DimOverlay onClick={() => setShowGenerateModal(false)} />
 
           <GenerateModal>
-            <ModalTitle>How would you like to get recommendations?</ModalTitle>
+            <CloseX onClick={() => setShowGenerateModal(false)}>×</CloseX>
+
+            <ModalTitle>AI Recommendations</ModalTitle>
+            <ModalText>
+              Choose how you’d like to get suggestions. Chat with Voxxy to submit your preferences, or generate recommendations based off the current activity data.
+            </ModalText>
 
             <OptionButtons>
-              <button
+              <OptionButton
                 onClick={async () => {
                   setShowGenerateModal(false);
-                  await fetchRecommendations();      // use existing details
+                  await fetchRecommendations();
                 }}
               >
-                Based on activity details
-              </button>
-
-              <button
+                Generate
+              </OptionButton>
+              <OptionButton
                 onClick={() => {
                   setShowGenerateModal(false);
-                  setShowChat(true);                 // jump into chat
+                  handleStartChat();
                 }}
               >
-                Chat with Voxxy first
-              </button>
+                Chat with Voxxy
+              </OptionButton>
             </OptionButtons>
 
-            <CloseX onClick={() => setShowGenerateModal(false)}>×</CloseX>
+            <WarningText>
+              ⚠️ Oops, hot off the press! New recs only every hour—helps keep our AI fueled and our planet happy. 🌱            </WarningText>
           </GenerateModal>
         </>
       )}
@@ -428,11 +432,8 @@ const TopBar = styled.div`
 
 const Heading = styled.h2`
   font-size: 1.75rem;
-  margin: 0;
-  text-align: left;
-
-  @media (max-width: 600px) {
-  }
+  margin: 0 auto;
+  text-align: center;
 `;
 
 const ChatButton = styled.button`
@@ -612,39 +613,60 @@ const Photo = styled.img`
 
 const GenerateModal = styled.div`
   position: fixed;
-  top: 50%; left: 50%;
+  inset: 50% auto auto 50%;
   transform: translate(-50%, -50%);
   background: #2a1e30;
-  padding: 2rem;
+  padding: 1.5rem 2rem;
   border-radius: 1rem;
   z-index: 1002;
-  max-width: 90%;
-  width: 20rem;
+  max-width: 22rem;
+  width: 90%;
   text-align: center;
+  color: #fff;
 `;
 
 const ModalTitle = styled.h3`
-  color: #fff;
-  margin-bottom: 1rem;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+`;
+
+const ModalText = styled.p`
+  margin: 0.75rem 0 1.25rem;
+  font-size: 0.9rem;
+  color: #ccc;
+  text-align: left;
 `;
 
 const OptionButtons = styled.div`
   display: flex;
-  flex-direction: column;
   gap: 0.75rem;
+  margin-bottom: 1rem;
+`;
 
-  button {
-    padding: 0.75rem;
-    border: none;
-    border-radius: 0.5rem;
-    background: #9051e1;
-    color: #fff;
-    cursor: pointer;
-    font-weight: 600;
+const OptionButton = styled.button`
+  flex: 1;
+  padding: 0.5rem 0;
+  border: none;
+  border-radius: 0.5rem;
+  background: #9051e1;
+  color: #fff;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:first-of-type {
+    background: #6c63ff;
   }
+  &:hover {
+    background: #7a3fc1;
+  }
+`;
 
-  button:first-of-type { background: #6c63ff; }
-  button:last-of-type  { background: #7a3fc1; }
+const WarningText = styled.p`
+  font-size: 0.75rem;
+  color: #e0a800;
+  margin: 0;
 `;
 
 const CloseX = styled.button`
@@ -653,7 +675,7 @@ const CloseX = styled.button`
   right: 0.75rem;
   background: none;
   border: none;
-  color: #ccc;
+  color: #aaa;
   font-size: 1.25rem;
   cursor: pointer;
 `;
