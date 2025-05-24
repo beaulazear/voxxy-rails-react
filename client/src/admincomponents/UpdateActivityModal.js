@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { HeartPulse } from 'lucide-react';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -238,6 +239,23 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities, pi
     return `${hour}:${minute.toString().padStart(2, '0')}${suffix}`;
   }
 
+  function getOrdinalSuffix(d) {
+    if (d >= 11 && d <= 13) return 'th';
+    switch (d % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
+  }
+  function formatDate(ds) {
+    if (!ds) return 'TBD';
+    const [y, m, d] = ds.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    const mn = dt.toLocaleString('en-US', { month: 'long' });
+    return `${mn} ${d}${getOrdinalSuffix(d)}`;
+  }
+
   return (
     <ModalOverlay>
       <ModalContainer>
@@ -274,7 +292,7 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities, pi
                       onChange={handleTimeSlotChange}
                     />
                     <span>
-                      {slot.date} @ {formatTo12h(slot.time)}
+                      {formatDate(slot.date)} @ {formatTo12h(slot.time)} - <HeartPulse color={'red'} size={22} /> {slot.votes_count}
                     </span>
                   </OptionItem>
                 ))}
