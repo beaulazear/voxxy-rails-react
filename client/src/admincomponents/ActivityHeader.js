@@ -371,8 +371,10 @@ const TopBar = styled.div`
   margin: auto;
 `;
 
-const LeftActionButtons = styled.div` justify-self: start; display: flex; `;
-
+const LeftActionButtons = styled.div`
+  justify-self: start;
+  display: flex; 
+`;
 
 const BackButton = styled.button`
   border: none;
@@ -388,15 +390,17 @@ const HelpIcon = styled(BackButton)`
 
 const ActivityType = styled.div`
   font-family: 'Montserrat', sans-serif;
-  font-size: clamp(1.4rem, 2.5vw, 1.75rem);
+  font-size: clamp(1.2rem, 2.5vw, 1.75rem);
   font-weight: 400;
   color: rgba(255, 255, 255, 0.85);
   text-transform: uppercase;
   letter-spacing: 1px;
 `;
 
-const ActionButtons = styled.div` justify-self: end; display: flex; `;
-
+const ActionButtons = styled.div` 
+  justify-self: end;
+  display: flex;
+`;
 
 const EditIcon = styled.button`
   border: none;
