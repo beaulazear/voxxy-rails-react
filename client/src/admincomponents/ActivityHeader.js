@@ -479,6 +479,7 @@ const ParticipantsSection = styled.div`
 `;
 
 const ParticipantsTitle = styled.h4`
+  font-family: 'Montserrat', sans-serif;
   font-size: 1.3rem;
   color: #fff;
   margin: 0;

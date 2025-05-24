@@ -431,6 +431,7 @@ const TopBar = styled.div`
 `;
 
 const Heading = styled.h2`
+  font-family: 'Montserrat', sans-serif;
   font-size: 1.75rem;
   margin: 0 auto;
   text-align: center;
