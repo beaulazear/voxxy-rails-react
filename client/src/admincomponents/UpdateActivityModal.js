@@ -140,19 +140,19 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities, pi
   const [selectedPinnedId, setSelectedPinnedId] = useState(null);
   const [selectedTimeSlotId, setSelectedTimeSlotId] = useState(null);
 
+  const isMeeting = activity.activity_type === 'Meeting'
+  const needsTimeSlot = isMeeting || (pinned?.length > 0)
+  const timeSlotValid = !needsTimeSlot || selectedTimeSlotId != null
+
   const isRestaurant = activity.activity_type === 'Restaurant';
   const allFieldsFilled =
     formData.activity_location.trim() &&
     formData.date_day &&
     formData.date_time &&
     formData.welcome_message.trim();
+  const restaurantValid = !isRestaurant || (allFieldsFilled && selectedPinnedId != null)
 
-  // and then our overall “can submit?” boolean:
-  const canSubmit =
-    // first: if there **are** time‑slots, we still need one chosen:
-    !(pinned?.length > 0 && selectedTimeSlotId == null)
-    // second: if it’s a restaurant activity, we also need a pinned choice + all fields:
-    && (!isRestaurant || (allFieldsFilled && selectedPinnedId != null));
+  const canSubmit = timeSlotValid && restaurantValid
 
   useEffect(() => {
     if (pinnedActivities?.length) {
@@ -281,6 +281,10 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities, pi
               </OptionList>
             </>
           )}
+          {activity.activity_type === 'Meeting' &&
+            pinned?.length === 0 && (
+              <p style={{ color: '#fff' }}>You can not finalize this activity until someone has pinned a time slot.</p>
+            )}
           {activity.activity_type === 'Restaurant' &&
             pinnedActivities?.length === 0 && (
               <p style={{ color: '#fff' }}>You can not finalize this activity until someone has pinned a restaurant.</p>
