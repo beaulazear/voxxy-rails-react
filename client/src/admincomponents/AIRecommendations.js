@@ -20,6 +20,7 @@ export default function AIRecommendations({
   const [showChat, setShowChat] = useState(false);
   const [selectedRec, setSelectedRec] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showGenerateModal, setShowGenerateModal] = useState(false);
 
   const { id, responses, activity_location, date_notes } = activity;
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
@@ -62,11 +63,12 @@ export default function AIRecommendations({
     }
   }, [API_URL, activity_location, date_notes, pinnedActivities, id]);
 
-  const fetchRecommendations = useCallback(async () => {
+  const fetchRecommendations = useCallback(async (overrideResponses = null) => {
+    const useThese = overrideResponses ?? responses;       // 👈 either the passed‑in array or the prop
     setLoading(true);
     setError("");
     try {
-      if (!responses?.length) {
+      if (!useThese?.length) {
         await fetchTrending();
         return;
       }
@@ -77,7 +79,7 @@ export default function AIRecommendations({
           credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            responses: responses.map((r) => r.notes).join("\n\n"),
+            responses: useThese.map(r => r.notes).join("\n\n"),
             activity_location,
             date_notes,
             activity_id: id,
@@ -94,15 +96,7 @@ export default function AIRecommendations({
     } finally {
       setLoading(false);
     }
-  }, [
-    API_URL,
-    responses,
-    activity_location,
-    date_notes,
-    pinnedActivities,
-    id,
-    fetchTrending,
-  ]);
+  }, [API_URL, responses, activity_location, date_notes, pinnedActivities, id, fetchTrending]);
 
   function handleStartChat() {
     if (process.env.NODE_ENV === "production") {
@@ -158,7 +152,6 @@ export default function AIRecommendations({
     }
   };
 
-  // Like / Unlike
   const handleLike = (pin) => {
     if (process.env.NODE_ENV === "production") {
       mixpanel.track("Pinned Activity Voted On", { user: user.id });
@@ -240,7 +233,6 @@ export default function AIRecommendations({
       ) : (
         <TopBar>
           <Heading>Restaurant Options</Heading>
-          <ChatButton onClick={handleStartChat}>Chat with Voxxy</ChatButton>
         </TopBar>
       )}
 
@@ -286,7 +278,7 @@ export default function AIRecommendations({
           ))}
         {!recommendations.length && (
           <>
-            <FetchButton onClick={fetchRecommendations}>
+            <FetchButton onClick={() => setShowGenerateModal(true)}>
               Generate Recommendations
             </FetchButton>
           </>
@@ -332,8 +324,12 @@ export default function AIRecommendations({
           <CuisineChat
             activityId={id}
             onClose={() => setShowChat(false)}
-            onChatComplete={() => {
-              fetchRecommendations();
+            onChatComplete={async (newResponse) => {
+              const deduped = activity.responses.filter(
+                r => r.user_id !== newResponse.user_id
+              );
+              const updated = [...deduped, newResponse];
+              await fetchRecommendations(updated);
               setShowChat(false);
             }}
           />
@@ -379,6 +375,39 @@ export default function AIRecommendations({
           </DetailModalContent>
         </>
       )}
+
+      {showGenerateModal && (
+        <>
+          <DimOverlay onClick={() => setShowGenerateModal(false)} />
+
+          <GenerateModal>
+            <ModalTitle>How would you like to get recommendations?</ModalTitle>
+
+            <OptionButtons>
+              <button
+                onClick={async () => {
+                  setShowGenerateModal(false);
+                  await fetchRecommendations();      // use existing details
+                }}
+              >
+                Based on activity details
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowGenerateModal(false);
+                  setShowChat(true);                 // jump into chat
+                }}
+              >
+                Chat with Voxxy first
+              </button>
+            </OptionButtons>
+
+            <CloseX onClick={() => setShowGenerateModal(false)}>×</CloseX>
+          </GenerateModal>
+        </>
+      )}
+
     </Container>
   );
 }
@@ -579,4 +608,52 @@ const Photo = styled.img`
   height: 4rem;
   border-radius: 0.5rem;
   object-fit: cover;
+`;
+
+const GenerateModal = styled.div`
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #2a1e30;
+  padding: 2rem;
+  border-radius: 1rem;
+  z-index: 1002;
+  max-width: 90%;
+  width: 20rem;
+  text-align: center;
+`;
+
+const ModalTitle = styled.h3`
+  color: #fff;
+  margin-bottom: 1rem;
+`;
+
+const OptionButtons = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  button {
+    padding: 0.75rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: #9051e1;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  button:first-of-type { background: #6c63ff; }
+  button:last-of-type  { background: #7a3fc1; }
+`;
+
+const CloseX = styled.button`
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 1.25rem;
+  cursor: pointer;
 `;
