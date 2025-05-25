@@ -146,8 +146,8 @@ const LogoIcon = styled.img`
 
 function StartNewAdventure({ onTripSelect }) {
   const adventures = [
-    { name: 'Lets Eat', emoji: '🍜', active: true, description: 'Personalized restaurant recommendations.' },
-    { name: 'Lets Meet', emoji: '⏰', active: true, description: 'Find a time that works for everyone.' },
+    { name: 'Find a Restaurant', emoji: '🍜', active: true, description: 'Personalized recommendations for the whole group.' },
+    { name: 'Schedule a Meeting', emoji: '⏰', active: true, description: 'Find a time that works for everyone.' },
     { name: 'Movie Night', emoji: '🎥', active: false, description: 'Plan your perfect movie night.' },
     { name: 'Ski Trip', emoji: '🎿', active: false, description: 'Organize your next ski adventure.' },
     { name: 'Kids Play Date', emoji: '👩‍👧‍👦', active: false, description: 'Coordinate a fun playdate for little ones with ease.' },

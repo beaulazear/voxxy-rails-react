@@ -8,22 +8,25 @@ class UsersController < ApplicationController
       EmailVerificationService.send_verification_email(user)
 
       pending_invites = ActivityParticipant.where(invited_email: user.email, accepted: false)
-
-      pending_invites.each do |invite|
-        invite.update(user: user, accepted: true)
-
+      pending_invites.find_each do |invite|
+        invite.update!(user: user, accepted: true)
         activity = invite.activity
         activity.update!(group_size: activity.group_size + 1)
-
         activity.comments.create!(
           user_id: user.id,
           content: "#{user.name} has joined the chat 🎉"
         )
-
-        activity.reload
       end
 
-      render json: user, status: :created
+      if request.headers["X-Mobile-App"] == "true"
+        token = JsonWebToken.encode(user_id: user.id)
+        render json: user.as_json(only: [ :id, :name, :email, :avatar ]).merge("token" => token),
+               status: :created
+      else
+        session[:user_id] = user.id
+        render json: user, status: :created
+      end
+
     else
       render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
     end
