@@ -168,6 +168,10 @@ function ActivityDetailsPage({ activityId, onBack }) {
     setPinned(prev => [newSlot, ...prev])
   }
 
+  function handleTimeSlotDelete(oldSlotId) {
+    const newPinned = pinned.filter(s => s.id !== oldSlotId)
+    setPinned(newPinned)
+  }
 
   const toggleVote = slot => {
     const endpoint = slot.votes_count && slot.user_voted ? 'unvote' : 'vote';
@@ -209,7 +213,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
           </>
         )}
         {currentActivity.activity_type === 'Meeting' && (
-          <TimeSlots toggleVote={toggleVote} setPinned={handleTimeSlotPin} pinned={pinned} currentActivity={currentActivity} />
+          <TimeSlots handleTimeSlotDelete={handleTimeSlotDelete} toggleVote={toggleVote} setPinned={handleTimeSlotPin} pinned={pinned} currentActivity={currentActivity} />
         )}
         <ActivityCommentSection activity={currentActivity} />
         {showModal && (

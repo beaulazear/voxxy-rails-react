@@ -118,11 +118,10 @@ const GoBackButton = styled(Link)`
   display: inline-flex;
   align-items: center;
   padding: 0.6rem 1.2rem;
-  background: linear-gradient(135deg, #6a1b9a, #8e44ad);
-  color: #fff;
-  border: none;
+  border: 2px solid #A441DC;
+  background: none;
+  color: ${colors.textMuted};
   border-radius: 999px;
-  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
@@ -134,7 +133,9 @@ const GoBackButton = styled(Link)`
   text-decoration: none;
 
   &:hover {
-    background: linear-gradient(135deg, #5a1675, #7b3ea1);
+    background: rgba(164, 65, 220, 0.08);
+    transform: translateY(-1px);
+    box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
   }
 `;
 const LogoIcon = styled.img`

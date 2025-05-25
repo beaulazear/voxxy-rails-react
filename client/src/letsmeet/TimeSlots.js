@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import styled from 'styled-components';
 import { format, parseISO } from 'date-fns';
-import { Users, Heart, HeartPulse, Tag, Clock } from 'lucide-react';
+import { Users, Heart, HeartPulse, Tag, Clock, Trash } from 'lucide-react';
 import LetsMeetScheduler from './LetsMeetScheduler';
 import { UserContext } from "../context/user";
 
@@ -93,8 +93,9 @@ const CountWrapper = styled.div`
   gap: 4px;
 `;
 
-export default function TimeSlots({ currentActivity, pinned, setPinned, toggleVote }) {
+export default function TimeSlots({ currentActivity, pinned, setPinned, toggleVote, handleTimeSlotDelete }) {
     const { user } = useContext(UserContext);
+    const isOwner = currentActivity.user.id === user.id
 
     const responseSubmitted = currentActivity.responses?.some(
         (res) =>
@@ -130,6 +131,12 @@ export default function TimeSlots({ currentActivity, pinned, setPinned, toggleVo
         })
             .then(res => res.json())
             .then(newSlot => setPinned(newSlot));
+    };
+    const handleDelete = (id) => {
+        fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activityId}/time_slots/${id}`, {
+            method: 'DELETE', credentials: 'include', headers: { 'Content-Type': 'application/json' },
+        })
+            .then(handleTimeSlotDelete(id));
     };
 
     const pinnedMap = pinned.reduce((map, slot) => {
@@ -168,6 +175,11 @@ export default function TimeSlots({ currentActivity, pinned, setPinned, toggleVo
                                         <span style={{ marginLeft: '4px', color: '#fff' }}>{slot.votes_count}</span>
                                     </ActionButton>
                                 </CountWrapper>
+                                {isOwner && (
+                                    <ActionButton onClick={() => handleDelete(slot.id)}>
+                                        <Trash size={16} color="#888" />
+                                    </ActionButton>
+                                )}
                             </TimeItem>
                         );
                     })}
@@ -221,9 +233,11 @@ export default function TimeSlots({ currentActivity, pinned, setPinned, toggleVo
                                                 <CountWrapper>
                                                     <Users size={12} /> {count}
                                                 </CountWrapper>
-                                                <ActionButton onClick={() => handlePin(dateStr, time)}>
-                                                    <Tag size={16} color="#888" />
-                                                </ActionButton>
+                                                {isOwner && (
+                                                    <ActionButton onClick={() => handlePin(dateStr, time)}>
+                                                        <Tag size={16} color="#888" />
+                                                    </ActionButton>
+                                                )}
                                             </TimeItem>
                                         );
                                     })}
