@@ -131,7 +131,7 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
 
   return (
     <PageContainer ref={dashboardRef}>
-      <StartNewAdventure setShowActivities={setShowActivities} onTripSelect={handleTripSelect} />
+      <StartNewAdventure  setShowActivities={setShowActivities} onTripSelect={handleTripSelect} />
 
       {selectedTrip === 'Lets Eat' && (
         <>

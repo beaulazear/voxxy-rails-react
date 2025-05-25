@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from 'styled-components';
 import RestaurantMap from "./RestaurantMap";
 import CuisineChat from "./CuisineChat";
 import LoadingScreenUser from "./LoadingScreenUser";
@@ -416,11 +416,23 @@ export default function AIRecommendations({
   );
 }
 
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const gradientAnimation = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
 const Container = styled.div`
   max-width: 40rem;
   margin: 0 auto;
   padding: 2rem 1rem;
   color: #fff;
+  animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
 `;
 
 const TopBar = styled.div`

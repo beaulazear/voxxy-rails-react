@@ -3,6 +3,8 @@ import styled, { keyframes } from 'styled-components';
 import mixpanel from 'mixpanel-browser';
 import { Heading1, MutedText } from '../styles/Typography';
 import colors from '../styles/Colors';
+import Logo from '../assets/v_no_bg.svg'
+import { Link } from 'react-router-dom';
 
 const rainAnimation = keyframes`
   0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity: 1; }
@@ -125,8 +127,38 @@ const AdminSubtitle = styled(MutedText)`
   font-size: 1.125rem;
   color: ${colors.textMuted};
   max-width: 700px;
-  margin: 0 auto 2.5rem;
+  margin: 0 auto 1rem;
   line-height: 1.6;
+`;
+const GoBackButton = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0.6rem 1.2rem;
+  background: linear-gradient(135deg, #6a1b9a, #8e44ad);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
+              rgba(0, 0, 0, 0.12) 0px -12px 30px,
+              rgba(0, 0, 0, 0.12) 0px 4px 6px,
+              rgba(0, 0, 0, 0.17) 0px 12px 13px,
+              rgba(0, 0, 0, 0.09) 0px -3px 5px;
+  margin-bottom: 1.5rem;
+  text-decoration: none;
+
+  &:hover {
+    background: linear-gradient(135deg, #5a1675, #7b3ea1);
+  }
+`;
+const LogoIcon = styled.img`
+  width: 1.3rem;
+  height: 1.3rem;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
 `;
 
 function StartNewAdventure({ onTripSelect }) {
@@ -171,6 +203,10 @@ function StartNewAdventure({ onTripSelect }) {
             New <GradientText>Voxxy</GradientText> Board
           </AdminTitle>
           <AdminSubtitle>Choose an activity to start planning!</AdminSubtitle>
+          <GoBackButton to="/dashboard">
+            Return to Dashboard
+            <LogoIcon src={Logo} alt="Voxxy logo" />
+          </GoBackButton>
         </AdminHeroContainer>
       </AdminHero>
       <SectionWrapper>

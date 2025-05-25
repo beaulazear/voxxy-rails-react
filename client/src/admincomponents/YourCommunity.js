@@ -12,7 +12,6 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
 
   if (!user) return null;
 
-  // build map of community peers
   const allUsersMap = new Map();
   user.activities?.forEach(act => {
     act.participants?.forEach(p => {
@@ -85,7 +84,6 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
           <Subtitle>Friends you’ve Voxxed with.</Subtitle>
         </Header>
 
-        {/* Scrollable list container */}
         <ScrollArea>
           <Grid>
             {displayed.map(peerData => (
@@ -145,8 +143,6 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
     </div>
   );
 }
-
-// styled components
 
 const Wrapper = styled.div`
   text-align: left;
@@ -218,7 +214,8 @@ const Avatar = styled.img`
   height: 50px;
   object-fit: cover;
   border-radius: 50%;
-  border: ${props => props.$hasAvatar ? '2px solid white' : '4px solid white'};
+  border: ${props => props.$hasAvatar ? '2px solid white' : '4px solid #cc31e8'};
+  background-color: #fff;
   margin-right: 1rem;
 `;
 
