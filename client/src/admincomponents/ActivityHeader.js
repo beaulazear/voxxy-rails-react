@@ -420,7 +420,7 @@ const Title = styled.h1`
   font-size: clamp(1.8rem, 4vw, 2.5rem);
   font-weight: bold;
   color: #fff;
-  margin: 0.5rem 1rem 0.5rem;
+  margin: 1rem 1.5rem 1rem;
   text-align: center;
 `;
 
