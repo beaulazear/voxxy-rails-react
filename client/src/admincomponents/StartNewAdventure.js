@@ -1,26 +1,10 @@
-import React, { useState } from 'react';
-import styled, { keyframes } from 'styled-components';
+import React from 'react';
+import styled from 'styled-components';
 import mixpanel from 'mixpanel-browser';
 import { Heading1, MutedText } from '../styles/Typography';
 import colors from '../styles/Colors';
-import Logo from '../assets/v_no_bg.svg'
+import Logo from '../assets/v_no_bg.svg';
 import { Link } from 'react-router-dom';
-
-const rainAnimation = keyframes`
-  0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(360deg) scale(0.8); opacity: 0; }
-`;
-
-const EmojiRain = styled.div`
-  position: fixed;
-  top: -5%;
-  left: ${({ $left }) => $left}%;
-  font-size: ${({ $size }) => $size}rem;
-  animation: ${rainAnimation} ${({ $duration }) => $duration}s linear forwards;
-  z-index: 999;
-  pointer-events: none;
-  transform: rotate(${({ $rotation }) => $rotation}deg);
-`;
 
 const SectionWrapper = styled.div`
   width: 100%;
@@ -133,7 +117,6 @@ const AdminSubtitle = styled(MutedText)`
 const GoBackButton = styled(Link)`
   display: inline-flex;
   align-items: center;
-  flex-shrink: 0;
   padding: 0.6rem 1.2rem;
   background: linear-gradient(135deg, #6a1b9a, #8e44ad);
   color: #fff;
@@ -158,12 +141,9 @@ const LogoIcon = styled.img`
   width: 1.3rem;
   height: 1.3rem;
   margin-left: 0.5rem;
-  flex-shrink: 0;
 `;
 
 function StartNewAdventure({ onTripSelect }) {
-  const [emojiRain, setEmojiRain] = useState([]);
-
   const adventures = [
     { name: 'Lets Eat', emoji: '🍜', active: true, description: 'Personalized restaurant recommendations.' },
     { name: 'Lets Meet', emoji: '⏰', active: true, description: 'Find a time that works for everyone.' },
@@ -177,26 +157,14 @@ function StartNewAdventure({ onTripSelect }) {
   ];
 
   const handleSelection = (name) => {
-    if (name === 'Lets Eat') {
-      if (process.env.NODE_ENV === 'production') {
-        mixpanel.track('Lets Eat Clicked', { name });
-      }
-      triggerEmojiRain();
+    if (process.env.NODE_ENV === 'production') {
+      mixpanel.track(`${name} Clicked`, { name });
     }
     onTripSelect(name);
   };
 
-  const triggerEmojiRain = () => {
-    const emojis = Array.from({ length: 40 }).map((_, i) => ({ id: i, left: Math.random() * 100, size: Math.random() * 1.5 + 1, duration: Math.random() * 1 + 1.5, rotation: Math.random() * 360 }));
-    setEmojiRain(emojis);
-    setTimeout(() => setEmojiRain([]), 2000);
-  };
-
   return (
     <>
-      {emojiRain.map(({ id, left, size, duration, rotation }) => (
-        <EmojiRain key={id} $left={left} $size={size} $duration={duration} $rotation={rotation}>🍜</EmojiRain>
-      ))}
       <AdminHero>
         <AdminHeroContainer>
           <AdminTitle>
@@ -209,10 +177,15 @@ function StartNewAdventure({ onTripSelect }) {
           </GoBackButton>
         </AdminHeroContainer>
       </AdminHero>
+
       <SectionWrapper>
         <CardGrid>
           {adventures.map(({ name, emoji, active, description }) => (
-            <ActivityCard key={name} active={active} onClick={active ? () => handleSelection(name) : undefined}>
+            <ActivityCard
+              key={name}
+              active={active}
+              onClick={active ? () => handleSelection(name) : undefined}
+            >
               <div className="emoji">{emoji}</div>
               <ActivityName active={active}>{name}</ActivityName>
               <Description>{description}</Description>
@@ -221,7 +194,7 @@ function StartNewAdventure({ onTripSelect }) {
         </CardGrid>
       </SectionWrapper>
     </>
-  )
+  );
 }
 
 export default StartNewAdventure;

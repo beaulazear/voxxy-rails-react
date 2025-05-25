@@ -3,9 +3,6 @@ import styled, { keyframes } from 'styled-components';
 import { UserContext } from '../context/user';
 import StartNewAdventure from './StartNewAdventure';
 import RestaurantChat from './RestaurantChat';
-import CuisineChat from './CuisineChat';
-import PostRestaurantPopup from './PostRestaurantPopup';
-import mixpanel from 'mixpanel-browser';
 import LetsMeetForm from '../letsmeet/LetsMeetForm';
 
 const fadeIn = keyframes`
@@ -76,9 +73,6 @@ const DimmedOverlay = styled.div`
 function TripDashboard({ setShowActivities, setSelectedActivityId }) {
   const { user } = useContext(UserContext);
   const [selectedTrip, setSelectedTrip] = useState(null);
-  const [activityIdCreated, setActivityIdCreated] = useState(null);
-  const [showPostRestaurantPopup, setShowPostRestaurantPopup] = useState(false);
-  const [showCuisineChat, setShowCuisineChat] = useState(false);
   const dashboardRef = useRef(null);
 
   useEffect(() => {
@@ -110,17 +104,7 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
     );
   }
 
-  const handleRestaurantChatClose = (id) => {
-    if (id) {
-      setActivityIdCreated(id);
-      setSelectedTrip(null);
-      setShowPostRestaurantPopup(true);
-    } else {
-      setSelectedTrip(null);
-    }
-  };
-
-  const handleLetsMeetClose = (id) => {
+  const handleClose = (id) => {
     if (id) {
       setSelectedActivityId(id);
       setSelectedTrip(null);
@@ -131,51 +115,19 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
 
   return (
     <PageContainer ref={dashboardRef}>
-      <StartNewAdventure  setShowActivities={setShowActivities} onTripSelect={handleTripSelect} />
+      <StartNewAdventure setShowActivities={setShowActivities} onTripSelect={handleTripSelect} />
 
       {selectedTrip === 'Lets Eat' && (
         <>
           <DimmedOverlay />
-          <RestaurantChat onClose={handleRestaurantChatClose} />
+          <RestaurantChat onClose={handleClose} />
         </>
       )}
 
       {selectedTrip === 'Lets Meet' && (
         <>
-          <LetsMeetForm onClose={handleLetsMeetClose}/>
+          <LetsMeetForm onClose={handleClose} />
         </>
-      )}
-
-      {showPostRestaurantPopup && (
-        <PostRestaurantPopup
-          onChat={() => {
-            setShowCuisineChat(true);
-            setShowPostRestaurantPopup(false);
-          }}
-          onSkip={() => {
-            if (process.env.NODE_ENV === 'production') {
-              mixpanel.track('Chat Skipped', {
-                name: user.name,
-              });
-            }
-            setShowPostRestaurantPopup(false);
-            setSelectedActivityId(activityIdCreated);
-          }}
-        />
-      )}
-
-      {showCuisineChat && (
-        <CuisineChat
-          activityId={activityIdCreated}
-          onClose={() => {
-            setShowCuisineChat(false);
-            setSelectedActivityId(activityIdCreated);
-          }}
-          onChatComplete={() => {
-            setShowCuisineChat(false);
-            setSelectedActivityId(activityIdCreated);
-          }}
-        />
       )}
     </PageContainer>
   );
