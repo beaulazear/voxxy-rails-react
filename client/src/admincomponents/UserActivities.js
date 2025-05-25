@@ -598,18 +598,22 @@ function UserActivities() {
             </HelpOverlay>
           )}
           <FilterRow>
-            <FilterButton
-              $active={filterType === "finalized"}
-              onClick={() => setFilterType("finalized")}
-            >
-              Finalized
-            </FilterButton>
+            <NewBoardButton onClick={() => setShowActivities(true)}>
+              + New
+            </NewBoardButton>
 
             <FilterButton
               $active={filterType === "inprogress"}
               onClick={() => setFilterType("inprogress")}
             >
               In Progress
+            </FilterButton>
+
+            <FilterButton
+              $active={filterType === "finalized"}
+              onClick={() => setFilterType("finalized")}
+            >
+              Finalized
             </FilterButton>
 
             <FilterButton
@@ -625,10 +629,6 @@ function UserActivities() {
             >
               Invites {pendingInvitesCount > 0 ? `(${pendingInvitesCount})` : ""}
             </FilterButton>
-
-            <NewBoardButton onClick={() => setShowActivities(true)}>
-              + New
-            </NewBoardButton>
           </FilterRow>
 
           {filterType === "invites" ? (

@@ -217,6 +217,7 @@ const Avatar = styled.img`
   border: ${props => props.$hasAvatar ? '2px solid white' : '4px solid #cc31e8'};
   background-color: #fff;
   margin-right: 1rem;
+  padding-top: ${props => props.$hasAvatar ? '0rem' : '2px'};
 `;
 
 const Info = styled.div`

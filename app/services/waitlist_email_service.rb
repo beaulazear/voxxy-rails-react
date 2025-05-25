@@ -11,7 +11,6 @@ class WaitlistEmailService
     to      = SendGrid::Email.new(email: email)
     subject = "You’re on the list — now what?"
 
-    # build your HTML body
     html_content = <<~HTML
       <html>
         <body style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f8f8f8;">

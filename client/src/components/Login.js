@@ -4,9 +4,8 @@ import { UserContext } from '../context/user';
 import styled from 'styled-components';
 import mixpanel from 'mixpanel-browser';
 import colors from "../styles/Colors";
-import { Heading1, MutedText } from '../styles/Typography'; // ✅ optional if you want to use Heading components
+import { Heading1, MutedText } from '../styles/Typography';
 import { Sparkles } from 'lucide-react';
-
 
 const SectionContainer = styled.section`
   min-width: 350px;
@@ -101,7 +100,6 @@ const InputGroup = styled.div`
     }
   }
 `;
-
 
 const SubmitButton = styled.button`
   margin-top: 1.5rem;

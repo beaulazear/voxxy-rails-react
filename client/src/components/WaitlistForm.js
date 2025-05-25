@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Mail } from 'lucide-react';
 import { Heading1, MutedText } from '../styles/Typography';
+import mixpanel from 'mixpanel-browser';
 
 const colors = {
   sectionBackground: '#251C2C',
@@ -166,6 +167,10 @@ export default function WaitlistForm() {
           ? data.errors.join(', ')
           : 'Something went wrong — please try again.';
         throw new Error(errMsg);
+      }
+
+      if (process.env.NODE_ENV === 'production') {
+        mixpanel.track('Waitlist Form Submitted');
       }
 
       setEmail('');
