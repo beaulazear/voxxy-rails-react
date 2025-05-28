@@ -115,27 +115,21 @@ const AdminSubtitle = styled(MutedText)`
   line-height: 1.6;
 `;
 const GoBackButton = styled(Link)`
-  display: inline-flex;
-  align-items: center;
-  padding: 0.6rem 1.2rem;
-  border: 2px solid #A441DC;
+  display: inline-block;
   background: none;
-  color: ${colors.textMuted};
-  border-radius: 999px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
-              rgba(0, 0, 0, 0.12) 0px -12px 30px,
-              rgba(0, 0, 0, 0.12) 0px 4px 6px,
-              rgba(0, 0, 0, 0.17) 0px 12px 13px,
-              rgba(0, 0, 0, 0.09) 0px -3px 5px;
-  margin-bottom: 1.5rem;
+  border: solid 1px;
+  color: ${colors.primaryButton};
+  padding: 0.8rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
   text-decoration: none;
+  transition: opacity 0.2s ease;
+  margin-bottom: 20px;
 
   &:hover {
-    background: rgba(164, 65, 220, 0.08);
-    transform: translateY(-1px);
-    box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 0 10px #592566, 0 0 20px #592566;
+    background-color: ${colors.cardBackground};
   }
 `;
 const LogoIcon = styled.img`
@@ -146,8 +140,8 @@ const LogoIcon = styled.img`
 
 function StartNewAdventure({ onTripSelect }) {
   const adventures = [
-    { name: 'Find a Restaurant', emoji: '🍜', active: true, description: 'Personalized recommendations for the whole group.' },
-    { name: 'Schedule a Meeting', emoji: '⏰', active: true, description: 'Find a time that works for everyone.' },
+    { name: 'Lets Eat', emoji: '🍜', active: true, description: 'Recommendations for the whole group.' },
+    { name: 'Lets Meet', emoji: '⏰', active: true, description: 'Find a time that works for everyone.' },
     { name: 'Movie Night', emoji: '🎥', active: false, description: 'Plan your perfect movie night.' },
     { name: 'Ski Trip', emoji: '🎿', active: false, description: 'Organize your next ski adventure.' },
     { name: 'Kids Play Date', emoji: '👩‍👧‍👦', active: false, description: 'Coordinate a fun playdate for little ones with ease.' },
@@ -174,7 +168,7 @@ function StartNewAdventure({ onTripSelect }) {
           <AdminSubtitle>Choose an activity to start planning!</AdminSubtitle>
           <GoBackButton to="/dashboard">
             Return to Dashboard
-            <LogoIcon src={Logo} alt="Voxxy logo" />
+            <LogoIcon style={{marginBottom: '4px'}} src={Logo} alt="Voxxy logo" />
           </GoBackButton>
         </AdminHeroContainer>
       </AdminHero>

@@ -5,6 +5,7 @@ import CuisineChat from "./CuisineChat";
 import LoadingScreenUser from "./LoadingScreenUser";
 import mixpanel from "mixpanel-browser";
 import { UserContext } from "../context/user";
+import { Users, Zap, HelpCircle, Leaf } from 'lucide-react';
 
 export default function AIRecommendations({
   activity,
@@ -24,6 +25,8 @@ export default function AIRecommendations({
 
   const { id, responses, activity_location, date_notes } = activity;
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
+  const totalParticipants = activity.participants.length + 1
 
   useEffect(() => {
     setLoading(true);
@@ -377,37 +380,54 @@ export default function AIRecommendations({
 
       {showGenerateModal && (
         <>
-          <DimOverlay onClick={() => setShowGenerateModal(false)} />
+          <GenerateDim onClick={() => setShowGenerateModal(false)} />
 
           <GenerateModal>
-            <CloseX onClick={() => setShowGenerateModal(false)}>×</CloseX>
+            <ModalHeader>
+              <ModalTitle>Generate Recommendations</ModalTitle>
+            </ModalHeader>
 
-            <ModalTitle>AI Recommendations</ModalTitle>
-            <ModalText>
-              Choose how you’d like to get suggestions. Chat with Voxxy to submit your preferences, or generate recommendations based off the current activity data.
-            </ModalText>
+            <InfoRow>
+              <Users size={18} />
+              <span>{activity.name}</span>
 
-            <OptionButtons>
-              <OptionButton
-                onClick={async () => {
-                  setShowGenerateModal(false);
-                  await fetchRecommendations();
-                }}
-              >
-                Generate
-              </OptionButton>
-              <OptionButton
-                onClick={() => {
-                  setShowGenerateModal(false);
-                  handleStartChat();
-                }}
-              >
-                Chat with Voxxy
-              </OptionButton>
-            </OptionButtons>
+              <span>{responses.length}/{totalParticipants} responses</span>
+            </InfoRow>
+            <ProgressBarContainer>
+              <ProgressBar $percent={Math.round((responses.length / totalParticipants) * 100)} />
+            </ProgressBarContainer>
 
-            <WarningText>
-              ⚠️ Oops, hot off the press! New recs only every hour—helps keep our AI fueled and our planet happy. 🌱            </WarningText>
+            <FullWidthButton
+              $primary
+              onClick={async () => {
+                setShowGenerateModal(false);
+                await fetchRecommendations();
+              }}
+            >
+              <Zap size={20} />
+              <div>
+                <div>Generate Now</div>
+                <small>Load with existing user preferences</small>
+              </div>
+            </FullWidthButton>
+
+            <FullWidthButton onClick={() => { setShowGenerateModal(false); handleStartChat(); }}>
+              <HelpCircle size={20} />
+              <div>
+                <div>Take Quiz First</div>
+                <small>Add your preferences for better results</small>
+              </div>
+            </FullWidthButton>
+
+            <Divider />
+
+            <Footer>
+              <Leaf size={26} />
+              <span>
+                Limiting AI use is one way we’re making our application greener;
+                recommendations can be generated once every hour!
+              </span>
+            </Footer>
           </GenerateModal>
         </>
       )}
@@ -624,72 +644,96 @@ const Photo = styled.img`
   object-fit: cover;
 `;
 
+const GenerateDim = styled(DimOverlay)`
+  backdrop-filter: blur(6px);
+`;
+
 const GenerateModal = styled.div`
   position: fixed;
-  inset: 50% auto auto 50%;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
   background: #2a1e30;
   padding: 1.5rem 2rem;
   border-radius: 1rem;
   z-index: 1002;
-  max-width: 22rem;
   width: 90%;
-  text-align: center;
+  max-width: 24rem;
   color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const ModalHeader = styled.div`
+  text-align: left;
 `;
 
 const ModalTitle = styled.h3`
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  text-align: left;
+  font-size: 1.4rem;
+  font-weight: 500;
 `;
 
-const ModalText = styled.p`
-  margin: 0.75rem 0 1.25rem;
-  font-size: 0.9rem;
-  color: #ccc;
-  text-align: left;
-`;
-
-const OptionButtons = styled.div`
+const InfoRow = styled.div`
   display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  align-items: center;
+  gap: 0.5rem;
+  color: #ccc;
 `;
 
-const OptionButton = styled.button`
-  flex: 1;
-  padding: 0.5rem 0;
-  border: none;
-  border-radius: 0.5rem;
-  background: #9051e1;
-  color: #fff;
-  font-weight: 400;
-  cursor: pointer;
-  transition: background 0.2s ease;
+const ProgressBarContainer = styled.div`
+  background: #333;
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+`;
 
-  &:first-of-type {
-    background: #6c63ff;
-  }
+const ProgressBar = styled.div`
+  height: 100%;
+  background: #cc31e8;
+  width: ${({ $percent }) => $percent}%;
+  transition: width 0.3s ease;
+`;
+
+const FullWidthButton = styled.button`
+  width: 100%;
+  background: ${({ $primary }) => ($primary ? '#cc31e8' : 'transparent')};
+  color: ${({ $primary }) => ($primary ? '#fff' : '#6c63ff')};
+  border: ${({ $primary }) => ($primary ? 'none' : '1px solid #6c63ff')};
+  padding: 1rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+
   &:hover {
-    background: #7a3fc1;
+    ${({ $primary }) =>
+      $primary
+        ? `background: #b22cc0;`
+        : `background: rgba(108, 99, 255, 0.1); color: #6c63ff;`}
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 
-const WarningText = styled.p`
-  font-size: 0.75rem;
-  color: #e0a800;
-  margin: 0;
+const Divider = styled.hr`
+  border: none;
+  border-top: 2px solid #444;
+  margin: 0.5rem 0;
 `;
 
-const CloseX = styled.button`
-  position: absolute;
-  top: 0.5rem;
-  right: 0.75rem;
-  background: none;
-  border: none;
-  color: #aaa;
-  font-size: 1.25rem;
-  cursor: pointer;
+const Footer = styled.div`
+  display: flex;
+  align-items: left;
+  text-align: left;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #7fc97f;
 `;
