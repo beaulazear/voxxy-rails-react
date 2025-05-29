@@ -4,8 +4,8 @@ import styled from 'styled-components';
 const colors = {
     sectionBackground: '#251C2C',
     cardBackground: '#2a1e30',
-    inputBackground: '#0D0B1F',
-    border: '#3B3355',
+    inputBackground: '#221825',
+    border: '#442f4f',
     textPrimary: '#FFFFFF',
     textMuted: '#BEBEBE',
     accent: '#9D60F8',
@@ -57,6 +57,7 @@ const Label = styled.label`
   color: ${colors.textPrimary};
   font-size: 0.875rem;
   margin-bottom: 0.5rem;
+  text-align: left; // Ensure left alignment
 `;
 
 const InputWrapper = styled.div`
