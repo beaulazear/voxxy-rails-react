@@ -1,244 +1,408 @@
 import React, { useState, useContext, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
-import styled, { keyframes } from 'styled-components';
-import { Input, Button, Avatar, message } from "antd";
+import { useNavigate } from "react-router-dom";
+import styled, { keyframes } from "styled-components";
+import { Input, Button, Avatar, Tabs, Form, message, Switch, Modal } from "antd";
+import {
+  EditOutlined,
+  SaveOutlined,
+  LogoutOutlined,
+  DeleteOutlined,
+  UploadOutlined,
+  UserOutlined,
+  SettingOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 import { UserContext } from "../context/user";
-import { EditOutlined, SaveOutlined, LogoutOutlined, DeleteOutlined } from "@ant-design/icons";
 import Woman from "../assets/Woman.jpg";
 import ChooseAvatar from "./ChooseAvatar";
 
 const fadeIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
-
-const gradientAnimation = keyframes`
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 `;
 
 const Container = styled.div`
-  animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
-  padding-top: 100px;
-  padding-bottom: 50px;
-  background-color: #201925;
+  animation: ${fadeIn} 0.6s ease-in-out;
+  padding: 100px 20px 60px;
+  background: #201925;
+  min-height: 100vh;
 `;
 
-const ProfileContainer = styled.div`
-  width: fit-content;
-  margin: 50px auto;
-  margin-top: 15px;
-  padding: 2.5rem;
-  background-color: #2A1E30;
+const Card = styled.div`
+  max-width: 520px;
+  margin: 0 auto;
+  background: #2a1e30;
   border-radius: 16px;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
-  text-align: center;
-  transition: all 0.3s ease-in-out;
-  animation: ${fadeIn} 0.8s ease-in-out;
-
-  @media (max-width: 768px) {
-    margin-left: auto;
-    margin-right: auto;
-  }
-`;
-
-const AvatarContainer = styled.div`
-  position: relative;
-  margin-bottom: 1.5rem;
-  animation: ${fadeIn} 0.8s ease-in-out;
-  background-color: #2A1E30;
-
-  .profile-avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  }
-`;
-
-const UserName = styled.h2`
-  font-size: 1.8rem;
-  font-weight: 700;
   color: #fff;
+`;
+
+const Title = styled.h2`
   margin-bottom: 1rem;
-  transition: all 0.3s ease-in-out;
-
-  ${({ editing }) =>
-    editing &&
-    `
-    opacity: 0.6;
-  `}
+  color: #fff;
+  font-weight: 500;
+  text-align: left;
 `;
 
-const EditContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
+const Subtitle = styled.h3`
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #ddd;
+  font-weight: 500;
+  text-align: left;
+  font-size: 1.1rem;
 `;
 
-const StyledInput = styled(Input)`
-  max-width: 250px;
-  font-size: 1rem;
-  padding: 0.8rem;
-  border-radius: 8px;
-  text-align: center;
-  border: 1px solid #ccc;
-  transition: all 0.2s ease-in-out;
-`;
-
-const StyledButton = styled(Button)`
-  font-size: 1rem;
-  background-color: #4e0f63;
-  color: white;
-  border: none;
-  border-radius: 8px;
+const AvatarWrapper = styled.div`
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  margin: 2px;
+  position: relative;
 
-  &:hover {
-    background-color: #6a1b8a !important;
+  .ant-avatar {
+    border: 2px solid #444;
   }
 
-  &.cancel {
-    background-color: #ccc;
-  }
-
-  &.cancel:hover {
-    background-color: #ddd;
-  }
-
-  &.delete {
-    background-color: red;
-  }
-
-  &.delete:hover {
-    background-color: darkred;
+  &:hover .overlay {
+    opacity: 1;
   }
 `;
 
-const Profile = () => {
+const OverlayIcon = styled(UploadOutlined)`
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  color: #fff;
+  opacity: 0.8;
+`;
+
+const Section = styled.div`
+  margin-top: 1.5rem;
+  text-align: left;
+`;
+
+const StyledLabel = styled.label`
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #ddd;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  justify-content: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+`;
+
+const StyledTabs = styled(Tabs)`
+  .ant-tabs-nav {
+    border-bottom: 1px solid #444;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .ant-tabs-nav-list {
+    display: flex !important;
+    width: 100%;
+  }
+
+  .ant-tabs-nav-list .ant-tabs-tab {
+    flex: 1;
+    text-align: center;
+    background: #322338;
+    border: 1px solid #444;
+    border-bottom: none;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    margin: 0;
+    padding: 8px;
+    color: #ddd;
+    position: relative;
+    z-index: 1;
+  }
+
+  .ant-tabs-nav-list .ant-tabs-tab + .ant-tabs-tab {
+    margin-left: -1px;
+  }
+
+  .ant-tabs-nav-list .ant-tabs-tab-active {
+    background: #3d2c44;
+    color: #fff;
+    border-color: #666;
+    z-index: 2;
+  }
+
+  .ant-tabs-content-holder {
+    background: #2a1e30;
+    border: 1px solid #444;
+    border-radius: 0 8px 8px 8px;
+    padding: 1.25rem;
+    margin-top: -1px;
+  }
+`;
+
+/* Styled versions of Input and TextArea to ensure dark-mode focus styles */
+const StyledInput = styled(Input)`
+  background: #241928;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 4px;
+
+  &:focus,
+  &:hover {
+    background: #241928 !important;
+    color: #fff !important;
+  }
+
+  &::placeholder {
+    color: #bbb;
+    opacity: 1;
+  }
+`;
+
+const StyledTextArea = styled(Input.TextArea)`
+  background: #241928;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 4px;
+
+  &:focus,
+  &:hover {
+    background: #241928 !important;
+    color: #fff !important;
+  }
+
+  &::placeholder {
+    color: #bbb;
+    opacity: 1;
+  }
+`;
+
+export default function Profile() {
   const { user, setUser } = useContext(UserContext);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState(user?.name || "");
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
-
+  const [avatarModalVisible, setAvatarModalVisible] = useState(false);
+  const navigate = useNavigate();
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleLogout = () => {
-    const confirmation = window.confirm("Are you sure you want to log out?");
-    if (confirmation) {
-      fetch(`${API_URL}/logout`, {
-        method: "DELETE",
-        credentials: 'include',
-      }).then(() => {
+    if (window.confirm("Are you sure you want to log out?")) {
+      fetch(`${API_URL}/logout`, { method: "DELETE", credentials: "include" }).then(() => {
         setUser(null);
-        navigate('/');
+        navigate("/");
       });
     }
   };
 
-  const handleSave = () => {
+  const handleSaveName = () => {
     if (!newName.trim()) {
-      message.error("Name cannot be empty.");
-      return;
+      return message.error("Name cannot be empty.");
     }
-
     fetch(`${API_URL}/users/${user.id}`, {
       method: "PATCH",
-      credentials: "include",  // ✅ Fixed
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ name: newName })
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newName }),
     })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Failed to update user");
-        }
-        return response.json();
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((u) => {
+        setUser({ ...user, name: u.name });
+        setIsEditingName(false);
+        message.success("Name updated!");
       })
-      .then(updatedUser => {
-        setUser({ ...user, name: updatedUser.name });
-        setIsEditing(false);
-        message.success("Profile updated successfully!");
-      })
-      .catch(error => console.error("Error updating user:", error));
+      .catch(() => message.error("Update failed."));
   };
 
-  function handleDeleteProfile() {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete your profile? This action is permanent and cannot be undone."
-    );
+  const handleCancelEdit = () => {
+    setNewName(user?.name || "");
+    setIsEditingName(false);
+  };
 
-    if (!confirmDelete) return;
-
-    fetch(`${API_URL}/users/${user.id}`, {
-      method: "DELETE",
-      credentials: "include",
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Failed to delete profile");
-        }
-        return response.json();
-      })
+  const handleDelete = () => {
+    if (!window.confirm("Delete account? This cannot be undone.")) return;
+    fetch(`${API_URL}/users/${user.id}`, { method: "DELETE", credentials: "include" })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then(() => {
-        setUser(null); // ✅ Clears user from context
-        window.location.href = "/"; // ✅ Redirects to home or login page
+        setUser(null);
+        window.location.href = "/";
       })
-      .catch(error => console.error("Error deleting profile:", error));
-  }
+      .catch(() => message.error("Deletion failed."));
+  };
+
+  const tabItems = [
+    {
+      key: "1",
+      label: (
+        <span>
+          <UserOutlined style={{ marginRight: 6, color: "#fff" }} />
+          Profile
+        </span>
+      ),
+      children: (
+        <>
+          <Title>Profile Settings</Title>
+          <Section style={{ display: "flex", alignItems: "flex-start", gap: "2rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <AvatarWrapper onClick={() => setAvatarModalVisible(true)}>
+                <Avatar size={80} src={user?.avatar || Woman} />
+                <OverlayIcon className="overlay" />
+              </AvatarWrapper>
+              <Button
+                onClick={() => setAvatarModalVisible(true)}
+                size="small"
+                style={{
+                  marginTop: "0.75rem",
+                  background: "#3d2c44",
+                  border: "none",
+                  color: "#fff",
+                }}
+              >
+                Change Avatar
+              </Button>
+            </div>
+
+            <div style={{ flex: 1 }}>
+              {!isEditingName ? (
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                  <span style={{ fontSize: "1.25rem", color: "#fff" }}>{user?.name}</span>
+                  <Button
+                    icon={<EditOutlined />}
+                    size="small"
+                    onClick={() => setIsEditingName(true)}
+                  />
+                </div>
+              ) : (
+                <>
+                  <StyledInput
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="Enter new name"
+                  />
+                  <ButtonGroup>
+                    <Button
+                      icon={<SaveOutlined />}
+                      size="small"
+                      onClick={handleSaveName}
+                      style={{ background: "#44617b", color: "#fff", border: "none" }}
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      icon={<CloseOutlined />}
+                      size="small"
+                      onClick={handleCancelEdit}
+                      style={{ background: "#6b6b6b", color: "#fff", border: "none" }}
+                    >
+                      Cancel
+                    </Button>
+                  </ButtonGroup>
+                </>
+              )}
+              <div style={{ marginTop: "1rem" }}>
+                <StyledLabel>Email:</StyledLabel>
+                <span style={{ color: "#fff" }}>{user?.email}</span>
+              </div>
+            </div>
+          </Section>
+
+          <Subtitle>Preferences</Subtitle>
+          <Section>
+            <Form layout="vertical">
+              <Form.Item label={<StyledLabel>Allergies or Restrictions</StyledLabel>}>
+                <StyledTextArea
+                  placeholder="e.g. Vegan, Gluten-free, None"
+                  rows={3}
+                />
+              </Form.Item>
+              <Button
+                type="primary"
+                style={{ background: "#44617b", border: "none" }}
+              >
+                Save Preferences
+              </Button>
+            </Form>
+          </Section>
+        </>
+      ),
+    },
+    {
+      key: "2",
+      label: (
+        <span>
+          <SettingOutlined style={{ marginRight: 6, color: "#fff" }} />
+          Settings
+        </span>
+      ),
+      children: (
+        <>
+          <Title>Notifications & Account</Title>
+          <Subtitle>Notifications</Subtitle>
+          <Section>
+            <Form layout="vertical">
+              <Form.Item>
+                <Switch />{" "}
+                <span style={{ color: "#fff", marginLeft: 8 }}>Receive Email Updates</span>
+              </Form.Item>
+              <Form.Item>
+                <Switch />{" "}
+                <span style={{ color: "#fff", marginLeft: 8 }}>SMS Alerts</span>
+              </Form.Item>
+              <Form.Item>
+                <Switch />{" "}
+                <span style={{ color: "#fff", marginLeft: 8 }}>Push Notifications</span>
+              </Form.Item>
+            </Form>
+          </Section>
+
+          <Subtitle>Account Actions</Subtitle>
+          <Section>
+            <ButtonGroup>
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                onClick={handleDelete}
+                style={{ border: "none" }}
+              >
+                Delete Account
+              </Button>
+              <Button
+                icon={<LogoutOutlined />}
+                onClick={handleLogout}
+                style={{ background: "#6b6b6b", color: "#fff", border: "none" }}
+              >
+                Log Out
+              </Button>
+            </ButtonGroup>
+          </Section>
+        </>
+      ),
+    },
+  ];
 
   return (
     <Container>
-      <ProfileContainer>
-        <AvatarContainer>
-          <Avatar
-            src={user?.avatar || Woman}
-            className="profile-avatar"
-            size={120}
-          />
-        </AvatarContainer>
+      <Card>
+        <StyledTabs
+          defaultActiveKey="1"
+          items={tabItems}
+          animated={{ inkBar: true, tabPane: true }}
+        />
+      </Card>
 
-        {!isEditing ? (
-          <>
-            <UserName>{user?.name || "User"}</UserName>
-            <StyledButton icon={<EditOutlined />} onClick={() => setIsEditing(true)}>
-              Edit Name
-            </StyledButton>
-            <StyledButton className="cancel" icon={<LogoutOutlined />} onClick={() => handleLogout()}>
-              Logout
-            </StyledButton>
-            <br></br><br></br>
-            <StyledButton className="delete" icon={<DeleteOutlined />} onClick={() => handleDeleteProfile()}>
-              Delete Your Account
-            </StyledButton>
-          </>
-        ) : (
-          <EditContainer>
-            <StyledInput value={newName} onChange={(e) => setNewName(e.target.value)} />
-            <StyledButton icon={<SaveOutlined />} onClick={handleSave}>
-              Save
-            </StyledButton>
-          </EditContainer>
-        )}
-      </ProfileContainer>
-      <ChooseAvatar />
+      <Modal
+        title="Choose Avatar"
+        open={avatarModalVisible}
+        footer={null}
+        onCancel={() => setAvatarModalVisible(false)}
+      >
+        <ChooseAvatar onSelect={() => setAvatarModalVisible(false)} />
+      </Modal>
     </Container>
   );
-};
-
-export default Profile;
+}

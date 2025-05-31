@@ -391,7 +391,7 @@ export default function AIRecommendations({
               <Users size={18} />
               <span>{activity.name}</span>
 
-              <span>{responses.length}/{totalParticipants} responses</span>
+              <span>{responses.length}/{totalParticipants} responses submitted</span>
             </InfoRow>
             <ProgressBarContainer>
               <ProgressBar $percent={Math.round((responses.length / totalParticipants) * 100)} />
