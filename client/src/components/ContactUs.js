@@ -6,25 +6,25 @@ import Footer from './Footer';
 import mixpanel from 'mixpanel-browser';
 
 const colors = {
-    sectionBackground: '#251C2C',
-    cardBackground: '#2a1e30',
-    inputBackground: '#0D0B1F',
-    border: '#3B3355',
+    sectionBackground: '#201925',
+    cardBackground: '#251C2C',
+    inputBackground: '#221825',
+    border: '#442f4f',
     textPrimary: '#FFFFFF',
     textMuted: '#BEBEBE',
-    accent: '#9D60F8',
+    accent: '#cc31e8',
 };
 
 const Title = styled(Heading1)`
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(2rem, 5vw, 3rem);
   font-weight: 700;
   line-height: 1.2;
-  margin-bottom: 1.5rem;
+  margin-bottom: .5rem;
   color: ${colors.accent};
 `;
 
 const Subtitle = styled(MutedText)`
-  font-size: 1.125rem;
+  font-size: 1rem;
   color: ${colors.textMuted};
   max-width: 700px;
   margin: 0 auto 2.5rem auto;
@@ -90,6 +90,7 @@ const Label = styled.label`
   color: ${colors.textPrimary};
   font-size: 0.875rem;
   margin-bottom: 0.5rem;
+  text-align: left; // Ensure left alignment
 `;
 
 const InputWrapper = styled.div`
@@ -98,7 +99,7 @@ const InputWrapper = styled.div`
   background-color: ${colors.inputBackground};
   border: 1px solid ${colors.border};
   border-radius: 0.5rem;
-  padding: 0.75rem;
+  padding: 0.6rem;
 `;
 
 const StyledInput = styled.input`
@@ -106,7 +107,7 @@ const StyledInput = styled.input`
   border: none;
   flex: 1;
   color: ${colors.textPrimary};
-  font-size: 1rem;
+  font-size: .75rem;
   outline: none;
 
   &::placeholder {
