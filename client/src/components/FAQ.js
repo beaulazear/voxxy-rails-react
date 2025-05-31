@@ -38,7 +38,7 @@ const HeaderContainer = styled.div`
 const Title = styled.h2`
   font-size: clamp(2rem, 4vw, 2.8rem);
   font-weight: 700;
-  color: ${colors.primary};
+  color: #fff;
   margin: 0 0 1rem 0;
 `;
 

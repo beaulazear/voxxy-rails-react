@@ -13,6 +13,9 @@ class User < ApplicationRecord
   validates :password, presence: true, length: { minimum: 6 }, if: -> { new_record? || !password.nil? }
   validates :password_confirmation, presence: true, if: -> { password.present? }
 
+  before_validation :set_defaults_for_notifications, on: :create
+
+
   def verify!
     update_columns(confirmed_at: Time.current, confirmation_token: nil)
   end
@@ -38,5 +41,12 @@ class User < ApplicationRecord
 
   def generate_confirmation_token
     self.confirmation_token = SecureRandom.hex(10) unless self.confirmed_at
+  end
+
+  def set_defaults_for_notifications
+    self.preferences ||= ""
+    self.text_notifications = true if text_notifications.nil?
+    self.email_notifications = true if email_notifications.nil?
+    self.push_notifications = true if push_notifications.nil?
   end
 end

@@ -44,21 +44,10 @@ const AvatarContainer = styled.div`
   gap: 1.5rem;
   flex-wrap: wrap;
   max-width: 500px;
-  margin: 80px auto;
-  padding: 2.5rem;
   background-color: #2A1E30;
-  border-radius: 16px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
   text-align: center;
   transition: all 0.3s ease-in-out;
   margin-top: 0px;
-
-  @media (max-width: 768px) {
-    padding: 2rem;
-    margin: 50px auto;
-    margin-left: 10px;
-    margin-right: 10px;
-  }
 `;
 
 const Title = styled.h2`
@@ -135,7 +124,7 @@ const LoadingText = styled.p`
   }
 `;
 
-export default function ChooseAvatar() {
+export default function ChooseAvatar({ onSelect }) {
   const { user, setUser } = useContext(UserContext);
   const [selectedAvatar, setSelectedAvatar] = useState(user?.avatar || "");
   const [isLoading, setIsLoading] = useState(false);
@@ -157,6 +146,7 @@ export default function ChooseAvatar() {
       if (response.ok) {
         setUser((prevUser) => ({ ...prevUser, avatar: avatarPath }));
         setSelectedAvatar(avatarPath);
+        onSelect()
       } else {
         console.error("Failed to update avatar:", await response.json());
       }
