@@ -27,7 +27,7 @@ const ModalContainer = styled.div`
 
 const ProgressBarContainer = styled.div`
   height: 6px;
-  background: #333;
+  background: #221825;
   width: 100%;
 `;
 const ProgressBar = styled.div`
@@ -57,29 +57,41 @@ const Label = styled.label`
   font-weight: 600;
   color: #ddd;
   text-align: left;
+  margin-top: 1.2rem; 
+  &:first-child {
+    margin-top: 0; // No extra space before the first label
+  }
 `;
 
 const Input = styled.input`
-  width: 100%;
+  width: 96%;
   padding: 0.6rem;
-  background: #2a2a2a;
-  border: 1px solid #444;
+  background: #221825;
+  border: 1px solid #453050;
   border-radius: 6px;
   color: #eee;
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
   &::placeholder { color: #777; }
-  &:focus { border-color: #6c63ff; outline: none; }
+  &:focus {
+    border-color: #cc31e8;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(204, 49, 232, 0.5); // Outer glow
+  }
 `;
 const Textarea = styled.textarea`
-  width: 100%;
-  padding: 0.6rem;
-  background: #2a2a2a;
-  border: 1px solid #444;
+  width: 98%;
+  padding: 0.4rem;
+  background: #221825;
+  border: 1px solid #453050;
   border-radius: 6px;
   color: #eee;
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
   &::placeholder { color: #777; }
-  &:focus { border-color: #6c63ff; outline: none; }
+  &:focus {
+    border-color: #cc31e8;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(204, 49, 232, 0.5); // Outer glow
+  }
 `;
 
 const Tabs = styled.div`
@@ -89,7 +101,7 @@ const Tabs = styled.div`
 const Tab = styled.button`
   flex: 1;
   padding: 0.5rem;
-  background: ${({ $active }) => ($active ? "#cc31e8" : "#333")};
+  background: ${({ $active }) => ($active ? "#cc31e8" : "#221825")};
   color: ${({ $active }) => ($active ? "white" : "#ccc")};
   border: none;
   cursor: pointer;
@@ -105,8 +117,8 @@ const ButtonRow = styled.div`
 
 const Button = styled.button`
   background: ${({ $primary }) => ($primary ? '#cc31e8' : 'transparent')};
-  color: ${({ $primary }) => ($primary ? 'white' : '#6c63ff')};
-  border: ${({ $primary }) => ($primary ? 'none' : '1px solid #6c63ff')};
+  color: ${({ $primary }) => ($primary ? 'white' : '#ffffff')};
+  border: ${({ $primary }) => ($primary ? 'none' : '.2px solid #ffffff')};
   padding: 0.5rem 1rem;
   border-radius: 6px;
   font-size: 0.9rem;
@@ -125,9 +137,9 @@ const Title = styled.h2`
   text-align: left;
 `;
 const Subtitle = styled.p`
-  color: #aaa;
+  color: #a7a1a8;
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   text-align: left;
 `;
 
@@ -290,7 +302,7 @@ export default function LetsMeetFormModal({ onClose }) {
 
                     {step === 3 && (
                         <>
-                            <Label>Invite via Email</Label>
+                            <Label>Invite via Email (optional)</Label>
                             <Textarea
                                 rows={2}
                                 value={participantsInput}
