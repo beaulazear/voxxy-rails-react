@@ -411,7 +411,7 @@ export default function Profile() {
       ),
       children: (
         <>
-          <Subtitle>Notification Preferences</Subtitle>
+          <Subtitle style={{marginTop: '0'}}>Notification Preferences</Subtitle>
           <Section>
             <Form layout="vertical">
               <Form.Item>
