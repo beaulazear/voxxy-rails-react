@@ -93,9 +93,8 @@ const CountWrapper = styled.div`
   gap: 4px;
 `;
 
-export default function TimeSlots({ currentActivity, pinned, setPinned, toggleVote, handleTimeSlotDelete }) {
+export default function TimeSlots({ currentActivity, pinned, setPinned, toggleVote, handleTimeSlotDelete, isOwner }) {
     const { user } = useContext(UserContext);
-    const isOwner = currentActivity.user.id === user.id
 
     const responseSubmitted = currentActivity.responses?.some(
         (res) =>
@@ -106,21 +105,25 @@ export default function TimeSlots({ currentActivity, pinned, setPinned, toggleVo
     const [activeTab, setActiveTab] = useState(responseSubmitted ? 'available' : 'yours');
 
     const activityId = currentActivity.id;
-
     useEffect(() => {
-
         const availResponses = currentActivity.responses.filter(
             res => res.notes === 'LetsMeetAvailabilityResponse' && res.availability
         );
+
         const countMap = {};
         availResponses.forEach(({ availability }) => {
+            // Handle "open: true" case (skip it for now since there's no specific times)
+            if (availability.open === true) return;
+
             Object.entries(availability).forEach(([date, times]) => {
+                if (!Array.isArray(times)) return; // Skip invalid entries
                 if (!countMap[date]) countMap[date] = {};
                 times.forEach(time => {
                     countMap[date][time] = (countMap[date][time] || 0) + 1;
                 });
             });
         });
+
         setAvailabilityMap(countMap);
     }, [activityId, currentActivity.responses]);
 
