@@ -32,6 +32,8 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite 
     }));
   };
 
+  //compare this to context update after finalization
+
   const handleInviteClick = () => {
     setSelectedParticipant(null);
     setShowInvitePopup(true);

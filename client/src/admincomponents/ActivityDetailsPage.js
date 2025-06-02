@@ -120,21 +120,12 @@ function ActivityDetailsPage({ activityId, onBack }) {
   };
 
   async function handleUpdate(newData) {
-    const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${newData.id}`, {
-      credentials: "include"
-    });
-    const fullUpdatedActivity = await res.json();
   
     setUser((prevUser) => ({
       ...prevUser,
       activities: prevUser.activities.map((act) =>
-        act.id === newData.id ? fullUpdatedActivity : act
+        act.id === newData.id ? newData : act
       ),
-    }));
-    setCurrentActivity((prevActivity) => ({
-      ...prevActivity,
-      ...newData,
-      user: prevActivity.user || newData.user || user, 
     }));
   
     setRefreshTrigger((prev) => !prev);
