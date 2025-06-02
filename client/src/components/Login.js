@@ -57,9 +57,9 @@ const FormContainer = styled.div`
   padding: 0;
 `;
 
-const Heading = styled.h1`
-  font-size: 2rem;
-  font-weight: 700;
+const Heading = styled.h4`
+  font-size: 1.5rem;
+  font-weight: 600;
   margin-bottom: 1rem;
   color: #fff;
   text-align: center;
@@ -268,7 +268,7 @@ const Login = () => {
       <SectionContainer>
         <SectionInner>
           <Title><Sparkles size={28} style={{color: '#cc31e8', height: 'fit-content'}}/> Welcome to Voxxy Beta</Title>
-          <Subtitle>You’re getting full access to the Voxxy experience and joining us as we rapidly grow and evolve. As an early user, your feedback will directly shape our product direction and help build the future of group planning.</Subtitle>
+          <Subtitle>You’re getting full access to the Voxxy experience and joining us as we rapidly grow and evolve.</Subtitle>
         </SectionInner>
       </SectionContainer>
       <FormContainer>
