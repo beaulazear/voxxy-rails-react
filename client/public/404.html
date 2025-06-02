@@ -2,13 +2,31 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting...</title>
-    <!-- Importing the Caveat font -->
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voxxy – Page Not Found</title>
+
+    <!-- Import Montserrat Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
-        /* Keyframes for fade-in animation */
+        :root {
+            --background: #201925;
+            --textPrimary: #FFFFFF;
+            --accent: #cc31e8;
+            --faded: rgba(157, 96, 248, 0.15);
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -19,39 +37,83 @@
             }
         }
 
-        /* Styling the page */
         body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--background);
+            color: var(--textPrimary);
+            font-family: 'Montserrat', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #6a0dad, #9b19f5);
-            color: white;
             text-align: center;
+            min-height: 100vh;
             animation: fadeIn 1.5s ease-in-out;
         }
 
-        h1 {
-            font-size: 5rem;
-            /* Increased font size for emphasis */
-            font-weight: 600;
-            font-family: 'Caveat', cursive;
-            line-height: 1.2;
-            /* Added line spacing for better readability */
-            margin-bottom: 20px;
+        .logo {
+            width: clamp(160px, 40vw, 280px);
+            height: auto;
+            margin-bottom: 1.5rem;
+        }
+
+        .spinner-wrapper {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .spinner {
+            position: relative;
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+        }
+
+        .spinner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 6px solid var(--faded);
+            box-sizing: border-box;
+        }
+
+        .spinner::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 6px solid transparent;
+            border-top: 6px solid var(--accent);
+            animation: spin 1s linear infinite;
+            box-sizing: border-box;
         }
 
         p {
             font-size: 1.2rem;
-            font-family: Arial, sans-serif;
+            color: var(--textPrimary);
+            margin-top: 0.75rem;
         }
 
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 4rem;
-                /* Adjust font size for smaller screens */
+        @media (max-width: 640px) {
+            .spinner {
+                width: 70px;
+                height: 70px;
+            }
+
+            .spinner::before,
+            .spinner::after {
+                border-width: 4px;
             }
 
             p {
@@ -59,17 +121,20 @@
             }
         }
     </style>
+
     <script type="text/javascript">
-        // JavaScript to redirect the user to the React app's home page
         setTimeout(function () {
-            window.location.replace('/#/'); // Redirect to the React app home
-        }, 1500); // Wait for 3 seconds before redirecting
+            window.location.replace('/#/'); // Redirect to app home
+        }, 1500);
     </script>
 </head>
 
 <body>
-    <h1>Your Voxxy Experience is Loading</h1>
-    <p>Please wait a moment...</p>
+    <img class="logo" src="HEADER.svg" alt="Voxxy Logo" />
+    <p>Let’s plan your next adventure</p>
+    <div class="spinner-wrapper">
+        <div class="spinner"></div>
+    </div>
 </body>
 
 </html>
