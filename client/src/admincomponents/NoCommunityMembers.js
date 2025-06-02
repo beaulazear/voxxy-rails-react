@@ -3,7 +3,7 @@ import styled from "styled-components";
 import SmallTriangle from "../assets/SmallTriangle.png";
 import colors from '../styles/Colors';
 
-export default function NoCommunityMembers() {
+export default function NoCommunityMembers({ onCreateBoard }) {
   return (
     <Hero>
       <Overlay />
@@ -13,7 +13,7 @@ export default function NoCommunityMembers() {
         <Subtitle>
           Grow your community by creating activities and inviting friends!
         </Subtitle>
-        <ActionButton>Make Some Memories</ActionButton>
+        <ActionButton onClick={onCreateBoard}>Make Some Memories</ActionButton>
       </Content>
     </Hero>
   );

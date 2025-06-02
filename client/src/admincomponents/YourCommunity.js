@@ -5,7 +5,7 @@ import SmallTriangle from "../assets/SmallTriangle.png";
 import NoCommunityMembers from "./NoCommunityMembers";
 import colors from '../styles/Colors';
 
-export default function YourCommunity({ showInvitePopup, onSelectUser }) {
+export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateBoard }) {
   const { user } = useContext(UserContext);
   const [showAll, setShowAll] = useState(false);
   const [selectedPeer, setSelectedPeer] = useState(null);
@@ -65,7 +65,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser }) {
   const community = Array.from(allUsersMap.values())
     .sort((a, b) => b.count - a.count || a.user.name.localeCompare(b.user.name));
 
-  if (community.length === 0) return <NoCommunityMembers />;
+  if (community.length === 0) return <NoCommunityMembers onCreateBoard={onCreateBoard} />;
   const displayed = showAll ? community : community.slice(0, 5);
 
   function handleCardClick(peerData) {

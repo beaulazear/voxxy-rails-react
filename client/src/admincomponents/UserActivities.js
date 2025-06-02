@@ -730,7 +730,7 @@ function UserActivities() {
           ) : (
             <NoBoardsDisplay onCreateBoard={() => setShowActivities(true)} />
           )}
-          <YourCommunity />
+          <YourCommunity onCreateBoard={() => setShowActivities(true)} />
         </DashboardContainer>
       </Padding>
     </>
