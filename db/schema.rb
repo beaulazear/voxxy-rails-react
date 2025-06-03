@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_31_154223) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_03_204634) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -18,7 +18,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_31_154223) do
     t.bigint "user_id", null: false
     t.string "activity_name"
     t.string "activity_location"
-    t.integer "group_size"
+    t.string "group_size"
     t.string "date_notes"
     t.string "activity_type"
     t.datetime "created_at", null: false
@@ -30,6 +30,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_31_154223) do
     t.text "welcome_message"
     t.boolean "completed", default: false, null: false
     t.boolean "finalized", default: false
+    t.integer "radius"
     t.index ["user_id"], name: "index_activities_on_user_id"
   end
 
