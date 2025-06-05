@@ -23,7 +23,7 @@ export default function AIRecommendations({
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
 
-  const { id, responses, activity_location, date_notes } = activity;
+  const { id, responses, activity_location, date_notes, radius } = activity;
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
   const totalParticipants = activity.participants.length + 1
@@ -51,7 +51,7 @@ export default function AIRecommendations({
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ activity_location, date_notes, activity_id: id }),
+          body: JSON.stringify({ activity_location, radius, date_notes, activity_id: id }),
         }
       );
       if (!res.ok) throw new Error("❌ Error fetching trending");
@@ -64,7 +64,7 @@ export default function AIRecommendations({
     } finally {
       setLoading(false);
     }
-  }, [API_URL, activity_location, date_notes, pinnedActivities, id]);
+  }, [API_URL, activity_location, date_notes, pinnedActivities, id, radius]);
 
   const fetchRecommendations = useCallback(async (overrideResponses = null) => {
     const useThese = overrideResponses ?? responses;       // 👈 either the passed‑in array or the prop

@@ -1,5 +1,5 @@
 // CuisineChat.js
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import styled from 'styled-components';
 import { UserContext } from '../context/user';
 import mixpanel from 'mixpanel-browser';
@@ -13,7 +13,7 @@ const Overlay = styled.div`
 
 const ModalContainer = styled.div`
   position: fixed;
-  top: 50%;
+  top: 45%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 90%;
@@ -121,8 +121,8 @@ const RadioCardContainer = styled.div`
 `;
 
 const RadioCard = styled.div`
-  flex: 1 1 30%;
-  padding: 1rem 0;
+  flex: 1 1 28%;
+  padding: 0.7rem 0;
   text-align: center;
   border-radius: 8px;
   background: #2a2a2a;
@@ -130,7 +130,7 @@ const RadioCard = styled.div`
   color: #eee;
   cursor: pointer;
   user-select: none;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -142,57 +142,8 @@ const RadioCard = styled.div`
 `;
 
 const IconWrapper = styled.div`
-  font-size: 1.5rem;
-  margin-bottom: 0.4rem;
-`;
-
-const DropdownContainer = styled.div`
-  position: relative;
-  margin-bottom: 1rem;
-`;
-
-const DropdownHeader = styled.div`
-  padding: 0.6rem;
-  background: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 6px;
-  color: #eee;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  &:focus {
-    outline: none;
-    border-color: #6c63ff;
-  }
-`;
-
-const DropdownList = styled.div`
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 6px;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1000;
-`;
-
-const OptionItem = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 0.5rem;
-  cursor: pointer;
-  &:hover {
-    background: #333;
-  }
-  input {
-    margin-right: 0.5rem;
-    accent-color: #cc31e8;
-  }
-  color: #ddd;
+  font-size: 1.4rem;
+  margin-bottom: 0.3rem;
 `;
 
 const PillContainer = styled.div`
@@ -270,30 +221,34 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
   const totalSteps = 4;
   const percent = (step / totalSteps) * 100;
 
-  // Step 1: Cuisine selections
-  const mainCuisines = [
-    'Open to Surprises',
+  console.log(user)
+
+  // Step 1: Cuisine selections (nine popular cuisines + 'Surprise me!')
+  const cuisineOptions = [
     'Italian',
     'Mexican',
-    'Asian Fusion',
+    'Chinese',
+    'Japanese',
+    'Indian',
+    'Thai',
+    'Mediterranean',
     'American',
+    'Surprise me!',
   ];
-  const extraCuisines = [
-    'Spanish', 'French', 'Greek', 'Mediterranean', 'Indian', 'Thai',
-    'Chinese', 'Japanese', 'Korean', 'Vietnamese', 'Middle Eastern',
-    'Lebanese', 'Turkish', 'German', 'British', 'Brazilian', 'Peruvian',
-    'Ethiopian', 'Moroccan', 'Russian', 'Polish', 'Caribbean', 'Cajun',
-    'Southern', 'BBQ', 'Steakhouse', 'Seafood', 'Sushi', 'Pizza', 'Burgers',
-    'Sandwiches', 'Tapas', 'Other (specify)'
-  ];
-  const [selectedCuisines, setSelectedCuisines] = useState(['Open to Surprises']);
-  const [dropdownOpen1, setDropdownOpen1] = useState(false);
+  const [selectedCuisines, setSelectedCuisines] = useState(['Surprise me!']);
   const [otherCuisine, setOtherCuisine] = useState('');
 
-  // Step 2: Atmosphere selections (nine options + custom)
+  // Step 2: Atmosphere selections (nine options)
   const atmosphereOptions = [
-    'Casual', 'Trendy', 'Romantic', 'Outdoor',
-    'Family Friendly', 'Cozy', 'Rooftop', 'Waterfront', 'Historic'
+    'Casual',
+    'Trendy',
+    'Romantic',
+    'Outdoor',
+    'Family Friendly',
+    'Cozy',
+    'Rooftop',
+    'Waterfront',
+    'Historic',
   ];
   const [selectedAtmospheres, setSelectedAtmospheres] = useState([]);
   const [otherAtmosphere, setOtherAtmosphere] = useState('');
@@ -309,18 +264,6 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
   // Step 4: Dietary preferences
   const [dietary, setDietary] = useState(user.preferences || '');
 
-  // Close dropdown1 on outside click
-  const refDropdown1 = useRef(null);
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (refDropdown1.current && !refDropdown1.current.contains(e.target)) {
-        setDropdownOpen1(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
   // Scroll input into view on focus
   const handleInputFocus = (e) => {
     const target = e.target;
@@ -331,46 +274,31 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
 
   // Step 1 handlers
   const toggleCuisine = (cuisine) => {
-    if (cuisine === 'Open to Surprises') {
-      if (selectedCuisines.includes('Open to Surprises')) {
-        setSelectedCuisines([]);
-      } else {
-        setSelectedCuisines(['Open to Surprises']);
-        setOtherCuisine('');
-      }
-    } else {
-      let filtered = selectedCuisines.filter((c) => c !== 'Open to Surprises');
-      if (filtered.includes(cuisine)) {
-        filtered = filtered.filter((c) => c !== cuisine);
-      } else {
-        filtered = [...filtered, cuisine];
-      }
-      setSelectedCuisines(filtered);
-    }
-  };
-  const handleExtraCuisineChange = (cuisine, checked) => {
-    if (cuisine === 'Other (specify)') {
-      if (checked) {
-        setSelectedCuisines((prev) => {
-          const noSurprises = prev.filter((c) => c !== 'Open to Surprises');
-          return [...noSurprises, cuisine];
-        });
-      } else {
-        setSelectedCuisines((prev) => prev.filter((c) => c !== cuisine));
-        setOtherCuisine('');
-      }
+    if (cuisine === 'Surprise me!') {
+      setSelectedCuisines(['Surprise me!']);
+      setOtherCuisine('');
       return;
     }
-    setSelectedCuisines((prev) => {
-      const noSurprises = prev.filter((c) => c !== 'Open to Surprises');
-      if (checked) {
-        return [...noSurprises, cuisine];
-      }
-      return noSurprises.filter((c) => c !== cuisine);
-    });
+    // If any other cuisine is chosen, unselect 'Surprise me!'
+    const withoutSurprise = selectedCuisines.filter((c) => c !== 'Surprise me!');
+    if (withoutSurprise.includes(cuisine)) {
+      setSelectedCuisines(withoutSurprise.filter((c) => c !== cuisine));
+    } else {
+      setSelectedCuisines([...withoutSurprise, cuisine]);
+    }
+  };
+  const addCustomCuisine = () => {
+    const trimmed = otherCuisine.trim();
+    if (!trimmed) return;
+    // If adding a custom cuisine, unselect 'Surprise me!'
+    const withoutSurprise = selectedCuisines.filter((c) => c !== 'Surprise me!');
+    if (!withoutSurprise.includes(trimmed)) {
+      setSelectedCuisines([...withoutSurprise, trimmed]);
+    }
+    setOtherCuisine('');
   };
 
-  // Step 2 handlers (nine options + custom)
+  // Step 2 handlers
   const toggleAtmosphereOption = (atm) => {
     setSelectedAtmospheres((prev) =>
       prev.includes(atm) ? prev.filter((a) => a !== atm) : [...prev, atm]
@@ -407,11 +335,7 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
   };
 
   const handleSubmit = async () => {
-    const cuisinesText = selectedCuisines
-      .map((c) =>
-        c === 'Other (specify)' ? `Other: ${otherCuisine}` : c
-      )
-      .join(', ');
+    const cuisinesText = selectedCuisines.join(', ');
     const atmosText = selectedAtmospheres.join(', ');
     const budgetText = selectedBudget;
     const dietaryText = dietary || 'None';
@@ -509,8 +433,7 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
             {step === 4 && 'Dietary / Food Preferences'}
           </Title>
           <Subtitle>
-            {step === 1 &&
-              'Select main cuisines or choose more options.'}
+            {step === 1 && 'Select up to nine popular cuisines or add your own.'}
             {step === 2 &&
               'Choose from the nine atmosphere options, or add your own.'}
             {step === 3 && 'Pick one budget option.'}
@@ -522,80 +445,59 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
           {/* Step 1: Cuisine */}
           {step === 1 && (
             <>
-              <Label>Main Cuisines</Label>
+              <Label>Choose Cuisines</Label>
               <RadioCardContainer>
-                {mainCuisines.map((cuisine) => (
+                {cuisineOptions.map((cuisine) => (
                   <RadioCard
                     key={cuisine}
                     selected={selectedCuisines.includes(cuisine)}
                     onClick={() => toggleCuisine(cuisine)}
                   >
                     <IconWrapper>
-                      {cuisine === 'Open to Surprises'
-                        ? '❓'
-                        : cuisine === 'Italian'
-                          ? '🍝'
-                          : cuisine === 'Mexican'
-                            ? '🌮'
-                            : cuisine === 'Asian Fusion'
-                              ? '🍜'
-                              : '🍔'}
+                      {cuisine === 'Italian'
+                        ? '🍝'
+                        : cuisine === 'Mexican'
+                          ? '🌮'
+                          : cuisine === 'Chinese'
+                            ? '🥡'
+                            : cuisine === 'Japanese'
+                              ? '🍣'
+                              : cuisine === 'Indian'
+                                ? '🍛'
+                                : cuisine === 'Thai'
+                                  ? '🥘'
+                                  : cuisine === 'Mediterranean'
+                                    ? '🫒'
+                                    : cuisine === 'American'
+                                      ? '🍔'
+                                      : '🎲'}
                     </IconWrapper>
                     {cuisine}
                   </RadioCard>
                 ))}
               </RadioCardContainer>
 
-              <Label>More Cuisine Options</Label>
-              <DropdownContainer ref={refDropdown1}>
-                <DropdownHeader
-                  tabIndex={0}
-                  onClick={() => setDropdownOpen1(!dropdownOpen1)}
+              <Label>Other (specify)</Label>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <Input
+                  placeholder="Type cuisine…"
+                  value={otherCuisine}
+                  onChange={(e) => setOtherCuisine(e.target.value)}
+                  onFocus={handleInputFocus}
+                />
+                <AddButton
+                  onClick={addCustomCuisine}
+                  disabled={!otherCuisine.trim()}
                 >
-                  {dropdownOpen1
-                    ? 'Select more cuisines…'
-                    : 'Select more cuisines…'}
-                  <span>{dropdownOpen1 ? '▲' : '▼'}</span>
-                </DropdownHeader>
-                {dropdownOpen1 && (
-                  <DropdownList>
-                    {extraCuisines.map((cuisine) => (
-                      <OptionItem key={cuisine}>
-                        <input
-                          type="checkbox"
-                          checked={selectedCuisines.includes(cuisine)}
-                          onChange={(e) =>
-                            handleExtraCuisineChange(
-                              cuisine,
-                              e.target.checked
-                            )
-                          }
-                        />
-                        {cuisine}
-                        {cuisine === 'Other (specify)' &&
-                          selectedCuisines.includes(cuisine) && (
-                            <Input
-                              placeholder="Type cuisine…"
-                              value={otherCuisine}
-                              onChange={(e) =>
-                                setOtherCuisine(e.target.value)
-                              }
-                              onFocus={handleInputFocus}
-                            />
-                          )}
-                      </OptionItem>
-                    ))}
-                  </DropdownList>
-                )}
-              </DropdownContainer>
+                  Add
+                </AddButton>
+              </div>
 
               {selectedCuisines.length > 0 && (
                 <PillContainer>
                   {selectedCuisines.map((c) => (
                     <Pill key={c}>
-                      {c === 'Other (specify)'
-                        ? `Other: ${otherCuisine || ''}`
-                        : c}
+                      {c}
                       <RemoveIcon
                         onClick={() =>
                           handleRemovePill(
@@ -700,11 +602,7 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
                     onClick={() => setSelectedBudget(opt.label)}
                   >
                     <IconWrapper>{opt.icon}</IconWrapper>
-                    {opt.label === 'No preference'
-                      ? 'No preference'
-                      : opt.label === 'Budget-friendly'
-                        ? 'Budget-friendly'
-                        : 'Prefer upscale'}
+                    {opt.label}
                   </RadioCard>
                 ))}
               </RadioCardContainer>
@@ -732,11 +630,7 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
           ) : (
             <div />
           )}
-          <Button
-            $primary
-            onClick={handleNext}
-            disabled={isNextDisabled()}
-          >
+          <Button $primary onClick={handleNext} disabled={isNextDisabled()}>
             {step < totalSteps ? 'Next' : 'Finish'}
           </Button>
         </ButtonRow>

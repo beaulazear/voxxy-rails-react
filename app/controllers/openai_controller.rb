@@ -39,6 +39,7 @@ class OpenaiController < ApplicationController
     activity_location  = params[:activity_location]
     date_notes         = params[:date_notes]
     activity_id        = params[:activity_id]
+    radius             = params[:radius]
 
     if user_responses.blank?
       render json: { error: "No responses provided" }, status: :unprocessable_entity and return
@@ -50,7 +51,7 @@ class OpenaiController < ApplicationController
                 "#{generate_cache_key(user_responses, activity_location, date_notes)}"
 
     recommendations = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
-      fetch_recommendations_from_openai(user_responses, activity_location, date_notes)
+      fetch_recommendations_from_openai(user_responses, activity_location, date_notes, radius)
     end
 
     if recommendations.present?
@@ -87,6 +88,7 @@ class OpenaiController < ApplicationController
     activity_location = params[:activity_location]
     date_notes        = params[:date_notes]
     activity_id       = params[:activity_id]
+    radius            = params[:radius]
 
     if activity_location.blank? || date_notes.blank?
       render json: { error: "Missing required details" }, status: :unprocessable_entity and return
@@ -99,7 +101,7 @@ class OpenaiController < ApplicationController
                 "trending_recommendations_#{key_hash}"
 
     recommendations = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
-      fetch_trending_recommendations_from_openai(activity_location, date_notes)
+      fetch_trending_recommendations_from_openai(activity_location, date_notes, radius)
     end
 
     if recommendations.present?
@@ -135,13 +137,14 @@ class OpenaiController < ApplicationController
     user_responses    = params[:responses]
     activity_location = params[:activity_location]
     date_notes        = params[:date_notes]
+    radius = 10
 
     if user_responses.blank? || activity_location.blank? || date_notes.blank?
       return render json: { error: "Missing required parameters" }, status: :unprocessable_entity
     end
 
     # Fetch from OpenAI
-    recs = fetch_recommendations_from_openai(user_responses, activity_location, date_notes)
+    recs = fetch_recommendations_from_openai(user_responses, activity_location, date_notes, radius)
 
     if recs
       Rails.cache.write(cache_key, recs, expires_in: 1.hour)
@@ -168,13 +171,22 @@ class OpenaiController < ApplicationController
 
   private
 
-  def fetch_trending_recommendations_from_openai(activity_location, date_notes)
+  def fetch_trending_recommendations_from_openai(activity_location, date_notes, radius)
     client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
     prompt = <<~PROMPT
-      You are an AI assistant that provides restaurant recommendations based solely on location and timing.
-      The event is taking place in #{activity_location}, planned for #{date_notes}.
-      Recommend 5 trending or popular restaurants in the area.
-      Provide each recommendation in **valid JSON format** using the following structure:
+      You are an AI assistant that provides restaurant recommendations based on:
+        • a central location (#{activity_location})
+        • a date (#{date_notes})
+        • and a strict radius of #{radius} mile#{ radius == 1 ? "" : "s" }.
+
+      REQUIREMENTS:
+      1. Only include restaurants located *within* #{radius} mile#{ radius == 1 ? "" : "s" } of "#{activity_location}".#{'  '}
+        If you are uncertain of exact distance, choose places in neighborhoods or landmarks clearly inside that boundary.#{'  '}
+        Do NOT list any restaurant that you know (or strongly suspect) is beyond #{radius} mile#{ radius == 1 ? "" : "s" }.
+      2. Avoid large chains or obvious tourist spots. Prioritize unique hole‐in‐the‐wall or locally buzzy places.
+      3. Return 5 unique recommendations.
+      4. Keep the tone warm and human — avoid calling people "users" or referencing individual budgets.
+      5. Return EXACTLY valid JSON—no extra commentary or markdown fences. The JSON must fit this schema:
 
       {
         "restaurants": [
@@ -182,14 +194,14 @@ class OpenaiController < ApplicationController
             "name": "Restaurant Name",
             "price_range": "$ - $$$$",
             "description": "Short description of the restaurant, including cuisine type and atmosphere.",
-            "reason": "Explain why this restaurant is trending or popular in this area.",
+            "reason": "Explain why this restaurant is trending or popular in this area—focus on uniqueness or recent buzz.",
             "hours": "Hours of operation (e.g., Mon-Fri: 9 AM - 10 PM, Sat-Sun: 8 AM - 11 PM)",
             "website": "Valid website link or null if unknown",
             "address": "Restaurant address or 'Not available'"
           }
         ]
       }
-      - The response must be valid JSON.
+      - The response must be valid JSON—no surrounding text or code fences.
     PROMPT
 
     response = client.chat(
@@ -213,47 +225,74 @@ class OpenaiController < ApplicationController
     end
   end
 
-  def fetch_recommendations_from_openai(user_responses, activity_location, date_notes)
+  def fetch_recommendations_from_openai(responses, activity_location, date_notes, radius)
     client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
-    prompt = <<~PROMPT
-      You are an AI assistant that provides restaurant recommendations based on user preferences.
-      The user has provided the following preferences: #{user_responses}.
-      This event will take place in #{activity_location}, and it is planned for #{date_notes}.
 
-      Considering these details, recommend 5 restaurants that best match the user's preferences and location.
-      Provide each recommendation in **valid JSON format** using the following structure:
+    # 1) Extract only the "notes" field from each response
+    notes_text = if responses.is_a?(Array)
+      responses
+        .map { |r| r.is_a?(Hash) ? r["notes"].to_s.strip : r.to_s.strip }
+        .reject(&:empty?)
+        .join("\n\n")
+    else
+      responses.to_s.strip
+    end
+
+    # 2) Build a prompt that strictly enforces the radius requirement
+    prompt = <<~PROMPT
+      You are an AI assistant that provides restaurant recommendations based on:
+        • user dietary & other preferences
+        • a central location (#{activity_location})
+        • a date (#{date_notes})
+        • and a strict radius of #{radius} mile#{ radius == 1 ? "" : "s" }.
+
+      The user’s preferences (exactly as they typed them) are:
+      #{notes_text}
+
+      IMPORTANT:
+      1. **PRIORITIZE dietary preferences** (e.g., allergies, vegan, gluten-free) above all else.  
+        If they say “Vegan please!” or “No shellfish,” those conditions must drive your picks.
+      2. Next, honor budget constraints (“Prefer upscale,” etc.).
+      3. Then consider ambiance (“Rooftop,” “Cozy,” etc.)—but only after dietary & budget are satisfied.
+      4. Only include restaurants located *within* #{radius} mile#{ radius == 1 ? "" : "s" } of "#{activity_location}".  
+        Do NOT list any restaurant that you know (or strongly suspect) is outside that boundary.
+      5. Keep the tone warm and human — avoid calling people "users" or referencing individual budgets.
+      6. Avoid large chains or obvious tourist spots—seek out hole-in-the-wall or buzz-worthy places.
+
+      Return exactly **5** restaurants that match these criteria. Output must be valid JSON (no extra commentary, no markdown fences) in this structure:
 
       {
         "restaurants": [
           {
-            "name": "Restaurant Name",
+            "name":        "Restaurant Name",
             "price_range": "$ - $$$$",
-            "description": "Short description of the restaurant, including cuisine type and atmosphere.",
-            "reason": "Explain why this recommendation was chosen based on user feedback.",
-            "hours": "Hours of operation (e.g., Mon-Fri: 9 AM - 10 PM, Sat-Sun: 8 AM - 11 PM)",
-            "website": "Valid website link or null if unknown",
-            "address": "Restaurant address or 'Not available'"
+            "description": "Short description (cuisine + atmosphere).",
+            "reason":      "Why this recommendation was chosen based on the user’s dietary, budget, and ambiance preferences.",
+            "hours":       "Hours of operation (e.g., Mon-Fri: 9 AM - 10 PM, Sat-Sun: 8 AM - 11 PM)",
+            "website":     "Valid website link or null if unknown",
+            "address":     "Full address or 'Not available'"
           }
         ]
       }
-      - The response must be valid JSON.
     PROMPT
 
+    # 3) Call OpenAI with temperature = 0.0 to reduce distance hallucinations
     response = client.chat(
       parameters: {
-        model: "gpt-3.5-turbo",
+        model:       "gpt-3.5-turbo",
         messages: [
-          { role: "system", content: "You are an AI assistant that provides structured restaurant recommendations in JSON format." },
-          { role: "user", content: prompt }
+          { role: "system", content: "You are an AI assistant that outputs strictly valid JSON." },
+          { role: "user",   content: prompt }
         ],
-        temperature: 0.7
+        temperature: 0.0
       }
     )
 
-    recommendations_json = response.dig("choices", 0, "message", "content")
+    raw_json = response.dig("choices", 0, "message", "content")
 
     begin
-      recommendations = JSON.parse(recommendations_json)["restaurants"]
+      parsed         = JSON.parse(raw_json)
+      recommendations = parsed.fetch("restaurants", [])
       enrich_recommendations(recommendations)
     rescue JSON::ParserError
       nil
