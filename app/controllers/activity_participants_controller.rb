@@ -3,28 +3,61 @@ class ActivityParticipantsController < ApplicationController
     skip_before_action :authorized, only: [ :accept ]
 
     def invite
-      activity = Activity.find_by(id: params[:activity_id])
-      return render json: { error: "Activity not found" }, status: :not_found unless activity
+    activity = Activity.find_by(id: params[:activity_id])
+    unless activity
+      return render json: { error: "Activity not found" }, status: :not_found
+    end
 
-      invited_email = params[:email]&.strip&.downcase
-      return render json: { error: "Invalid email" }, status: :unprocessable_entity unless invited_email.present?
+    raw_emails = params[:email]
+    # Ensure we have an Array of strings
+    emails = if raw_emails.is_a?(Array)
+               raw_emails
+    else
+               [ raw_emails ]
+    end
+
+    # Keep track of results or errors
+    results = []
+
+    emails.each do |e|
+      invited_email = e.to_s.strip.downcase
+      if invited_email.blank?
+        results << { email: e, error: "Invalid email" }
+        next
+      end
 
       user = User.find_by("lower(email) = ?", invited_email)
 
-      participant = ActivityParticipant.find_or_initialize_by(activity_id: activity.id, invited_email: invited_email)
+      # Try to find or build a new ActivityParticipant
+      participant = ActivityParticipant.find_or_initialize_by(
+        activity_id: activity.id,
+        invited_email: invited_email
+      )
 
       if participant.persisted?
-        return render json: { error: "User is already invited." }, status: :unprocessable_entity
+        results << { email: invited_email, error: "Already invited" }
+        next
       end
 
       participant.user_id = user.id if user
       participant.accepted = false
-      participant.save!
-
-      InviteUserService.send_invitation(activity, invited_email, current_user)
-
-      render json: participant, status: :ok
+      if participant.save
+        # fire off your mailer or service
+        InviteUserService.send_invitation(activity, invited_email, current_user)
+        results << { email: invited_email, status: "invited" }
+      else
+        results << { email: invited_email, error: participant.errors.full_messages.to_sentence }
+      end
     end
+
+    # If **all** failed, return unprocessable
+    if results.all? { |r| r[:status].nil? }
+      render json: { errors: results }, status: :unprocessable_entity
+    else
+      # Otherwise return array of results (some may be invited, some may have errors)
+      render json: { results: results }, status: :ok
+    end
+  end
 
     def accept
       invited_email = params[:email]&.strip&.downcase
@@ -43,7 +76,6 @@ class ActivityParticipantsController < ApplicationController
       participant.update!(user_id: user.id, accepted: true)
 
       activity = participant.activity
-      activity.update!(group_size: activity.group_size + 1)
 
       new_comment = activity.comments.create!(
         user_id: user.id,

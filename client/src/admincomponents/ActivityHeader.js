@@ -1,14 +1,20 @@
 import React, { useEffect, useState, useContext } from "react";
 import { UserContext } from "../context/user.js";
 import styled, { keyframes } from "styled-components";
-import { LeftOutlined, EditOutlined, DeleteOutlined, UserAddOutlined, LogoutOutlined } from "@ant-design/icons";
-import { Users, CalendarDays, Clock, User, HelpCircle, X } from 'lucide-react';
+import {
+  LeftOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  UserAddOutlined,
+  LogoutOutlined,
+} from "@ant-design/icons";
+import { Users, CalendarDays, Clock, User, HelpCircle, X } from "lucide-react";
 import Woman from "../assets/Woman.jpg";
-import YourCommunity from './YourCommunity.js';
-import mixpanel from 'mixpanel-browser';
+import MultiSelectCommunity from "./MultiSelectCommunity.js";
+import mixpanel from "mixpanel-browser";
 import UpdateDetailsModal from "./UpdateDetailsModal.js";
 
-const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite }) => {
+const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite, onCreateBoard }) => {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [selectedParticipant, setSelectedParticipant] = useState(null);
@@ -23,7 +29,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite 
   const toggleHelp = () => setHelpVisible(v => !v);
   const handleOpenUpdate = () => setShowUpdate(true);
   const handleCloseUpdate = () => setShowUpdate(false);
-  const handleUpdate = (updatedActivity) => {
+  const handleUpdate = updatedActivity => {
     setUser(prev => ({
       ...prev,
       activities: prev.activities.map(a =>
@@ -34,6 +40,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite 
 
   const handleInviteClick = () => {
     setSelectedParticipant(null);
+    setInviteEmail("");
     setShowInvitePopup(true);
   };
   const handleClosePopup = () => {
@@ -41,103 +48,99 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite 
     setInviteEmail("");
   };
   const handleInviteSubmit = () => {
-    if (!inviteEmail) return alert("Please enter a valid email.");
-    onInvite(inviteEmail);
-    if (process.env.NODE_ENV === 'production') {
-      mixpanel.track('Participant Invited', { user: user.id });
+    const raw = inviteEmail
+      .split(",")                       // split on commas
+      .map(s => s.trim().toLowerCase()) // trim whitespace & lowercase
+      .filter(s => s.length > 0);       // drop any empty entries
+
+    if (raw.length === 0) {
+      return alert("Please enter at least one valid email.");
     }
+
+    // for each email, call onInvite(...)
+    raw.forEach(email => {
+      onInvite(email);
+      if (process.env.NODE_ENV === "production") {
+        mixpanel.track("Participant Invited", { user: user.id, email });
+      }
+    });
+
+    // then clear out the input & close
     setInviteEmail("");
     setShowInvitePopup(false);
   };
-  const handleSelectCommunityUser = (u) => setInviteEmail(u.email);
-
-  const handleLeaveActivity = async () => {
-    if (!window.confirm("Are you sure you want to leave this activity? This will remove you and delete your responses.")) return;
-    try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activity_participants/leave`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ activity_id: activity.id })
-      });
-      if (res.ok) {
-        alert("You have successfully left the activity.");
-        setUser(prev => ({
-          ...prev,
-          participant_activities: prev.participant_activities.filter(p => p.activity.id !== activity.id)
-        }));
-        onBack();
-      } else {
-        const data = await res.json();
-        alert(data.error || "Failed to leave activity.");
-      }
-    } catch {
-      alert("Something went wrong leaving the activity.");
-    }
-  };
 
   function getOrdinalSuffix(d) {
-    if (d >= 11 && d <= 13) return 'th';
+    if (d >= 11 && d <= 13) return "th";
     switch (d % 10) {
-      case 1: return 'st';
-      case 2: return 'nd';
-      case 3: return 'rd';
-      default: return 'th';
+      case 1: return "st";
+      case 2: return "nd";
+      case 3: return "rd";
+      default: return "th";
     }
   }
   function formatDate(ds) {
-    if (!ds) return 'TBD';
-    const [y, m, d] = ds.split('-').map(Number);
+    if (!ds) return "TBD";
+    const [y, m, d] = ds.split("-").map(Number);
     const dt = new Date(y, m - 1, d);
-    const mn = dt.toLocaleString('en-US', { month: 'long' });
+    const mn = dt.toLocaleString("en-US", { month: "long" });
     return `${mn} ${d}${getOrdinalSuffix(d)}`;
   }
   function formatTime(ts) {
-    if (!ts) return 'TBD';
-    const tp = ts.split('T')[1];
-    const [h0, m0] = tp.split(':');
+    if (!ts) return "TBD";
+    const tp = ts.split("T")[1];
+    const [h0, m0] = tp.split(":");
     let h = parseInt(h0, 10);
-    const suf = h >= 12 ? 'pm' : 'am';
+    const suf = h >= 12 ? "pm" : "am";
     h = h % 12 || 12;
     return `${h}:${m0} ${suf}`;
   }
 
-  // Participants
+  // Build attendee list
   const participantsArray = Array.isArray(activity.participants) ? activity.participants : [];
   const pendingInvitesArray = Array.isArray(activity.activity_participants)
     ? activity.activity_participants.filter(p => !p.accepted)
     : [];
   const hostParticipant = {
-    name: `${activity.user?.name || 'Unknown'} (Host)`,
-    email: activity.user?.email || 'N/A',
+    name: `${activity.user?.name || "Unknown"} (Host)`,
+    email: activity.user?.email || "N/A",
     confirmed: true,
-    avatar: activity.user?.avatar || Woman
+    avatar: activity.user?.avatar || Woman,
+    created_at: activity.user?.created_at, // include if available
   };
   const allParticipants = [
     hostParticipant,
-    ...participantsArray.filter(p => p.email).map(p => ({
-      name: p.name || p.email,
-      email: p.email,
-      confirmed: true,
-      avatar: p.avatar || Woman
-    })),
+    ...participantsArray
+      .filter(p => p.email)
+      .map(p => ({
+        name: p.name || p.email,
+        email: p.email,
+        confirmed: true,
+        avatar: p.avatar || Woman,
+        created_at: p.created_at,
+      })),
     ...pendingInvitesArray.map(p => ({
       name: p.invited_email,
       email: p.invited_email,
       confirmed: false,
-      avatar: Woman
-    }))
+      avatar: Woman,
+      created_at: null,
+    })),
   ];
 
-  const shareUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activity.id}/share`;
+  const shareUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activity.id}/share`;
 
   return (
     <>
       <HeaderContainer>
         <TopBar>
           <LeftActionButtons>
-            <BackButton onClick={onBack}><LeftOutlined /></BackButton>
-            <HelpIcon style={{ marginBottom: '0.4rem' }} onClick={toggleHelp}><HelpCircle /></HelpIcon>
+            <BackButton onClick={onBack}>
+              <LeftOutlined />
+            </BackButton>
+            <HelpIcon onClick={toggleHelp}>
+              <HelpCircle />
+            </HelpIcon>
           </LeftActionButtons>
 
           <ActivityType>
@@ -147,11 +150,45 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite 
           <ActionButtons>
             {isOwner ? (
               <>
-                <EditIcon onClick={handleOpenUpdate}><EditOutlined /></EditIcon>
-                <DeleteIcon onClick={() => onDelete(activity.id)}><DeleteOutlined /></DeleteIcon>
+                <EditIcon onClick={handleOpenUpdate}>
+                  <EditOutlined />
+                </EditIcon>
+                <DeleteIcon onClick={() => onDelete(activity.id)}>
+                  <DeleteOutlined />
+                </DeleteIcon>
               </>
             ) : (
-              <LeaveButton onClick={handleLeaveActivity}><LogoutOutlined /> Leave</LeaveButton>
+              <LeaveButton onClick={async () => {
+                if (!window.confirm("Are you sure you want to leave this activity? This will remove you and delete your responses.")) return;
+                try {
+                  const res = await fetch(
+                    `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activity_participants/leave`,
+                    {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      credentials: "include",
+                      body: JSON.stringify({ activity_id: activity.id }),
+                    }
+                  );
+                  if (res.ok) {
+                    alert("You have successfully left the activity.");
+                    setUser(prev => ({
+                      ...prev,
+                      participant_activities: prev.participant_activities.filter(
+                        p => p.activity.id !== activity.id
+                      ),
+                    }));
+                    onBack();
+                  } else {
+                    const data = await res.json();
+                    alert(data.error || "Failed to leave activity.");
+                  }
+                } catch {
+                  alert("Something went wrong leaving the activity.");
+                }
+              }}>
+                <LogoutOutlined /> Leave
+              </LeaveButton>
             )}
           </ActionButtons>
         </TopBar>
@@ -160,7 +197,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite 
         <MetaRow>
           <MetaItem>
             <label><User size={16} /></label>
-            <span>{isOwner ? 'You' : activity.user?.name || 'Unknown'}</span>
+            <span>{isOwner ? "You" : activity.user?.name || "Unknown"}</span>
           </MetaItem>
           <MetaItem>
             <label><CalendarDays size={16} /></label>
@@ -168,16 +205,25 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite 
           </MetaItem>
           <MetaItem>
             <label><Clock size={16} /></label>
-            <span>{activity.date_time ? formatTime(activity.date_time) : 'TBD'}</span>
+            <span>{activity.date_time ? formatTime(activity.date_time) : "TBD"}</span>
           </MetaItem>
           {activity.finalized && (
             <MetaItem>
-              <label><a style={{ textDecoration: 'none', marginTop: '0rem' }} href={shareUrl} target="_blank" rel="noopener noreferrer"> Finalized Activity Link</a></label>
+              <label>
+                <a
+                  style={{ textDecoration: "none", marginTop: "0rem" }}
+                  href={shareUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Finalized Activity Link
+                </a>
+              </label>
             </MetaItem>
           )}
         </MetaRow>
         <Subtitle>
-          {activity.welcome_message || 'Welcome to this activity!'}
+          {activity.welcome_message || "Welcome to this activity!"}
         </Subtitle>
 
         {!activity.finalized && isOwner && (
@@ -220,7 +266,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite 
                 <>
                   <li>
                     <strong>🍽️ Explore Recommendations</strong>
-                    <p>Browse AI‑powered restaurant suggestions based on group preferences.</p>
+                    <p>Browse AI-powered restaurant suggestions based on group preferences.</p>
                   </li>
                   <li>
                     <strong>✉️ Invite Friends</strong>
@@ -236,7 +282,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite 
                   </li>
                   <li>
                     <strong>📅 Add to Calendar</strong>
-                    <p>One‑click calendar add so no one misses dinner.</p>
+                    <p>One-click calendar add so no one misses dinner.</p>
                   </li>
                 </>
               ) : (
@@ -262,16 +308,30 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite 
                   <UserAddOutlined />
                 </InviteCircle>
               )}
-              {allParticipants.filter(p => p.confirmed).map((p, i) => (
-                <ParticipantCircle key={`p${i}`}>
-                  <ParticipantImage src={p.avatar} alt={p.name} />
-                </ParticipantCircle>
-              ))}
-              {isOwner && allParticipants.filter(p => !p.confirmed).map((p, i) => (
-                <ParticipantCircle key={`i${i}`} $pending>
-                  <ParticipantImage src={p.avatar} alt={p.name} />
-                </ParticipantCircle>
-              ))}
+              {allParticipants
+                .filter(p => p.confirmed)
+                .map((p, i) => (
+                  <ParticipantCircle
+                    key={`p${i}`}
+                    onClick={() => setSelectedParticipant(p)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <ParticipantImage src={p.avatar} alt={p.name} />
+                  </ParticipantCircle>
+                ))}
+              {isOwner &&
+                allParticipants
+                  .filter(p => !p.confirmed)
+                  .map((p, i) => (
+                    <ParticipantCircle
+                      key={`i${i}`}
+                      $pending
+                      onClick={() => setSelectedParticipant(p)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <ParticipantImage src={p.avatar} alt={p.name} />
+                    </ParticipantCircle>
+                  ))}
             </ParticipantsScroll>
           </ParticipantsRow>
         </ParticipantsSection>
@@ -289,8 +349,22 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite 
         <ParticipantPopupOverlay onClick={() => setSelectedParticipant(null)}>
           <ParticipantPopupContent onClick={e => e.stopPropagation()}>
             <h2>{selectedParticipant.name || selectedParticipant.email}</h2>
+            <p style={{ margin: "0.5rem 0", color: "#ccc" }}>
+              {selectedParticipant.email}
+            </p>
+            {selectedParticipant.created_at && (
+              <p style={{ margin: 0, fontStyle: "italic", fontSize: "0.9rem" }}>
+                Joined:{" "}
+                {new Date(selectedParticipant.created_at).toLocaleDateString(
+                  "en-US",
+                  { month: "short", day: "numeric", year: "numeric" }
+                )}
+              </p>
+            )}
             <ParticipantPopupActions>
-              <ParticipantPopupButton onClick={() => setSelectedParticipant(null)}>Close</ParticipantPopupButton>
+              <ParticipantPopupButton onClick={() => setSelectedParticipant(null)}>
+                Close
+              </ParticipantPopupButton>
             </ParticipantPopupActions>
           </ParticipantPopupContent>
         </ParticipantPopupOverlay>
@@ -299,17 +373,27 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite 
       {showInvitePopup && (
         <ParticipantPopupOverlay onClick={handleClosePopup}>
           <ParticipantPopupContent onClick={e => e.stopPropagation()}>
-            <h2>Invite a Participant</h2>
+            <h2>Invite Participants</h2>
             <DarkInput
-              type="email"
-              placeholder="Enter email..."
+              type="text"
+              placeholder="Enter email(s), comma-separated..."
               value={inviteEmail}
               onChange={e => setInviteEmail(e.target.value)}
             />
-            <YourCommunity showInvitePopup={showInvitePopup} onSelectUser={handleSelectCommunityUser} />
+            <MultiSelectCommunity
+              onSelectionChange={usersArray => {
+                const emails = usersArray.map(u => u.email).join(", ");
+                setInviteEmail(emails);
+              }}
+              onCreateBoard={onCreateBoard}
+            />
             <ParticipantPopupActions>
-              <ParticipantPopupButton onClick={handleInviteSubmit}>Send Invite</ParticipantPopupButton>
-              <ParticipantPopupButton className="cancel" onClick={handleClosePopup}>Cancel</ParticipantPopupButton>
+              <ParticipantPopupButton onClick={handleInviteSubmit}>
+                Send Invite
+              </ParticipantPopupButton>
+              <ParticipantPopupButton className="cancel" onClick={handleClosePopup}>
+                Cancel
+              </ParticipantPopupButton>
             </ParticipantPopupActions>
           </ParticipantPopupContent>
         </ParticipantPopupOverlay>
@@ -329,7 +413,7 @@ const DarkInput = styled.input`
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   font-size: 1rem;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   transition: border-color 0.2s, background 0.2s;
 
   &::placeholder {
@@ -339,7 +423,7 @@ const DarkInput = styled.input`
   &:focus {
     outline: none;
     background: rgba(255, 255, 255, 0.12);
-    border-color: #9051e1;  /* accent color */
+    border-color: #9051e1;
     box-shadow: 0 0 0 3px rgba(144, 81, 225, 0.2);
   }
 
@@ -373,7 +457,7 @@ const TopBar = styled.div`
 
 const LeftActionButtons = styled.div`
   justify-self: start;
-  display: flex; 
+  display: flex;
 `;
 
 const BackButton = styled.button`
@@ -389,7 +473,7 @@ const HelpIcon = styled(BackButton)`
 `;
 
 const ActivityType = styled.div`
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: clamp(1.2rem, 2.5vw, 1.75rem);
   font-weight: 400;
   color: rgba(255, 255, 255, 0.85);
@@ -397,7 +481,7 @@ const ActivityType = styled.div`
   letter-spacing: 1px;
 `;
 
-const ActionButtons = styled.div` 
+const ActionButtons = styled.div`
   justify-self: end;
   display: flex;
 `;
@@ -412,11 +496,10 @@ const EditIcon = styled.button`
 
 const DeleteIcon = styled(EditIcon)`
   color: #e74c3c;
-  rightL 0;
 `;
 
 const Title = styled.h1`
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: clamp(1.8rem, 4vw, 2.5rem);
   font-weight: bold;
   color: #fff;
@@ -425,7 +508,7 @@ const Title = styled.h1`
 `;
 
 const Subtitle = styled.p`
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: clamp(1rem, 2.5vw, 1.3rem);
   font-weight: 300;
   color: rgba(255, 255, 255, 0.85);
@@ -449,8 +532,13 @@ const MetaItem = styled.div`
   gap: 0.5rem;
   color: #fff;
 
-  label { display: flex; align-items: center; }
-  span  { font-size: 1.25rem; }
+  label {
+    display: flex;
+    align-items: center;
+  }
+  span {
+    font-size: 1.25rem;
+  }
 `;
 
 const ChatButton = styled.button`
@@ -461,7 +549,7 @@ const ChatButton = styled.button`
   border-radius: 9999px;
   font-weight: 600;
   cursor: pointer;
-  margin: 1rem;;
+  margin: 1rem;
 `;
 
 const AttendeeContainer = styled.div`
@@ -479,7 +567,7 @@ const ParticipantsSection = styled.div`
 `;
 
 const ParticipantsTitle = styled.h4`
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 1.3rem;
   color: #fff;
   margin: 0;
@@ -498,18 +586,17 @@ const ParticipantsScroll = styled.div`
   padding-bottom: 10px;
   margin: auto;
 
-  /* hide the scrollbar in WebKit, optional */
   &::-webkit-scrollbar {
     height: 6px;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 3px;
   }
 `;
 
 const ParticipantCircle = styled.div`
-  flex: 0 0 50px;      /* <-- prevent shrinking/growing */
+  flex: 0 0 50px;
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -545,11 +632,16 @@ const LeaveButton = styled.button`
 `;
 
 const ParticipantPopupOverlay = styled.div`
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   backdrop-filter: blur(10px);
-  background: rgba(0,0,0,0.5);
-  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 1000;
 `;
 
@@ -560,13 +652,15 @@ const ParticipantPopupContent = styled.div`
   text-align: center;
   max-width: 420px;
   color: #fff;
-    
-  max-height: 80vh;      /* so the popup never exceeds viewport */
-  overflow-y: auto;      /* enable vertical scroll inside the popup */
+  max-height: 80vh;
+  overflow-y: auto;
 `;
 
 const ParticipantPopupActions = styled.div`
-  display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
 `;
 
 const ParticipantPopupButton = styled.button`
@@ -578,47 +672,60 @@ const ParticipantPopupButton = styled.button`
   cursor: pointer;
   font-weight: bold;
 
-  &:hover { background: rgba(255,255,255,0.8); }
+  &:hover {
+    background: rgba(255, 255, 255, 0.8);
+  }
 
   &.cancel {
-    background: rgba(255,255,255,0.3);
+    background: rgba(255, 255, 255, 0.3);
     color: #fff;
-    &:hover { background: rgba(255,255,255,0.5);}
+    &:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
   }
 `;
 
 const HelpPopup = styled.div`
   position: fixed;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
   top: 80px;
   width: 90%;
   max-width: 400px;
-  background: #2C1E33;
+  background: #2c1e33;
   padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   z-index: 10000;
 `;
 
 const PopupHeader = styled.div`
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 0.5rem; color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  color: #fff;
 `;
 
 const PopupTitle = styled.h4`
   margin: 0;
-   font-size: 1rem; 
-   font-weight: bold;
-    color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
 `;
 
 const CloseButton = styled.button`
-  background: transparent; border: none; color: #fff;
-  cursor: pointer; padding: 0;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
 `;
 
 const PopupList = styled.ol`
-  margin: 0; padding-left: 1.2rem; color: #fff;
-  li { margin-bottom: 0.5rem; }
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #fff;
+  li {
+    margin-bottom: 0.5rem;
+  }
   text-align: left;
 `;
