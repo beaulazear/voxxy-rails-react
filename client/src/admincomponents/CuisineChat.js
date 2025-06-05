@@ -1,108 +1,433 @@
+// CuisineChat.js
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { UserContext } from "../context/user.js";
-import styled, { keyframes } from 'styled-components';
-import LoadingScreenUser from './LoadingScreenUser';
+import styled from 'styled-components';
+import { UserContext } from '../context/user';
 import mixpanel from 'mixpanel-browser';
 
-function CuisineChat({ onClose, activityId, onChatComplete }) {
-  const [answers, setAnswers] = useState([]);
-  const [currentInput, setCurrentInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      text: "Hey hey, party people! Voxxy here—your friendly get-together assitant. Your crew is making plans, and I’m here to help pick the perfect spot. Let’s do a quick vibe check!",
-      isUser: false
-    }
-  ]);
-  const [step, setStep] = useState(0);
+const Overlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 998;
+`;
 
-  const [showLoading, setShowLoading] = useState(false);
+const ModalContainer = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 500px;
+  background: #2C1E33;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #eee;
+`;
 
+const ProgressBarContainer = styled.div`
+  height: 6px;
+  background: #333;
+  width: 100%;
+`;
+
+const ProgressBar = styled.div`
+  height: 6px;
+  background: #cc31e8;
+  width: ${({ $percent }) => $percent}%;
+  transition: width 0.3s ease;
+`;
+
+const StepLabel = styled.div`
+  padding: 0.75rem 1.5rem 0.5rem;
+  font-size: 0.85rem;
+  color: #ccc;
+  text-align: center;
+`;
+
+const ModalHeader = styled.div`
+  padding: 0 1.5rem 1rem;
+  text-align: left;
+`;
+
+const Title = styled.h2`
+  color: #fff;
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+`;
+
+const Subtitle = styled.p`
+  color: #aaa;
+  margin: 0;
+  font-size: 0.9rem;
+`;
+
+const StepContent = styled.div`
+  padding: 1.5rem;
+  flex: 1;
+  overflow-y: auto;
+`;
+
+const Label = styled.label`
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  color: #ddd;
+  text-align: left;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 0.6rem;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #eee;
+  margin-bottom: 1rem;
+  &::placeholder {
+    color: #777;
+  }
+  &:focus {
+    border-color: #6c63ff;
+    outline: none;
+  }
+`;
+
+const Textarea = styled.textarea`
+  width: 100%;
+  padding: 0.6rem;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #eee;
+  margin-bottom: 1rem;
+  &::placeholder {
+    color: #777;
+  }
+  &:focus {
+    border-color: #6c63ff;
+    outline: none;
+  }
+`;
+
+const RadioCardContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+`;
+
+const RadioCard = styled.div`
+  flex: 1 1 30%;
+  padding: 1rem 0;
+  text-align: center;
+  border-radius: 8px;
+  background: #2a2a2a;
+  border: ${({ selected }) => (selected ? '2px solid #cc31e8' : '1px solid #444')};
+  color: #eee;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.95rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  &:hover {
+    border-color: #bb2fd0;
+    background: #333;
+  }
+`;
+
+const IconWrapper = styled.div`
+  font-size: 1.5rem;
+  margin-bottom: 0.4rem;
+`;
+
+const DropdownContainer = styled.div`
+  position: relative;
+  margin-bottom: 1rem;
+`;
+
+const DropdownHeader = styled.div`
+  padding: 0.6rem;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #eee;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  &:focus {
+    outline: none;
+    border-color: #6c63ff;
+  }
+`;
+
+const DropdownList = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+`;
+
+const OptionItem = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  cursor: pointer;
+  &:hover {
+    background: #333;
+  }
+  input {
+    margin-right: 0.5rem;
+    accent-color: #cc31e8;
+  }
+  color: #ddd;
+`;
+
+const PillContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`;
+
+const Pill = styled.div`
+  background: #444;
+  color: #eee;
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+`;
+
+const RemoveIcon = styled.span`
+  cursor: pointer;
+  font-weight: bold;
+`;
+
+const ButtonRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+`;
+
+const Button = styled.button`
+  background: ${({ $primary }) => ($primary ? '#cc31e8' : 'transparent')};
+  color: ${({ $primary }) => ($primary ? 'white' : '#6c63ff')};
+  border: ${({ $primary }) => ($primary ? 'none' : '1px solid #6c63ff')};
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const AddButton = styled.button`
+  background: transparent;
+  border: 1px solid #6c63ff;
+  color: #6c63ff;
+  border-radius: 6px;
+  padding: 0 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  height: 2.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:hover {
+    background: #6c63ff;
+    color: white;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+export default function CuisineChat({ onClose, activityId, onChatComplete }) {
   const { user, setUser } = useContext(UserContext);
-  const inputRef = useRef(null);
-  const chatBodyRef = useRef(null);
-
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
-  const questionsRef = useRef([
-    "What’s the food & drink mood? Are we craving anything specific (sushi, tacos, cocktails), or open to surprises?",
-    "Any deal-breakers? (Like, “No pizza, please” or “I need gluten-free options.”)",
-    "What’s the vibe? Fancy, casual, outdoor seating, rooftop views, great cocktails, good music—what matters most??",
-    "What’s the budget range you’d like to stay close to (low, mid, high)?",
-  ]);
+  const contentRef = useRef(null);
 
-  const questions = questionsRef.current;
+  const [step, setStep] = useState(1);
+  const totalSteps = 4;
+  const percent = (step / totalSteps) * 100;
 
+  // Step 1: Cuisine selections
+  const mainCuisines = [
+    'Open to Surprises',
+    'Italian',
+    'Mexican',
+    'Asian Fusion',
+    'American',
+  ];
+  const extraCuisines = [
+    'Spanish', 'French', 'Greek', 'Mediterranean', 'Indian', 'Thai',
+    'Chinese', 'Japanese', 'Korean', 'Vietnamese', 'Middle Eastern',
+    'Lebanese', 'Turkish', 'German', 'British', 'Brazilian', 'Peruvian',
+    'Ethiopian', 'Moroccan', 'Russian', 'Polish', 'Caribbean', 'Cajun',
+    'Southern', 'BBQ', 'Steakhouse', 'Seafood', 'Sushi', 'Pizza', 'Burgers',
+    'Sandwiches', 'Tapas', 'Other (specify)'
+  ];
+  const [selectedCuisines, setSelectedCuisines] = useState(['Open to Surprises']);
+  const [dropdownOpen1, setDropdownOpen1] = useState(false);
+  const [otherCuisine, setOtherCuisine] = useState('');
+
+  // Step 2: Atmosphere selections (nine options + custom)
+  const atmosphereOptions = [
+    'Casual', 'Trendy', 'Romantic', 'Outdoor',
+    'Family Friendly', 'Cozy', 'Rooftop', 'Waterfront', 'Historic'
+  ];
+  const [selectedAtmospheres, setSelectedAtmospheres] = useState([]);
+  const [otherAtmosphere, setOtherAtmosphere] = useState('');
+
+  // Step 3: Budget cards
+  const budgetOptions = [
+    { label: 'No preference', icon: '🤷' },
+    { label: 'Budget-friendly', icon: '💰' },
+    { label: 'Prefer upscale', icon: '🍾' },
+  ];
+  const [selectedBudget, setSelectedBudget] = useState('No preference');
+
+  // Step 4: Dietary preferences
+  const [dietary, setDietary] = useState(user.preferences || '');
+
+  // Close dropdown1 on outside click
+  const refDropdown1 = useRef(null);
   useEffect(() => {
-    if (chatBodyRef.current) {
-      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+    function handleClickOutside(e) {
+      if (refDropdown1.current && !refDropdown1.current.contains(e.target)) {
+        setDropdownOpen1(false);
+      }
     }
-  }, [messages]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-  useEffect(() => {
-    setIsTyping(true);
-    const timer = setTimeout(() => {
-      setMessages((prev) => [...prev, { text: questions[0], isUser: false }]);
-      setIsTyping(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [questions]);
-
-  function handleInputFocus() {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }
-
-  const handleNext = () => {
-    if (!currentInput.trim()) return;
-
-    const userMessage = { text: currentInput, isUser: true };
-    const userAnswer = { question: questions[step], answer: currentInput };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setCurrentInput("");
-    setAnswers((prev) => [...prev, userAnswer]);
-
-    const nextStep = step + 1;
-
-    if (nextStep < questions.length) {
-      setIsTyping(true);
-      setTimeout(() => {
-        setMessages((prev) => [
-          ...prev,
-          { text: questions[nextStep], isUser: false }
-        ]);
-        setIsTyping(false);
-        setStep(nextStep);
-      }, 1000);
-    } else {
-      setStep(nextStep);
-      setMessages((prev) => [
-        ...prev,
-        {
-          text: "Got it! I’m pulling together the best spots that check all the boxes. Give me a sec, and I’ll drop the recommendations in just a moment!",
-          isUser: false
-        }
-      ]);
-      setTimeout(() => {
-        setShowLoading(true);
-      }, 1500);
+  // Scroll input into view on focus
+  const handleInputFocus = (e) => {
+    const target = e.target;
+    if (contentRef.current && target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 
+  // Step 1 handlers
+  const toggleCuisine = (cuisine) => {
+    if (cuisine === 'Open to Surprises') {
+      if (selectedCuisines.includes('Open to Surprises')) {
+        setSelectedCuisines([]);
+      } else {
+        setSelectedCuisines(['Open to Surprises']);
+        setOtherCuisine('');
+      }
+    } else {
+      let filtered = selectedCuisines.filter((c) => c !== 'Open to Surprises');
+      if (filtered.includes(cuisine)) {
+        filtered = filtered.filter((c) => c !== cuisine);
+      } else {
+        filtered = [...filtered, cuisine];
+      }
+      setSelectedCuisines(filtered);
+    }
+  };
+  const handleExtraCuisineChange = (cuisine, checked) => {
+    if (cuisine === 'Other (specify)') {
+      if (checked) {
+        setSelectedCuisines((prev) => {
+          const noSurprises = prev.filter((c) => c !== 'Open to Surprises');
+          return [...noSurprises, cuisine];
+        });
+      } else {
+        setSelectedCuisines((prev) => prev.filter((c) => c !== cuisine));
+        setOtherCuisine('');
+      }
+      return;
+    }
+    setSelectedCuisines((prev) => {
+      const noSurprises = prev.filter((c) => c !== 'Open to Surprises');
+      if (checked) {
+        return [...noSurprises, cuisine];
+      }
+      return noSurprises.filter((c) => c !== cuisine);
+    });
+  };
+
+  // Step 2 handlers (nine options + custom)
+  const toggleAtmosphereOption = (atm) => {
+    setSelectedAtmospheres((prev) =>
+      prev.includes(atm) ? prev.filter((a) => a !== atm) : [...prev, atm]
+    );
+  };
+  const addCustomAtmosphere = () => {
+    const trimmed = otherAtmosphere.trim();
+    if (!trimmed) return;
+    if (!selectedAtmospheres.includes(trimmed)) {
+      setSelectedAtmospheres((prev) => [...prev, trimmed]);
+    }
+    setOtherAtmosphere('');
+  };
+
+  // Validation for Next
+  const isNextDisabled = () => {
+    if (step === 1) return selectedCuisines.length === 0;
+    if (step === 2) return selectedAtmospheres.length === 0;
+    if (step === 3) return !selectedBudget;
+    return false;
+  };
+
+  const handleNext = () => {
+    if (step < totalSteps) {
+      setStep(step + 1);
+    } else {
+      handleSubmit();
+    }
+  };
+
+  // Remove pill helper
+  const handleRemovePill = (item, listSetter, list) => {
+    listSetter(list.filter((i) => i !== item));
+  };
+
   const handleSubmit = async () => {
+    const cuisinesText = selectedCuisines
+      .map((c) =>
+        c === 'Other (specify)' ? `Other: ${otherCuisine}` : c
+      )
+      .join(', ');
+    const atmosText = selectedAtmospheres.join(', ');
+    const budgetText = selectedBudget;
+    const dietaryText = dietary || 'None';
+
+    const notes = [
+      `Cuisines: ${cuisinesText}`,
+      `Atmospheres: ${atmosText}`,
+      `Budget: ${budgetText}`,
+      `Dietary Preferences: ${dietaryText}`,
+    ].join('\n\n');
 
     if (process.env.NODE_ENV === 'production') {
-      mixpanel.track('Voxxy Chat 2 Completed', {
+      mixpanel.track('Voxxy Chat Custom Completed', {
         name: user.name,
       });
     }
-
-    const formattedNotes = answers
-      .map((item) => `${item.question}\nAnswer: ${item.answer}`)
-      .join("\n\n");
 
     try {
       const response = await fetch(`${API_URL}/responses`, {
@@ -110,7 +435,7 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          response: { notes: formattedNotes, activity_id: activityId }
+          response: { notes, activity_id: activityId },
         }),
       });
 
@@ -122,29 +447,33 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
             if (activity.id === activityId) {
               return {
                 ...activity,
-                responses: [...(activity.responses || []), newResponse]
+                responses: [...(activity.responses || []), newResponse],
               };
             }
             return activity;
           });
 
-          const updatedParticipantActivities = prevUser.participant_activities.map((participant) => {
-            if (participant.activity.id === activityId) {
-              return {
-                ...participant,
-                activity: {
-                  ...participant.activity,
-                  responses: [...(participant.activity.responses || []), newResponse]
-                }
-              };
-            }
-            return participant;
-          });
+          const updatedParticipantActivities =
+            prevUser.participant_activities.map((participant) => {
+              if (participant.activity.id === activityId) {
+                return {
+                  ...participant,
+                  activity: {
+                    ...participant.activity,
+                    responses: [
+                      ...(participant.activity.responses || []),
+                      newResponse,
+                    ],
+                  },
+                };
+              }
+              return participant;
+            });
 
           return {
             ...prevUser,
             activities: updatedActivities,
-            participant_activities: updatedParticipantActivities
+            participant_activities: updatedParticipantActivities,
           };
         });
 
@@ -156,264 +485,262 @@ function CuisineChat({ onClose, activityId, onChatComplete }) {
     } catch (error) {
       console.error('❌ Error:', error);
     }
-    // Close chat after everything is done
-    onClose();
-  };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleNext();
-    }
+    onClose();
   };
 
   return (
     <>
-      {showLoading && (
-        <LoadingScreenUser onComplete={handleSubmit} />
-      )}
+      <Overlay onClick={onClose} />
+      <ModalContainer onClick={(e) => e.stopPropagation()}>
+        <ProgressBarContainer>
+          <ProgressBar $percent={percent} />
+        </ProgressBarContainer>
 
-      {!showLoading && (
-        <>
-          <Overlay onClick={onClose} />
-          <ChatContainer onClick={(e) => e.stopPropagation()}>
-            <ChatHeader>
-              <BackButton onClick={onClose}>
-                <svg viewBox="0 0 24 24">
-                  <path
-                    d="M15.5 3.5L7 12l8.5 8.5"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                Back
-              </BackButton>
-              Chat with Voxxy
-            </ChatHeader>
+        <StepLabel>
+          Step {step} of {totalSteps}
+        </StepLabel>
 
-            <ChatBody ref={chatBodyRef}>
-              {messages.map((msg, index) => (
-                <Message key={index} $isUser={msg.isUser}>
-                  {msg.text}
-                </Message>
-              ))}
-              {isTyping && (
-                <Message $isUser={false}>
-                  <TypingBubble>
-                    <span></span><span></span><span></span>
-                  </TypingBubble>
-                </Message>
+        <ModalHeader>
+          <Title>
+            {step === 1 && 'What cuisine do you prefer?'}
+            {step === 2 && 'What atmosphere are you looking for?'}
+            {step === 3 && 'What’s your individual budget?'}
+            {step === 4 && 'Dietary / Food Preferences'}
+          </Title>
+          <Subtitle>
+            {step === 1 &&
+              'Select main cuisines or choose more options.'}
+            {step === 2 &&
+              'Choose from the nine atmosphere options, or add your own.'}
+            {step === 3 && 'Pick one budget option.'}
+            {step === 4 && 'Enter any dietary or food preferences.'}
+          </Subtitle>
+        </ModalHeader>
+
+        <StepContent ref={contentRef}>
+          {/* Step 1: Cuisine */}
+          {step === 1 && (
+            <>
+              <Label>Main Cuisines</Label>
+              <RadioCardContainer>
+                {mainCuisines.map((cuisine) => (
+                  <RadioCard
+                    key={cuisine}
+                    selected={selectedCuisines.includes(cuisine)}
+                    onClick={() => toggleCuisine(cuisine)}
+                  >
+                    <IconWrapper>
+                      {cuisine === 'Open to Surprises'
+                        ? '❓'
+                        : cuisine === 'Italian'
+                          ? '🍝'
+                          : cuisine === 'Mexican'
+                            ? '🌮'
+                            : cuisine === 'Asian Fusion'
+                              ? '🍜'
+                              : '🍔'}
+                    </IconWrapper>
+                    {cuisine}
+                  </RadioCard>
+                ))}
+              </RadioCardContainer>
+
+              <Label>More Cuisine Options</Label>
+              <DropdownContainer ref={refDropdown1}>
+                <DropdownHeader
+                  tabIndex={0}
+                  onClick={() => setDropdownOpen1(!dropdownOpen1)}
+                >
+                  {dropdownOpen1
+                    ? 'Select more cuisines…'
+                    : 'Select more cuisines…'}
+                  <span>{dropdownOpen1 ? '▲' : '▼'}</span>
+                </DropdownHeader>
+                {dropdownOpen1 && (
+                  <DropdownList>
+                    {extraCuisines.map((cuisine) => (
+                      <OptionItem key={cuisine}>
+                        <input
+                          type="checkbox"
+                          checked={selectedCuisines.includes(cuisine)}
+                          onChange={(e) =>
+                            handleExtraCuisineChange(
+                              cuisine,
+                              e.target.checked
+                            )
+                          }
+                        />
+                        {cuisine}
+                        {cuisine === 'Other (specify)' &&
+                          selectedCuisines.includes(cuisine) && (
+                            <Input
+                              placeholder="Type cuisine…"
+                              value={otherCuisine}
+                              onChange={(e) =>
+                                setOtherCuisine(e.target.value)
+                              }
+                              onFocus={handleInputFocus}
+                            />
+                          )}
+                      </OptionItem>
+                    ))}
+                  </DropdownList>
+                )}
+              </DropdownContainer>
+
+              {selectedCuisines.length > 0 && (
+                <PillContainer>
+                  {selectedCuisines.map((c) => (
+                    <Pill key={c}>
+                      {c === 'Other (specify)'
+                        ? `Other: ${otherCuisine || ''}`
+                        : c}
+                      <RemoveIcon
+                        onClick={() =>
+                          handleRemovePill(
+                            c,
+                            setSelectedCuisines,
+                            selectedCuisines
+                          )
+                        }
+                      >
+                        ×
+                      </RemoveIcon>
+                    </Pill>
+                  ))}
+                </PillContainer>
               )}
-            </ChatBody>
+            </>
+          )}
 
-            <ChatFooter onClick={handleInputFocus}>
-              <Input
-                ref={inputRef}
-                value={currentInput}
-                onChange={(e) => setCurrentInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Type your response..."
+          {/* Step 2: Atmosphere */}
+          {step === 2 && (
+            <>
+              <Label>Select Atmospheres</Label>
+              <RadioCardContainer>
+                {atmosphereOptions.map((atm) => (
+                  <RadioCard
+                    key={atm}
+                    selected={selectedAtmospheres.includes(atm)}
+                    onClick={() => toggleAtmosphereOption(atm)}
+                  >
+                    <IconWrapper>
+                      {atm === 'Casual'
+                        ? '👕'
+                        : atm === 'Trendy'
+                          ? '🎉'
+                          : atm === 'Romantic'
+                            ? '❤️'
+                            : atm === 'Outdoor'
+                              ? '🌳'
+                              : atm === 'Family Friendly'
+                                ? '👨‍👩‍👧‍👦'
+                                : atm === 'Cozy'
+                                  ? '🛋️'
+                                  : atm === 'Rooftop'
+                                    ? '🌆'
+                                    : atm === 'Waterfront'
+                                      ? '🌊'
+                                      : '🏛️'}
+                    </IconWrapper>
+                    {atm}
+                  </RadioCard>
+                ))}
+              </RadioCardContainer>
+
+              <Label>Other (specify)</Label>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <Input
+                  placeholder="Type atmosphere…"
+                  value={otherAtmosphere}
+                  onChange={(e) => setOtherAtmosphere(e.target.value)}
+                  onFocus={handleInputFocus}
+                />
+                <AddButton
+                  onClick={addCustomAtmosphere}
+                  disabled={!otherAtmosphere.trim()}
+                >
+                  Add
+                </AddButton>
+              </div>
+
+              {selectedAtmospheres.length > 0 && (
+                <PillContainer>
+                  {selectedAtmospheres.map((a) => (
+                    <Pill key={a}>
+                      {a}
+                      <RemoveIcon
+                        onClick={() =>
+                          handleRemovePill(
+                            a,
+                            setSelectedAtmospheres,
+                            selectedAtmospheres
+                          )
+                        }
+                      >
+                        ×
+                      </RemoveIcon>
+                    </Pill>
+                  ))}
+                </PillContainer>
+              )}
+            </>
+          )}
+
+          {/* Step 3: Budget */}
+          {step === 3 && (
+            <>
+              <Label>Budget</Label>
+              <RadioCardContainer>
+                {budgetOptions.map((opt) => (
+                  <RadioCard
+                    key={opt.label}
+                    selected={selectedBudget === opt.label}
+                    onClick={() => setSelectedBudget(opt.label)}
+                  >
+                    <IconWrapper>{opt.icon}</IconWrapper>
+                    {opt.label === 'No preference'
+                      ? 'No preference'
+                      : opt.label === 'Budget-friendly'
+                        ? 'Budget-friendly'
+                        : 'Prefer upscale'}
+                  </RadioCard>
+                ))}
+              </RadioCardContainer>
+            </>
+          )}
+
+          {/* Step 4: Dietary Preferences */}
+          {step === 4 && (
+            <>
+              <Label>Dietary Preferences / Food Preferences</Label>
+              <Textarea
+                rows={4}
+                placeholder="e.g. Vegetarian, No nuts, Keto..."
+                value={dietary}
+                onChange={(e) => setDietary(e.target.value)}
+                onFocus={handleInputFocus}
               />
-              <SendButton onClick={handleNext}>
-                ▶
-              </SendButton>
-            </ChatFooter>
-          </ChatContainer>
-        </>
-      )}
+            </>
+          )}
+        </StepContent>
+
+        <ButtonRow>
+          {step > 1 ? (
+            <Button onClick={() => setStep(step - 1)}>Back</Button>
+          ) : (
+            <div />
+          )}
+          <Button
+            $primary
+            onClick={handleNext}
+            disabled={isNextDisabled()}
+          >
+            {step < totalSteps ? 'Next' : 'Finish'}
+          </Button>
+        </ButtonRow>
+      </ModalContainer>
     </>
   );
 }
-
-export default CuisineChat;
-
-const fadeInUp = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
-
-const Message = styled.div`
-  max-width: 75%;
-  padding: 12px 15px;
-  border-radius: 20px;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  font-family: 'Arial', sans-serif;
-  animation: ${fadeInUp} 0.3s ease forwards;
-  box-shadow: ${({ $isUser }) =>
-    $isUser ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'};
-  ${({ $isUser }) =>
-    $isUser
-      ? `
-    background: white;
-    align-self: flex-end;
-    text-align: right;
-    color: #333;
-  `
-      : `
-    background: #e7e4ff;
-    align-self: flex-start;
-    text-align: left;
-    color: #574dcf;
-  `}
-`;
-
-const Overlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 998;
-`;
-
-const ChatContainer = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 450px;
-  background: white;
-  border-radius: 15px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  z-index: 999;
-  display: flex;
-  flex-direction: column;
-  height: 70vh;
-  overflow: hidden;
-`;
-
-const ChatHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: white;
-  padding: 15px 20px;
-  border-bottom: 1px solid #ddd;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #6c63ff;
-`;
-
-const BackButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 1rem;
-  color: #6c63ff;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  
-  &:hover {
-    color: #574dcf;
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
-    fill: currentColor;
-  }
-`;
-
-const ChatBody = styled.div`
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: #f9f9f9;
-`;
-
-const ChatFooter = styled.div`
-  padding: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: white;
-  border-top: 1px solid #ddd;
-`;
-
-const Input = styled.input`
-  flex: 1;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 25px;
-  font-size: 0.9rem;
-  outline: none;
-
-  &:focus {
-    border-color: #6c63ff;
-    box-shadow: 0 0 4px rgba(108, 99, 255, 0.3);
-  }
-`;
-
-const SendButton = styled.button`
-  background: #6c63ff;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 10px;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(108, 99, 255, 0.3);
-
-  &:hover {
-    background: #574dcf;
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
-  }
-`;
-
-const TypingBubble = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 4px;
-  height: 16px;
-  padding: 0 6px;
-
-  span {
-    width: 6px;
-    height: 6px;
-    background-color: #6c63ff;
-    border-radius: 50%;
-    animation: blink 1.4s infinite both;
-  }
-
-  span:nth-child(2) {
-    animation-delay: 0.2s;
-  }
-
-  span:nth-child(3) {
-    animation-delay: 0.4s;
-  }
-
-  @keyframes blink {
-    0%, 80%, 100% {
-      opacity: 0;
-    }
-    40% {
-      opacity: 1;
-    }
-  }
-`;
