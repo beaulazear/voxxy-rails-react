@@ -18,8 +18,8 @@ class ActivitiesController < HtmlController
         render json: activity.as_json(
           only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :radius, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :finalized ],
           include: {
-            user: { only: [ :id, :name, :email, :avatar ] },
-            activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] },
+            user: { only: [ :id, :name, :email, :avatar, :created_at ] },
+            activity_participants: { only: [ :id, :user_id, :invited_email, :accepted, :created_at ] },
             participants: { only: [ :id, :name, :email, :avatar ] }
           }
         ), status: :created
@@ -49,8 +49,8 @@ class ActivitiesController < HtmlController
       render json: activity.as_json(
         only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :finalized, :radius ],
         include: {
-          user: { only: [ :id, :name, :email, :avatar ] },
-          activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] },
+          user: { only: [ :id, :name, :email, :avatar, :created_at ] },
+          activity_participants: { only: [ :id, :user_id, :invited_email, :accepted, :created_at ] },
           participants: { only: [ :id, :name, :email, :avatar ] },
           responses: { only: [ :id, :activity_id, :notes, :created_at, :user_id ] }
         }
@@ -77,9 +77,9 @@ class ActivitiesController < HtmlController
       render json: activities.as_json(
         only: [ :id, :activity_name, :activity_type, :finalized, :activity_location, :group_size, :radius, :date_notes, :created_at, :active, :emoji, :user_id, :date_day, :date_time, :welcome_message, :completed ],
         include: {
-          user: { only: [ :id, :name, :email ] },
+          user: { only: [ :id, :name, :email, :avatar, :created_at ] },
           responses: { only: [ :id, :notes, :created_at, :user_id, :activity_id ] },
-          activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] },
+          activity_participants: { only: [ :id, :user_id, :invited_email, :accepted, :created_at, :avatar ] },
           participants: { only: [ :id, :name, :email, :avatar ] }
         }
       )
@@ -102,10 +102,10 @@ class ActivitiesController < HtmlController
             activities: {
               only: [ :id, :activity_name, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :radius, :date_day, :date_time, :welcome_message, :completed ],
               include: {
-                user: { only: [ :id, :name, :email, :avatar ] },
+                user: { only: [ :id, :name, :email, :avatar, :created_at ] },
                 responses: { only: [ :id, :notes, :created_at ] },
                 participants: { only: [ :id, :name, :email, :avatar ] },
-                activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] },
+                activity_participants: { only: [ :id, :user_id, :invited_email, :accepted, :avatar, :created_at ] },
                 comments: { include: { user: { only: [ :id, :name, :avatar ] } } }
               }
             }
@@ -113,9 +113,9 @@ class ActivitiesController < HtmlController
         ).merge("participant_activities" => participant_activities.as_json(
           only: [ :id, :activity_name, :emoji, :user_id, :date_notes, :finalized, :activity_location, :group_size, :radius, :date_day, :date_time, :welcome_message, :completed ],
           include: {
-            user: { only: [ :id, :name, :email ] },
+            user: { only: [ :id, :name, :email, :avatar, :created_at ] },
             participants: { only: [ :id, :name, :email, :avatar ] },
-            activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] }
+            activity_participants: { only: [ :id, :user_id, :invited_email, :accepted, :avatar, :created_at ] }
           }
         ))
       else

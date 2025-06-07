@@ -91,8 +91,13 @@ function ActivityDetailsPage({ activityId, onBack }) {
     });
 
     if (response.ok) {
-      const newParticipant = await response.json();
-      alert("Invitation sent!");
+      const data = await response.json();
+      console.log(data)
+      const newParticipant = {
+        invited_email: normalizedEmail,
+        name: 'Invite Pending',
+        confirmed: false
+      }
 
       setUser((prevUser) => {
         const updatedUser = {

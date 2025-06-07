@@ -149,8 +149,6 @@ class ActivityParticipantsController < ApplicationController
 
       participant.destroy!
 
-      activity.update!(group_size: activity.group_size - 1)
-
       activity.comments.create!(
         user_id: current_user.id,
         content: "#{current_user.name} has left the chat 😢"

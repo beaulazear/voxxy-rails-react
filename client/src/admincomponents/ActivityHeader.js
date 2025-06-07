@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, act } from "react";
 import { UserContext } from "../context/user.js";
 import styled, { keyframes } from "styled-components";
 import {
@@ -9,6 +9,7 @@ import {
   LogoutOutlined,
 } from "@ant-design/icons";
 import { Users, CalendarDays, Clock, User, HelpCircle, X } from "lucide-react";
+import { message } from "antd";
 import Woman from "../assets/Woman.jpg";
 import MultiSelectCommunity from "./MultiSelectCommunity.js";
 import mixpanel from "mixpanel-browser";
@@ -49,15 +50,14 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
   };
   const handleInviteSubmit = () => {
     const raw = inviteEmail
-      .split(",")                       // split on commas
-      .map(s => s.trim().toLowerCase()) // trim whitespace & lowercase
-      .filter(s => s.length > 0);       // drop any empty entries
+      .split(",")
+      .map(s => s.trim().toLowerCase())
+      .filter(s => s.length > 0);
 
     if (raw.length === 0) {
       return alert("Please enter at least one valid email.");
     }
 
-    // for each email, call onInvite(...)
     raw.forEach(email => {
       onInvite(email);
       if (process.env.NODE_ENV === "production") {
@@ -65,7 +65,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
       }
     });
 
-    // then clear out the input & close
+    message.success("Invitation(s) sent!");
     setInviteEmail("");
     setShowInvitePopup(false);
   };
@@ -96,7 +96,8 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
     return `${h}:${m0} ${suf}`;
   }
 
-  // Build attendee list
+  console.log(user, activity)
+
   const participantsArray = Array.isArray(activity.participants) ? activity.participants : [];
   const pendingInvitesArray = Array.isArray(activity.activity_participants)
     ? activity.activity_participants.filter(p => !p.accepted)
@@ -106,7 +107,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
     email: activity.user?.email || "N/A",
     confirmed: true,
     avatar: activity.user?.avatar || Woman,
-    created_at: activity.user?.created_at, // include if available
+    created_at: activity.user?.created_at,
   };
   const allParticipants = [
     hostParticipant,
@@ -121,12 +122,14 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
       })),
     ...pendingInvitesArray.map(p => ({
       name: p.invited_email,
-      email: p.invited_email,
+      email: 'Invite Pending',
       confirmed: false,
       avatar: Woman,
       created_at: null,
     })),
   ];
+
+  console.log(allParticipants)
 
   const shareUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activity.id}/share`;
 
@@ -348,7 +351,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
       {selectedParticipant && (
         <ParticipantPopupOverlay onClick={() => setSelectedParticipant(null)}>
           <ParticipantPopupContent onClick={e => e.stopPropagation()}>
-            <h2>{selectedParticipant.name || selectedParticipant.email}</h2>
+            <h2>{selectedParticipant.name || 'Pending Confirmation'}</h2>
             <p style={{ margin: "0.5rem 0", color: "#ccc" }}>
               {selectedParticipant.email}
             </p>

@@ -28,6 +28,9 @@ class InviteUserService
     content = <<~HTML
       <html>
         <body style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
+          <img src="https://res.cloudinary.com/dgtpgywhl/image/upload/v1746365141/Voxxy_Header_syvpzb.png"
+                   alt="Voxxy Logo" width="300"
+                   style="max-width: 100%; height: auto; margin-bottom: 20px;">
           <h1>Hey there! 🎉</h1>
           <p><strong>#{inviter.name}</strong> invited you to join <strong>#{activity.activity_name}</strong> on <strong>Voxxy</strong>! 🚀</p>
           <p>Join now and start planning amazing activities together! 💜</p>
