@@ -30,6 +30,7 @@ class ActivitiesController < HtmlController
 
     def update
       activity = current_user.activities.find(params[:id])
+      should_email    = activity_params.key?(:finalized) && activity_params[:finalized]
 
       Activity.transaction do
         if activity_params.key?(:finalized)
@@ -45,6 +46,8 @@ class ActivitiesController < HtmlController
 
         activity.update!(activity_params.except(:finalized, :selected_pinned_id))
       end
+
+      ActivityFinalizationEmailService.send_finalization_emails(activity) if should_email
 
       render json: activity.as_json(
         only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :finalized, :radius ],

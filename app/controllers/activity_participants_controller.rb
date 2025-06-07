@@ -94,7 +94,7 @@ class ActivityParticipantsController < ApplicationController
         date_notes: activity.date_notes,
         date_day: activity.date_day,
         date_time: activity.date_time,
-        user: activity.user ? { id: activity.user.id, name: activity.user.name, email: activity.user.email, avatar: activity.user.avatar } : nil,
+        user: activity.user ? { id: activity.user.id, name: activity.user.name, email: activity.user.email, created_at: activity.user.created_at, avatar: activity.user.avatar } : nil,
         participants: activity.participants.select(:id, :name, :email, :avatar, :created_at),
         completed: false,
         finalized: activity.finalized,
@@ -128,7 +128,7 @@ class ActivityParticipantsController < ApplicationController
 
       render json: activity_participants.as_json(
         include: {
-          user: { only: [ :id, :name, :email, :avatar ] },
+          user: { only: [ :id, :name, :email, :avatar, :created_at ] },
           activity: {
             only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :completed ],
             include: { user: { only: [ :id, :name, :email, :avatar, :created_at ] } }
