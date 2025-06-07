@@ -250,11 +250,11 @@ class OpenaiController < ApplicationController
       #{notes_text}
 
       IMPORTANT:
-      1. **PRIORITIZE dietary preferences** (e.g., allergies, vegan, gluten-free) above all else.  
+      1. **PRIORITIZE dietary preferences** (e.g., allergies, vegan, gluten-free) above all else.#{'  '}
         If they say “Vegan please!” or “No shellfish,” those conditions must drive your picks.
       2. Next, honor budget constraints (“Prefer upscale,” etc.).
       3. Then consider ambiance (“Rooftop,” “Cozy,” etc.)—but only after dietary & budget are satisfied.
-      4. Only include restaurants located *within* #{radius} mile#{ radius == 1 ? "" : "s" } of "#{activity_location}".  
+      4. Only include restaurants located *within* #{radius} mile#{ radius == 1 ? "" : "s" } of "#{activity_location}".#{'  '}
         Do NOT list any restaurant that you know (or strongly suspect) is outside that boundary.
       5. Keep the tone warm and human — avoid calling people "users" or referencing individual budgets.
       6. Avoid large chains or obvious tourist spots—seek out hole-in-the-wall or buzz-worthy places.
