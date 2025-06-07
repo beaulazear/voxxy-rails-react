@@ -221,6 +221,8 @@ export default function AIRecommendations({
 
   if (loading) return <LoadingScreenUser autoDismiss={false} />;
 
+  console.log(activity)
+
   return (
     <Container>
       {recommendations.length === 0 && pinnedActivities.length === 0 ? (

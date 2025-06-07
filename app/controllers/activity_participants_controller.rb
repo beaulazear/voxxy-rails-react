@@ -74,6 +74,7 @@ class ActivityParticipantsController < ApplicationController
       end
 
       participant.update!(user_id: user.id, accepted: true)
+      ActivityAcceptanceEmailService.send_acceptance_email(participant)
 
       activity = participant.activity
 

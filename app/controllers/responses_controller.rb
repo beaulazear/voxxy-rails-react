@@ -21,6 +21,7 @@ class ResponsesController < ApplicationController
               .where.not(id: response.id)
               .destroy_all
 
+      ActivityResponseEmailService.send_response_email(response, activity)
       render json: response, status: :created
     else
       render json: { errors: response.errors.full_messages }, status: :unprocessable_entity

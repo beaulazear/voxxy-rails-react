@@ -148,8 +148,6 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
 
   const shareUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activity.id}/share`;
 
-  console.log(activity)
-
   return (
     <>
       <HeaderContainer>
