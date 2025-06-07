@@ -13,14 +13,14 @@ const FooterInner = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
   flex-wrap: wrap;
   gap: 2rem;
+  align-items: flex-start;
 `;
 
 const Brand = styled.div`
-  flex: 1 1 200px;
+  flex: 1 1 100%;
+  text-align: left;
 `;
 
 const BrandName = styled.h3`
@@ -28,18 +28,17 @@ const BrandName = styled.h3`
   font-weight: 700;
   margin: 0 0 0.5rem;
   color: #6c63ff;
-  text-align: left;
 `;
 
 const BrandText = styled.p`
   font-size: 0.9rem;
   color: #333333;
   margin: 0;
-  text-align: left;
 `;
 
 const Column = styled.div`
-  flex: 1 1 120px;
+  flex: 1 1 calc(50% - 1rem);
+  min-width: 120px;
 `;
 
 const ColumnHeading = styled.h4`
