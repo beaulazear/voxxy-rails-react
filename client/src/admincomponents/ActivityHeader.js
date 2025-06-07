@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, act } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { UserContext } from "../context/user.js";
 import styled, { keyframes } from "styled-components";
 import {
@@ -17,10 +17,14 @@ import UpdateDetailsModal from "./UpdateDetailsModal.js";
 
 const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite, onCreateBoard }) => {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
   const [selectedParticipant, setSelectedParticipant] = useState(null);
   const [showUpdate, setShowUpdate] = useState(false);
   const [helpVisible, setHelpVisible] = useState(false);
+
+  const [manualInput, setManualInput] = useState("");
+  const [manualEmails, setManualEmails] = useState([]);
+  const [communitySelected, setCommunitySelected] = useState([]);
+
   const { user, setUser } = useContext(UserContext);
 
   useEffect(() => {
@@ -40,25 +44,41 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
   };
 
   const handleInviteClick = () => {
+    setManualInput("");
+    setManualEmails([]);
+    setCommunitySelected([]);
     setSelectedParticipant(null);
-    setInviteEmail("");
     setShowInvitePopup(true);
   };
   const handleClosePopup = () => {
     setShowInvitePopup(false);
-    setInviteEmail("");
+  };
+
+  const handleAddEmail = () => {
+    const email = manualInput.trim().toLowerCase();
+    // simple email regex check
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return message.error("Please enter a valid email.");
+    }
+    if (manualEmails.includes(email)) {
+      return message.info("You've already added that email.");
+    }
+    setManualEmails((prev) => [...prev, email]);
+    setManualInput("");
   };
   const handleInviteSubmit = () => {
-    const raw = inviteEmail
-      .split(",")
-      .map(s => s.trim().toLowerCase())
-      .filter(s => s.length > 0);
+    const emails = Array.from(
+      new Set([
+        ...manualEmails,
+        ...communitySelected.map((u) => u.email.toLowerCase()),
+      ])
+    );
 
-    if (raw.length === 0) {
-      return alert("Please enter at least one valid email.");
+    if (emails.length === 0) {
+      return message.error("Select or add at least one email.");
     }
 
-    raw.forEach(email => {
+    emails.forEach((email) => {
       onInvite(email);
       if (process.env.NODE_ENV === "production") {
         mixpanel.track("Participant Invited", { user: user.id, email });
@@ -66,7 +86,6 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
     });
 
     message.success("Invitation(s) sent!");
-    setInviteEmail("");
     setShowInvitePopup(false);
   };
 
@@ -95,8 +114,6 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
     h = h % 12 || 12;
     return `${h}:${m0} ${suf}`;
   }
-
-  console.log(user, activity)
 
   const participantsArray = Array.isArray(activity.participants) ? activity.participants : [];
   const pendingInvitesArray = Array.isArray(activity.activity_participants)
@@ -128,8 +145,6 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
       created_at: null,
     })),
   ];
-
-  console.log(allParticipants)
 
   const shareUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activity.id}/share`;
 
@@ -375,21 +390,40 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
 
       {showInvitePopup && (
         <ParticipantPopupOverlay onClick={handleClosePopup}>
-          <ParticipantPopupContent onClick={e => e.stopPropagation()}>
+          <ParticipantPopupContent onClick={(e) => e.stopPropagation()}>
             <h2>Invite Participants</h2>
-            <DarkInput
-              type="text"
-              placeholder="Enter email(s), comma-separated..."
-              value={inviteEmail}
-              onChange={e => setInviteEmail(e.target.value)}
-            />
+
+            {/* manual entry */}
+            <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem" }}>
+              <DarkInput
+                type="text"
+                placeholder="Enter email…"
+                value={manualInput}
+                onChange={(e) => setManualInput(e.target.value)}
+              />
+              <AddButton onClick={handleAddEmail}>Add</AddButton>
+            </div>
+
+            {/* pills for manual emails */}
+            <EmailsContainer>
+              {manualEmails.map((email, i) => (
+                <EmailPill key={i}>
+                  {email}
+                  <PillClose onClick={() =>
+                    setManualEmails((prev) => prev.filter((_, idx) => idx !== i))
+                  }>
+                    &times;
+                  </PillClose>
+                </EmailPill>
+              ))}
+            </EmailsContainer>
+
+            {/* community multi-select */}
             <MultiSelectCommunity
-              onSelectionChange={usersArray => {
-                const emails = usersArray.map(u => u.email).join(", ");
-                setInviteEmail(emails);
-              }}
+              onSelectionChange={setCommunitySelected}
               onCreateBoard={onCreateBoard}
             />
+
             <ParticipantPopupActions>
               <ParticipantPopupButton onClick={handleInviteSubmit}>
                 Send Invite
@@ -401,6 +435,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
           </ParticipantPopupContent>
         </ParticipantPopupOverlay>
       )}
+
     </>
   );
 };
@@ -731,4 +766,38 @@ const PopupList = styled.ol`
     margin-bottom: 0.5rem;
   }
   text-align: left;
+`;
+
+const AddButton = styled.button`
+  background: #9051e1;
+  color: #fff;
+  border: none;
+  padding: 0 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+`;
+
+const EmailsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+`;
+
+const EmailPill = styled.div`
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+`;
+
+const PillClose = styled.span`
+  margin-left: 0.5rem;
+  cursor: pointer;
+  font-weight: bold;
 `;
