@@ -1,96 +1,117 @@
-import React from "react";
-import styled from "styled-components";
-import { Avatar } from "antd";
-import { PlusCircleOutlined, HomeOutlined } from "@ant-design/icons";
-import { UserContext } from "../context/user";
-import Woman from "../assets/Woman.jpg";
+import React from 'react';
+import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
-const colors = {
-  background: '13, 11, 31', // using numeric values to format in rgba
-  foreground: '#FFFFFF',
-  primary: 'rgba(157,96,248,1)',
-  border: 'rgba(255,255,255,0.2)',
-};
+const FooterContainer = styled.footer`
+  background-color: #ffffff;
+  padding: 1.5rem 1rem;
+  margin-top: auto;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+`;
 
-const FooterContainer = styled.div`
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 1rem 2rem;
+const FooterInner = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  overflow: hidden; /* Ensures the pseudo-element stays within bounds */
-  transition: background 0.2s ease;
-  background-color: ${({ $scrolled }) =>
-    $scrolled ? `rgba(${colors.background})` : `rgba(${colors.background})`};
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: -1; /* Place it behind the content */
-  }
-
-  @media (max-width: 768px) {
-    padding: 1rem;
-  }
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 2rem;
 `;
 
-const IconButton = styled.div`
-  font-size: 2rem; /* Slightly larger to ensure no cutoff */
-  color: white;
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
+const Brand = styled.div`
+  flex: 1 1 200px;
+`;
+
+const BrandName = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: #6c63ff;
+  text-align: left;
+`;
+
+const BrandText = styled.p`
+  font-size: 0.9rem;
+  color: #333333;
+  margin: 0;
+  text-align: left;
+`;
+
+const Column = styled.div`
+  flex: 1 1 120px;
+`;
+
+const ColumnHeading = styled.h4`
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #333333;
+`;
+
+const LinkList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem; /* Ensures even spacing */
-  height: 2.5rem;
-  line-height: 0; /* Fixes icon being clipped */
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const FooterLink = styled(Link)`
+  font-size: 0.9rem;
+  color: #333333;
+  text-decoration: none;
+  transition: color 0.2s ease;
 
   &:hover {
-    transform: scale(1.1);
-    color: #e0e0e0;
+    color: #6c63ff;
   }
 `;
 
-const UserAvatar = styled(Avatar)`
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-  border: 2px solid white;
-
-  &:hover {
-    transform: scale(1.1);
-  }
+const Bottom = styled.div`
+  width: 100%;
+  text-align: center;
+  margin-top: 1.5rem;
 `;
 
-const VoxxyFooter = ({ handleShowActivities, handleShowProfile, handleBack }) => {
-  const { user } = React.useContext(UserContext);
+const Copyright = styled.p`
+  font-size: 0.75rem;
+  color: #666666;
+  margin: 0;
+`;
 
+export default function Footer() {
   return (
     <FooterContainer>
-      <IconButton onClick={() => handleBack()}>
-        <HomeOutlined />
-      </IconButton>
+      <FooterInner>
+        <Brand>
+          <BrandName>Voxxy</BrandName>
+          <BrandText>
+            Making group planning as fun as the events themselves. Powered by AI to help friends plan better and spend more time together.
+          </BrandText>
+        </Brand>
 
-      <IconButton onClick={() => handleShowActivities()}>
-        <PlusCircleOutlined />
-      </IconButton>
+        <Column>
+          <ColumnHeading>Support</ColumnHeading>
+          <LinkList>
+            <li><FooterLink to="/faq">Help Center</FooterLink></li>
+            <li><FooterLink to="/contact">Contact Us</FooterLink></li>
+          </LinkList>
+        </Column>
 
-      <UserAvatar
-        size={40}
-        src={user?.avatar || Woman}
-        onClick={() => handleShowProfile()}
-      />
+        <Column>
+          <ColumnHeading>Legal</ColumnHeading>
+          <LinkList>
+            <li><FooterLink to="/terms">Terms of Service</FooterLink></li>
+            <li><FooterLink to="/privacy">Privacy Policy</FooterLink></li>
+          </LinkList>
+        </Column>
+      </FooterInner>
+
+      <Bottom>
+        <Copyright>© 2025 Voxxy. All Rights Reserved.</Copyright>
+      </Bottom>
     </FooterContainer>
   );
-};
-
-export default VoxxyFooter;
+}

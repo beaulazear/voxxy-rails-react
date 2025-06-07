@@ -10,6 +10,7 @@ import NoBoardsDisplay from './NoBoardsDisplay.js';
 import { HelpCircle, X, User, Users, CalendarDays, Clock } from 'lucide-react';
 import groupmeals from '../assets/groupmeals.jpeg';
 import LetsMeetCardThree from '../assets/LetsMeetCardThree.jpeg';
+import VoxxyFooter from '../components/VoxxyFooter.js'
 
 const fadeIn = keyframes`
   from {
@@ -733,6 +734,7 @@ function UserActivities() {
           <YourCommunity onCreateBoard={() => setShowActivities(true)} />
         </DashboardContainer>
       </Padding>
+      <VoxxyFooter />
     </>
   );
 }
