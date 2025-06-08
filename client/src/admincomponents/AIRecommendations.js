@@ -221,8 +221,6 @@ export default function AIRecommendations({
 
   if (loading) return <LoadingScreenUser autoDismiss={false} />;
 
-  console.log(activity)
-
   return (
     <Container>
       {recommendations.length === 0 && pinnedActivities.length === 0 ? (
@@ -438,9 +436,9 @@ export default function AIRecommendations({
   );
 }
 
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+const fadeInNoTransform = keyframes`
+  from { opacity: 0; }
+  to   { opacity: 1; }
 `;
 
 const gradientAnimation = keyframes`
@@ -454,7 +452,8 @@ const Container = styled.div`
   margin: 0 auto;
   padding: 2rem 1rem;
   color: #fff;
-  animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
+  animation: ${fadeInNoTransform} 0.8s ease-in-out,
+             ${gradientAnimation} 15s ease infinite;
 `;
 
 const TopBar = styled.div`
