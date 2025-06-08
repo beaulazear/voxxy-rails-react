@@ -5,6 +5,9 @@ Rails.application.routes.draw do
     member do
       get :share
     end
+    member do
+      get :calendar, defaults: { format: "ics" }
+    end
     resources :pinned_activities, only: [ :index, :create, :update, :destroy ]
     resources :comments, only: [ :index, :create ]
     resources :time_slots, only: [ :index, :create, :destroy ] do

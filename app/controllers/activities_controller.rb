@@ -159,6 +159,27 @@ class ActivitiesController < HtmlController
       end
     end
 
+    def calendar
+    @activity = Activity.find(params[:id])
+    cal = Icalendar::Calendar.new
+    # build a one-hour event (adjust as you like)
+    starts = DateTime.parse("#{@activity.date_day} #{@activity.date_time.strftime('%H:%M:%S')}")
+    finishes = starts + 1.hour
+
+    cal.event do |e|
+      e.dtstart     = Icalendar::Values::DateTime.new(starts, "tzid" => "America/New_York")
+      e.dtend       = Icalendar::Values::DateTime.new(finishes, "tzid" => "America/New_York")
+      e.summary     = @activity.activity_name
+      e.description = @activity.welcome_message.to_s
+      e.location    = @activity.pinned_activities.find_by(selected: true)&.address.to_s
+      e.url         = share_activity_url(@activity)
+    end
+    cal.publish
+
+    response.headers["Content-Type"] = "text/calendar; charset=UTF-8"
+    render plain: cal.to_ical
+  end
+
     private
 
     def activity_params

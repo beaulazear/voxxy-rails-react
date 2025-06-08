@@ -74,7 +74,42 @@
           <% end %>
         </ul>
       </div>
-      <button class="share-button" id="sharePlan">Share Plan</button>
+      <% if @activity.date_day.present? && @activity.date_time.present? %>
+      <div class="card calendar-card">
+        <h2>📅 Add to Calendar</h2>
+
+        <!-- ICS download for Apple/Outlook/desktop iCal -->
+        <a
+          href="<%= calendar_activity_path(@activity, format: :ics) %>"
+          class="maps-button"
+          download="<%= @activity.activity_name.parameterize %>.ics"
+        >
+          Download iCal (Apple/Outlook)
+        </a>
+
+        <!-- Google Calendar link -->
+        <% # build ISO strings in UTC for Google: %>
+        <% starts_utc = (@activity.date_day.to_datetime + @activity.date_time.seconds_since_midnight.seconds).utc.strftime('%Y%m%dT%H%M%SZ') %>
+        <% ends_utc   = ((@activity.date_day.to_datetime + @activity.date_time.seconds_since_midnight.seconds) + 1.hour).utc.strftime('%Y%m%dT%H%M%SZ') %>
+        <a
+          href="https://calendar.google.com/calendar/render?action=TEMPLATE
+                &text=<%= CGI.escape(@activity.activity_name) %>
+                &dates=<%= starts_utc %>/<%= ends_utc %>
+                &details=<%= CGI.escape(@activity.welcome_message.to_s) %>
+                &location=<%= CGI.escape(pinned&.address.to_s) %>"
+          target="_blank" rel="noopener"
+          class="maps-button"
+        >
+          Add to Google Calendar
+        </a>
+        <a
+          class="maps-button"
+          id="sharePlan"
+        >
+          Share Plan
+        </a>      
+      </div>
+    <% end %>
     </div>
 
     <script>
@@ -82,13 +117,11 @@
     const el = document.getElementById('countdown');
     if (!el) return;
 
-    // pull out the individual pieces
     const [year, month, day] = el.dataset.day.split('-').map(Number);
     const hour   = parseInt(el.dataset.hour,   10);
     const minute = parseInt(el.dataset.minute, 10);
     const second = parseInt(el.dataset.second, 10);
 
-    // construct a local‑time Date(year, monthIndex, day, hour, minute, second)
     const target = new Date(year, month - 1, day, hour, minute, second).getTime();
 
     function updateCountdown() {
