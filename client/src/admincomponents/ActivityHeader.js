@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { UserContext } from "../context/user.js";
-import styled from "styled-components";
+import styled, { keyframes, css } from "styled-components";
 import {
   LeftOutlined,
   EditOutlined,
@@ -8,7 +8,7 @@ import {
   UserAddOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
-import { Users, CalendarDays, Clock, User, HelpCircle, X } from "lucide-react";
+import { Users, CalendarDays, Clock, HelpCircle, X } from "lucide-react";
 import { message } from "antd";
 import Woman from "../assets/Woman.jpg";
 import MultiSelectCommunity from "./MultiSelectCommunity.js";
@@ -25,10 +25,47 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
   const [manualEmails, setManualEmails] = useState([]);
   const [communitySelected, setCommunitySelected] = useState([]);
 
+  const [isBouncing, setIsBouncing] = useState(true);
+
   const { user, setUser } = useContext(UserContext);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    const bounceDuration = 3000;
+    const inactivityDelay = 10000;
+    let bounceTimeout, inactivityTimeout;
+
+    const stopBounce = () => setIsBouncing(false);
+    const startBounce = () => {
+      setIsBouncing(true);
+      clearTimeout(bounceTimeout);
+      bounceTimeout = setTimeout(stopBounce, bounceDuration);
+    };
+
+    const resetInactivity = () => {
+      clearTimeout(inactivityTimeout);
+      inactivityTimeout = setTimeout(startBounce, inactivityDelay);
+    };
+
+    // initial kickoff
+    startBounce();
+    resetInactivity();
+
+    // listen for any user activity
+    ["mousemove", "keydown", "click", "touchstart"].forEach(evt =>
+      document.addEventListener(evt, resetInactivity)
+    );
+
+    return () => {
+      clearTimeout(bounceTimeout);
+      clearTimeout(inactivityTimeout);
+      ["mousemove", "keydown", "click", "touchstart"].forEach(evt =>
+        document.removeEventListener(evt, resetInactivity)
+      );
+    };
   }, []);
 
   const toggleHelp = () => setHelpVisible(v => !v);
@@ -156,13 +193,13 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
             <BackButton onClick={onBack}>
               <LeftOutlined />
             </BackButton>
-            <HelpIcon onClick={toggleHelp}>
+            <HelpIcon $bounce={isBouncing} onClick={toggleHelp} title="Need help?">
               <HelpCircle />
             </HelpIcon>
           </LeftActionButtons>
 
           <ActivityType>
-            {activity.activity_type}
+            {activity.activity_type === 'Restaurant' ? 'Lets Eat! 🍜' : 'Lets Meet! 👥' }
           </ActivityType>
 
           <ActionButtons>
@@ -214,15 +251,11 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
         <Title>{activity.activity_name}</Title>
         <MetaRow>
           <MetaItem>
-            <label><User size={16} /></label>
-            <span>{isOwner ? "You" : activity.user?.name || "Unknown"}</span>
-          </MetaItem>
-          <MetaItem>
-            <label><CalendarDays size={16} /></label>
+            <label><CalendarDays size={18} /></label>
             <span>{formatDate(activity.date_day)}</span>
           </MetaItem>
           <MetaItem>
-            <label><Clock size={16} /></label>
+            <label><Clock size={18} /></label>
             <span>{activity.date_time ? formatTime(activity.date_time) : "TBD"}</span>
           </MetaItem>
           {activity.finalized && (
@@ -240,9 +273,14 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
             </MetaItem>
           )}
         </MetaRow>
-        <Subtitle>
-          {activity.welcome_message || "Welcome to this activity!"}
-        </Subtitle>
+        <HostMessageContainer>
+          <HostName>
+            Organizer: {activity.user?.name || "N/A"}
+          </HostName>
+          <MessageLine>
+            {activity.welcome_message || "Welcome to this activity!"}
+          </MessageLine>
+        </HostMessageContainer>
 
         {!activity.finalized && isOwner && (
           <ChatButton onClick={onEdit}>Finalize Board</ChatButton>
@@ -446,6 +484,12 @@ const colors = {
   accent: '#cc31e8',
 };
 
+const bounceAnimation = keyframes`
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-6px); }
+  60% { transform: translateY(-3px); }
+`;
+
 const DarkInput = styled.input`
   width: 100%;
   padding: 0.75rem 1rem;
@@ -506,6 +550,9 @@ const BackButton = styled.button`
 
 const HelpIcon = styled(BackButton)`
   font-size: 1.4rem;
+  ${({ $bounce }) => $bounce && css`
+    animation: ${bounceAnimation} 1s ease infinite;
+  `}
 `;
 
 const ActivityType = styled.div`
@@ -515,6 +562,7 @@ const ActivityType = styled.div`
   color: rgba(255, 255, 255, 0.85);
   text-transform: uppercase;
   letter-spacing: 1px;
+  padding-top: .5rem;
 `;
 
 const ActionButtons = styled.div`
@@ -543,16 +591,31 @@ const Title = styled.h1`
   text-align: center;
 `;
 
-const Subtitle = styled.p`
+const HostMessageContainer = styled.div`
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  max-width: 500px;
+  margin: 0.75rem auto;
+`;
+
+const HostName = styled.h5`
+  display: flex;
+  justify-content: center;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  color: #fff;
+  margin: 0;
+  margin-bottom: .5rem;
+`;
+
+const MessageLine = styled.p`
   font-family: "Montserrat", sans-serif;
   font-size: clamp(1rem, 2.5vw, 1.3rem);
   font-weight: 300;
   color: rgba(255, 255, 255, 0.85);
-  max-width: 600px;
-  margin: 0.25rem auto 0;
-  line-height: 1.5;
-  text-align: center;
-  padding: 1rem;
+  margin: 0;
+  line-height: 1.4;
 `;
 
 const MetaRow = styled.div`
