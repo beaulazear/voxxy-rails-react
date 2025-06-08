@@ -234,7 +234,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Finalized Activity Link
+                  Share Final Details
                 </a>
               </label>
             </MetaItem>
@@ -441,6 +441,10 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
 };
 
 export default ActivityHeader;
+
+const colors = {
+  accent: '#cc31e8',
+};
 
 const DarkInput = styled.input`
   width: 100%;
@@ -725,8 +729,9 @@ const HelpPopup = styled.div`
   background: #2c1e33;
   padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   z-index: 10000;
+    border-color: ${colors.accent};
+    box-shadow: 0 0 10px ${colors.accent}, 0 0 50px ${colors.accent};
 `;
 
 const PopupHeader = styled.div`

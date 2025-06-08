@@ -92,21 +92,15 @@
         <% starts_utc = (@activity.date_day.to_datetime + @activity.date_time.seconds_since_midnight.seconds).utc.strftime('%Y%m%dT%H%M%SZ') %>
         <% ends_utc   = ((@activity.date_day.to_datetime + @activity.date_time.seconds_since_midnight.seconds) + 1.hour).utc.strftime('%Y%m%dT%H%M%SZ') %>
         <a
-          href="https://calendar.google.com/calendar/render?action=TEMPLATE
-                &text=<%= CGI.escape(@activity.activity_name) %>
-                &dates=<%= starts_utc %>/<%= ends_utc %>
-                &details=<%= CGI.escape(@activity.welcome_message.to_s) %>
-                &location=<%= CGI.escape(pinned&.address.to_s) %>"
-          target="_blank" rel="noopener"
-          class="maps-button"
+          class="maps-button-disabled"
         >
-          Add to Google Calendar
+          Google Calendar Coming Soon
         </a>
         <a
           class="maps-button"
           id="sharePlan"
         >
-          Share Plan
+          Share Plan Link
         </a>      
       </div>
     <% end %>
