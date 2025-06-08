@@ -221,9 +221,6 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
   const totalSteps = 4;
   const percent = (step / totalSteps) * 100;
 
-  console.log(user)
-
-  // Step 1: Cuisine selections (nine popular cuisines + 'Surprise me!')
   const cuisineOptions = [
     'Italian',
     'Mexican',
@@ -238,7 +235,6 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
   const [selectedCuisines, setSelectedCuisines] = useState(['Surprise me!']);
   const [otherCuisine, setOtherCuisine] = useState('');
 
-  // Step 2: Atmosphere selections (nine options)
   const atmosphereOptions = [
     'Casual',
     'Trendy',
@@ -253,7 +249,6 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
   const [selectedAtmospheres, setSelectedAtmospheres] = useState([]);
   const [otherAtmosphere, setOtherAtmosphere] = useState('');
 
-  // Step 3: Budget cards
   const budgetOptions = [
     { label: 'No preference', icon: '🤷' },
     { label: 'Budget-friendly', icon: '💰' },
@@ -261,10 +256,8 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
   ];
   const [selectedBudget, setSelectedBudget] = useState('No preference');
 
-  // Step 4: Dietary preferences
   const [dietary, setDietary] = useState(user.preferences || '');
 
-  // Scroll input into view on focus
   const handleInputFocus = (e) => {
     const target = e.target;
     if (contentRef.current && target) {
@@ -272,14 +265,12 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
     }
   };
 
-  // Step 1 handlers
   const toggleCuisine = (cuisine) => {
     if (cuisine === 'Surprise me!') {
       setSelectedCuisines(['Surprise me!']);
       setOtherCuisine('');
       return;
     }
-    // If any other cuisine is chosen, unselect 'Surprise me!'
     const withoutSurprise = selectedCuisines.filter((c) => c !== 'Surprise me!');
     if (withoutSurprise.includes(cuisine)) {
       setSelectedCuisines(withoutSurprise.filter((c) => c !== cuisine));
@@ -290,7 +281,6 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
   const addCustomCuisine = () => {
     const trimmed = otherCuisine.trim();
     if (!trimmed) return;
-    // If adding a custom cuisine, unselect 'Surprise me!'
     const withoutSurprise = selectedCuisines.filter((c) => c !== 'Surprise me!');
     if (!withoutSurprise.includes(trimmed)) {
       setSelectedCuisines([...withoutSurprise, trimmed]);
@@ -298,7 +288,6 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
     setOtherCuisine('');
   };
 
-  // Step 2 handlers
   const toggleAtmosphereOption = (atm) => {
     setSelectedAtmospheres((prev) =>
       prev.includes(atm) ? prev.filter((a) => a !== atm) : [...prev, atm]
@@ -313,7 +302,6 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
     setOtherAtmosphere('');
   };
 
-  // Validation for Next
   const isNextDisabled = () => {
     if (step === 1) return selectedCuisines.length === 0;
     if (step === 2) return selectedAtmospheres.length === 0;
@@ -329,7 +317,6 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
     }
   };
 
-  // Remove pill helper
   const handleRemovePill = (item, listSetter, list) => {
     listSetter(list.filter((i) => i !== item));
   };
@@ -442,7 +429,6 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
         </ModalHeader>
 
         <StepContent ref={contentRef}>
-          {/* Step 1: Cuisine */}
           {step === 1 && (
             <>
               <Label>Choose Cuisines</Label>
@@ -516,7 +502,6 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
             </>
           )}
 
-          {/* Step 2: Atmosphere */}
           {step === 2 && (
             <>
               <Label>Select Atmospheres</Label>
@@ -590,7 +575,6 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
             </>
           )}
 
-          {/* Step 3: Budget */}
           {step === 3 && (
             <>
               <Label>Budget</Label>
@@ -609,7 +593,6 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
             </>
           )}
 
-          {/* Step 4: Dietary Preferences */}
           {step === 4 && (
             <>
               <Label>Dietary Preferences / Food Preferences</Label>

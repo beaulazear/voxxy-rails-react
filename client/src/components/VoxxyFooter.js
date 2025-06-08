@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
 
 const FooterContainer = styled.footer`
   background-color: #ffffff;
@@ -21,6 +20,8 @@ const FooterInner = styled.div`
 const Brand = styled.div`
   flex: 1 1 100%;
   text-align: left;
+  padding-left: 1rem;
+  padding-right: 1rem;
 `;
 
 const BrandName = styled.h3`
@@ -34,38 +35,6 @@ const BrandText = styled.p`
   font-size: 0.9rem;
   color: #333333;
   margin: 0;
-`;
-
-const Column = styled.div`
-  flex: 1 1 calc(50% - 1rem);
-  min-width: 120px;
-`;
-
-const ColumnHeading = styled.h4`
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-  color: #333333;
-`;
-
-const LinkList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-
-const FooterLink = styled(Link)`
-  font-size: 0.9rem;
-  color: #333333;
-  text-decoration: none;
-  transition: color 0.2s ease;
-
-  &:hover {
-    color: #6c63ff;
-  }
 `;
 
 const Bottom = styled.div`
@@ -90,26 +59,10 @@ export default function Footer() {
             Making group planning as fun as the events themselves. Powered by AI to help friends plan better and spend more time together.
           </BrandText>
         </Brand>
-
-        <Column>
-          <ColumnHeading>Support</ColumnHeading>
-          <LinkList>
-            <li><FooterLink to="/faq">Help Center</FooterLink></li>
-            <li><FooterLink to="/contact">Contact Us</FooterLink></li>
-          </LinkList>
-        </Column>
-
-        <Column>
-          <ColumnHeading>Legal</ColumnHeading>
-          <LinkList>
-            <li><FooterLink to="/terms">Terms of Service</FooterLink></li>
-            <li><FooterLink to="/privacy">Privacy Policy</FooterLink></li>
-          </LinkList>
-        </Column>
       </FooterInner>
 
       <Bottom>
-        <Copyright>© 2025 Voxxy. All Rights Reserved.</Copyright>
+        <Copyright>© 2025 Voxxy AI Inc. All Rights Reserved.</Copyright>
       </Bottom>
     </FooterContainer>
   );
