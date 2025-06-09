@@ -3,7 +3,7 @@ import { UserContext } from "../context/user";
 import styled, { keyframes } from "styled-components";
 import { SendOutlined } from "@ant-design/icons";
 import Woman from "../assets/Woman.jpg";
-import { MessageSquareMore } from 'lucide-react';
+import { NotepadText } from 'lucide-react';
 
 const slideUp = keyframes`
   from { transform: translateY(100%); }
@@ -64,8 +64,8 @@ const CommentsSection = ({ activity }) => {
     <Wrapper>
       <ChatPanel>
         <Header>
-          <Title>Voxxy Group Chat</Title>
-          <IconWrapper><MessageSquareMore size={24} /></IconWrapper>
+          <Title>Activity Updates</Title>
+          <IconWrapper><NotepadText size={24} /></IconWrapper>
         </Header>
 
         <Messages ref={commentsRef}>
@@ -85,7 +85,7 @@ const CommentsSection = ({ activity }) => {
                       </AvatarContainer>
                     )}
                     <Bubble $me={isMe}>
-                      <Text>{c.content}</Text>
+                      <Text style={{textAlign: 'left'}}>{c.content}</Text>
                       <TimeStamp $me={isMe}>{formatTime(c.created_at)}</TimeStamp>
                     </Bubble>
                     {isMe && (

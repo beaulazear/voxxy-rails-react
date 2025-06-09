@@ -21,8 +21,19 @@ class ResponsesController < ApplicationController
               .where.not(id: response.id)
               .destroy_all
 
-      ActivityResponseEmailService.send_response_email(response, activity)
-      render json: response, status: :created
+    ActivityResponseEmailService.send_response_email(response, activity)
+    comment = activity.comments.create!(
+      user_id: current_user.id,
+      content: "#{current_user.name} has submitted their preferences! 💕"
+    )
+    render json: {
+      response: response,
+      comment: comment.as_json(
+        include: {
+          user: { only: [ :id, :name, :email, :avatar ] }
+        }
+      )
+    }, status: :created
     else
       render json: { errors: response.errors.full_messages }, status: :unprocessable_entity
     end

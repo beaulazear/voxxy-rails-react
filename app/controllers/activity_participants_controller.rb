@@ -183,7 +183,14 @@ class ActivityParticipantsController < ApplicationController
     content: "#{participant.invited_email} was removed from the activity. 😢"
   )
 
-  render json: { message: "Participant removed.", comment: new_comment }, status: :ok
+  render json: {
+    message: "Participant Removed",
+    comment: new_comment.as_json(
+      include: {
+        user: { only: [ :id, :name, :email, :avatar ] }
+      }
+    )
+  }, status: :created
   rescue => e
     render json: { error: e.message }, status: :unprocessable_entity
   end

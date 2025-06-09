@@ -341,7 +341,7 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
     }
 
     try {
-      const response = await fetch(`${API_URL}/responses`, {
+      const res = await fetch(`${API_URL}/responses`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -350,51 +350,50 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
         }),
       });
 
-      if (response.ok) {
-        const newResponse = await response.json();
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error('❌ Failed to save response:', errorData);
+        return;
+      }
 
-        setUser((prevUser) => {
-          const updatedActivities = prevUser.activities.map((activity) => {
-            if (activity.id === activityId) {
-              return {
-                ...activity,
-                responses: [...(activity.responses || []), newResponse],
-              };
-            }
-            return activity;
-          });
+      const { response: newResponse, comment: newComment } = await res.json();
 
-          const updatedParticipantActivities =
-            prevUser.participant_activities.map((participant) => {
-              if (participant.activity.id === activityId) {
-                return {
-                  ...participant,
-                  activity: {
-                    ...participant.activity,
-                    responses: [
-                      ...(participant.activity.responses || []),
-                      newResponse,
-                    ],
-                  },
-                };
-              }
-              return participant;
-            });
-
-          return {
-            ...prevUser,
-            activities: updatedActivities,
-            participant_activities: updatedParticipantActivities,
-          };
+      setUser((prev) => {
+        const activities = prev.activities.map((act) => {
+          if (act.id === activityId) {
+            return {
+              ...act,
+              responses: [...(act.responses || []), newResponse],
+              comments: [...(act.comments || []), newComment],
+            };
+          }
+          return act;
         });
 
-        onChatComplete(newResponse);
-      } else {
-        const errorData = await response.json();
-        console.error('❌ Failed to save response:', errorData);
-      }
+        const participant_activities = prev.participant_activities.map((pa) => {
+          if (pa.activity.id === activityId) {
+            return {
+              ...pa,
+              activity: {
+                ...pa.activity,
+                responses: [...(pa.activity.responses || []), newResponse],
+                comments: [...(pa.activity.comments || []), newComment],
+              },
+            };
+          }
+          return pa;
+        });
+
+        return {
+          ...prev,
+          activities,
+          participant_activities,
+        };
+      });
+
+      onChatComplete(newResponse, newComment);
     } catch (error) {
-      console.error('❌ Error:', error);
+      console.error('❌ Error submitting response:', error);
     }
 
     onClose();

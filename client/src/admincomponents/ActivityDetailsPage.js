@@ -94,8 +94,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
     });
 
     if (response.ok) {
-      const data = await response.json();
-      console.log(data)
       const newParticipant = {
         invited_email: normalizedEmail,
         name: 'Invite Pending',
@@ -209,28 +207,24 @@ function ActivityDetailsPage({ activityId, onBack }) {
       if (!res.ok) throw new Error(data.error || "Remove failed");
       message.success('Participant successfully removed!');
 
-      // NEW: grab the created comment
-      const { comment: newComment } = data;
+      console.log(data)
+      const newComment = data.comment;
+      console.log(newComment)
 
-      // 1) update global user context
       setUser(prev => ({
         ...prev,
         activities: prev.activities.map(a => {
           if (a.id !== currentActivity.id) return a;
           return {
             ...a,
-            // prune out that participant
             participants: (a.participants || []).filter(p => p.email !== participant.email),
             activity_participants: (a.activity_participants || [])
               .filter(ap => ap.invited_email !== participant.email),
-            // APPEND the new comment
             comments: [...(a.comments || []), newComment],
           };
         })
       }));
 
-
-      // 2) update local currentActivity
       setCurrentActivity(prev => ({
         ...prev,
         participants: (prev.participants || []).filter(p => p.email !== participant.email),

@@ -22,8 +22,8 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
 
   const handleViewAllClick = () => setShowAllParticipants(true);
   const handleCloseAll = () => setShowAllParticipants(false);
-  const handleRemove = (participant) => {
-    onRemoveParticipant(participant);
+  const handleRemove = (participant, comment) => {
+    onRemoveParticipant(participant, comment);
   };
 
   const [showUpdate, setShowUpdate] = useState(false);
@@ -211,7 +211,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
   const restaurantSteps = [
     {
       title: "1️⃣ Submit Your Preferences",
-      desc: "Take the quiz and leave feed back that will change which recommendations the group recieves."
+      desc: "Take the quiz and share your feedback to help tailor the group’s recommendations."
     },
     {
       title: "2️⃣ Invite & Vote",
@@ -412,7 +412,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
           <AllParticipantsContent onClick={e => e.stopPropagation()}>
             <PopupHeader>
               <PopupTitle>All Attendees</PopupTitle>
-              <CloseButton onClick={handleCloseAll}><X size={16} /></CloseButton>
+              <CloseButton onClick={handleCloseAll}><X size={20} /></CloseButton>
             </PopupHeader>
             <AllList>
               {allParticipants.map((p, i) => (
@@ -429,7 +429,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
                     </div>
                   </Info>
                   {isOwner && !p.name.includes('(Host)') && (
-                    <X size={18} style={{ color: 'red' }} onClick={() => handleRemove(p)} />
+                    <X size={18} style={{ color: 'red', cursor: 'pointer' }} onClick={() => handleRemove(p)} />
                   )}
                 </ParticipantItem>
               ))}
@@ -760,7 +760,7 @@ const ParticipantPopupContent = styled.div`
   text-align: center;
   max-width: 420px;
   color: #fff;
-  max-height: 80vh;
+  max-height: 90vh;
   overflow-y: auto;
 `;
 
