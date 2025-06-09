@@ -984,7 +984,6 @@ const AllList = styled.div`
       flex-direction: column;
       gap: 0.75rem;
       max-height: 60vh;
-      overflow-y: auto;
       margin-top: 1rem;
       `;
 
@@ -995,6 +994,7 @@ const ParticipantItem = styled.div`
       background: #2c1e33;
       padding: 0.75rem 1rem;
       border-radius: 8px;
+      overflow-y: auto;
       `;
 
 const Info = styled.div`
