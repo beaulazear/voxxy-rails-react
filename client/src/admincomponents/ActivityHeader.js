@@ -240,6 +240,10 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
     }
   ];
   const steps = activity.activity_type === "Restaurant" ? restaurantSteps : meetingSteps;
+  function handleHelpClose() {
+    setHelpStep(0)
+    toggleHelp()
+  }
 
   return (
     <>
@@ -317,7 +321,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
         </MetaRow>
         <HostMessageContainer>
           <ParticipantsTitle>
-            Organizer - <User style={{ marginBottom: '5px' }} size={20} /> {activity.user?.name || "N/A"}
+            <User style={{ marginBottom: '5px' }} size={20} /> {activity.user?.name || "N/A"} - Organizer
           </ParticipantsTitle>
           <MessageLine>
             {activity.welcome_message || "Welcome to this activity!"}
@@ -325,18 +329,18 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
         </HostMessageContainer>
         {activity.finalized && (
           <label>
-            <a
+            <ChatButton
               href={shareUrl}
               target="_blank"
               rel="noopener noreferrer"
               style={{ textDecoration: 'none' }}
             >
               Share Final Details
-            </a>
+            </ChatButton>
           </label>
         )}
         {!activity.finalized && isOwner && (
-          <ChatButton onClick={onEdit}>Finalize Board</ChatButton>
+          <ChatButton style={{ textDecoration: 'none' }} onClick={onEdit}>Finalize Board</ChatButton>
         )}
       </HeaderContainer >
 
@@ -389,35 +393,37 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
       )}
 
       {helpVisible && (
-        <HelpPopup onClick={e => e.stopPropagation()}>
-          <PopupHeader>
-            <PopupTitle>How to use this page ✨</PopupTitle>
-            <CloseButton onClick={toggleHelp}>
-              <X size={16} />
-            </CloseButton>
-          </PopupHeader>
-          <StepContainer>
-            <StepTitle>{steps[helpStep].title}</StepTitle>
-            <StepDesc>{steps[helpStep].desc}</StepDesc>
-            <NavControls>
-              <NavButton
-                onClick={() => setHelpStep(s => s - 1)}
-                disabled={helpStep === 0}
-              >
-                ← Previous
-              </NavButton>
-              {helpStep < steps.length - 1 ? (
-                <NavButton onClick={() => setHelpStep(s => s + 1)}>
-                  Next →
+        <HelpOverlay onClick={handleHelpClose}>
+          <HelpPopup onClick={e => e.stopPropagation()}>
+            <PopupHeader>
+              <PopupTitle>How to use this page ✨</PopupTitle>
+              <CloseButton onClick={handleHelpClose}>
+                <X size={16} />
+              </CloseButton>
+            </PopupHeader>
+            <StepContainer>
+              <StepTitle>{steps[helpStep].title}</StepTitle>
+              <StepDesc>{steps[helpStep].desc}</StepDesc>
+              <NavControls>
+                <NavButton
+                  onClick={() => setHelpStep(s => s - 1)}
+                  disabled={helpStep === 0}
+                >
+                  ← Previous
                 </NavButton>
-              ) : (
-                <NavButton onClick={toggleHelp}>
-                  Done
-                </NavButton>
-              )}
-            </NavControls>
-          </StepContainer>
-        </HelpPopup>
+                {helpStep < steps.length - 1 ? (
+                  <NavButton onClick={() => setHelpStep(s => s + 1)}>
+                    Next →
+                  </NavButton>
+                ) : (
+                  <NavButton onClick={handleHelpClose}>
+                    Done
+                  </NavButton>
+                )}
+              </NavControls>
+            </StepContainer>
+          </HelpPopup>
+        </HelpOverlay>
       )}
 
       {showAllParticipants && (
@@ -545,495 +551,507 @@ const colors = {
 };
 
 const bounceAnimation = keyframes`
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-6px); }
-  60% { transform: translateY(-3px); }
-`;
+      0%, 20%, 50%, 80%, 100% {transform: translateY(0); }
+      40% {transform: translateY(-6px); }
+      60% {transform: translateY(-3px); }
+      `;
 
 const DarkInput = styled.input`
-  width: 100%;
-  padding: 0.75rem 1rem;
-  margin: 1rem 0;
-  background: rgba(255, 255, 255, 0.08);
-  color: #eee;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  font-size: 1rem;
-  font-family: "Inter", sans-serif;
-  transition: border-color 0.2s, background 0.2s;
+      width: 100%;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      background: rgba(255, 255, 255, 0.08);
+      color: #eee;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: "Inter", sans-serif;
+      transition: border-color 0.2s, background 0.2s;
 
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.5);
   }
 
-  &:focus {
-    outline: none;
-    background: rgba(255, 255, 255, 0.12);
-    border-color: #9051e1;
-    box-shadow: 0 0 0 3px rgba(144, 81, 225, 0.2);
+      &:focus {
+        outline: none;
+      background: rgba(255, 255, 255, 0.12);
+      border-color: #9051e1;
+      box-shadow: 0 0 0 3px rgba(144, 81, 225, 0.2);
   }
 
-  &:disabled {
-    background: rgba(255, 255, 255, 0.04);
-    color: rgba(255, 255, 255, 0.4);
-    cursor: not-allowed;
+      &:disabled {
+        background: rgba(255, 255, 255, 0.04);
+      color: rgba(255, 255, 255, 0.4);
+      cursor: not-allowed;
   }
-`;
+      `;
 
 const HeaderContainer = styled.div`
-  position: relative;
-  border-radius: 16px;
-  margin: 0 auto;
-`;
+      position: relative;
+      border-radius: 16px;
+      margin: 0 auto;
+      `;
 
 const TopBar = styled.div`
-  display: grid;
-  grid-template-columns: max-content 1fr max-content;
-  align-items: center;
-  width: 100%;
-  max-width: 450px;
-  margin: auto;
-`;
+      display: grid;
+      grid-template-columns: max-content 1fr max-content;
+      align-items: center;
+      width: 100%;
+      max-width: 450px;
+      margin: auto;
+      `;
 
 const LeftActionButtons = styled.div`
-  justify-self: start;
-  display: flex;
-`;
+      justify-self: start;
+      display: flex;
+      `;
 
 const BackButton = styled.button`
-  border: none;
-  background: none;
-  font-size: 1.5rem;
-  color: #fff;
-  cursor: pointer;
-`;
+      border: none;
+      background: none;
+      font-size: 1.5rem;
+      color: #fff;
+      cursor: pointer;
+      `;
 
 const HelpIcon = styled(BackButton)`
-  font-size: 1.4rem;
-  padding-bottom: 5px;
-  ${({ $bounce }) => $bounce && css`
+      font-size: 1.4rem;
+      padding-bottom: 5px;
+      ${({ $bounce }) => $bounce && css`
     animation: ${bounceAnimation} 1s ease infinite;
   `}
-`;
+      `;
 
 const ActivityType = styled.div`
-  font-family: "Montserrat", sans-serif;
-  font-size: clamp(1.2rem, 2.5vw, 1.75rem);
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.85);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding-top: .5rem;
-`;
+      font-family: "Montserrat", sans-serif;
+      font-size: clamp(1.2rem, 2.5vw, 1.75rem);
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.85);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding-top: .5rem;
+      `;
 
 const ActionButtons = styled.div`
-  justify-self: end;
-  display: flex;
-`;
+      justify-self: end;
+      display: flex;
+      `;
 
 const EditIcon = styled.button`
-  border: none;
-  background: none;
-  color: #6a1b9a;
-  font-size: 1.5rem;
-  cursor: pointer;
-`;
+      border: none;
+      background: none;
+      color: #6a1b9a;
+      font-size: 1.5rem;
+      cursor: pointer;
+      `;
 
 const DeleteIcon = styled(EditIcon)`
-  color: #e74c3c;
-`;
+      color: #e74c3c;
+      `;
 
 const Title = styled.h1`
-  font-family: "Montserrat", sans-serif;
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
-  font-weight: bold;
-  color: #fff;
-  margin: 1rem 1.5rem 1rem;
-  text-align: center;
-`;
+      font-family: "Montserrat", sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: bold;
+      color: #fff;
+      margin: 1rem 1.5rem 1rem;
+      text-align: center;
+      `;
 
 const HostMessageContainer = styled.div`
-  border-radius: 12px;
-  padding: 0.75rem 1rem;
-  max-width: 500px;
-  margin: 0.75rem auto;
-`;
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      max-width: 500px;
+      margin: 0.75rem auto;
+      `;
 
 const MessageLine = styled.p`
-  font-family: "Montserrat", sans-serif;
-  font-size: clamp(1.2rem, 2.75vw, 1.5rem);
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.85);
-  margin: 0;
-  line-height: 1.6;
-  padding: 0.5rem;
-`;
+      font-family: "Montserrat", sans-serif;
+      font-size: clamp(1.1rem, 2.75vw, 1.3rem);
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 0;
+      line-height: 1.6;
+      padding: 0.5rem;
+      `;
 
 const MetaRow = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-`;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      `;
 
 const MetaItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #fff;
 
-  label {
-    display: flex;
-    align-items: center;
+      label {
+        display: flex;
+      align-items: center;
   }
-  span {
-    font-size: 1.25rem;
+      span {
+        font - size: 1.25rem;
   }
-`;
+      `;
 
-const ChatButton = styled.button`
-  background: none;
-  color: #9051e1;
-  border: solid 1px;
-  border-radius: 9999px;
-  padding: 0.5rem 1rem;
-  padding-right: 0.5rem;
-  padding-left: 0.5rem;
-  margin-bottom: .8rem;
-  font-weight: 500;
-  cursor: pointer;
-  &:hover {
-    box-shadow: 0 4px 8px rgba(207, 56, 221, 0.6);
-    background-color: #bf2aca;
-    color: #fff;
+const ChatButton = styled.a`
+      background: none;
+      color: #9051e1;
+      border: solid 1px;
+      border-radius: 9999px;
+      padding: 0.5rem 1rem;
+      padding-right: 0.5rem;
+      padding-left: 0.5rem;
+      font-weight: 500;
+      cursor: pointer;
+      &:hover {
+        box - shadow: 0 4px 8px rgba(207, 56, 221, 0.6);
+      background-color: #bf2aca;
+      color: #fff;
+      text-decration: none;
   }
-`;
+      `;
 
 const AttendeeContainer = styled.div`
-  border-radius: 16px;
-  margin: auto;
-  max-width: 600px;
-  padding: 1rem 1rem 0rem;
-  text-align: center;
-`;
+      border-radius: 16px;
+      margin: auto;
+      margin-top: 1rem;
+      max-width: 600px;
+      padding: 1rem 1rem 0rem;
+      text-align: center;
+      `;
 
 const ParticipantsSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-`;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      `;
 
 const ParticipantsTitle = styled.h4`
-  font-family: "Montserrat", sans-serif;
-  font-size: 1.3rem;
-  color: #fff;
-  margin: 0;
-`;
+      font-family: "Montserrat", sans-serif;
+      font-size: 1.3rem;
+      color: #fff;
+      margin: 0;
+      `;
 
 const ParticipantsRow = styled.div`
-  display: flex;
-  align-items: center;
-  margin-top: 1rem;
-`;
+      display: flex;
+      align-items: center;
+      margin-top: 1rem;
+      `;
 
 const ParticipantsScroll = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  overflow-x: auto;
-  padding-bottom: 10px;
-  margin: auto;
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      margin: auto;
 
-  &::-webkit-scrollbar {
-    height: 6px;
+      &::-webkit-scrollbar {
+        height: 6px;
   }
-  &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
+      &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
   }
-`;
+      `;
 
 const ParticipantCircle = styled.div`
-  flex: 0 0 50px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: ${({ $pending }) => ($pending ? "#aaa" : "#4a0d5c")};
-  overflow: hidden;
-`;
+      flex: 0 0 50px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: ${({ $pending }) => ($pending ? "#aaa" : "#4a0d5c")};
+      overflow: hidden;
+      `;
 
 const ParticipantImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-`;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      `;
 
 const InviteCircle = styled(ParticipantCircle)`
-  background: #9051e1;
-  color: #fff;
-  border: 2px dashed white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-`;
+      background: #9051e1;
+      color: #fff;
+      border: 2px dashed white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      `;
 
 const LeaveButton = styled.button`
-  background: #a02e2e;
-  color: #fff;
-  border: none;
-  padding: 0.3rem 0.8rem;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  cursor: pointer;
-`;
+      background: #a02e2e;
+      color: #fff;
+      border: none;
+      padding: 0.3rem 0.8rem;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      cursor: pointer;
+      `;
 
 const ParticipantPopupOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backdrop-filter: blur(10px);
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-`;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      `;
 
 const ParticipantPopupContent = styled.div`
-  background: #201925;
-  padding: 2rem;
-  border-radius: 18px;
-  text-align: center;
-  max-width: 420px;
-  color: #fff;
-  max-height: 90vh;
-  overflow-y: auto;
-`;
+      background: #201925;
+      padding: 2rem;
+      border-radius: 18px;
+      text-align: center;
+      max-width: 420px;
+      color: #fff;
+      max-height: 90vh;
+      overflow-y: auto;
+      `;
 
 const ParticipantPopupActions = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 1rem;
-`;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+      `;
 
 const ParticipantPopupButton = styled.button`
-  padding: 0.7rem 1.4rem;
-  background: white;
-  color: #6a1b9a;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: bold;
+      padding: 0.7rem 1.4rem;
+      background: white;
+      color: #6a1b9a;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.8);
+      &:hover {
+        background: rgba(255, 255, 255, 0.8);
   }
 
-  &.cancel {
-    background: rgba(255, 255, 255, 0.3);
-    color: #fff;
-    &:hover {
-      background: rgba(255, 255, 255, 0.5);
+      &.cancel {
+        background: rgba(255, 255, 255, 0.3);
+      color: #fff;
+      &:hover {
+        background: rgba(255, 255, 255, 0.5);
     }
   }
-`;
+      `;
+
+const HelpOverlay = styled.div`
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);  /* optional dim behind */
+      z-index: 10000;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;  /* or center if you like */
+      padding-top: 80px;        /* match your HelpPopup top */
+      `;
 
 const HelpPopup = styled.div`
-  position: fixed;
-  top: 80px;
-  width: 90%;
-  max-width: 400px;
-  background: #2c1e33;
-  padding: 1rem;
-  border-radius: 8px;
-  z-index: 10000;
-    border-color: ${colors.accent};
-    box-shadow: 0 0 10px ${colors.accent}, 0 0 50px ${colors.accent};
-`;
+      position: fixed;
+      top: 80px;
+      width: 90%;
+      max-width: 400px;
+      background: #2c1e33;
+      padding: 1rem;
+      border-radius: 8px;
+      z-index: 10000;
+      border-color: ${colors.accent};
+      box-shadow: 0 0 10px ${colors.accent}, 0 0 50px ${colors.accent};
+      `;
 
 const PopupHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-  color: #fff;
-  text-align: center;
-`;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      color: #fff;
+      text-align: center;
+      `;
 
 const PopupTitle = styled.h4`
-  margin: 0 auto;
-  font-size: 1rem;
-  font-weight: bold;
-  color: #fff;
-  font-family: "Montserrat", sans-serif;
-`;
+      margin: 0 auto;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #fff;
+      font-family: "Montserrat", sans-serif;
+      `;
 
 const CloseButton = styled.button`
-  background: transparent;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  padding: 0;
-`;
+      background: transparent;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      padding: 0;
+      `;
 
 const StepContainer = styled.div`
-  text-align: left;
-  padding: 1rem;
-`;
+      text-align: left;
+      padding: 1rem;
+      `;
 
 const StepTitle = styled.h5`
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 0.5rem;
-`;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 0.5rem;
+      `;
 
 const StepDesc = styled.p`
-  font-size: 0.95rem;
-  line-height: 1.4;
-  color: rgba(255,255,255,0.85);
-  margin-bottom: 1rem;
-`;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 1rem;
+      `;
 
 const NavControls = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
+      display: flex;
+      justify-content: space-between;
+      `;
 
 const NavButton = styled.button`
-  background: #9051e1;
-  color: #fff;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  &:disabled {
-    background: rgba(144,81,225,0.4);
-    cursor: not-allowed;
+      background: #9051e1;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      &:disabled {
+        background: rgba(144,81,225,0.4);
+      cursor: not-allowed;
   }
-`;
+      `;
 
 const AddButton = styled.button`
-  background: #9051e1;
-  color: #fff;
-  border: none;
-  padding: 0 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-`;
+      background: #9051e1;
+      color: #fff;
+      border: none;
+      padding: 0 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      `;
 
 const EmailsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-`;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      `;
 
 const EmailPill = styled.div`
-  display: inline-flex;
-  align-items: center;
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-`;
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      `;
 
 const PillClose = styled.span`
-  margin-left: 0.5rem;
-  cursor: pointer;
-  font-weight: bold;
-`;
+      margin-left: 0.5rem;
+      cursor: pointer;
+      font-weight: bold;
+      `;
 
 const AllParticipantsOverlay = styled(ParticipantPopupOverlay)``;
 
 const AllParticipantsContent = styled(ParticipantPopupContent)`
-  max-width: 600px;
-  width: 90%;
-  text-align: left;
-`;
+      max-width: 600px;
+      width: 90%;
+      text-align: left;
+      `;
 
 const AllList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  max-height: 60vh;
-  overflow-y: auto;
-  margin-top: 1rem;
-`;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-height: 60vh;
+      overflow-y: auto;
+      margin-top: 1rem;
+      `;
 
 const ParticipantItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #2c1e33;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-`;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #2c1e33;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      `;
 
 const Info = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-`;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      `;
 
 const ProgressContainer = styled.div`
-  margin: 0.75rem 1.5rem;
-`;
+      margin: 0.75rem 1.5rem;
+      `;
 const ProgressText = styled.div`
-  font-size: 0.9rem;
-  color: #fff;
-  margin-bottom: 0.5rem;
-`;
+      font-size: 0.9rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+      `;
 const ProgressBarBackground = styled.div`
-  width: 100%;
-  background: rgba(255,255,255,0.1);
-  border-radius: 4px;
-  height: 8px;
-`;
+      width: 100%;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      height: 8px;
+      `;
 const ProgressBarFill = styled.div`
-  height: 8px;
-  background: ${colors.accent};
-  border-radius: 4px;
-  width: ${props => props.width}%;
-  transition: width 0.3s ease;
-`;
+      height: 8px;
+      background: ${colors.accent};
+      border-radius: 4px;
+      width: ${props => props.width}%;
+      transition: width 0.3s ease;
+      `;
 const Details = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
+      display: flex;
+      flex-direction: column;
+      `;
 
 const EmailLine = styled.span`
-  font-size: 0.85rem;
-  color: #ccc;
-  margin-bottom: 0.5rem;
-`;
+      font-size: 0.85rem;
+      color: #ccc;
+      margin-bottom: 0.5rem;
+      `;
 
 const StatusRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
-`;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+      `;
 
 const StatusText = styled.span`
-  font-size: 0.85rem;
-  color: #ccc;
-`;
+      font-size: 0.85rem;
+      color: #ccc;
+      `;
 
 const RemoveButton = styled.button`
-  background: transparent;
-  border: none;
-  color: #e74c3c;
-  cursor: pointer;
-  padding: 0;
-  flex-shrink: 0;
-`;
+      background: transparent;
+      border: none;
+      color: #e74c3c;
+      cursor: pointer;
+      padding: 0;
+      flex-shrink: 0;
+      `;
