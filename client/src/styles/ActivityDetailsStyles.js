@@ -19,6 +19,12 @@ export const PageContainer = styled.div`
   padding-top: 80px;
   box-sizing: border-box;
   background-size: 400% 400%;
+  background-image: linear-gradient(
+  to right,
+  #201925,    /* deep base */
+  #2b2238,    /* midtone */
+  #362a4c     /* highlight */
+);
   animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
 `;
 
@@ -53,9 +59,9 @@ export const StyledButton = styled.button`
 
   &:hover {
     background: ${(props) =>
-      props.$isDelete
-        ? "darkred"
-        : "linear-gradient(135deg, #4e0f63, #6a1b8a)"};
+    props.$isDelete
+      ? "darkred"
+      : "linear-gradient(135deg, #4e0f63, #6a1b8a)"};
   }
 
   @media (max-width: 768px) {
