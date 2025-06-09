@@ -455,7 +455,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
 
                     <Details>
                       <strong>{p.name}</strong>
-                      <EmailLine>{p.email}</EmailLine>
+                      <EmailLine className="email">{p.email}</EmailLine>
 
                       <StatusRow>
                         {hasResponded(p)
@@ -988,14 +988,21 @@ const AllList = styled.div`
       `;
 
 const ParticipantItem = styled.div`
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #2c1e33;
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      overflow-y: auto;
-      `;
+  display: flex;
+  align-items: center;
+  background: #2c1e33;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+
+  /* ensure flex children can shrink */
+  & > .email {
+    flex: 1;
+    min-width: 0;                /* ← critical to let it actually shrink */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+`;
 
 const Info = styled.div`
       display: flex;
