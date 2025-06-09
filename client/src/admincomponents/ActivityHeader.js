@@ -465,7 +465,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
                         <StatusText>
                           {hasResponded(p)
                             ? 'Response submitted'
-                            : 'No response submitted yet'}
+                            : 'No response yet'}
                         </StatusText>
                       </StatusRow>
                     </Details>

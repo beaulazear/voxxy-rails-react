@@ -19,11 +19,11 @@ export const PageContainer = styled.div`
   padding-top: 80px;
   box-sizing: border-box;
   background-size: 400% 400%;
-  background-image: linear-gradient(
+background-image: linear-gradient(
   to right,
-  #201925,    /* deep base */
-  #2b2238,    /* midtone */
-  #362a4c     /* highlight */
+  #201925,    /* base */
+  #1e1824,    /* –2R –1G –1B */
+  #1c1422     /* –4R –5G –3B */
 );
   animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
 `;
