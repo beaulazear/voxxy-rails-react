@@ -20,17 +20,16 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
 
   const [showAllParticipants, setShowAllParticipants] = useState(false); // ← NEW
 
-  // NEW handlers
   const handleViewAllClick = () => setShowAllParticipants(true);
   const handleCloseAll = () => setShowAllParticipants(false);
   const handleRemove = (participant) => {
-    // you get the whole participant object here—
-    // lift it up via your onRemoveParticipant prop
     onRemoveParticipant(participant);
   };
 
   const [showUpdate, setShowUpdate] = useState(false);
+
   const [helpVisible, setHelpVisible] = useState(false);
+  const [helpStep, setHelpStep] = useState(0);
 
   const [manualInput, setManualInput] = useState("");
   const [manualEmails, setManualEmails] = useState([]);
@@ -195,6 +194,40 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
 
   const shareUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activity.id}/share`;
 
+  const meetingSteps = [
+    {
+      title: "1️⃣ Everyone Submits Availability",
+      desc: "Both host and participants fill out when they’re free so you can compare slots."
+    },
+    {
+      title: "2️⃣ Participants Vote",
+      desc: "All participants review overlapping slots and vote on their favorites."
+    },
+    {
+      title: "3️⃣ Host Finalizes",
+      desc: "Only the host can pick the winning time, share the final board, and send a calendar invite."
+    }
+  ];
+  const restaurantSteps = [
+    {
+      title: "1️⃣ Submit Your Preferences",
+      desc: "Take the quiz and leave feed back that will change which recommendations the group recieves."
+    },
+    {
+      title: "2️⃣ Invite & Vote",
+      desc: "Everyone (host + participants) casts their vote on top spots."
+    },
+    {
+      title: "3️⃣ Host Confirms & Reserves",
+      desc: "Host locks in the winning restaurant and books the reservation."
+    },
+    {
+      title: "4️⃣ Add to Calendar",
+      desc: "Host shares a one-click calendar link so no one misses dinner."
+    }
+  ];
+  const steps = activity.activity_type === "Restaurant" ? restaurantSteps : meetingSteps;
+
   return (
     <>
       <HeaderContainer>
@@ -334,78 +367,43 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
         </ParticipantsSection>
       </AttendeeContainer>
 
-      {
-        showUpdate && (
-          <UpdateDetailsModal
-            activity={activity}
-            onClose={handleCloseUpdate}
-            onUpdate={handleUpdate}
-          />
-        )
-      }
+      {showUpdate && (
+        <UpdateDetailsModal
+          activity={activity}
+          onClose={handleCloseUpdate}
+          onUpdate={handleUpdate}
+        />
+      )}
 
       {helpVisible && (
         <HelpPopup onClick={e => e.stopPropagation()}>
           <PopupHeader>
-            <PopupTitle>How to use this page</PopupTitle>
+            <PopupTitle>How to use this page ✨</PopupTitle>
             <CloseButton onClick={toggleHelp}>
               <X size={16} />
             </CloseButton>
           </PopupHeader>
-          <PopupList>
-            {activity.activity_type === "Meeting" ? (
-              <>
-                <li>
-                  <strong>✨ Submit Your Availability</strong>
-                  <p>Let us know when you’re free to hang out.</p>
-                </li>
-                <li>
-                  <strong>✉️ Invite Friends</strong>
-                  <p>Send email invites to get everyone on board and voting.</p>
-                </li>
-                <li>
-                  <strong>🗓 Compare Availabilities</strong>
-                  <p>See overlapping slots among all attendees.</p>
-                </li>
-                <li>
-                  <strong>👍 Pin & Vote</strong>
-                  <p>Pin your top time slots and vote on the group’s favorites.</p>
-                </li>
-                <li>
-                  <strong>🎉 Finalize & Share</strong>
-                  <p>The host confirms the winning time, then shares a link and calendar invite.</p>
-                </li>
-              </>
-            ) : activity.activity_type === "Restaurant" ? (
-              <>
-                <li>
-                  <strong>🍽️ Explore Recommendations</strong>
-                  <p>Browse AI-powered restaurant suggestions based on group preferences.</p>
-                </li>
-                <li>
-                  <strong>✉️ Invite Friends</strong>
-                  <p>Send email invites so your crew can weigh in and vote.</p>
-                </li>
-                <li>
-                  <strong>👍 Pin & Vote</strong>
-                  <p>Pin your favorite spots and cast your vote.</p>
-                </li>
-                <li>
-                  <strong>🎉 Finalize & Reserve</strong>
-                  <p>The host selects the winning restaurant and locks in the reservation.</p>
-                </li>
-                <li>
-                  <strong>📅 Add to Calendar</strong>
-                  <p>One-click calendar add so no one misses dinner.</p>
-                </li>
-              </>
-            ) : (
-              <li>
-                <strong>❓ No specific guide available</strong>
-                <p>Select “Meet” or “Eat” to see tailored steps.</p>
-              </li>
-            )}
-          </PopupList>
+          <StepContainer>
+            <StepTitle>{steps[helpStep].title}</StepTitle>
+            <StepDesc>{steps[helpStep].desc}</StepDesc>
+            <NavControls>
+              <NavButton
+                onClick={() => setHelpStep(s => s - 1)}
+                disabled={helpStep === 0}
+              >
+                ← Previous
+              </NavButton>
+              {helpStep < steps.length - 1 ? (
+                <NavButton onClick={() => setHelpStep(s => s + 1)}>
+                  Next →
+                </NavButton>
+              ) : (
+                <NavButton onClick={toggleHelp}>
+                  Done
+                </NavButton>
+              )}
+            </NavControls>
+          </StepContainer>
         </HelpPopup>
       )}
 
@@ -831,14 +829,42 @@ const CloseButton = styled.button`
   padding: 0;
 `;
 
-const PopupList = styled.ol`
-  margin: 0;
-  padding-left: 1.2rem;
-  color: #fff;
-  li {
-    margin-bottom: 0.5rem;
-  }
+const StepContainer = styled.div`
   text-align: left;
+  padding: 1rem;
+`;
+
+const StepTitle = styled.h5`
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.5rem;
+`;
+
+const StepDesc = styled.p`
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 1rem;
+`;
+
+const NavControls = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const NavButton = styled.button`
+  background: #9051e1;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  &:disabled {
+    background: rgba(144,81,225,0.4);
+    cursor: not-allowed;
+  }
 `;
 
 const AddButton = styled.button`
