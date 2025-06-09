@@ -207,9 +207,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
       if (!res.ok) throw new Error(data.error || "Remove failed");
       message.success('Participant successfully removed!');
 
-      console.log(data)
       const newComment = data.comment;
-      console.log(newComment)
 
       setUser(prev => ({
         ...prev,

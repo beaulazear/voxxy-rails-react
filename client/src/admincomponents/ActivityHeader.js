@@ -7,9 +7,10 @@ import {
   DeleteOutlined,
   UserAddOutlined,
   LogoutOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
-import { Users, User, CalendarDays, Clock, HelpCircle, X, Eye } from "lucide-react";
-import { message } from "antd";
+import { Users, User, CalendarDays, Clock, HelpCircle, X, Eye, CheckCircle, XCircle } from "lucide-react";
+import { message, Popconfirm } from "antd";
 import Woman from "../assets/Woman.jpg";
 import MultiSelectCommunity from "./MultiSelectCommunity.js";
 import mixpanel from "mixpanel-browser";
@@ -38,6 +39,8 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
   const [isBouncing, setIsBouncing] = useState(true);
 
   const { user, setUser } = useContext(UserContext);
+
+  const { responses = [] } = activity;
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -100,7 +103,6 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
 
   const handleAddEmail = () => {
     const email = manualInput.trim().toLowerCase();
-    // simple email regex check
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return message.error("Please enter a valid email.");
     }
@@ -169,6 +171,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
     confirmed: true,
     avatar: activity.user?.avatar || Woman,
     created_at: activity.user?.created_at,
+    apId: activity.user?.id
   };
   const allParticipants = [
     hostParticipant,
@@ -191,6 +194,16 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
       apId: p.id,
     })),
   ];
+
+  const hasResponded = p => p.confirmed && responses.some(r => r.user_id === p.apId);
+
+  // how many in total (including host + accepted + pending invites)
+  const totalToRespond = allParticipants.length;
+
+  // how many have actually responded
+  const responsesCount = allParticipants.filter(p =>
+    responses.some(r => r.user_id === p.apId)
+  ).length;
 
   const shareUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activity.id}/share`;
 
@@ -412,8 +425,20 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
           <AllParticipantsContent onClick={e => e.stopPropagation()}>
             <PopupHeader>
               <PopupTitle>All Attendees</PopupTitle>
-              <CloseButton onClick={handleCloseAll}><X size={20} /></CloseButton>
+              <CloseButton onClick={handleCloseAll}>
+                <X style={{ cursor: 'pointer' }} size={20} />
+              </CloseButton>
             </PopupHeader>
+
+            {allParticipants.length > 0 && (
+              <ProgressContainer>
+                <ProgressText>
+                  {`${responsesCount}/${totalToRespond} participants have submitted their feedback`}
+                </ProgressText>
+                <ProgressBarBackground>
+                  <ProgressBarFill width={(responsesCount / totalToRespond) * 100} />                </ProgressBarBackground>
+              </ProgressContainer>
+            )}
             <AllList>
               {allParticipants.map((p, i) => (
                 <ParticipantItem key={i}>
@@ -421,15 +446,41 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
                     <ParticipantCircle>
                       <ParticipantImage src={p.avatar} alt={p.name} />
                     </ParticipantCircle>
-                    <div>
+
+                    <Details>
                       <strong>{p.name}</strong>
-                      <div style={{ fontSize: '0.85rem', color: '#ccc' }}>
-                        {p.email} {p.confirmed ? '' : '(Pending)'}
-                      </div>
-                    </div>
+                      <EmailLine>{p.email}</EmailLine>
+
+                      <StatusRow>
+                        {hasResponded(p)
+                          ? <CheckCircle size={16} style={{ color: '#2ecc71' }} />
+                          : <XCircle size={16} style={{ color: '#888' }} />
+                        }
+                        <StatusText>
+                          {hasResponded(p)
+                            ? 'Response submitted'
+                            : 'No response submitted yet'}
+                        </StatusText>
+                      </StatusRow>
+                    </Details>
                   </Info>
                   {isOwner && !p.name.includes('(Host)') && (
-                    <X size={18} style={{ color: 'red', cursor: 'pointer' }} onClick={() => handleRemove(p)} />
+                    <Popconfirm
+                      title="Remove this participant? This cannot be undone."
+                      icon={<ExclamationCircleOutlined style={{ color: '#e74c3c' }} />}
+                      onConfirm={() => handleRemove(p)}
+                      okText="Yes"
+                      cancelText="No"
+                      placement="top"
+                      // ≤ constrain width so it never overflows on mobile
+                      overlayStyle={{ maxWidth: '80vw', padding: '0.5rem' }}
+                      // ≤ add a class so you can override its colors
+                      overlayClassName="dark-popconfirm"
+                    >
+                      <RemoveButton>
+                        <X size={18} />
+                      </RemoveButton>
+                    </Popconfirm>
                   )}
                 </ParticipantItem>
               ))}
@@ -443,7 +494,6 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
           <ParticipantPopupContent onClick={(e) => e.stopPropagation()}>
             <h2>Invite Participants</h2>
 
-            {/* manual entry */}
             <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem" }}>
               <DarkInput
                 type="text"
@@ -812,13 +862,15 @@ const PopupHeader = styled.div`
   align-items: center;
   margin-bottom: 0.5rem;
   color: #fff;
+  text-align: center;
 `;
 
 const PopupTitle = styled.h4`
-  margin: 0;
+  margin: 0 auto;
   font-size: 1rem;
   font-weight: bold;
   color: #fff;
+  font-family: "Montserrat", sans-serif;
 `;
 
 const CloseButton = styled.button`
@@ -931,4 +983,57 @@ const Info = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
+`;
+
+const ProgressContainer = styled.div`
+  margin: 0.75rem 1.5rem;
+`;
+const ProgressText = styled.div`
+  font-size: 0.9rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+`;
+const ProgressBarBackground = styled.div`
+  width: 100%;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  height: 8px;
+`;
+const ProgressBarFill = styled.div`
+  height: 8px;
+  background: ${colors.accent};
+  border-radius: 4px;
+  width: ${props => props.width}%;
+  transition: width 0.3s ease;
+`;
+const Details = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const EmailLine = styled.span`
+  font-size: 0.85rem;
+  color: #ccc;
+  margin-bottom: 0.5rem;
+`;
+
+const StatusRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+`;
+
+const StatusText = styled.span`
+  font-size: 0.85rem;
+  color: #ccc;
+`;
+
+const RemoveButton = styled.button`
+  background: transparent;
+  border: none;
+  color: #e74c3c;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
 `;

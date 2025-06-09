@@ -12,7 +12,6 @@ export default function MultiSelectCommunity({ onSelectionChange, onCreateBoard 
     const [showAll, setShowAll] = useState(false);
     const [selected, setSelected] = useState([]);
 
-    // Whenever `selected` array changes, inform parent via onSelectionChange.
     useEffect(() => {
         if (typeof onSelectionChange === "function") {
             onSelectionChange(selected);
@@ -21,7 +20,6 @@ export default function MultiSelectCommunity({ onSelectionChange, onCreateBoard 
 
     if (!user) return null;
 
-    // Build a map of every peer the current user has shared activities with
     const allUsersMap = new Map();
     user.activities?.forEach((act) => {
         act.participants?.forEach((p) => {
@@ -93,17 +91,14 @@ export default function MultiSelectCommunity({ onSelectionChange, onCreateBoard 
         return d.toLocaleString("en-US", { month: "short", year: "numeric" });
     }
 
-    // Convert map → sorted array by count desc, then name asc
     const community = Array.from(allUsersMap.values()).sort(
         (a, b) => b.count - a.count || a.user.name.localeCompare(b.user.name)
     );
 
-    // If no community, show a placeholder
     if (community.length === 0) {
         return <NoCommunityMembers onCreateBoard={onCreateBoard} />;
     }
 
-    // show only first 5 unless "Show All" is toggled
     const displayed = showAll ? community : community.slice(0, 5);
 
     function toggleUser(peerUser) {
@@ -142,6 +137,7 @@ export default function MultiSelectCommunity({ onSelectionChange, onCreateBoard 
                                 />
                                 <Info>
                                     <PeerName>{peer.name}</PeerName>
+                                    <Since>{peer.email}</Since>
                                     <Since>Since {formatSince(peer.created_at)}</Since>
                                 </Info>
                             </Card>
