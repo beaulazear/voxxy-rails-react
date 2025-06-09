@@ -2,20 +2,20 @@ Rails.application.routes.draw do
   resources :responses, only: [ :index, :create, :destroy ]
   resources :users, only: [ :create, :destroy, :update ]
   resources :activities, only: [ :create, :destroy, :update, :index, :show ] do
+  member do
+    get :share
+  end
+  member do
+    get :calendar, defaults: { format: "ics" }
+  end
+  resources :pinned_activities, only: [ :index, :create, :update, :destroy ]
+  resources :comments, only: [ :index, :create ]
+  resources :time_slots, only: [ :index, :create, :destroy ] do
     member do
-      get :share
+      post :vote
+      post :unvote
     end
-    member do
-      get :calendar, defaults: { format: "ics" }
-    end
-    resources :pinned_activities, only: [ :index, :create, :update, :destroy ]
-    resources :comments, only: [ :index, :create ]
-    resources :time_slots, only: [ :index, :create, :destroy ] do
-      member do
-        post :vote
-        post :unvote
-      end
-    end
+  end
   end
   resource :password_reset, only: [ :create, :update ]
   resources :activity_participants, only: [ :index ] do
@@ -36,6 +36,7 @@ Rails.application.routes.draw do
   get "/invite_signup", to: "users#invite_signup_redirect"
   post "/activity_participants/accept", to: "activity_participants#accept"
   post "/activity_participants/leave", to: "activity_participants#leave"
+  delete "/activity_participants/remove", to: "activity_participants#destroy_by_email"
 
   post "login", to: "sessions#create"
   delete "logout", to: "sessions#destroy"

@@ -8,16 +8,28 @@ import {
   UserAddOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
-import { Users, User, CalendarDays, Clock, HelpCircle, X } from "lucide-react";
+import { Users, User, CalendarDays, Clock, HelpCircle, X, Eye } from "lucide-react";
 import { message } from "antd";
 import Woman from "../assets/Woman.jpg";
 import MultiSelectCommunity from "./MultiSelectCommunity.js";
 import mixpanel from "mixpanel-browser";
 import UpdateDetailsModal from "./UpdateDetailsModal.js";
 
-const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite, onCreateBoard }) => {
+const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite, onCreateBoard, onRemoveParticipant }) => {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
+
   const [selectedParticipant, setSelectedParticipant] = useState(null);
+  const [showAllParticipants, setShowAllParticipants] = useState(false); // ← NEW
+
+  // NEW handlers
+  const handleViewAllClick = () => setShowAllParticipants(true);
+  const handleCloseAll = () => setShowAllParticipants(false);
+  const handleRemove = (participant) => {
+    // you get the whole participant object here—
+    // lift it up via your onRemoveParticipant prop
+    onRemoveParticipant(participant);
+  };
+
   const [showUpdate, setShowUpdate] = useState(false);
   const [helpVisible, setHelpVisible] = useState(false);
 
@@ -171,6 +183,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
         confirmed: true,
         avatar: p.avatar || Woman,
         created_at: p.created_at,
+        apId: p.id,
       })),
     ...pendingInvitesArray.map(p => ({
       name: p.invited_email,
@@ -178,6 +191,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
       confirmed: false,
       avatar: Woman,
       created_at: null,
+      apId: p.id,
     })),
   ];
 
@@ -258,98 +272,34 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
           </MetaItem>
         </MetaRow>
         <HostMessageContainer>
-          <HostName>
-            <User style={{marginTop: '2px'}} size={17} /> Organizer: {activity.user?.name || "N/A"}
-          </HostName>
+          <ParticipantsTitle>
+            <User style={{ marginBottom: '3px' }} size={20} /> Organizer: {activity.user?.name || "N/A"}
+          </ParticipantsTitle>
           <MessageLine>
             {activity.welcome_message || "Welcome to this activity!"}
           </MessageLine>
         </HostMessageContainer>
         {activity.finalized && (
           <label>
-            <ChatButton
+            <a
               href={shareUrl}
               target="_blank"
               rel="noopener noreferrer"
+              style={{ textDecoration: 'none' }}
             >
               Share Final Details
-            </ChatButton>
+            </a>
           </label>
         )}
         {!activity.finalized && isOwner && (
           <ChatButton onClick={onEdit}>Finalize Board</ChatButton>
-        )}
-
-        {helpVisible && (
-          <HelpPopup onClick={e => e.stopPropagation()}>
-            <PopupHeader>
-              <PopupTitle>How to use this page</PopupTitle>
-              <CloseButton onClick={toggleHelp}>
-                <X size={16} />
-              </CloseButton>
-            </PopupHeader>
-            <PopupList>
-              {activity.activity_type === "Meeting" ? (
-                <>
-                  <li>
-                    <strong>✨ Submit Your Availability</strong>
-                    <p>Let us know when you’re free to hang out.</p>
-                  </li>
-                  <li>
-                    <strong>✉️ Invite Friends</strong>
-                    <p>Send email invites to get everyone on board and voting.</p>
-                  </li>
-                  <li>
-                    <strong>🗓 Compare Availabilities</strong>
-                    <p>See overlapping slots among all attendees.</p>
-                  </li>
-                  <li>
-                    <strong>👍 Pin & Vote</strong>
-                    <p>Pin your top time slots and vote on the group’s favorites.</p>
-                  </li>
-                  <li>
-                    <strong>🎉 Finalize & Share</strong>
-                    <p>The host confirms the winning time, then shares a link and calendar invite.</p>
-                  </li>
-                </>
-              ) : activity.activity_type === "Restaurant" ? (
-                <>
-                  <li>
-                    <strong>🍽️ Explore Recommendations</strong>
-                    <p>Browse AI-powered restaurant suggestions based on group preferences.</p>
-                  </li>
-                  <li>
-                    <strong>✉️ Invite Friends</strong>
-                    <p>Send email invites so your crew can weigh in and vote.</p>
-                  </li>
-                  <li>
-                    <strong>👍 Pin & Vote</strong>
-                    <p>Pin your favorite spots and cast your vote.</p>
-                  </li>
-                  <li>
-                    <strong>🎉 Finalize & Reserve</strong>
-                    <p>The host selects the winning restaurant and locks in the reservation.</p>
-                  </li>
-                  <li>
-                    <strong>📅 Add to Calendar</strong>
-                    <p>One-click calendar add so no one misses dinner.</p>
-                  </li>
-                </>
-              ) : (
-                <li>
-                  <strong>❓ No specific guide available</strong>
-                  <p>Select “Meet” or “Eat” to see tailored steps.</p>
-                </li>
-              )}
-            </PopupList>
-          </HelpPopup>
         )}
       </HeaderContainer >
 
       <AttendeeContainer>
         <ParticipantsSection>
           <ParticipantsTitle>
-            <Users size={20} /> Attendees - {allParticipants.length}
+            <Users style={{ marginBottom: '3px' }} size={20} /> Attendees - {allParticipants.length}
           </ParticipantsTitle>
           <ParticipantsRow>
             <ParticipantsScroll>
@@ -358,6 +308,9 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
                   <UserAddOutlined />
                 </InviteCircle>
               )}
+              <ViewAllCircle title="View all attendees" onClick={handleViewAllClick}>
+                <Eye size={20} />
+              </ViewAllCircle>
               {allParticipants
                 .filter(p => p.confirmed)
                 .map((p, i) => (
@@ -397,82 +350,172 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
         )
       }
 
-      {
-        selectedParticipant && (
-          <ParticipantPopupOverlay onClick={() => setSelectedParticipant(null)}>
-            <ParticipantPopupContent onClick={e => e.stopPropagation()}>
-              <h2>{selectedParticipant.name || 'Pending Confirmation'}</h2>
-              <p style={{ margin: "0.5rem 0", color: "#ccc" }}>
-                {selectedParticipant.email}
+      {helpVisible && (
+        <HelpPopup onClick={e => e.stopPropagation()}>
+          <PopupHeader>
+            <PopupTitle>How to use this page</PopupTitle>
+            <CloseButton onClick={toggleHelp}>
+              <X size={16} />
+            </CloseButton>
+          </PopupHeader>
+          <PopupList>
+            {activity.activity_type === "Meeting" ? (
+              <>
+                <li>
+                  <strong>✨ Submit Your Availability</strong>
+                  <p>Let us know when you’re free to hang out.</p>
+                </li>
+                <li>
+                  <strong>✉️ Invite Friends</strong>
+                  <p>Send email invites to get everyone on board and voting.</p>
+                </li>
+                <li>
+                  <strong>🗓 Compare Availabilities</strong>
+                  <p>See overlapping slots among all attendees.</p>
+                </li>
+                <li>
+                  <strong>👍 Pin & Vote</strong>
+                  <p>Pin your top time slots and vote on the group’s favorites.</p>
+                </li>
+                <li>
+                  <strong>🎉 Finalize & Share</strong>
+                  <p>The host confirms the winning time, then shares a link and calendar invite.</p>
+                </li>
+              </>
+            ) : activity.activity_type === "Restaurant" ? (
+              <>
+                <li>
+                  <strong>🍽️ Explore Recommendations</strong>
+                  <p>Browse AI-powered restaurant suggestions based on group preferences.</p>
+                </li>
+                <li>
+                  <strong>✉️ Invite Friends</strong>
+                  <p>Send email invites so your crew can weigh in and vote.</p>
+                </li>
+                <li>
+                  <strong>👍 Pin & Vote</strong>
+                  <p>Pin your favorite spots and cast your vote.</p>
+                </li>
+                <li>
+                  <strong>🎉 Finalize & Reserve</strong>
+                  <p>The host selects the winning restaurant and locks in the reservation.</p>
+                </li>
+                <li>
+                  <strong>📅 Add to Calendar</strong>
+                  <p>One-click calendar add so no one misses dinner.</p>
+                </li>
+              </>
+            ) : (
+              <li>
+                <strong>❓ No specific guide available</strong>
+                <p>Select “Meet” or “Eat” to see tailored steps.</p>
+              </li>
+            )}
+          </PopupList>
+        </HelpPopup>
+      )}
+
+      {selectedParticipant && (
+        <ParticipantPopupOverlay onClick={() => setSelectedParticipant(null)}>
+          <ParticipantPopupContent onClick={e => e.stopPropagation()}>
+            <h2>{selectedParticipant.name || 'Pending Confirmation'}</h2>
+            <p style={{ margin: "0.5rem 0", color: "#ccc" }}>
+              {selectedParticipant.email}
+            </p>
+            {selectedParticipant.created_at && (
+              <p style={{ margin: 0, fontStyle: "italic", fontSize: "0.9rem" }}>
+                Joined:{" "}
+                {new Date(selectedParticipant.created_at).toLocaleDateString(
+                  "en-US",
+                  { month: "short", day: "numeric", year: "numeric" }
+                )}
               </p>
-              {selectedParticipant.created_at && (
-                <p style={{ margin: 0, fontStyle: "italic", fontSize: "0.9rem" }}>
-                  Joined:{" "}
-                  {new Date(selectedParticipant.created_at).toLocaleDateString(
-                    "en-US",
-                    { month: "short", day: "numeric", year: "numeric" }
+            )}
+            <ParticipantPopupActions>
+              <ParticipantPopupButton onClick={() => setSelectedParticipant(null)}>
+                Close
+              </ParticipantPopupButton>
+            </ParticipantPopupActions>
+          </ParticipantPopupContent>
+        </ParticipantPopupOverlay>
+      )}
+
+      {showAllParticipants && (
+        <AllParticipantsOverlay onClick={handleCloseAll}>
+          <AllParticipantsContent onClick={e => e.stopPropagation()}>
+            <PopupHeader>
+              <PopupTitle>All Attendees</PopupTitle>
+              <CloseButton onClick={handleCloseAll}><X size={16} /></CloseButton>
+            </PopupHeader>
+            <AllList>
+              {allParticipants.map((p, i) => (
+                <ParticipantItem key={i}>
+                  <Info>
+                    <ParticipantCircle>
+                      <ParticipantImage src={p.avatar} alt={p.name} />
+                    </ParticipantCircle>
+                    <div>
+                      <strong>{p.name}</strong>
+                      <div style={{ fontSize: '0.85rem', color: '#ccc' }}>
+                        {p.email} {p.confirmed ? '' : '(Pending)'}
+                      </div>
+                    </div>
+                  </Info>
+                  {isOwner && !p.name.includes('(Host)') && (
+                    <X size={18} style={{ color: 'red' }} onClick={() => handleRemove(p)} />
                   )}
-                </p>
-              )}
-              <ParticipantPopupActions>
-                <ParticipantPopupButton onClick={() => setSelectedParticipant(null)}>
-                  Close
-                </ParticipantPopupButton>
-              </ParticipantPopupActions>
-            </ParticipantPopupContent>
-          </ParticipantPopupOverlay>
-        )
-      }
+                </ParticipantItem>
+              ))}
+            </AllList>
+          </AllParticipantsContent>
+        </AllParticipantsOverlay>
+      )}
 
-      {
-        showInvitePopup && (
-          <ParticipantPopupOverlay onClick={handleClosePopup}>
-            <ParticipantPopupContent onClick={(e) => e.stopPropagation()}>
-              <h2>Invite Participants</h2>
+      {showInvitePopup && (
+        <ParticipantPopupOverlay onClick={handleClosePopup}>
+          <ParticipantPopupContent onClick={(e) => e.stopPropagation()}>
+            <h2>Invite Participants</h2>
 
-              {/* manual entry */}
-              <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                <DarkInput
-                  type="text"
-                  placeholder="Enter email…"
-                  value={manualInput}
-                  onChange={(e) => setManualInput(e.target.value)}
-                />
-                <AddButton onClick={handleAddEmail}>Add</AddButton>
-              </div>
-
-              {/* pills for manual emails */}
-              <EmailsContainer>
-                {manualEmails.map((email, i) => (
-                  <EmailPill key={i}>
-                    {email}
-                    <PillClose onClick={() =>
-                      setManualEmails((prev) => prev.filter((_, idx) => idx !== i))
-                    }>
-                      &times;
-                    </PillClose>
-                  </EmailPill>
-                ))}
-              </EmailsContainer>
-
-              {/* community multi-select */}
-              <MultiSelectCommunity
-                onSelectionChange={setCommunitySelected}
-                onCreateBoard={onCreateBoard}
+            {/* manual entry */}
+            <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem" }}>
+              <DarkInput
+                type="text"
+                placeholder="Enter email…"
+                value={manualInput}
+                onChange={(e) => setManualInput(e.target.value)}
               />
+              <AddButton onClick={handleAddEmail}>Add</AddButton>
+            </div>
 
-              <ParticipantPopupActions>
-                <ParticipantPopupButton onClick={handleInviteSubmit}>
-                  Send Invite
-                </ParticipantPopupButton>
-                <ParticipantPopupButton className="cancel" onClick={handleClosePopup}>
-                  Cancel
-                </ParticipantPopupButton>
-              </ParticipantPopupActions>
-            </ParticipantPopupContent>
-          </ParticipantPopupOverlay>
-        )
-      }
+            <EmailsContainer>
+              {manualEmails.map((email, i) => (
+                <EmailPill key={i}>
+                  {email}
+                  <PillClose onClick={() =>
+                    setManualEmails((prev) => prev.filter((_, idx) => idx !== i))
+                  }>
+                    &times;
+                  </PillClose>
+                </EmailPill>
+              ))}
+            </EmailsContainer>
+
+            <MultiSelectCommunity
+              onSelectionChange={setCommunitySelected}
+              onCreateBoard={onCreateBoard}
+            />
+
+            <ParticipantPopupActions>
+              <ParticipantPopupButton onClick={handleInviteSubmit}>
+                Send Invite
+              </ParticipantPopupButton>
+              <ParticipantPopupButton className="cancel" onClick={handleClosePopup}>
+                Cancel
+              </ParticipantPopupButton>
+            </ParticipantPopupActions>
+          </ParticipantPopupContent>
+        </ParticipantPopupOverlay>
+      )}
 
     </>
   );
@@ -550,6 +593,7 @@ const BackButton = styled.button`
 
 const HelpIcon = styled(BackButton)`
   font-size: 1.4rem;
+  padding-bottom: 5px;
   ${({ $bounce }) => $bounce && css`
     animation: ${bounceAnimation} 1s ease infinite;
   `}
@@ -598,24 +642,14 @@ const HostMessageContainer = styled.div`
   margin: 0.75rem auto;
 `;
 
-const HostName = styled.h5`
-  display: flex;
-  justify-content: center;
-  font-family: "Montserrat", sans-serif;
-  font-weight: 600;
-  font-size: clamp(1rem, 2.5vw, 1.2rem);
-  color: #fff;
-  margin: 0;
-  margin-bottom: .5rem;
-`;
-
 const MessageLine = styled.p`
   font-family: "Montserrat", sans-serif;
-  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  font-size: clamp(1.2rem, 2.75vw, 1.5rem);
   font-weight: 300;
   color: rgba(255, 255, 255, 0.85);
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.6;
+  padding: 0.5rem;
 `;
 
 const MetaRow = styled.div`
@@ -648,6 +682,7 @@ const ChatButton = styled.button`
   padding: 0.5rem 1rem;
   padding-right: 0.5rem;
   padding-left: 0.5rem;
+  margin-bottom: .8rem;
   font-weight: 500;
   cursor: pointer;
   &:hover {
@@ -717,6 +752,7 @@ const ParticipantImage = styled.img`
 
 const InviteCircle = styled(ParticipantCircle)`
   background: #9051e1;
+  color: #fff;
   border: 2px dashed white;
   display: flex;
   align-items: center;
@@ -868,4 +904,46 @@ const PillClose = styled.span`
   margin-left: 0.5rem;
   cursor: pointer;
   font-weight: bold;
+`;
+
+const ViewAllCircle = styled(ParticipantCircle)`
+  background: #8F51E0;
+  border: 2px solid rgba(255,255,255,0.5);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+`;
+
+const AllParticipantsOverlay = styled(ParticipantPopupOverlay)``;  // reuse your blur + backdrop
+
+const AllParticipantsContent = styled(ParticipantPopupContent)`
+  max-width: 600px;
+  width: 90%;
+  text-align: left;
+`;
+
+const AllList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 60vh;
+  overflow-y: auto;
+  margin-top: 1rem;
+`;
+
+const ParticipantItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #2c1e33;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+`;
+
+const Info = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 `;

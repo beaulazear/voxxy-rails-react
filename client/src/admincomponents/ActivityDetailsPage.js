@@ -3,6 +3,7 @@ import { UserContext } from '../context/user';
 import {
   PageContainer,
 } from "../styles/ActivityDetailsStyles";
+import { message } from "antd";
 import AIRecommendations from "./AIRecommendations";
 import UpdateActivityModal from './UpdateActivityModal';
 import LoadingScreen from '../components/LoadingScreen.js';
@@ -21,6 +22,8 @@ function ActivityDetailsPage({ activityId, onBack }) {
   const [pinned, setPinned] = useState([]);
 
   const topRef = useRef(null)
+
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activityId}/time_slots`, {
@@ -125,14 +128,14 @@ function ActivityDetailsPage({ activityId, onBack }) {
   };
 
   async function handleUpdate(newData) {
-  
+
     setUser((prevUser) => ({
       ...prevUser,
       activities: prevUser.activities.map((act) =>
         act.id === newData.id ? newData : act
       ),
     }));
-  
+
     setRefreshTrigger((prev) => !prev);
   }
 
@@ -192,6 +195,56 @@ function ActivityDetailsPage({ activityId, onBack }) {
       });
   };
 
+  const handleRemoveParticipant = async (participant) => {
+    try {
+      const url = new URL(`${API_URL}/activity_participants/remove`);
+      url.searchParams.set("activity_id", currentActivity.id);
+      url.searchParams.set("email", participant.email);
+
+      const res = await fetch(url, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Remove failed");
+      message.success('Participant successfully removed!');
+
+      // NEW: grab the created comment
+      const { comment: newComment } = data;
+
+      // 1) update global user context
+      setUser(prev => ({
+        ...prev,
+        activities: prev.activities.map(a => {
+          if (a.id !== currentActivity.id) return a;
+          return {
+            ...a,
+            // prune out that participant
+            participants: (a.participants || []).filter(p => p.email !== participant.email),
+            activity_participants: (a.activity_participants || [])
+              .filter(ap => ap.invited_email !== participant.email),
+            // APPEND the new comment
+            comments: [...(a.comments || []), newComment],
+          };
+        })
+      }));
+
+
+      // 2) update local currentActivity
+      setCurrentActivity(prev => ({
+        ...prev,
+        participants: (prev.participants || []).filter(p => p.email !== participant.email),
+        activity_participants: (prev.activity_participants || [])
+          .filter(ap => ap.invited_email !== participant.email),
+        comments: [...(prev.comments || []), newComment],
+      }));
+
+      setRefreshTrigger(t => !t);
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
   return (
     <div style={{ backgroundColor: '#201925' }} ref={topRef}>
       <PageContainer>
@@ -202,6 +255,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
           onEdit={() => setShowModal(true)}
           onDelete={handleDelete}
           onInvite={handleInvite}
+          onRemoveParticipant={handleRemoveParticipant}
         />
         {currentActivity.activity_type === 'Restaurant' && (
           <>
