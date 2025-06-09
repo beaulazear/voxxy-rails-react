@@ -18,7 +18,6 @@ import UpdateDetailsModal from "./UpdateDetailsModal.js";
 const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite, onCreateBoard, onRemoveParticipant }) => {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
 
-  const [selectedParticipant, setSelectedParticipant] = useState(null);
   const [showAllParticipants, setShowAllParticipants] = useState(false); // ← NEW
 
   // NEW handlers
@@ -94,7 +93,6 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
     setManualInput("");
     setManualEmails([]);
     setCommunitySelected([]);
-    setSelectedParticipant(null);
     setShowInvitePopup(true);
   };
   const handleClosePopup = () => {
@@ -187,7 +185,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
       })),
     ...pendingInvitesArray.map(p => ({
       name: p.invited_email,
-      email: 'Invite Pending',
+      email: p.invited_email,
       confirmed: false,
       avatar: Woman,
       created_at: null,
@@ -273,7 +271,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
         </MetaRow>
         <HostMessageContainer>
           <ParticipantsTitle>
-            <User style={{ marginBottom: '3px' }} size={20} /> Organizer: {activity.user?.name || "N/A"}
+            Organizer - <User style={{ marginBottom: '5px' }} size={20} /> {activity.user?.name || "N/A"}
           </ParticipantsTitle>
           <MessageLine>
             {activity.welcome_message || "Welcome to this activity!"}
@@ -299,25 +297,23 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
       <AttendeeContainer>
         <ParticipantsSection>
           <ParticipantsTitle>
-            <Users style={{ marginBottom: '3px' }} size={20} /> Attendees - {allParticipants.length}
+            Attendees - <Users style={{ marginBottom: '5px' }} size={20} /> {allParticipants.length}
           </ParticipantsTitle>
           <ParticipantsRow>
             <ParticipantsScroll>
               {isOwner && (
                 <InviteCircle onClick={handleInviteClick}>
-                  <UserAddOutlined />
+                  <UserAddOutlined size={25} />
                 </InviteCircle>
               )}
-              <ViewAllCircle title="View all attendees" onClick={handleViewAllClick}>
-                <Eye size={20} />
-              </ViewAllCircle>
+              <InviteCircle title="View all attendees" onClick={handleViewAllClick}>
+                <Eye size={25} />
+              </InviteCircle>
               {allParticipants
                 .filter(p => p.confirmed)
                 .map((p, i) => (
                   <ParticipantCircle
                     key={`p${i}`}
-                    onClick={() => setSelectedParticipant(p)}
-                    style={{ cursor: "pointer" }}
                   >
                     <ParticipantImage src={p.avatar} alt={p.name} />
                   </ParticipantCircle>
@@ -329,8 +325,6 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
                     <ParticipantCircle
                       key={`i${i}`}
                       $pending
-                      onClick={() => setSelectedParticipant(p)}
-                      style={{ cursor: "pointer" }}
                     >
                       <ParticipantImage src={p.avatar} alt={p.name} />
                     </ParticipantCircle>
@@ -413,31 +407,6 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
             )}
           </PopupList>
         </HelpPopup>
-      )}
-
-      {selectedParticipant && (
-        <ParticipantPopupOverlay onClick={() => setSelectedParticipant(null)}>
-          <ParticipantPopupContent onClick={e => e.stopPropagation()}>
-            <h2>{selectedParticipant.name || 'Pending Confirmation'}</h2>
-            <p style={{ margin: "0.5rem 0", color: "#ccc" }}>
-              {selectedParticipant.email}
-            </p>
-            {selectedParticipant.created_at && (
-              <p style={{ margin: 0, fontStyle: "italic", fontSize: "0.9rem" }}>
-                Joined:{" "}
-                {new Date(selectedParticipant.created_at).toLocaleDateString(
-                  "en-US",
-                  { month: "short", day: "numeric", year: "numeric" }
-                )}
-              </p>
-            )}
-            <ParticipantPopupActions>
-              <ParticipantPopupButton onClick={() => setSelectedParticipant(null)}>
-                Close
-              </ParticipantPopupButton>
-            </ParticipantPopupActions>
-          </ParticipantPopupContent>
-        </ParticipantPopupOverlay>
       )}
 
       {showAllParticipants && (
@@ -906,17 +875,7 @@ const PillClose = styled.span`
   font-weight: bold;
 `;
 
-const ViewAllCircle = styled(ParticipantCircle)`
-  background: #8F51E0;
-  border: 2px solid rgba(255,255,255,0.5);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-`;
-
-const AllParticipantsOverlay = styled(ParticipantPopupOverlay)``;  // reuse your blur + backdrop
+const AllParticipantsOverlay = styled(ParticipantPopupOverlay)``;
 
 const AllParticipantsContent = styled(ParticipantPopupContent)`
   max-width: 600px;
