@@ -23,6 +23,13 @@ const CommentsSection = ({ activity }) => {
     }
   }, [comments]);
 
+  // Also scroll to bottom on first render
+  useEffect(() => {
+    if (commentsRef.current) {
+      commentsRef.current.scrollTop = commentsRef.current.scrollHeight;
+    }
+  }, []);
+
   // Post a new comment
   const handleCommentSubmit = async () => {
     if (!newComment.trim()) return;
@@ -85,7 +92,7 @@ const CommentsSection = ({ activity }) => {
                       </AvatarContainer>
                     )}
                     <Bubble $me={isMe}>
-                      <Text style={{textAlign: 'left'}}>{c.content}</Text>
+                      <Text style={{ textAlign: 'left' }}>{c.content}</Text>
                       <TimeStamp $me={isMe}>{formatTime(c.created_at)}</TimeStamp>
                     </Bubble>
                     {isMe && (
@@ -166,12 +173,15 @@ const IconWrapper = styled.div`
 
 const Messages = styled.div`
   flex: 1;
-  overflow-y: auto;
+  max-height: 60vh;             /* <-- cap the height */
+  overflow-y: auto;             /* <-- enable scrolling */
+  scroll-behavior: smooth;      /* <-- nice smooth jump */
   padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
 
+  /* custom scrollbar (optional) */
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -210,7 +220,7 @@ const Bubble = styled.div`
   color: #fff;
   padding: 0.4rem 0.75rem;
   border-radius: 18px;
-  max-width: 60%;
+  max-width: 75%;
   box-shadow: 0 4px 12px rgba(0,0,0,0.4);
   display: flex;
   flex-direction: column;

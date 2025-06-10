@@ -186,7 +186,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
         apId: p.id,
       })),
     ...pendingInvitesArray.map(p => ({
-      name: p.invited_email,
+      name: 'Invite Pending',
       email: p.invited_email,
       confirmed: false,
       avatar: Woman,
@@ -349,6 +349,16 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
           <ParticipantsTitle>
             Attendees - <Users style={{ marginBottom: '5px' }} size={20} /> {allParticipants.length}
           </ParticipantsTitle>
+          {allParticipants.length > 0 && (
+            <ProgressContainer>
+              <MessageLine style={{paddingTop: '0rem'}}>
+                {`${responsesCount}/${totalToRespond} preferences collected`}
+              </MessageLine>
+              <ProgressBarBackground>
+                <ProgressBarFill width={(responsesCount / totalToRespond) * 100} />
+              </ProgressBarBackground>
+            </ProgressContainer>
+          )}
           <ParticipantsRow>
             <ParticipantsScroll>
               {isOwner && (
@@ -435,16 +445,6 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
                 <X style={{ cursor: 'pointer' }} size={20} />
               </CloseButton>
             </PopupHeader>
-
-            {allParticipants.length > 0 && (
-              <ProgressContainer>
-                <ProgressText>
-                  {`${responsesCount}/${totalToRespond} participants have submitted their feedback`}
-                </ProgressText>
-                <ProgressBarBackground>
-                  <ProgressBarFill width={(responsesCount / totalToRespond) * 100} />                </ProgressBarBackground>
-              </ProgressContainer>
-            )}
             <AllList>
               {allParticipants.map((p, i) => (
                 <ParticipantItem key={i}>
@@ -549,6 +549,7 @@ export default ActivityHeader;
 const colors = {
   accent: '#cc31e8',
 };
+
 
 const bounceAnimation = keyframes`
       0%, 20%, 50%, 80%, 100% {transform: translateY(0); }
@@ -987,23 +988,6 @@ const AllList = styled.div`
       margin-top: 1rem;
       `;
 
-const ParticipantItem = styled.div`
-  display: flex;
-  align-items: center;
-  background: #2c1e33;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-
-  /* ensure flex children can shrink */
-  & > .email {
-    flex: 1;
-    min-width: 0;                /* ← critical to let it actually shrink */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-`;
-
 const Info = styled.div`
       display: flex;
       align-items: center;
@@ -1013,24 +997,45 @@ const Info = styled.div`
 const ProgressContainer = styled.div`
       margin: 0.75rem 1.5rem;
       `;
-const ProgressText = styled.div`
-      font-size: 0.9rem;
-      color: #fff;
-      margin-bottom: 0.5rem;
-      `;
+const wave = keyframes`
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+`;
+
+const pulse = keyframes`
+  0%, 100% { opacity: 0.85; }
+  50%      { opacity: 1; }
+`;
+
 const ProgressBarBackground = styled.div`
-      width: 100%;
-      background: rgba(255,255,255,0.1);
-      border-radius: 4px;
-      height: 8px;
-      `;
+  width: 100%;
+  background: rgba(255,255,255,0.1);
+  border-radius: 6px;
+  height: 12px;           /* a bit taller for that liquid feel */
+  overflow: hidden;       /* clip the waves */
+`;
+
 const ProgressBarFill = styled.div`
-      height: 8px;
-      background: ${colors.accent};
-      border-radius: 4px;
-      width: ${props => props.width}%;
-      transition: width 0.3s ease;
-      `;
+  height: 100%;
+  width: ${props => props.width}%;
+  border-radius: 6px;
+  position: relative;
+  background: linear-gradient(
+    270deg,
+    #cc31e8 25%,
+    #bf2aca 50%,
+    #cc31e8 75%
+  );
+  background-size: 200% 100%;
+
+  /* animate the gradient to look like moving fluid */
+  animation: 
+    ${wave} 4s linear infinite,
+    ${pulse} 2s ease-in-out infinite;
+
+  /* inner shadow so it actually looks “filled” */
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+`;
 const Details = styled.div`
       display: flex;
       flex-direction: column;
@@ -1062,3 +1067,24 @@ const RemoveButton = styled.button`
       padding: 0;
       flex-shrink: 0;
       `;
+
+const ParticipantItem = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;    /* push remove-button to the right */
+  background: #2c1e33;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+
+  /* make the Info block shrink & wrap instead of pushing out */
+  & > ${Info} {
+    flex: 1;        /* take all available space */
+    min-width: 0;   /* ✨ critical: allows its contents to wrap */
+  }
+
+  /* keep the remove button at its own width */
+  & > ${RemoveButton} {
+    flex-shrink: 0;
+    margin-left: 0.75rem;
+  }
+`;
