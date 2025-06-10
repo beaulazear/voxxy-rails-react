@@ -986,6 +986,7 @@ const AllList = styled.div`
       gap: 0.75rem;
       max-height: 60vh;
       margin-top: 1rem;
+      margin-bottom: 1rem;
       `;
 
 const Info = styled.div`

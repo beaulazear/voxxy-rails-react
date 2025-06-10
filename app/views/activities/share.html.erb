@@ -1,112 +1,100 @@
- <div class="share-page">
-      <header class="share-header">
-        <img src="/HEADER.svg" alt="Voxxy logo" class="voxxy-logo" />
-      </header>
+<!-- app/views/activities/share.html.erb -->
+<div class="share-page">
+  <!-- Main activity card -->
+  <section class="card">
+    <h2 class="activity-title">
+      <%= @activity.emoji %> <%= @activity.activity_name %>
+    </h2>
 
-      <!-- Main activity card -->
-      <section class="card">
-        <h2 class="activity-title"><%= @activity.emoji %> <%= @activity.activity_name %></h2>
+    <% if @activity.date_day.present? && @activity.date_time.present? %>
+      <div class="countdown-label">⏲ Event starts in …</div>
+      <div
+        id="countdown"
+        data-day="<%= @activity.date_day %>"
+        data-hour="<%= @activity.date_time.hour %>"
+        data-minute="<%= @activity.date_time.min %>"
+        data-second="<%= @activity.date_time.sec %>"
+      ></div>
 
-      <% if @activity.date_day.present? && @activity.date_time.present? %>
-        <div class="countdown-label">⏲ Event starts in …</div>
-        <div
-          id="countdown"
-          data-day="<%= @activity.date_day %>"                     <%# "2025-05-21" %>
-          data-hour="<%= @activity.date_time.hour %>"              <%# 17 %>
-          data-minute="<%= @activity.date_time.min %>"             <%# 0  %>
-          data-second="<%= @activity.date_time.sec %>"             <%# 0  %>
-        ></div>
-      <% end %>
-      </section>
-
-      <!-- Organizer message -->
-      <% if @activity.welcome_message.present? %>
-        <div class="card">
-          <h2>🗣️ Message from Organizer</h2>
-          <p class='rest-desc'><%= @activity.welcome_message %></p>
-        </div>
-      <% end %>
-
-      <!-- Final date & time -->
-      <% if @activity.date_day.present? && @activity.date_time.present? %>
-        <div class="card">
-          <h2>🗓 Final Date &amp; Time</h2>
-          <p>
-            <%= @activity.date_day.strftime("%A, %B %-d, %Y") %>
-            at
-            <%= @activity.date_time.strftime("%I:%M %p") %>
-          </p>
-        </div>
-      <% end %>
-
-      <!-- Final restaurant -->
-      <% if (pinned = @activity.pinned_activities.find_by(selected: true)) %>
-        <div class="card">
-          <h2>📍 Final Restaurant</h2>
-          <p class="rest-name"><%= pinned.title %></p>
-          <% if pinned.description.present? %>
-            <p class="rest-desc"><%= pinned.description %></p>
-          <% end %>
-          <p class="rest-address"><%= pinned.address %></p>
-          <p class="rest-price">Price: <%= pinned.price_range %></p>
-          <% if pinned.website.present? %>
-            <a href="<%= pinned.website %>" target="_blank" rel="noopener" class="maps-button">
-              Visit Website
-            </a>
-          <% end %>
-          <% if pinned.address.present? %>
-            <a href="https://maps.google.com?q=<%= CGI.escape(pinned.address) %>"
-               target="_blank" rel="noopener" class="maps-button">
-              Open in Maps
-            </a>
-          <% end %>
-        </div>
-      <% end %>
-
-      <!-- Attendees -->
-      <div class="card">
-        <h2>👥 Attendee List</h2>
-        <ul class="attendee-pills">
-            <li class="pill">Organizer: <%= @activity.user.name %></li>
-          <% @activity.participants.each do |p| %>
-            <% first = p.name.split(" ").first %>
-            <li class="pill"><%= first %></li>
-          <% end %>
-        </ul>
-      </div>
-      <% if @activity.date_day.present? && @activity.date_time.present? %>
-      <div class="card calendar-card">
-        <h2>📅 Add to Calendar</h2>
-
-        <!-- ICS download for Apple/Outlook/desktop iCal -->
+      <!-- Action buttons -->
+      <div class="action-buttons">
         <a
           href="<%= calendar_activity_path(@activity, format: :ics) %>"
-          class="maps-button"
+          class="glass-button"
           download="<%= @activity.activity_name.parameterize %>.ics"
         >
-          Download iCal (Apple/Outlook)
+          Calendar
         </a>
-
-        <!-- Google Calendar link -->
-        <% # build ISO strings in UTC for Google: %>
-        <% starts_utc = (@activity.date_day.to_datetime + @activity.date_time.seconds_since_midnight.seconds).utc.strftime('%Y%m%dT%H%M%SZ') %>
-        <% ends_utc   = ((@activity.date_day.to_datetime + @activity.date_time.seconds_since_midnight.seconds) + 1.hour).utc.strftime('%Y%m%dT%H%M%SZ') %>
-        <a
-          class="maps-button-disabled"
-        >
-          Google Calendar Coming Soon
+        <a id="sharePlan" class="glass-button">
+          Share Link
         </a>
-        <a
-          class="maps-button"
-          id="sharePlan"
-        >
-          Share Plan Link
-        </a>      
       </div>
     <% end %>
-    </div>
+  </section>
 
-    <script>
+    <!-- Final date & time -->
+  <% if @activity.date_day.present? && @activity.date_time.present? %>
+    <div class="card">
+      <h2>🗓 Final Date &amp; Time</h2>
+      <p>
+        <%= @activity.date_day.strftime("%A, %B %-d, %Y") %>
+         at
+        <%= @activity.date_time.strftime("%I:%M %p") %>
+      </p>
+    </div>
+  <% end %>
+
+  <!-- Organizer message -->
+  <% if @activity.welcome_message.present? %>
+    <div class="card">
+      <h2>🗣️ Message from Organizer</h2>
+      <p class="rest-desc"><%= @activity.welcome_message %></p>
+    </div>
+  <% end %>
+
+  <!-- Final restaurant -->
+  <% if (pinned = @activity.pinned_activities.find_by(selected: true)) %>
+    <div class="card">
+      <h2>📍 Final Restaurant</h2>
+      <p class="rest-name"><%= pinned.title %></p>
+      <% if pinned.description.present? %>
+        <p class="rest-desc"><%= pinned.description %></p>
+      <% end %>
+      <p class="rest-address"><%= pinned.address %></p>
+      <p class="rest-price">Price: <%= pinned.price_range %></p>
+      <div class="action-buttons">
+      <% if pinned.website.present? %>
+        <a href="<%= pinned.website %>" target="_blank" rel="noopener" class="glass-button">
+          Website
+        </a>
+      <% end %>
+      <% if pinned.address.present? %>
+        <a
+          href="https://maps.google.com?q=<%= CGI.escape(pinned.address) %>"
+          target="_blank" rel="noopener"
+          class="glass-button"
+        >
+          Map View
+        </a>
+      <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Attendees -->
+  <div class="card">
+    <h2>👥 Attendee List</h2>
+    <ul class="attendee-pills">
+      <li class="pill">Organizer: <%= @activity.user.name %></li>
+      <% @activity.participants.each do |p| %>
+        <% first = p.name.split(" ").first %>
+        <li class="pill"><%= first %></li>
+      <% end %>
+    </ul>
+  </div>
+</div>
+
+<script>
   document.addEventListener('DOMContentLoaded', function() {
     const el = document.getElementById('countdown');
     if (!el) return;
@@ -119,33 +107,32 @@
     const target = new Date(year, month - 1, day, hour, minute, second).getTime();
 
     function updateCountdown() {
-          const diff = target - Date.now();
-          if (diff <= 0) {
-            el.innerHTML = '<div class="cd-card"><strong>00</strong><small>Started</small></div>';
-            clearInterval(timer);
-            return;
-          }
-          const days  = Math.floor(diff / (1000*60*60*24));
-          const hours = Math.floor((diff / (1000*60*60)) % 24);
-          const mins  = Math.floor((diff / (1000*60))     % 60);
-          const secs  = Math.floor((diff / 1000)          % 60);
-          const pad = n => String(n).padStart(2,'0');
+      const diff = target - Date.now();
+      if (diff <= 0) {
+        el.innerHTML = '<div class="cd-card"><strong>00</strong><small>Started</small></div>';
+        clearInterval(timer);
+        return;
+      }
+      const days  = Math.floor(diff / (1000*60*60*24));
+      const hours = Math.floor((diff / (1000*60*60)) % 24);
+      const mins  = Math.floor((diff / (1000*60))     % 60);
+      const secs  = Math.floor((diff / 1000)          % 60);
+      const pad = n => String(n).padStart(2,'0');
 
-          el.innerHTML =
-            `<span class="cd-card"><strong>${pad(days)}</strong><small>Days</small></span>` +
-            `<span class="cd-card"><strong>${pad(hours)}</strong><small>Hours</small></span>` +
-            `<span class="cd-card"><strong>${pad(mins)}</strong><small>Minutes</small></span>` +
-            `<span class="cd-card"><strong>${pad(secs)}</strong><small>Seconds</small></span>`;
-        }
+      el.innerHTML =
+        `<span class="cd-card"><strong>${pad(days)}</strong><small>Days</small></span>` +
+        `<span class="cd-card"><strong>${pad(hours)}</strong><small>Hours</small></span>` +
+        `<span class="cd-card"><strong>${pad(mins)}</strong><small>Minutes</small></span>` +
+        `<span class="cd-card"><strong>${pad(secs)}</strong><small>Seconds</small></span>`;
+    }
 
-        updateCountdown();
-        const timer = setInterval(updateCountdown, 1000);
-      });
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+  });
 
-      // Share Plan button
-      document.getElementById('sharePlan').addEventListener('click', function() {
-        navigator.clipboard.writeText(window.location.href)
-          .then(() => alert('Link copied to clipboard!'))
-          .catch(() => alert('Could not copy link'));
-      });
-    </script>
+  document.getElementById('sharePlan').addEventListener('click', function() {
+    navigator.clipboard.writeText(window.location.href)
+      .then(() => alert('Link copied to clipboard!'))
+      .catch(() => alert('Could not copy link'));
+  });
+</script>

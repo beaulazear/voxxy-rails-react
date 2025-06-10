@@ -80,7 +80,7 @@ class ActivityParticipantsController < ApplicationController
 
     new_comment = activity.comments.create!(
       user_id: user.id,
-      content: "#{user.name} has joined the chat 🎉"
+      content: "#{user.name} has joined the group 🎉"
       )
 
     activity.reload
