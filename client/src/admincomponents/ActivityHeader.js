@@ -15,6 +15,7 @@ import Woman from "../assets/Woman.jpg";
 import MultiSelectCommunity from "./MultiSelectCommunity.js";
 import mixpanel from "mixpanel-browser";
 import UpdateDetailsModal from "./UpdateDetailsModal.js";
+import FinalPlansModal from './FinalPlansModal.js';
 
 const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite, onCreateBoard, onRemoveParticipant }) => {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
@@ -38,9 +39,21 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
 
   const [isBouncing, setIsBouncing] = useState(true);
 
+  const [showFinalPlansModal, setShowFinalPlansModal] = useState(false);
+
   const { user, setUser } = useContext(UserContext);
 
   const { responses = [] } = activity;
+
+  // Add this useEffect to automatically show the modal when board is finalized
+  useEffect(() => {
+    if (activity.finalized && isOwner) {
+      // You might want to add additional logic here to only show it once
+      // For example, check if user has already seen this modal
+      setShowFinalPlansModal(true);
+    }
+  }, [activity.finalized, isOwner]);
+
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -78,6 +91,16 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
       );
     };
   }, []);
+
+  // Add these handler functions
+  const handleCloseModal = () => {
+    setShowFinalPlansModal(false);
+  };
+
+  const handleShare = () => {
+    // Add any tracking or analytics here if needed
+    console.log('Share button clicked from modal');
+  };
 
   const toggleHelp = () => setHelpVisible(v => !v);
   const handleOpenUpdate = () => setShowUpdate(true);
@@ -351,7 +374,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
           </ParticipantsTitle>
           {allParticipants.length > 0 && (
             <ProgressContainer>
-              <MessageLine style={{paddingTop: '0rem'}}>
+              <MessageLine style={{ paddingTop: '0rem' }}>
                 {`${responsesCount}/${totalToRespond} preferences collected`}
               </MessageLine>
               <ProgressBarBackground>
@@ -538,6 +561,15 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
             </ParticipantPopupActions>
           </ParticipantPopupContent>
         </ParticipantPopupOverlay>
+      )}
+
+      {showFinalPlansModal && (
+        <FinalPlansModal
+          isVisible={showFinalPlansModal}
+          onClose={handleCloseModal}
+          onShare={handleShare}
+          shareUrl={shareUrl}
+        />
       )}
 
     </>
