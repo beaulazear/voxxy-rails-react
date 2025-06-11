@@ -160,8 +160,8 @@ function ActivityDetailsPage({ activityId, onBack }) {
     }
   }
 
-  function handleTimeSlotPin(newSlot) {
-    setPinned(prev => [newSlot, ...prev])
+  function handleTimeSlotPin(newSlots) {
+    setPinned(newSlots)
   }
 
   function handleTimeSlotDelete(oldSlotId) {
@@ -171,6 +171,8 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
   const toggleVote = slot => {
     const endpoint = slot.votes_count && slot.user_voted ? 'unvote' : 'vote';
+    const isVoting = endpoint === 'vote';
+
     fetch(
       `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activityId}/time_slots/${slot.id}/${endpoint}`,
       { method: 'POST', credentials: 'include' }
@@ -178,12 +180,36 @@ function ActivityDetailsPage({ activityId, onBack }) {
       .then(res => res.json())
       .then(({ votes_count }) => {
         setPinned(prev => prev
-          .map(s => s.id === slot.id
-            ? { ...s, votes_count, user_voted: endpoint === 'vote' }
-            : s
-          )
+          .map(s => {
+            if (s.id === slot.id) {
+              // Update voter_ids array based on voting action
+              let updatedVoterIds = s.voter_ids || [];
+
+              if (isVoting) {
+                // Add current user to voter_ids if not already there
+                if (!updatedVoterIds.includes(user.id)) {
+                  updatedVoterIds = [...updatedVoterIds, user.id];
+                }
+              } else {
+                // Remove current user from voter_ids
+                updatedVoterIds = updatedVoterIds.filter(id => id !== user.id);
+              }
+
+              return {
+                ...s,
+                votes_count,
+                user_voted: isVoting,
+                voter_ids: updatedVoterIds
+              };
+            }
+            return s;
+          })
           .sort((a, b) => b.votes_count - a.votes_count)
         );
+      })
+      .catch(error => {
+        console.error('Error toggling vote:', error);
+        // You might want to show an error message to the user here
       });
   };
 

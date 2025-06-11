@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { format, parseISO } from 'date-fns';
-import { Users, Heart, HeartPulse, Clock, Trash, CheckCircle, Vote, Flag, Calendar } from 'lucide-react';
+import { Users, Heart, Share, HeartPulse, Clock, Trash, CheckCircle, Vote, Flag, Cog, Calendar } from 'lucide-react';
 import LetsMeetScheduler from './LetsMeetScheduler';
 import LoadingScreenUser from "../admincomponents/LoadingScreenUser";
 import { UserContext } from "../context/user";
@@ -91,7 +91,7 @@ const PreferencesCard = styled.div`
   padding: 2rem;
   border-radius: 1rem;
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 `;
 
 const PreferencesIcon = styled.div`
@@ -176,16 +176,16 @@ const ResubmitButton = styled.button`
 `;
 
 const OrganizerSection = styled.div`
-  background: rgba(255, 255, 255, 0.05);
+  background: #2a1e30;
   padding: 1.5rem;
   border-radius: 1rem;
-  margin-top: 2rem;
+  margin-bottom: 2rem;
 `;
 
 const OrganizerTitle = styled.h3`
   margin: 0 0 1rem 0;
   font-size: 1.2rem;
-  color: #cc31e8;
+  color: #fff;
 `;
 
 const ParticipantsList = styled.div`
@@ -383,6 +383,7 @@ const GenerateModal = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  text-align: left;
 `;
 
 const ModalHeader = styled.div`
@@ -431,32 +432,6 @@ const FullWidthButton = styled.button`
         $primary
             ? `background: #b22cc0;`
             : `background: rgba(108, 99, 255, 0.1); color: #6c63ff;`}
-  }
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`;
-
-const FullWidthA = styled.a`
-  width: 100%;
-  background: ${({ $primary }) => ($primary ? '#cc31e8' : 'transparent')};
-  color: ${({ $primary }) => ($primary ? '#fff' : '#6c63ff')};
-  border: ${({ $primary }) => ($primary ? 'none' : '1px solid #6c63ff')};
-  padding: 1rem;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  text-align: left;
-
-  &:hover {
-    ${({ $primary }) =>
-    $primary
-      ? `background: #b22cc0;`
-      : `background: rgba(108, 99, 255, 0.1); color: #6c63ff;`}
   }
   &:disabled {
     opacity: 0.5;
@@ -519,7 +494,6 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
                 .sort((a, b) => b.count - a.count)
                 .slice(0, 8);
 
-            // Create pinned time slots for top options
             const pinnedPromises = topSlots.map(slot =>
                 fetch(`${API_URL}/activities/${id}/time_slots`, {
                     method: "POST",
@@ -555,13 +529,6 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
 
             setPinned(newPinnedSlots);
 
-            setCurrentActivity(prev => ({
-                ...prev,
-                collecting: false,
-                voting: true,
-                finalized: false
-            }));
-
             setUser(prev => ({
                 ...prev,
                 activities: prev.activities.map(act =>
@@ -577,6 +544,13 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
                         }
                         : part
                 )
+            }));
+
+            setCurrentActivity(prev => ({
+                ...prev,
+                collecting: false,
+                voting: true,
+                finalized: false
             }));
 
         } catch (err) {
@@ -607,6 +581,13 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
 
     const shareUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${currentActivity.id}/share`;
 
+    const handleClick = () => {
+        window.open(
+            shareUrl,    // your URL
+            '_blank',                 // open in new tab
+            'noopener,noreferrer'     // recommended for security
+        );
+    };
 
     if (loading) return <LoadingScreenUser autoDismiss={false} />;
 
@@ -633,7 +614,7 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
 
                 {isOwner && (
                     <OrganizerSection>
-                        <OrganizerTitle>Organizer Controls</OrganizerTitle>
+                        <OrganizerTitle><Cog size={20} /> Organizer Controls</OrganizerTitle>
                         <ParticipantsList>
                             {currentActivity.participants.concat([{ id: user.id, name: currentActivity.user?.name || 'You' }]).map((participant, index) => {
                                 const hasSubmitted = availabilityResponses.some(r => r.user_id === participant.id);
@@ -752,7 +733,7 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
 
                 {isOwner && (
                     <OrganizerSection>
-                        <OrganizerTitle>Organizer Controls</OrganizerTitle>
+                        <OrganizerTitle><Cog size={20} /> Organizer Controls</OrganizerTitle>
                         <ParticipantsList>
                             {currentActivity.participants.concat([{ id: user.id, name: currentActivity.user?.name || 'You' }]).map((participant, index) => {
                                 const hasVoted = Array.from(participantsWithVotes).includes(participant.id);
@@ -856,17 +837,13 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
                     <Heading>Activity Finalized</Heading>
                 </TopBar>
 
-                <PhaseIndicator>
-                    <PhaseIcon><Flag size={24} /></PhaseIcon>
-                    <PhaseContent>
-                        <PhaseTitle>Activity Complete</PhaseTitle>
-                        <PhaseSubtitle>The group has chosen their meeting time!</PhaseSubtitle>
-                    </PhaseContent>
-                </PhaseIndicator>
-
-                <FullWidthA href={shareUrl}>
-                    Share Finalized Activity Details
-                </FullWidthA>
+                    <PhaseIndicator style={{ cursor: 'pointer' }} onClick={handleClick}>
+                        <PhaseIcon><Share size={24} /> </PhaseIcon>
+                        <PhaseContent>
+                            <PhaseTitle>Share Finalized Activity Link!</PhaseTitle>
+                            <PhaseSubtitle>Click here to view & share finalized activity.</PhaseSubtitle>
+                        </PhaseContent>
+                    </PhaseIndicator>
 
                 {error && <ErrorText>{error}</ErrorText>}
 
@@ -906,7 +883,7 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
                             );
                         })}
                 </TimeSlotsList>
-            </Container>
+            </Container >
         );
     }
 

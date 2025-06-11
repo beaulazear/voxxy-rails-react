@@ -89,7 +89,7 @@ const RestaurantMap = ({ recommendations }) => {
         <div>
             {!showMap ? (
                 <ChatButton>
-                    <StyledButton  onClick={() => setShowMap(true)}>
+                    <StyledButton onClick={() => setShowMap(true)}>
                         <Map size={20} /> View Reccomendations On Map
                     </StyledButton>
                 </ChatButton>
@@ -116,8 +116,8 @@ const RestaurantMap = ({ recommendations }) => {
                         style={{ height: "100%", width: "100%" }}
                     >
                         <TileLayer
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            attribution='&copy; OpenStreetMap contributors'
+                            url="https://stamen-tiles.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png"
+                            attribution='&copy; <a href="https://carto.com/attributions">CARTO</a> &copy; OpenStreetMap contributors'
                         />
                         {locations.length > 0 && (
                             <FitBoundsToMarkers locations={locations} />
@@ -167,9 +167,9 @@ const StyledButton = styled.button`
 
   &:hover {
     ${({ $primary }) =>
-    $primary
-      ? `background: #b22cc0;`
-      : `background: rgba(108, 99, 255, 0.1); color: #6c63ff;`}
+        $primary
+            ? `background: #b22cc0;`
+            : `background: rgba(108, 99, 255, 0.1); color: #6c63ff;`}
   }
   &:disabled {
     opacity: 0.5;

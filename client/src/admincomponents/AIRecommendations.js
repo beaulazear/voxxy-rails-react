@@ -191,8 +191,15 @@ export default function AIRecommendations({
     setShowDetailModal(false);
     setSelectedRec(null);
   }
-
+  
   const shareUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activity.id}/share`;
+  const sharePlanUrlClick = () => {
+    window.open(
+      shareUrl,    // your URL
+      '_blank',                 // open in new tab
+      'noopener,noreferrer'     // recommended for security
+    );
+  };
 
   if (loading) return <LoadingScreenUser autoDismiss={false} />;
 
@@ -448,15 +455,11 @@ export default function AIRecommendations({
           <Heading>Activity Finalized</Heading>
         </TopBar>
 
-        <FullWidthA href={shareUrl} style={{ marginBottom: '1rem', textDecoration: 'none', fontWeight: 'bold' }}>
-          <Share size={20} /> Share Finalized Activity Details
-        </FullWidthA>
-
-        <PhaseIndicator>
-          <PhaseIcon><Flag size={24} /></PhaseIcon>
+        <PhaseIndicator style={{ cursor: 'pointer' }} onClick={sharePlanUrlClick}>
+          <PhaseIcon><Share size={24} /> </PhaseIcon>
           <PhaseContent>
-            <PhaseTitle>Your work here is done!</PhaseTitle>
-            <PhaseSubtitle>The group has chosen their restaurant.</PhaseSubtitle>
+            <PhaseTitle>Share Finalized Activity Link!</PhaseTitle>
+            <PhaseSubtitle>Click here to view & share finalized activity.</PhaseSubtitle>
           </PhaseContent>
         </PhaseIndicator>
 
@@ -977,31 +980,6 @@ const InfoRow = styled.div`
 `;
 
 const FullWidthButton = styled.button`
-  width: 100%;
-  background: ${({ $primary }) => ($primary ? '#cc31e8' : 'transparent')};
-  color: ${({ $primary }) => ($primary ? '#fff' : '#6c63ff')};
-  border: ${({ $primary }) => ($primary ? 'none' : '1px solid #6c63ff')};
-  padding: 1rem;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  text-align: left;
-
-  &:hover {
-    ${({ $primary }) =>
-    $primary
-      ? `background: #b22cc0;`
-      : `background: rgba(108, 99, 255, 0.1); color: #6c63ff;`}
-  }
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`;
-const FullWidthA = styled.a`
   width: 100%;
   background: ${({ $primary }) => ($primary ? '#cc31e8' : 'transparent')};
   color: ${({ $primary }) => ($primary ? '#fff' : '#6c63ff')};
