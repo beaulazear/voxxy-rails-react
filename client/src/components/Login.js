@@ -10,11 +10,11 @@ import { Sparkles } from 'lucide-react';
 const SectionContainer = styled.section`
   min-width: 350px;
   background-color: transparent;
-  padding: 9rem 3rem 3rem;
+  padding: 6rem 3rem 2rem;
   text-align: center;
   color: ${colors.textPrimary};
   @media (max-width: 600px) {
-    padding: 7rem 2rem 2rem;
+    padding: 4rem 2rem 1rem;
   }
 `;
 
@@ -27,122 +27,29 @@ const Title = styled(Heading1)`
   font-size: clamp(1.8rem, 5vw, 2.5rem);
   margin-bottom: 1rem;
   color: ${colors.textPrimary};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 1rem;
+  }
 `;
 
 const Subtitle = styled(MutedText)`
   font-size: 1.1rem;
-  max-width: 750px;
-  margin: 0.5rem auto 0rem auto;
+  max-width: 600px;
+  margin: 0 auto 1.5rem auto;
   line-height: 1.6;
-`;
-
-const PageContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background-color: #201925;
-  padding: 0 1rem;
-`;
-
-const FormContainer = styled.div`
-  max-width: 400px;
-  width: 100%;
-  border-radius: 12px;
-  text-align: center;
-  margin-bottom: 2rem;
-  background: transparent;
-  box-shadow: none;
-  padding: 0;
-`;
-
-const Heading = styled.h4`
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: #fff;
-  text-align: center;
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-`;
-
-const InputGroup = styled.div`
-  text-align: left;
-  width: 100%;
-  margin-bottom: 0.1rem;
-
-  label {
-    font-size: 1rem;
-    color: #fff;
-    margin-bottom: 0.3rem;
-    display: block;
-    font-weight: 500;
-  }
-
-  input {
-    width: 100%;
-    padding: .5rem;
-    font-size: 1rem;
-    border: 1.5px solid  #592566;
-    border-radius: 8px;
-    background-color: #211825;
-    color: #fff;
-    transition: border-color 0.2s;
-
-    &:focus {
-      border-color: #cc31e8;
-      outline: none;
-    }
-  }
-`;
-
-const SubmitButton = styled.button`
-  margin-top: 1.5rem;
-  padding: 0.75rem;
-  font-size: 1rem;
-  color: #fff;
-  background: #cc31e8;
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
-  width: 100%;
-  transition: background 0.3s ease;
-
-  &:hover {
-    background:rgb(232, 49, 226);
-  }
-
-  &:disabled {
-    background: #555;
-    cursor: not-allowed;
-  }
-`;
-
-const TextLink = styled.p`
-  font-size: 0.95rem;
-  color: #ccc;
-  margin-top: 1.25rem;
-
-  a, span {
-    color: #cc31e8;
-    text-decoration: none;
-    cursor: pointer;
-    &:hover {
-      text-decoration: underline;
-    }
-  }
 `;
 
 const Divider = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0.5rem auto;
+  margin: 2rem auto 1.5rem auto;
   width: 100%;
   max-width: 400px;
   text-align: center;
@@ -157,43 +64,186 @@ const Divider = styled.div`
 
   span {
     margin: 0 1.5rem;
-    font-size: 1.2rem;
-    color: #ccc;
+    font-size: 0.9rem;
+    color: #888;
     white-space: nowrap;
+    font-weight: 400;
   }
 `;
 
-const Footer = styled.div`
+const SignupPrompt = styled.div`
   text-align: center;
-  width: 100%;
-  padding: 2rem 1rem;
-
+  margin-bottom: 2rem;
+  
   button {
-    border: 1.5px solid #cc31e8;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    border-radius: 50px;
     background: transparent;
-    cursor: pointer;
-    margin-top: 1.5rem;
-    width: 100%;
-    max-width: 400px;
-    box-sizing: border-box;
+    border: 1px solid #cc31e8;
     color: #cc31e8;
-    font-weight: 600;
-    transition: background 0.3s, color 0.3s;
-
+    padding: 0.6rem 2rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
     &:hover {
-      background: rgba(157, 96, 248, 0.1);
-      color: #fff;
+      background: rgba(204, 49, 232, 0.1);
+      transform: translateY(-1px);
     }
   }
+`;
 
-  p {
-    font-size: 0.875rem;
-    color: #ccc;
-    margin-top: 1rem;
+const PageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #201925;
+  padding: 0 1rem;
+`;
+
+const FormContainer = styled.div`
+  max-width: 900px;
+  min-width: 300px;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 2rem;
+  
+  @media (max-width: 600px) {
+    max-width: 100%;
+    padding: 0 1rem;
   }
+`;
+
+const Heading = styled.h2`
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #FFFFFF;
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 400px;
+  margin: 0 auto;
+  
+  @media (max-width: 600px) {
+    max-width: 100%;
+  }
+`;
+
+const InputGroup = styled.div`
+  text-align: left;
+  width: 100%;
+
+  label {
+    font-size: 1rem;
+    color: #FFFFFF;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    display: block;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    border: 2px solid #442f4f;
+    border-radius: 10px;
+    background-color: #211825;
+    color: #fff;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: #cc31e8;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(204, 49, 232, 0.1);
+    }
+    
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+  }
+`;
+
+const SubmitButton = styled.button`
+  margin-top: 1.5rem;
+  padding: 0.875rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: #cc31e8;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgb(232, 49, 226);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(204, 49, 232, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    background: #555;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+`;
+
+const TextLink = styled.p`
+  font-size: 0.875rem;
+  color: #ccc;
+  margin-top: 1.5rem;
+  line-height: 1.5;
+
+  a, span {
+    color: #cc31e8;
+    text-decoration: none;
+    cursor: pointer;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+`;
+
+const ForgotPasswordLink = styled.p`
+  font-size: 0.875rem;
+  color: #ccc;
+  margin-top: 1rem;
+  text-align: center;
+
+  span {
+    color: #cc31e8;
+    cursor: pointer;
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+`;
+
+const ErrorMessage = styled.p`
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  color: #fca5a5;
+  font-size: 0.875rem;
+  text-align: center;
 `;
 
 const Login = () => {
@@ -267,10 +317,26 @@ const Login = () => {
     <PageContainer>
       <SectionContainer>
         <SectionInner>
-          <Title><Sparkles size={28} style={{color: '#cc31e8', height: 'fit-content'}}/> Welcome to Voxxy Beta</Title>
-          <Subtitle>You’re getting full access to the Voxxy experience and joining us as we rapidly grow and evolve.</Subtitle>
+          <Title>
+            <Sparkles size={28} style={{ color: '#cc31e8' }} />
+            Welcome to Voxxy Beta
+          </Title>
+          <Subtitle>
+            You're getting full access to the Voxxy experience and joining us as we rapidly grow and evolve.
+          </Subtitle>
+
+          <Divider>
+            <span>New to our community?</span>
+          </Divider>
+
+          <SignupPrompt>
+            <button type="button" onClick={() => navigate('/signup')}>
+              Create an account
+            </button>
+          </SignupPrompt>
         </SectionInner>
       </SectionContainer>
+
       <FormContainer>
         <Heading>Log in to your account</Heading>
         <Form onSubmit={handleSubmit}>
@@ -281,51 +347,40 @@ const Login = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email address"
               required
             />
           </InputGroup>
+
           <InputGroup>
-            <label htmlFor="password">Your password</label>
+            <label htmlFor="password">Password</label>
             <input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
               required
             />
           </InputGroup>
+
           <SubmitButton type="submit">Log in</SubmitButton>
         </Form>
-        {error && <p style={{ color: 'red', marginTop: '1rem' }}>{error}</p>}
+
+        <ForgotPasswordLink>
+          <span onClick={() => navigate('/forgot-password')}>
+            Forgot your password?
+          </span>
+        </ForgotPasswordLink>
+
         <TextLink>
-          By continuing, you agree to the{' '}
-          <a href="/#terms">Terms of use</a> and{' '}
+          By continuing, you agree to our{' '}
+          <a href="/#terms">Terms of Service</a> and{' '}
           <a href="/#privacy">Privacy Policy</a>.
         </TextLink>
-        <TextLink>
-          <span
-            onClick={() => navigate('/forgot-password')}
-            style={{ cursor: 'pointer', textDecoration: 'underline' }}
-          >
-            Forgot Password?
-          </span>
-        </TextLink>
+
+        {error && <ErrorMessage>{error}</ErrorMessage>}
       </FormContainer>
-      <Footer>
-        <Divider>
-          <span>New to our community?</span>
-        </Divider>
-        <button onClick={() => navigate('/signup')}>Create an account</button>
-        <p>
-          <a href="/terms" style={{ color: '#cc31e8' }}>
-            Terms of Service
-          </a>{' '}
-          |{' '}
-          <a href="/privacy" style={{ color: '#cc31e8' }}>
-            Privacy Policy
-          </a>
-        </p>
-      </Footer>
     </PageContainer>
   );
 };

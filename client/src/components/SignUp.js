@@ -3,18 +3,19 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/user';
 import styled from 'styled-components';
 import colors from "../styles/Colors";
-import { Heading1, MutedText } from '../styles/Typography'; // ✅ optional if you want to use Heading components
+import { Heading1, MutedText } from '../styles/Typography';
 import { Sparkles } from 'lucide-react';
 import mixpanel from 'mixpanel-browser';
 
 const SectionContainer = styled.section`
   min-width: 350px;
   background-color: transparent;
-  padding: 9rem 3rem 3rem;
+  padding: 6rem 3rem 2rem;
+  margin-top: 20px;
   text-align: center;
   color: ${colors.textPrimary};
   @media (max-width: 600px) {
-    padding: 7rem 2rem 2rem;
+    padding: 4rem 2rem 1rem;
   }
 `;
 
@@ -27,13 +28,70 @@ const Title = styled(Heading1)`
   font-size: clamp(1.8rem, 5vw, 2.5rem);
   margin-bottom: 1rem;
   color: ${colors.textPrimary};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 1rem;
+  }
 `;
 
 const Subtitle = styled(MutedText)`
-  font-size: 1rem;
-  max-width: 800px;
-  margin: 0.5rem auto .5rem auto;
-  line-height: 1.8;
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto 1.5rem auto;
+  line-height: 1.6;
+`;
+
+const Divider = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2rem auto 1.5rem auto;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #444;
+  }
+
+  span {
+    margin: 0 1.5rem;
+    font-size: 0.9rem;
+    color: #888;
+    white-space: nowrap;
+    font-weight: 400;
+  }
+`;
+
+const LoginPrompt = styled.div`
+  text-align: center;
+  margin-bottom: 2rem;
+  
+  button {
+    background: transparent;
+    border: 1px solid #cc31e8;
+    color: #cc31e8;
+    padding: 0.6rem 2rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: rgba(204, 49, 232, 0.1);
+      transform: translateY(-1px);
+    }
+  }
 `;
 
 const PageContainer = styled.div`
@@ -52,9 +110,14 @@ const FormContainer = styled.div`
   border-radius: 12px;
   text-align: center;
   margin-bottom: 2rem;
+  
+  @media (max-width: 600px) {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
 `;
 
-const Heading = styled.h1`
+const Heading = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1.5rem;
@@ -64,7 +127,13 @@ const Heading = styled.h1`
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: .7rem;
+  gap: 1rem;
+  max-width: 400px;
+  margin: 0 auto;
+  
+  @media (max-width: 600px) {
+    max-width: 100%;
+  }
 `;
 
 const InputGroup = styled.div`
@@ -81,47 +150,63 @@ const InputGroup = styled.div`
 
   input {
     width: 100%;
-    padding: 0.6rem;
-    font-size: .8rem;
+    padding: 0.75rem;
+    font-size: 0.9rem;
     border: 2px solid #442f4f;
-    border-radius: 8px;
+    border-radius: 10px;
     background-color: #211825;
     color: #fff;
-    transition: border-color 0.2s ease;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
 
     &:focus {
       border-color: #cc31e8;
       outline: none;
+      box-shadow: 0 0 0 3px rgba(204, 49, 232, 0.1);
+    }
+    
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
     }
   }
 `;
 
 const SubmitButton = styled.button`
   margin-top: 1.5rem;
-  padding: 0.75rem;
+  padding: 0.875rem;
   font-size: 1rem;
+  font-weight: 600;
   color: #fff;
   background: #cc31e8;
   border: none;
   border-radius: 50px;
   cursor: pointer;
   width: 100%;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
 
   &:hover {
-    background:rgb(232, 49, 226);
+    background: rgb(232, 49, 226);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(204, 49, 232, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 
   &:disabled {
     background: #555;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `;
 
 const TermsNote = styled.p`
   font-size: 0.875rem;
   color: #ccc;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
+  line-height: 1.5;
 
   a {
     color: #cc31e8;
@@ -133,59 +218,28 @@ const TermsNote = styled.p`
   }
 `;
 
-const Divider = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0.5rem auto;
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
-
-  &::before,
-  &::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: #444;
-  }
-
-  span {
-    margin: 0 1.5rem;
-    font-size: 1.2rem;
-    color: #ccc;
-    white-space: nowrap;
-  }
-`;
-
-const Footer = styled.div`
-  text-align: center;
-  width: 100%;
-  padding: 2rem 1rem;
-
-  button {
-    border: 1px solid #cc31e8;;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    border-radius: 50px;
-    background: transparent;
-    cursor: pointer;
-    margin-top: 1.5rem;
-    width: 100%;
-    max-width: 400px;
-    box-sizing: border-box;
-    color: #cc31e8;
-    transition: background 0.3s ease;
-
-    &:hover {
-      background: rgba(157, 96, 248, 0.1);
-    }
-  }
-
-  p {
+const ErrorList = styled.ul`
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  list-style: none;
+  
+  li {
+    color: #fca5a5;
     font-size: 0.875rem;
-    color: #ccc;
-    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    &::before {
+      content: '•';
+      margin-right: 0.5rem;
+      color: #ef4444;
+    }
   }
 `;
 
@@ -232,7 +286,6 @@ const SignUp = () => {
       const data = await response.json();
 
       if (response.ok) {
-
         if (process.env.NODE_ENV === 'production') {
           mixpanel.track('Signup form completed, account created', {
             userId: data.id,
@@ -259,10 +312,26 @@ const SignUp = () => {
     <PageContainer>
       <SectionContainer>
         <SectionInner>
-          <Title><Sparkles size={28} style={{ color: '#cc31e8', height: 'fit-content' }} /> Be one of the first to experience Voxxy!</Title>
-          <Subtitle>As a beta user, you’ll get early access to new features, special perks, and a direct line to share feedback.</Subtitle>
+          <Title>
+            <Sparkles size={28} style={{ color: '#cc31e8' }} />
+            Be one of the first to experience Voxxy!
+          </Title>
+          <Subtitle>
+            As a beta user, you'll get early access to new features, special perks, and a direct line to share feedback.
+          </Subtitle>
+
+          <Divider>
+            <span>Already have an account?</span>
+          </Divider>
+
+          <LoginPrompt>
+            <button type="button" onClick={() => navigate('/login')}>
+              Sign in instead
+            </button>
+          </LoginPrompt>
         </SectionInner>
       </SectionContainer>
+
       <FormContainer>
         <Heading>Create your account</Heading>
         <Form onSubmit={handleSubmit}>
@@ -273,9 +342,11 @@ const SignUp = () => {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your full name"
               required
             />
           </InputGroup>
+
           <InputGroup>
             <label htmlFor="email">Email</label>
             <input
@@ -283,10 +354,12 @@ const SignUp = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email address"
               required
               readOnly={!!invitedEmail}
             />
           </InputGroup>
+
           <InputGroup>
             <label htmlFor="password">Password</label>
             <input
@@ -294,9 +367,11 @@ const SignUp = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="Create a secure password"
               required
             />
           </InputGroup>
+
           <InputGroup>
             <label htmlFor="passwordConfirmation">Confirm Password</label>
             <input
@@ -304,27 +379,25 @@ const SignUp = () => {
               type="password"
               value={passwordConfirmation}
               onChange={(e) => setPasswordConfirmation(e.target.value)}
+              placeholder="Confirm your password"
               required
             />
           </InputGroup>
+
           <SubmitButton type="submit">Create Account</SubmitButton>
         </Form>
+
         <TermsNote>
-          By creating an account, you agree to the{' '}
-          <a href="/#terms">Terms of use</a> and <a href="/#privacy">Privacy Policy</a>.
+          By creating an account, you agree to our{' '}
+          <a href="/#terms">Terms of Service</a> and <a href="/#privacy">Privacy Policy</a>.
         </TermsNote>
+
         {errors.length > 0 && (
-          <ul style={{ color: 'red', marginTop: '1rem', fontSize: '0.875rem' }}>
+          <ErrorList>
             {errors.map((error, index) => <li key={index}>{error}</li>)}
-          </ul>
+          </ErrorList>
         )}
       </FormContainer>
-      <Footer>
-        <Divider>
-          <span>Already have an account?</span>
-        </Divider>
-        <button onClick={() => navigate('/login')}>Log in</button>
-      </Footer>
     </PageContainer>
   );
 };
