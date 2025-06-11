@@ -479,9 +479,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
                       okText="Yes"
                       cancelText="No"
                       placement="top"
-                      // ≤ constrain width so it never overflows on mobile
                       overlayStyle={{ maxWidth: '80vw', padding: '0.5rem' }}
-                      // ≤ add a class so you can override its colors
                       overlayClassName="dark-popconfirm"
                     >
                       <RemoveButton>
@@ -560,101 +558,100 @@ const colors = {
   accent: '#cc31e8',
 };
 
-
 const bounceAnimation = keyframes`
-      0%, 20%, 50%, 80%, 100% {transform: translateY(0); }
-      40% {transform: translateY(-6px); }
-      60% {transform: translateY(-3px); }
-      `;
+  0%, 20%, 50%, 80%, 100% {transform: translateY(0); }
+  40% {transform: translateY(-6px); }
+  60% {transform: translateY(-3px); }
+`;
 
 const DarkInput = styled.input`
-      width: 100%;
-      padding: 0.75rem 1rem;
-      margin: 1rem 0;
-      background: rgba(255, 255, 255, 0.08);
-      color: #eee;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 8px;
-      font-size: 1rem;
-      font-family: "Inter", sans-serif;
-      transition: border-color 0.2s, background 0.2s;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  background: rgba(255, 255, 255, 0.08);
+  color: #eee;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: "Inter", sans-serif;
+  transition: border-color 0.2s, background 0.2s;
 
-      &::placeholder {
-        color: rgba(255, 255, 255, 0.5);
+  &::placeholder {
+  color: rgba(255, 255, 255, 0.5);
   }
 
-      &:focus {
-        outline: none;
-      background: rgba(255, 255, 255, 0.12);
-      border-color: #9051e1;
-      box-shadow: 0 0 0 3px rgba(144, 81, 225, 0.2);
+  &:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #9051e1;
+    box-shadow: 0 0 0 3px rgba(144, 81, 225, 0.2);
   }
 
-      &:disabled {
-        background: rgba(255, 255, 255, 0.04);
-      color: rgba(255, 255, 255, 0.4);
-      cursor: not-allowed;
+  &:disabled {
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.4);
+    cursor: not-allowed;
   }
-      `;
+`;
 
 const HeaderContainer = styled.div`
-      position: relative;
-      border-radius: 16px;
-      margin: 0 auto;
-      `;
+  position: relative;
+  border-radius: 16px;
+  margin: 0 auto;
+`;
 
 const TopBar = styled.div`
-      display: grid;
-      grid-template-columns: max-content 1fr max-content;
-      align-items: center;
-      width: 100%;
-      max-width: 450px;
-      margin: auto;
-      `;
+  display: grid;
+  grid-template-columns: max-content 1fr max-content;
+  align-items: center;
+  width: 100%;
+  max-width: 450px;
+  margin: auto;
+`;
 
 const LeftActionButtons = styled.div`
-      justify-self: start;
-      display: flex;
-      `;
+  justify-self: start;
+  display: flex;
+`;
 
 const BackButton = styled.button`
-      border: none;
-      background: none;
-      font-size: 1.5rem;
-      color: #fff;
-      cursor: pointer;
-      `;
+  border: none;
+  background: none;
+  font-size: 1.5rem;
+  color: #fff;
+  cursor: pointer;
+`;
 
 const HelpIcon = styled(BackButton)`
-      font-size: 1.4rem;
-      padding-bottom: 5px;
-      ${({ $bounce }) => $bounce && css`
-    animation: ${bounceAnimation} 1s ease infinite;
-  `}
-      `;
+  font-size: 1.4rem;
+  padding-bottom: 5px;
+  ${({ $bounce }) => $bounce && css`
+  animation: ${bounceAnimation} 1s ease infinite;
+`}
+`;
 
 const ActivityType = styled.div`
-      font-family: "Montserrat", sans-serif;
-      font-size: clamp(1.2rem, 2.5vw, 1.75rem);
-      font-weight: 400;
-      color: rgba(255, 255, 255, 0.85);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding-top: .5rem;
-      `;
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(1.2rem, 2.5vw, 1.75rem);
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding-top: .5rem;
+`;
 
 const ActionButtons = styled.div`
-      justify-self: end;
-      display: flex;
-      `;
+  justify-self: end;
+  display: flex;
+`;
 
 const EditIcon = styled.button`
-      border: none;
-      background: none;
-      color: #6a1b9a;
-      font-size: 1.5rem;
-      cursor: pointer;
-      `;
+  border: none;
+  background: none;
+  color: #6a1b9a;
+  font-size: 1.5rem;
+  cursor: pointer;
+`;
 
 const DeleteIcon = styled(EditIcon)`
 color: #e74c3c;
@@ -760,234 +757,234 @@ const ParticipantCircle = styled.div`
 `;
 
 const ParticipantImage = styled.img`
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      `;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
 
 const InviteCircle = styled(ParticipantCircle)`
-      background: #9051e1;
-      color: #fff;
-      border: 2px dashed white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      `;
+  background: #9051e1;
+  color: #fff;
+  border: 2px dashed white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+`;
 
 const LeaveButton = styled.button`
-      background: #a02e2e;
-      color: #fff;
-      border: none;
-      padding: 0.3rem 0.8rem;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      cursor: pointer;
-      `;
+  background: #a02e2e;
+  color: #fff;
+  border: none;
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+`;
 
 const ParticipantPopupOverlay = styled.div`
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      backdrop-filter: blur(10px);
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      `;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
 
 const ParticipantPopupContent = styled.div`
-      background: #201925;
-      padding: 2rem;
-      border-radius: 18px;
-      text-align: center;
-      max-width: 420px;
-      color: #fff;
-      max-height: 90vh;
-      overflow-y: auto;
-      `;
+  background: #201925;
+  padding: 2rem;
+  border-radius: 18px;
+  text-align: center;
+  max-width: 420px;
+  color: #fff;
+  max-height: 90vh;
+  overflow-y: auto;
+`;
 
 const ParticipantPopupActions = styled.div`
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-top: 1rem;
-      `;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+`;
 
 const ParticipantPopupButton = styled.button`
-      padding: 0.7rem 1.4rem;
-      background: white;
-      color: #6a1b9a;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: bold;
+  padding: 0.7rem 1.4rem;
+  background: white;
+  color: #6a1b9a;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
 
-      &:hover {
-        background: rgba(255, 255, 255, 0.8);
+  &:hover {
+    background: rgba(255, 255, 255, 0.8);
   }
 
-      &.cancel {
-        background: rgba(255, 255, 255, 0.3);
-      color: #fff;
-      &:hover {
-        background: rgba(255, 255, 255, 0.5);
-    }
+  &.cancel {
+    background: rgba(255, 255, 255, 0.3);
+    color: #fff;
+  &:hover {
+    background: rgba(255, 255, 255, 0.5);
   }
-      `;
+  }
+`;
 
 const HelpOverlay = styled.div`
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);  /* optional dim behind */
-      z-index: 10000;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;  /* or center if you like */
-      padding-top: 80px;        /* match your HelpPopup top */
-      `;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);  /* optional dim behind */
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;  /* or center if you like */
+  padding-top: 80px;        /* match your HelpPopup top */
+`;
 
 const HelpPopup = styled.div`
-      position: fixed;
-      top: 80px;
-      width: 90%;
-      max-width: 400px;
-      background: #2c1e33;
-      padding: 1rem;
-      border-radius: 8px;
-      z-index: 10000;
-      border-color: ${colors.accent};
-      box-shadow: 0 0 10px ${colors.accent}, 0 0 50px ${colors.accent};
-      `;
+  position: fixed;
+  top: 80px;
+  width: 90%;
+  max-width: 400px;
+  background: #2c1e33;
+  padding: 1rem;
+  border-radius: 8px;
+  z-index: 10000;
+  border-color: ${colors.accent};
+  box-shadow: 0 0 10px ${colors.accent}, 0 0 50px ${colors.accent};
+`;
 
 const PopupHeader = styled.div`
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-      color: #fff;
-      text-align: center;
-      `;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  color: #fff;
+  text-align: center;
+`;
 
 const PopupTitle = styled.h4`
-      margin: 0 auto;
-      font-size: 1rem;
-      font-weight: bold;
-      color: #fff;
-      font-family: "Montserrat", sans-serif;
-      `;
+  margin: 0 auto;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+  font-family: "Montserrat", sans-serif;
+`;
 
 const CloseButton = styled.button`
-      background: transparent;
-      border: none;
-      color: #fff;
-      cursor: pointer;
-      padding: 0;
-      `;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+`;
 
 const StepContainer = styled.div`
-      text-align: left;
-      padding: 1rem;
-      `;
+  text-align: left;
+  padding: 1rem;
+`;
 
 const StepTitle = styled.h5`
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #fff;
-      margin-bottom: 0.5rem;
-      `;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.5rem;
+`;
 
 const StepDesc = styled.p`
-      font-size: 0.95rem;
-      line-height: 1.4;
-      color: rgba(255,255,255,0.85);
-      margin-bottom: 1rem;
-      `;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 1rem;
+`;
 
 const NavControls = styled.div`
-      display: flex;
-      justify-content: space-between;
-      `;
+  display: flex;
+  justify-content: space-between;
+`;
 
 const NavButton = styled.button`
-      background: #9051e1;
-      color: #fff;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      font-weight: 500;
-      cursor: pointer;
-      &:disabled {
-        background: rgba(144,81,225,0.4);
-      cursor: not-allowed;
-  }
-      `;
+  background: #9051e1;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  &:disabled {
+    background: rgba(144,81,225,0.4);
+  cursor: not-allowed;
+}
+`;
 
 const AddButton = styled.button`
-      background: #9051e1;
-      color: #fff;
-      border: none;
-      padding: 0 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 1rem;
-      margin-bottom: 1rem;
-      `;
+  background: #9051e1;
+  color: #fff;
+  border: none;
+  padding: 0 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+`;
 
 const EmailsContainer = styled.div`
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-      `;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+`;
 
 const EmailPill = styled.div`
-      display: inline-flex;
-      align-items: center;
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-      padding: 0.25rem 0.5rem;
-      border-radius: 9999px;
-      font-size: 0.875rem;
-      `;
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+`;
 
 const PillClose = styled.span`
-      margin-left: 0.5rem;
-      cursor: pointer;
-      font-weight: bold;
-      `;
+  margin-left: 0.5rem;
+  cursor: pointer;
+  font-weight: bold;
+`;
 
 const AllParticipantsOverlay = styled(ParticipantPopupOverlay)``;
 
 const AllParticipantsContent = styled(ParticipantPopupContent)`
-      max-width: 600px;
-      width: 90%;
-      text-align: left;
-      `;
+  max-width: 600px;
+  width: 90%;
+  text-align: left;
+`;
 
 const AllList = styled.div`
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      max-height: 60vh;
-      margin-top: 1rem;
-      margin-bottom: 1rem;
-      `;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 80vh;
+  margin-top: 1rem;
+  padding-bottom: 1rem;
+`;
 
 const Info = styled.div`
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      `;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+`;
 
 const ProgressContainer = styled.div`
-      margin: 0.75rem 1.5rem;
-      `;
+  margin: 0.75rem 1.5rem;
+`;
 const wave = keyframes`
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
@@ -1019,45 +1016,43 @@ const ProgressBarFill = styled.div`
   );
   background-size: 200% 100%;
 
-  /* animate the gradient to look like moving fluid */
   animation: 
     ${wave} 4s linear infinite,
     ${pulse} 2s ease-in-out infinite;
 
-  /* inner shadow so it actually looks “filled” */
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 `;
 const Details = styled.div`
-      display: flex;
-      flex-direction: column;
-      `;
+  display: flex;
+  flex-direction: column;
+`;
 
 const EmailLine = styled.span`
-      font-size: 0.85rem;
-      color: #ccc;
-      margin-bottom: 0.5rem;
-      `;
+  font-size: 0.85rem;
+  color: #ccc;
+  margin-bottom: 0.5rem;
+`;
 
 const StatusRow = styled.div`
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-top: 0.25rem;
-      `;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+`;
 
 const StatusText = styled.span`
-      font-size: 0.85rem;
-      color: #ccc;
-      `;
+  font-size: 0.85rem;
+  color: #ccc;
+`;
 
 const RemoveButton = styled.button`
-      background: transparent;
-      border: none;
-      color: #e74c3c;
-      cursor: pointer;
-      padding: 0;
-      flex-shrink: 0;
-      `;
+  background: transparent;
+  border: none;
+  color: #e74c3c;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+`;
 
 const ParticipantItem = styled.div`
   display: flex;
@@ -1067,13 +1062,11 @@ const ParticipantItem = styled.div`
   padding: 0.75rem 1rem;
   border-radius: 8px;
 
-  /* make the Info block shrink & wrap instead of pushing out */
   & > ${Info} {
     flex: 1;        /* take all available space */
     min-width: 0;   /* ✨ critical: allows its contents to wrap */
   }
 
-  /* keep the remove button at its own width */
   & > ${RemoveButton} {
     flex-shrink: 0;
     margin-left: 0.75rem;
