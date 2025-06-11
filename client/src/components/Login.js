@@ -13,6 +13,7 @@ const SectionContainer = styled.section`
   padding: 6rem 3rem 2rem;
   text-align: center;
   color: ${colors.textPrimary};
+  margin-top: 20px;
   @media (max-width: 600px) {
     padding: 4rem 2rem 1rem;
   }
