@@ -2,21 +2,120 @@ import React, { useState, useContext, useMemo } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { format, parse, parseISO } from "date-fns";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import mixpanel from "mixpanel-browser";
 import { UserContext } from "../context/user";
+import { Calendar, Clock, X, CheckCircle2, Globe } from 'lucide-react';
 
-const SchedulerWrapper = styled.div`
+const fadeIn = keyframes`
+  from { 
+    opacity: 0; 
+    transform: scale(0.95);
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  padding: 2rem;
-  min-height: auto;
+  z-index: 1000;
+  padding: 1rem;
+`;
+
+const ModalContainer = styled.div`
+  background: linear-gradient(135deg, #2a1e30 0%, #342540 100%);
+  padding: 0;
+  border-radius: 1.5rem;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  color: #fff;
+  animation: ${fadeIn} 0.3s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 2rem 1rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  background: linear-gradient(135deg, #2a1e30 0%, #342540 100%);
+  border-radius: 1.5rem 1.5rem 0 0;
+  z-index: 10;
+`;
+
+const ModalTitle = styled.h2`
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+`;
+
+const CloseButton = styled.button`
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+  }
+`;
+
+const ModalBody = styled.div`
+  padding: 1.5rem 2rem 2rem 2rem;
+`;
+
+const AvailabilityInfo = styled.div`
+  background: rgba(204, 49, 232, 0.1);
+  border: 1px solid rgba(204, 49, 232, 0.3);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  color: #cc31e8;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `;
 
 const WhiteDayPicker = styled(DayPicker)`
+  margin: 1.5rem auto;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  
   .rdp-month {
     background: transparent;
+    margin: 0 auto;
   }
   .rdp-caption_label,
   .rdp-nav_button,
@@ -24,50 +123,196 @@ const WhiteDayPicker = styled(DayPicker)`
   .rdp-day {
     color: #fff !important;
   }
-  --rdp-accent-color: #7b298d;
-  --rdp-accent-color-hover: #7b298d;
-  --rdp-day-selected-background: #7b298d;
+  --rdp-accent-color: #cc31e8;
+  --rdp-accent-color-hover: #9051e1;
+  --rdp-day-selected-background: #cc31e8;
   --rdp-day-selected-color: #fff;
+  --rdp-background-color: transparent;
+`;
+
+const OpenAvailabilitySection = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #cc31e8;
+    cursor: pointer;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const CheckboxIcon = styled.div`
+  color: #cc31e8;
+`;
+
+const TimeSlotSection = styled.div`
+  margin-top: 2rem;
+`;
+
+const SectionTitle = styled.h4`
+  color: #fff;
+  font-size: 1.1rem;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const DateGroup = styled.div`
+  margin-bottom: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const DateTitle = styled.div`
+  font-weight: 600;
+  color: #cc31e8;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+`;
+
+const TimeSlotGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.5rem;
+  
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 0.4rem;
+  }
 `;
 
 const SlotButton = styled.button`
-  margin: 0.25rem;
-  padding: 0.4rem 0.8rem;
-  border: ${({ $selected }) =>
-        $selected ? "2px solid #7b298d" : "1px solid #444"};
+  padding: 0.6rem 0.5rem;
+  border: 2px solid ${({ $selected }) =>
+        $selected ? "#cc31e8" : "rgba(255, 255, 255, 0.2)"};
   background: ${({ $selected }) =>
-        $selected ? "#7b298d20" : "#2a2a2a"};
-  color: #fff;
-  border-radius: 6px;
-  font-size: 0.9rem;
+        $selected ? "rgba(204, 49, 232, 0.2)" : "rgba(255, 255, 255, 0.05)"};
+  color: ${({ $selected }) => ($selected ? "#cc31e8" : "#fff")};
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: ${({ $selected }) => ($selected ? "600" : "400")};
+  cursor: pointer;
   transition: all 0.2s ease;
+  
   &:hover {
-    background: #7b298d10;
-    border-color: #7b298d;
+    background: rgba(204, 49, 232, 0.1);
+    border-color: #cc31e8;
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
   }
 `;
 
 const SubmitButton = styled.button`
-  margin-top: 2rem;
-  padding: 0.75rem 1.5rem;
-  background: #7b298d;
-  color: #fff;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #cc31e8 0%, #9051e1 100%);
+  color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 0.75rem;
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  
   &:hover {
-    background: #5c216d;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(204, 49, 232, 0.3);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `;
 
-export default function LetsMeetScheduler({ activityId, currentActivity, responseSubmitted, onClose }) {
+const ResponseCard = styled.div`
+  background: rgba(40, 167, 69, 0.2);
+  border: 1px solid rgba(40, 167, 69, 0.3);
+  padding: 2rem;
+  border-radius: 1rem;
+  text-align: center;
+  color: #28a745;
+`;
+
+const ResponseIcon = styled.div`
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+`;
+
+const ResponseTitle = styled.h3`
+  font-size: 1.3rem;
+  margin: 0 0 1rem 0;
+  color: #28a745;
+`;
+
+const ResponseText = styled.p`
+  margin: 0;
+  color: #ccc;
+  line-height: 1.5;
+`;
+
+export default function LetsMeetScheduler({ activityId, currentActivity, responseSubmitted, onClose, isUpdate = false, onAvailabilityUpdate }) {
     const { user, setUser } = useContext(UserContext);
 
-    const [selectedDates, setSelectedDates] = useState([]);
-    const [slotsByDate, setSlotsByDate] = useState({});
-    const [openAll, setOpenAll] = useState(false);
+    // Initialize state with existing response data if updating
+    const existingResponse = currentActivity.responses?.find(r =>
+        r.notes === "LetsMeetAvailabilityResponse" && r.user_id === user.id
+    );
+
+    const [selectedDates, setSelectedDates] = useState(() => {
+        if (!isUpdate || !existingResponse?.availability) return [];
+
+        if (existingResponse.availability.open) return [];
+
+        return Object.keys(existingResponse.availability)
+            .map(dateStr => parseISO(dateStr))
+            .filter(date => !isNaN(date));
+    });
+
+    const [slotsByDate, setSlotsByDate] = useState(() => {
+        if (!isUpdate || !existingResponse?.availability) return {};
+
+        if (existingResponse.availability.open) return {};
+
+        return existingResponse.availability;
+    });
+
+    const [openAll, setOpenAll] = useState(() => {
+        if (!isUpdate || !existingResponse?.availability) return false;
+        return existingResponse.availability.open === true;
+    });
 
     const { disabledDays, availableLabel } = useMemo(() => {
         const note = currentActivity.date_notes;
@@ -153,6 +398,7 @@ export default function LetsMeetScheduler({ activityId, currentActivity, respons
         const notes = "LetsMeetAvailabilityResponse";
 
         try {
+            // Always create a new response - backend will handle deleting the old one
             const res = await fetch(
                 `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/responses`,
                 {
@@ -164,97 +410,162 @@ export default function LetsMeetScheduler({ activityId, currentActivity, respons
                     }),
                 }
             );
+
             if (!res.ok) {
                 console.error("❌ Failed to save availability:", await res.json());
                 return;
             }
-            const newResponse = await res.json();
+
+            const responseData = await res.json();
+            const newResponse = responseData.response;
+            const newComment = responseData.comment;
+
+            // Update user context - replace old availability response with new one
             setUser((prev) => {
-                const updActs = prev.activities.map((act) =>
-                    act.id === activityId
-                        ? { ...act, responses: [...(act.responses || []), newResponse] }
-                        : act
-                );
-                const updPart = prev.participant_activities.map((part) =>
-                    part.activity.id === activityId
-                        ? {
-                            ...part,
-                            activity: {
-                                ...part.activity,
-                                responses: [...(part.activity.responses || []), newResponse],
-                            },
-                        }
-                        : part
-                );
+                const updateActivityResponses = (activity) => {
+                    if (activity.id !== activityId) return activity;
+
+                    // Remove old availability response and add new one
+                    const otherResponses = activity.responses?.filter(r =>
+                        !(r.notes === "LetsMeetAvailabilityResponse" && r.user_id === user.id)
+                    ) || [];
+
+                    return {
+                        ...activity,
+                        responses: [...otherResponses, newResponse],
+                        comments: [...(activity.comments || []), newComment]
+                    };
+                };
+
+                const updActs = prev.activities.map(updateActivityResponses);
+                const updPart = prev.participant_activities.map((part) => ({
+                    ...part,
+                    activity: updateActivityResponses(part.activity)
+                }));
+
                 return { ...prev, activities: updActs, participant_activities: updPart };
             });
-            onClose()
+
+            // Update parent component's currentActivity state
+            if (onAvailabilityUpdate) {
+                onAvailabilityUpdate(newResponse, newComment);
+            }
+
+            onClose();
         } catch (err) {
             console.error("❌ Error saving availability:", err);
         }
     };
 
-    if (responseSubmitted) {
+    const canSubmit = openAll || (selectedDates.length > 0 && Object.values(slotsByDate).some(times => times.length > 0));
+
+    // Show confirmation only if response was submitted AND this is not an update
+    if (responseSubmitted && !isUpdate) {
         return (
-            <p style={{ color: '#fff', margin: '1.5rem'}}>Thank you for submitting your availability! 🎉 Pin your top available times so users can vote on them.</p>
+            <ModalOverlay>
+                <ModalContainer>
+                    <ModalHeader>
+                        <ModalTitle>
+                            <CheckCircle2 size={24} />
+                            Availability Submitted
+                        </ModalTitle>
+                        <CloseButton onClick={onClose}>
+                            <X size={20} />
+                        </CloseButton>
+                    </ModalHeader>
+                    <ModalBody>
+                        <ResponseCard>
+                            <ResponseIcon>
+                                <CheckCircle2 size={48} />
+                            </ResponseIcon>
+                            <ResponseTitle>Thank you for submitting your availability!</ResponseTitle>
+                            <ResponseText>
+                                Your time preferences have been saved. The organizer will use this information to find the best meeting times for everyone.
+                            </ResponseText>
+                        </ResponseCard>
+                    </ModalBody>
+                </ModalContainer>
+            </ModalOverlay>
         );
     }
 
     return (
-        <SchedulerWrapper>
-            <h3 style={{ color: "#fff" }}>Submit Your Availability</h3>
-            <p style={{ color: "#ddd", fontStyle: "italic" }}>{availableLabel}</p>
+        <ModalOverlay onClick={(e) => e.target === e.currentTarget && onClose()}>
+            <ModalContainer onClick={(e) => e.stopPropagation()}>
+                <ModalHeader>
+                    <ModalTitle>
+                        <Calendar size={24} />
+                        Submit Your Availability
+                    </ModalTitle>
+                    <CloseButton onClick={onClose}>
+                        <X size={20} />
+                    </CloseButton>
+                </ModalHeader>
 
-            <WhiteDayPicker
-                mode="multiple"
-                selected={selectedDates}
-                onSelect={handleSelect}
-                disabled={disabledDays}
-            />
+                <ModalBody>
+                    <AvailabilityInfo>
+                        <Calendar size={16} />
+                        <span>{availableLabel}</span>
+                    </AvailabilityInfo>
 
-            <label style={{ color: "#fff", margin: "1rem 0" }}>
-                <input
-                    type="checkbox"
-                    checked={openAll}
-                    disabled={selectedDates.length > 0}
-                    onChange={(e) => setOpenAll(e.target.checked)}
-                />{" "}
-                Open availability (any time)
-            </label>
+                    <WhiteDayPicker
+                        mode="multiple"
+                        selected={selectedDates}
+                        onSelect={handleSelect}
+                        disabled={disabledDays}
+                    />
 
-            {!openAll && selectedDates.length > 0 && (
-                <>
-                    <h4 style={{ color: "#fff" }}>Pick time slots</h4>
-                    {selectedDates.map((dateObj) => {
-                        const key = format(dateObj, "yyyy-MM-dd");
-                        return (
-                            <div
-                                key={key}
-                                style={{ marginBottom: "1rem", width: "100%" }}
-                            >
-                                <strong style={{ color: "#fff" }}>
-                                    {format(dateObj, "MMMM d, yyyy")}
-                                </strong>
-                                <div style={{ display: "flex", flexWrap: "wrap" }}>
-                                    {timeSlots.map((time) => (
-                                        <SlotButton
-                                            key={time}
-                                            $selected={slotsByDate[key]?.includes(time)}
-                                            onClick={() => toggleSlot(key, time)}
-                                        >
-                                            {formatDisplay(time)}
-                                        </SlotButton>
-                                    ))}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </>
-            )}
+                    <OpenAvailabilitySection>
+                        <CheckboxLabel>
+                            <input
+                                type="checkbox"
+                                checked={openAll}
+                                disabled={selectedDates.length > 0}
+                                onChange={(e) => setOpenAll(e.target.checked)}
+                            />
+                            <CheckboxIcon>
+                                <Globe size={18} />
+                            </CheckboxIcon>
+                            <span>Open availability (any time works for me)</span>
+                        </CheckboxLabel>
+                    </OpenAvailabilitySection>
 
-            <SubmitButton onClick={handleSubmit}>
-                Submit Availability
-            </SubmitButton>
-        </SchedulerWrapper>
+                    {!openAll && selectedDates.length > 0 && (
+                        <TimeSlotSection>
+                            <SectionTitle>
+                                <Clock size={20} />
+                                Select Your Available Times
+                            </SectionTitle>
+                            {selectedDates.map((dateObj) => {
+                                const key = format(dateObj, "yyyy-MM-dd");
+                                return (
+                                    <DateGroup key={key}>
+                                        <DateTitle>
+                                            {format(dateObj, "EEEE, MMMM d, yyyy")}
+                                        </DateTitle>
+                                        <TimeSlotGrid>
+                                            {timeSlots.map((time) => (
+                                                <SlotButton
+                                                    key={time}
+                                                    $selected={slotsByDate[key]?.includes(time)}
+                                                    onClick={() => toggleSlot(key, time)}
+                                                >
+                                                    {formatDisplay(time)}
+                                                </SlotButton>
+                                            ))}
+                                        </TimeSlotGrid>
+                                    </DateGroup>
+                                );
+                            })}
+                        </TimeSlotSection>
+                    )}
+
+                    <SubmitButton onClick={handleSubmit} disabled={!canSubmit}>
+                        <CheckCircle2 size={20} />
+                        {isUpdate ? 'Update Availability' : 'Submit Availability'}
+                    </SubmitButton>
+                </ModalBody>
+            </ModalContainer>
+        </ModalOverlay>
     );
 }

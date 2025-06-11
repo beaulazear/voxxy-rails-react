@@ -17,7 +17,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
   const [showModal, setShowModal] = useState(false);
   const [currentActivity, setCurrentActivity] = useState(null);
   const [pinnedActivities, setPinnedActivities] = useState([]);
-  const [selectedRestaurant, setSelectedRestaurant] = useState(null)
   const [pinned, setPinned] = useState([]);
 
   const topRef = useRef(null)
@@ -52,10 +51,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
         .then((res) => res.json())
         .then((data) => {
           setPinnedActivities(data)
-          const selectedPin = data.find(p => p.selected === true);
-          if (selectedPin) {
-            setSelectedRestaurant(selectedPin)
-          }
         })
         .catch((error) => console.error("Error fetching pinned activities:", error));
     }
@@ -254,7 +249,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
           </>
         )}
         {currentActivity.activity_type === 'Meeting' && (
-          <TimeSlots isOwner={isOwner} handleTimeSlotDelete={handleTimeSlotDelete} toggleVote={toggleVote} setPinned={handleTimeSlotPin} pinned={pinned} currentActivity={currentActivity} />
+          <TimeSlots onEdit={() => setShowModal(true)} isOwner={isOwner} handleTimeSlotDelete={handleTimeSlotDelete} toggleVote={toggleVote} setPinned={handleTimeSlotPin} pinned={pinned} currentActivity={currentActivity} setCurrentActivity={setCurrentActivity} />
         )}
         <ActivityCommentSection activity={currentActivity} />
         {showModal && (

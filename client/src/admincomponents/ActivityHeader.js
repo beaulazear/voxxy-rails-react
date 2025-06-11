@@ -239,20 +239,20 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
   ];
   const restaurantSteps = [
     {
-      title: "1️⃣ Submit Your Preferences",
-      desc: "Take the quiz and share your feedback to help tailor the group’s recommendations."
+      title: "1️⃣ Invite & Submit Your Preferences",
+      desc: "Participants & organizer take the quiz and share their feedback to help tailor the group’s recommendations. Organizer moves activity to voting phase.."
     },
     {
-      title: "2️⃣ Invite & Vote",
-      desc: "Everyone (host + participants) casts their vote on top spots."
+      title: "2️⃣ Vote on your favorites!",
+      desc: "Everyone (host + participants) casts their vote on their favorite restaurant recommendations."
     },
     {
-      title: "3️⃣ Host Confirms & Reserves",
-      desc: "Host locks in the winning restaurant and books the reservation."
+      title: "3️⃣ Organizer Confirms & Reserves",
+      desc: "Organzier locks in the winning restaurant and books the reservation."
     },
     {
       title: "4️⃣ Add to Calendar",
-      desc: "Host shares a one-click calendar link so no one misses dinner."
+      desc: "Host shares a share page with a one-click calendar link so no one misses dinner."
     }
   ];
   const steps = activity.activity_type === "Restaurant" ? restaurantSteps : meetingSteps;

@@ -6,17 +6,18 @@ class TimeSlotsController < ApplicationController
 
     def index
       @slots = @activity.time_slots
-                 .left_joins(:time_slot_votes)
-                 .group("time_slots.id")
-                 .order(Arel.sql("COUNT(time_slot_votes.id) DESC"))
+                .left_joins(:time_slot_votes)
+                .group("time_slots.id")
+                .order(Arel.sql("COUNT(time_slot_votes.id) DESC"))
       render json: @slots.map { |slot|
-                 {
-                   id:          slot.id,
-                   date:        slot.date,
-                   time:        slot.time,
-                   votes_count: slot.votes_count,
-                   user_voted:  slot.user_voted?(current_user)
-                 }
+                {
+                  id:          slot.id,
+                  date:        slot.date,
+                  time:        slot.time,
+                  votes_count: slot.votes_count,
+                  user_voted:  slot.user_voted?(current_user),
+                  voter_ids:   slot.time_slot_votes.pluck(:user_id) # Add this line
+                }
       }
     end
 

@@ -277,7 +277,8 @@ export const ActivityCard = styled.div`
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
-box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;`;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+`;
 
 export const ImageContainer = styled.div`
   position: absolute;
@@ -296,7 +297,7 @@ export const CardLabel = styled.div`
   position: absolute;
   bottom: 0;
   width: 100%;
-  height: 25%;
+  height: 30%;
   background: rgba(0, 0, 0, 0.8);
   color: #fff;
   display: flex;
@@ -639,7 +640,6 @@ function UserActivities() {
               <CardGrid>
                 {activitiesToRender?.map(activity => {
                   const selectedPin = activity.pinned_activities?.find(p => p.selected);
-                  console.log(activity)
 
                   const isFinalizedMeeting =
                     activity.activity_type === 'Meeting' && activity.finalized === true;
@@ -648,17 +648,14 @@ function UserActivities() {
                     ? activity.date_time.slice(11, 19)   // e.g. "17:00:00"
                     : null;
 
-                  // 2. split date_day and rawTime into numeric parts
                   let eventDateTime = null;
                   if (activity.date_day && rawTime) {
                     const [year, month, day] = activity.date_day.split('-').map(Number);    // e.g. [2025,5,21]
                     const [hour, minute, second] = rawTime.split(':').map(Number);          // e.g. [17,0,0]
 
-                    // monthIndex is zero‑based in JS Date
                     eventDateTime = new Date(year, month - 1, day, hour, minute, second);
                   }
 
-                  console.log(selectedPin)
                   let bgUrl;
                   if (selectedPin && selectedPin.photos?.length > 0) {
                     const { photo_reference } = selectedPin.photos[0];

@@ -50,7 +50,6 @@ export default function AIRecommendations({
     setError("");
 
     try {
-      // First, generate recommendations and save them as pinned activities
       const res = await fetch(
         `${API_URL}/api/openai/restaurant_recommendations`,
         {
@@ -69,7 +68,6 @@ export default function AIRecommendations({
       if (!res.ok) throw new Error("❌ Error fetching recommendations");
       const { recommendations: recs } = await res.json();
 
-      // Save each recommendation as a pinned activity
       const pinnedPromises = recs.map(rec =>
         fetch(`${API_URL}/activities/${id}/pinned_activities`, {
           method: "POST",

@@ -195,6 +195,7 @@ export default function LetsMeetFormModal({ onClose }) {
             participants: participantEmails,
             group_size: participantEmails.length + 1,
             emoji: '👥',
+            collecting: true
         };
 
         const payload = {
