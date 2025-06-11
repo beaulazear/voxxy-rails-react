@@ -36,7 +36,7 @@ class SessionsController < ApplicationController
       payload = user.as_json(
         include: {
           activities: {
-            only: [ :id, :activity_name, :finalized, :activity_type, :activity_location,
+            only: [ :id, :activity_name, :collecting, :voting, :finalized, :activity_type, :activity_location,
                     :group_size, :radius, :date_notes, :created_at, :active, :emoji, :date_day,
                     :date_time, :welcome_message, :completed ],
             include: {
@@ -63,7 +63,7 @@ class SessionsController < ApplicationController
           only: [ :id, :accepted, :invited_email ],
           include: {
             activity: {
-              only: [ :id, :activity_name, :finalized, :activity_type, :activity_location,
+              only: [ :id, :activity_name, :collecting, :voting, :finalized, :activity_type, :activity_location,
                       :group_size, :radius, :date_notes, :created_at, :emoji, :date_day,
                       :date_time, :welcome_message, :completed ],
               include: {

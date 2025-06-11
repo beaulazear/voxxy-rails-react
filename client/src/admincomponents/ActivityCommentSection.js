@@ -139,7 +139,7 @@ const Wrapper = styled.div`
 const ChatPanel = styled.div`
   background: #2C1E33;
   width: 100%;
-  max-width: 600px;
+  max-width: 650px;
   border-radius: 16px;
   box-shadow:
     0 16px 32px rgba(0,0,0,0.5),

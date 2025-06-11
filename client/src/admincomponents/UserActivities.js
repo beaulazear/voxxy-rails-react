@@ -639,6 +639,7 @@ function UserActivities() {
               <CardGrid>
                 {activitiesToRender?.map(activity => {
                   const selectedPin = activity.pinned_activities?.find(p => p.selected);
+                  console.log(activity)
 
                   const isFinalizedMeeting =
                     activity.activity_type === 'Meeting' && activity.finalized === true;
@@ -656,6 +657,8 @@ function UserActivities() {
                     // monthIndex is zero‑based in JS Date
                     eventDateTime = new Date(year, month - 1, day, hour, minute, second);
                   }
+
+                  console.log(selectedPin)
                   let bgUrl;
                   if (selectedPin && selectedPin.photos?.length > 0) {
                     const { photo_reference } = selectedPin.photos[0];

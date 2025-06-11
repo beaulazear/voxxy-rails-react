@@ -10,7 +10,6 @@ import LoadingScreen from '../components/LoadingScreen.js';
 import ActivityHeader from './ActivityHeader.js';
 import ActivityCommentSection from './ActivityCommentSection.js';
 import TimeSlots from '../letsmeet/TimeSlots.js';
-import SelectedPinnedActivity from './SelectedPinnedActivity.js';
 
 function ActivityDetailsPage({ activityId, onBack }) {
   const { user, setUser } = useContext(UserContext);
@@ -251,12 +250,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
         />
         {currentActivity.activity_type === 'Restaurant' && (
           <>
-            {currentActivity.finalized === false && (
-              <AIRecommendations isOwner={isOwner} pinnedActivities={pinnedActivities} setPinnedActivities={setPinnedActivities} activity={currentActivity} setRefreshTrigger={setRefreshTrigger} />
-            )}
-            {currentActivity.finalized && selectedRestaurant && (
-              <SelectedPinnedActivity pinned={selectedRestaurant} />
-            )}
+            <AIRecommendations onEdit={() => setShowModal(true)} isOwner={isOwner} pinnedActivities={pinnedActivities} setPinnedActivities={setPinnedActivities} activity={currentActivity} setRefreshTrigger={setRefreshTrigger} />
           </>
         )}
         {currentActivity.activity_type === 'Meeting' && (

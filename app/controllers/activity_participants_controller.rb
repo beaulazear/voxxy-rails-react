@@ -99,6 +99,8 @@ class ActivityParticipantsController < ApplicationController
       participants: activity.participants.select(:id, :name, :email, :avatar, :created_at),
       completed: false,
       finalized: activity.finalized,
+      collecting: activity.collecting,
+      voting: activity.voting,
       comments: activity.comments.order(created_at: :asc).map do |comment|
         {
           id: comment.id,
@@ -109,7 +111,6 @@ class ActivityParticipantsController < ApplicationController
         }
       end
     }
-
     updated_activity[:responses] = activity.responses.order(created_at: :asc).map do |res|
       {
         id:         res.id,

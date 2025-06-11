@@ -20,7 +20,7 @@ import FinalPlansModal from './FinalPlansModal.js';
 const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite, onCreateBoard, onRemoveParticipant }) => {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
 
-  const [showAllParticipants, setShowAllParticipants] = useState(false); // ← NEW
+  const [showAllParticipants, setShowAllParticipants] = useState(false);
 
   const handleViewAllClick = () => setShowAllParticipants(true);
   const handleCloseAll = () => setShowAllParticipants(false);
@@ -220,10 +220,8 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
 
   const hasResponded = p => p.confirmed && responses.some(r => r.user_id === p.apId);
 
-  // how many in total (including host + accepted + pending invites)
   const totalToRespond = allParticipants.length;
 
-  // how many have actually responded
   const responsesCount = allParticipants.filter(p =>
     responses.some(r => r.user_id === p.apId)
   ).length;
@@ -370,18 +368,8 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
       <AttendeeContainer>
         <ParticipantsSection>
           <ParticipantsTitle>
-            Attendees - <Users style={{ marginBottom: '5px' }} size={20} /> {allParticipants.length}
+            <Users style={{ marginBottom: '5px' }} size={20} /> {allParticipants.length} Attendees
           </ParticipantsTitle>
-          {allParticipants.length > 0 && (
-            <ProgressContainer>
-              <MessageLine style={{ paddingTop: '0rem' }}>
-                {`${responsesCount}/${totalToRespond} preferences collected`}
-              </MessageLine>
-              <ProgressBarBackground>
-                <ProgressBarFill width={(responsesCount / totalToRespond) * 100} />
-              </ProgressBarBackground>
-            </ProgressContainer>
-          )}
           <ParticipantsRow>
             <ParticipantsScroll>
               {isOwner && (
@@ -468,6 +456,16 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
                 <X style={{ cursor: 'pointer' }} size={20} />
               </CloseButton>
             </PopupHeader>
+            {allParticipants.length > 0 && (
+              <ProgressContainer>
+                <MessageLine style={{ paddingTop: '0rem' }}>
+                  {`${responsesCount}/${totalToRespond} preferences collected`}
+                </MessageLine>
+                <ProgressBarBackground>
+                  <ProgressBarFill width={(responsesCount / totalToRespond) * 100} />
+                </ProgressBarBackground>
+              </ProgressContainer>
+            )}
             <AllList>
               {allParticipants.map((p, i) => (
                 <ParticipantItem key={i}>

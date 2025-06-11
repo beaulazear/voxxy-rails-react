@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback, useContext } from "react";
+import React, { useState, useContext } from "react";
 import styled, { keyframes } from 'styled-components';
 import RestaurantMap from "./RestaurantMap";
 import CuisineChat from "./CuisineChat";
 import LoadingScreenUser from "./LoadingScreenUser";
 import mixpanel from "mixpanel-browser";
 import { UserContext } from "../context/user";
-import { Users, Zap, HelpCircle, Leaf } from 'lucide-react';
+import { Users, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, Cog } from 'lucide-react';
 
 export default function AIRecommendations({
   activity,
@@ -13,68 +13,44 @@ export default function AIRecommendations({
   setPinnedActivities,
   setRefreshTrigger,
   isOwner,
+  onEdit,
 }) {
-  const { user } = useContext(UserContext);
-  const [recommendations, setRecommendations] = useState([]);
+  const { user, setUser } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showChat, setShowChat] = useState(false);
   const [selectedRec, setSelectedRec] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [showMoveToVotingModal, setShowMoveToVotingModal] = useState(false);
 
-  const { id, responses, activity_location, date_notes, radius } = activity;
+  const { id, responses, activity_location, date_notes, collecting, voting, finalized, selected_pinned_activity_id } = activity;
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
-  const totalParticipants = activity.participants.length + 1
+  const totalParticipants = activity.participants.length + 1;
+  const currentUserResponse = responses.find(r => r.user_id === user.id);
+  const responseRate = (responses.length / totalParticipants) * 100;
 
-  useEffect(() => {
-    setLoading(true);
-    fetch(`${API_URL}/check_cached_recommendations?activity_id=${id}`, {
-      credentials: "include",
-    })
-      .then((r) => r.ok ? r.json() : Promise.reject())
-      .then((data) => {
-        setRecommendations(data.recommendations);
-      })
-      .catch(() => { })
-      .finally(() => setLoading(false));
-  }, [API_URL, id]);
+  const participantsWithVotes = new Set();
+  pinnedActivities.forEach(pin => {
+    (pin.voters || []).forEach(voter => {
+      participantsWithVotes.add(voter.id);
+    });
+  });
+  const votingRate = (participantsWithVotes.size / totalParticipants) * 100;
 
-  const fetchTrending = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch(
-        `${API_URL}/api/openai/trending_recommendations`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ activity_location, radius, date_notes, activity_id: id }),
-        }
-      );
-      if (!res.ok) throw new Error("❌ Error fetching trending");
-      const { recommendations: recs } = await res.json();
-      setRecommendations(
-        recs.filter((r) => !pinnedActivities.some((p) => p.title === r.name))
-      );
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+  const handleStartChat = () => {
+    if (process.env.NODE_ENV === "production") {
+      mixpanel.track("Chat with Voxxy Clicked", { activity: id });
     }
-  }, [API_URL, activity_location, date_notes, pinnedActivities, id, radius]);
+    setShowChat(true);
+  };
 
-  const fetchRecommendations = useCallback(async (overrideResponses = null) => {
-    const useThese = overrideResponses ?? responses;       // 👈 either the passed‑in array or the prop
+  const moveToVotingPhase = async () => {
     setLoading(true);
     setError("");
+
     try {
-      if (!useThese?.length) {
-        await fetchTrending();
-        return;
-      }
+      // First, generate recommendations and save them as pinned activities
       const res = await fetch(
         `${API_URL}/api/openai/restaurant_recommendations`,
         {
@@ -82,37 +58,20 @@ export default function AIRecommendations({
           credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            responses: useThese.map(r => r.notes).join("\n\n"),
+            responses: responses.map(r => r.notes).join("\n\n"),
             activity_location,
             date_notes,
             activity_id: id,
           }),
         }
       );
+
       if (!res.ok) throw new Error("❌ Error fetching recommendations");
       const { recommendations: recs } = await res.json();
-      setRecommendations(
-        recs.filter((r) => !pinnedActivities.some((p) => p.title === r.name))
-      );
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [API_URL, responses, activity_location, date_notes, pinnedActivities, id, fetchTrending]);
 
-  function handleStartChat() {
-    if (process.env.NODE_ENV === "production") {
-      mixpanel.track("Chat with Voxxy Clicked", { activity: id });
-    }
-    setShowChat(true);
-  }
-
-  const createPinnedActivity = async (rec) => {
-    try {
-      const res = await fetch(
-        `${API_URL}/activities/${id}/pinned_activities`,
-        {
+      // Save each recommendation as a pinned activity
+      const pinnedPromises = recs.map(rec =>
+        fetch(`${API_URL}/activities/${id}/pinned_activities`, {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
@@ -131,27 +90,40 @@ export default function AIRecommendations({
               website: rec.website || "",
             },
           }),
-        }
+        })
       );
-      if (!res.ok) throw new Error("Failed to pin activity");
-      const newPinned = await res.json();
-      setPinnedActivities((prev) => [...prev, newPinned]);
-      setRecommendations((prev) => prev.filter((r) => r.name !== rec.name));
-    } catch {
-      alert("Something went wrong while pinning the activity.");
-    }
-  };
 
-  const deletePinnedActivity = async (pin) => {
-    try {
-      const res = await fetch(
-        `${API_URL}/activities/${id}/pinned_activities/${pin.id}`,
-        { method: "DELETE", credentials: "include" }
+      const pinnedResults = await Promise.all(pinnedPromises);
+      const newPinnedActivities = await Promise.all(
+        pinnedResults.map(res => res.json())
       );
-      if (!res.ok) throw new Error("Failed to unpin activity");
-      setPinnedActivities((prev) => prev.filter((p) => p.id !== pin.id));
-    } catch {
-      alert("Something went wrong while unpinning the activity.");
+
+      await fetch(`${API_URL}/activities/${id}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          collecting: false,
+          voting: true
+        }),
+      });
+
+      setUser(prevUser => ({
+        ...prevUser,
+        activities: prevUser.activities.map(act =>
+          act.id === id
+            ? { ...act, collecting: false, voting: true }
+            : act
+        )
+      }));
+      setPinnedActivities(newPinnedActivities);
+      setRefreshTrigger(f => !f);
+
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+      setShowMoveToVotingModal(false);
     }
   };
 
@@ -160,6 +132,8 @@ export default function AIRecommendations({
       mixpanel.track("Pinned Activity Voted On", { user: user.id });
     }
     const hasLiked = (pin.voters || []).some(v => v.id === user.id);
+
+    console.log(pin)
 
     if (hasLiked) {
       const vote = (pin.votes || []).find(v => v.user_id === user.id)
@@ -214,224 +188,371 @@ export default function AIRecommendations({
     setSelectedRec(rec);
     setShowDetailModal(true);
   }
+
   function closeDetail() {
     setShowDetailModal(false);
     setSelectedRec(null);
   }
 
+  const shareUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activity.id}/share`;
+
   if (loading) return <LoadingScreenUser autoDismiss={false} />;
+
+  if (collecting && !voting) {
+    return (
+      <Container>
+        <TopBar>
+          <Heading>Submit Your Preferences</Heading>
+        </TopBar>
+
+        {error && <ErrorText>{error}</ErrorText>}
+
+        <PhaseIndicator>
+          <PhaseIcon><HelpCircle size={24} /></PhaseIcon>
+          <PhaseContent>
+            <PhaseTitle>Group Status</PhaseTitle>
+            <PhaseSubtitle>{responses.length}/{totalParticipants} participants have submitted</PhaseSubtitle>
+          </PhaseContent>
+        </PhaseIndicator>
+
+        <ProgressBarContainer>
+          <ProgressBar $percent={responseRate} />
+        </ProgressBarContainer>
+
+        {!currentUserResponse ? (
+          <PreferencesCard>
+            <PreferencesIcon><BookHeart size={48} /></PreferencesIcon>
+            <PreferencesTitle>Submit Your Preferences!</PreferencesTitle>
+            <PreferencesText>
+              Help us find the perfect restaurant by sharing your food preferences and dietary needs.
+            </PreferencesText>
+            <PreferencesButton onClick={handleStartChat}>
+              <HelpCircle size={20} />
+              Take Preferences Quiz
+            </PreferencesButton>
+          </PreferencesCard>
+        ) : (
+          <SubmittedCard>
+            <SubmittedIcon><CheckCircle size={48} /></SubmittedIcon>
+            <SubmittedTitle>Thank you for submitting your response!</SubmittedTitle>
+            <SubmittedText>
+              The organizer will gather recommendations shortly. You can resubmit your preferences if you'd like to make changes.
+            </SubmittedText>
+            <ResubmitButton onClick={handleStartChat}>
+              <HelpCircle size={18} />
+              Resubmit Preferences
+            </ResubmitButton>
+          </SubmittedCard>
+        )}
+
+        {isOwner && (
+          <OrganizerSection>
+            <OrganizerTitle>Organizer Controls</OrganizerTitle>
+            <ParticipantsList>
+              {activity.participants.concat([{ id: user.id, name: activity.organizer?.name || 'You' }]).map((participant, index) => {
+                const hasSubmitted = responses.some(r => r.user_id === participant.id) ||
+                  (participant.name === activity.organizer?.name && responses.some(r => r.user_id === user.id));
+                return (
+                  <ParticipantItem key={index}>
+                    <ParticipantName>{participant.name || participant.email}</ParticipantName>
+                    <ParticipantStatus $submitted={hasSubmitted}>
+                      {hasSubmitted ? <CheckCircle size={16} /> : <Clock size={16} />}
+                      {hasSubmitted ? 'Submitted' : 'Waiting'}
+                    </ParticipantStatus>
+                  </ParticipantItem>
+                );
+              })}
+            </ParticipantsList>
+            <FullWidthButton $primary onClick={() => setShowMoveToVotingModal(true)}>
+              <Vote size={20} />
+              Move to Voting Phase
+            </FullWidthButton>
+          </OrganizerSection>
+        )}
+
+        {showChat && (
+          <>
+            <DimOverlay onClick={() => setShowChat(false)} />
+            <CuisineChat
+              activityId={id}
+              onClose={() => setShowChat(false)}
+              onChatComplete={async () => {
+                setRefreshTrigger(f => !f);
+                setShowChat(false);
+              }}
+            />
+          </>
+        )}
+
+        {showMoveToVotingModal && (
+          <>
+            <GenerateDim onClick={() => setShowMoveToVotingModal(false)} />
+            <GenerateModal>
+              <ModalHeader>
+                <ModalTitle>Move to Voting Phase?</ModalTitle>
+              </ModalHeader>
+
+              <InfoRow>
+                <Users size={18} />
+                <span>{Math.round(responseRate)}% of participants have submitted preferences</span>
+              </InfoRow>
+
+              {responseRate < 50 && (
+                <WarningBox>
+                  <span>⚠️ Less than 50% of participants have submitted their preferences. Consider waiting for more responses to get better recommendations.</span>
+                </WarningBox>
+              )}
+
+              <FullWidthButton $primary onClick={moveToVotingPhase}>
+                <div>
+                  <div style={{ fontWeight: 'bold' }}>Generate Recommendations</div>
+                  <small>This will create restaurant options for the group to vote on</small>
+                </div>
+              </FullWidthButton>
+
+              <FullWidthButton onClick={() => setShowMoveToVotingModal(false)}>
+                Cancel
+              </FullWidthButton>
+            </GenerateModal>
+          </>
+        )}
+      </Container>
+    );
+  }
+
+  if (voting && !collecting && !finalized) {
+    return (
+      <Container>
+        <TopBar>
+          <Heading>Vote on Restaurants</Heading>
+        </TopBar>
+
+        <PhaseIndicator>
+          <PhaseIcon><Vote size={24} /></PhaseIcon>
+          <PhaseContent>
+            <PhaseTitle>Voting Phase</PhaseTitle>
+            <PhaseSubtitle>{participantsWithVotes.size}/{totalParticipants} participants have voted. After everyone has voted, your organizer can finalize the activity plans. ✨</PhaseSubtitle>
+          </PhaseContent>
+        </PhaseIndicator>
+
+        <ProgressBarContainer>
+          <ProgressBar $percent={votingRate} />
+        </ProgressBarContainer>
+
+        {error && <ErrorText>{error}</ErrorText>}
+
+        {isOwner && (
+          <OrganizerSection>
+            <OrganizerTitle><Cog size={20} /> Organizer Controls</OrganizerTitle>
+            <ParticipantsList>
+              {activity.participants.concat([{ id: user.id, name: activity.organizer?.name || 'You' }]).map((participant, index) => {
+                const hasVoted = Array.from(participantsWithVotes).includes(participant.id) ||
+                  (participant.name === activity.organizer?.name && Array.from(participantsWithVotes).includes(user.id));
+                return (
+                  <ParticipantItem key={index}>
+                    <ParticipantName>{participant.name || participant.email}</ParticipantName>
+                    <ParticipantStatus $submitted={hasVoted}>
+                      {hasVoted ? <CheckCircle size={16} /> : <Clock size={16} />}
+                      {hasVoted ? 'Voted' : 'Waiting'}
+                    </ParticipantStatus>
+                  </ParticipantItem>
+                );
+              })}
+            </ParticipantsList>
+            <FullWidthButton $primary onClick={onEdit}>
+              <Flag size={20} />
+              Finalize Activity
+            </FullWidthButton>
+          </OrganizerSection>
+        )}
+
+        <RecommendationsList>
+          {[...pinnedActivities]
+            .sort((a, b) => (b.votes?.length || 0) - (a.votes?.length || 0))
+            .map((p) => (
+              <ListItem key={p.id}>
+                <ContentWrapper onClick={() => openDetail(p)}>
+                  <ListTop>
+                    <ListName>{p.title}</ListName>
+                    <ListMeta>{p.price_range || "N/A"}</ListMeta>
+                  </ListTop>
+                  <ListBottom>
+                    <div style={{ textAlign: 'left' }}>
+                      <div>{p.hours || "N/A"}</div>
+                      <div>{p.address || "N/A"}</div>
+                    </div>
+                    <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                      <LikeButton
+                        onClick={e => { e.stopPropagation(); handleLike(p); }}
+                        $liked={(p.voters || []).some(v => v.id === user.id)}
+                      >
+                        {(p.voters || []).some(v => v.id === user.id) ? "❤️" : "🤍"} {(p.votes || []).length}
+                      </LikeButton>
+                    </div>
+                  </ListBottom>
+                </ContentWrapper>
+              </ListItem>
+            ))}
+        </RecommendationsList>
+        {pinnedActivities.length > 0 && (
+          <RestaurantMapWrapper>
+            <RestaurantMap recommendations={pinnedActivities} />
+          </RestaurantMapWrapper>
+        )}
+
+        {showDetailModal && selectedRec && (
+          <>
+            <Overlay onClick={closeDetail} />
+            <DetailModalContent onClick={(e) => e.stopPropagation()}>
+              <DetailClose onClick={closeDetail}>×</DetailClose>
+              <DetailTitle>{selectedRec.title || selectedRec.name}</DetailTitle>
+              <DetailText>
+                <strong>Price:</strong> {selectedRec.price_range || "N/A"}
+              </DetailText>
+              <DetailText>
+                <strong>Hours:</strong> {selectedRec.hours || "N/A"}
+              </DetailText>
+              {selectedRec.description && (
+                <DetailText>{selectedRec.description}</DetailText>
+              )}
+              {selectedRec.reason && (
+                <DetailText>
+                  <strong>Why:</strong> {selectedRec.reason}
+                </DetailText>
+              )}
+              {selectedRec.website && (
+                <DetailLink href={selectedRec.website} target="_blank">
+                  Visit Website
+                </DetailLink>
+              )}
+              <DetailText>
+                <strong>Address:</strong> {selectedRec.address || "N/A"}
+              </DetailText>
+              <PhotoGallery>
+                {(selectedRec.photos || []).map((p, i) => {
+                  const src = p.photo_reference
+                    ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${p.photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}`
+                    : p;
+                  return <Photo key={i} src={src} alt="" />;
+                })}
+              </PhotoGallery>
+            </DetailModalContent>
+          </>
+        )}
+      </Container>
+    );
+  }
+
+  if (finalized) {
+    return (
+      <Container>
+        <TopBar>
+          <Heading>Activity Finalized</Heading>
+        </TopBar>
+
+        <PhaseIndicator>
+          <PhaseIcon><Flag size={24} /></PhaseIcon>
+          <PhaseContent>
+            <PhaseTitle>Your work here is done!</PhaseTitle>
+            <PhaseSubtitle>The group has chosen their restaurant.</PhaseSubtitle>
+          </PhaseContent>
+        </PhaseIndicator>
+        <FullWidthA $primary href={shareUrl} style={{ marginBottom: '2rem', textDecoration: 'none', fontWeight: 'bold' }}>
+          Share Finalized Activity Details {activity.emoji}
+        </FullWidthA>
+
+        {error && <ErrorText>{error}</ErrorText>}
+
+        <RecommendationsList>
+          {[...pinnedActivities]
+            .sort((a, b) => (b.votes?.length || 0) - (a.votes?.length || 0))
+            .map((p) => {
+              const isSelected = p.id === selected_pinned_activity_id;
+              return (
+                <ListItem key={p.id} $selected={isSelected}>
+                  {isSelected && (
+                    <SelectedBadge>
+                      <CheckCircle size={16} />
+                      <span>SELECTED</span>
+                    </SelectedBadge>
+                  )}
+                  <ContentWrapper onClick={() => openDetail(p)}>
+                    <ListTop>
+                      <ListName>{p.title}</ListName>
+                      <ListMeta>{p.price_range || "N/A"}</ListMeta>
+                    </ListTop>
+                    <ListBottom>
+                      <div style={{ textAlign: 'left' }}>
+                        <div>{p.hours || "N/A"}</div>
+                        <div>{p.address || "N/A"}</div>
+                      </div>
+                      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                        <VoteCount>
+                          ❤️ {(p.votes || []).length}
+                        </VoteCount>
+                      </div>
+                    </ListBottom>
+                  </ContentWrapper>
+                </ListItem>
+              );
+            })}
+        </RecommendationsList>
+
+        {pinnedActivities.length > 0 && (
+          <RestaurantMapWrapper>
+            <RestaurantMap recommendations={pinnedActivities} />
+          </RestaurantMapWrapper>
+        )}
+
+        {showDetailModal && selectedRec && (
+          <>
+            <Overlay onClick={closeDetail} />
+            <DetailModalContent onClick={(e) => e.stopPropagation()}>
+              <DetailClose onClick={closeDetail}>×</DetailClose>
+              <DetailTitle>{selectedRec.title || selectedRec.name}</DetailTitle>
+              <DetailText>
+                <strong>Price:</strong> {selectedRec.price_range || "N/A"}
+              </DetailText>
+              <DetailText>
+                <strong>Hours:</strong> {selectedRec.hours || "N/A"}
+              </DetailText>
+              {selectedRec.description && (
+                <DetailText>{selectedRec.description}</DetailText>
+              )}
+              {selectedRec.reason && (
+                <DetailText>
+                  <strong>Why:</strong> {selectedRec.reason}
+                </DetailText>
+              )}
+              {selectedRec.website && (
+                <DetailLink href={selectedRec.website} target="_blank">
+                  Visit Website
+                </DetailLink>
+              )}
+              <DetailText>
+                <strong>Address:</strong> {selectedRec.address || "N/A"}
+              </DetailText>
+              <PhotoGallery>
+                {(selectedRec.photos || []).map((p, i) => {
+                  const src = p.photo_reference
+                    ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${p.photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}`
+                    : p;
+                  return <Photo key={i} src={src} alt="" />;
+                })}
+              </PhotoGallery>
+            </DetailModalContent>
+          </>
+        )}
+      </Container>
+    );
+  }
 
   return (
     <Container>
-      {recommendations.length === 0 && pinnedActivities.length === 0 ? (
-        <>
-          <TopBar>
-            <Heading>Restaurant Options</Heading>
-          </TopBar>
-          <p style={{ paddingBottom: '1rem' }}>
-            Tell Voxxy what you’re craving or let us whip up recommendations for you. ✨
-          </p>
-        </>
-      ) : (
-        <TopBar>
-          <Heading>Restaurant Options</Heading>
-        </TopBar>
-      )}
-
-      {error && <ErrorText>{error}</ErrorText>}
-
-      <RecommendationsList>
-        {[...pinnedActivities]
-          .sort(
-            (a, b) =>
-              (b.votes?.length || 0) - (a.votes?.length || 0)
-          )
-          .map((p) => (
-            <ListItem key={p.id}>
-              <ContentWrapper onClick={() => openDetail(p)}>
-                <ListTop>
-                  <ListName>{p.title}<Tag>PINNED</Tag></ListName>
-                  <ListMeta>{p.price_range || "N/A"}</ListMeta>
-                </ListTop>
-                <ListBottom>
-                  <div style={{ textAlign: 'left' }}>
-                    <div>{p.hours || "N/A"}</div>
-                    <div>{p.address || "N/A"}</div>
-                  </div>
-                  <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                    <LikeButton
-                      onClick={e => { e.stopPropagation(); handleLike(p); }}
-                      $liked={(p.voters || []).some(v => v.id === user.id)}
-                    >
-                      {(p.voters || []).some(v => v.id === user.id) ? "❤️" : "🤍"} {(p.votes || []).length}
-                    </LikeButton>
-                    {isOwner && (
-                      <ActionButton onClick={e => {
-                        e.stopPropagation();
-                        deletePinnedActivity(p);
-                      }}>
-                        Unpin
-                      </ActionButton>
-                    )}
-                  </div>
-                </ListBottom>
-              </ContentWrapper>
-            </ListItem>
-          ))}
-        {!recommendations.length && (
-          <>
-            <FetchButton onClick={() => setShowGenerateModal(true)}>
-              Generate Recommendations
-            </FetchButton>
-          </>
-
-        )}
-        {recommendations
-          .filter((r) =>
-            !pinnedActivities.some((p) => p.title === r.name)
-          )
-          .map((r, i) => (
-            <ListItem key={i}>
-              <ContentWrapper onClick={() => openDetail(r)}>
-                <ListTop>
-                  <ListName>{r.name}</ListName>
-                  <ListMeta>{r.price_range || "N/A"}</ListMeta>
-                </ListTop>
-                <ListBottom>
-                  <div style={{ textAlign: 'left' }}>
-                    <div>{r.hours || "N/A"}</div>
-                    <div>{r.address || "N/A"}</div>
-                  </div>
-                  <ActionButton onClick={e => {
-                    e.stopPropagation();
-                    createPinnedActivity(r);
-                  }}>
-                    Pin
-                  </ActionButton>
-                </ListBottom>
-              </ContentWrapper>
-            </ListItem>
-          ))}
-      </RecommendationsList>
-
-      {recommendations.length > 0 && (
-        <RestaurantMapWrapper>
-          <RestaurantMap recommendations={recommendations} />
-        </RestaurantMapWrapper>
-      )}
-
-      {showChat && (
-        <>
-          <DimOverlay onClick={() => setShowChat(false)} />
-          <CuisineChat
-            activityId={id}
-            onClose={() => setShowChat(false)}
-            onChatComplete={async (newResponse) => {
-              const deduped = activity.responses.filter(
-                r => r.user_id !== newResponse.user_id
-              );
-              const updated = [...deduped, newResponse];
-              await fetchRecommendations(updated);
-              setShowChat(false);
-            }}
-          />
-        </>
-      )}
-
-      {showDetailModal && selectedRec && (
-        <>
-          <Overlay onClick={closeDetail} />
-          <DetailModalContent onClick={(e) => e.stopPropagation()}>
-            <DetailClose onClick={closeDetail}>×</DetailClose>
-            <DetailTitle>{selectedRec.name}</DetailTitle>
-            <DetailText>
-              <strong>Price:</strong> {selectedRec.price_range || "N/A"}
-            </DetailText>
-            <DetailText>
-              <strong>Hours:</strong> {selectedRec.hours || "N/A"}
-            </DetailText>
-            {selectedRec.description && (
-              <DetailText>{selectedRec.description}</DetailText>
-            )}
-            {selectedRec.reason && (
-              <DetailText>
-                <strong>Why:</strong> {selectedRec.reason}
-              </DetailText>
-            )}
-            {selectedRec.website && (
-              <DetailLink href={selectedRec.website} target="_blank">
-                Visit Website
-              </DetailLink>
-            )}
-            <DetailText>
-              <strong>Address:</strong> {selectedRec.address || "N/A"}
-            </DetailText>
-            <PhotoGallery>
-              {(selectedRec.photos || []).map((p, i) => {
-                const src = p.photo_reference
-                  ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${p.photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}`
-                  : p;
-                return <Photo key={i} src={src} alt="" />;
-              })}
-            </PhotoGallery>
-          </DetailModalContent>
-        </>
-      )}
-
-      {showGenerateModal && (
-        <>
-          <GenerateDim onClick={() => setShowGenerateModal(false)} />
-
-          <GenerateModal>
-            <ModalHeader>
-              <ModalTitle>Generate Recommendations</ModalTitle>
-            </ModalHeader>
-
-            <InfoRow>
-              <Users size={18} />
-              <span>{activity.name}</span>
-
-              <span>{responses.length}/{totalParticipants} responses submitted</span>
-            </InfoRow>
-            <ProgressBarContainer>
-              <ProgressBar $percent={Math.round((responses.length / totalParticipants) * 100)} />
-            </ProgressBarContainer>
-
-            <FullWidthButton
-              $primary
-              onClick={async () => {
-                setShowGenerateModal(false);
-                await fetchRecommendations();
-              }}
-            >
-              <Zap size={20} />
-              <div>
-                <div>Generate Now</div>
-                <small>Load with existing user preferences</small>
-              </div>
-            </FullWidthButton>
-
-            <FullWidthButton onClick={() => { setShowGenerateModal(false); handleStartChat(); }}>
-              <HelpCircle size={20} />
-              <div>
-                <div>Take Quiz First</div>
-                <small>Add your preferences for better results</small>
-              </div>
-            </FullWidthButton>
-
-            <Divider />
-
-            <Footer>
-              <Leaf size={26} />
-              <span>
-                Limiting AI use is one way we’re making our application greener;
-                recommendations can be generated once every hour!
-              </span>
-            </Footer>
-          </GenerateModal>
-        </>
-      )}
-
+      <TopBar>
+        <Heading>Restaurant Planning</Heading>
+      </TopBar>
+      <p>Activity is not in collecting or voting phase.</p>
     </Container>
   );
 }
@@ -450,8 +571,8 @@ const gradientAnimation = keyframes`
 const Container = styled.div`
   max-width: 40rem;
   margin: 0 auto;
-  padding: 2rem 1rem;
   color: #fff;
+  padding-top: 2rem;
   animation: ${fadeInNoTransform} 0.8s ease-in-out,
              ${gradientAnimation} 15s ease infinite;
 `;
@@ -470,26 +591,191 @@ const Heading = styled.h2`
   text-align: center;
 `;
 
-const ChatButton = styled.button`
-  background: #9051e1;
+const PhaseIndicator = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+`;
+
+const PhaseIcon = styled.div`
+  color: #cc31e8;
+`;
+
+const PhaseContent = styled.div`
+  flex: 1;
+  text-align: left;
+`;
+
+const PhaseTitle = styled.h3`
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+`;
+
+const PhaseSubtitle = styled.p`
+  margin: 0.25rem 0 0 0;
+  font-size: 0.9rem;
+  color: #ccc;
+`;
+
+const ProgressBarContainer = styled.div`
+  background: #333;
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+`;
+
+const ProgressBar = styled.div`
+  height: 100%;
+  background: #cc31e8;
+  width: ${({ $percent }) => $percent}%;
+  transition: width 0.3s ease;
+`;
+
+const PreferencesCard = styled.div`
+  background: linear-gradient(135deg, #9051e1 0%, #cc31e8 100%);
+  padding: 2rem;
+  border-radius: 1rem;
+  text-align: center;
+  margin-bottom: 1rem;
+`;
+
+const PreferencesIcon = styled.div`
+  font-size: 3rem;
+  margin-bottom: 1rem;
+`;
+
+const PreferencesTitle = styled.h3`
+  font-size: 1.5rem;
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+`;
+
+const PreferencesText = styled.p`
+  margin: 0 0 1.5rem 0;
+  opacity: 0.9;
+  line-height: 1.5;
+`;
+
+const PreferencesButton = styled.button`
+  background: rgba(255, 255, 255, 0.2);
   color: #fff;
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 9999px;
   cursor: pointer;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 auto;
+  
   &:hover {
-    background: #7a3fc1;
-  }
-
-  @media (max-width: 600px) {
-  font-size: 12px;
+    background: rgba(255, 255, 255, 0.3);
   }
 `;
 
-const FetchButton = styled(ChatButton)`
-  display: block;
-  margin: 1rem auto;
+const SubmittedCard = styled.div`
+  background: rgba(40, 167, 69, 0.2);
+  border: 1px solid rgba(40, 167, 69, 0.3);
+  padding: 2rem;
+  border-radius: 1rem;
+  text-align: left;
+  margin-bottom: 2rem;
+`;
+
+const SubmittedIcon = styled.div`
+  color: #28a745;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+`;
+
+const SubmittedTitle = styled.h3`
+  font-size: 1.3rem;
+  margin: 0 0 1rem 0;
+  color: #28a745;
+`;
+
+const SubmittedText = styled.p`
+  margin: 0 0 1.5rem 0;
+  color: #ccc;
+  line-height: 1.5;
+`;
+
+const ResubmitButton = styled.button`
+  background: transparent;
+  color: #28a745;
+  border: 1px solid #28a745;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 auto;
+  
+  &:hover {
+    background: rgba(40, 167, 69, 0.1);
+  }
+`;
+
+const OrganizerSection = styled.div`
+  background: #2a1e30;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+`;
+
+const OrganizerTitle = styled.h3`
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+`;
+
+const ParticipantsList = styled.div`
+  margin-bottom: 1.5rem;
+`;
+
+const ParticipantItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const ParticipantName = styled.span`
+  font-size: 0.9rem;
+`;
+
+const ParticipantStatus = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: ${({ $submitted }) => $submitted ? '#28a745' : '#ffc107'};
+`;
+
+const WarningBox = styled.div`
+  background: rgba(255, 193, 7, 0.2);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  color: #ffc107;
+  font-size: 0.9rem;
+  margin: 1rem 0;
 `;
 
 const ErrorText = styled.p`
@@ -506,23 +792,34 @@ const RecommendationsList = styled.ul`
 
 const ListItem = styled.li`
   position: relative;
-  background: #2a1e30;
+  background: ${({ $selected }) => $selected ? 'rgba(40, 167, 69, 0.2)' : '#2a1e30'};
+  border: ${({ $selected }) => $selected ? '2px solid #28a745' : 'none'};
   padding: 1.5rem 1rem 1rem;
   margin-bottom: 0.75rem;
   border-radius: 0.75rem;
+  cursor: pointer;
+  
+  &:hover {
+    background: ${({ $selected }) => $selected ? 'rgba(40, 167, 69, 0.3)' : '#342540'};
+  }
+`;
+
+const SelectedBadge = styled.div`
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #28a745;
+  color: #fff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 `;
 
 const ContentWrapper = styled.div``;
-
-const Tag = styled.span`
-   background: #8F51E0;
-   color: #fff;
-   font-size: 0.625rem;
-   font-weight: bold;
-   padding: 0.25rem 0.5rem;
-   border-radius: 0.5rem;
-   margin-left: 0.5rem;
-`;
 
 const ListTop = styled.div`
   display: flex;
@@ -549,19 +846,6 @@ const ListBottom = styled.div`
   align-items: center;
 `;
 
-const ActionButton = styled.button`
-  background: #28a745;
-  color: #fff;
-  border: none;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  &:hover {
-    background: #218838;
-  }
-`;
-
 const LikeButton = styled.button`
   display: flex;
   align-items: center;
@@ -576,6 +860,14 @@ const LikeButton = styled.button`
   }
 `;
 
+const VoteCount = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #ccc;
+  font-size: 0.875rem;
+`;
+
 const RestaurantMapWrapper = styled.div`
   margin-top: 1rem;
 `;
@@ -584,6 +876,7 @@ const DimOverlay = styled.div`
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
+  z-index: 997;
 `;
 
 const Overlay = styled(DimOverlay)`
@@ -681,21 +974,7 @@ const InfoRow = styled.div`
   align-items: center;
   gap: 0.5rem;
   color: #ccc;
-`;
-
-const ProgressBarContainer = styled.div`
-  background: #333;
-  border-radius: 4px;
-  height: 8px;
-  overflow: hidden;
-  margin-top: 0.5rem;
-`;
-
-const ProgressBar = styled.div`
-  height: 100%;
-  background: #cc31e8;
-  width: ${({ $percent }) => $percent}%;
-  transition: width 0.3s ease;
+  text-align: left;
 `;
 
 const FullWidthButton = styled.button`
@@ -714,27 +993,37 @@ const FullWidthButton = styled.button`
 
   &:hover {
     ${({ $primary }) =>
-      $primary
-        ? `background: #b22cc0;`
-        : `background: rgba(108, 99, 255, 0.1); color: #6c63ff;`}
+    $primary
+      ? `background: #b22cc0;`
+      : `background: rgba(108, 99, 255, 0.1); color: #6c63ff;`}
   }
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 `;
-
-const Divider = styled.hr`
-  border: none;
-  border-top: 2px solid #444;
-  margin: 0.5rem 0;
-`;
-
-const Footer = styled.div`
+const FullWidthA = styled.a`
+  width: 100%;
+  background: ${({ $primary }) => ($primary ? '#cc31e8' : 'transparent')};
+  color: ${({ $primary }) => ($primary ? '#fff' : '#6c63ff')};
+  border: ${({ $primary }) => ($primary ? 'none' : '1px solid #6c63ff')};
+  padding: 1rem;
+  font-size: 1rem;
   display: flex;
-  align-items: left;
-  text-align: left;
+  align-items: center;
   gap: 0.5rem;
-  font-size: 0.85rem;
-  color: #7fc97f;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover {
+    ${({ $primary }) =>
+    $primary
+      ? `background: #b22cc0;`
+      : `background: rgba(108, 99, 255, 0.1); color: #6c63ff;`}
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;

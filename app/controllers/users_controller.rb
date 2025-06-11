@@ -47,7 +47,7 @@ class UsersController < ApplicationController
       render json: user.as_json(
         include: {
           activities: {
-            only: [ :id, :activity_name, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :date_day, :date_time, :welcome_message, :completed ],
+            only: [ :id, :activity_name, :collecting, :voting, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :date_day, :date_time, :welcome_message, :completed ],
             include: {
               user: { only: [ :id, :name, :email, :avatar, :created_at ] },
               responses: { only: [ :id, :notes, :availability, :created_at, :user_id, :activity_id ] },
@@ -74,7 +74,7 @@ class UsersController < ApplicationController
         only: [ :id, :accepted, :invited_email ],
         include: {
           activity: {
-            only: [ :id, :activity_name, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :completed ],
+            only: [ :id, :activity_name, :finalized, :collecting, :voting, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :completed ],
             include: {
               user: { only: [ :id, :name, :email, :avatar, :created_at ] },
               responses: { only: [ :id, :notes, :availability, :created_at, :user_id, :activity_id ] },
@@ -154,7 +154,7 @@ class UsersController < ApplicationController
       render json: user.as_json(
         include: {
           activities: {
-            only: [ :id, :activity_name, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :date_day, :date_time, :welcome_message, :completed ],
+            only: [ :id, :activity_name, :collecting, :voting, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :date_day, :date_time, :welcome_message, :completed ],
             include: {
               user: { only: [ :id, :name, :email, :avatar, :created_at ] },
               responses: { only: [ :id, :notes, :availability, :created_at, :user_id, :activity_id ] },
@@ -181,7 +181,7 @@ class UsersController < ApplicationController
         only: [ :id, :accepted, :invited_email ],
         include: {
           activity: {
-            only: [ :id, :activity_name, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :completed ],
+            only: [ :id, :activity_name, :collecting, :voting, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :completed ],
             include: {
               user: { only: [ :id, :name, :email, :avatar, :created_at ] },
               responses: { only: [ :id, :notes, :availability, :created_at, :user_id, :activity_id ] },

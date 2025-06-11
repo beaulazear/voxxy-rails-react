@@ -16,7 +16,7 @@ class ActivitiesController < HtmlController
         invite_emails = activity_params[:participants] || []
         invite_emails.each { |email| invite_participant(email, activity) }
         render json: activity.as_json(
-          only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :radius, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :finalized ],
+          only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :radius, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :finalized, :collecting, :voting ],
           include: {
             user: { only: [ :id, :name, :email, :avatar, :created_at ] },
             activity_participants: { only: [ :id, :user_id, :invited_email, :accepted, :created_at ] },
@@ -50,7 +50,7 @@ class ActivitiesController < HtmlController
       ActivityFinalizationEmailService.send_finalization_emails(activity) if should_email
 
       render json: activity.as_json(
-        only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :finalized, :radius ],
+        only: [ :id, :activity_name, :collecting, :voting, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :finalized, :radius ],
         include: {
           user: { only: [ :id, :name, :email, :avatar, :created_at ] },
           activity_participants: { only: [ :id, :user_id, :invited_email, :accepted, :created_at ] },
@@ -78,7 +78,7 @@ class ActivitiesController < HtmlController
       activities = current_user.activities.includes(:user, :responses, :activity_participants, :participants)
 
       render json: activities.as_json(
-        only: [ :id, :activity_name, :activity_type, :finalized, :activity_location, :group_size, :radius, :date_notes, :created_at, :active, :emoji, :user_id, :date_day, :date_time, :welcome_message, :completed ],
+        only: [ :id, :activity_name, :activity_type, :collecting, :voting, :finalized, :activity_location, :group_size, :radius, :date_notes, :created_at, :active, :emoji, :user_id, :date_day, :date_time, :welcome_message, :completed ],
         include: {
           user: { only: [ :id, :name, :email, :avatar, :created_at ] },
           responses: { only: [ :id, :notes, :created_at, :user_id, :activity_id ] },
@@ -103,7 +103,7 @@ class ActivitiesController < HtmlController
         render json: user.as_json(
           include: {
             activities: {
-              only: [ :id, :activity_name, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :radius, :date_day, :date_time, :welcome_message, :completed ],
+              only: [ :id, :activity_name, :collecting, :voting, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :radius, :date_day, :date_time, :welcome_message, :completed ],
               include: {
                 user: { only: [ :id, :name, :email, :avatar, :created_at ] },
                 responses: { only: [ :id, :notes, :created_at ] },
@@ -114,7 +114,7 @@ class ActivitiesController < HtmlController
             }
           }
         ).merge("participant_activities" => participant_activities.as_json(
-          only: [ :id, :activity_name, :emoji, :user_id, :date_notes, :finalized, :activity_location, :group_size, :radius, :date_day, :date_time, :welcome_message, :completed ],
+          only: [ :id, :activity_name, :collecting, :voting, :emoji, :user_id, :date_notes, :finalized, :activity_location, :group_size, :radius, :date_day, :date_time, :welcome_message, :completed ],
           include: {
             user: { only: [ :id, :name, :email, :avatar, :created_at ] },
             participants: { only: [ :id, :name, :email, :avatar ] },
@@ -183,7 +183,7 @@ class ActivitiesController < HtmlController
     private
 
     def activity_params
-      params.require(:activity).permit(:activity_name, :activity_type, :finalized, :selected_pinned_id, :activity_location, :group_size, :radius, :date_notes, :active, :emoji, :date_day, :date_time, :welcome_message, :completed, participants: [])
+      params.require(:activity).permit(:activity_name, :collecting, :voting, :activity_type, :finalized, :selected_pinned_id, :activity_location, :group_size, :radius, :date_notes, :active, :emoji, :date_day, :date_time, :welcome_message, :completed, participants: [])
     end
 
     def invite_participant(raw_email, activity)

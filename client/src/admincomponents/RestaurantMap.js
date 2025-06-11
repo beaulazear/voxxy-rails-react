@@ -4,9 +4,9 @@ import ReactDOM from "react-dom";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import styled from "styled-components";
-import colors from '../styles/Colors';
 import SmallTriangle from '../assets/SmallTriangle.png';
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { Map } from 'lucide-react';
 
 const triangleIcon = new L.Icon({
     iconUrl: SmallTriangle,
@@ -79,8 +79,8 @@ const RestaurantMap = ({ recommendations }) => {
     if (loading) {
         return (
             <ChatButton>
-                <StyledButton>
-                    Map Loading...
+                <StyledButton $disabled >
+                    <Map size={20} /> Map Loading...
                 </StyledButton>
             </ChatButton>)
     }
@@ -89,8 +89,8 @@ const RestaurantMap = ({ recommendations }) => {
         <div>
             {!showMap ? (
                 <ChatButton>
-                    <StyledButton onClick={() => setShowMap(true)}>
-                        Map View
+                    <StyledButton  onClick={() => setShowMap(true)}>
+                        <Map size={20} /> View Reccomendations On Map
                     </StyledButton>
                 </ChatButton>
             ) : ReactDOM.createPortal(
@@ -152,19 +152,28 @@ export const ChatButton = styled.div`
   /* no top margin so it sits level with sibling button */
 `;
 
-export const StyledButton = styled.button`
-  background: ${colors.primaryButton};
-  color: ${colors.textPrimary};
-  padding: 0.75rem 1rem;
+const StyledButton = styled.button`
+  width: 100%;
+  background: ${({ $primary }) => ($primary ? '#cc31e8' : 'transparent')};
+  color: ${({ $primary }) => ($primary ? '#fff' : '#6c63ff')};
+  border: ${({ $primary }) => ($primary ? 'none' : '1px solid #6c63ff')};
+  padding: 1rem;
   font-size: 1rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 
   &:hover {
-    background: rgba(157,96,248,0.9);
+    ${({ $primary }) =>
+    $primary
+      ? `background: #b22cc0;`
+      : `background: rgba(108, 99, 255, 0.1); color: #6c63ff;`}
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 

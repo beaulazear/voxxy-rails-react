@@ -363,13 +363,13 @@ export default function RestaurantChat({ onClose }) {
         : location.trim(),
       radius,
       group_size: groupSize,
-      // Only send date_day/time if not skipped
       date_day: skipDateTime ? null : date,
       date_time: skipDateTime ? null : time,
       activity_name: eventName.trim(),
       welcome_message: welcomeMessage.trim(),
       date_notes,
       participants: participantEmails,
+      collecting: true
     };
 
     try {
