@@ -5,7 +5,7 @@ import CuisineChat from "./CuisineChat";
 import LoadingScreenUser from "./LoadingScreenUser";
 import mixpanel from "mixpanel-browser";
 import { UserContext } from "../context/user";
-import { Users, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, Cog } from 'lucide-react';
+import { Users, Share, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, Cog } from 'lucide-react';
 
 export default function AIRecommendations({
   activity,
@@ -450,6 +450,10 @@ export default function AIRecommendations({
           <Heading>Activity Finalized</Heading>
         </TopBar>
 
+        <FullWidthA href={shareUrl} style={{ marginBottom: '1rem', textDecoration: 'none', fontWeight: 'bold' }}>
+          <Share size={20} /> Share Finalized Activity Details
+        </FullWidthA>
+
         <PhaseIndicator>
           <PhaseIcon><Flag size={24} /></PhaseIcon>
           <PhaseContent>
@@ -457,9 +461,6 @@ export default function AIRecommendations({
             <PhaseSubtitle>The group has chosen their restaurant.</PhaseSubtitle>
           </PhaseContent>
         </PhaseIndicator>
-        <FullWidthA $primary href={shareUrl} style={{ marginBottom: '2rem', textDecoration: 'none', fontWeight: 'bold' }}>
-          Share Finalized Activity Details {activity.emoji}
-        </FullWidthA>
 
         {error && <ErrorText>{error}</ErrorText>}
 
