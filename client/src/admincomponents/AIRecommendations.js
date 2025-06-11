@@ -219,6 +219,31 @@ export default function AIRecommendations({
           <ProgressBar $percent={responseRate} />
         </ProgressBarContainer>
 
+        {isOwner && (
+          <OrganizerSection>
+            <OrganizerTitle>Organizer Controls</OrganizerTitle>
+            <ParticipantsList>
+              {activity.participants.concat([{ id: user.id, name: activity.organizer?.name || 'You' }]).map((participant, index) => {
+                const hasSubmitted = responses.some(r => r.user_id === participant.id) ||
+                  (participant.name === activity.organizer?.name && responses.some(r => r.user_id === user.id));
+                return (
+                  <ParticipantItem key={index}>
+                    <ParticipantName>{participant.name || participant.email}</ParticipantName>
+                    <ParticipantStatus $submitted={hasSubmitted}>
+                      {hasSubmitted ? <CheckCircle size={16} /> : <Clock size={16} />}
+                      {hasSubmitted ? 'Submitted' : 'Waiting'}
+                    </ParticipantStatus>
+                  </ParticipantItem>
+                );
+              })}
+            </ParticipantsList>
+            <FullWidthButton $primary onClick={() => setShowMoveToVotingModal(true)}>
+              <Vote size={20} />
+              Move to Voting Phase
+            </FullWidthButton>
+          </OrganizerSection>
+        )}
+
         {!currentUserResponse ? (
           <PreferencesCard>
             <PreferencesIcon><BookHeart size={48} /></PreferencesIcon>
@@ -243,31 +268,6 @@ export default function AIRecommendations({
               Resubmit Preferences
             </ResubmitButton>
           </SubmittedCard>
-        )}
-
-        {isOwner && (
-          <OrganizerSection>
-            <OrganizerTitle>Organizer Controls</OrganizerTitle>
-            <ParticipantsList>
-              {activity.participants.concat([{ id: user.id, name: activity.organizer?.name || 'You' }]).map((participant, index) => {
-                const hasSubmitted = responses.some(r => r.user_id === participant.id) ||
-                  (participant.name === activity.organizer?.name && responses.some(r => r.user_id === user.id));
-                return (
-                  <ParticipantItem key={index}>
-                    <ParticipantName>{participant.name || participant.email}</ParticipantName>
-                    <ParticipantStatus $submitted={hasSubmitted}>
-                      {hasSubmitted ? <CheckCircle size={16} /> : <Clock size={16} />}
-                      {hasSubmitted ? 'Submitted' : 'Waiting'}
-                    </ParticipantStatus>
-                  </ParticipantItem>
-                );
-              })}
-            </ParticipantsList>
-            <FullWidthButton $primary onClick={() => setShowMoveToVotingModal(true)}>
-              <Vote size={20} />
-              Move to Voting Phase
-            </FullWidthButton>
-          </OrganizerSection>
         )}
 
         {showChat && (

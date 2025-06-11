@@ -45,11 +45,8 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
 
   const { responses = [] } = activity;
 
-  // Add this useEffect to automatically show the modal when board is finalized
   useEffect(() => {
     if (activity.finalized && isOwner) {
-      // You might want to add additional logic here to only show it once
-      // For example, check if user has already seen this modal
       setShowFinalPlansModal(true);
     }
   }, [activity.finalized, isOwner]);
@@ -92,13 +89,11 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
     };
   }, []);
 
-  // Add these handler functions
   const handleCloseModal = () => {
     setShowFinalPlansModal(false);
   };
 
   const handleShare = () => {
-    // Add any tracking or analytics here if needed
     console.log('Share button clicked from modal');
   };
 
@@ -348,21 +343,6 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
             {activity.welcome_message || "Welcome to this activity!"}
           </MessageLine>
         </HostMessageContainer>
-        {activity.finalized && (
-          <label>
-            <ChatButton
-              href={shareUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ textDecoration: 'none' }}
-            >
-              Share Final Details
-            </ChatButton>
-          </label>
-        )}
-        {!activity.finalized && isOwner && (
-          <ChatButton style={{ textDecoration: 'none' }} onClick={onEdit}>Finalize Board</ChatButton>
-        )}
       </HeaderContainer >
 
       <AttendeeContainer>
@@ -677,127 +657,107 @@ const EditIcon = styled.button`
       `;
 
 const DeleteIcon = styled(EditIcon)`
-      color: #e74c3c;
-      `;
+color: #e74c3c;
+`;
 
 const Title = styled.h1`
-      font-family: "Montserrat", sans-serif;
-      font-size: clamp(1.8rem, 4vw, 2.5rem);
-      font-weight: bold;
-      color: #fff;
-      margin: 1rem 1.5rem 1rem;
-      text-align: center;
-      `;
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: bold;
+  color: #fff;
+  margin: 1rem 1.5rem 1rem;
+  text-align: center;
+`;
 
 const HostMessageContainer = styled.div`
-      border-radius: 12px;
-      padding: 0.75rem 1rem;
-      max-width: 500px;
-      margin: 0.75rem auto;
-      `;
+  border-radius: 12px;
+  padding: 0.75rem 0rem;
+  max-width: 500px;
+  margin: 0.75rem auto;
+`;
 
 const MessageLine = styled.p`
-      font-family: "Montserrat", sans-serif;
-      font-size: clamp(1.1rem, 2.75vw, 1.3rem);
-      font-weight: 300;
-      color: rgba(255, 255, 255, 0.85);
-      margin: 0;
-      line-height: 1.6;
-      padding: 0.5rem;
-      `;
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(1.1rem, 2.75vw, 1.3rem);
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+  line-height: 1.6;
+  padding: 0.5rem;
+`;
 
 const MetaRow = styled.div`
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-      `;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+`;
 
 const MetaItem = styled.div`
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff;
 
-      label {
-        display: flex;
-      align-items: center;
+  label {
+    display: flex;
+    align-items: center;
   }
-      span {
-        font - size: 1.25rem;
+  span {
+    font - size: 1.25rem;
   }
-      `;
-
-const ChatButton = styled.a`
-      background: none;
-      color: #9051e1;
-      border: solid 1px;
-      border-radius: 9999px;
-      padding: 0.5rem 1rem;
-      padding-right: 0.5rem;
-      padding-left: 0.5rem;
-      font-weight: 500;
-      cursor: pointer;
-      &:hover {
-        box - shadow: 0 4px 8px rgba(207, 56, 221, 0.6);
-      background-color: #bf2aca;
-      color: #fff;
-      text-decration: none;
-  }
-      `;
+`;
 
 const AttendeeContainer = styled.div`
-      border-radius: 16px;
-      margin: auto;
-      margin-top: 1rem;
-      max-width: 600px;
-      padding: 1rem 1rem 0rem;
-      text-align: center;
-      `;
+  border-radius: 16px;
+  margin: auto;
+  max-width: 600px;
+  text-align: center;
+`;
 
 const ParticipantsSection = styled.div`
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      `;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
 
 const ParticipantsTitle = styled.h4`
-      font-family: "Montserrat", sans-serif;
-      font-size: 1.3rem;
-      color: #fff;
-      margin: 0;
-      `;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.3rem;
+  color: #fff;
+  margin: 0;
+`;
 
 const ParticipantsRow = styled.div`
-      display: flex;
-      align-items: center;
-      margin-top: 1rem;
-      `;
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
+`;
 
 const ParticipantsScroll = styled.div`
-      display: flex;
-      gap: 0.5rem;
-      overflow-x: auto;
-      padding-bottom: 10px;
-      margin: auto;
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin: auto;
 
-      &::-webkit-scrollbar {
-        height: 6px;
+  &::-webkit-scrollbar {
+    height: 6px;
   }
-      &::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-      border-radius: 3px;
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
   }
-      `;
+`;
 
 const ParticipantCircle = styled.div`
-      flex: 0 0 50px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: ${({ $pending }) => ($pending ? "#aaa" : "#4a0d5c")};
-      overflow: hidden;
-      `;
+  flex: 0 0 50px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: ${({ $pending }) => ($pending ? "#aaa" : "#4a0d5c")};
+  overflow: hidden;
+`;
 
 const ParticipantImage = styled.img`
       width: 100%;
