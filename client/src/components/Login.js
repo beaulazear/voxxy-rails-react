@@ -28,6 +28,7 @@ const Title = styled(Heading1)`
   margin-bottom: 1rem;
   color: ${colors.textPrimary};
   display: flex;
+  font-family: 'Montserrat', sans-serif;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
@@ -319,10 +320,10 @@ const Login = () => {
         <SectionInner>
           <Title>
             <Sparkles size={28} style={{ color: '#cc31e8' }} />
-            Welcome to Voxxy Beta
+            Welcome to Voxxy
           </Title>
           <Subtitle>
-            You're getting full access to the Voxxy experience and joining us as we rapidly grow and evolve.
+            You're getting full access to the Voxxy beta experience and joining us as we rapidly grow and evolve.
           </Subtitle>
 
           <Divider>

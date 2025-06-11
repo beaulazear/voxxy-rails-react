@@ -32,6 +32,7 @@ const Title = styled(Heading1)`
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
   
   @media (max-width: 600px) {
     flex-direction: column;
