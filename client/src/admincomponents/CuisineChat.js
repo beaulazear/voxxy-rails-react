@@ -1,214 +1,362 @@
 // CuisineChat.js
 import React, { useState, useRef, useContext } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { UserContext } from '../context/user';
 import mixpanel from 'mixpanel-browser';
+import { Utensils, MapPin, DollarSign, Heart, Plus } from 'lucide-react';
+
+const fadeIn = keyframes`
+  from { 
+    opacity: 0; 
+    transform: scale(0.95);
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+`;
 
 const Overlay = styled.div`
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: rgba(0, 0, 0, 0.6);
-  z-index: 998;
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  padding: 1rem;
 `;
 
 const ModalContainer = styled.div`
-  position: fixed;
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
+  background: linear-gradient(135deg, #2a1e30 0%, #342540 100%);
+  padding: 0;
+  border-radius: 1.5rem;
+  width: 100%;
   max-width: 500px;
-  background: #2C1E33;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-  z-index: 999;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  color: #fff;
+  animation: ${fadeIn} 0.3s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  color: #eee;
 `;
 
 const ProgressBarContainer = styled.div`
-  height: 6px;
-  background: #333;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
   width: 100%;
 `;
 
 const ProgressBar = styled.div`
-  height: 6px;
-  background: #cc31e8;
+  height: 4px;
+  background: linear-gradient(135deg, #cc31e8 0%, #9051e1 100%);
   width: ${({ $percent }) => $percent}%;
   transition: width 0.3s ease;
 `;
 
 const StepLabel = styled.div`
-  padding: 0.75rem 1.5rem 0.5rem;
+  padding: 1rem 2rem 0.5rem;
   font-size: 0.85rem;
-  color: #ccc;
+  color: #cc31e8;
   text-align: center;
+  font-weight: 600;
 `;
 
 const ModalHeader = styled.div`
-  padding: 0 1.5rem 1rem;
+  padding: 0 2rem 1rem;
   text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 `;
 
 const Title = styled.h2`
   color: #fff;
-  margin: 0 0 0.25rem;
-  font-size: 1.25rem;
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
 `;
 
 const Subtitle = styled.p`
-  color: #aaa;
+  color: #ccc;
   margin: 0;
   font-size: 0.9rem;
+  line-height: 1.4;
 `;
 
 const StepContent = styled.div`
-  padding: 1.5rem;
+  padding: 1.5rem 2rem;
   flex: 1;
   overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #cc31e8;
+    border-radius: 2px;
+  }
+`;
+
+const Section = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1.5rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 const Label = styled.label`
-  display: block;
-  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
   font-weight: 600;
-  color: #ddd;
-  text-align: left;
+  color: #fff;
+  font-size: 0.9rem;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 0.6rem;
-  background: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 6px;
-  color: #eee;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  transition: all 0.2s ease;
   margin-bottom: 1rem;
-  &::placeholder {
-    color: #777;
-  }
-  &:focus {
-    border-color: #6c63ff;
+  
+  &:focus { 
+    border-color: #cc31e8; 
     outline: none;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  
+  &:-webkit-autofill { 
+    box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.05) inset !important; 
+    -webkit-text-fill-color: #fff !important; 
+  }
+  
+  &::placeholder { 
+    color: #aaa; 
   }
 `;
 
 const Textarea = styled.textarea`
   width: 100%;
-  padding: 0.6rem;
-  background: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 6px;
-  color: #eee;
-  margin-bottom: 1rem;
-  &::placeholder {
-    color: #777;
-  }
-  &:focus {
-    border-color: #6c63ff;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  resize: vertical;
+  min-height: 120px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  
+  &:focus { 
+    border-color: #cc31e8; 
     outline: none;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  
+  &::placeholder { 
+    color: #aaa; 
   }
 `;
 
 const RadioCardContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
   margin-bottom: 1rem;
 `;
 
 const RadioCard = styled.div`
-  flex: 1 1 28%;
-  padding: 0.7rem 0;
+  padding: 1rem 0.75rem;
   text-align: center;
-  border-radius: 8px;
-  background: #2a2a2a;
-  border: ${({ selected }) => (selected ? '2px solid #cc31e8' : '1px solid #444')};
-  color: #eee;
+  border-radius: 0.75rem;
+  background: ${({ selected }) => (selected ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)' : 'rgba(255, 255, 255, 0.05)')};
+  color: #fff;
+  border: ${({ selected }) => (selected ? 'none' : '2px solid rgba(255, 255, 255, 0.1)')};
   cursor: pointer;
   user-select: none;
   font-size: 0.9rem;
+  font-weight: 600;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition: all 0.2s ease;
+  
   &:hover {
-    border-color: #bb2fd0;
-    background: #333;
+    background: ${({ selected }) => (selected ? 'linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%)' : 'rgba(255, 255, 255, 0.08)')};
+    transform: translateY(-2px);
+    box-shadow: ${({ selected }) => (selected ? '0 8px 20px rgba(204, 49, 232, 0.3)' : '0 4px 12px rgba(0, 0, 0, 0.2)')};
+    border-color: ${({ selected }) => (selected ? 'transparent' : '#cc31e8')};
   }
 `;
 
 const IconWrapper = styled.div`
   font-size: 1.4rem;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.5rem;
+  line-height: 1;
 `;
 
 const PillContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 0.5rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 `;
 
 const Pill = styled.div`
-  background: #444;
-  color: #eee;
-  padding: 0.3rem 0.6rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
+  background: rgba(204, 49, 232, 0.2);
+  color: #cc31e8;
+  padding: 0.5rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.5rem;
+  border: 1px solid rgba(204, 49, 232, 0.3);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(204, 49, 232, 0.3);
+  }
 `;
 
 const RemoveIcon = styled.span`
   cursor: pointer;
   font-weight: bold;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(220, 38, 127, 0.2);
+  color: #dc267f;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(220, 38, 127, 0.4);
+    transform: scale(1.1);
+  }
 `;
 
 const ButtonRow = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 1rem 1.5rem;
+  padding: 1.5rem 2rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 1rem;
 `;
 
 const Button = styled.button`
-  background: ${({ $primary }) => ($primary ? '#cc31e8' : 'transparent')};
-  color: ${({ $primary }) => ($primary ? 'white' : '#6c63ff')};
-  border: ${({ $primary }) => ($primary ? 'none' : '1px solid #6c63ff')};
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 0.75rem;
   cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 100px;
+  
+  background: ${({ $primary }) =>
+    $primary
+      ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)'
+      : 'rgba(255, 255, 255, 0.05)'};
+  color: ${({ $primary }) => ($primary ? 'white' : '#cc31e8')};
+  border: ${({ $primary }) => ($primary ? 'none' : '2px solid rgba(204, 49, 232, 0.3)')};
+  
+  &:hover:not(:disabled) { 
+    transform: translateY(-2px);
+    box-shadow: ${({ $primary }) =>
+    $primary
+      ? '0 8px 20px rgba(204, 49, 232, 0.3)'
+      : '0 4px 12px rgba(0, 0, 0, 0.2)'};
+    background: ${({ $primary }) =>
+    $primary
+      ? 'linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%)'
+      : 'rgba(255, 255, 255, 0.08)'};
+  }
+  
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `;
 
 const AddButton = styled.button`
-  background: transparent;
-  border: 1px solid #6c63ff;
-  color: #6c63ff;
-  border-radius: 6px;
-  padding: 0 1rem;
+  background: rgba(204, 49, 232, 0.1);
+  border: 2px solid rgba(204, 49, 232, 0.3);
+  color: #cc31e8;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
   font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
-  height: 2.8rem;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  &:hover {
-    background: #6c63ff;
-    color: white;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  
+  &:hover:not(:disabled) {
+    background: rgba(204, 49, 232, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(204, 49, 232, 0.2);
   }
+  
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
+`;
+
+const InputRow = styled.div`
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+`;
+
+const InputWrapper = styled.div`
+  flex: 1;
 `;
 
 export default function CuisineChat({ onClose, activityId, onChatComplete }) {
@@ -415,8 +563,7 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
   };
 
   return (
-    <>
-      <Overlay onClick={onClose} />
+    <Overlay onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <ProgressBarContainer>
           <ProgressBar $percent={percent} />
@@ -430,7 +577,7 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
           <Title>
             {step === 1 && 'What cuisine do you prefer?'}
             {step === 2 && 'What atmosphere are you looking for?'}
-            {step === 3 && 'What’s your individual budget?'}
+            {step === 3 && 'Whats your individual budget?'}
             {step === 4 && 'Dietary / Food Preferences'}
           </Title>
           <Subtitle>
@@ -444,8 +591,11 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
 
         <StepContent ref={contentRef}>
           {step === 1 && (
-            <>
-              <Label>Choose Cuisines</Label>
+            <Section>
+              <Label>
+                <Utensils size={16} />
+                Choose Cuisines
+              </Label>
               <RadioCardContainer>
                 {cuisineOptions.map((cuisine) => (
                   <RadioCard
@@ -477,21 +627,27 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
                 ))}
               </RadioCardContainer>
 
-              <Label>Other (specify)</Label>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <Input
-                  placeholder="Type cuisine…"
-                  value={otherCuisine}
-                  onChange={(e) => setOtherCuisine(e.target.value)}
-                  onFocus={handleInputFocus}
-                />
+              <Label>
+                <Plus size={16} />
+                Other (specify)
+              </Label>
+              <InputRow>
+                <InputWrapper>
+                  <Input
+                    placeholder="Type cuisine…"
+                    value={otherCuisine}
+                    onChange={(e) => setOtherCuisine(e.target.value)}
+                    onFocus={handleInputFocus}
+                  />
+                </InputWrapper>
                 <AddButton
                   onClick={addCustomCuisine}
                   disabled={!otherCuisine.trim()}
                 >
+                  <Plus size={16} />
                   Add
                 </AddButton>
-              </div>
+              </InputRow>
 
               {selectedCuisines.length > 0 && (
                 <PillContainer>
@@ -513,12 +669,15 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
                   ))}
                 </PillContainer>
               )}
-            </>
+            </Section>
           )}
 
           {step === 2 && (
-            <>
-              <Label>Select Atmospheres</Label>
+            <Section>
+              <Label>
+                <MapPin size={16} />
+                Select Atmospheres
+              </Label>
               <RadioCardContainer>
                 {atmosphereOptions.map((atm) => (
                   <RadioCard
@@ -550,21 +709,27 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
                 ))}
               </RadioCardContainer>
 
-              <Label>Other (specify)</Label>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <Input
-                  placeholder="Type atmosphere…"
-                  value={otherAtmosphere}
-                  onChange={(e) => setOtherAtmosphere(e.target.value)}
-                  onFocus={handleInputFocus}
-                />
+              <Label>
+                <Plus size={16} />
+                Other (specify)
+              </Label>
+              <InputRow>
+                <InputWrapper>
+                  <Input
+                    placeholder="Type atmosphere…"
+                    value={otherAtmosphere}
+                    onChange={(e) => setOtherAtmosphere(e.target.value)}
+                    onFocus={handleInputFocus}
+                  />
+                </InputWrapper>
                 <AddButton
                   onClick={addCustomAtmosphere}
                   disabled={!otherAtmosphere.trim()}
                 >
+                  <Plus size={16} />
                   Add
                 </AddButton>
-              </div>
+              </InputRow>
 
               {selectedAtmospheres.length > 0 && (
                 <PillContainer>
@@ -586,12 +751,15 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
                   ))}
                 </PillContainer>
               )}
-            </>
+            </Section>
           )}
 
           {step === 3 && (
-            <>
-              <Label>Budget</Label>
+            <Section>
+              <Label>
+                <DollarSign size={16} />
+                Budget
+              </Label>
               <RadioCardContainer>
                 {budgetOptions.map((opt) => (
                   <RadioCard
@@ -604,12 +772,15 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
                   </RadioCard>
                 ))}
               </RadioCardContainer>
-            </>
+            </Section>
           )}
 
           {step === 4 && (
-            <>
-              <Label>Dietary Preferences / Food Preferences</Label>
+            <Section>
+              <Label>
+                <Heart size={16} />
+                Dietary Preferences / Food Preferences
+              </Label>
               <Textarea
                 rows={4}
                 placeholder="e.g. Vegetarian, No nuts, Keto..."
@@ -617,7 +788,7 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
                 onChange={(e) => setDietary(e.target.value)}
                 onFocus={handleInputFocus}
               />
-            </>
+            </Section>
           )}
         </StepContent>
 
@@ -632,6 +803,6 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
           </Button>
         </ButtonRow>
       </ModalContainer>
-    </>
+    </Overlay>
   );
 }
