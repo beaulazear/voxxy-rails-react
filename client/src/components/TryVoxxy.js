@@ -121,7 +121,7 @@ const ListBottom = styled.div`
   text-align: left;
 `;
 
-// Plan Modal
+// Modal for details and signup
 const Overlay = styled.div`
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.8);
@@ -141,23 +141,7 @@ const CloseButton = styled.button`
   background: none; border: none; cursor: pointer;
   color: ${colors.textSecondary};
 `;
-const Input = styled.input`
-  width: 100%;
-  padding: 0.55rem 0.75rem;
-  font-size: 0.875rem;
-  background: ${colors.backgroundTwo};
-  color: white;
-  border: 1px solid ${colors.lightBorder};
-  border-radius: 0.5rem;
-`;
 
-const Select = styled.select`
-  width: 100%; padding: 0.75rem; margin-bottom: 1rem;
-  background: ${colors.backgroundTwo};
-  color: white;
-  border: 1px solid ${colors.lightBorder};
-  border-radius: 0.5rem;
-`;
 const Button = styled.button`
   background: ${colors.primaryButton};
   color: #fff;
@@ -227,24 +211,6 @@ const CTAButton = styled(Link)`
   }
 `;
 
-const SecondaryButton = styled.button`
-  background: ${colors.backgroundTwo};
-  color: white;
-  padding: 0.55rem 0.75rem;
-  border: 1px solid ${colors.lightBorder};
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-
-  &:hover {
-    background-color: ${colors.primaryButton};
-    border-color: ${colors.primaryButton};
-  }
-`;
-
 const ActionsWrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -257,17 +223,9 @@ export default function TryVoxxy() {
   const [recommendations, setRecommendations] = useState([]);
   const [loadingCache, setLoadingCache] = useState(true);
 
-  const [showPlanModal, setShowPlanModal] = useState(false);
-  const [eventLocation, setEventLocation] = useState('');
-  const [usingCurrentLocation, setUsingCurrentLocation] = useState(false);
-  const [coords, setCoords] = useState(null);
-  const [dateNotes, setDateNotes] = useState('');
-
   const [chatOpen, setChatOpen] = useState(false);
   const [selectedRec, setSelectedRec] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-
-  const [fetchingLocation, setFetchingLocation] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
 
   const getOrCreateSessionToken = () => {
@@ -288,39 +246,12 @@ export default function TryVoxxy() {
       .finally(() => setLoadingCache(false));
   }, []);
 
-  const openPlan = () => {
+  const openChat = () => {
     if (process.env.NODE_ENV === 'production') {
       mixpanel.track('Try Voxxy Clicked');
     }
-    setShowPlanModal(true);
-  }
-  const closePlan = () => setShowPlanModal(false);
-
-  const useCurrentLocation = () => {
-    if (!navigator.geolocation) return;
-    if (!usingCurrentLocation) {
-      setFetchingLocation(true);
-      navigator.geolocation.getCurrentPosition(({ coords }) => {
-        setCoords({ lat: coords.latitude, lng: coords.longitude });
-        setUsingCurrentLocation(true);
-        setEventLocation('Using current location');
-        setFetchingLocation(false);
-      }, () => {
-        setFetchingLocation(false);
-        alert("Unable to fetch location");
-      });
-    } else {
-      setCoords(null)
-      setUsingCurrentLocation(false)
-      setEventLocation('');
-    }
-  };
-
-  const submitPlan = () => {
-    if (!eventLocation.trim() || !dateNotes) return;
-    setShowPlanModal(false);
     setChatOpen(true);
-  };
+  }
 
   const handleChatClose = () => setChatOpen(false);
   const handleChatComplete = recs => setRecommendations(recs);
@@ -365,7 +296,7 @@ export default function TryVoxxy() {
             ))}
           </RecommendationsList>
         ) : (!loadingCache && (
-          <CardWrapper><Card onClick={openPlan}>
+          <CardWrapper><Card onClick={openChat}>
             <IconWrapper><Calendar size={24} color={colors.primaryButton} /></IconWrapper>
             <CardTitle>Plan a Group Visit</CardTitle>
             <CardText>Find the perfect restaurant for your group.</CardText>
@@ -384,65 +315,16 @@ export default function TryVoxxy() {
       </Container></Main>
       <Footer />
 
-      {showPlanModal && (
-        <Overlay onClick={closePlan}>
-          <Modal onClick={e => e.stopPropagation()}>
-            <CloseButton onClick={closePlan}><X size={20} /></CloseButton>
-
-            <div style={{ marginBottom: '1.5rem' }}>
-              <h3 style={{ color: 'white', fontSize: '1.5rem', marginBottom: '0.5rem', textAlign: 'left' }}>
-                Where and when?
-              </h3>
-              <p style={{ color: colors.textSecondary, fontSize: '1rem', textAlign: 'left' }}>
-                Help us find dining options in your area.
-              </p>
-            </div>
-
-            <div style={{ marginBottom: '1rem', textAlign: 'left' }}>
-              <label style={{ display: 'block', marginBottom: '0.4rem', color: colors.textSecondary, fontSize: '0.8rem' }}>
-                Location
-              </label>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <Input
-                  placeholder="Enter a city or zip code"
-                  value={eventLocation}
-                  onChange={e => {
-                    setUsingCurrentLocation(false);
-                    setEventLocation(e.target.value);
-                  }}
-                  readOnly={usingCurrentLocation}
-                  style={{ flexGrow: 1 }}
-                />
-                <SecondaryButton onClick={useCurrentLocation}>{usingCurrentLocation ? 'Clear Field' : 'Use Current'}</SecondaryButton>
-              </div>
-              {fetchingLocation && (
-                <span style={{ color: colors.textSecondary, fontSize: '0.75rem', display: 'block', marginTop: '0.4rem' }}>
-                  Fetching location...
-                </span>
-              )}
-            </div>
-
-            <div style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: colors.textSecondary, fontSize: '0.875rem' }}>
-                Outing Type
-              </label>
-              <Select value={dateNotes} onChange={e => setDateNotes(e.target.value)}>
-                <option value="" disabled>Select outing type</option>
-                <option value="Brunch">Brunch</option>
-                <option value="Lunch">Lunch</option>
-                <option value="Dinner">Dinner</option>
-                <option value="Late-night drinks">Late-night drinks</option>
-              </Select>
-            </div>
-
-            <div style={{ textAlign: 'right' }}>
-              <Button onClick={submitPlan}>Continue</Button>
-            </div>
-          </Modal>
-        </Overlay>
+      {/* Updated to use the new TryVoxxyChat component */}
+      {chatOpen && (
+        <TryVoxxyChat
+          onClose={handleChatClose}
+          onChatComplete={recs => {
+            handleChatComplete(recs);
+            handleChatClose();
+          }}
+        />
       )}
-
-      {chatOpen && <TryVoxxyChat eventLocation={usingCurrentLocation && coords ? coords : eventLocation} dateNotes={dateNotes} onClose={handleChatClose} onChatComplete={recs => { handleChatComplete(recs); handleChatClose(); }} />}
 
       {showDetailModal && selectedRec && (
         <Overlay onClick={closeDetail}><DetailModalContent onClick={e => e.stopPropagation()}>
@@ -464,7 +346,7 @@ export default function TryVoxxy() {
             <CloseButton onClick={() => setShowSignupModal(false)}><X size={20} /></CloseButton>
             <h3 style={{ color: 'white', marginBottom: '1rem' }}>Sign Up to Unlock More</h3>
             <p style={{ color: colors.textSecondary, marginBottom: '1.5rem' }}>
-              You’ve reached your free limit. Create a Voxxy account to generate more recommendations, invite friends, and save your picks!
+              You've reached your free limit. Create a Voxxy account to generate more recommendations, invite friends, and save your picks!
             </p>
             <CTAButton to="/signup">Create an Account</CTAButton>
           </Modal>

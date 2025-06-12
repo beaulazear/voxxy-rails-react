@@ -1,160 +1,240 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import { X } from 'lucide-react';
 import LoadingScreenUser from '../admincomponents/LoadingScreenUser';
-import colors from '../styles/Colors';
 import mixpanel from 'mixpanel-browser';
-
-const fadeInUp = keyframes`
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-`;
 
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.6);
   z-index: 998;
 `;
 
-const ChatContainer = styled.div`
+const ModalContainer = styled.div`
   position: fixed;
-  top: 50%; left: 50%;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
-  width: 90%; max-width: 450px;
-  background: white;
-  border-radius: 15px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  width: 90%;
+  max-width: 500px;
+  background: #2C1E33;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   z-index: 999;
   display: flex;
   flex-direction: column;
-  height: 70vh;
   overflow: hidden;
 `;
 
-const ChatHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: white;
-  padding: 15px 20px;
-  border-bottom: 1px solid #ddd;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: ${colors.primaryButton};
+const ProgressBarContainer = styled.div`
+  height: 6px;
+  background: #333;
+  width: 100%;
 `;
 
-const BackButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 1rem;
-  color: ${colors.primaryButton};
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  &:hover { color: ${colors.accentBar}; }
-  svg { width: 20px; height: 20px; fill: currentColor; }
+const ProgressBar = styled.div`
+  height: 6px;
+  background: #cc31e8;
+  width: ${({ $percent }) => $percent}%;
+  transition: width 0.3s ease;
 `;
 
-const ChatBody = styled.div`
+const StepLabel = styled.div`
+  padding: 0.75rem 1.5rem 0.5rem;
+  font-size: 0.85rem;
+  color: #ccc;
+  text-align: center;
+`;
+
+const ModalHeader = styled.div`
+  padding: 0 1.5rem 1rem;
+  text-align: left;
+`;
+
+const Title = styled.h2`
+  color: #fff;
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+`;
+
+const Subtitle = styled.p`
+  color: #aaa;
+  margin: 0;
+  font-size: 0.9rem;
+`;
+
+const StepContent = styled.div`
+  padding: 1.5rem;
   flex: 1;
-  padding: 20px;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: #f9f9f9;
+  color: #eee;
 `;
 
-const Message = styled.div`
-  max-width: 75%;
-  padding: 12px 15px;
-  border-radius: 20px;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  font-family: 'Arial', sans-serif;
-  animation: ${fadeInUp} 0.3s ease forwards;
-  ${({ $isUser }) => $isUser ? `
-    background: white;
-    align-self: flex-end;
-    text-align: right;
-    color: #333;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  ` : `
-    background: #e7e4ff;
-    align-self: flex-start;
-    text-align: left;
-    color: #574dcf;
-  `}
-`;
-
-const TypingBubble = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 4px;
-  height: 16px;
-  padding: 0 6px;
-  span { width:6px; height:6px; background:#6c63ff; border-radius:50%; animation: blink 1.4s infinite both; }
-  span:nth-child(2) { animation-delay:0.2s; }
-  span:nth-child(3) { animation-delay:0.4s; }
-  @keyframes blink { 0%,80%,100% { opacity:0; } 40% { opacity:1; } }
-`;
-
-const ChatFooter = styled.div`
-  padding: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: white;
-  border-top: 1px solid #ddd;
+const Label = styled.label`
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  color: #ddd;
+  text-align: left;
 `;
 
 const Input = styled.input`
-  flex: 1;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 25px;
-  font-size: 0.9rem;
-  outline: none;
-  &:focus { border-color: ${colors.primaryButton}; box-shadow: 0 0 4px rgba(108,99,255,0.3); }
+  width: 100%;
+  padding: 0.6rem;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #eee;
+  margin-bottom: 1rem;
+  &::placeholder {
+    color: #777;
+  }
+  &:focus {
+    border-color: #6c63ff;
+    outline: none;
+  }
 `;
 
-const SendButton = styled.button`
-  background: ${colors.primaryButton};
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
+const Select = styled.select`
+  width: 100%;
+  padding: 0.6rem;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #eee;
+  margin-bottom: 1rem;
+  &:focus {
+    border-color: #6c63ff;
+    outline: none;
+  }
+  
+  option {
+    background: #2a2a2a;
+    color: #eee;
+  }
+`;
+
+const Textarea = styled.textarea`
+  width: 100%;
+  padding: 0.6rem;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #eee;
+  margin-bottom: 1rem;
+  min-height: 100px;
+  resize: vertical;
+  font-family: inherit;
+  &::placeholder {
+    color: #777;
+  }
+  &:focus {
+    border-color: #6c63ff;
+    outline: none;
+  }
+`;
+
+const ButtonRow = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 10px;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(108,99,255,0.3);
-  &:hover { background: ${colors.accentBar}; }
-  svg { width:20px; height:20px; }
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
 `;
 
-function TryVoxxyChat({ onClose, onChatComplete, eventLocation, dateNotes }) {
-  const [messages, setMessages] = useState([
-    { text: "Hey party people! Voxxy here to help plan your outing. Let's do a quick vibe check!", isUser: false }
-  ]);
-  const [answers, setAnswers] = useState([]);
-  const [currentInput, setCurrentInput] = useState("");
-  const [step, setStep] = useState(0);
-  const [isTyping, setIsTyping] = useState(false);
-  const [showLoading, setShowLoading] = useState(false);
-  const chatBodyRef = useRef(null);
+const Button = styled.button`
+  background: ${({ $primary }) => ($primary ? '#cc31e8' : 'transparent')};
+  color: ${({ $primary }) => ($primary ? 'white' : '#6c63ff')};
+  border: ${({ $primary }) => ($primary ? 'none' : '1px solid #6c63ff')};
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
 
-  const questionsRef = useRef([
-    "What’s the food & drink mood? Are we craving anything specific or open to surprises?",
-    "Any deal-breakers? (e.g. no pizza, gluten-free, etc)",
-    "What’s the vibe? Fancy, casual, outdoor seating, rooftop views, good music…?",
-    "Budget range: low, mid, high?"
-  ]);
-  const questions = questionsRef.current;
+const UseLocationButton = styled.button`
+  background: transparent;
+  border: none;
+  color: #cc31e8;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const LoadingText = styled.span`
+  color: #777;
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+  display: block;
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #aaa;
+  z-index: 1001;
+  padding: 0.5rem;
+  
+  &:hover {
+    color: #fff;
+  }
+`;
+
+function TryVoxxyChat({ onClose, onChatComplete }) {
+  const [step, setStep] = useState(1);
+  const totalSteps = 5;
+  const [showLoading, setShowLoading] = useState(false);
+  const [fetchingLocation, setFetchingLocation] = useState(false);
+
+  const percent = (step / totalSteps) * 100;
+
+  // Form data
+  const [formData, setFormData] = useState({
+    location: '',
+    usingCurrentLocation: false,
+    coords: null,
+    outingType: '',
+    foodMood: '',
+    restrictions: '',
+    vibe: '',
+    budget: ''
+  });
+
+  const headers = [
+    {
+      title: 'Where and when?',
+      subtitle: 'Help us find dining options in your area'
+    },
+    {
+      title: 'Food & drink mood?',
+      subtitle: 'What are you craving today?'
+    },
+    {
+      title: 'Any restrictions?',
+      subtitle: 'Let us know about dietary needs or preferences'
+    },
+    {
+      title: 'What\'s the vibe?',
+      subtitle: 'Tell us about the atmosphere you\'re looking for'
+    },
+    {
+      title: 'Budget range?',
+      subtitle: 'What\'s your spending comfort zone?'
+    }
+  ];
+
+  const { title, subtitle } = headers[step - 1];
 
   const getOrCreateSessionToken = () => {
     let token = localStorage.getItem('voxxy_token');
@@ -165,47 +245,89 @@ function TryVoxxyChat({ onClose, onChatComplete, eventLocation, dateNotes }) {
     return token;
   };
 
-  useEffect(() => {
-    setIsTyping(true);
-    const timer = setTimeout(() => {
-      setMessages(prev => [...prev, { text: questions[0], isUser: false }]);
-      setIsTyping(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [questions]);
+  const useCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation not supported.');
+      return;
+    }
 
-  useEffect(() => {
-    chatBodyRef.current?.scrollTo(0, chatBodyRef.current.scrollHeight);
-  }, [messages]);
-
-  const handleNext = () => {
-    if (!currentInput.trim()) return;
-    setMessages(m => [...m, { text: currentInput, isUser: true }]);
-    setAnswers(a => [...a, { question: questions[step], answer: currentInput }]);
-    setCurrentInput("");
-    const next = step + 1;
-    if (next < questions.length) {
-      setStep(next);
-      setIsTyping(true);
-      setTimeout(() => {
-        setMessages(m => [...m, { text: questions[next], isUser: false }]);
-        setIsTyping(false);
-      }, 1000);
+    if (!formData.usingCurrentLocation) {
+      setFetchingLocation(true);
+      navigator.geolocation.getCurrentPosition(
+        ({ coords }) => {
+          setFormData(prev => ({
+            ...prev,
+            coords: { lat: coords.latitude, lng: coords.longitude },
+            usingCurrentLocation: true,
+            location: 'Using current location'
+          }));
+          setFetchingLocation(false);
+        },
+        () => {
+          setFetchingLocation(false);
+          alert("Unable to fetch location");
+        }
+      );
     } else {
-      setMessages(m => [...m, { text: "Great! Fetching recommendations now…", isUser: false }]);
-      setTimeout(() => setShowLoading(true), 1500);
+      setFormData(prev => ({
+        ...prev,
+        coords: null,
+        usingCurrentLocation: false,
+        location: ''
+      }));
     }
   };
 
-  const handleKeyDown = e => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleNext();
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value,
+      ...(field === 'location' && { usingCurrentLocation: false })
+    }));
+  };
+
+  const isNextDisabled = () => {
+    switch (step) {
+      case 1:
+        return (!formData.location.trim() && !formData.usingCurrentLocation) || !formData.outingType;
+      case 2:
+        return !formData.foodMood.trim();
+      case 3:
+        return false; // Optional field
+      case 4:
+        return !formData.vibe.trim();
+      case 5:
+        return !formData.budget;
+      default:
+        return false;
+    }
+  };
+
+  const handleNext = () => {
+    if (step < totalSteps) {
+      setStep(step + 1);
+    } else {
+      handleSubmit();
+    }
+  };
+
+  const handleBack = () => {
+    if (step > 1) {
+      setStep(step - 1);
     }
   };
 
   const handleSubmit = async () => {
-    const formatted = answers.map(a => `${a.question}\nAnswer: ${a.answer}`).join("\n\n");
+    setShowLoading(true);
+
+    // Format responses similar to the original chat format
+    const responses = [
+      `What's the food & drink mood? Are we craving anything specific or open to surprises?\nAnswer: ${formData.foodMood}`,
+      `Any deal-breakers? (e.g. no pizza, gluten-free, etc)\nAnswer: ${formData.restrictions || 'No specific restrictions'}`,
+      `What's the vibe? Fancy, casual, outdoor seating, rooftop views, good music…?\nAnswer: ${formData.vibe}`,
+      `Budget range: low, mid, high?\nAnswer: ${formData.budget}`
+    ].join('\n\n');
+
     const token = getOrCreateSessionToken();
 
     if (process.env.NODE_ENV === 'production') {
@@ -219,7 +341,11 @@ function TryVoxxyChat({ onClose, onChatComplete, eventLocation, dateNotes }) {
           'Content-Type': 'application/json',
           'X-Session-Token': token
         },
-        body: JSON.stringify({ responses: formatted, activity_location: eventLocation, date_notes: dateNotes })
+        body: JSON.stringify({
+          responses,
+          activity_location: formData.usingCurrentLocation && formData.coords ? formData.coords : formData.location,
+          date_notes: formData.outingType
+        })
       });
       const data = await res.json();
       onChatComplete(data.recommendations || []);
@@ -231,39 +357,146 @@ function TryVoxxyChat({ onClose, onChatComplete, eventLocation, dateNotes }) {
     onClose();
   };
 
+  if (showLoading) {
+    return <LoadingScreenUser onComplete={() => { }} />;
+  }
+
   return (
     <>
-      {showLoading ? (
-        <LoadingScreenUser onComplete={handleSubmit} />
-      ) : (
-        <>
-          <Overlay onClick={onClose} />
-          <ChatContainer onClick={e => e.stopPropagation()}>
-            <ChatHeader>
-              <BackButton onClick={onClose}>
-                <svg viewBox="0 0 24 24"><path d="M15.5 3.5L7 12l8.5 8.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                Back
-              </BackButton>
-              Chat with Voxxy
-            </ChatHeader>
+      <Overlay onClick={() => onClose()} />
+      <ModalContainer onClick={(e) => e.stopPropagation()}>
+        <CloseButton onClick={() => onClose()}>
+          <X size={20} />
+        </CloseButton>
 
-            <ChatBody ref={chatBodyRef}>
-              {messages.map((m, i) => <Message key={i} $isUser={m.isUser}>{m.text}</Message>)}
-              {isTyping && <Message><TypingBubble><span /><span /><span /></TypingBubble></Message>}
-            </ChatBody>
+        <ProgressBarContainer>
+          <ProgressBar $percent={percent} />
+        </ProgressBarContainer>
 
-            <ChatFooter>
+        <StepLabel>
+          Step {step} of {totalSteps}
+        </StepLabel>
+
+        <ModalHeader>
+          <Title>{title}</Title>
+          <Subtitle>{subtitle}</Subtitle>
+        </ModalHeader>
+
+        <StepContent>
+          {step === 1 && (
+            <>
+              <Label htmlFor="location">Meeting Location</Label>
               <Input
-                value={currentInput}
-                onChange={e => setCurrentInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Type your response…"
+                id="location"
+                value={formData.location}
+                onChange={(e) => handleInputChange('location', e.target.value)}
+                placeholder={
+                  formData.usingCurrentLocation
+                    ? 'Using current location'
+                    : 'e.g. San Francisco, CA'
+                }
+                disabled={formData.usingCurrentLocation}
               />
-              <SendButton onClick={handleNext}>▶</SendButton>
-            </ChatFooter>
-          </ChatContainer>
-        </>
-      )}
+              <UseLocationButton
+                onClick={useCurrentLocation}
+                disabled={fetchingLocation}
+              >
+                {formData.usingCurrentLocation
+                  ? 'Clear location'
+                  : fetchingLocation
+                    ? 'Locating…'
+                    : 'Use my current location'}
+              </UseLocationButton>
+              {fetchingLocation && (
+                <LoadingText>Fetching location...</LoadingText>
+              )}
+
+              <Label htmlFor="outingType">Outing Type</Label>
+              <Select
+                id="outingType"
+                value={formData.outingType}
+                onChange={(e) => handleInputChange('outingType', e.target.value)}
+              >
+                <option value="" disabled>Select outing type</option>
+                <option value="Brunch">Brunch</option>
+                <option value="Lunch">Lunch</option>
+                <option value="Dinner">Dinner</option>
+                <option value="Late-night drinks">Late-night drinks</option>
+              </Select>
+            </>
+          )}
+
+          {step === 2 && (
+            <>
+              <Label htmlFor="foodMood">What are you craving?</Label>
+              <Textarea
+                id="foodMood"
+                placeholder="Tell us what you're craving! Specific cuisines, comfort food, something adventurous, or are you open to surprises?"
+                value={formData.foodMood}
+                onChange={(e) => handleInputChange('foodMood', e.target.value)}
+              />
+            </>
+          )}
+
+          {step === 3 && (
+            <>
+              <Label htmlFor="restrictions">Dietary Restrictions (Optional)</Label>
+              <Textarea
+                id="restrictions"
+                placeholder="Any dietary restrictions, allergies, or foods you want to avoid? (This field is optional)"
+                value={formData.restrictions}
+                onChange={(e) => handleInputChange('restrictions', e.target.value)}
+              />
+            </>
+          )}
+
+          {step === 4 && (
+            <>
+              <Label htmlFor="vibe">Describe the vibe</Label>
+              <Textarea
+                id="vibe"
+                placeholder="Describe the atmosphere you're looking for: fancy, casual, outdoor seating, rooftop views, live music, cozy, energetic, etc."
+                value={formData.vibe}
+                onChange={(e) => handleInputChange('vibe', e.target.value)}
+              />
+            </>
+          )}
+
+          {step === 5 && (
+            <>
+              <Label htmlFor="budget">Budget Range</Label>
+              <Select
+                id="budget"
+                value={formData.budget}
+                onChange={(e) => handleInputChange('budget', e.target.value)}
+              >
+                <option value="" disabled>Select your budget range</option>
+                <option value="low">Low ($-$$) - Budget-friendly options</option>
+                <option value="mid">Mid ($$-$$$) - Moderate pricing</option>
+                <option value="high">High ($$$-$$$$) - Premium dining</option>
+              </Select>
+            </>
+          )}
+        </StepContent>
+
+        <ButtonRow>
+          {step > 1 ? (
+            <Button onClick={handleBack}>
+              Back
+            </Button>
+          ) : (
+            <div />
+          )}
+
+          <Button
+            $primary
+            onClick={handleNext}
+            disabled={isNextDisabled()}
+          >
+            {step < totalSteps ? 'Next' : 'Get Recommendations'}
+          </Button>
+        </ButtonRow>
+      </ModalContainer>
     </>
   );
 }
