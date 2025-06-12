@@ -641,7 +641,7 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities, pi
 
             <Button type="submit" disabled={!canSubmit}>
               <CheckCircle2 size={20} />
-              Finalize Activity
+              Finalize & Share
             </Button>
           </Form>
         </ModalBody>

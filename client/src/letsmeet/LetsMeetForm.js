@@ -58,6 +58,7 @@ const Label = styled.label`
   color: #ddd;
   text-align: left;
   margin-top: 1.2rem; 
+  padding-left: .6rem;
   &:first-child {
     margin-top: 0; // No extra space before the first label
   }
@@ -154,16 +155,14 @@ export default function LetsMeetFormModal({ onClose }) {
     const [singleDate, setSingleDate] = useState('');
     const [rangeStart, setRangeStart] = useState('');
     const [rangeEnd, setRangeEnd] = useState('');
-    const [participantsInput, setParticipantsInput] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
-    const totalSteps = 3;
+    const totalSteps = 2; // Reduced from 3 to 2
     const percent = (step / totalSteps) * 100;
 
     const headers = [
         { title: "Tell us about your meeting", subtitle: "Basic information to help coordinate with your group." },
         { title: "Choose your preferred dates", subtitle: "Select when you'd like to meet with your group." },
-        { title: "Invite people", subtitle: "Invite others to find a time that works for everyone. (optional)" },
     ];
     const { title, subtitle } = headers[step - 1];
 
@@ -173,13 +172,8 @@ export default function LetsMeetFormModal({ onClose }) {
         return 'open';
     };
 
-    const participantEmails = participantsInput
-        .split(',')
-        .map(e => e.trim())
-        .filter(Boolean);
-
     const handleNext = () => {
-        if (step < 3) return setStep(step + 1);
+        if (step < 2) return setStep(step + 1);
         handleSubmit();
     };
 
@@ -192,8 +186,8 @@ export default function LetsMeetFormModal({ onClose }) {
             activity_name: activityName,
             welcome_message: welcomeMessage,
             date_notes: dateNotes(),
-            participants: participantEmails,
-            group_size: participantEmails.length + 1,
+            participants: [], // Empty array since we removed the invite step
+            group_size: 1, // Just the creator for now
             emoji: '👥',
             collecting: true
         };
@@ -296,21 +290,8 @@ export default function LetsMeetFormModal({ onClose }) {
                                 </>
                             )}
                             {tab === 'open' && (
-                                <p>Everyone can suggest their own times. You’ll finalize later.</p>
+                                <p>Everyone can suggest their own times. You'll finalize later.</p>
                             )}
-                        </>
-                    )}
-
-                    {step === 3 && (
-                        <>
-                            <Label>Invite via Email (optional)</Label>
-                            <Textarea
-                                rows={2}
-                                value={participantsInput}
-                                onChange={e => setParticipantsInput(e.target.value)}
-                                placeholder="Separate multiple emails with commas"
-                            />
-                            <small>You can skip and invite later on your board.</small>
                         </>
                     )}
                 </StepContent>
@@ -329,7 +310,7 @@ export default function LetsMeetFormModal({ onClose }) {
                             (step === 2 && tab === 'range' && (!rangeStart || !rangeEnd))
                         }
                     >
-                        {step < 3 ? 'Next' : (submitting ? 'Saving...' : 'Finish')}
+                        {step < 2 ? 'Next' : (submitting ? 'Saving...' : 'Finish')}
                     </Button>
                 </ButtonRow>
             </ModalContainer>

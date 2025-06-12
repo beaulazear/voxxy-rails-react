@@ -101,27 +101,46 @@ const Range = styled.input.attrs({ type: 'range', min: 1, max: 50 })`
   margin: 0.5rem 0 1rem;
 `;
 
-const RadioCardContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+const GroupSizeContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
   margin-bottom: 1rem;
 `;
 
-const RadioCard = styled.div`
-  flex: 1 1 45%;
-  padding: 1rem 0;
+const GroupSizeCard = styled.div`
+  padding: 1.25rem 1rem;
   text-align: center;
-  border-radius: 8px;
+  border-radius: 12px;
   background: ${({ selected }) => (selected ? '#cc31e8' : '#2a2a2a')};
   color: ${({ selected }) => (selected ? '#fff' : '#ddd')};
   border: ${({ selected }) => (selected ? 'none' : '1px solid #444')};
   cursor: pointer;
   user-select: none;
-  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
   &:hover {
     background: ${({ selected }) => (selected ? '#bb2fd0' : '#333')};
+    transform: translateY(-2px);
   }
+`;
+
+const GroupIcon = styled.div`
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+`;
+
+const GroupLabel = styled.div`
+  font-size: 0.9rem;
+  font-weight: 600;
+`;
+
+const GroupSubtitle = styled.div`
+  font-size: 0.75rem;
+  opacity: 0.8;
 `;
 
 const TimeCardContainer = styled.div`
@@ -216,12 +235,26 @@ const Button = styled.button`
   }
 `;
 
+const UseLocationButton = styled.button`
+  background: transparent;
+  border: none;
+  color: #cc31e8;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
 export default function RestaurantChat({ onClose }) {
   const { user, setUser } = useContext(UserContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
   const [step, setStep] = useState(1);
-  const totalSteps = 5;
+  const totalSteps = 4; // Reduced from 5 to 4
+
   const percent = (step / totalSteps) * 100;
 
   const [location, setLocation] = useState('');
@@ -240,8 +273,6 @@ export default function RestaurantChat({ onClose }) {
   const [eventName, setEventName] = useState('');
   const [welcomeMessage, setWelcomeMessage] = useState('');
 
-  const [participantsInput, setParticipantsInput] = useState('');
-
   const headers = [
     {
       title: 'Where to meet?',
@@ -257,14 +288,37 @@ export default function RestaurantChat({ onClose }) {
     },
     {
       title: 'Name & Message',
-      subtitle: 'Give your event a title and leave a detailed message for your group explaining the activity!',
-    },
-    {
-      title: 'Invite people',
-      subtitle: 'Enter their emails (comma‑separated) or skip.',
+      subtitle: 'Give your event a name and leave a detailed message for your group explaining the activity!',
     },
   ];
   const { title, subtitle } = headers[step - 1];
+
+  const groupSizeOptions = [
+    {
+      value: '1-2',
+      icon: '👥',
+      label: 'Intimate',
+      subtitle: '1-2 people'
+    },
+    {
+      value: '3-4',
+      icon: '👪',
+      label: 'Small Group',
+      subtitle: '3-4 people'
+    },
+    {
+      value: '5-9',
+      icon: '🎉',
+      label: 'Party',
+      subtitle: '5-9 people'
+    },
+    {
+      value: '10+',
+      icon: '🎊',
+      label: 'Big Celebration',
+      subtitle: '10+ people'
+    }
+  ];
 
   const useCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -299,8 +353,7 @@ export default function RestaurantChat({ onClose }) {
       const selected = new Date(`${date}T${time}`);
       return !(selected > new Date());
     }
-    if (step === 4) return !eventName.trim();
-    // Step 5 (invite) always optional → false
+    if (step === 4) return !eventName.trim() || !welcomeMessage.trim();
     return false;
   };
 
@@ -337,11 +390,6 @@ export default function RestaurantChat({ onClose }) {
   };
 
   const handleSubmit = async () => {
-    const participantEmails = participantsInput
-      .split(',')
-      .map((e) => e.trim())
-      .filter(Boolean);
-
     const date_notes = computeDateNotes();
 
     const payload = {
@@ -357,7 +405,7 @@ export default function RestaurantChat({ onClose }) {
       activity_name: eventName.trim(),
       welcome_message: welcomeMessage.trim(),
       date_notes,
-      participants: participantEmails,
+      participants: [], // Empty array since we removed the invite step
       collecting: true
     };
 
@@ -447,32 +495,19 @@ export default function RestaurantChat({ onClose }) {
           {step === 2 && (
             <>
               <Label>Choose Group Size</Label>
-              <RadioCardContainer>
-                <RadioCard
-                  selected={groupSize === '1-2'}
-                  onClick={() => setGroupSize('1-2')}
-                >
-                  1–2
-                </RadioCard>
-                <RadioCard
-                  selected={groupSize === '3-4'}
-                  onClick={() => setGroupSize('3-4')}
-                >
-                  3–4
-                </RadioCard>
-                <RadioCard
-                  selected={groupSize === '5-9'}
-                  onClick={() => setGroupSize('5-9')}
-                >
-                  5–9
-                </RadioCard>
-                <RadioCard
-                  selected={groupSize === '10+'}
-                  onClick={() => setGroupSize('10+')}
-                >
-                  10+
-                </RadioCard>
-              </RadioCardContainer>
+              <GroupSizeContainer>
+                {groupSizeOptions.map((option) => (
+                  <GroupSizeCard
+                    key={option.value}
+                    selected={groupSize === option.value}
+                    onClick={() => setGroupSize(option.value)}
+                  >
+                    <GroupIcon>{option.icon}</GroupIcon>
+                    <GroupLabel>{option.label}</GroupLabel>
+                    <GroupSubtitle>{option.subtitle}</GroupSubtitle>
+                  </GroupSizeCard>
+                ))}
+              </GroupSizeContainer>
             </>
           )}
 
@@ -569,24 +604,6 @@ export default function RestaurantChat({ onClose }) {
               />
             </>
           )}
-
-          {step === 5 && (
-            <>
-              <Label htmlFor="invite">
-                Invite via Email (optional)
-              </Label>
-              <Textarea
-                id="invite"
-                rows={2}
-                value={participantsInput}
-                onChange={(e) => setParticipantsInput(e.target.value)}
-                placeholder="Separate multiple emails with commas"
-              />
-              <small style={{ color: '#777' }}>
-                You can skip and invite later.
-              </small>
-            </>
-          )}
         </StepContent>
 
         <ButtonRow>
@@ -610,16 +627,3 @@ export default function RestaurantChat({ onClose }) {
     </>
   );
 }
-
-const UseLocationButton = styled.button`
-  background: transparent;
-  border: none;
-  color: #cc31e8;
-  font-size: 0.9rem;
-  cursor: pointer;
-  margin-bottom: 1rem;
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`;

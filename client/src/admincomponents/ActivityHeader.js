@@ -9,7 +9,7 @@ import {
   LogoutOutlined,
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
-import { Users, User, CalendarDays, Clock, HelpCircle, X, Eye, CheckCircle, XCircle } from "lucide-react";
+import { Users, Plus, User, CalendarDays, Clock, HelpCircle, X, Eye, CheckCircle, XCircle } from "lucide-react";
 import { message, Popconfirm } from "antd";
 import Woman from "../assets/Woman.jpg";
 import MultiSelectCommunity from "./MultiSelectCommunity.js";
@@ -17,7 +17,7 @@ import mixpanel from "mixpanel-browser";
 import UpdateDetailsModal from "./UpdateDetailsModal.js";
 import FinalPlansModal from './FinalPlansModal.js';
 
-const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite, onCreateBoard, onRemoveParticipant }) => {
+const ActivityHeader = ({ activity, isOwner, onBack, onDelete, onInvite, onCreateBoard, onRemoveParticipant }) => {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
 
   const [showAllParticipants, setShowAllParticipants] = useState(false);
@@ -51,6 +51,24 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
     }
   }, [activity.finalized, isOwner]);
 
+  const participantsArray = Array.isArray(activity.participants) ? activity.participants : [];
+  const pendingInvitesArray = Array.isArray(activity.activity_participants)
+    ? activity.activity_participants.filter(p => !p.accepted)
+    : [];
+
+  useEffect(() => {
+    if (!isOwner) return;
+
+    const hasParticipants = participantsArray.length > 0 || pendingInvitesArray.length > 0;
+
+    if (!hasParticipants) {
+      const timer = setTimeout(() => {
+        setShowInvitePopup(true);
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isOwner, participantsArray.length, pendingInvitesArray.length]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -179,10 +197,6 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
     return `${h}:${m0} ${suf}`;
   }
 
-  const participantsArray = Array.isArray(activity.participants) ? activity.participants : [];
-  const pendingInvitesArray = Array.isArray(activity.activity_participants)
-    ? activity.activity_participants.filter(p => !p.accepted)
-    : [];
   const hostParticipant = {
     name: `${activity.user?.name || "Unknown"} (Host)`,
     email: activity.user?.email || "N/A",
@@ -337,7 +351,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
         </MetaRow>
         <HostMessageContainer>
           <ParticipantsTitle>
-            <User style={{ marginBottom: '5px' }} size={20} /> {activity.user?.name || "N/A"} - Organizer
+            <User style={{ marginBottom: '5px' }} size={20} /> Organizer: {activity.user?.name || "N/A"}
           </ParticipantsTitle>
           <MessageLine>
             {activity.welcome_message || "Welcome to this activity!"}
@@ -497,7 +511,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
       {showInvitePopup && (
         <ParticipantPopupOverlay onClick={handleClosePopup}>
           <ParticipantPopupContent onClick={(e) => e.stopPropagation()}>
-            <h2>Invite Participants</h2>
+            <h2 style={{fontFamily: 'Montserrat'}}>Invite Participants</h2>
 
             <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem" }}>
               <DarkInput
@@ -506,7 +520,7 @@ const ActivityHeader = ({ activity, isOwner, onBack, onEdit, onDelete, onInvite,
                 value={manualInput}
                 onChange={(e) => setManualInput(e.target.value)}
               />
-              <AddButton onClick={handleAddEmail}>Add</AddButton>
+              <AddButton onClick={handleAddEmail}><Plus size={26} /></AddButton>
             </div>
 
             <EmailsContainer>
@@ -566,7 +580,7 @@ const bounceAnimation = keyframes`
 
 const DarkInput = styled.input`
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem;
   margin: 1rem 0;
   background: rgba(255, 255, 255, 0.08);
   color: #eee;
@@ -926,7 +940,12 @@ const NavButton = styled.button`
 `;
 
 const AddButton = styled.button`
-  background: #9051e1;
+  background-image: linear-gradient(
+    to right,
+    rgba(207, 56, 221, 0.9),   /* primary */
+    rgba(211, 148, 245, 0.9),  /* secondary */
+    rgba(185, 84, 236, 0.9)    /* highlight */
+  );
   color: #fff;
   border: none;
   padding: 0 1rem;
