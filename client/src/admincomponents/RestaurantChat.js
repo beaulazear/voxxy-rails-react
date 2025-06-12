@@ -3,7 +3,7 @@ import React, { useState, useContext } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { UserContext } from '../context/user';
 import mixpanel from 'mixpanel-browser';
-import { MapPin, Users, Calendar, Clock, MessageSquare, Edit3, X } from 'lucide-react';
+import { MapPin, Users, Calendar, Clock, MessageSquare, Edit3 } from 'lucide-react';
 
 const fadeIn = keyframes`
   from { 
