@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { format, parseISO } from 'date-fns';
-import { Users, Heart, Share, HeartPulse, Clock, Trash, CheckCircle, Vote, Flag, Cog, Calendar } from 'lucide-react';
+import { Users, Share, HeartPulse, Clock, Trash, CheckCircle, Vote, Flag, Cog, Calendar } from 'lucide-react';
 import LetsMeetScheduler from './LetsMeetScheduler';
 import LoadingScreenUser from "../admincomponents/LoadingScreenUser";
 import { UserContext } from "../context/user";
@@ -134,7 +134,6 @@ const SubmittedCard = styled.div`
   border: 1px solid rgba(40, 167, 69, 0.3);
   padding: 2rem;
   border-radius: 1rem;
-  text-align: center;
   margin-bottom: 2rem;
 `;
 
@@ -778,8 +777,7 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
                                                 $liked={slot.user_voted}
                                                 onClick={() => toggleVote(slot)}
                                             >
-                                                {slot.user_voted ? <HeartPulse size={16} /> : <Heart size={16} />}
-                                                {slot.votes_count || 0}
+                                                {slot.user_voted ? '❤️' : '🤍'} {slot.votes_count || 0}
                                             </VoteButton>
                                             {isOwner && (
                                                 <DeleteButton onClick={() => handleTimeSlotDelete(slot.id)}>

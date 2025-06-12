@@ -220,37 +220,26 @@ export default function RestaurantChat({ onClose }) {
   const { user, setUser } = useContext(UserContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
-  // Steps:
-  // 1 = location & radius
-  // 2 = group size
-  // 3 = date/time or time-of-day selection
-  // 4 = event name & welcome message
-  // 5 = invite participants
   const [step, setStep] = useState(1);
   const totalSteps = 5;
   const percent = (step / totalSteps) * 100;
 
-  // Step 1 states
   const [location, setLocation] = useState('');
   const [coords, setCoords] = useState(null);
   const [isLocating, setIsLocating] = useState(false);
   const [currentLocationUsed, setCurrentLocationUsed] = useState(false);
   const [radius, setRadius] = useState(10);
 
-  // Step 2 state
   const [groupSize, setGroupSize] = useState('');
 
-  // Step 3 states
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [skipDateTime, setSkipDateTime] = useState(false);
   const [timeOfDay, setTimeOfDay] = useState('');
 
-  // Step 4 states
   const [eventName, setEventName] = useState('');
   const [welcomeMessage, setWelcomeMessage] = useState('');
 
-  // Step 5 state
   const [participantsInput, setParticipantsInput] = useState('');
 
   const headers = [
@@ -268,7 +257,7 @@ export default function RestaurantChat({ onClose }) {
     },
     {
       title: 'Name & Message',
-      subtitle: 'Give your event a title and a welcome message.',
+      subtitle: 'Give your event a title and leave a detailed message for your group explaining the activity!',
     },
     {
       title: 'Invite people',
@@ -519,31 +508,31 @@ export default function RestaurantChat({ onClose }) {
                       selected={timeOfDay === 'breakfast'}
                       onClick={() => setTimeOfDay('breakfast')}
                     >
-                      Breakfast
+                      Breakfast 🥞
                     </TimeCard>
                     <TimeCard
                       selected={timeOfDay === 'brunch'}
                       onClick={() => setTimeOfDay('brunch')}
                     >
-                      Brunch
+                      Brunch 🥂
                     </TimeCard>
                     <TimeCard
                       selected={timeOfDay === 'lunch'}
                       onClick={() => setTimeOfDay('lunch')}
                     >
-                      Lunch
+                      Lunch 🥗
                     </TimeCard>
                     <TimeCard
                       selected={timeOfDay === 'dinner'}
                       onClick={() => setTimeOfDay('dinner')}
                     >
-                      Dinner
+                      Dinner 🥘
                     </TimeCard>
                     <TimeCard
                       selected={timeOfDay === 'late night cocktails'}
                       onClick={() => setTimeOfDay('late night cocktails')}
                     >
-                      Late Night Cocktails
+                      Late Night Cocktails 🍸
                     </TimeCard>
                   </TimeCardContainer>
                 </>
@@ -570,13 +559,13 @@ export default function RestaurantChat({ onClose }) {
                 placeholder="e.g. Friday Feast"
               />
 
-              <Label htmlFor="welcome">Welcome Message (optional)</Label>
+              <Label htmlFor="welcome">Welcome Message</Label>
               <Textarea
                 id="welcome"
                 rows={3}
                 value={welcomeMessage}
                 onChange={(e) => setWelcomeMessage(e.target.value)}
-                placeholder="Leave a message for your group…"
+                placeholder="Leave a detailed message for your group…"
               />
             </>
           )}

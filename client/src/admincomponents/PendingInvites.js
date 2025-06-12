@@ -230,7 +230,7 @@ const PendingInvites = ({ handleActivityClick }) => {
               <InviteCard key={invite.id}>
                 <ImageContainer $bgimage={bgUrl} className="image-bg" />
                 <TypeTag>
-                  {invite.activity.activity_type}
+                  {invite.activity.emoji} {invite.activity.activity_type === 'Restaurant' ? 'Lets Eat!' : ' Lets Meet!'}
                 </TypeTag>
                 <CardLabel>
                   <h3>{invite.activity.activity_name}</h3>

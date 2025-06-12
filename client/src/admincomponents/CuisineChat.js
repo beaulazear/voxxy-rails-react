@@ -361,10 +361,17 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
       setUser((prev) => {
         const activities = prev.activities.map((act) => {
           if (act.id === activityId) {
+            const filteredResponses = (act.responses || []).filter(
+              response => response.user_id !== user.id
+            );
+            const filteredComments = (act.comments || []).filter(
+              comment => comment.user_id !== user.id
+            );
+
             return {
               ...act,
-              responses: [...(act.responses || []), newResponse],
-              comments: [...(act.comments || []), newComment],
+              responses: [...filteredResponses, newResponse],
+              comments: [...filteredComments, newComment],
             };
           }
           return act;
@@ -372,12 +379,20 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
 
         const participant_activities = prev.participant_activities.map((pa) => {
           if (pa.activity.id === activityId) {
+            // Filter out any existing responses from this user
+            const filteredResponses = (pa.activity.responses || []).filter(
+              response => response.user_id !== user.id
+            );
+            const filteredComments = (pa.activity.comments || []).filter(
+              comment => comment.user_id !== user.id
+            );
+
             return {
               ...pa,
               activity: {
                 ...pa.activity,
-                responses: [...(pa.activity.responses || []), newResponse],
-                comments: [...(pa.activity.comments || []), newComment],
+                responses: [...filteredResponses, newResponse],
+                comments: [...filteredComments, newComment],
               },
             };
           }

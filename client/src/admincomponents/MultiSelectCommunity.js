@@ -1,5 +1,4 @@
 // src/components/MultiSelectCommunity.js
-
 import React, { useContext, useState, useEffect } from "react";
 import styled from "styled-components";
 import { UserContext } from "../context/user";
@@ -155,8 +154,6 @@ export default function MultiSelectCommunity({ onSelectionChange, onCreateBoard 
     );
 }
 
-// ================ Styled Components (Compact) =================
-
 const Wrapper = styled.div`
   text-align: left;
   margin: 0.5rem 0;
@@ -181,7 +178,7 @@ const Subtitle = styled.p`
 `;
 
 const ScrollArea = styled.div`
-  max-height: 160px;
+  max-height: 360px;
   overflow-y: auto;
   padding-right: 0.5rem;
   padding-top: 0.5rem;

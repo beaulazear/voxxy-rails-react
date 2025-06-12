@@ -226,7 +226,7 @@ export default function AIRecommendations({
 
         {isOwner && (
           <OrganizerSection>
-            <OrganizerTitle>Organizer Controls</OrganizerTitle>
+            <OrganizerTitle><Cog size={20} style={{marginBottom: '4px'}} /> Organizer Controls</OrganizerTitle>
             <ParticipantsList>
               {activity.participants.concat([{ id: user.id, name: activity.organizer?.name || 'You' }]).map((participant, index) => {
                 const hasSubmitted = responses.some(r => r.user_id === participant.id) ||
@@ -348,7 +348,7 @@ export default function AIRecommendations({
 
         {isOwner && (
           <OrganizerSection>
-            <OrganizerTitle><Cog size={20} /> Organizer Controls</OrganizerTitle>
+            <OrganizerTitle><Cog style={{marginBottom: '4px'}} size={20} /> Organizer Controls</OrganizerTitle>
             <ParticipantsList>
               {activity.participants.concat([{ id: user.id, name: activity.organizer?.name || 'You' }]).map((participant, index) => {
                 const hasVoted = Array.from(participantsWithVotes).includes(participant.id) ||
@@ -687,7 +687,6 @@ const SubmittedCard = styled.div`
   border: 1px solid rgba(40, 167, 69, 0.3);
   padding: 2rem;
   border-radius: 1rem;
-  text-align: left;
   margin-bottom: 2rem;
 `;
 

@@ -1,9 +1,9 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import Countdown from 'react-countdown';
 import { UserContext } from '../context/user';
 import ActivityDetailsPage from './ActivityDetailsPage';
-import PendingInvites from './PendingInvites';
 import TripDashboard from './TripDashboard.js';
 import YourCommunity from './YourCommunity.js';
 import NoBoardsDisplay from './NoBoardsDisplay.js';
@@ -349,6 +349,21 @@ export const HostTag = styled.div`
   text-transform: uppercase;
 `;
 
+// New styling for invite cards
+const InviteTag = styled.div`
+  position: absolute;
+  top: 3rem;
+  left: 0.5rem;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  border: 2px solid black;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+`;
+
 const ViewBoard = styled.div`
   font-size: 0.85rem;
   font-weight: 500;
@@ -377,6 +392,21 @@ const CDTXT = styled.span`
   }
 `
 
+const NoBoardsContainer = styled.div`
+  border-radius: 1rem;
+  max-width: 450px;
+  padding-left:0.5rem;
+  animation: ${fadeIn} 0.8s ease-out;
+`;
+
+const Message = styled.p`
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: #fff;
+  margin: 0.5rem 0.5rem 0;
+  text-align: left;
+`;
+
 function UserActivities() {
   const { user, setUser } = useContext(UserContext);
 
@@ -390,8 +420,21 @@ function UserActivities() {
   const [showAllPast, setShowAllPast] = useState(false);
 
   const topRef = useRef(null)
-
   const processedRef = useRef(new Set())
+
+  const location = useLocation();
+  const navigate = useNavigate();
+
+    useEffect(() => {
+    const params     = new URLSearchParams(location.search);
+    const activityId = params.get('activity_id');
+
+    if (activityId) {
+      setSelectedActivityId(Number(activityId));
+
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location.search, setSelectedActivityId, navigate, location.pathname]);
 
   useEffect(() => {
     if (!user) return
@@ -461,12 +504,19 @@ function UserActivities() {
 
   const toggleHelp = () => setHelpVisible(v => !v);
 
+  // Updated to include pending invites in the main activities array
   const allActivities = [
     ...(user?.activities || []),
     ...(user?.participant_activities
       ?.filter(activity => activity.accepted)
       .map(p => p.activity) || [])
   ];
+
+  // Get pending invites as activities
+  const pendingInviteActivities = user?.participant_activities
+    ?.filter(invite => !invite.accepted)
+    .map(invite => invite.activity) || [];
+
   const uniqueActivities = [...new Map(allActivities.map(a => [a.id, a])).values()];
 
   const inProgressCount = uniqueActivities.filter(a => a.finalized === false && !a.completed).length;
@@ -483,20 +533,27 @@ function UserActivities() {
     setShowAllPast(false);
   }, [filterType]);
 
-  const filteredActivities = uniqueActivities
-    .filter(activity => {
-      switch (filterType) {
-        case "inprogress":
-          return activity.finalized === false && !activity.completed;
-        case "finalized":
-          return activity.finalized === true && !activity.completed;
-        case "past":
-          return activity.completed;
-        default:
-          return true;
-      }
-    })
-    .sort((a, b) => new Date(a.date_day) - new Date(b.date_day));
+  // Updated filtering logic to handle invites
+  const filteredActivities = (() => {
+    if (filterType === "invites") {
+      return pendingInviteActivities;
+    }
+
+    return uniqueActivities
+      .filter(activity => {
+        switch (filterType) {
+          case "inprogress":
+            return activity.finalized === false && !activity.completed;
+          case "finalized":
+            return activity.finalized === true && !activity.completed;
+          case "past":
+            return activity.completed;
+          default:
+            return true;
+        }
+      })
+      .sort((a, b) => new Date(a.date_day) - new Date(b.date_day));
+  })();
 
   const pastActivities = uniqueActivities
     .filter(a => a.completed)
@@ -534,6 +591,10 @@ function UserActivities() {
     hour = hour % 12 || 12;
     return `${hour}:${rawMin} ${suffix}`;
   }
+
+  const isPendingInvite = (activity) => {
+    return pendingInviteActivities.some(invite => invite.id === activity.id);
+  };
 
   if (selectedActivityId) {
     return (
@@ -577,19 +638,19 @@ function UserActivities() {
                 <PopupList>
                   <li>
                     <strong>✨ Create a New Board</strong>
-                    <p>Kick things off by clicking “Create Board” to start planning your next adventure.</p>
+                    <p>Kick things off by clicking "Create Board" to start planning your next adventure.</p>
                   </li>
                   <li>
                     <strong>📩 Accept Invitations</strong>
-                    <p>See a board you’ve been invited to? Join in and start collaborating with your crew.</p>
+                    <p>See a board you've been invited to? Join in and start collaborating with your crew.</p>
                   </li>
                   <li>
                     <strong>🕰 Revisit Past Boards</strong>
-                    <p>Scroll through your finalized activities to relive the moments or get inspo for what’s next.</p>
+                    <p>Scroll through your finalized activities to relive the moments or get inspo for what's next.</p>
                   </li>
                   <li>
                     <strong>🎭 Meet Your Voxxy Crew</strong>
-                    <p>Tap into your community! The “Voxxy Crew” section shows everyone you’ve planned with before.</p>
+                    <p>Tap into your community! The "Voxxy Crew" section shows everyone you've planned with before.</p>
                   </li>
                   <li>
                     <strong>⚙️ Edit Your Profile & Get Help</strong>
@@ -633,13 +694,12 @@ function UserActivities() {
             </FilterButton>
           </FilterRow>
 
-          {filterType === "invites" ? (
-            <PendingInvites handleActivityClick={handleActivityClick} />
-          ) : filteredActivities.length > 0 ? (
+          {filteredActivities.length > 0 ? (
             <>
               <CardGrid>
                 {activitiesToRender?.map(activity => {
                   const selectedPin = activity.pinned_activities?.find(p => p.selected);
+                  const isInvite = isPendingInvite(activity);
 
                   const isFinalizedMeeting =
                     activity.activity_type === 'Meeting' && activity.finalized === true;
@@ -671,7 +731,7 @@ function UserActivities() {
                       key={activity.id}
                       onClick={() => handleActivityClick(activity)}
                     >
-                      {isFinalizedMeeting && eventDateTime ? (
+                      {isFinalizedMeeting && eventDateTime && !isInvite ? (
                         <CountdownContainer>
                           <Countdown
                             date={eventDateTime}
@@ -697,6 +757,12 @@ function UserActivities() {
                         {activity.user?.name}
                       </HostTag>
 
+                      {isInvite && (
+                        <InviteTag>
+                          PENDING INVITE
+                        </InviteTag>
+                      )}
+
                       <TypeTag>
                         {activity.emoji} {activity.activity_type}
                       </TypeTag>
@@ -712,9 +778,12 @@ function UserActivities() {
                           <span>
                             <CalendarDays style={{ paddingBottom: '2px' }} size={20} />{formatDate(activity.date_day) || 'TBD'} · <Clock style={{ paddingBottom: '2px' }} size={21} />{formatTime(activity.date_time) || 'TBD'}
                           </span>
-                          <span><ViewBoard>View board <span>→</span></ViewBoard></span>
+                          <span>
+                            <ViewBoard>
+                              {isInvite ? 'View invite' : 'View board'} <span>→</span>
+                            </ViewBoard>
+                          </span>
                         </div>
-
                       </CardLabel>
                     </ActivityCard>
                   );
@@ -729,7 +798,15 @@ function UserActivities() {
               )}
             </>
           ) : (
-            <NoBoardsDisplay onCreateBoard={() => setShowActivities(true)} />
+            filterType === "invites" ? (
+              <NoBoardsContainer>
+                <Message>
+                  No pending invites!
+                </Message>
+              </NoBoardsContainer>
+            ) : (
+              <NoBoardsDisplay onCreateBoard={() => setShowActivities(true)} />
+            )
           )}
           <YourCommunity onCreateBoard={() => setShowActivities(true)} />
         </DashboardContainer>

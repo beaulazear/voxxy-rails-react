@@ -302,13 +302,15 @@ const Login = () => {
         });
       }
 
+      const qs = location.search;
+
       const urlParams = new URLSearchParams(location.search);
       const redirectPath = urlParams.get('redirect');
 
       if (redirectPath === 'boards') {
         navigate('/boards');
       } else {
-        navigate('/');
+        navigate(`/${qs}`, { replace: true });
       }
     } catch (error) {
       setError(error.message);
