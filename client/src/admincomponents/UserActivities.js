@@ -8,8 +8,8 @@ import TripDashboard from './TripDashboard.js';
 import YourCommunity from './YourCommunity.js';
 import NoBoardsDisplay from './NoBoardsDisplay.js';
 import { HelpCircle, X, User, Users, CalendarDays, Clock } from 'lucide-react';
-import groupmeals from '../assets/groupmeals.jpeg';
-import LetsMeetCardThree from '../assets/LetsMeetCardThree.jpeg';
+import LetsEat from '../assets/LetsEat.png';
+import LetsMeet from '../assets/LetsMeet.png';
 import VoxxyFooter from '../components/VoxxyFooter.js'
 
 const fadeIn = keyframes`
@@ -349,7 +349,6 @@ export const HostTag = styled.div`
   text-transform: uppercase;
 `;
 
-// New styling for invite cards
 const InviteTag = styled.div`
   position: absolute;
   top: 3rem;
@@ -504,7 +503,6 @@ function UserActivities() {
 
   const toggleHelp = () => setHelpVisible(v => !v);
 
-  // Updated to include pending invites in the main activities array
   const allActivities = [
     ...(user?.activities || []),
     ...(user?.participant_activities
@@ -722,8 +720,8 @@ function UserActivities() {
                     bgUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}`;
                   } else {
                     bgUrl = activity.activity_type.toLowerCase() === 'meeting'
-                      ? LetsMeetCardThree
-                      : groupmeals;
+                      ? LetsMeet
+                      : LetsEat;
                   }
 
                   return (
