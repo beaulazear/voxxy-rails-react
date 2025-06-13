@@ -27,18 +27,34 @@ const fadeIn = keyframes`
 const progressFill = keyframes`
   0% {
     width: 0%;
+    box-shadow: 0 0 0 rgba(207, 56, 221, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(207, 56, 221, 0.8);
   }
   100% {
     width: var(--progress-width);
+    box-shadow: 0 0 25px rgba(207, 56, 221, 1);
+  }
+`;
+
+const progressShine = keyframes`
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
   }
 `;
 
 const progressPulse = keyframes`
   0%, 100% {
-    opacity: 0.7;
+    opacity: 0.9;
+    box-shadow: 0 0 20px rgba(207, 56, 221, 0.6);
   }
   50% {
     opacity: 1;
+    box-shadow: 0 0 30px rgba(207, 56, 221, 1);
   }
 `;
 
@@ -81,18 +97,24 @@ const HeroContainer = styled.div`
 
 const ProgressOverlay = styled.div`
   position: absolute;
-  top: 0; right: 0; bottom: 0; left: 0;
+  top: 3.5rem; right: 0; bottom: 30%; left: 0;
   background: linear-gradient(135deg, 
-    rgba(30, 25, 33, 0.85), 
-    rgba(42, 30, 46, 0.85)
+    rgba(32, 25, 37, 0.95), 
+    rgba(64, 51, 71, 0.95),
+    rgba(42, 30, 46, 0.95)
   );
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(207, 56, 221, 0.3);
+  border-radius: 16px 16px 0 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 1rem;
   color: #f4f0f5;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 20px rgba(207, 56, 221, 0.2);
 `;
 
 const ProgressHeader = styled.div`
@@ -106,44 +128,66 @@ const ProgressStage = styled.div`
   color: #d394f5;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 `;
 
 const ProgressTitle = styled.div`
   font-size: 1.1rem;
   font-weight: 700;
   color: #f4f0f5;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 `;
 
 const ProgressBarContainer = styled.div`
-  width: 80%;
-  height: 8px;
-  background: rgba(64, 51, 71, 0.6);
-  border-radius: 4px;
+  width: 85%;
+  height: 16px;
+  background: rgba(64, 51, 71, 0.8);
+  border-radius: 8px;
   overflow: hidden;
   margin-bottom: 1rem;
-  border: 1px solid rgba(207, 56, 221, 0.3);
+  border: 2px solid rgba(207, 56, 221, 0.5);
+  position: relative;
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.3),
+    0 0 15px rgba(207, 56, 221, 0.4);
 `;
 
 const ProgressBar = styled.div`
   height: 100%;
   background: linear-gradient(90deg, #cf38dd, #d394f5, #b954ec);
-  border-radius: 4px;
+  border-radius: 6px;
+  position: relative;
   transition: width 0.8s ease;
-  animation: ${progressFill} 1.5s ease-out;
+  animation: ${progressFill} 2s ease-out;
   --progress-width: ${props => props.$progress}%;
   width: ${props => props.$progress}%;
+  box-shadow: 0 0 15px rgba(207, 56, 221, 0.8);
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(255, 255, 255, 0.5), 
+      transparent
+    );
+    animation: ${progressShine} 2s ease-in-out infinite;
+  }
   
   ${props => props.$isActive && css`
-    animation: ${progressPulse} 2s ease-in-out infinite;
+    animation: ${progressFill} 2s ease-out, ${progressPulse} 3s ease-in-out infinite 2s;
   `}
 `;
 
 const ProgressStats = styled.div`
   display: flex;
   gap: 1rem;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   text-align: center;
 `;
 
@@ -157,12 +201,14 @@ const ProgressStat = styled.div`
     font-size: 1.2rem;
     font-weight: 700;
     color: #cf38dd;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
   }
   
   .label {
     color: #d8cce2;
     text-transform: uppercase;
     font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
   }
 `;
 
@@ -189,39 +235,59 @@ const StageIndicator = styled.div`
 
 const CountdownContainer = styled.div`
   position: absolute;
-  top: 0; right: 0; bottom: 0; left: 0;
+  top: 3.5rem; right: 0; bottom: 30%; left: 0;
   background: linear-gradient(135deg, 
-    rgba(30, 25, 33, 0.95), 
+    rgba(32, 25, 37, 0.95), 
+    rgba(64, 51, 71, 0.95),
     rgba(42, 30, 46, 0.95)
   );
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(207, 56, 221, 0.3);
+  border-radius: 16px 16px 0 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-family: 'Montserrat', monospace;
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #f4f0f5;
-  border: 2px solid rgba(207, 56, 221, 0.6);
   transition: all 0.3s ease;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 20px rgba(207, 56, 221, 0.2);
   
-  &:hover {
-    border-color: rgba(207, 56, 221, 0.8);
-    background: linear-gradient(135deg, 
-      rgba(207, 56, 221, 0.1), 
-      rgba(42, 30, 46, 0.95)
-    );
+  @media (max-width: 768px) {
+    font-size: 1.6rem;
   }
 `;
 
-const CountdownLabel = styled.div`
+const CountdownHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 0.75rem;
+`;
+
+const CountdownIcon = styled.div`
+  margin-bottom: 0.25rem;
+  
+  svg {
+    color: #f4f0f5;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+    width: 36px;
+    height: 36px;
+  }
+`;
+
+const CountdownTitle = styled.div`
   font-size: 0.8rem;
-  font-weight: 500;
-  color: rgba(244, 240, 245, 0.8);
-  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #d394f5;
   text-transform: uppercase;
   letter-spacing: 1px;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 `;
 
 const TextContainer = styled.div`
@@ -661,6 +727,7 @@ const CountdownText = styled.span`
   background-clip: text;
   font-weight: 800;
   letter-spacing: 2px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 `;
 
 const NoBoardsContainer = styled.div`
@@ -863,60 +930,62 @@ function UserActivities() {
   // Helper function to calculate progress data
   const getProgressData = (activity) => {
     const totalParticipants = activity.participants.length + 1; // +1 for host
-    
-    // Count responses/votes based on activity type and stage
-    let responses = 0;
+    const pins = activity.pinned_activities || [];
+    const ideas = pins.length;
+
+    // Check if activity is finalized (has selected pin and date/time)
+    const hasSelectedPin = pins.some(p => p.selected);
+    const hasDateTime = activity.date_day && activity.date_time;
+
     let stage = 'collecting';
     let stageDisplay = 'Collecting Ideas';
-    
-    if (activity.activity_type === 'Meeting') {
-      // For meetings, check if location/time selection is done
-      const hasSelectedPin = activity.pinned_activities?.some(p => p.selected);
-      const hasDateTime = activity.date_day && activity.date_time;
-      
-      if (hasSelectedPin && hasDateTime) {
-        stage = 'finalized';
-        stageDisplay = 'Ready to Meet';
-        responses = totalParticipants; // Everyone is "ready"
-      } else if (activity.pinned_activities?.length > 0) {
-        stage = 'voting';
-        stageDisplay = 'Choosing Location';
-        // Count how many have "voted" (simplified - could be enhanced with actual vote tracking)
-        responses = Math.min(activity.pinned_activities.length, totalParticipants);
-      }
-    } else {
-      // For dining/other activities
-      const hasSelectedPin = activity.pinned_activities?.some(p => p.selected);
-      const hasDateTime = activity.date_day && activity.date_time;
-      
-      if (hasSelectedPin && hasDateTime) {
-        stage = 'finalized';
-        stageDisplay = 'Ready to Go';
-        responses = totalParticipants;
-      } else if (activity.pinned_activities?.length > 0) {
-        stage = 'voting';
-        stageDisplay = 'Voting on Options';
-        responses = Math.min(activity.pinned_activities.length, totalParticipants);
-      }
-    }
-    
-    // Calculate progress percentage
+    let responses = 0;
     let progress = 0;
-    if (stage === 'collecting') {
-      progress = Math.min((activity.pinned_activities?.length || 0) * 20, 40); // Up to 40% for collecting
-    } else if (stage === 'voting') {
-      progress = 40 + Math.min((responses / totalParticipants) * 40, 40); // 40-80% for voting
-    } else if (stage === 'finalized') {
+
+    if (hasSelectedPin && hasDateTime) {
+      // Activity is finalized
+      stage = 'finalized';
+      stageDisplay = activity.activity_type === 'Meeting' ? 'Ready to Meet' : 'Ready to Go';
+      responses = totalParticipants; // Everyone is considered "ready"
       progress = 100;
+    } else if (ideas > 0) {
+      // Has ideas but not finalized - in voting/selection stage
+      stage = 'voting';
+      stageDisplay = activity.activity_type === 'Meeting' ? 'Choosing Location' : 'Voting on Options';
+
+      // Count unique contributors to pinned activities
+      // The host/organizer is always considered to have responded if there are any pins
+      const contributorIds = new Set();
+      contributorIds.add(activity.user.id); // Always count the organizer
+
+      // Add any other participants who may have contributed
+      // (This is a simplified count - you might want to track actual votes/responses)
+      pins.forEach(pin => {
+        if (pin.user_id) {
+          contributorIds.add(pin.user_id);
+        }
+      });
+
+      responses = contributorIds.size;
+
+      // Progress: 20% base for having ideas + up to 60% for participation + 20% buffer for finalization
+      const participationRate = responses / totalParticipants;
+      progress = Math.min(20 + (participationRate * 60), 80);
+    } else {
+      // Just starting - collecting ideas
+      stage = 'collecting';
+      stageDisplay = 'Collecting Ideas';
+      responses = 0;
+      progress = 10; // Small base progress for starting
     }
-    
+
     return {
       stage,
       stageDisplay,
       progress: Math.round(progress),
       responses,
       totalParticipants,
-      ideas: activity.pinned_activities?.length || 0
+      ideas
     };
   };
 
@@ -1064,12 +1133,17 @@ function UserActivities() {
                     >
                       {isFinalizedMeeting && eventDateTime && !isInvite ? (
                         <CountdownContainer>
-                          <CountdownLabel>Time Until Event</CountdownLabel>
+                          <CountdownHeader>
+                            <CountdownIcon>
+                              <Clock size={36} />
+                            </CountdownIcon>
+                            <CountdownTitle>Meeting Starts In</CountdownTitle>
+                          </CountdownHeader>
                           <Countdown
                             date={eventDateTime}
                             renderer={({ days, hours, minutes, seconds, completed }) => {
                               if (completed) {
-                                return <CountdownText>EVENT STARTED</CountdownText>;
+                                return <CountdownText>MEETING STARTED</CountdownText>;
                               }
                               const pad = num => String(num).padStart(2, '0');
                               return (
@@ -1086,14 +1160,14 @@ function UserActivities() {
                             <ProgressStage>{progressData.stageDisplay}</ProgressStage>
                             <ProgressTitle>{Math.round(progressData.progress)}% Complete</ProgressTitle>
                           </ProgressHeader>
-                          
+
                           <ProgressBarContainer>
-                            <ProgressBar 
-                              $progress={progressData.progress} 
+                            <ProgressBar
+                              $progress={progressData.progress}
                               $isActive={progressData.progress < 100}
                             />
                           </ProgressBarContainer>
-                          
+
                           <ProgressStats>
                             <ProgressStat>
                               <div className="number">{progressData.ideas}</div>
