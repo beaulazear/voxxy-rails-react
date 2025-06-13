@@ -23,6 +23,25 @@ const fadeIn = keyframes`
   }
 `;
 
+// Progress animations
+const progressFill = keyframes`
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: var(--progress-width);
+  }
+`;
+
+const progressPulse = keyframes`
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+`;
+
 // Optimized animations - only for hover and special states
 const gentlePulse = keyframes`
   0%, 100% {
@@ -60,6 +79,114 @@ const HeroContainer = styled.div`
   }
 `;
 
+const ProgressOverlay = styled.div`
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background: linear-gradient(135deg, 
+    rgba(30, 25, 33, 0.85), 
+    rgba(42, 30, 46, 0.85)
+  );
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  color: #f4f0f5;
+`;
+
+const ProgressHeader = styled.div`
+  text-align: center;
+  margin-bottom: 1rem;
+`;
+
+const ProgressStage = styled.div`
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #d394f5;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+`;
+
+const ProgressTitle = styled.div`
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f4f0f5;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+`;
+
+const ProgressBarContainer = styled.div`
+  width: 80%;
+  height: 8px;
+  background: rgba(64, 51, 71, 0.6);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(207, 56, 221, 0.3);
+`;
+
+const ProgressBar = styled.div`
+  height: 100%;
+  background: linear-gradient(90deg, #cf38dd, #d394f5, #b954ec);
+  border-radius: 4px;
+  transition: width 0.8s ease;
+  animation: ${progressFill} 1.5s ease-out;
+  --progress-width: ${props => props.$progress}%;
+  width: ${props => props.$progress}%;
+  
+  ${props => props.$isActive && css`
+    animation: ${progressPulse} 2s ease-in-out infinite;
+  `}
+`;
+
+const ProgressStats = styled.div`
+  display: flex;
+  gap: 1rem;
+  font-size: 0.75rem;
+  text-align: center;
+`;
+
+const ProgressStat = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  
+  .number {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #cf38dd;
+  }
+  
+  .label {
+    color: #d8cce2;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+`;
+
+const StageIndicator = styled.div`
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: linear-gradient(135deg, #cf38dd, #b954ec);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  border: 2px solid #f4f0f5;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #f4f0f5;
+  text-transform: uppercase;
+  box-shadow: 0 0 12px rgba(207, 56, 221, 0.5);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  
+  ${props => props.$isActive && css`
+    animation: ${progressPulse} 3s ease-in-out infinite;
+  `}
+`;
+
 const CountdownContainer = styled.div`
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
@@ -85,10 +212,6 @@ const CountdownContainer = styled.div`
       rgba(207, 56, 221, 0.1), 
       rgba(42, 30, 46, 0.95)
     );
-  }
-  
-  @media (max-width: 768px) {
-    font-size: 2rem;
   }
 `;
 
@@ -737,6 +860,66 @@ function UserActivities() {
     return `${hour}:${rawMin} ${suffix}`;
   }
 
+  // Helper function to calculate progress data
+  const getProgressData = (activity) => {
+    const totalParticipants = activity.participants.length + 1; // +1 for host
+    
+    // Count responses/votes based on activity type and stage
+    let responses = 0;
+    let stage = 'collecting';
+    let stageDisplay = 'Collecting Ideas';
+    
+    if (activity.activity_type === 'Meeting') {
+      // For meetings, check if location/time selection is done
+      const hasSelectedPin = activity.pinned_activities?.some(p => p.selected);
+      const hasDateTime = activity.date_day && activity.date_time;
+      
+      if (hasSelectedPin && hasDateTime) {
+        stage = 'finalized';
+        stageDisplay = 'Ready to Meet';
+        responses = totalParticipants; // Everyone is "ready"
+      } else if (activity.pinned_activities?.length > 0) {
+        stage = 'voting';
+        stageDisplay = 'Choosing Location';
+        // Count how many have "voted" (simplified - could be enhanced with actual vote tracking)
+        responses = Math.min(activity.pinned_activities.length, totalParticipants);
+      }
+    } else {
+      // For dining/other activities
+      const hasSelectedPin = activity.pinned_activities?.some(p => p.selected);
+      const hasDateTime = activity.date_day && activity.date_time;
+      
+      if (hasSelectedPin && hasDateTime) {
+        stage = 'finalized';
+        stageDisplay = 'Ready to Go';
+        responses = totalParticipants;
+      } else if (activity.pinned_activities?.length > 0) {
+        stage = 'voting';
+        stageDisplay = 'Voting on Options';
+        responses = Math.min(activity.pinned_activities.length, totalParticipants);
+      }
+    }
+    
+    // Calculate progress percentage
+    let progress = 0;
+    if (stage === 'collecting') {
+      progress = Math.min((activity.pinned_activities?.length || 0) * 20, 40); // Up to 40% for collecting
+    } else if (stage === 'voting') {
+      progress = 40 + Math.min((responses / totalParticipants) * 40, 40); // 40-80% for voting
+    } else if (stage === 'finalized') {
+      progress = 100;
+    }
+    
+    return {
+      stage,
+      stageDisplay,
+      progress: Math.round(progress),
+      responses,
+      totalParticipants,
+      ideas: activity.pinned_activities?.length || 0
+    };
+  };
+
   const isPendingInvite = (activity) => {
     return pendingInviteActivities.some(invite => invite.id === activity.id);
   };
@@ -845,6 +1028,8 @@ function UserActivities() {
                 {activitiesToRender?.map(activity => {
                   const selectedPin = activity.pinned_activities?.find(p => p.selected);
                   const isInvite = isPendingInvite(activity);
+                  const isInProgress = !activity.finalized && !activity.completed && !isInvite;
+                  const progressData = isInProgress ? getProgressData(activity) : null;
 
                   const isFinalizedMeeting =
                     activity.activity_type === 'Meeting' && activity.finalized === true;
@@ -895,6 +1080,35 @@ function UserActivities() {
                             }}
                           />
                         </CountdownContainer>
+                      ) : isInProgress && progressData ? (
+                        <ProgressOverlay>
+                          <ProgressHeader>
+                            <ProgressStage>{progressData.stageDisplay}</ProgressStage>
+                            <ProgressTitle>{Math.round(progressData.progress)}% Complete</ProgressTitle>
+                          </ProgressHeader>
+                          
+                          <ProgressBarContainer>
+                            <ProgressBar 
+                              $progress={progressData.progress} 
+                              $isActive={progressData.progress < 100}
+                            />
+                          </ProgressBarContainer>
+                          
+                          <ProgressStats>
+                            <ProgressStat>
+                              <div className="number">{progressData.ideas}</div>
+                              <div className="label">Ideas</div>
+                            </ProgressStat>
+                            <ProgressStat>
+                              <div className="number">{progressData.responses}</div>
+                              <div className="label">Responses</div>
+                            </ProgressStat>
+                            <ProgressStat>
+                              <div className="number">{progressData.totalParticipants}</div>
+                              <div className="label">People</div>
+                            </ProgressStat>
+                          </ProgressStats>
+                        </ProgressOverlay>
                       ) : (
                         <ImageContainer $bgimage={bgUrl} $isInvite={isInvite} />
                       )}
@@ -910,9 +1124,17 @@ function UserActivities() {
                         </InviteTag>
                       )}
 
-                      <TypeTag $isInvite={isInvite}>
-                        {activity.emoji} {activity.activity_type}
-                      </TypeTag>
+                      {isInProgress && progressData ? (
+                        <StageIndicator $isActive={progressData.progress < 100}>
+                          {progressData.stage === 'collecting' && '💡 Collecting'}
+                          {progressData.stage === 'voting' && '🗳️ Voting'}
+                          {progressData.stage === 'finalized' && '✅ Ready'}
+                        </StageIndicator>
+                      ) : (
+                        <TypeTag $isInvite={isInvite}>
+                          {activity.emoji} {activity.activity_type}
+                        </TypeTag>
+                      )}
 
                       <CardLabel $isInvite={isInvite}>
                         <div className='meta'>
@@ -927,7 +1149,7 @@ function UserActivities() {
                           </span>
                           <span>
                             <ViewBoard $isInvite={isInvite}>
-                              {isInvite ? 'View invite' : 'View board'} <span>→</span>
+                              {isInvite ? 'View invite' : isInProgress ? 'Continue planning' : 'View board'} <span>→</span>
                             </ViewBoard>
                           </span>
                         </div>
