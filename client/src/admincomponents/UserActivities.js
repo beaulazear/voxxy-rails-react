@@ -23,7 +23,6 @@ const fadeIn = keyframes`
   }
 `;
 
-// Progress animations
 const progressFill = keyframes`
   0% {
     width: 0%;
@@ -284,10 +283,10 @@ const CountdownTitle = styled.div`
   font-size: 0.8rem;
   font-weight: 600;
   color: #d394f5;
-  text-transform: uppercase;
   letter-spacing: 1px;
   text-align: center;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  font-family: 'Montserrat', sans-serif;
 `;
 
 const TextContainer = styled.div`

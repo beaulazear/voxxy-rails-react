@@ -288,12 +288,6 @@ const ActivityHeader = ({ activity, isOwner, onBack, onDelete, onInvite, onCreat
               </HelpButton>
             </LeftActions>
 
-            <ActivityTypeChip>
-              <ActivityTypeText>
-                {activity.activity_type === 'Restaurant' ? 'Lets Eat!' : 'Lets Meet!'}
-              </ActivityTypeText>
-            </ActivityTypeChip>
-
             <RightActions>
               {isOwner ? (
                 <>
@@ -343,6 +337,11 @@ const ActivityHeader = ({ activity, isOwner, onBack, onDelete, onInvite, onCreat
 
           <MainContent>
             <TitleSection>
+              <ActivityTypeChip>
+                <ActivityTypeText>
+                  {activity.activity_type === 'Restaurant' ? `Lets Eat! ${activity.emoji}` : `Lets Meet! ${activity.emoji}`}
+                </ActivityTypeText>
+              </ActivityTypeChip>
               <ActivityTitle>{activity.activity_name}</ActivityTitle>
               <DateTimeRow>
                 <DateTimeItem>
@@ -357,13 +356,13 @@ const ActivityHeader = ({ activity, isOwner, onBack, onDelete, onInvite, onCreat
             </TitleSection>
 
             <HostSection>
-              <HostAvatar style={{backgroundColor: '#fff'}}>
-                <HostImage  src={SmallTriangle} alt={activity.user?.name} />
+              <HostAvatar style={{ backgroundColor: '#fff' }}>
+                <HostImage src={SmallTriangle} alt={activity.user?.name} />
                 <HostBadge>
                   <Crown size={14} />
                 </HostBadge>
               </HostAvatar>
-              <HostInfo style={{textAlign: 'left'}}>
+              <HostInfo style={{ textAlign: 'left' }}>
                 <HostName>
                   <span>Organized by {activity.user?.name || "Unknown"}</span>
                   <Heart size={16} />
@@ -690,6 +689,8 @@ const HeaderBackground = styled.div`
   }
 `;
 
+
+// Replace the TopActions section with this:
 const TopActions = styled.div`
   display: flex;
   justify-content: space-between;
@@ -701,6 +702,12 @@ const TopActions = styled.div`
     margin-bottom: 2rem;
     gap: 1rem;
   }
+`;
+
+// Remove the ActivityTypeChip from TopActions and add it to TitleSection instead:
+const TitleSection = styled.div`
+  text-align: center;
+  position: relative;
 `;
 
 const LeftActions = styled.div`
@@ -815,14 +822,22 @@ const HelpTooltip = styled.div`
   }
 `;
 
+// Update ActivityTypeChip styles to work better in the new position:
 const ActivityTypeChip = styled.div`
-  display: flex;
+  display: inline-flex;
   align-items: center;
   background: linear-gradient(135deg, ${colors.primary}, ${colors.primaryLight});
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
   backdrop-filter: blur(8px);
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  
+  @media (min-width: 768px) {
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1.5rem;
+  }
 `;
 
 const ActivityTypeText = styled.span`
@@ -882,10 +897,6 @@ const MainContent = styled.div`
   @media (min-width: 768px) {
     gap: 2rem;
   }
-`;
-
-const TitleSection = styled.div`
-  text-align: center;
 `;
 
 const ActivityTitle = styled.h1`
