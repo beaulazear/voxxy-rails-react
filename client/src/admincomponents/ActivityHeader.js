@@ -1654,6 +1654,7 @@ const InputGroup = styled.div`
   gap: 0.5rem;
   padding: 0 1rem;
   margin-bottom: 1rem;
+  margin-top: 1rem;
   
   @media (min-width: 768px) {
     padding: 0 1.5rem;
