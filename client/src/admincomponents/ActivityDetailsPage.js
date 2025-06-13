@@ -165,6 +165,8 @@ function ActivityDetailsPage({ activityId, onBack }) {
   const [pinnedActivities, setPinnedActivities] = useState([]);
   const [pinned, setPinned] = useState([]);
 
+  console.log(pinnedActivities)
+
   const topRef = useRef(null)
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -496,6 +498,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
           onDelete={handleDelete}
           onInvite={handleInvite}
           onRemoveParticipant={handleRemoveParticipant}
+          votes={currentActivity.activity_type === 'Meeting' ? pinned : pinnedActivities}
         />
 
         {pendingInvite ? (
