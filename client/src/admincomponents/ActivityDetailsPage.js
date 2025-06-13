@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { UserContext } from '../context/user';
 import {
   PageContainer,
@@ -11,6 +11,78 @@ import LoadingScreen from '../components/LoadingScreen.js';
 import ActivityHeader from './ActivityHeader.js';
 import ActivityCommentSection from './ActivityCommentSection.js';
 import TimeSlots from '../letsmeet/TimeSlots.js';
+
+// slow pan of your base gradient
+const gradientMove = keyframes`
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
+// two opposing smoke-like drift animations
+const smokeDriftA = keyframes`
+  0%   { transform: translate(-20%, -20%) scale(1); opacity: 0.5; }
+  50%  { transform: translate(20%, 20%) scale(1.2); opacity: 0.3; }
+  100% { transform: translate(-20%, -20%) scale(1); opacity: 0.5; }
+`;
+
+const smokeDriftB = keyframes`
+  0%   { transform: translate(20%, -20%) scale(1); opacity: 0.4; }
+  50%  { transform: translate(-20%, 20%) scale(1.3); opacity: 0.2; }
+  100% { transform: translate(20%, -20%) scale(1); opacity: 0.4; }
+`;
+
+export const AnimatedSmokeBackground = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  /* let all clicks & scrolls pass through */
+  pointer-events: none;
+  
+  /* base animated gradient */
+  background: linear-gradient(
+    135deg,
+    #201925,
+    #1e1824,
+    #1c1422
+  );
+  background-size: 300% 300%;
+  animation: ${gradientMove} 25s ease infinite;
+
+  /* first smoke plume */
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(
+      circle at center,
+      rgba(255, 255, 255, 0.08),
+      transparent 60%
+    );
+    filter: blur(100px);
+    mix-blend-mode: overlay;
+    animation: ${smokeDriftA} 40s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  /* second smoke plume */
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50%; right: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(
+      circle at center,
+      rgba(255, 255, 255, 0.06),
+      transparent 50%
+    );
+    filter: blur(120px);
+    mix-blend-mode: overlay;
+    animation: ${smokeDriftB} 55s ease-in-out infinite;
+    pointer-events: none;
+  }
+`;
 
 const BlurredOverlay = styled.div`
   position: relative;
@@ -488,7 +560,8 @@ function ActivityDetailsPage({ activityId, onBack }) {
   };
 
   return (
-    <div style={{ backgroundColor: '#201925' }} ref={topRef}>
+    <>
+      <AnimatedSmokeBackground ref={topRef} />
       <PageContainer>
         <ActivityHeader
           activity={currentActivity}
@@ -590,7 +663,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
           />
         )}
       </PageContainer>
-    </div>
+    </>
   );
 }
 

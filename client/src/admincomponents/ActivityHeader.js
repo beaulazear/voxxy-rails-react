@@ -292,144 +292,141 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
   return (
     <>
       <HeaderContainer>
-          <TopActions>
-            <LeftActions>
-              <ActionButton onClick={onBack} $primary>
-                <LeftOutlined />
-              </ActionButton>
-              <HelpButton onClick={toggleHelp} $bounce={isBouncing}>
-                <HelpCircle size={20} />
-                <HelpTooltip className="help-tooltip">Need help?</HelpTooltip>
-              </HelpButton>
-            </LeftActions>
+        <TopActions>
+          <LeftActions>
+            <ActionButton onClick={onBack} $primary>
+              <LeftOutlined />
+            </ActionButton>
+            <HelpButton onClick={toggleHelp} $bounce={isBouncing}>
+              <HelpCircle size={20} />
+              <HelpTooltip className="help-tooltip">Need help?</HelpTooltip>
+            </HelpButton>
+          </LeftActions>
 
-            {/* Add the ActivityTypeChip in the center */}
-            <ActivityTypeChip>
-              <ActivityTypeText>
-                {activity.activity_type === 'Restaurant' ? 'Lets Eat!' : 'Lets Meet!'}
-              </ActivityTypeText>
-            </ActivityTypeChip>
+          <ActivityTypeChip>
+            <ActivityTypeText>
+              {activity.activity_type === 'Restaurant' ? 'Lets Eat! 🍜' : '👥 Lets Meet!'}
+            </ActivityTypeText>
+          </ActivityTypeChip>
 
-            <RightActions>
-              {isOwner ? (
-                <>
-                  <ActionButton onClick={handleOpenUpdate} $edit>
-                    <EditOutlined />
-                  </ActionButton>
-                  <ActionButton onClick={() => onDelete(activity.id)} $delete>
-                    <DeleteOutlined />
-                  </ActionButton>
-                </>
-              ) : (
-                <LeaveButton onClick={async () => {
-                  // ... existing leave logic
-                }}>
-                  <LogoutOutlined />
-                  <LeaveButtonText>Leave</LeaveButtonText>
-                </LeaveButton>
+          <RightActions>
+            {isOwner ? (
+              <>
+                <ActionButton onClick={handleOpenUpdate} $edit>
+                  <EditOutlined />
+                </ActionButton>
+                <ActionButton onClick={() => onDelete(activity.id)} $delete>
+                  <DeleteOutlined />
+                </ActionButton>
+              </>
+            ) : (
+              <LeaveButton onClick={async () => {
+                // ... existing leave logic
+              }}>
+                <LogoutOutlined />
+                <LeaveButtonText>Leave</LeaveButtonText>
+              </LeaveButton>
+            )}
+          </RightActions>
+        </TopActions>
+
+        <MainContent>
+          <TitleSection>
+            <ActivityTitle>{activity.activity_name}</ActivityTitle>
+            <DateTimeRow>
+              <DateTimeItem>
+                <CalendarDays size={20} />
+                <span>{formatDate(activity.date_day)}</span>
+              </DateTimeItem>
+              <DateTimeItem>
+                <Clock size={20} />
+                <span>{activity.date_time ? formatTime(activity.date_time) : "TBD"}</span>
+              </DateTimeItem>
+            </DateTimeRow>
+          </TitleSection>
+
+          <HostSection>
+            <HostAvatar style={{ backgroundColor: '#fff' }}>
+              <HostImage src={SmallTriangle} alt={activity.user?.name} />
+              <HostBadge>
+                <Crown size={14} />
+              </HostBadge>
+            </HostAvatar>
+            <HostInfo style={{ textAlign: 'left' }}>
+              <HostName>
+                <span>Organized by {activity.user?.name || "Unknown"}</span>
+                <Heart size={16} />
+              </HostName>
+              <WelcomeMessage>
+                {activity.welcome_message || "Welcome to this activity! Let's make it amazing together 🎉"}
+              </WelcomeMessage>
+            </HostInfo>
+          </HostSection>
+
+          <ParticipantsSection>
+            <ParticipantsHeader>
+              <ParticipantsTitle>
+                <Users size={22} />
+                <ParticipantsTitleText>{allParticipants.length} {allParticipants.length === 1 ? 'Attendee' : 'Attendees'}</ParticipantsTitleText>
+              </ParticipantsTitle>
+              {(responsesCount > 0 || votesCount > 0) && (
+                <ResponseBadge>
+                  <CheckCircle size={14} />
+                    {responsesCount}/{totalToRespond} responses
+                    {votesCount > 0 && ` ${votesCount}/${totalToRespond} votes`}
+                </ResponseBadge>
               )}
-            </RightActions>
-          </TopActions>
+            </ParticipantsHeader>
 
-          <MainContent>
-            <TitleSection>
-              <ActivityTitle>{activity.activity_name}</ActivityTitle>
-              <DateTimeRow>
-                <DateTimeItem>
-                  <CalendarDays size={20} />
-                  <span>{formatDate(activity.date_day)}</span>
-                </DateTimeItem>
-                <DateTimeItem>
-                  <Clock size={20} />
-                  <span>{activity.date_time ? formatTime(activity.date_time) : "TBD"}</span>
-                </DateTimeItem>
-              </DateTimeRow>
-            </TitleSection>
-
-            <HostSection>
-              <HostAvatar style={{ backgroundColor: '#fff' }}>
-                <HostImage src={SmallTriangle} alt={activity.user?.name} />
-                <HostBadge>
-                  <Crown size={14} />
-                </HostBadge>
-              </HostAvatar>
-              <HostInfo style={{ textAlign: 'left' }}>
-                <HostName>
-                  <span>Organized by {activity.user?.name || "Unknown"}</span>
-                  <Heart size={16} />
-                </HostName>
-                <WelcomeMessage>
-                  {activity.welcome_message || "Welcome to this activity! Let's make it amazing together 🎉"}
-                </WelcomeMessage>
-              </HostInfo>
-            </HostSection>
-
-            <ParticipantsSection>
-              <ParticipantsHeader>
-                <ParticipantsTitle>
-                  <Users size={22} />
-                  <ParticipantsTitleText>{allParticipants.length} {allParticipants.length === 1 ? 'Person' : 'People'} Joining</ParticipantsTitleText>
-                </ParticipantsTitle>
-                {(responsesCount > 0 || votesCount > 0) && (
-                  <ResponseBadge>
-                    <CheckCircle size={14} />
-                    <ResponseBadgeText>
-                      {responsesCount}/{totalToRespond} responded
-                      {votesCount > 0 && ` • ${votesCount}/${totalToRespond} voted`}
-                    </ResponseBadgeText>
-                  </ResponseBadge>
+            <ParticipantsScrollContainer>
+              <ParticipantsGrid>
+                {isOwner && (
+                  <InviteButton onClick={handleInviteClick}>
+                    <Plus size={28} />
+                    <InviteButtonText>Invite</InviteButtonText>
+                  </InviteButton>
                 )}
-              </ParticipantsHeader>
 
-              <ParticipantsScrollContainer>
-                <ParticipantsGrid>
-                  {isOwner && (
-                    <InviteButton onClick={handleInviteClick}>
-                      <Plus size={28} />
-                      <InviteButtonText>Invite</InviteButtonText>
-                    </InviteButton>
-                  )}
+                <ViewAllButton onClick={handleViewAllClick}>
+                  <Eye size={28} />
+                  <ViewAllButtonText>View All</ViewAllButtonText>
+                </ViewAllButton>
 
-                  <ViewAllButton onClick={handleViewAllClick}>
-                    <Eye size={28} />
-                    <ViewAllButtonText>View All</ViewAllButtonText>
-                  </ViewAllButton>
+                {allParticipants
+                  .filter(p => p.confirmed)
+                  .slice(0, 8)
+                  .map((p, i) => (
+                    <ParticipantAvatar key={`confirmed-${i}`} $isHost={p.isHost}>
+                      <AvatarImage src={p.isHost ? SmallTriangle : p.avatar} alt={p.name} />
+                      {p.isHost && (
+                        <HostIndicator>
+                          <Crown size={12} />
+                        </HostIndicator>
+                      )}
+                      {hasResponded(p) && (
+                        <ResponseIndicator>
+                          <CheckCircle size={14} />
+                        </ResponseIndicator>
+                      )}
+                    </ParticipantAvatar>
+                  ))}
 
-                  {allParticipants
-                    .filter(p => p.confirmed)
-                    .slice(0, 8)
+                {isOwner &&
+                  allParticipants
+                    .filter(p => !p.confirmed)
+                    .slice(0, 3)
                     .map((p, i) => (
-                      <ParticipantAvatar key={`confirmed-${i}`} $isHost={p.isHost}>
-                        <AvatarImage src={p.isHost ? SmallTriangle : p.avatar} alt={p.name} />
-                        {p.isHost && (
-                          <HostIndicator>
-                            <Crown size={12} />
-                          </HostIndicator>
-                        )}
-                        {hasResponded(p) && (
-                          <ResponseIndicator>
-                            <CheckCircle size={14} />
-                          </ResponseIndicator>
-                        )}
+                      <ParticipantAvatar key={`pending-${i}`} $pending>
+                        <AvatarImage src={p.avatar} alt={p.name} />
+                        <PendingIndicator>
+                          <Clock size={12} />
+                        </PendingIndicator>
                       </ParticipantAvatar>
                     ))}
-
-                  {isOwner &&
-                    allParticipants
-                      .filter(p => !p.confirmed)
-                      .slice(0, 3)
-                      .map((p, i) => (
-                        <ParticipantAvatar key={`pending-${i}`} $pending>
-                          <AvatarImage src={p.avatar} alt={p.name} />
-                          <PendingIndicator>
-                            <Clock size={12} />
-                          </PendingIndicator>
-                        </ParticipantAvatar>
-                      ))}
-                </ParticipantsGrid>
-              </ParticipantsScrollContainer>
-            </ParticipantsSection>
-          </MainContent>
+              </ParticipantsGrid>
+            </ParticipantsScrollContainer>
+          </ParticipantsSection>
+        </MainContent>
       </HeaderContainer>
 
       {showUpdate && (
@@ -661,7 +658,7 @@ const glow = keyframes`
 
 const HeaderContainer = styled.div`
   width: 100%;
-  max-width: 900px;
+  max-width: 600px;
   margin: 0 auto;
   padding: 0.5rem;
   
@@ -843,7 +840,6 @@ const ActivityTypeText = styled.span`
     font-size: 0.9rem;
   }
 `;
-
 const LeaveButton = styled.button`
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid ${colors.error};
@@ -852,17 +848,22 @@ const LeaveButton = styled.button`
   border-radius: 10px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.375rem;
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 0.8rem;
   font-weight: 500;
+  min-width: 88px; // Add minimum width to match two buttons
+  height: 40px; // Match the ActionButton height
 
   @media (min-width: 768px) {
     padding: 0.5rem 1rem;
     border-radius: 12px;
     gap: 0.5rem;
     font-size: 0.9rem;
+    min-width: 120px; // Larger min-width for desktop
+    height: 48px; // Match desktop ActionButton height
   }
 
   &:hover {
@@ -874,7 +875,7 @@ const LeaveButton = styled.button`
 const LeaveButtonText = styled.span`
   display: none;
   
-  @media (min-width: 480px) {
+  @media (min-width: 375px) {
     display: inline;
   }
 `;
@@ -953,7 +954,6 @@ const HostSection = styled.div`
   
   @media (min-width: 768px) {
     gap: 1.25rem;
-    padding: 1.5rem;
     border-radius: 20px;
   }
 `;
@@ -1067,6 +1067,7 @@ const ParticipantsHeader = styled.div`
   align-items: flex-start;
   margin-bottom: 1rem;
   gap: 0.75rem;
+  flex-wrap: wrap; // Allow wrapping on very small screens
   
   @media (min-width: 768px) {
     align-items: center;
@@ -1099,10 +1100,6 @@ const ParticipantsTitleText = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  
-  @media (max-width: 480px) {
-    display: none;
-  }
 `;
 
 const ResponseBadge = styled.div`
@@ -1126,13 +1123,6 @@ const ResponseBadge = styled.div`
   }
 `;
 
-const ResponseBadgeText = styled.span`
-  display: none;
-  
-  @media (min-width: 480px) {
-    display: inline;
-  }
-`;
 
 const ParticipantsGrid = styled.div`
   display: flex;
