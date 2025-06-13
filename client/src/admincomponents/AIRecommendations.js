@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import styled, { keyframes } from 'styled-components';
 import RestaurantMap from "./RestaurantMap";
 import CuisineChat from "./CuisineChat";
-import LoadingScreenUser from "./LoadingScreenUser";
+import LoadingScreen from "../components/LoadingScreen";
 import mixpanel from "mixpanel-browser";
 import { UserContext } from "../context/user";
 import { Users, Share, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, Cog, X, ExternalLink, MapPin, DollarSign, Globe } from 'lucide-react';
@@ -513,6 +513,7 @@ const Reason = styled.div`
   padding: 1rem;
   border-radius: 0.75rem;
   margin-top: 1rem;
+  text-align: left;
 `;
 
 const ReasonTitle = styled.div`
@@ -826,7 +827,7 @@ export default function AIRecommendations({
     );
   };
 
-  if (loading) return <LoadingScreenUser autoDismiss={false} />;
+  if (loading) return <LoadingScreen autoDismiss={false} />;
 
   if (collecting && !voting) {
     return (
@@ -926,9 +927,9 @@ export default function AIRecommendations({
 
               <ModalBody>
                 <Section>
-                  <InfoRow>
+                  <InfoRow style={{textAlign: 'left'}}>
                     <Users size={18} />
-                    <span>{Math.round(responseRate)}% of participants have submitted preferences</span>
+                    <span>{Math.round(responseRate)}% of participants have submitted preferences 💌</span>
                   </InfoRow>
 
                   {responseRate < 50 && (
@@ -1047,7 +1048,7 @@ export default function AIRecommendations({
               <ModalBody>
                 <DetailGrid>
                   <DetailItem>
-                    <DollarSign size={16} />
+                    <DollarSign style={{color: '#D4AF37'}} size={16} />
                     <DetailLabel>Price:</DetailLabel>
                     <DetailValue>{selectedRec.price_range || "N/A"}</DetailValue>
                   </DetailItem>
@@ -1091,7 +1092,7 @@ export default function AIRecommendations({
                 )}
 
                 {selectedRec.reason && (
-                  <Reason style={{marginBottom: '1rem'}}>
+                  <Reason style={{ marginBottom: '1rem' }}>
                     <ReasonTitle>Why This Restaurant?</ReasonTitle>
                     <ReasonText>{selectedRec.reason}</ReasonText>
                   </Reason>
@@ -1192,7 +1193,7 @@ export default function AIRecommendations({
               <ModalBody>
                 <DetailGrid>
                   <DetailItem>
-                    <DollarSign size={16} />
+                    <DollarSign style={{color: '#D4AF37'}} size={16} />
                     <DetailLabel>Price:</DetailLabel>
                     <DetailValue>{selectedRec.price_range || "N/A"}</DetailValue>
                   </DetailItem>
@@ -1224,14 +1225,14 @@ export default function AIRecommendations({
                 )}
 
                 {selectedRec.reason && (
-                  <Reason>
+                  <Reason style={{ textAlign: 'left' }}>
                     <ReasonTitle>Why This Restaurant?</ReasonTitle>
                     <ReasonText>{selectedRec.reason}</ReasonText>
                   </Reason>
                 )}
 
                 {selectedRec.website && (
-                  <WebsiteLink href={selectedRec.website} target="_blank" rel="noopener noreferrer">
+                  <WebsiteLink style={{marginBottom: '1rem'}} href={selectedRec.website} target="_blank" rel="noopener noreferrer">
                     <Globe size={16} />
                     Visit Website
                     <ExternalLink size={14} />

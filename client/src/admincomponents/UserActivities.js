@@ -1,6 +1,6 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import Countdown from 'react-countdown';
 import { UserContext } from '../context/user';
 import ActivityDetailsPage from './ActivityDetailsPage';
@@ -20,6 +20,25 @@ const fadeIn = keyframes`
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+`;
+
+// Optimized animations - only for hover and special states
+const gentlePulse = keyframes`
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+`;
+
+const subtleGlow = keyframes`
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(207, 56, 221, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(207, 56, 221, 0.6);
   }
 `;
 
@@ -44,13 +63,42 @@ const HeroContainer = styled.div`
 const CountdownContainer = styled.div`
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
-  background: #000;
+  background: linear-gradient(135deg, 
+    rgba(30, 25, 33, 0.95), 
+    rgba(42, 30, 46, 0.95)
+  );
+  backdrop-filter: blur(8px);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-family: 'Digital-7 Mono', monospace;  /* pick your digital font or import one */
+  font-family: 'Montserrat', monospace;
   font-size: 2.5rem;
-  color: #fff;
+  font-weight: 700;
+  color: #f4f0f5;
+  border: 2px solid rgba(207, 56, 221, 0.6);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: rgba(207, 56, 221, 0.8);
+    background: linear-gradient(135deg, 
+      rgba(207, 56, 221, 0.1), 
+      rgba(42, 30, 46, 0.95)
+    );
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 2rem;
+  }
+`;
+
+const CountdownLabel = styled.div`
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(244, 240, 245, 0.8);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 `;
 
 const TextContainer = styled.div`
@@ -76,8 +124,8 @@ const HeroSubtitle = styled.p`
 
 const HelpIcon = styled.div`
   position: absolute;
-  top: 1.5rem;      /* tweak this to vertically align with your title */
-  right: 1rem;      /* distance from the right edge */
+  top: 1.5rem;
+  right: 1rem;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -178,7 +226,7 @@ const DashboardContainer = styled.div`
 
 export const Button = styled.button`
   padding: 0.5rem 1rem;
-  background: linear-gradient(135deg,  #8e44ad, #6a1b9a);
+  background: linear-gradient(135deg, #cf38dd, #d394f5, #b954ec);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -186,9 +234,12 @@ export const Button = styled.button`
   font-size: 1rem;
   font-weight: bold;
   transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 16px rgba(207, 56, 221, 0.3);
 
   &:hover {
-    background: linear-gradient(135deg, #4e0f63, #6a1b8a);
+    background: linear-gradient(135deg, #bf2aca, #be7fdd, #a744d7);
+    box-shadow: 0 6px 20px rgba(207, 56, 221, 0.5);
+    transform: translateY(-2px);
   }
 
   @media (max-width: 768px) {
@@ -220,38 +271,48 @@ const FilterButton = styled.button`
   padding: 0.6rem 1.2rem;
   background: ${({ $active }) =>
     $active
-      ? 'linear-gradient(135deg, #8e44ad, #6a1b9a)'
+      ? 'linear-gradient(135deg, #cf38dd, #d394f5, #b954ec)'
       : 'rgba(255, 255, 255, 0.1)'};
   color: #fff;
-  border: none;
+  border: ${({ $active }) =>
+    $active
+      ? '2px solid rgba(207, 56, 221, 0.8)'
+      : 'none'};
   border-radius: 999px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+  box-shadow: ${({ $active }) =>
+    $active
+      ? '0 4px 16px rgba(207, 56, 221, 0.4)'
+      : 'rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px'};
 
   &:hover {
     background: ${({ $active }) =>
     $active
-      ? 'linear-gradient(135deg, #7b3ea1, #5a1675)'
-      : 'rgba(255, 255, 255, 0.2)'};
+      ? 'linear-gradient(135deg, #bf2aca, #be7fdd, #a744d7)'
+      : 'rgba(207, 56, 221, 0.2)'};
+    transform: translateY(-1px);
   }
 `;
 
 const NewBoardButton = styled.button`
   flex-shrink: 0;
   padding: 0.6rem 1.2rem;
-  background: linear-gradient(135deg, #1f7a8c, #295f72);
+  background: linear-gradient(135deg, #cf38dd, #d394f5);
   color: #fff;
-  border: none;
+  border: 2px solid rgba(207, 56, 221, 0.6);
   border-radius: 999px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+  box-shadow: 0 4px 16px rgba(207, 56, 221, 0.3);
 
   &:hover {
-    background: linear-gradient(135deg, #17606f, #1f4f5b);
+    background: linear-gradient(135deg, #bf2aca, #be7fdd);
+    border-color: rgba(207, 56, 221, 1);
+    box-shadow: 0 6px 20px rgba(207, 56, 221, 0.5);
+    transform: translateY(-1px);
   }
 `;
 
@@ -274,10 +335,34 @@ export const ActivityCard = styled.div`
   width: 100%;
   padding-bottom: 100%;
   margin: 0 auto;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+  border: 2px solid rgba(207, 56, 221, 0.4);
+  background: linear-gradient(135deg, 
+    rgba(42, 30, 46, 0.8), 
+    rgba(64, 51, 71, 0.8)
+  );
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(207, 56, 221, 0.2);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+    border-color: rgba(207, 56, 221, 0.8);
+    box-shadow: 0 8px 24px rgba(207, 56, 221, 0.4);
+    animation: ${subtleGlow} 2s ease-in-out;
+  }
+  
+  ${props => props.$isInvite && css`
+    border: 3px solid rgba(211, 148, 245, 0.8);
+    animation: ${gentlePulse} 3s ease-in-out infinite;
+    
+    &:hover {
+      border-color: rgba(185, 84, 236, 1);
+      animation: ${subtleGlow} 1.5s ease-in-out infinite;
+    }
+  `}
 `;
 
 export const ImageContainer = styled.div`
@@ -287,6 +372,28 @@ export const ImageContainer = styled.div`
   background-size: cover;
   background-position: center;
   transition: transform 0.5s ease;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background: linear-gradient(135deg, 
+      rgba(207, 56, 221, 0.1), 
+      rgba(211, 148, 245, 0.1), 
+      rgba(185, 84, 236, 0.1)
+    );
+  }
+  
+  ${props => props.$isInvite && css`
+    filter: brightness(1.2) saturate(1.3);
+    &::before {
+      background: linear-gradient(135deg, 
+        rgba(207, 56, 221, 0.2), 
+        rgba(211, 148, 245, 0.2), 
+        rgba(185, 84, 236, 0.2)
+      );
+    }
+  `}
   
   ${ActivityCard}:hover & {
     transform: scale(1.1);
@@ -298,19 +405,36 @@ export const CardLabel = styled.div`
   bottom: 0;
   width: 100%;
   height: 30%;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
+  background: linear-gradient(135deg, 
+    rgba(207, 56, 221, 0.9), 
+    rgba(211, 148, 245, 0.9), 
+    rgba(185, 84, 236, 0.9)
+  );
+  backdrop-filter: blur(12px);
+  color: #f4f0f5;
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding: 0.75rem 1rem;
+  border-top: 2px solid rgba(244, 240, 245, 0.3);
+
+  ${props => props.$isInvite && css`
+    background: linear-gradient(135deg, 
+      rgba(207, 56, 221, 1), 
+      rgba(211, 148, 245, 1), 
+      rgba(185, 84, 236, 1)
+    );
+    border-top-color: rgba(244, 240, 245, 0.5);
+  `}
 
   h3 {
     margin: 0;
     margin-top: 1rem;
     font-size: 1.3rem;
-    font-weight: 600;
+    font-weight: 700;
     text-align: left;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    color: #f4f0f5;
   }
 
   .meta {
@@ -318,6 +442,7 @@ export const CardLabel = styled.div`
     margin-bottom: .5rem;
     display: flex;
     justify-content: space-between;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
   }
 `;
 
@@ -325,54 +450,76 @@ export const TypeTag = styled.div`
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  background: #7b298d;
-  padding: 0.25rem 0.6rem;
+  background: linear-gradient(135deg, #cf38dd, #b954ec);
+  padding: 0.3rem 0.7rem;
   border-radius: 999px;
-  border: 2px solid black;
+  border: 2px solid #f4f0f5;
   font-size: 0.75rem;
-  font-weight: 600;
-  color: #fff;
+  font-weight: 700;
+  color: #f4f0f5;
   text-transform: uppercase;
+  box-shadow: 0 0 12px rgba(207, 56, 221, 0.5);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  
+  ${props => props.$isInvite && css`
+    background: linear-gradient(135deg, #d394f5, #cf38dd);
+    box-shadow: 0 0 18px rgba(211, 148, 245, 0.7);
+    border-color: #ffffff;
+  `}
 `;
 
 export const HostTag = styled.div`
   position: absolute;
   top: 0.5rem;
   left: 0.5rem;
-  background: #7b298d;
-  padding: 0.25rem 0.6rem;
+  background: linear-gradient(135deg, #b954ec, #cf38dd);
+  padding: 0.3rem 0.7rem;
   border-radius: 999px;
-  border: 2px solid black;
+  border: 2px solid #f4f0f5;
   font-size: 0.75rem;
-  font-weight: 600;
-  color: #fff;
+  font-weight: 700;
+  color: #f4f0f5;
   text-transform: uppercase;
+  box-shadow: 0 0 12px rgba(185, 84, 236, 0.5);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  
+  ${props => props.$isInvite && css`
+    background: linear-gradient(135deg, #d394f5, #b954ec);
+    box-shadow: 0 0 18px rgba(211, 148, 245, 0.7);
+    border-color: #ffffff;
+  `}
 `;
 
 const InviteTag = styled.div`
   position: absolute;
   top: 3rem;
   left: 0.5rem;
-  background: linear-gradient(135deg, #e74c3c, #c0392b);
-  padding: 0.25rem 0.6rem;
+  background: linear-gradient(135deg, #cf38dd, #d394f5, #b954ec);
+  padding: 0.4rem 0.8rem;
   border-radius: 999px;
-  border: 2px solid black;
+  border: 3px solid #ffffff;
   font-size: 0.75rem;
-  font-weight: 600;
-  color: #fff;
+  font-weight: 700;
+  color: #f4f0f5;
   text-transform: uppercase;
+  box-shadow: 0 0 15px rgba(207, 56, 221, 0.6);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  z-index: 10;
+  animation: ${gentlePulse} 4s ease-in-out infinite;
 `;
 
 const ViewBoard = styled.div`
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 700;
   display: flex;
   align-items: center;
   cursor: pointer;
-  color: #CC31E8;
+  color: #f4f0f5;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 
   &:hover {
-    color: #7B298C;
+    color: rgba(244, 240, 245, 0.8);
+    transform: translateX(2px);
   }
 
   span {
@@ -384,12 +531,14 @@ const ViewBoard = styled.div`
   }
 `;
 
-const CDTXT = styled.span`
-  ${ActivityCard}:hover & {
-    color: #7B298C;
-    transform: scale(1.1);
-  }
-`
+const CountdownText = styled.span`
+  background: linear-gradient(135deg, #f4f0f5, #d8cce2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+  letter-spacing: 2px;
+`;
 
 const NoBoardsContainer = styled.div`
   border-radius: 1rem;
@@ -424,8 +573,8 @@ function UserActivities() {
   const location = useLocation();
   const navigate = useNavigate();
 
-    useEffect(() => {
-    const params     = new URLSearchParams(location.search);
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
     const activityId = params.get('activity_id');
 
     if (activityId) {
@@ -510,7 +659,6 @@ function UserActivities() {
       .map(p => p.activity) || [])
   ];
 
-  // Get pending invites as activities
   const pendingInviteActivities = user?.participant_activities
     ?.filter(invite => !invite.accepted)
     .map(invite => invite.activity) || [];
@@ -531,7 +679,6 @@ function UserActivities() {
     setShowAllPast(false);
   }, [filterType]);
 
-  // Updated filtering logic to handle invites
   const filteredActivities = (() => {
     if (filterType === "invites") {
       return pendingInviteActivities;
@@ -703,13 +850,13 @@ function UserActivities() {
                     activity.activity_type === 'Meeting' && activity.finalized === true;
 
                   const rawTime = activity.date_time
-                    ? activity.date_time.slice(11, 19)   // e.g. "17:00:00"
+                    ? activity.date_time.slice(11, 19)
                     : null;
 
                   let eventDateTime = null;
                   if (activity.date_day && rawTime) {
-                    const [year, month, day] = activity.date_day.split('-').map(Number);    // e.g. [2025,5,21]
-                    const [hour, minute, second] = rawTime.split(':').map(Number);          // e.g. [17,0,0]
+                    const [year, month, day] = activity.date_day.split('-').map(Number);
+                    const [hour, minute, second] = rawTime.split(':').map(Number);
 
                     eventDateTime = new Date(year, month - 1, day, hour, minute, second);
                   }
@@ -728,44 +875,46 @@ function UserActivities() {
                     <ActivityCard
                       key={activity.id}
                       onClick={() => handleActivityClick(activity)}
+                      $isInvite={isInvite}
                     >
                       {isFinalizedMeeting && eventDateTime && !isInvite ? (
                         <CountdownContainer>
+                          <CountdownLabel>Time Until Event</CountdownLabel>
                           <Countdown
                             date={eventDateTime}
                             renderer={({ days, hours, minutes, seconds, completed }) => {
                               if (completed) {
-                                return <span>00:00:00</span>;
+                                return <CountdownText>EVENT STARTED</CountdownText>;
                               }
                               const pad = num => String(num).padStart(2, '0');
                               return (
-                                <CDTXT>
+                                <CountdownText>
                                   {pad(hours + days * 24)}:{pad(minutes)}:{pad(seconds)}
-                                </CDTXT>
+                                </CountdownText>
                               );
                             }}
                           />
                         </CountdownContainer>
                       ) : (
-                        <ImageContainer $bgimage={bgUrl} />
+                        <ImageContainer $bgimage={bgUrl} $isInvite={isInvite} />
                       )}
 
-                      <HostTag>
+                      <HostTag $isInvite={isInvite}>
                         <User size={14} style={{ paddingBottom: '2px' }} />{' '}
                         {activity.user?.name}
                       </HostTag>
 
                       {isInvite && (
                         <InviteTag>
-                          PENDING INVITE
+                          🎉 PENDING INVITE 🎉
                         </InviteTag>
                       )}
 
-                      <TypeTag>
+                      <TypeTag $isInvite={isInvite}>
                         {activity.emoji} {activity.activity_type}
                       </TypeTag>
 
-                      <CardLabel>
+                      <CardLabel $isInvite={isInvite}>
                         <div className='meta'>
                           <span><h3>{activity.activity_name}</h3></span>
                           <span style={{ marginTop: '1rem', fontSize: '16px' }}>
@@ -777,7 +926,7 @@ function UserActivities() {
                             <CalendarDays style={{ paddingBottom: '2px' }} size={20} />{formatDate(activity.date_day) || 'TBD'} · <Clock style={{ paddingBottom: '2px' }} size={21} />{formatTime(activity.date_time) || 'TBD'}
                           </span>
                           <span>
-                            <ViewBoard>
+                            <ViewBoard $isInvite={isInvite}>
                               {isInvite ? 'View invite' : 'View board'} <span>→</span>
                             </ViewBoard>
                           </span>

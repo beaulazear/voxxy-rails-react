@@ -8,7 +8,6 @@ import SmallTriangle from '../assets/SmallTriangle.png';
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { Map, X } from 'lucide-react';
 
-// Custom dark marker icon
 const triangleIcon = new L.Icon({
     iconUrl: SmallTriangle,
     shadowUrl: markerShadow,
@@ -21,6 +20,7 @@ const triangleIcon = new L.Icon({
 const FitBoundsToMarkers = ({ locations }) => {
     const map = useMap();
 
+    console.log(locations)
     useEffect(() => {
         if (locations.length === 0) return;
 
@@ -58,7 +58,7 @@ const RestaurantMap = ({ recommendations }) => {
                         const data = await response.json();
                         if (data.length > 0) {
                             return {
-                                name: rec.name,
+                                name: rec.title,
                                 lat: parseFloat(data[0].lat),
                                 lon: parseFloat(data[0].lon),
                                 address: rec.address,
@@ -104,7 +104,7 @@ const RestaurantMap = ({ recommendations }) => {
                     <MapHeader>
                         <MapTitle>Restaurant Locations</MapTitle>
                         <CloseButton onClick={() => setShowMap(false)}>
-                            <X size={24} />
+                            <X size={18} />
                         </CloseButton>
                     </MapHeader>
 
@@ -115,7 +115,6 @@ const RestaurantMap = ({ recommendations }) => {
                             style={{ height: "100%", width: "100%" }}
                             zoomControl={false}
                         >
-                            {/* Dark theme tile layer */}
                             <TileLayer
                                 url="https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png"
                                 attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -148,7 +147,6 @@ const RestaurantMap = ({ recommendations }) => {
 
 export default RestaurantMap;
 
-// Animations
 const fadeIn = keyframes`
   from {
     opacity: 0;
@@ -181,7 +179,6 @@ const pulse = keyframes`
   50% { opacity: 0.6; }
 `;
 
-// Styled Components
 export const ChatButton = styled.div`
   display: flex;
   align-items: center;
@@ -287,7 +284,7 @@ const CloseButton = styled.button`
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #ffffff;
-  padding: 0.75rem;
+  padding: 0.25rem;
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.3s ease;

@@ -1,6 +1,6 @@
 class ActivityParticipantsController < ApplicationController
   before_action :authorized
-  skip_before_action :authorized, only: [ :accept ]
+  skip_before_action :authorized, only: [ :accept, :decline ]
 
   def invite
     activity = Activity.find_by(id: params[:activity_id])
@@ -125,6 +125,34 @@ class ActivityParticipantsController < ApplicationController
     render json: { error: e.message }, status: :unprocessable_entity
   end
 
+  def decline
+    invited_email = params[:email]&.strip&.downcase
+    activity_id = params[:activity_id]
+
+    participant = ActivityParticipant.find_by(invited_email: invited_email, activity_id: activity_id)
+    return render json: { error: "Invitation not found." }, status: :not_found unless participant
+
+    user = User.find_by(email: invited_email)
+    return render json: { error: "User not found. Please register first." }, status: :not_found unless user
+
+    if participant.accepted
+      return render json: { error: "Cannot decline an already accepted invite." }, status: :unprocessable_entity
+    end
+
+    activity = participant.activity
+
+    activity.comments.create!(
+      user_id: user.id,
+      content: "#{user.name} has declined the invitation 😔"
+    )
+
+    participant.destroy!
+
+    render json: { message: "Invitation declined successfully." }, status: :ok
+  rescue => e
+    render json: { error: e.message }, status: :unprocessable_entity
+  end
+
   def index
     activity_participants = ActivityParticipant.includes(:activity).where("user_id = ? OR invited_email = ?", current_user.id, current_user.email)
 
@@ -161,7 +189,6 @@ class ActivityParticipantsController < ApplicationController
       render json: { error: e.message }, status: :unprocessable_entity
   end
 
-  # DELETE /activity_participants/remove?activity_id=40&email=foo@bar.com
   def destroy_by_email
     activity = Activity.find_by(id: params[:activity_id])
     return render json: { error: "Activity not found" }, status: :not_found unless activity

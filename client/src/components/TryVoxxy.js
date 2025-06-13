@@ -142,16 +142,6 @@ const CloseButton = styled.button`
   color: ${colors.textSecondary};
 `;
 
-const Button = styled.button`
-  background: ${colors.primaryButton};
-  color: #fff;
-  padding: 0.75rem 1rem;
-  border: none; border-radius: 9999px;
-  font-weight: 600; cursor: pointer;
-  margin-right: 0.5rem;
-  &:hover { background: rgba(157,96,248,0.9); }
-`;
-
 const DetailModalContent = styled(Modal)`
  max-width: 500px; 
  text-align: left;
@@ -273,9 +263,6 @@ export default function TryVoxxy() {
 
         {recommendations.length > 0 && (
           <ActionsWrapper>
-            <Button onClick={() => setShowSignupModal(true)}>
-              Refresh Choices
-            </Button>
             <RestaurantMap recommendations={recommendations} />
           </ActionsWrapper>
         )}
@@ -304,7 +291,6 @@ export default function TryVoxxy() {
           </Card></CardWrapper>
         ))}
 
-        {/* CTA Section */}
         <CTASection>
           <CTAHeading>Ready to get started?</CTAHeading>
           <CTAButtons>
@@ -315,7 +301,6 @@ export default function TryVoxxy() {
       </Container></Main>
       <Footer />
 
-      {/* Updated to use the new TryVoxxyChat component */}
       {chatOpen && (
         <TryVoxxyChat
           onClose={handleChatClose}
