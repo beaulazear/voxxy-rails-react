@@ -681,7 +681,7 @@ const CountdownText = styled.span`
   background-clip: text;
   font-weight: 800;
   letter-spacing: 2px;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
 `;
 
 const NoBoardsContainer = styled.div`
