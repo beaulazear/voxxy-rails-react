@@ -129,13 +129,6 @@ const ProgressStage = styled.div`
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 `;
 
-const ProgressTitle = styled.div`
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #f4f0f5;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-`;
-
 const ProgressBarContainer = styled.div`
   width: 85%;
   height: 16px;
@@ -189,58 +182,19 @@ const ProgressBar = styled.div`
   `}
 `;
 
-const ProgressStats = styled.div`
-  display: flex;
-  gap: 1rem;
-  font-size: 0.8rem;
+const ProgressSubtitle = styled.div`
+  font-size: 0.85rem;
+  color: #d8cce2;
   text-align: center;
-`;
-
-const ProgressStat = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  
-  .number {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #cf38dd;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-  }
-  
-  .label {
-    color: #d8cce2;
-    text-transform: uppercase;
-    font-weight: 500;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-  }
-`;
-
-const StageIndicator = styled.div`
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: linear-gradient(135deg, #cf38dd, #b954ec);
-  padding: 0.3rem 0.7rem;
-  border-radius: 999px;
-  border: 2px solid #f4f0f5;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #f4f0f5;
-  text-transform: uppercase;
-  box-shadow: 0 0 12px rgba(207, 56, 221, 0.5);
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-  z-index: 10;
-  
-  ${props => props.$isActive && css`
-    animation: ${progressPulse} 3s ease-in-out infinite;
-  `}
+  margin-top: 0.5rem;
+  font-weight: 500;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  line-height: 1.3;
 `;
 
 const CountdownContainer = styled.div`
   position: absolute;
-  top: 3.5rem; right: 0; bottom: 30%; left: 0;
+  top: 3rem; right: 0; bottom: 30%; left: 0;
   background: linear-gradient(135deg, 
     rgba(32, 25, 37, 0.95), 
     rgba(64, 51, 71, 0.95),
@@ -248,7 +202,6 @@ const CountdownContainer = styled.div`
   );
   backdrop-filter: blur(12px);
   border: 1px solid rgba(207, 56, 221, 0.3);
-  border-radius: 16px 16px 0 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -271,28 +224,18 @@ const CountdownHeader = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 0.75rem;
-`;
-
-const CountdownIcon = styled.div`
-  margin-bottom: 0.25rem;
-  
-  svg {
-    color: #f4f0f5;
-    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
-    width: 36px;
-    height: 36px;
-  }
+  margin-bottom: 1rem;
 `;
 
 const CountdownTitle = styled.div`
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: #d394f5;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   text-align: center;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
   font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
 `;
 
 const TextContainer = styled.div`
@@ -726,13 +669,19 @@ const ViewBoard = styled.div`
 `;
 
 const CountdownText = styled.span`
-  background: linear-gradient(135deg, #f4f0f5, #d8cce2);
+  font-size: 2.5rem;
+  background-image: linear-gradient(
+    to right,
+    rgba(207, 56, 221, 0.9),   /* primary */
+    rgba(211, 148, 245, 0.9),  /* secondary */
+    rgba(185, 84, 236, 0.9)    /* highlight */
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   font-weight: 800;
   letter-spacing: 2px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
 `;
 
 const NoBoardsContainer = styled.div`
@@ -934,7 +883,6 @@ function UserActivities() {
 
   // Helper function to calculate progress data
   const getProgressData = (activity) => {
-    const totalParticipants = activity.participants.length + 1; // +1 for host
     const pins = activity.pinned_activities || [];
     const ideas = pins.length;
 
@@ -944,53 +892,28 @@ function UserActivities() {
 
     let stage = 'collecting';
     let stageDisplay = 'Collecting Ideas';
-    let responses = 0;
-    let progress = 0;
+    let subtitle = 'Gathering the group\'s preferences';
+    let progress = 33; // Start at 1/3
 
     if (hasSelectedPin && hasDateTime) {
       // Activity is finalized
       stage = 'finalized';
       stageDisplay = activity.activity_type === 'Meeting' ? 'Ready to Meet' : 'Ready to Go';
-      responses = totalParticipants; // Everyone is considered "ready"
+      subtitle = 'All set for your activity!';
       progress = 100;
     } else if (ideas > 0) {
       // Has ideas but not finalized - in voting/selection stage
       stage = 'voting';
-      stageDisplay = activity.activity_type === 'Meeting' ? 'Choosing Location' : 'Voting on Options';
-
-      // Count unique contributors to pinned activities
-      // The host/organizer is always considered to have responded if there are any pins
-      const contributorIds = new Set();
-      contributorIds.add(activity.user.id); // Always count the organizer
-
-      // Add any other participants who may have contributed
-      // (This is a simplified count - you might want to track actual votes/responses)
-      pins.forEach(pin => {
-        if (pin.user_id) {
-          contributorIds.add(pin.user_id);
-        }
-      });
-
-      responses = contributorIds.size;
-
-      // Progress: 20% base for having ideas + up to 60% for participation + 20% buffer for finalization
-      const participationRate = responses / totalParticipants;
-      progress = Math.min(20 + (participationRate * 60), 80);
-    } else {
-      // Just starting - collecting ideas
-      stage = 'collecting';
-      stageDisplay = 'Collecting Ideas';
-      responses = 0;
-      progress = 10; // Small base progress for starting
+      stageDisplay = 'Voting Phase';
+      subtitle = 'Vote on your recommendations';
+      progress = 67; // 2/3 full
     }
 
     return {
       stage,
       stageDisplay,
-      progress: Math.round(progress),
-      responses,
-      totalParticipants,
-      ideas
+      subtitle,
+      progress
     };
   };
 
@@ -1139,9 +1062,6 @@ function UserActivities() {
                       {isFinalizedMeeting && eventDateTime && !isInvite ? (
                         <CountdownContainer>
                           <CountdownHeader>
-                            <CountdownIcon>
-                              <Clock size={36} />
-                            </CountdownIcon>
                             <CountdownTitle>Meeting Starts In</CountdownTitle>
                           </CountdownHeader>
                           <Countdown
@@ -1163,7 +1083,9 @@ function UserActivities() {
                         <ProgressOverlay>
                           <ProgressHeader>
                             <ProgressStage>{progressData.stageDisplay}</ProgressStage>
-                            <ProgressTitle>{Math.round(progressData.progress)}% Complete</ProgressTitle>
+                            <ProgressSubtitle>
+                              {progressData.subtitle}
+                            </ProgressSubtitle>
                           </ProgressHeader>
 
                           <ProgressBarContainer>
@@ -1173,20 +1095,6 @@ function UserActivities() {
                             />
                           </ProgressBarContainer>
 
-                          <ProgressStats>
-                            <ProgressStat>
-                              <div className="number">{progressData.ideas}</div>
-                              <div className="label">Ideas</div>
-                            </ProgressStat>
-                            <ProgressStat>
-                              <div className="number">{progressData.responses}</div>
-                              <div className="label">Responses</div>
-                            </ProgressStat>
-                            <ProgressStat>
-                              <div className="number">{progressData.totalParticipants}</div>
-                              <div className="label">People</div>
-                            </ProgressStat>
-                          </ProgressStats>
                         </ProgressOverlay>
                       ) : (
                         <ImageContainer $bgimage={bgUrl} $isInvite={isInvite} />
@@ -1203,17 +1111,9 @@ function UserActivities() {
                         </InviteTag>
                       )}
 
-                      {isInProgress && progressData ? (
-                        <StageIndicator $isActive={progressData.progress < 100}>
-                          {progressData.stage === 'collecting' && '💡 Collecting'}
-                          {progressData.stage === 'voting' && '🗳️ Voting'}
-                          {progressData.stage === 'finalized' && '✅ Ready'}
-                        </StageIndicator>
-                      ) : (
-                        <TypeTag $isInvite={isInvite}>
-                          {activity.emoji} {activity.activity_type}
-                        </TypeTag>
-                      )}
+                      <TypeTag $isInvite={isInvite}>
+                        {activity.emoji} {activity.activity_type === 'Restaurant' ? 'Lets Eat!' : 'Lets Meet!'}
+                      </TypeTag>
 
                       <CardLabel $isInvite={isInvite}>
                         <div className='meta'>

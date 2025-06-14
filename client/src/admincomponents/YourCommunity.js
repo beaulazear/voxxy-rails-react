@@ -34,7 +34,6 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
 
   const allUsersMap = new Map();
 
-  // Process user's own activities
   user.activities?.forEach(act => {
     act.participants?.forEach(p => {
       if (p.id !== user.id) {
@@ -55,7 +54,6 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
           date: act.date_day
         });
 
-        // Track restaurants/venues
         const selectedPin = act.pinned_activities?.find(pin => pin.selected);
         if (selectedPin && act.activity_type === 'Dining') {
           existing.recentRestaurants.push({
@@ -78,7 +76,6 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
     });
   });
 
-  // Process activities where user is a participant
   user.participant_activities?.forEach(pa => {
     const { activity: act } = pa;
     const host = act.user;
@@ -100,7 +97,6 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
         date: act.date_day
       });
 
-      // Track restaurants/venues
       const selectedPin = act.pinned_activities?.find(pin => pin.selected);
       if (selectedPin && act.activity_type === 'Dining') {
         existing.recentRestaurants.push({
@@ -121,7 +117,6 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
       allUsersMap.set(host.id, existing);
     }
 
-    // Also process other participants
     act.participants?.forEach(p => {
       if (p.id !== user.id) {
         const existing = allUsersMap.get(p.id) || {
@@ -141,7 +136,6 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
           date: act.date_day
         });
 
-        // Track restaurants/venues
         const selectedPin = act.pinned_activities?.find(pin => pin.selected);
         if (selectedPin && act.activity_type === 'Dining') {
           existing.recentRestaurants.push({
@@ -180,7 +174,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
     .sort((a, b) => b.count - a.count || a.user.name.localeCompare(b.user.name));
 
   if (community.length === 0) return <NoCommunityMembers onCreateBoard={onCreateBoard} />;
-  const displayed = showAll ? community : community.slice(0, 6);
+  const displayed = showAll ? community : community.slice(0, 3);
 
   function handleCardClick(peerData) {
     if (showInvitePopup && onSelectUser) {
@@ -194,7 +188,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
     <Wrapper>
       <Header>
         <TitleText>Your Voxxy Crew 🎭</TitleText>
-        <Subtitle>Friends you've planned adventures with</Subtitle>
+        <Subtitle>Friends you've gone on adventures with</Subtitle>
       </Header>
 
       <ScrollArea>
@@ -213,7 +207,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
                 <UserInfo>
                   <PeerName>{peerData.user.name}</PeerName>
                   <JoinDate>
-                    <Calendar size={12} /> Since {formatSince(peerData.firstActivity)}
+                    <Calendar size={12} /> On Voxxy since {formatSince(peerData.firstActivity)}
                   </JoinDate>
                 </UserInfo>
                 <ActivityBadge>
@@ -221,19 +215,6 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
                   <span className="label">Activities</span>
                 </ActivityBadge>
               </CardHeader>
-
-              <StatsRow>
-                <Stat>
-                  <Users size={14} />
-                  <span>{peerData.sharedActivities.length} together</span>
-                </Stat>
-                {peerData.recentRestaurants.length > 0 && (
-                  <Stat>
-                    <Utensils size={14} />
-                    <span>{peerData.recentRestaurants.length} restaurants</span>
-                  </Stat>
-                )}
-              </StatsRow>
 
               {peerData.recentRestaurants.length > 0 && (
                 <RecentVenue>
@@ -254,7 +235,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
         </Grid>
       </ScrollArea>
 
-      {community.length > 6 && (
+      {community.length > 3 && (
         <Toggle onClick={() => setShowAll(v => !v)}>
           {showAll ? 'Show Less' : `View All ${community.length} Members`}
         </Toggle>
@@ -346,7 +327,6 @@ const Header = styled.div`
   display: flex;
   flex-direction: column;
   padding: 3rem 1rem 1rem;
-  margin-bottom: 1rem;
 `;
 
 const TitleText = styled.h2`
@@ -366,7 +346,7 @@ const Subtitle = styled.p`
 
 const ScrollArea = styled.div`
   overflow-y: auto;
-  padding: 0 1rem;
+  padding: 1rem;
   scrollbar-width: none;
   -ms-overflow-style: none;
   &::-webkit-scrollbar {
@@ -376,12 +356,12 @@ const ScrollArea = styled.div`
 
 const Grid = styled.div`
   display: grid;
-  gap: 1.5rem;
+  gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 0.75rem;
   }
 `;
 
@@ -393,7 +373,7 @@ const Card = styled.div`
   backdrop-filter: blur(8px);
   border: 2px solid rgba(207, 56, 221, 0.3);
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 16px rgba(207, 56, 221, 0.1);
@@ -408,13 +388,13 @@ const Card = styled.div`
 const CardHeader = styled.div`
   display: flex;
   align-items: flex-start;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   gap: 1rem;
 `;
 
 const Avatar = styled.img`
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   object-fit: cover;
   border-radius: 50%;
   border: ${props => props.$hasAvatar ? '3px solid rgba(207, 56, 221, 0.6)' : '4px solid #cf38dd'};
@@ -443,49 +423,6 @@ const JoinDate = styled.div`
   gap: 0.25rem;
 `;
 
-const ActivityBadge = styled.div`
-  background: linear-gradient(135deg, #cf38dd, #b954ec);
-  border-radius: 12px;
-  padding: 0.5rem 0.75rem;
-  text-align: center;
-  min-width: 60px;
-  border: 2px solid rgba(244, 240, 245, 0.2);
-
-  .count {
-    display: block;
-    font-size: 1.2rem;
-    font-weight: 800;
-    color: #f4f0f5;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-  }
-
-  .label {
-    display: block;
-    font-size: 0.6rem;
-    color: rgba(244, 240, 245, 0.9);
-    text-transform: uppercase;
-    font-weight: 600;
-  }
-`;
-
-const StatsRow = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
-`;
-
-const Stat = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.8rem;
-  color: #d8cce2;
-  
-  svg {
-    color: #cf38dd;
-  }
-`;
-
 const RecentVenue = styled.div`
   display: flex;
   align-items: center;
@@ -493,7 +430,7 @@ const RecentVenue = styled.div`
   font-size: 0.8rem;
   color: #d394f5;
   margin-bottom: 0.5rem;
-  padding: 0.5rem;
+  padding: 0.4rem;
   background: rgba(207, 56, 221, 0.1);
   border-radius: 8px;
   border: 1px solid rgba(207, 56, 221, 0.2);
@@ -516,6 +453,31 @@ const Rating = styled.span`
   font-size: 0.7rem;
   color: #d394f5;
   flex-shrink: 0;
+`;
+
+const ActivityBadge = styled.div`
+  background: linear-gradient(135deg, #cf38dd, #b954ec);
+  border-radius: 10px;
+  padding: 0.4rem 0.6rem;
+  text-align: center;
+  min-width: 55px;
+  border: 2px solid rgba(244, 240, 245, 0.2);
+
+  .count {
+    display: block;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #f4f0f5;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  .label {
+    display: block;
+    font-size: 0.55rem;
+    color: rgba(244, 240, 245, 0.9);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
 `;
 
 const LastActivity = styled.div`

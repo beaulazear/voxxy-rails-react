@@ -8,7 +8,7 @@ import {
   LogoutOutlined,
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
-import { Users, Plus, CalendarDays, Clock, HelpCircle, X, Eye, CheckCircle, XCircle, Heart, Crown } from "lucide-react";
+import { Users, Plus, CalendarDays, Clock, HelpCircle, X, Eye, CheckCircle, XCircle, Crown } from "lucide-react";
 import { message, Popconfirm } from "antd";
 import Woman from "../assets/Woman.jpg";
 import MultiSelectCommunity from "./MultiSelectCommunity.js";
@@ -355,7 +355,6 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
             <HostInfo style={{ textAlign: 'left' }}>
               <HostName>
                 <span>Organized by {activity.user?.name || "Unknown"}</span>
-                <Heart size={16} />
               </HostName>
               <WelcomeMessage>
                 {activity.welcome_message || "Welcome to this activity! Let's make it amazing together 🎉"}
@@ -372,8 +371,8 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
               {(responsesCount > 0 || votesCount > 0) && (
                 <ResponseBadge>
                   <CheckCircle size={14} />
-                    {responsesCount}/{totalToRespond} responses
-                    {votesCount > 0 && ` ${votesCount}/${totalToRespond} votes`}
+                  {responsesCount}/{totalToRespond} responses
+                  {votesCount > 0 && ` ${votesCount}/${totalToRespond} votes`}
                 </ResponseBadge>
               )}
             </ParticipantsHeader>
@@ -389,7 +388,7 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
 
                 <ViewAllButton onClick={handleViewAllClick}>
                   <Eye size={28} />
-                  <ViewAllButtonText>View All</ViewAllButtonText>
+                  <ViewAllButtonText>View</ViewAllButtonText>
                 </ViewAllButton>
 
                 {allParticipants
@@ -505,7 +504,7 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
 
                     <Details>
                       <ParticipantName>
-                        {p.name}{p.isHost && ' (Host)'}
+                        {p.name}{p.isHost && ' (Organizer)'}
                       </ParticipantName>
                       <EmailLine>{p.email}</EmailLine>
 

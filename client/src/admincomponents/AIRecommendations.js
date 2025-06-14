@@ -339,7 +339,6 @@ const DimOverlay = styled.div`
   z-index: 997;
 `;
 
-// New Modal Styles matching the reference design
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
