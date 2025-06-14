@@ -1642,7 +1642,6 @@ const RemoveButton = styled.button`
   }
 `;
 
-// Invite Modal
 const InviteOverlay = styled(HelpOverlay)``;
 
 const InviteContent = styled(HelpPopup)`

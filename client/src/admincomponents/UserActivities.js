@@ -57,7 +57,6 @@ const progressPulse = keyframes`
   }
 `;
 
-// Optimized animations - only for hover and special states
 const gentlePulse = keyframes`
   0%, 100% {
     transform: scale(1);
@@ -96,7 +95,7 @@ const HeroContainer = styled.div`
 
 const ProgressOverlay = styled.div`
   position: absolute;
-  top: 3.5rem; right: 0; bottom: 30%; left: 0;
+  top: 3rem; right: 0; bottom: 30%; left: 0;
   background: linear-gradient(135deg, 
     rgba(32, 25, 37, 0.95), 
     rgba(64, 51, 71, 0.95),
@@ -104,7 +103,6 @@ const ProgressOverlay = styled.div`
   );
   backdrop-filter: blur(12px);
   border: 1px solid rgba(207, 56, 221, 0.3);
-  border-radius: 16px 16px 0 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -162,24 +160,32 @@ const ProgressBar = styled.div`
   --progress-width: ${props => props.$progress}%;
   width: ${props => props.$progress}%;
   box-shadow: 0 0 15px rgba(207, 56, 221, 0.8);
+  overflow: hidden; // Add this to contain the shine effect
   
   &::after {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
+    width: 100%;
+    height: 100%;
     background: linear-gradient(90deg, 
       transparent, 
-      rgba(255, 255, 255, 0.5), 
+      rgba(255, 255, 255, 0.4), 
       transparent
     );
-    animation: ${progressShine} 2s ease-in-out infinite;
+    // Shine only during initial fill animation
+    animation: ${progressShine} 2s ease-in-out 1;
+    animation-delay: 0.5s; // Start after progress begins filling
   }
   
   ${props => props.$isActive && css`
     animation: ${progressFill} 2s ease-out, ${progressPulse} 3s ease-in-out infinite 2s;
+    
+    // Only show continuous shine on active/incomplete progress bars
+    &::after {
+      animation: ${progressShine} 3s ease-in-out infinite 2s;
+    }
   `}
 `;
 
