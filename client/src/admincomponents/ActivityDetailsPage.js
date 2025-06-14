@@ -12,14 +12,12 @@ import ActivityHeader from './ActivityHeader.js';
 import ActivityCommentSection from './ActivityCommentSection.js';
 import TimeSlots from '../letsmeet/TimeSlots.js';
 
-// slow pan of your base gradient
 const gradientMove = keyframes`
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 `;
 
-// two opposing smoke-like drift animations
 const smokeDriftA = keyframes`
   0%   { transform: translate(-20%, -20%) scale(1); opacity: 0.5; }
   50%  { transform: translate(20%, 20%) scale(1.2); opacity: 0.3; }
@@ -36,10 +34,8 @@ export const AnimatedSmokeBackground = styled.div`
   position: fixed;
   inset: 0;
   z-index: -1;
-  /* let all clicks & scrolls pass through */
   pointer-events: none;
   
-  /* base animated gradient */
   background: linear-gradient(
     135deg,
     #201925,
@@ -49,7 +45,6 @@ export const AnimatedSmokeBackground = styled.div`
   background-size: 300% 300%;
   animation: ${gradientMove} 25s ease infinite;
 
-  /* first smoke plume */
   &::before {
     content: '';
     position: absolute;
@@ -66,7 +61,6 @@ export const AnimatedSmokeBackground = styled.div`
     pointer-events: none;
   }
 
-  /* second smoke plume */
   &::after {
     content: '';
     position: absolute;
@@ -237,8 +231,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
   const [pinnedActivities, setPinnedActivities] = useState([]);
   const [pinned, setPinned] = useState([]);
 
-  console.log(pinnedActivities)
-
   const topRef = useRef(null)
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -339,11 +331,12 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
     try {
       const response = await fetch(
-        `${API_URL}/activity_participants/${pendingInvite.id}`,
+        `${API_URL}/activity_participants/decline`,
         {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
+          body: JSON.stringify({ email: user.email, activity_id: activityId }),
         }
       );
 
@@ -609,9 +602,10 @@ function ActivityDetailsPage({ activityId, onBack }) {
                 </CloseButton>
                 <InviteTitle>🎉 You're Invited!</InviteTitle>
                 <InviteSubtitle>
-                  <HostName>{currentActivity.user?.name}</HostName> has invited you to join{' '}
-                  <ActivityName>{currentActivity.activity_name}</ActivityName>.
-                  Accept the invite to see all the details and start collaborating!
+                  <HostName>{currentActivity.user?.name}</HostName> invited you to join{' '}
+                  <ActivityName>{currentActivity.activity_name}</ActivityName>:
+                  <br></br>
+                  <i style={{fontFamily: 'Roboto'}}>{currentActivity.welcome_message}</i>
                 </InviteSubtitle>
                 <ButtonGroup>
                   <InviteButton onClick={handleAcceptInvite}>
@@ -626,7 +620,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
           </>
         ) : (
           <>
-            {/* Show normal content for accepted participants */}
             {currentActivity.activity_type === 'Restaurant' && (
               <AIRecommendations
                 onEdit={() => setShowModal(true)}

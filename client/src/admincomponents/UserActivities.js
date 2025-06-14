@@ -881,12 +881,10 @@ function UserActivities() {
     return `${hour}:${rawMin} ${suffix}`;
   }
 
-  // Helper function to calculate progress data
   const getProgressData = (activity) => {
     const pins = activity.pinned_activities || [];
     const ideas = pins.length;
 
-    // Check if activity is finalized (has selected pin and date/time)
     const hasSelectedPin = pins.some(p => p.selected);
     const hasDateTime = activity.date_day && activity.date_time;
 
@@ -896,13 +894,11 @@ function UserActivities() {
     let progress = 33; // Start at 1/3
 
     if (hasSelectedPin && hasDateTime) {
-      // Activity is finalized
       stage = 'finalized';
       stageDisplay = activity.activity_type === 'Meeting' ? 'Ready to Meet' : 'Ready to Go';
       subtitle = 'All set for your activity!';
       progress = 100;
     } else if (ideas > 0) {
-      // Has ideas but not finalized - in voting/selection stage
       stage = 'voting';
       stageDisplay = 'Voting Phase';
       subtitle = 'Vote on your recommendations';

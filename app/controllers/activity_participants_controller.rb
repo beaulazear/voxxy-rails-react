@@ -91,6 +91,7 @@ class ActivityParticipantsController < ApplicationController
       activity_type: activity.activity_type,
       activity_location: activity.activity_location,
       emoji: activity.emoji,
+      welcome_message: activity.welcome_message,
       group_size: activity.group_size,
       date_notes: activity.date_notes,
       date_day: activity.date_day,

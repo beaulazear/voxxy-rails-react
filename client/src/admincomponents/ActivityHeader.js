@@ -289,6 +289,8 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
     toggleHelp();
   }
 
+  console.log(activity)
+
   return (
     <>
       <HeaderContainer>
@@ -538,6 +540,8 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
                       okText="Remove"
                       cancelText="Cancel"
                       placement="top"
+                      getPopupContainer={(triggerNode) => triggerNode.parentNode || document.body}
+                      overlayStyle={{ zIndex: 99999 }}
                     >
                       <RemoveButton>
                         <X size={18} />
@@ -638,6 +642,7 @@ const colors = {
   border: '#334155',
   borderLight: '#475569',
 };
+
 
 const bounceAnimation = keyframes`
   0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
@@ -1344,6 +1349,7 @@ const HelpPopup = styled.div`
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  text-align: left;
   
   @media (min-width: 768px) {
     border-radius: 20px;
