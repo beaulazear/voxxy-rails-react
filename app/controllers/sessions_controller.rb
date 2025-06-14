@@ -4,7 +4,6 @@ class SessionsController < ApplicationController
   def create
     puts "🔎 Request Origin: #{request.headers['Origin']}"
 
-    # eager‐load associations exactly as in UsersController#show
     user = User.includes(
       activities: [
         :responses,
@@ -24,15 +23,12 @@ class SessionsController < ApplicationController
     ).find_by(email: params[:email])
 
     if user&.authenticate(params[:password])
-      # set web session unless mobile
       session[:user_id] = user.id unless request.headers["X-Mobile-App"] == "true"
 
-      # build participant_activities the same way
       activity_participants = ActivityParticipant.includes(activity: [ :responses, :participants, comments: :user, pinned_activities: { comments: :user, voters: {}, votes: {} } ])
                                                  .where("user_id = ? OR invited_email = ?", user.id, user.email)
       participant_activities = activity_participants.map(&:activity).uniq
 
-      # this is exactly the show‐action payload:
       payload = user.as_json(
         include: {
           activities: {
@@ -88,11 +84,9 @@ class SessionsController < ApplicationController
       )
 
       if request.headers["X-Mobile-App"] == "true"
-        # mobile: return JWT + full payload
         token = JsonWebToken.encode(user_id: user.id)
         render json: payload.merge("token" => token)
       else
-        # web: just return the full payload
         render json: payload
       end
 

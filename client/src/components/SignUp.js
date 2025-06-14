@@ -125,6 +125,31 @@ const Heading = styled.h2`
   color: #FFFFFF;
 `;
 
+const ErrorList = styled.ul`
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  list-style: none;
+  
+  li {
+    color: #fca5a5;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    &::before {
+      content: '•';
+      margin-right: 0.5rem;
+      color: #ef4444;
+    }
+  }
+`;
+
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -185,13 +210,13 @@ const SubmitButton = styled.button`
   width: 100%;
   transition: all 0.3s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: rgb(232, 49, 226);
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(204, 49, 232, 0.3);
   }
 
-  &:active {
+  &:active:not(:disabled) {
     transform: translateY(0);
   }
 
@@ -200,6 +225,7 @@ const SubmitButton = styled.button`
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+    opacity: 0.7;
   }
 `;
 
@@ -219,31 +245,6 @@ const TermsNote = styled.p`
   }
 `;
 
-const ErrorList = styled.ul`
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 8px;
-  padding: 1rem;
-  margin-top: 1rem;
-  list-style: none;
-  
-  li {
-    color: #fca5a5;
-    font-size: 0.875rem;
-    margin-bottom: 0.25rem;
-    
-    &:last-child {
-      margin-bottom: 0;
-    }
-    
-    &::before {
-      content: '•';
-      margin-right: 0.5rem;
-      color: #ef4444;
-    }
-  }
-`;
-
 const SignUp = () => {
   const [searchParams] = useSearchParams();
   const invitedEmail = searchParams.get("invited_email") || "";
@@ -253,6 +254,7 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [errors, setErrors] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { setUser } = useContext(UserContext);
   const navigate = useNavigate();
@@ -266,9 +268,12 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors([]);
+    setIsLoading(true);
 
     if (password !== passwordConfirmation) {
       setErrors(['Passwords do not match']);
+      setIsLoading(false);
       return;
     }
 
@@ -306,6 +311,8 @@ const SignUp = () => {
       }
     } catch {
       setErrors(['An unexpected error occurred. Please try again.']);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -335,6 +342,13 @@ const SignUp = () => {
 
       <FormContainer>
         <Heading>Create your account</Heading>
+
+        {errors.length > 0 && (
+          <ErrorList>
+            {errors.map((error, index) => <li key={index}>{error}</li>)}
+          </ErrorList>
+        )}
+
         <Form onSubmit={handleSubmit}>
           <InputGroup>
             <label htmlFor="name">Full Name</label>
@@ -345,6 +359,7 @@ const SignUp = () => {
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter your full name"
               required
+              disabled={isLoading}
             />
           </InputGroup>
 
@@ -358,6 +373,7 @@ const SignUp = () => {
               placeholder="Enter your email address"
               required
               readOnly={!!invitedEmail}
+              disabled={isLoading}
             />
           </InputGroup>
 
@@ -370,6 +386,7 @@ const SignUp = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Create a secure password"
               required
+              disabled={isLoading}
             />
           </InputGroup>
 
@@ -382,22 +399,19 @@ const SignUp = () => {
               onChange={(e) => setPasswordConfirmation(e.target.value)}
               placeholder="Confirm your password"
               required
+              disabled={isLoading}
             />
           </InputGroup>
 
-          <SubmitButton type="submit">Create Account</SubmitButton>
+          <SubmitButton type="submit" disabled={isLoading}>
+            {isLoading ? 'Creating account...' : 'Create Account'}
+          </SubmitButton>
         </Form>
 
         <TermsNote>
           By creating an account, you agree to our{' '}
           <a href="/#terms">Terms of Service</a> and <a href="/#privacy">Privacy Policy</a>.
         </TermsNote>
-
-        {errors.length > 0 && (
-          <ErrorList>
-            {errors.map((error, index) => <li key={index}>{error}</li>)}
-          </ErrorList>
-        )}
       </FormContainer>
     </PageContainer>
   );

@@ -125,6 +125,17 @@ const Heading = styled.h2`
   color: #FFFFFF;
 `;
 
+const ErrorMessage = styled.p`
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  color: #fca5a5;
+  font-size: 0.875rem;
+  text-align: center;
+`;
+
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -185,13 +196,13 @@ const SubmitButton = styled.button`
   width: 100%;
   transition: all 0.3s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: rgb(232, 49, 226);
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(204, 49, 232, 0.3);
   }
 
-  &:active {
+  &:active:not(:disabled) {
     transform: translateY(0);
   }
 
@@ -200,6 +211,7 @@ const SubmitButton = styled.button`
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+    opacity: 0.7;
   }
 `;
 
@@ -237,21 +249,11 @@ const ForgotPasswordLink = styled.p`
   }
 `;
 
-const ErrorMessage = styled.p`
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 8px;
-  padding: 1rem;
-  margin-top: 1rem;
-  color: #fca5a5;
-  font-size: 0.875rem;
-  text-align: center;
-`;
-
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate();
   const location = useLocation();
@@ -266,6 +268,8 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
+
     const sessionData = { email, password };
 
     try {
@@ -314,6 +318,8 @@ const Login = () => {
       }
     } catch (error) {
       setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -343,6 +349,9 @@ const Login = () => {
 
       <FormContainer>
         <Heading>Log in to your account</Heading>
+
+        {error && <ErrorMessage>{error}</ErrorMessage>}
+
         <Form onSubmit={handleSubmit}>
           <InputGroup>
             <label htmlFor="email">Email</label>
@@ -353,6 +362,7 @@ const Login = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email address"
               required
+              disabled={isLoading}
             />
           </InputGroup>
 
@@ -365,10 +375,13 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               required
+              disabled={isLoading}
             />
           </InputGroup>
 
-          <SubmitButton type="submit">Log in</SubmitButton>
+          <SubmitButton type="submit" disabled={isLoading}>
+            {isLoading ? 'Logging in...' : 'Log in'}
+          </SubmitButton>
         </Form>
 
         <ForgotPasswordLink>
@@ -382,8 +395,6 @@ const Login = () => {
           <a href="/#terms">Terms of Service</a> and{' '}
           <a href="/#privacy">Privacy Policy</a>.
         </TextLink>
-
-        {error && <ErrorMessage>{error}</ErrorMessage>}
       </FormContainer>
     </PageContainer>
   );
