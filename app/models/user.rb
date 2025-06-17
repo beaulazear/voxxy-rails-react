@@ -15,6 +15,21 @@ class User < ApplicationRecord
 
   before_validation :set_defaults_for_notifications, on: :create
 
+  has_one_attached :profile_pic
+
+  # Add this method to get the profile picture URL
+  def profile_pic_url
+    if profile_pic.attached?
+      Rails.application.routes.url_helpers.rails_blob_url(profile_pic, only_path: true)
+    else
+      nil
+    end
+  end
+
+  # Optional: method to get display image (profile_pic or fallback to avatar)
+  def display_image_url
+    profile_pic_url || avatar
+  end
 
   def verify!
     update_columns(confirmed_at: Time.current, confirmation_token: nil)

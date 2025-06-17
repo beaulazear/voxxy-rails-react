@@ -27,6 +27,11 @@ Rails.application.configure do
   # Enable server timing.
   config.server_timing = true
 
+  # Add this line for Active Storage URLs
+  config.action_mailer.default_url_options = { host: "localhost:3001" }
+  # This also affects Active Storage URL generation
+  Rails.application.routes.default_url_options = { host: "localhost:3001" }
+
   # Enable/disable caching. By default caching is disabled.
   # Run rails dev:cache to toggle caching.
   if Rails.root.join("tmp/caching-dev.txt").exist?

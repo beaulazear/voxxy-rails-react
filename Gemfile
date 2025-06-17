@@ -28,6 +28,8 @@ gem "httparty"
 gem "redis", "~> 4.0"
 gem "jwt"
 gem "icalendar"
+gem "aws-sdk-s3", require: false
+gem "image_processing", "~> 1.2"
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"

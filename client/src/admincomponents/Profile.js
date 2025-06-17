@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
-import { Input, Button, Avatar, Tabs, Form, message, Switch, Modal } from "antd";
+import { Input, Button, Avatar, Tabs, Form, message, Switch, Modal, Upload } from "antd";
 import {
   EditOutlined,
   SaveOutlined,
@@ -11,6 +11,7 @@ import {
   UserOutlined,
   SettingOutlined,
   CloseOutlined,
+  CameraOutlined,
 } from "@ant-design/icons";
 import { UserContext } from "../context/user";
 import Woman from "../assets/Woman.jpg";
@@ -103,6 +104,20 @@ const ButtonGroup = styled.div`
   margin-top: 1rem;
 `;
 
+const AvatarSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const AvatarButtonGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`;
+
 const StyledTabs = styled(Tabs)`
   .ant-tabs-nav {
     border-bottom: 1px solid #444;
@@ -188,7 +203,7 @@ const StyledTextArea = styled(Input.TextArea)`
   }
 `;
 
-/* Custom-styled Modal to match child background and white “X” */
+/* Custom-styled Modal to match child background and white "X" */
 const StyledModal = styled(Modal)`
   .ant-modal-content {
     background: #2a1e30;
@@ -197,6 +212,8 @@ const StyledModal = styled(Modal)`
     color: #fff;
   }
 `;
+
+
 
 export default function Profile() {
   const { user, setUser } = useContext(UserContext);
@@ -213,6 +230,7 @@ export default function Profile() {
     user?.push_notifications ?? true
   );
   const [avatarModalVisible, setAvatarModalVisible] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
@@ -302,6 +320,58 @@ export default function Profile() {
       .catch(() => message.error("Deletion failed."));
   };
 
+  // New function to handle profile picture upload
+  const handleProfilePicUpload = (file) => {
+    const isImage = file.type.startsWith('image/');
+    const isLt5M = file.size / 1024 / 1024 < 5;
+
+    if (!isImage) {
+      message.error('You can only upload image files!');
+      return false;
+    }
+
+    if (!isLt5M) {
+      message.error('Image must be smaller than 5MB!');
+      return false;
+    }
+
+    setUploading(true);
+
+    const formData = new FormData();
+    formData.append('user[profile_pic]', file);
+
+    fetch(`${API_URL}/users/${user.id}`, {
+      method: "PATCH",
+      credentials: "include",
+      body: formData,
+    })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((updatedUser) => {
+        setUser(updatedUser);
+        message.success("Profile picture updated!");
+        setUploading(false);
+      })
+      .catch(() => {
+        message.error("Failed to upload profile picture.");
+        setUploading(false);
+      });
+
+    return false; // Prevent default upload behavior
+  };
+
+  // Get display image (profile pic or fallback to avatar)
+  const getDisplayImage = () => {
+    if (user?.profile_pic_url) {
+      // If profile_pic_url is relative, prepend API_URL
+      const profilePicUrl = user.profile_pic_url.startsWith('http')
+        ? user.profile_pic_url
+        : `${API_URL}${user.profile_pic_url}`;
+      return profilePicUrl;
+    }
+
+    return user?.avatar || Woman;
+  };
+
   const tabItems = [
     {
       key: "1",
@@ -314,24 +384,47 @@ export default function Profile() {
       children: (
         <>
           <Section style={{ display: "flex", alignItems: "flex-start", gap: "2rem" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <AvatarWrapper onClick={() => setAvatarModalVisible(true)}>
-                <Avatar size={80} src={user?.avatar || Woman} />
+            <AvatarSection>
+              <AvatarWrapper>
+                <Avatar size={80} src={getDisplayImage()} />
                 <OverlayIcon className="overlay" />
               </AvatarWrapper>
-              <Button
-                onClick={() => setAvatarModalVisible(true)}
-                size="small"
-                style={{
-                  marginTop: "0.75rem",
-                  background: "#3d2c44",
-                  border: "none",
-                  color: "#fff",
-                }}
-              >
-                Change Avatar
-              </Button>
-            </div>
+
+              <AvatarButtonGroup>
+                <Upload
+                  beforeUpload={handleProfilePicUpload}
+                  showUploadList={false}
+                  accept="image/*"
+                >
+                  <Button
+                    loading={uploading}
+                    icon={<CameraOutlined />}
+                    size="small"
+                    style={{
+                      background: "#CC31E8",
+                      border: "none",
+                      color: "#fff",
+                      fontSize: "12px",
+                    }}
+                  >
+                    {uploading ? "Uploading..." : "Upload Photo"}
+                  </Button>
+                </Upload>
+
+                <Button
+                  onClick={() => setAvatarModalVisible(true)}
+                  size="small"
+                  style={{
+                    background: "#3d2c44",
+                    border: "none",
+                    color: "#fff",
+                    fontSize: "12px",
+                  }}
+                >
+                  Choose Avatar
+                </Button>
+              </AvatarButtonGroup>
+            </AvatarSection>
 
             <div style={{ flex: 1 }}>
               {!isEditingName ? (
@@ -411,7 +504,7 @@ export default function Profile() {
       ),
       children: (
         <>
-          <Subtitle style={{marginTop: '0'}}>Notification Preferences</Subtitle>
+          <Subtitle style={{ marginTop: '0' }}>Notification Preferences</Subtitle>
           <Section>
             <Form layout="vertical">
               <Form.Item>
@@ -472,10 +565,10 @@ export default function Profile() {
 
   return (
     <Container>
-    <HeaderContainer>
-      <HeaderTitle>Profile Settings</HeaderTitle>
-      <HeaderSubtitle>Manage your personal information and preferences</HeaderSubtitle>
-    </HeaderContainer>
+      <HeaderContainer>
+        <HeaderTitle>Profile Settings</HeaderTitle>
+        <HeaderSubtitle>Manage your personal information and preferences</HeaderSubtitle>
+      </HeaderContainer>
       <Card>
         <StyledTabs
           defaultActiveKey="1"

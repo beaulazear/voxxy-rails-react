@@ -31,6 +31,20 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
 
   const { user, setUser } = useContext(UserContext);
   const { responses = [] } = activity;
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
+  // Helper function to get the display image with proper priority
+  const getDisplayImage = (userObj) => {
+    if (userObj?.profile_pic_url) {
+      // If profile_pic_url is relative, prepend API_URL
+      const profilePicUrl = userObj.profile_pic_url.startsWith('http')
+        ? userObj.profile_pic_url
+        : `${API_URL}${userObj.profile_pic_url}`;
+      return profilePicUrl;
+    }
+
+    return userObj?.avatar || Woman;
+  };
 
   useEffect(() => {
     if (activity.finalized && isOwner) {
@@ -195,6 +209,7 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
     email: activity.user?.email || "N/A",
     confirmed: true,
     avatar: SmallTriangle, // Using your SmallTriangle icon for host
+    profile_pic_url: activity.user?.profile_pic_url, // Add this for host
     created_at: activity.user?.created_at,
     apId: activity.user?.id,
     isHost: true
@@ -209,6 +224,7 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
         email: p.email,
         confirmed: true,
         avatar: p.avatar || Woman,
+        profile_pic_url: p.profile_pic_url, // Add this for participants
         created_at: p.created_at,
         apId: p.id,
         isHost: false
@@ -218,6 +234,7 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
       email: p.invited_email,
       confirmed: false,
       avatar: Woman,
+      profile_pic_url: null, // Pending invites won't have profile pics
       created_at: null,
       apId: p.id,
       isHost: false
@@ -349,7 +366,7 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
 
           <HostSection>
             <HostAvatar style={{ backgroundColor: '#fff' }}>
-              <HostImage src={SmallTriangle} alt={activity.user?.name} />
+              <HostImage src={getDisplayImage(activity.user)} alt={activity.user?.name} />
               <HostBadge>
                 <Crown size={14} />
               </HostBadge>
@@ -398,7 +415,7 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
                   .slice(0, 8)
                   .map((p, i) => (
                     <ParticipantAvatar key={`confirmed-${i}`} $isHost={p.isHost}>
-                      <AvatarImage src={p.isHost ? SmallTriangle : p.avatar} alt={p.name} />
+                      <AvatarImage src={p.isHost ? SmallTriangle : getDisplayImage(p)} alt={p.name} />
                       {p.isHost && (
                         <HostIndicator>
                           <Crown size={12} />
@@ -418,7 +435,7 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
                     .slice(0, 3)
                     .map((p, i) => (
                       <ParticipantAvatar key={`pending-${i}`} $pending>
-                        <AvatarImage src={p.avatar} alt={p.name} />
+                        <AvatarImage src={getDisplayImage(p)} alt={p.name} />
                         <PendingIndicator>
                           <Clock size={12} />
                         </PendingIndicator>
@@ -496,7 +513,7 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
                 <ParticipantItem key={i}>
                   <Info>
                     <ParticipantCircle>
-                      <ParticipantImage src={p.isHost ? SmallTriangle : p.avatar} alt={p.name} />
+                      <ParticipantImage src={p.isHost ? SmallTriangle : getDisplayImage(p)} alt={p.name} />
                       {p.isHost && (
                         <HostIndicatorLarge>
                           <Crown size={16} />
@@ -624,6 +641,7 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
 
 export default ActivityHeader;
 
+// All your existing styled components remain the same...
 const colors = {
   primary: '#8b5cf6',
   primaryLight: '#a78bfa',
