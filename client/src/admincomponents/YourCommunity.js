@@ -19,19 +19,28 @@ const fadeIn = keyframes`
 
 const cardHover = keyframes`
   0%, 100% {
-    box-shadow: 0 4px 16px rgba(207, 56, 221, 0.2);
+    box-shadow: 0 4px 20px rgba(207, 56, 221, 0.15);
   }
   50% {
-    box-shadow: 0 8px 24px rgba(207, 56, 221, 0.4);
+    box-shadow: 0 8px 32px rgba(207, 56, 221, 0.3);
   }
 `;
 
 const avatarGlow = keyframes`
   0%, 100% {
-    box-shadow: 0 0 15px rgba(207, 56, 221, 0.3);
+    box-shadow: 0 0 20px rgba(207, 56, 221, 0.4);
   }
   50% {
-    box-shadow: 0 0 25px rgba(207, 56, 221, 0.6);
+    box-shadow: 0 0 30px rgba(207, 56, 221, 0.7);
+  }
+`;
+
+const badgeFloat = keyframes`
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-2px);
   }
 `;
 
@@ -182,7 +191,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
   });
 
   function formatSince(dateString) {
-    if (!dateString) return 'Recently';
+    if (!dateString) return 'Jan 2024';
     const d = new Date(dateString);
     return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
   }
@@ -221,40 +230,50 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
               key={peerData.user.id}
               onClick={() => handleCardClick(peerData)}
             >
-              <ProfileSection>
-                <AvatarContainer>
+              <CardHeader>
+                <ProfileSection>
                   <Avatar
                     src={getDisplayImage(peerData.user)}
                     alt={peerData.user.name}
                   />
-                  <ActivityBadge>
-                    <span className="count">{peerData.count}</span>
-                    <span className="label">Activities</span>
-                  </ActivityBadge>
-                </AvatarContainer>
+                  <UserInfo>
+                    <PeerName>{peerData.user.name}</PeerName>
+                    <JoinDate>
+                      <Calendar size={12} /> Since {formatSince(peerData.firstActivity)}
+                    </JoinDate>
+                  </UserInfo>
+                </ProfileSection>
 
-                <UserInfo>
-                  <PeerName>{peerData.user.name}</PeerName>
-                  <JoinDate>
-                    <Calendar size={12} /> Since {formatSince(peerData.firstActivity)}
-                  </JoinDate>
-                </UserInfo>
-              </ProfileSection>
+                <ActivityBadge>
+                  <span className="count">{peerData.count}</span>
+                  <span className="label">Activities</span>
+                </ActivityBadge>
+              </CardHeader>
 
-              {peerData.recentRestaurants.length > 0 && (
-                <RecentVenue>
-                  <MapPin size={12} />
-                  <span>Recent: {peerData.recentRestaurants[peerData.recentRestaurants.length - 1].name}</span>
-                  {peerData.recentRestaurants[peerData.recentRestaurants.length - 1].rating && (
-                    <Rating>⭐ {peerData.recentRestaurants[peerData.recentRestaurants.length - 1].rating}</Rating>
-                  )}
-                </RecentVenue>
-              )}
+              <CardContent>
+                {peerData.recentRestaurants.length > 0 && (
+                  <RecentVenue>
+                    <VenueIcon>
+                      <MapPin size={14} />
+                    </VenueIcon>
+                    <VenueDetails>
+                      <VenueName>{peerData.recentRestaurants[peerData.recentRestaurants.length - 1].name}</VenueName>
+                      {peerData.recentRestaurants[peerData.recentRestaurants.length - 1].rating && (
+                        <Rating>⭐ {peerData.recentRestaurants[peerData.recentRestaurants.length - 1].rating}</Rating>
+                      )}
+                    </VenueDetails>
+                  </RecentVenue>
+                )}
 
-              <LastActivity>
-                <Clock size={12} />
-                <span>Last: <em>{peerData.lastName}</em></span>
-              </LastActivity>
+                <LastActivity>
+                  <ActivityIcon>
+                    <Clock size={14} />
+                  </ActivityIcon>
+                  <ActivityText>
+                    Last: <em>{peerData.lastName}</em>
+                  </ActivityText>
+                </LastActivity>
+              </CardContent>
             </Card>
           ))}
         </Grid>
@@ -359,7 +378,10 @@ const TitleText = styled.h2`
   font-family: 'Montserrat', sans-serif;
   font-size: clamp(1.8rem, 4vw, 2.5rem);
   font-weight: bold;
-  color: #f4f0f5;
+  background: linear-gradient(135deg, #f4f0f5, #d394f5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
 `;
 
@@ -368,6 +390,7 @@ const Subtitle = styled.p`
   font-size: clamp(1rem, 2.5vw, 1.25rem);
   color: #d8cce2;
   margin: 0.5rem 0 0;
+  font-weight: 400;
 `;
 
 const ScrollArea = styled.div`
@@ -382,91 +405,77 @@ const ScrollArea = styled.div`
 
 const Grid = styled.div`
   display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 0.75rem;
+    gap: 1rem;
   }
 `;
 
 const Card = styled.div`
   background: linear-gradient(135deg, 
-    rgba(42, 30, 46, 0.9), 
+    rgba(42, 30, 46, 0.95), 
     rgba(64, 51, 71, 0.9)
   );
-  backdrop-filter: blur(8px);
-  border: 2px solid rgba(207, 56, 221, 0.3);
-  border-radius: 20px;
-  padding: 1.5rem;
+  backdrop-filter: blur(12px);
+  border: 2px solid rgba(207, 56, 221, 0.25);
+  border-radius: 24px;
+  padding: 0;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(207, 56, 221, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 32px rgba(207, 56, 221, 0.1);
+  overflow: hidden;
+  position: relative;
 
   &:hover {
-    transform: translateY(-4px);
-    border-color: rgba(207, 56, 221, 0.6);
+    transform: translateY(-6px) scale(1.02);
+    border-color: rgba(207, 56, 221, 0.5);
     animation: ${cardHover} 2s ease-in-out;
+    box-shadow: 0 16px 48px rgba(207, 56, 221, 0.2);
   }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #cf38dd, #d394f5, #b954ec);
+    opacity: 0.8;
+  }
+`;
+
+const CardHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.5rem 1.5rem 1rem;
 `;
 
 const ProfileSection = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
   gap: 1rem;
-`;
-
-const AvatarContainer = styled.div`
-  position: relative;
-  flex-shrink: 0;
+  flex: 1;
 `;
 
 const Avatar = styled.img`
-  width: 65px;
-  height: 65px;
+  width: 60px;
+  height: 60px;
   object-fit: cover;
   border-radius: 50%;
-  border: 4px solid rgba(207, 56, 221, 0.6);
+  border: 3px solid rgba(207, 56, 221, 0.6);
   background-color: #f4f0f5;
   transition: all 0.3s ease;
-  animation: ${avatarGlow} 3s ease-in-out infinite;
+  animation: ${avatarGlow} 4s ease-in-out infinite;
+  flex-shrink: 0;
 
   &:hover {
     transform: scale(1.05);
-  }
-`;
-
-const ActivityBadge = styled.div`
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background: linear-gradient(135deg, #cf38dd, #b954ec);
-  border-radius: 12px;
-  padding: 0.3rem 0.5rem;
-  text-align: center;
-  min-width: 45px;
-  border: 2px solid rgba(244, 240, 245, 0.9);
-  box-shadow: 0 2px 8px rgba(207, 56, 221, 0.4);
-
-  .count {
-    display: block;
-    font-size: 0.9rem;
-    font-weight: 800;
-    color: #f4f0f5;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-    line-height: 1;
-  }
-
-  .label {
-    display: block;
-    font-size: 0.5rem;
-    color: rgba(244, 240, 245, 0.9);
-    text-transform: uppercase;
-    font-weight: 600;
-    line-height: 1;
-    margin-top: 1px;
+    border-color: rgba(207, 56, 221, 0.8);
   }
 `;
 
@@ -476,11 +485,14 @@ const UserInfo = styled.div`
 `;
 
 const PeerName = styled.h3`
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #f4f0f5;
   margin: 0 0 0.25rem 0;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const JoinDate = styled.div`
@@ -489,54 +501,135 @@ const JoinDate = styled.div`
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  font-weight: 500;
+`;
+
+const ActivityBadge = styled.div`
+  background: linear-gradient(135deg, #cf38dd, #b954ec);
+  border-radius: 16px;
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+  border: 2px solid rgba(244, 240, 245, 0.2);
+  box-shadow: 0 4px 16px rgba(207, 56, 221, 0.3);
+  animation: ${badgeFloat} 3s ease-in-out infinite;
+  flex-shrink: 0;
+
+  .count {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #f4f0f5;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    line-height: 1.2;
+  }
+
+  .label {
+    display: block;
+    font-size: 0.6rem;
+    color: rgba(244, 240, 245, 0.9);
+    text-transform: uppercase;
+    font-weight: 600;
+    line-height: 1;
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+  }
+`;
+
+const CardContent = styled.div`
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 `;
 
 const RecentVenue = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.8rem;
-  color: #d394f5;
-  margin-bottom: 0.5rem;
-  padding: 0.5rem;
-  background: rgba(207, 56, 221, 0.1);
-  border-radius: 10px;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(207, 56, 221, 0.08);
+  border-radius: 12px;
   border: 1px solid rgba(207, 56, 221, 0.2);
-  
-  svg {
-    color: #cf38dd;
-    flex-shrink: 0;
-  }
-  
-  span {
-    font-weight: 500;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(207, 56, 221, 0.12);
+    border-color: rgba(207, 56, 221, 0.3);
   }
 `;
 
+const VenueIcon = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(207, 56, 221, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  
+  svg {
+    color: #cf38dd;
+  }
+`;
+
+const VenueDetails = styled.div`
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const VenueName = styled.span`
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #f4f0f5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
 const Rating = styled.span`
-  margin-left: auto;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: #d394f5;
   flex-shrink: 0;
+  margin-left: 0.5rem;
 `;
 
 const LastActivity = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.75rem;
-  color: #d8cce2;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(64, 51, 71, 0.4);
+  border-radius: 12px;
+  border: 1px solid rgba(207, 56, 221, 0.1);
+`;
+
+const ActivityIcon = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(185, 84, 236, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
   
   svg {
     color: #b954ec;
   }
+`;
+
+const ActivityText = styled.div`
+  font-size: 0.8rem;
+  color: #d8cce2;
   
   em {
     color: #cf38dd;
-    font-weight: 500;
+    font-weight: 600;
+    font-style: normal;
   }
 `;
 
@@ -544,20 +637,20 @@ const Toggle = styled.button`
   margin: 2rem auto 1rem;
   display: block;
   background: linear-gradient(135deg, #cf38dd, #d394f5);
-  border: 2px solid rgba(207, 56, 221, 0.6);
+  border: 2px solid rgba(207, 56, 221, 0.4);
   color: #f4f0f5;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 600;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 2rem;
   border-radius: 999px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(207, 56, 221, 0.2);
+  box-shadow: 0 8px 24px rgba(207, 56, 221, 0.2);
 
   &:hover {
     background: linear-gradient(135deg, #bf2aca, #be7fdd);
-    border-color: rgba(207, 56, 221, 1);
-    box-shadow: 0 6px 16px rgba(207, 56, 221, 0.4);
+    border-color: rgba(207, 56, 221, 0.6);
+    box-shadow: 0 12px 32px rgba(207, 56, 221, 0.3);
     transform: translateY(-2px);
   }
 `;
@@ -566,7 +659,7 @@ const ModalOverlay = styled.div`
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -579,16 +672,16 @@ const ModalContent = styled.div`
     rgba(42, 30, 46, 0.95), 
     rgba(64, 51, 71, 0.95)
   );
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
   border: 2px solid rgba(207, 56, 221, 0.4);
   padding: 2rem;
-  border-radius: 20px;
+  border-radius: 24px;
   max-width: 480px;
   width: 100%;
   max-height: 80vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 20px 40px rgba(207, 56, 221, 0.3);
+  box-shadow: 0 24px 48px rgba(207, 56, 221, 0.3);
 `;
 
 const CloseButton = styled.button`
