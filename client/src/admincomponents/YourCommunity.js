@@ -219,7 +219,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
   return (
     <Wrapper>
       <Header>
-        <TitleText>Your Voxxy Crew 🎭</TitleText>
+        <TitleText>Your Voxxy Crew</TitleText>
         <Subtitle>Friends you've gone on adventures with</Subtitle>
       </Header>
 
@@ -242,12 +242,11 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
                       <Calendar size={12} /> Since {formatSince(peerData.firstActivity)}
                     </JoinDate>
                   </UserInfo>
+                  <ActivityBadge>
+                    <span className="count">{peerData.count}</span>
+                    <span className="label">Activities</span>
+                  </ActivityBadge>
                 </ProfileSection>
-
-                <ActivityBadge>
-                  <span className="count">{peerData.count}</span>
-                  <span className="label">Activities</span>
-                </ActivityBadge>
               </CardHeader>
 
               <CardContent>
@@ -405,12 +404,12 @@ const ScrollArea = styled.div`
 
 const Grid = styled.div`
   display: grid;
-  gap: 1.25rem;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 0.75rem;
   }
 `;
 
@@ -421,19 +420,19 @@ const Card = styled.div`
   );
   backdrop-filter: blur(12px);
   border: 2px solid rgba(207, 56, 221, 0.25);
-  border-radius: 24px;
+  border-radius: 20px;
   padding: 0;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 32px rgba(207, 56, 221, 0.1);
+  box-shadow: 0 6px 24px rgba(207, 56, 221, 0.1);
   overflow: hidden;
   position: relative;
 
   &:hover {
-    transform: translateY(-6px) scale(1.02);
+    transform: translateY(-4px) scale(1.01);
     border-color: rgba(207, 56, 221, 0.5);
     animation: ${cardHover} 2s ease-in-out;
-    box-shadow: 0 16px 48px rgba(207, 56, 221, 0.2);
+    box-shadow: 0 12px 36px rgba(207, 56, 221, 0.2);
   }
 
   &::before {
@@ -442,32 +441,29 @@ const Card = styled.div`
     top: 0;
     left: 0;
     right: 0;
-    height: 3px;
+    height: 2px;
     background: linear-gradient(90deg, #cf38dd, #d394f5, #b954ec);
     opacity: 0.8;
   }
 `;
 
 const CardHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 1.5rem 1.5rem 1rem;
+  padding: 1rem 1rem 0;
 `;
 
 const ProfileSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem;
-  flex: 1;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
 `;
 
 const Avatar = styled.img`
-  width: 60px;
-  height: 60px;
+  width: 45px;
+  height: 45px;
   object-fit: cover;
   border-radius: 50%;
-  border: 3px solid rgba(207, 56, 221, 0.6);
+  border: 2px solid rgba(207, 56, 221, 0.6);
   background-color: #f4f0f5;
   transition: all 0.3s ease;
   animation: ${avatarGlow} 4s ease-in-out infinite;
@@ -485,70 +481,70 @@ const UserInfo = styled.div`
 `;
 
 const PeerName = styled.h3`
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #f4f0f5;
-  margin: 0 0 0.25rem 0;
+  margin: 0 0 0.2rem 0;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.2;
+  word-wrap: break-word;
 `;
 
 const JoinDate = styled.div`
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: #d8cce2;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.2rem;
   font-weight: 500;
 `;
 
 const ActivityBadge = styled.div`
   background: linear-gradient(135deg, #cf38dd, #b954ec);
-  border-radius: 16px;
-  padding: 0.5rem 0.75rem;
+  border-radius: 12px;
+  padding: 0.4rem 0.6rem;
   text-align: center;
-  border: 2px solid rgba(244, 240, 245, 0.2);
-  box-shadow: 0 4px 16px rgba(207, 56, 221, 0.3);
+  border: 1px solid rgba(244, 240, 245, 0.2);
+  box-shadow: 0 3px 12px rgba(207, 56, 221, 0.3);
   animation: ${badgeFloat} 3s ease-in-out infinite;
+  align-self: flex-start;
   flex-shrink: 0;
 
   .count {
     display: block;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: 800;
     color: #f4f0f5;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-    line-height: 1.2;
+    line-height: 1.1;
   }
 
   .label {
     display: block;
-    font-size: 0.6rem;
+    font-size: 0.55rem;
     color: rgba(244, 240, 245, 0.9);
     text-transform: uppercase;
     font-weight: 600;
     line-height: 1;
-    margin-top: 2px;
+    margin-top: 1px;
     letter-spacing: 0.5px;
   }
 `;
 
 const CardContent = styled.div`
-  padding: 0 1.5rem 1.5rem;
+  padding: 0 1rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.6rem;
 `;
 
 const RecentVenue = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
+  gap: 0.6rem;
+  padding: 0.6rem;
   background: rgba(207, 56, 221, 0.08);
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid rgba(207, 56, 221, 0.2);
   transition: all 0.3s ease;
 
@@ -559,9 +555,9 @@ const RecentVenue = styled.div`
 `;
 
 const VenueIcon = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
   background: rgba(207, 56, 221, 0.2);
   display: flex;
   align-items: center;
@@ -582,7 +578,7 @@ const VenueDetails = styled.div`
 `;
 
 const VenueName = styled.span`
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: #f4f0f5;
   overflow: hidden;
@@ -591,26 +587,26 @@ const VenueName = styled.span`
 `;
 
 const Rating = styled.span`
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: #d394f5;
   flex-shrink: 0;
-  margin-left: 0.5rem;
+  margin-left: 0.4rem;
 `;
 
 const LastActivity = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
+  gap: 0.6rem;
+  padding: 0.6rem;
   background: rgba(64, 51, 71, 0.4);
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid rgba(207, 56, 221, 0.1);
 `;
 
 const ActivityIcon = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
   background: rgba(185, 84, 236, 0.2);
   display: flex;
   align-items: center;
@@ -623,7 +619,7 @@ const ActivityIcon = styled.div`
 `;
 
 const ActivityText = styled.div`
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: #d8cce2;
   
   em {
