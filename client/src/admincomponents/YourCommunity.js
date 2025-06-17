@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { UserContext } from "../context/user";
 import SmallTriangle from "../assets/SmallTriangle.png";
+import Woman from "../assets/Woman.jpg";
 import NoCommunityMembers from "./NoCommunityMembers";
 import { Users, Calendar, MapPin, Utensils, Clock } from "lucide-react";
 
@@ -25,10 +26,32 @@ const cardHover = keyframes`
   }
 `;
 
+const avatarGlow = keyframes`
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(207, 56, 221, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(207, 56, 221, 0.6);
+  }
+`;
+
 export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateBoard }) {
   const { user } = useContext(UserContext);
   const [showAll, setShowAll] = useState(false);
   const [selectedPeer, setSelectedPeer] = useState(null);
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
+  // Helper function to get display image with proper priority
+  const getDisplayImage = (userObj) => {
+    if (userObj?.profile_pic_url) {
+      const profilePicUrl = userObj.profile_pic_url.startsWith('http')
+        ? userObj.profile_pic_url
+        : `${API_URL}${userObj.profile_pic_url}`;
+      return profilePicUrl;
+    }
+
+    return userObj?.avatar || Woman;
+  };
 
   if (!user) return null;
 
@@ -198,23 +221,25 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
               key={peerData.user.id}
               onClick={() => handleCardClick(peerData)}
             >
-              <CardHeader>
-                <Avatar
-                  $hasAvatar={!!peerData.user.avatar}
-                  src={peerData.user.avatar || SmallTriangle}
-                  alt={peerData.user.name}
-                />
+              <ProfileSection>
+                <AvatarContainer>
+                  <Avatar
+                    src={getDisplayImage(peerData.user)}
+                    alt={peerData.user.name}
+                  />
+                  <ActivityBadge>
+                    <span className="count">{peerData.count}</span>
+                    <span className="label">Activities</span>
+                  </ActivityBadge>
+                </AvatarContainer>
+
                 <UserInfo>
                   <PeerName>{peerData.user.name}</PeerName>
                   <JoinDate>
-                    <Calendar size={12} /> On Voxxy since {formatSince(peerData.firstActivity)}
+                    <Calendar size={12} /> Since {formatSince(peerData.firstActivity)}
                   </JoinDate>
                 </UserInfo>
-                <ActivityBadge>
-                  <span className="count">{peerData.count}</span>
-                  <span className="label">Activities</span>
-                </ActivityBadge>
-              </CardHeader>
+              </ProfileSection>
 
               {peerData.recentRestaurants.length > 0 && (
                 <RecentVenue>
@@ -247,11 +272,12 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
             <CloseButton onClick={() => setSelectedPeer(null)}>×</CloseButton>
 
             <ModalHeader>
-              <Avatar
-                $hasAvatar={!!selectedPeer.user.avatar}
-                src={selectedPeer.user.avatar || SmallTriangle}
-                alt={selectedPeer.user.name}
-              />
+              <LargeAvatarContainer>
+                <LargeAvatar
+                  src={getDisplayImage(selectedPeer.user)}
+                  alt={selectedPeer.user.name}
+                />
+              </LargeAvatarContainer>
               <UserDetails>
                 <PeerName>{selectedPeer.user.name}</PeerName>
                 <JoinDate>
@@ -357,7 +383,7 @@ const ScrollArea = styled.div`
 const Grid = styled.div`
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -372,8 +398,8 @@ const Card = styled.div`
   );
   backdrop-filter: blur(8px);
   border: 2px solid rgba(207, 56, 221, 0.3);
-  border-radius: 16px;
-  padding: 1rem;
+  border-radius: 20px;
+  padding: 1.5rem;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 16px rgba(207, 56, 221, 0.1);
@@ -385,21 +411,63 @@ const Card = styled.div`
   }
 `;
 
-const CardHeader = styled.div`
+const ProfileSection = styled.div`
   display: flex;
-  align-items: flex-start;
-  margin-bottom: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
   gap: 1rem;
 `;
 
+const AvatarContainer = styled.div`
+  position: relative;
+  flex-shrink: 0;
+`;
+
 const Avatar = styled.img`
-  width: 40px;
-  height: 40px;
+  width: 65px;
+  height: 65px;
   object-fit: cover;
   border-radius: 50%;
-  border: ${props => props.$hasAvatar ? '3px solid rgba(207, 56, 221, 0.6)' : '4px solid #cf38dd'};
+  border: 4px solid rgba(207, 56, 221, 0.6);
   background-color: #f4f0f5;
-  flex-shrink: 0;
+  transition: all 0.3s ease;
+  animation: ${avatarGlow} 3s ease-in-out infinite;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+`;
+
+const ActivityBadge = styled.div`
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: linear-gradient(135deg, #cf38dd, #b954ec);
+  border-radius: 12px;
+  padding: 0.3rem 0.5rem;
+  text-align: center;
+  min-width: 45px;
+  border: 2px solid rgba(244, 240, 245, 0.9);
+  box-shadow: 0 2px 8px rgba(207, 56, 221, 0.4);
+
+  .count {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #f4f0f5;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    line-height: 1;
+  }
+
+  .label {
+    display: block;
+    font-size: 0.5rem;
+    color: rgba(244, 240, 245, 0.9);
+    text-transform: uppercase;
+    font-weight: 600;
+    line-height: 1;
+    margin-top: 1px;
+  }
 `;
 
 const UserInfo = styled.div`
@@ -408,7 +476,7 @@ const UserInfo = styled.div`
 `;
 
 const PeerName = styled.h3`
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: #f4f0f5;
   margin: 0 0 0.25rem 0;
@@ -416,7 +484,7 @@ const PeerName = styled.h3`
 `;
 
 const JoinDate = styled.div`
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #d8cce2;
   display: flex;
   align-items: center;
@@ -430,9 +498,9 @@ const RecentVenue = styled.div`
   font-size: 0.8rem;
   color: #d394f5;
   margin-bottom: 0.5rem;
-  padding: 0.4rem;
+  padding: 0.5rem;
   background: rgba(207, 56, 221, 0.1);
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid rgba(207, 56, 221, 0.2);
   
   svg {
@@ -453,31 +521,6 @@ const Rating = styled.span`
   font-size: 0.7rem;
   color: #d394f5;
   flex-shrink: 0;
-`;
-
-const ActivityBadge = styled.div`
-  background: linear-gradient(135deg, #cf38dd, #b954ec);
-  border-radius: 10px;
-  padding: 0.4rem 0.6rem;
-  text-align: center;
-  min-width: 55px;
-  border: 2px solid rgba(244, 240, 245, 0.2);
-
-  .count {
-    display: block;
-    font-size: 1rem;
-    font-weight: 800;
-    color: #f4f0f5;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-  }
-
-  .label {
-    display: block;
-    font-size: 0.55rem;
-    color: rgba(244, 240, 245, 0.9);
-    text-transform: uppercase;
-    font-weight: 600;
-  }
 `;
 
 const LastActivity = styled.div`
@@ -572,7 +615,22 @@ const ModalHeader = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 2rem;
-  gap: 1rem;
+  gap: 1.5rem;
+`;
+
+const LargeAvatarContainer = styled.div`
+  position: relative;
+  flex-shrink: 0;
+`;
+
+const LargeAvatar = styled.img`
+  width: 85px;
+  height: 85px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid rgba(207, 56, 221, 0.8);
+  background-color: #f4f0f5;
+  box-shadow: 0 0 25px rgba(207, 56, 221, 0.5);
 `;
 
 const UserDetails = styled.div`
