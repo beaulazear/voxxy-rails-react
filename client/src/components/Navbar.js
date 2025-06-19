@@ -190,12 +190,13 @@ export default function Navbar() {
                 </MobileMenuButton>
               ) : null}
               <LogoLink to="/dashboard">
-                <AnimatedPrideHeader
+                {/* <AnimatedPrideHeader
                   regularSrc={HEADER}
                   prideSrc={GAYHEADER}
                   alt="Voxxy Logo"
                   animationType="cycle"
-                />
+                /> */}
+                <LogoImage src={HEADER} />
               </LogoLink>
             </div>
 

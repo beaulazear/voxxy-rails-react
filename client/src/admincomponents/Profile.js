@@ -391,7 +391,7 @@ export default function Profile() {
               </AvatarWrapper>
 
               <AvatarButtonGroup>
-                <Upload
+                {/* <Upload
                   beforeUpload={handleProfilePicUpload}
                   showUploadList={false}
                   accept="image/*"
@@ -409,7 +409,7 @@ export default function Profile() {
                   >
                     {uploading ? "Uploading..." : "Upload Photo"}
                   </Button>
-                </Upload>
+                </Upload> */}
 
                 <Button
                   onClick={() => setAvatarModalVisible(true)}
