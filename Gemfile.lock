@@ -127,13 +127,13 @@ GEM
     drb (2.2.1)
     erubi (1.13.1)
     event_stream_parser (1.0.0)
-    faraday (2.12.2)
+    faraday (2.13.1)
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
-    faraday-multipart (1.1.0)
+    faraday-multipart (1.1.1)
       multipart-post (~> 2.0)
-    faraday-net_http (3.4.0)
+    faraday-net_http (3.4.1)
       net-http (>= 0.5.0)
     ffi (1.17.1)
     ffi (1.17.1-arm64-darwin)
@@ -166,7 +166,7 @@ GEM
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
     jmespath (1.6.2)
-    json (2.7.6)
+    json (2.12.2)
     jwt (2.10.1)
       base64
     language_server-protocol (3.17.0.3)
@@ -295,7 +295,7 @@ GEM
       rubocop-minitest
       rubocop-performance
       rubocop-rails
-    ruby-openai (7.3.1)
+    ruby-openai (8.1.0)
       event_stream_parser (>= 0.3.0, < 2.0.0)
       faraday (>= 1)
       faraday-multipart (>= 1)
@@ -332,7 +332,7 @@ GEM
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.6.0)
-    uri (1.0.2)
+    uri (1.0.3)
     useragent (0.16.11)
     web-console (4.2.1)
       actionview (>= 6.0.0)
