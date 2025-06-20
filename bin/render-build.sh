@@ -11,5 +11,3 @@ cp -a client/build/. public/
 bundle install
 
 bundle exec rails db:migrate
-
-rails db:migrate
