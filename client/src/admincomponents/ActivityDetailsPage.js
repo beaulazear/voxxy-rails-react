@@ -4,7 +4,7 @@ import { UserContext } from '../context/user';
 import {
   PageContainer,
 } from "../styles/ActivityDetailsStyles";
-import { message } from "antd";
+import { message, Modal } from "antd";
 import AIRecommendations from "./AIRecommendations";
 import UpdateActivityModal from './UpdateActivityModal';
 import LoadingScreen from '../components/LoadingScreen.js';
@@ -552,6 +552,53 @@ function ActivityDetailsPage({ activityId, onBack }) {
     }
   };
 
+  const handleLeaveActivity = async () => {
+    Modal.confirm({
+      title: 'Leave Activity',
+      content: 'Are you sure you want to leave this activity? This action is permanent and you cannot rejoin unless invited again.',
+      okText: 'Leave',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk: async () => {
+        await performLeave();
+      },
+    });
+  };
+
+  const performLeave = async () => {
+    try {
+      const response = await fetch(
+        `${API_URL}/activity_participants/leave`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ activity_id: activityId }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        message.error(data.error || "Failed to leave activity.");
+        return;
+      }
+
+      setUser((prevUser) => ({
+        ...prevUser,
+        participant_activities: prevUser.participant_activities.filter(
+          (p) => p.activity.id !== activityId
+        ),
+      }));
+
+      message.success("You have successfully left the activity.");
+      onBack();
+    } catch (error) {
+      console.error("Error leaving activity:", error);
+      message.error("Failed to leave activity.");
+    }
+  };
+
   return (
     <>
       <AnimatedSmokeBackground ref={topRef} />
@@ -560,6 +607,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
           activity={currentActivity}
           isOwner={isOwner}
           onBack={onBack}
+          onLeave={handleLeaveActivity}
           onEdit={() => setShowModal(true)}
           onDelete={handleDelete}
           onInvite={handleInvite}
@@ -605,7 +653,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
                   <HostName>{currentActivity.user?.name}</HostName> invited you to join{' '}
                   <ActivityName>{currentActivity.activity_name}</ActivityName>:
                   <br></br>
-                  <i style={{fontFamily: 'Roboto'}}>{currentActivity.welcome_message}</i>
+                  <i style={{ fontFamily: 'Roboto' }}>{currentActivity.welcome_message}</i>
                 </InviteSubtitle>
                 <ButtonGroup>
                   <InviteButton onClick={handleAcceptInvite}>

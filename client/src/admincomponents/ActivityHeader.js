@@ -17,7 +17,7 @@ import UpdateDetailsModal from "./UpdateDetailsModal.js";
 import FinalPlansModal from './FinalPlansModal.js';
 import SmallTriangle from "../assets/SmallTriangle.png";
 
-const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInvite, onCreateBoard, onRemoveParticipant }) => {
+const ActivityHeader = ({ activity, votes = [], isOwner, onLeave, onBack, onDelete, onInvite, onCreateBoard, onRemoveParticipant }) => {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
   const [showAllParticipants, setShowAllParticipants] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
@@ -33,10 +33,8 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
   const { responses = [] } = activity;
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
-  // Helper function to get the display image with proper priority
   const getDisplayImage = (userObj) => {
     if (userObj?.profile_pic_url) {
-      // If profile_pic_url is relative, prepend API_URL
       const profilePicUrl = userObj.profile_pic_url.startsWith('http')
         ? userObj.profile_pic_url
         : `${API_URL}${userObj.profile_pic_url}`;
@@ -306,8 +304,6 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
     toggleHelp();
   }
 
-  console.log(activity)
-
   return (
     <>
       <HeaderContainer>
@@ -340,7 +336,7 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
               </>
             ) : (
               <LeaveButton onClick={async () => {
-                // ... existing leave logic
+                onLeave()
               }}>
                 <LogoutOutlined />
                 <LeaveButtonText>Leave</LeaveButtonText>
@@ -617,7 +613,7 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onBack, onDelete, onInv
 
             <InviteActions>
               <InviteButton onClick={handleInviteSubmit} disabled={manualEmails.length === 0 && communitySelected.length === 0}>
-                <Plus size={26} />
+                Invite
               </InviteButton>
               <CancelButton onClick={handleClosePopup}>
                 Cancel

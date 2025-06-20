@@ -182,7 +182,7 @@ class ActivityParticipantsController < ApplicationController
 
       activity.comments.create!(
         user_id: current_user.id,
-        content: "#{current_user.name} has left the chat 😢"
+        content: "#{current_user.name} has left the group 😢"
       )
 
       render json: { message: "You have successfully left the activity." }, status: :ok
