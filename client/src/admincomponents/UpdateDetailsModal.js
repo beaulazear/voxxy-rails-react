@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
+import { Edit3, MapPin, Calendar, Clock, MessageSquare, X, Save } from 'lucide-react';
 
-const colors = {
-    sectionBackground: '#251C2C',
-    cardBackground: '#2a1e30',
-    inputBackground: '#221825',
-    border: '#442f4f',
-    textPrimary: '#FFFFFF',
-    textMuted: '#BEBEBE',
-    accent: '#9D60F8',
-};
+const fadeIn = keyframes`
+  from { 
+    opacity: 0; 
+    transform: scale(0.95);
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+`;
 
 const Overlay = styled.div`
   position: fixed;
@@ -18,105 +20,252 @@ const Overlay = styled.div`
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 1rem;
 `;
 
-const ModalWrapper = styled.section`
-  padding: 40px 20px;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-`;
-
-const Card = styled.div`
-  background-color: ${colors.cardBackground};
-  border-radius: 1rem;
-  padding: 2rem;
+const ModalContainer = styled.div`
+  background: linear-gradient(135deg, #2a1e30 0%, #342540 100%);
+  padding: 0;
+  border-radius: 1.5rem;
   width: 100%;
   max-width: 500px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  color: #fff;
+  animation: ${fadeIn} 0.3s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+  }
+`;
+
+const ModalHeader = styled.div`
+  padding: 2rem 2rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 `;
 
 const Title = styled.h2`
-  font-size: clamp(1.25rem, 4vw, 2rem);
-  font-weight: 600;
-  margin: 0 0 1.5rem;
   color: #fff;
-  text-align: center;
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
 `;
 
-const Field = styled.div`
-  margin-bottom: 1.25rem;
+const StepContent = styled.div`
+  padding: 1.5rem 2rem;
+  flex: 1;
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #cc31e8;
+    border-radius: 2px;
+  }
+`;
+
+const ErrorList = styled.ul`
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  
+  li {
+    margin-bottom: 0.25rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+`;
+
+const Section = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1.5rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 const Label = styled.label`
-  display: block;
-  color: ${colors.textPrimary};
-  font-size: 0.875rem;
-  margin-bottom: 0.5rem;
-  text-align: left; // Ensure left alignment
-`;
-
-const InputWrapper = styled.div`
   display: flex;
   align-items: center;
-  background-color: ${colors.inputBackground};
-  border: 1px solid ${colors.border};
-  border-radius: 0.5rem;
-  padding: 0.75rem;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.9rem;
 `;
 
-const StyledInput = styled.input`
-  background: transparent;
-  color-scheme: dark;
-  border: none;
-  flex: 1;
-  color: ${colors.textPrimary};
-  font-size: 1rem;
-  outline: none;
-  &::placeholder { color: ${colors.textMuted}; }
+const Input = styled.input`
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  transition: all 0.2s ease;
+  margin-bottom: 1rem;
+  
+  &:focus { 
+    border-color: #cc31e8; 
+    outline: none;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  
+  &:-webkit-autofill { 
+    box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.05) inset !important; 
+    -webkit-text-fill-color: #fff !important; 
+  }
+  
+  &::-webkit-calendar-picker-indicator, 
+  &::-moz-color-swatch-button { 
+    filter: invert(1) brightness(2); 
+    cursor: pointer; 
+  }
+  
+  &::placeholder { 
+    color: #aaa; 
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
 
-const StyledTextarea = styled.textarea`
-  background-color: ${colors.inputBackground};
-  border: 1px solid ${colors.border};
-  border-radius: 0.5rem;
+const Textarea = styled.textarea`
+  width: 100%;
   padding: 0.75rem;
-  color: ${colors.textPrimary};
-  font-size: 1rem;
-  width: 100%;b
-  min-height: 80px;
+  font-size: 0.9rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
   resize: vertical;
-  outline: none;
-  &::placeholder { color: ${colors.textMuted}; }
+  min-height: 100px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  
+  &:focus { 
+    border-color: #cc31e8; 
+    outline: none;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  
+  &::placeholder { 
+    color: #aaa; 
+  }
 `;
 
-const Actions = styled.div`
+const DateTimeGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+`;
+
+const FormGroup = styled.div`
   display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const ButtonRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 1.5rem 2rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 1rem;
 `;
 
 const Button = styled.button`
-  padding: 0.75rem 1.25rem;
-  background-color: ${({ $variant }) =>
-        $variant === 'primary' ? colors.accent : 'transparent'};
-  color: ${colors.textPrimary};
-  border: ${({ $variant }) =>
-        $variant === 'primary' ? 'none' : `1px solid ${colors.textPrimary}`};
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 0.75rem;
   cursor: pointer;
-  opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
-  transition: background-color 0.2s ease, opacity 0.2s;
-  &:hover {
-    background-color: ${({ variant }) =>
-        variant === 'primary' ? '#7f3bdc' : 'rgba(255,255,255,0.2)'};
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 100px;
+  
+  background: ${({ $primary }) =>
+        $primary
+            ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)'
+            : 'rgba(255, 255, 255, 0.05)'};
+  color: ${({ $primary }) => ($primary ? 'white' : '#cc31e8')};
+  border: ${({ $primary }) => ($primary ? 'none' : '2px solid rgba(204, 49, 232, 0.3)')};
+  
+  &:hover:not(:disabled) { 
+    transform: translateY(-2px);
+    box-shadow: ${({ $primary }) =>
+        $primary
+            ? '0 8px 20px rgba(204, 49, 232, 0.3)'
+            : '0 4px 12px rgba(0, 0, 0, 0.2)'};
+    background: ${({ $primary }) =>
+        $primary
+            ? 'linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%)'
+            : 'rgba(255, 255, 255, 0.08)'};
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `;
 
@@ -165,83 +314,111 @@ export default function UpdateDetailsModal({ activity, onClose, onUpdate }) {
 
     return (
         <Overlay onClick={onClose}>
-            <ModalWrapper onClick={e => e.stopPropagation()}>
-                <Card>
+            <ModalContainer onClick={e => e.stopPropagation()}>
+                <CloseButton onClick={onClose}>
+                    <X size={20} />
+                </CloseButton>
+
+                <ModalHeader>
                     <Title>Edit Activity Details</Title>
+                </ModalHeader>
+
+                <StepContent>
                     {errors.length > 0 && (
-                        <ul style={{ color: '#FF6B6B' }}>
+                        <ErrorList>
                             {errors.map((e, i) => <li key={i}>{e}</li>)}
-                        </ul>
+                        </ErrorList>
                     )}
-                    <Field>
-                        <Label htmlFor="name">Name</Label>
-                        <InputWrapper>
-                            <StyledInput
-                                id="name"
-                                placeholder="Activity Name"
-                                value={name}
-                                onChange={e => setName(e.target.value)}
-                            />
-                        </InputWrapper>
-                    </Field>
+
+                    <Section>
+                        <Label htmlFor="name">
+                            <Edit3 size={16} />
+                            Activity Name
+                        </Label>
+                        <Input
+                            id="name"
+                            placeholder="Activity Name"
+                            value={name}
+                            onChange={e => setName(e.target.value)}
+                        />
+                    </Section>
+
                     {activity.activity_type !== 'Meeting' && (
                         <>
-                            <Field>
-                                <Label htmlFor="location">Location</Label>
-                                <InputWrapper>
-                                    <StyledInput
-                                        id="location"
-                                        placeholder="Location"
-                                        value={location}
-                                        onChange={e => setLocation(e.target.value)}
-                                    />
-                                </InputWrapper>
-                            </Field>
-                            <Field>
-                                <Label htmlFor="dateDay">Date</Label>
-                                <InputWrapper>
-                                    <StyledInput
-                                        id="dateDay"
-                                        type="date"
-                                        value={dateDay}
-                                        onChange={e => setDateDay(e.target.value)}
-                                    />
-                                </InputWrapper>
-                            </Field>
-                            <Field>
-                                <Label htmlFor="dateTime">Time</Label>
-                                <InputWrapper>
-                                    <StyledInput
-                                        id="dateTime"
-                                        type="time"
-                                        value={dateTime}
-                                        onChange={e => setDateTime(e.target.value)}
-                                    />
-                                </InputWrapper>
-                            </Field>
+                            <Section>
+                                <Label htmlFor="location">
+                                    <MapPin size={16} />
+                                    Location
+                                </Label>
+                                <Input
+                                    id="location"
+                                    placeholder="Location"
+                                    value={location}
+                                    onChange={e => setLocation(e.target.value)}
+                                />
+                            </Section>
+
+                            <Section>
+                                <DateTimeGrid>
+                                    <FormGroup>
+                                        <Label htmlFor="dateDay">
+                                            <Calendar size={16} />
+                                            Date
+                                        </Label>
+                                        <Input
+                                            id="dateDay"
+                                            type="date"
+                                            value={dateDay}
+                                            onChange={e => setDateDay(e.target.value)}
+                                        />
+                                    </FormGroup>
+
+                                    <FormGroup>
+                                        <Label htmlFor="dateTime">
+                                            <Clock size={16} />
+                                            Time
+                                        </Label>
+                                        <Input
+                                            id="dateTime"
+                                            type="time"
+                                            value={dateTime}
+                                            onChange={e => setDateTime(e.target.value)}
+                                        />
+                                    </FormGroup>
+                                </DateTimeGrid>
+                            </Section>
                         </>
                     )}
-                    <Field>
-                        <Label htmlFor="welcomeMessage">Welcome Message</Label>
-                        <StyledTextarea
+
+                    <Section>
+                        <Label htmlFor="welcomeMessage">
+                            <MessageSquare size={16} />
+                            Welcome Message
+                        </Label>
+                        <Textarea
                             id="welcomeMessage"
                             placeholder="Welcome message..."
                             value={welcomeMessage}
                             onChange={e => setWelcomeMessage(e.target.value)}
+                            rows={3}
                         />
-                    </Field>
-                    <Actions>
-                        <Button onClick={onClose}>Cancel</Button>
-                        <Button
-                            $variant="primary"
-                            onClick={handleSubmit}
-                            disabled={!canSave()}
-                        >
-                            Save
-                        </Button>
-                    </Actions>
-                </Card>
-            </ModalWrapper>
+                    </Section>
+                </StepContent>
+
+                <ButtonRow>
+                    <Button onClick={onClose}>
+                        Cancel
+                    </Button>
+                    <Button
+                        $primary
+                        onClick={handleSubmit}
+                        disabled={!canSave()}
+                    >
+                        <Save size={16} />
+                        Save
+                    </Button>
+                </ButtonRow>
+            </ModalContainer>
         </Overlay>
     );
 }
