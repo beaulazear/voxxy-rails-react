@@ -637,7 +637,6 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onLeave, onBack, onDele
 
 export default ActivityHeader;
 
-// All your existing styled components remain the same...
 const colors = {
   primary: '#8b5cf6',
   primaryLight: '#a78bfa',

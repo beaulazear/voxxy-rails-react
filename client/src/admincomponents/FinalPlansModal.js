@@ -1,170 +1,225 @@
 import React, { useState, useContext } from "react";
 import styled, { keyframes } from "styled-components";
-import { Share2, BookOpen, X } from "lucide-react";
+import { Share2, Lightbulb, X, Send, SkipForward } from "lucide-react";
 import { UserContext } from "../context/user";
 import { message } from "antd";
 
 const FinalPlansModal = ({ isVisible, onClose, onShare, shareUrl }) => {
-    const [showNextStep, setShowNextStep] = useState(false);
-    const [nextPlanText, setNextPlanText] = useState("");
+  const [currentStep, setCurrentStep] = useState('initial'); // 'initial', 'options', 'feedback'
+  const [selectedOption, setSelectedOption] = useState('');
+  const [feedbackText, setFeedbackText] = useState("");
 
-    const { user } = useContext(UserContext)
+  const { user } = useContext(UserContext)
 
-    if (!isVisible) return null;
+  if (!isVisible) return null;
 
-    const handleShareClick = () => {
-        onShare();
-        window.open(shareUrl, '_blank');
+  const handleShareClick = () => {
+    onShare();
+    window.open(shareUrl, '_blank');
+  };
+
+  const handleHelpVoxxyClick = () => {
+    setCurrentStep('options');
+  };
+
+  const handleOptionSelect = (option) => {
+    setSelectedOption(option);
+    setCurrentStep('feedback');
+  };
+
+  const handleSkip = () => {
+    onClose();
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const url = '/feedbacks';
+    const body = {
+      feedback: {
+        name: user.name,
+        email: user.email,
+        rating: 5,
+        message: feedbackText,
+        selected_feature: selectedOption,
+      }
     };
 
-    const handleTellUsNextClick = () => {
-        setShowNextStep(true);
-    };
-
-    const handleSkip = () => {
-        onClose();
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        const url = '/feedbacks';
-        const body = { feedback: { 
-            name: user.name,
-            email: user.email,
-            rating: 5, 
-            message: nextPlanText,
-        }};
-
-        try {
-            const res = await fetch(
-                `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}${url}`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify(body),
-                }
-            );
-            if (!res.ok) throw new Error('Network response was not ok');
-            message.success('Submission successful!');
-            onClose();
-        } catch (err) {
-            message.error('Oops, something went wrong.');
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}${url}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(body),
         }
-    };
+      );
+      if (!res.ok) throw new Error('Network response was not ok');
+      message.success('Submission successful!');
+      onClose();
+    } catch (err) {
+      message.error('Oops, something went wrong.');
+    }
+  };
 
-    return (
-        <ModalOverlay onClick={onClose}>
-            <ModalContent onClick={(e) => e.stopPropagation()}>
-                <CloseButton onClick={onClose}>
-                    <X size={20} />
-                </CloseButton>
+  const nextOptions = [
+    { value: 'movie-night', emoji: '🎥', title: 'Movie Night', subtitle: 'Plan your perfect movie night.' },
+    { value: 'ski-trip', emoji: '🎿', title: 'Ski Trip', subtitle: 'Organize your next ski adventure.' },
+    { value: 'kids-playdate', emoji: '👩‍👧‍👦', title: 'Kids Play Date', subtitle: 'Coordinate a fun playdate for little ones.' },
+    { value: 'find-destination', emoji: '🗺️', title: 'Find a Destination', subtitle: 'Discover new travel destinations.' },
+    { value: 'game-night', emoji: '🎮', title: 'Game Night', subtitle: 'Set up a memorable game night.' },
+    { value: 'family-reunion', emoji: '👨‍👩‍👧‍👦', title: 'Family Reunion', subtitle: 'Plan a family gathering.' },
+    { value: 'road-trip', emoji: '🚗', title: 'Road Trip', subtitle: 'Map out your road trip route.' },
+    { value: 'other', emoji: '✨', title: 'Choose Another', subtitle: 'Something else entirely.' },
+  ];
 
-                {!showNextStep ? (
-                    <>
-                        <ModalTitle>Final Plans</ModalTitle>
-                        <ModalSubtitle>What would you like to do next?</ModalSubtitle>
+  return (
+    <Overlay onClick={onClose}>
+      <ModalContainer onClick={(e) => e.stopPropagation()}>
+        <CloseButton onClick={onClose}>
+          <X size={20} />
+        </CloseButton>
 
-                        <ButtonContainer>
-                            <ActionButton onClick={handleShareClick}>
-                                <ButtonIcon>
-                                    <Share2 size={24} />
-                                </ButtonIcon>
-                                <ButtonContent>
-                                    <ButtonTitle>Share Final Plans</ButtonTitle>
-                                    <ButtonDescription>Send the finalized details to all attendees</ButtonDescription>
-                                </ButtonContent>
-                            </ActionButton>
+        {currentStep === 'initial' && (
+          <>
+            <ModalHeader>
+              <Title>Share your plans</Title>
+              <Subtitle>What would you like to do next?</Subtitle>
+            </ModalHeader>
 
-                            <ActionButton onClick={handleTellUsNextClick}>
-                                <ButtonIcon>
-                                    <BookOpen size={24} />
-                                </ButtonIcon>
-                                <ButtonContent>
-                                    <ButtonTitle>Tell Us What's Next</ButtonTitle>
-                                    <ButtonDescription>Let us know what you're planning to do next</ButtonDescription>
-                                </ButtonContent>
-                            </ActionButton>
-                        </ButtonContainer>
-                    </>
-                ) : (
-                    <>
-                        <ModalTitle>What's Next?</ModalTitle>
-                        <ModalSubtitle>
-                            We will use this information to inform the future direction of this app. Totally optional, but in the future we hope to help you here too!
-                        </ModalSubtitle>
+            <StepContent>
+              <ButtonContainer>
+                <ActionButton onClick={handleShareClick}>
+                  <ButtonIcon>
+                    <Share2 size={20} />
+                  </ButtonIcon>
+                  <ButtonContent>
+                    <ButtonTitle>Share</ButtonTitle>
+                    <ButtonDescription>Send the finalized details to all attendees</ButtonDescription>
+                  </ButtonContent>
+                </ActionButton>
 
-                        <TextAreaContainer>
-                            <StyledTextArea
-                                placeholder="Tell us about your next activity, event, or anything you're planning..."
-                                value={nextPlanText}
-                                onChange={(e) => setNextPlanText(e.target.value)}
-                                rows={4}
-                            />
-                        </TextAreaContainer>
+                <ActionButton onClick={handleHelpVoxxyClick}>
+                  <ButtonIcon>
+                    <Lightbulb size={20} />
+                  </ButtonIcon>
+                  <ButtonContent>
+                    <ButtonTitle>Help Voxxy decide what's next</ButtonTitle>
+                    <ButtonDescription>Let us know what you're planning to do next</ButtonDescription>
+                  </ButtonContent>
+                </ActionButton>
+              </ButtonContainer>
+            </StepContent>
+          </>
+        )}
 
-                        <BottomButtonContainer>
-                            <SecondaryButton onClick={handleSkip}>
-                                Skip
-                            </SecondaryButton>
-                            <PrimaryButton onClick={handleSubmit}>
-                                Submit
-                            </PrimaryButton>
-                        </BottomButtonContainer>
-                    </>
-                )}
-            </ModalContent>
-        </ModalOverlay>
-    );
+        {currentStep === 'options' && (
+          <>
+            <ModalHeader>
+              <Title>What's next?</Title>
+              <Subtitle>Choose what you'd like us to help you plan next</Subtitle>
+            </ModalHeader>
+
+            <StepContent>
+              <OptionsGrid>
+                {nextOptions.map((option) => (
+                  <OptionCard
+                    key={option.value}
+                    onClick={() => handleOptionSelect(option.value)}
+                  >
+                    <OptionEmoji>{option.emoji}</OptionEmoji>
+                    <OptionTitle>{option.title}</OptionTitle>
+                    <OptionSubtitle>{option.subtitle}</OptionSubtitle>
+                  </OptionCard>
+                ))}
+              </OptionsGrid>
+            </StepContent>
+          </>
+        )}
+
+        {currentStep === 'feedback' && (
+          <>
+            <ModalHeader>
+              <Title>Coming soon</Title>
+              <Subtitle>Help us prioritize what to build next!</Subtitle>
+            </ModalHeader>
+
+            <StepContent>
+              <Section>
+                <Textarea
+                  placeholder="Tell us more about what you'd like to see or any feedback..."
+                  value={feedbackText}
+                  onChange={(e) => setFeedbackText(e.target.value)}
+                  rows={4}
+                />
+              </Section>
+            </StepContent>
+
+            <ButtonRow>
+              <Button onClick={handleSkip}>
+                <SkipForward size={16} />
+                Skip for now
+              </Button>
+              <Button
+                $primary
+                onClick={handleSubmit}
+                disabled={!feedbackText.trim()}
+              >
+                <Send size={16} />
+                Submit feedback
+              </Button>
+            </ButtonRow>
+          </>
+        )}
+      </ModalContainer>
+    </Overlay>
+  );
 };
 
 export default FinalPlansModal;
 
 const fadeIn = keyframes`
-  from {
-    opacity: 0;
+  from { 
+    opacity: 0; 
+    transform: scale(0.95);
   }
-  to {
-    opacity: 1;
-  }
-`;
-
-const modalFadeIn = keyframes`
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
+  to { 
+    opacity: 1; 
+    transform: scale(1);
   }
 `;
 
-const ModalOverlay = styled.div`
+const Overlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  backdrop-filter: blur(10px);
   background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 2000;
-  animation: ${fadeIn} 0.25s ease-out;
+  padding: 1rem;
 `;
 
-const ModalContent = styled.div`
-  background: #201925;
-  padding: 2rem;
-  border-radius: 18px;
+const ModalContainer = styled.div`
+  background: linear-gradient(135deg, #2a1e30 0%, #342540 100%);
+  padding: 0;
+  border-radius: 1.5rem;
+  width: 100%;
   max-width: 500px;
-  width: 90%;
-  color: #fff;
   max-height: 90vh;
-  overflow-y: auto;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  color: #fff;
+  animation: ${fadeIn} 0.3s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
   position: relative;
-  animation: ${modalFadeIn} 0.25s ease-out;
 `;
 
 const CloseButton = styled.button`
@@ -180,29 +235,54 @@ const CloseButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10;
+  transition: all 0.2s ease;
   
   &:hover {
     background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
   }
 `;
 
-const ModalTitle = styled.h2`
-  font-family: "Montserrat", sans-serif;
-  font-size: 2rem;
-  font-weight: bold;
-  color: #fff;
-  margin: 0 0 0.5rem 0;
+const ModalHeader = styled.div`
+  padding: 2rem 2rem 1rem;
   text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 `;
 
-const ModalSubtitle = styled.p`
-  font-family: "Montserrat", sans-serif;
-  font-size: 1rem;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.85);
-  margin: 0 0 2rem 0;
+const Title = styled.h2`
+  color: #fff;
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+`;
+
+const Subtitle = styled.p`
+  color: #ccc;
+  margin: 0;
+  font-size: 0.9rem;
   line-height: 1.4;
-  text-align: left;
+`;
+
+const StepContent = styled.div`
+  padding: 1.5rem 2rem;
+  flex: 1;
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #cc31e8;
+    border-radius: 2px;
+  }
 `;
 
 const ButtonContainer = styled.div`
@@ -215,19 +295,19 @@ const ActionButton = styled.button`
   display: flex;
   align-items: center;
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
   color: #fff;
   cursor: pointer;
   text-align: left;
   transition: all 0.2s ease;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: #9051e1;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #cc31e8;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(144, 81, 225, 0.3);
+    box-shadow: 0 8px 20px rgba(204, 49, 232, 0.3);
   }
 `;
 
@@ -237,8 +317,8 @@ const ButtonIcon = styled.div`
   justify-content: center;
   width: 48px;
   height: 48px;
-  background: #9051e1;
-  border-radius: 8px;
+  background: linear-gradient(135deg, #cc31e8 0%, #9051e1 100%);
+  border-radius: 0.75rem;
   margin-right: 1rem;
   flex-shrink: 0;
 `;
@@ -248,84 +328,149 @@ const ButtonContent = styled.div`
 `;
 
 const ButtonTitle = styled.div`
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 600;
   margin-bottom: 0.25rem;
 `;
 
 const ButtonDescription = styled.div`
-  font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  color: #ccc;
   line-height: 1.3;
 `;
 
-const TextAreaContainer = styled.div`
-  margin: 1.5rem 0;
-`;
-
-const StyledTextArea = styled.textarea`
-  width: 100%;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.08);
-  color: #eee;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  font-size: 1rem;
-  font-family: "Inter", sans-serif;
-  resize: vertical;
-  min-height: 120px;
-  transition: border-color 0.2s, background 0.2s;
-
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.5);
-  }
-
-  &:focus {
-    outline: none;
-    background: rgba(255, 255, 255, 0.12);
-    border-color: #9051e1;
-    box-shadow: 0 0 0 3px rgba(144, 81, 225, 0.2);
-  }
-`;
-
-const BottomButtonContainer = styled.div`
-  display: flex;
-  justify-content: center;
+const OptionsGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 1rem;
-  margin-top: 1.5rem;
+  
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
-const PrimaryButton = styled.button`
-  padding: 0.75rem 1.5rem;
-  background: #9051e1;
+const OptionCard = styled.div`
+  padding: 1.5rem 1rem;
+  text-align: center;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.05);
   color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(204, 49, 232, 0.3);
+    border-color: #cc31e8;
+  }
+`;
+
+const OptionEmoji = styled.div`
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+`;
+
+const OptionTitle = styled.div`
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+`;
+
+const OptionSubtitle = styled.div`
+  font-size: 0.75rem;
+  color: #ccc;
+  text-align: center;
+  line-height: 1.3;
+`;
+
+const Section = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1.5rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const Textarea = styled.textarea`
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  
+  &:focus { 
+    border-color: #cc31e8; 
+    outline: none;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  
+  &::placeholder { 
+    color: #aaa; 
+  }
+`;
+
+const ButtonRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 1.5rem 2rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 1rem;
+`;
+
+const Button = styled.button`
+  padding: 1rem 1.5rem;
   border: none;
-  border-radius: 12px;
+  border-radius: 0.75rem;
   cursor: pointer;
   font-weight: 600;
   font-size: 1rem;
   transition: all 0.2s ease;
-
-  &:hover {
-    background: #7a42c7;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(144, 81, 225, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 100px;
+  
+  background: ${({ $primary }) =>
+    $primary
+      ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)'
+      : 'rgba(255, 255, 255, 0.05)'};
+  color: ${({ $primary }) => ($primary ? 'white' : '#cc31e8')};
+  border: ${({ $primary }) => ($primary ? 'none' : '2px solid rgba(204, 49, 232, 0.3)')};
+  
+  &:hover:not(:disabled) { 
+    transform: translateY(-2px);
+    box-shadow: ${({ $primary }) =>
+    $primary
+      ? '0 8px 20px rgba(204, 49, 232, 0.3)'
+      : '0 4px 12px rgba(0, 0, 0, 0.2)'};
+    background: ${({ $primary }) =>
+    $primary
+      ? 'linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%)'
+      : 'rgba(255, 255, 255, 0.08)'};
   }
-`;
-
-const SecondaryButton = styled.button`
-  padding: 0.75rem 1.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.4);
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `;
