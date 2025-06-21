@@ -1,11 +1,10 @@
 import React, { useState, useContext } from "react";
 import styled, { keyframes } from 'styled-components';
-import RestaurantMap from "./RestaurantMap";
 import CuisineChat from "./CuisineChat";
 import LoadingScreen from "../components/LoadingScreen";
 import mixpanel from "mixpanel-browser";
 import { UserContext } from "../context/user";
-import { Users, Share, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, Cog, X, ExternalLink, MapPin, DollarSign, Globe } from 'lucide-react';
+import { Users, Share, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, Cog, X, ExternalLink, MapPin, DollarSign, Globe, Zap } from 'lucide-react';
 
 const fadeIn = keyframes`
   from { 
@@ -56,10 +55,17 @@ const PhaseIndicator = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1rem;
   border-radius: 0.75rem;
   margin-bottom: 1.5rem;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+  }
 `;
 
 const PhaseIcon = styled.div`
@@ -127,17 +133,20 @@ const PreferencesButton = styled.button`
   background: rgba(255, 255, 255, 0.2);
   color: #fff;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 9999px;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
+  font-size: 0.9rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   margin: 0 auto;
+  transition: all 0.2s ease;
   
   &:hover {
     background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
   }
 `;
 
@@ -171,23 +180,27 @@ const SubmittedText = styled.p`
 const ResubmitButton = styled.button`
   background: transparent;
   color: #28a745;
-  border: 1px solid #28a745;
-  padding: 0.5rem 1rem;
+  border: 1px solid rgba(40, 167, 69, 0.3);
+  padding: 0.6rem 1rem;
   border-radius: 0.5rem;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   margin: 0 auto;
+  transition: all 0.2s ease;
   
   &:hover {
     background: rgba(40, 167, 69, 0.1);
+    transform: translateY(-1px);
   }
 `;
 
 const OrganizerSection = styled.div`
-  background: #2a1e30;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1.5rem;
   border-radius: 1rem;
   margin-bottom: 2rem;
@@ -229,12 +242,12 @@ const ParticipantStatus = styled.div`
 `;
 
 const WarningBox = styled.div`
-  background: rgba(255, 193, 7, 0.2);
+  background: rgba(255, 193, 7, 0.1);
   border: 1px solid rgba(255, 193, 7, 0.3);
   padding: 1rem;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   color: #ffc107;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   margin: 1rem 0;
 `;
 
@@ -252,15 +265,18 @@ const RecommendationsList = styled.ul`
 
 const ListItem = styled.li`
   position: relative;
-  background: ${({ $selected }) => $selected ? 'rgba(40, 167, 69, 0.2)' : '#2a1e30'};
-  border: ${({ $selected }) => $selected ? '2px solid #28a745' : 'none'};
+  background: ${({ $selected }) => $selected ? 'rgba(40, 167, 69, 0.2)' : 'rgba(255, 255, 255, 0.05)'};
+  border: ${({ $selected }) => $selected ? '1px solid #28a745' : '1px solid rgba(255, 255, 255, 0.1)'};
   padding: 1.5rem 1rem 1rem;
   margin-bottom: 0.75rem;
   border-radius: 0.75rem;
   cursor: pointer;
+  transition: all 0.2s ease;
   
   &:hover {
-    background: ${({ $selected }) => $selected ? 'rgba(40, 167, 69, 0.3)' : '#342540'};
+    background: ${({ $selected }) => $selected ? 'rgba(40, 167, 69, 0.3)' : 'rgba(255, 255, 255, 0.08)'};
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
 `;
 
@@ -271,9 +287,9 @@ const SelectedBadge = styled.div`
   background: #28a745;
   color: #fff;
   padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
+  border-radius: 0.5rem;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -328,10 +344,6 @@ const VoteCount = styled.div`
   font-size: 0.875rem;
 `;
 
-const RestaurantMapWrapper = styled.div`
-  margin-top: 1rem;
-`;
-
 const DimOverlay = styled.div`
   position: fixed;
   inset: 0;
@@ -383,43 +395,49 @@ const ModalContainer = styled.div`
 `;
 
 const ModalHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 2rem 2rem 1rem 2rem;
+  padding: 2rem 2rem 1rem;
+  text-align: left;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  position: sticky;
-  top: 0;
-  background: linear-gradient(135deg, #2a1e30 0%, #342540 100%);
-  border-radius: 1.5rem 1.5rem 0 0;
-  z-index: 10;
-`;
-
-const ModalTitle = styled.h2`
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #fff;
-  font-family: 'Montserrat', sans-serif;
+  position: relative;
 `;
 
 const CloseButton = styled.button`
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  color: #fff;
+  z-index: 10;
   transition: all 0.2s ease;
+  width: 36px;
+  height: 36px;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
   }
+`;
+
+const ModalTitle = styled.h2`
+  color: #fff;
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+`;
+
+const ModalSubtitle = styled.p`
+  color: #ccc;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
 `;
 
 const ModalBody = styled.div`
@@ -517,31 +535,47 @@ const Reason = styled.div`
 
 const ReasonTitle = styled.div`
   color: #cc31e8;
-  font-weight: 600;
+  font-weight: 500;
   margin-bottom: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 `;
 
 const ReasonText = styled.p`
   color: #ccc;
   margin: 0;
   line-height: 1.4;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+`;
+
+const ReasonList = styled.ul`
+  color: #ccc;
+  margin: 0;
+  padding-left: 1rem;
+  line-height: 1.4;
+  font-size: 0.85rem;
+  
+  li {
+    margin-bottom: 0.25rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
 `;
 
 const WebsiteLink = styled.a`
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   color: #cc31e8;
   text-decoration: none;
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: 500;
+  font-size: 0.85rem;
   margin-top: 1rem;
-  padding: 0.75rem 1rem;
+  padding: 0.6rem 1rem;
   background: rgba(204, 49, 232, 0.1);
   border: 1px solid rgba(204, 49, 232, 0.3);
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   transition: all 0.2s ease;
   
   &:hover {
@@ -550,18 +584,68 @@ const WebsiteLink = styled.a`
   }
 `;
 
-const Button = styled.button`
-  padding: 1rem 1.5rem;
-  border: none;
+const GoogleMapContainer = styled.div`
+  width: 100%;
+  height: 200px;
   border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  margin-top: 1rem;
+  
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+`;
+
+const MapLoadingContainer = styled.div`
+  width: 100%;
+  height: 200px;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+`;
+
+const MapLoadingSpinner = styled.div`
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(204, 49, 232, 0.3);
+  border-top: 3px solid #cc31e8;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
+const MapLoadingText = styled.div`
+  color: #ccc;
+  font-size: 0.85rem;
+  text-align: center;
+`;
+
+const Button = styled.button`
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 0.5rem;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem;
+  font-weight: 500;
+  font-size: 0.9rem;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   width: 100%;
   
   background: ${({ $primary }) =>
@@ -569,14 +653,14 @@ const Button = styled.button`
       ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)'
       : 'rgba(255, 255, 255, 0.05)'};
   color: ${({ $primary }) => ($primary ? 'white' : '#cc31e8')};
-  border: ${({ $primary }) => ($primary ? 'none' : '2px solid rgba(204, 49, 232, 0.3)')};
+  border: ${({ $primary }) => ($primary ? 'none' : '1px solid rgba(204, 49, 232, 0.3)')};
   
   &:hover:not(:disabled) { 
-    transform: translateY(-2px);
+    transform: translateY(-1px);
     box-shadow: ${({ $primary }) =>
     $primary
-      ? '0 8px 20px rgba(204, 49, 232, 0.3)'
-      : '0 4px 12px rgba(0, 0, 0, 0.2)'};
+      ? '0 4px 12px rgba(204, 49, 232, 0.3)'
+      : '0 2px 8px rgba(0, 0, 0, 0.2)'};
     background: ${({ $primary }) =>
     $primary
       ? 'linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%)'
@@ -597,40 +681,84 @@ const ButtonRow = styled.div`
   margin-top: 1.5rem;
 `;
 
-const InfoRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: #ccc;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-`;
-
 const FullWidthButton = styled.button`
   width: 100%;
-  background: ${({ $primary }) => ($primary ? '#cc31e8' : 'transparent')};
-  color: ${({ $primary }) => ($primary ? '#fff' : '#6c63ff')};
-  border: ${({ $primary }) => ($primary ? 'none' : '1px solid #6c63ff')};
-  padding: 1rem;
-  font-size: 1rem;
+  background: ${({ $primary }) => ($primary ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)' : 'transparent')};
+  color: ${({ $primary }) => ($primary ? '#fff' : '#cc31e8')};
+  border: ${({ $primary }) => ($primary ? 'none' : '1px solid rgba(204, 49, 232, 0.3)')};
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  border-radius: 6px;
+  gap: 0.4rem;
+  border-radius: 0.5rem;
   cursor: pointer;
   text-align: left;
+  transition: all 0.2s ease;
 
   &:hover {
     ${({ $primary }) =>
     $primary
-      ? `background: #b22cc0;`
-      : `background: rgba(108, 99, 255, 0.1); color: #6c63ff;`}
+      ? `background: linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(204, 49, 232, 0.3);`
+      : `background: rgba(204, 49, 232, 0.1); color: #cc31e8; transform: translateY(-1px);`}
   }
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 `;
+
+const ModalProgressContainer = styled.div`
+  margin: 1rem 0;
+`;
+
+const ModalProgressBarContainer = styled.div`
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+`;
+
+const ModalProgressBar = styled.div`
+  height: 100%;
+  background: linear-gradient(135deg, #cc31e8 0%, #9051e1 100%);
+  width: ${({ $percent }) => $percent}%;
+  transition: width 0.3s ease;
+`;
+
+const ProgressInfo = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #ccc;
+  font-size: 0.85rem;
+`;
+
+const ProgressLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const ProgressPercentage = styled.div`
+  color: #cc31e8;
+  font-weight: 600;
+`;
+
+// Google Maps helper function
+const generateGoogleMapsEmbedUrl = (address, apiKey) => {
+  if (!address || !apiKey) {
+    console.log('Missing address or API key:', { address, apiKey: apiKey ? 'Present' : 'Missing' });
+    return null;
+  }
+
+  const encodedAddress = encodeURIComponent(address);
+  const url = `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodedAddress}&zoom=15`;
+  console.log('Generated Google Maps URL:', url);
+  return url;
+};
 
 export default function AIRecommendations({
   activity,
@@ -647,9 +775,28 @@ export default function AIRecommendations({
   const [selectedRec, setSelectedRec] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showMoveToVotingModal, setShowMoveToVotingModal] = useState(false);
+  const [mapLoading, setMapLoading] = useState(true);
+
+  // Auto-hide loading state after a reasonable time
+  React.useEffect(() => {
+    if (mapLoading && showDetailModal) {
+      const timer = setTimeout(() => {
+        setMapLoading(false);
+      }, 3000); // Hide loading after 3 seconds max
+
+      return () => clearTimeout(timer);
+    }
+  }, [mapLoading, showDetailModal]);
 
   const { id, responses, activity_location, date_notes, collecting, voting, finalized, selected_pinned_activity_id } = activity;
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
+  // Get Google Maps API key from environment
+  const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_KEY;
+
+  // Debug logging
+  console.log('Google Maps API Key status:', GOOGLE_MAPS_API_KEY ? 'Present' : 'Missing');
+  console.log('Environment variables:', process.env);
 
   const totalParticipants = activity.participants.length + 1;
   const currentUserResponse = responses.find(r => r.user_id === user.id);
@@ -810,12 +957,30 @@ export default function AIRecommendations({
   function openDetail(rec) {
     setSelectedRec(rec);
     setShowDetailModal(true);
+    setMapLoading(true); // Reset loading state when opening new modal
   }
 
   function closeDetail() {
     setShowDetailModal(false);
     setSelectedRec(null);
   }
+
+  // Function to parse reason into bullet points
+  const parseReasonToBullets = (reason) => {
+    if (!reason) return [];
+
+    // Split by common bullet point indicators or line breaks
+    const bullets = reason.split(/[•\-*\n]/)
+      .map(item => item.trim())
+      .filter(item => item.length > 0);
+
+    // If no clear bullets found, return the original as single item
+    if (bullets.length <= 1) {
+      return [reason];
+    }
+
+    return bullets;
+  };
 
   const shareUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activity.id}/share`;
   const sharePlanUrlClick = () => {
@@ -918,7 +1083,8 @@ export default function AIRecommendations({
           <ModalOverlay onClick={() => setShowMoveToVotingModal(false)}>
             <ModalContainer onClick={(e) => e.stopPropagation()}>
               <ModalHeader>
-                <ModalTitle>Move to Voting Phase</ModalTitle>
+                <ModalTitle>Move to voting phase?</ModalTitle>
+                <ModalSubtitle>Generate recommendations and start group voting</ModalSubtitle>
                 <CloseButton onClick={() => setShowMoveToVotingModal(false)}>
                   <X size={20} />
                 </CloseButton>
@@ -926,10 +1092,18 @@ export default function AIRecommendations({
 
               <ModalBody>
                 <Section>
-                  <InfoRow style={{textAlign: 'left'}}>
-                    <Users size={18} />
-                    <span>{Math.round(responseRate)}% of participants have submitted preferences 💌</span>
-                  </InfoRow>
+                  <ModalProgressContainer>
+                    <ModalProgressBarContainer>
+                      <ModalProgressBar $percent={responseRate} />
+                    </ModalProgressBarContainer>
+                    <ProgressInfo>
+                      <ProgressLeft>
+                        <Users size={16} />
+                        <span>{responses.length}/{totalParticipants} users submitted</span>
+                      </ProgressLeft>
+                      <ProgressPercentage>{Math.round(responseRate)}%</ProgressPercentage>
+                    </ProgressInfo>
+                  </ModalProgressContainer>
 
                   {responseRate < 50 && (
                     <WarningBox>
@@ -943,6 +1117,7 @@ export default function AIRecommendations({
                     Cancel
                   </Button>
                   <Button $primary onClick={moveToVotingPhase}>
+                    <Zap size={16} />
                     Generate Recommendations
                   </Button>
                 </ButtonRow>
@@ -1028,11 +1203,6 @@ export default function AIRecommendations({
               </ListItem>
             ))}
         </RecommendationsList>
-        {pinnedActivities.length > 0 && (
-          <RestaurantMapWrapper>
-            <RestaurantMap recommendations={pinnedActivities} />
-          </RestaurantMapWrapper>
-        )}
 
         {showDetailModal && selectedRec && (
           <ModalOverlay onClick={closeDetail}>
@@ -1047,7 +1217,7 @@ export default function AIRecommendations({
               <ModalBody>
                 <DetailGrid>
                   <DetailItem>
-                    <DollarSign style={{color: '#D4AF37'}} size={16} />
+                    <DollarSign style={{ color: '#D4AF37' }} size={16} />
                     <DetailLabel>Price:</DetailLabel>
                     <DetailValue>{selectedRec.price_range || "N/A"}</DetailValue>
                   </DetailItem>
@@ -1057,16 +1227,6 @@ export default function AIRecommendations({
                     <DetailValue>{selectedRec.hours || "N/A"}</DetailValue>
                   </DetailItem>
                 </DetailGrid>
-
-                {selectedRec.address && (
-                  <Section>
-                    <SectionHeader>
-                      <MapPin size={20} />
-                      <SectionTitle>Location</SectionTitle>
-                    </SectionHeader>
-                    <Description>{selectedRec.address}</Description>
-                  </Section>
-                )}
 
                 {selectedRec.description && (
                   <Section>
@@ -1090,10 +1250,69 @@ export default function AIRecommendations({
                   </Section>
                 )}
 
+                {selectedRec.address && (
+                  <Section>
+                    <SectionHeader>
+                      <MapPin size={20} />
+                      <SectionTitle>Location</SectionTitle>
+                    </SectionHeader>
+                    <Description>{selectedRec.address}</Description>
+
+                    {/* Google Maps Embed with Loading State */}
+                    {GOOGLE_MAPS_API_KEY ? (
+                      <div style={{ position: 'relative' }}>
+                        {mapLoading && (
+                          <MapLoadingContainer>
+                            <MapLoadingSpinner />
+                            <MapLoadingText>Loading map...</MapLoadingText>
+                          </MapLoadingContainer>
+                        )}
+                        <GoogleMapContainer style={{ display: mapLoading ? 'none' : 'block' }}>
+                          <iframe
+                            title={`Map showing location of ${selectedRec.title || selectedRec.name}`}
+                            src={generateGoogleMapsEmbedUrl(selectedRec.address, GOOGLE_MAPS_API_KEY)}
+                            allowFullScreen
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            onLoad={() => {
+                              console.log('Map iframe loaded');
+                              setTimeout(() => setMapLoading(false), 500); // Small delay to ensure map content loads
+                            }}
+                            onError={() => {
+                              console.log('Map failed to load');
+                              setMapLoading(false);
+                            }}
+                          />
+                        </GoogleMapContainer>
+                      </div>
+                    ) : (
+                      <div style={{
+                        padding: '1rem',
+                        background: 'rgba(255, 193, 7, 0.1)',
+                        border: '1px solid rgba(255, 193, 7, 0.3)',
+                        borderRadius: '0.75rem',
+                        color: '#ffc107',
+                        fontSize: '0.85rem',
+                        marginTop: '1rem'
+                      }}>
+                        ⚠️ Google Maps API key not found. Check your environment variables.
+                      </div>
+                    )}
+                  </Section>
+                )}
+
                 {selectedRec.reason && (
                   <Reason style={{ marginBottom: '1rem' }}>
                     <ReasonTitle>Why This Restaurant?</ReasonTitle>
-                    <ReasonText>{selectedRec.reason}</ReasonText>
+                    {parseReasonToBullets(selectedRec.reason).length > 1 ? (
+                      <ReasonList>
+                        {parseReasonToBullets(selectedRec.reason).map((bullet, index) => (
+                          <li key={index}>{bullet}</li>
+                        ))}
+                      </ReasonList>
+                    ) : (
+                      <ReasonText>{selectedRec.reason}</ReasonText>
+                    )}
                   </Reason>
                 )}
 
@@ -1173,12 +1392,6 @@ export default function AIRecommendations({
             })}
         </RecommendationsList>
 
-        {pinnedActivities.length > 0 && (
-          <RestaurantMapWrapper>
-            <RestaurantMap recommendations={pinnedActivities} />
-          </RestaurantMapWrapper>
-        )}
-
         {showDetailModal && selectedRec && (
           <ModalOverlay onClick={closeDetail}>
             <ModalContainer onClick={(e) => e.stopPropagation()}>
@@ -1192,7 +1405,7 @@ export default function AIRecommendations({
               <ModalBody>
                 <DetailGrid>
                   <DetailItem>
-                    <DollarSign style={{color: '#D4AF37'}} size={16} />
+                    <DollarSign style={{ color: '#D4AF37' }} size={16} />
                     <DetailLabel>Price:</DetailLabel>
                     <DetailValue>{selectedRec.price_range || "N/A"}</DetailValue>
                   </DetailItem>
@@ -1203,6 +1416,28 @@ export default function AIRecommendations({
                   </DetailItem>
                 </DetailGrid>
 
+                {selectedRec.description && (
+                  <Section>
+                    <SectionHeader>
+                      <HelpCircle size={20} />
+                      <SectionTitle>About</SectionTitle>
+                    </SectionHeader>
+                    <Description>
+                      {selectedRec.description}
+                      {selectedRec.website && (
+                        <>
+                          <br /><br />
+                          <WebsiteLink href={selectedRec.website} target="_blank" rel="noopener noreferrer">
+                            <Globe size={16} />
+                            Visit Website
+                            <ExternalLink size={14} />
+                          </WebsiteLink>
+                        </>
+                      )}
+                    </Description>
+                  </Section>
+                )}
+
                 {selectedRec.address && (
                   <Section>
                     <SectionHeader>
@@ -1210,32 +1445,63 @@ export default function AIRecommendations({
                       <SectionTitle>Location</SectionTitle>
                     </SectionHeader>
                     <Description>{selectedRec.address}</Description>
-                  </Section>
-                )}
 
-                {selectedRec.description && (
-                  <Section>
-                    <SectionHeader>
-                      <HelpCircle size={20} />
-                      <SectionTitle>About</SectionTitle>
-                    </SectionHeader>
-                    <Description>{selectedRec.description}</Description>
+                    {/* Google Maps Embed with Loading State */}
+                    {GOOGLE_MAPS_API_KEY ? (
+                      <div style={{ position: 'relative' }}>
+                        {mapLoading && (
+                          <MapLoadingContainer>
+                            <MapLoadingSpinner />
+                            <MapLoadingText>Loading map...</MapLoadingText>
+                          </MapLoadingContainer>
+                        )}
+                        <GoogleMapContainer style={{ display: mapLoading ? 'none' : 'block' }}>
+                          <iframe
+                            title={`Map showing location of ${selectedRec.title || selectedRec.name}`}
+                            src={generateGoogleMapsEmbedUrl(selectedRec.address, GOOGLE_MAPS_API_KEY)}
+                            allowFullScreen
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            onLoad={() => {
+                              console.log('Map iframe loaded');
+                              setTimeout(() => setMapLoading(false), 500); // Small delay to ensure map content loads
+                            }}
+                            onError={() => {
+                              console.log('Map failed to load');
+                              setMapLoading(false);
+                            }}
+                          />
+                        </GoogleMapContainer>
+                      </div>
+                    ) : (
+                      <div style={{
+                        padding: '1rem',
+                        background: 'rgba(255, 193, 7, 0.1)',
+                        border: '1px solid rgba(255, 193, 7, 0.3)',
+                        borderRadius: '0.75rem',
+                        color: '#ffc107',
+                        fontSize: '0.85rem',
+                        marginTop: '1rem'
+                      }}>
+                        ⚠️ Google Maps API key not found. Check your environment variables.
+                      </div>
+                    )}
                   </Section>
                 )}
 
                 {selectedRec.reason && (
-                  <Reason style={{ textAlign: 'left' }}>
+                  <Reason style={{ marginBottom: '1rem' }}>
                     <ReasonTitle>Why This Restaurant?</ReasonTitle>
-                    <ReasonText>{selectedRec.reason}</ReasonText>
+                    {parseReasonToBullets(selectedRec.reason).length > 1 ? (
+                      <ReasonList>
+                        {parseReasonToBullets(selectedRec.reason).map((bullet, index) => (
+                          <li key={index}>{bullet}</li>
+                        ))}
+                      </ReasonList>
+                    ) : (
+                      <ReasonText>{selectedRec.reason}</ReasonText>
+                    )}
                   </Reason>
-                )}
-
-                {selectedRec.website && (
-                  <WebsiteLink style={{marginBottom: '1rem'}} href={selectedRec.website} target="_blank" rel="noopener noreferrer">
-                    <Globe size={16} />
-                    Visit Website
-                    <ExternalLink size={14} />
-                  </WebsiteLink>
                 )}
 
                 {(selectedRec.photos || []).length > 0 && (

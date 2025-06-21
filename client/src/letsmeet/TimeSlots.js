@@ -1,10 +1,21 @@
 import React, { useState, useContext } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { format, parseISO } from 'date-fns';
-import { Users, Share, HeartPulse, Clock, Trash, CheckCircle, Vote, Flag, Cog, Calendar } from 'lucide-react';
+import { Users, Share, HeartPulse, Clock, Trash, CheckCircle, Vote, Flag, Cog, Calendar, X, Zap } from 'lucide-react';
 import LetsMeetScheduler from './LetsMeetScheduler';
 import LoadingScreenUser from "../admincomponents/LoadingScreenUser";
 import { UserContext } from "../context/user";
+
+const fadeIn = keyframes`
+  from { 
+    opacity: 0; 
+    transform: scale(0.95);
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+`;
 
 const fadeInNoTransform = keyframes`
   from { opacity: 0; }
@@ -44,10 +55,17 @@ const PhaseIndicator = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1rem;
   border-radius: 0.75rem;
   margin-bottom: 1.5rem;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+  }
 `;
 
 const PhaseIcon = styled.div`
@@ -115,17 +133,20 @@ const PreferencesButton = styled.button`
   background: rgba(255, 255, 255, 0.2);
   color: #fff;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 9999px;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
+  font-size: 0.9rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   margin: 0 auto;
+  transition: all 0.2s ease;
   
   &:hover {
     background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
   }
 `;
 
@@ -159,23 +180,27 @@ const SubmittedText = styled.p`
 const ResubmitButton = styled.button`
   background: transparent;
   color: #28a745;
-  border: 1px solid #28a745;
-  padding: 0.5rem 1rem;
+  border: 1px solid rgba(40, 167, 69, 0.3);
+  padding: 0.6rem 1rem;
   border-radius: 0.5rem;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   margin: 0 auto;
+  transition: all 0.2s ease;
   
   &:hover {
     background: rgba(40, 167, 69, 0.1);
+    transform: translateY(-1px);
   }
 `;
 
 const OrganizerSection = styled.div`
-  background: #2a1e30;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1.5rem;
   border-radius: 1rem;
   margin-bottom: 2rem;
@@ -185,6 +210,7 @@ const OrganizerTitle = styled.h3`
   margin: 0 0 1rem 0;
   font-size: 1.2rem;
   color: #fff;
+  font-family: 'Montserrat', sans-serif;
 `;
 
 const ParticipantsList = styled.div`
@@ -215,22 +241,31 @@ const ParticipantStatus = styled.div`
   color: ${({ $submitted }) => $submitted ? '#28a745' : '#ffc107'};
 `;
 
-const MoveToVotingButton = styled.button`
+const FullWidthButton = styled.button`
   width: 100%;
-  background: #cc31e8;
-  color: #fff;
-  border: none;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-weight: 600;
+  background: ${({ $primary }) => ($primary ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)' : 'transparent')};
+  color: ${({ $primary }) => ($primary ? '#fff' : '#cc31e8')};
+  border: ${({ $primary }) => ($primary ? 'none' : '1px solid rgba(204, 49, 232, 0.3)')};
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  
+  gap: 0.4rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+
   &:hover {
-    background: #b22cc0;
+    ${({ $primary }) =>
+        $primary
+            ? `background: linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(204, 49, 232, 0.3);`
+            : `background: rgba(204, 49, 232, 0.1); color: #cc31e8; transform: translateY(-1px);`}
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 
@@ -254,16 +289,17 @@ const TimeSlotsList = styled.div`
 `;
 
 const TimeSlotCard = styled.div`
-  background: ${({ $selected }) => $selected ? 'rgba(40, 167, 69, 0.2)' : '#2a1e30'};
-  border: ${({ $selected }) => $selected ? '2px solid #28a745' : '1px solid rgba(255, 255, 255, 0.1)'};
+  background: ${({ $selected }) => $selected ? 'rgba(40, 167, 69, 0.2)' : 'rgba(255, 255, 255, 0.05)'};
+  border: ${({ $selected }) => $selected ? '1px solid #28a745' : '1px solid rgba(255, 255, 255, 0.1)'};
   padding: 1rem;
   border-radius: 0.75rem;
   position: relative;
   transition: all 0.2s ease;
   
   &:hover {
-    background: ${({ $selected }) => $selected ? 'rgba(40, 167, 69, 0.3)' : '#342540'};
-    transform: translateY(-2px);
+    background: ${({ $selected }) => $selected ? 'rgba(40, 167, 69, 0.3)' : 'rgba(255, 255, 255, 0.08)'};
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
 `;
 
@@ -274,9 +310,9 @@ const SelectedBadge = styled.div`
   background: #28a745;
   color: #fff;
   padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
+  border-radius: 0.5rem;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -311,18 +347,17 @@ const VoteButton = styled.button`
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid ${(props) => (props.$liked ? "#e25555" : "rgba(255, 255, 255, 0.2)")};
+  background: none;
+  border: none;
   color: ${(props) => (props.$liked ? "#e25555" : "#ccc")};
-  padding: 0.5rem 0.75rem;
-  border-radius: 1rem;
   cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  & svg {
+    fill: ${(props) => (props.$liked ? "#e25555" : "none")};
+  }
   transition: all 0.2s ease;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
     transform: scale(1.05);
   }
 `;
@@ -332,10 +367,7 @@ const VoteCount = styled.div`
   align-items: center;
   gap: 0.25rem;
   color: #ccc;
-  font-size: 0.8rem;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 0.5rem 0.75rem;
-  border-radius: 1rem;
+  font-size: 0.875rem;
 `;
 
 const DeleteButton = styled.button`
@@ -356,86 +388,205 @@ const DeleteButton = styled.button`
   }
 `;
 
-const DimOverlay = styled.div`
+// Modal Styles matching AIRecommendations
+const ModalOverlay = styled.div`
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 900;
-`;
-
-const GenerateDim = styled(DimOverlay)`
-  backdrop-filter: blur(6px);
-`;
-
-const GenerateModal = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #2a1e30;
-  padding: 1.5rem 2rem;
-  border-radius: 1rem;
-  z-index: 1002;
-  width: 90%;
-  max-width: 24rem;
-  color: #fff;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  text-align: left;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  padding: 1rem;
+`;
+
+const ModalContainer = styled.div`
+  background: linear-gradient(135deg, #2a1e30 0%, #342540 100%);
+  padding: 0;
+  border-radius: 1.5rem;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  color: #fff;
+  animation: ${fadeIn} 0.3s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #cc31e8;
+    border-radius: 2px;
+  }
 `;
 
 const ModalHeader = styled.div`
+  padding: 2rem 2rem 1rem;
   text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
 `;
 
-const ModalTitle = styled.h3`
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: 500;
-`;
-
-const InfoRow = styled.div`
+const CloseButton = styled.button`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #ccc;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.2s ease;
+  width: 36px;
+  height: 36px;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+  }
 `;
 
-const WarningBox = styled.div`
-  background: rgba(255, 193, 7, 0.2);
-  border: 1px solid rgba(255, 193, 7, 0.3);
-  padding: 1rem;
-  border-radius: 0.5rem;
-  color: #ffc107;
+const ModalTitle = styled.h2`
+  color: #fff;
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+`;
+
+const ModalSubtitle = styled.p`
+  color: #ccc;
+  margin: 0;
   font-size: 0.9rem;
+  line-height: 1.4;
+`;
+
+const ModalBody = styled.div`
+  padding: 1.5rem 2rem 2rem 2rem;
+`;
+
+const Section = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1.5rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const ModalProgressContainer = styled.div`
   margin: 1rem 0;
 `;
 
-const FullWidthButton = styled.button`
-  width: 100%;
-  background: ${({ $primary }) => ($primary ? '#cc31e8' : 'transparent')};
-  color: ${({ $primary }) => ($primary ? '#fff' : '#6c63ff')};
-  border: ${({ $primary }) => ($primary ? 'none' : '1px solid #6c63ff')};
-  padding: 1rem;
-  font-size: 1rem;
+const ModalProgressBarContainer = styled.div`
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+`;
+
+const ModalProgressBar = styled.div`
+  height: 100%;
+  background: linear-gradient(135deg, #cc31e8 0%, #9051e1 100%);
+  width: ${({ $percent }) => $percent}%;
+  transition: width 0.3s ease;
+`;
+
+const ProgressInfo = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #ccc;
+  font-size: 0.85rem;
+`;
+
+const ProgressLeft = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  text-align: left;
+`;
 
-  &:hover {
-    ${({ $primary }) =>
+const ProgressPercentage = styled.div`
+  color: #cc31e8;
+  font-weight: 600;
+`;
+
+const WarningBox = styled.div`
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  color: #ffc107;
+  font-size: 0.85rem;
+  margin: 1rem 0;
+`;
+
+const Button = styled.button`
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  
+  background: ${({ $primary }) =>
         $primary
-            ? `background: #b22cc0;`
-            : `background: rgba(108, 99, 255, 0.1); color: #6c63ff;`}
+            ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)'
+            : 'rgba(255, 255, 255, 0.05)'};
+  color: ${({ $primary }) => ($primary ? 'white' : '#cc31e8')};
+  border: ${({ $primary }) => ($primary ? 'none' : '1px solid rgba(204, 49, 232, 0.3)')};
+  
+  &:hover:not(:disabled) { 
+    transform: translateY(-1px);
+    box-shadow: ${({ $primary }) =>
+        $primary
+            ? '0 4px 12px rgba(204, 49, 232, 0.3)'
+            : '0 2px 8px rgba(0, 0, 0, 0.2)'};
+    background: ${({ $primary }) =>
+        $primary
+            ? 'linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%)'
+            : 'rgba(255, 255, 255, 0.08)'};
   }
+  
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
+`;
+
+const ButtonRow = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
 `;
 
 export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, toggleVote, handleTimeSlotDelete, isOwner, setCurrentActivity }) {
@@ -613,7 +764,7 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
 
                 {isOwner && (
                     <OrganizerSection>
-                        <OrganizerTitle><Cog size={20} /> Organizer Controls</OrganizerTitle>
+                        <OrganizerTitle><Cog size={20} style={{ marginBottom: '4px' }} /> Organizer Controls</OrganizerTitle>
                         <ParticipantsList>
                             {currentActivity.participants.concat([{ id: user.id, name: currentActivity.user?.name || 'You' }]).map((participant, index) => {
                                 const hasSubmitted = availabilityResponses.some(r => r.user_id === participant.id);
@@ -628,10 +779,10 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
                                 );
                             })}
                         </ParticipantsList>
-                        <MoveToVotingButton onClick={() => setShowMoveToVotingModal(true)}>
+                        <FullWidthButton $primary onClick={() => setShowMoveToVotingModal(true)}>
                             <Vote size={20} />
                             Move to Voting Phase
-                        </MoveToVotingButton>
+                        </FullWidthButton>
                     </OrganizerSection>
                 )}
 
@@ -673,37 +824,50 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
                 )}
 
                 {showMoveToVotingModal && (
-                    <>
-                        <GenerateDim onClick={() => setShowMoveToVotingModal(false)} />
-                        <GenerateModal>
+                    <ModalOverlay onClick={() => setShowMoveToVotingModal(false)}>
+                        <ModalContainer onClick={(e) => e.stopPropagation()}>
                             <ModalHeader>
-                                <ModalTitle>Move to Voting Phase?</ModalTitle>
+                                <ModalTitle>Move to voting phase?</ModalTitle>
+                                <ModalSubtitle>Generate time slots and start group voting</ModalSubtitle>
+                                <CloseButton onClick={() => setShowMoveToVotingModal(false)}>
+                                    <X size={20} />
+                                </CloseButton>
                             </ModalHeader>
 
-                            <InfoRow>
-                                <Users size={18} />
-                                <span>{Math.round(responseRate)}% of participants have submitted availability</span>
-                            </InfoRow>
+                            <ModalBody>
+                                <Section>
+                                    <ModalProgressContainer>
+                                        <ModalProgressBarContainer>
+                                            <ModalProgressBar $percent={responseRate} />
+                                        </ModalProgressBarContainer>
+                                        <ProgressInfo>
+                                            <ProgressLeft>
+                                                <Users size={16} />
+                                                <span>{availabilityResponses.length}/{totalParticipants} users submitted</span>
+                                            </ProgressLeft>
+                                            <ProgressPercentage>{Math.round(responseRate)}%</ProgressPercentage>
+                                        </ProgressInfo>
+                                    </ModalProgressContainer>
 
-                            {responseRate < 50 && (
-                                <WarningBox>
-                                    <span>⚠️ Less than 50% of participants have submitted their availability. Consider waiting for more responses to get better time slots.</span>
-                                </WarningBox>
-                            )}
+                                    {responseRate < 50 && (
+                                        <WarningBox>
+                                            <span>⚠️ Less than 50% of participants have submitted their availability. Consider waiting for more responses to get better time slots.</span>
+                                        </WarningBox>
+                                    )}
+                                </Section>
 
-                            <FullWidthButton $primary onClick={moveToVotingPhase}>
-                                <Vote size={20} />
-                                <div>
-                                    <div>Generate Time Slots & Start Voting</div>
-                                    <small>This will create the most popular time slots for voting</small>
-                                </div>
-                            </FullWidthButton>
-
-                            <FullWidthButton onClick={() => setShowMoveToVotingModal(false)}>
-                                Cancel
-                            </FullWidthButton>
-                        </GenerateModal>
-                    </>
+                                <ButtonRow>
+                                    <Button onClick={() => setShowMoveToVotingModal(false)}>
+                                        Cancel
+                                    </Button>
+                                    <Button $primary onClick={moveToVotingPhase}>
+                                        <Zap size={16} />
+                                        Generate Time Slots
+                                    </Button>
+                                </ButtonRow>
+                            </ModalBody>
+                        </ModalContainer>
+                    </ModalOverlay>
                 )}
             </Container>
         );
@@ -732,7 +896,7 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
 
                 {isOwner && (
                     <OrganizerSection>
-                        <OrganizerTitle><Cog size={20} /> Organizer Controls</OrganizerTitle>
+                        <OrganizerTitle><Cog style={{ marginBottom: '4px' }} size={20} /> Organizer Controls</OrganizerTitle>
                         <ParticipantsList>
                             {currentActivity.participants.concat([{ id: user.id, name: currentActivity.user?.name || 'You' }]).map((participant, index) => {
                                 const hasVoted = Array.from(participantsWithVotes).includes(participant.id);
@@ -747,10 +911,10 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
                                 );
                             })}
                         </ParticipantsList>
-                        <MoveToVotingButton onClick={onEdit}>
+                        <FullWidthButton $primary onClick={onEdit}>
                             <Flag size={20} />
                             Finalize Activity
-                        </MoveToVotingButton>
+                        </FullWidthButton>
                     </OrganizerSection>
                 )}
 
@@ -792,37 +956,50 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
                 </TimeSlotsList>
 
                 {showFinalizeModal && (
-                    <>
-                        <GenerateDim onClick={() => setShowFinalizeModal(false)} />
-                        <GenerateModal>
+                    <ModalOverlay onClick={() => setShowFinalizeModal(false)}>
+                        <ModalContainer onClick={(e) => e.stopPropagation()}>
                             <ModalHeader>
-                                <ModalTitle>Finalize Activity?</ModalTitle>
+                                <ModalTitle>Finalize activity?</ModalTitle>
+                                <ModalSubtitle>Select the winning time slot and end voting</ModalSubtitle>
+                                <CloseButton onClick={() => setShowFinalizeModal(false)}>
+                                    <X size={20} />
+                                </CloseButton>
                             </ModalHeader>
 
-                            <InfoRow>
-                                <Users size={18} />
-                                <span>{Math.round(votingRate)}% of participants have voted</span>
-                            </InfoRow>
+                            <ModalBody>
+                                <Section>
+                                    <ModalProgressContainer>
+                                        <ModalProgressBarContainer>
+                                            <ModalProgressBar $percent={votingRate} />
+                                        </ModalProgressBarContainer>
+                                        <ProgressInfo>
+                                            <ProgressLeft>
+                                                <Users size={16} />
+                                                <span>{participantsWithVotes.size}/{totalParticipants} users voted</span>
+                                            </ProgressLeft>
+                                            <ProgressPercentage>{Math.round(votingRate)}%</ProgressPercentage>
+                                        </ProgressInfo>
+                                    </ModalProgressContainer>
 
-                            {votingRate < 50 && (
-                                <WarningBox>
-                                    <span>⚠️ Less than 50% of participants have voted. Consider waiting for more votes before finalizing.</span>
-                                </WarningBox>
-                            )}
+                                    {votingRate < 50 && (
+                                        <WarningBox>
+                                            <span>⚠️ Less than 50% of participants have voted. Consider waiting for more votes before finalizing.</span>
+                                        </WarningBox>
+                                    )}
+                                </Section>
 
-                            <FullWidthButton $primary onClick={finalizeActivity}>
-                                <Flag size={20} />
-                                <div>
-                                    <div>Finalize Activity</div>
-                                    <small>This will end the voting phase and select the winning time slot</small>
-                                </div>
-                            </FullWidthButton>
-
-                            <FullWidthButton onClick={() => setShowFinalizeModal(false)}>
-                                Cancel
-                            </FullWidthButton>
-                        </GenerateModal>
-                    </>
+                                <ButtonRow>
+                                    <Button onClick={() => setShowFinalizeModal(false)}>
+                                        Cancel
+                                    </Button>
+                                    <Button $primary onClick={finalizeActivity}>
+                                        <Flag size={16} />
+                                        Finalize Activity
+                                    </Button>
+                                </ButtonRow>
+                            </ModalBody>
+                        </ModalContainer>
+                    </ModalOverlay>
                 )}
             </Container>
         );
@@ -835,13 +1012,13 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
                     <Heading>Activity Finalized</Heading>
                 </TopBar>
 
-                    <PhaseIndicator style={{ cursor: 'pointer' }} onClick={handleClick}>
-                        <PhaseIcon><Share size={24} /> </PhaseIcon>
-                        <PhaseContent>
-                            <PhaseTitle>Share Finalized Activity Link!</PhaseTitle>
-                            <PhaseSubtitle>Click here to view & share finalized activity.</PhaseSubtitle>
-                        </PhaseContent>
-                    </PhaseIndicator>
+                <PhaseIndicator style={{ cursor: 'pointer' }} onClick={handleClick}>
+                    <PhaseIcon><Share size={24} /> </PhaseIcon>
+                    <PhaseContent>
+                        <PhaseTitle>Share Finalized Activity Link!</PhaseTitle>
+                        <PhaseSubtitle>Click here to view & share finalized activity.</PhaseSubtitle>
+                    </PhaseContent>
+                </PhaseIndicator>
 
                 {error && <ErrorText>{error}</ErrorText>}
 

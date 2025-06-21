@@ -5,8 +5,8 @@ import { Menu, ArrowLeft, X } from 'lucide-react';
 import { UserContext } from '../context/user';
 import colors from '../styles/Colors';
 import HEADER from '../assets/HEADER.svg'; // Scalable Voxxy Header SVG
-import GAYHEADER from '../assets/GAYHEADER.svg'; // Scalable Voxxy Header SVG
-import AnimatedPrideHeader from './AnimatedPrideHeader';
+// import GAYHEADER from '../assets/GAYHEADER.svg'; // Scalable Voxxy Header SVG
+// import AnimatedPrideHeader from './AnimatedPrideHeader';
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
