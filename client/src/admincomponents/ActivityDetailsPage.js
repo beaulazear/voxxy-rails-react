@@ -245,7 +245,6 @@ function ActivityDetailsPage({ activityId, onBack }) {
     })
       .then(res => res.json())
       .then(data => {
-        console.log('Time slots data:', data); // <- Add this debug line
         setPinned(data);
       });
   }, [activityId])

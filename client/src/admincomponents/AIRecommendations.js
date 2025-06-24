@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import styled, { keyframes } from 'styled-components';
 import CuisineChat from "./CuisineChat";
-import LoadingScreen from "../components/LoadingScreen";
+import LoadingScreenUser from "./LoadingScreenUser.js";
 import mixpanel from "mixpanel-browser";
 import { UserContext } from "../context/user";
 import { Users, Share, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, Cog, X, ExternalLink, MapPin, DollarSign, Globe, Zap } from 'lucide-react';
@@ -894,8 +894,6 @@ export default function AIRecommendations({
     }
     const hasLiked = (pin.voters || []).some(v => v.id === user.id);
 
-    console.log(pin)
-
     if (hasLiked) {
       const vote = (pin.votes || []).find(v => v.user_id === user.id)
       if (!vote) return;
@@ -982,7 +980,7 @@ export default function AIRecommendations({
     );
   };
 
-  if (loading) return <LoadingScreen autoDismiss={false} />;
+  if (loading) return <LoadingScreenUser autoDismiss={false} />;
 
   if (collecting && !voting) {
     return (

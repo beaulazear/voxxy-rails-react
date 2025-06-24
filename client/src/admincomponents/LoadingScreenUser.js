@@ -74,7 +74,7 @@ function LoadingScreenUser({ onComplete, autoDismiss = true }) {
     <Backdrop>
       <Modal>
         <Logo src={HEADER} alt="Voxxy logo" />
-        <Title>Finding Your Perfect Restaurant Matches...</Title>
+        <Title>Gathering your recommendations...</Title>
         <Spinner />
       </Modal>
     </Backdrop>
