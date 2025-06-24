@@ -1,4 +1,3 @@
-# app/controllers/time_slots_controller.rb
 class TimeSlotsController < ApplicationController
     before_action :authorized
     before_action :set_activity
@@ -9,21 +8,29 @@ class TimeSlotsController < ApplicationController
                 .left_joins(:time_slot_votes)
                 .group("time_slots.id")
                 .order(Arel.sql("COUNT(time_slot_votes.id) DESC"))
+
+      availability_responses = @activity.responses.where(notes: "LetsMeetAvailabilityResponse")
+
       render json: @slots.map { |slot|
                 {
-                  id:          slot.id,
-                  date:        slot.date,
-                  time:        slot.time,
-                  votes_count: slot.votes_count,
-                  user_voted:  slot.user_voted?(current_user),
-                  voter_ids:   slot.time_slot_votes.pluck(:user_id) # Add this line
+                  id:                 slot.id,
+                  date:               slot.date,
+                  time:               slot.time,
+                  votes_count:        slot.votes_count,
+                  user_voted:         slot.user_voted?(current_user),
+                  voter_ids:          slot.time_slot_votes.pluck(:user_id),
+                  availability_count: calculate_availability_count(slot, availability_responses)
                 }
       }
     end
 
     def create
       slot = @activity.time_slots.find_or_create_by!(slot_params)
-      render json: slot.as_json(methods: :votes_count), status: :created
+
+      availability_responses = @activity.responses.where(notes: "LetsMeetAvailabilityResponse")
+      availability_count = calculate_availability_count(slot, availability_responses)
+
+      render json: slot.as_json(methods: :votes_count).merge(availability_count: availability_count), status: :created
     end
 
     def destroy
@@ -35,13 +42,27 @@ class TimeSlotsController < ApplicationController
       vote = @time_slot.time_slot_votes.find_or_initialize_by(user: current_user)
       vote.upvote = true
       vote.save!
-      render json: { votes_count: @time_slot.votes_count }
+
+      availability_responses = @activity.responses.where(notes: "LetsMeetAvailabilityResponse")
+      availability_count = calculate_availability_count(@time_slot, availability_responses)
+
+      render json: {
+        votes_count: @time_slot.votes_count,
+        availability_count: availability_count
+      }
     end
 
     def unvote
       vote = @time_slot.time_slot_votes.find_by(user: current_user)
       vote&.destroy
-      render json: { votes_count: @time_slot.votes_count }
+
+      availability_responses = @activity.responses.where(notes: "LetsMeetAvailabilityResponse")
+      availability_count = calculate_availability_count(@time_slot, availability_responses)
+
+      render json: {
+        votes_count: @time_slot.votes_count,
+        availability_count: availability_count
+      }
     end
 
     private
@@ -56,5 +77,30 @@ class TimeSlotsController < ApplicationController
 
     def slot_params
       params.permit(:date, :time)
+    end
+
+    def calculate_availability_count(slot, availability_responses)
+      count = 0
+
+      availability_responses.each do |response|
+        begin
+          availability = JSON.parse(response.availability.to_json)
+
+          next if availability["open"] == true
+
+          slot_date = slot.date.to_s
+          if availability[slot_date].present? && availability[slot_date].is_a?(Array)
+            slot_time = slot.time.strftime("%H:%M")  # This gives us "09:00", "10:00", etc.
+            if availability[slot_date].include?(slot_time)
+              count += 1
+            end
+          end
+        rescue JSON::ParserError, NoMethodError => e
+          Rails.logger.warn "Error parsing availability for response #{response.id}: #{e.message}"
+          next
+        end
+      end
+
+      count
     end
 end

@@ -244,7 +244,10 @@ function ActivityDetailsPage({ activityId, onBack }) {
       method: 'GET', credentials: 'include', headers: { 'Content-Type': 'application/json' }
     })
       .then(res => res.json())
-      .then(data => setPinned(data));
+      .then(data => {
+        console.log('Time slots data:', data); // <- Add this debug line
+        setPinned(data);
+      });
   }, [activityId])
 
   useEffect(() => {
@@ -477,7 +480,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
       { method: 'POST', credentials: 'include' }
     )
       .then(res => res.json())
-      .then(({ votes_count }) => {
+      .then(({ votes_count, availability_count }) => { // <- Add availability_count here
         setPinned(prev => prev
           .map(s => {
             if (s.id === slot.id) {
@@ -492,8 +495,9 @@ function ActivityDetailsPage({ activityId, onBack }) {
               }
 
               return {
-                ...s,
+                ...s, // <- This preserves existing properties
                 votes_count,
+                availability_count, // <- Add this line
                 user_voted: isVoting,
                 voter_ids: updatedVoterIds
               };

@@ -747,16 +747,13 @@ const ProgressPercentage = styled.div`
   font-weight: 600;
 `;
 
-// Google Maps helper function
 const generateGoogleMapsEmbedUrl = (address, apiKey) => {
   if (!address || !apiKey) {
-    console.log('Missing address or API key:', { address, apiKey: apiKey ? 'Present' : 'Missing' });
     return null;
   }
 
   const encodedAddress = encodeURIComponent(address);
   const url = `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodedAddress}&zoom=15`;
-  console.log('Generated Google Maps URL:', url);
   return url;
 };
 
@@ -777,7 +774,6 @@ export default function AIRecommendations({
   const [showMoveToVotingModal, setShowMoveToVotingModal] = useState(false);
   const [mapLoading, setMapLoading] = useState(true);
 
-  // Auto-hide loading state after a reasonable time
   React.useEffect(() => {
     if (mapLoading && showDetailModal) {
       const timer = setTimeout(() => {
@@ -791,12 +787,7 @@ export default function AIRecommendations({
   const { id, responses, activity_location, date_notes, collecting, voting, finalized, selected_pinned_activity_id } = activity;
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
-  // Get Google Maps API key from environment
   const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_KEY;
-
-  // Debug logging
-  console.log('Google Maps API Key status:', GOOGLE_MAPS_API_KEY ? 'Present' : 'Missing');
-  console.log('Environment variables:', process.env);
 
   const totalParticipants = activity.participants.length + 1;
   const currentUserResponse = responses.find(r => r.user_id === user.id);

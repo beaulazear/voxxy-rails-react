@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { format, parseISO } from 'date-fns';
-import { Users, Share, HeartPulse, Clock, Trash, CheckCircle, Vote, Flag, Cog, Calendar, X, Zap } from 'lucide-react';
+import { Users, Share, HeartPulse, Clock, Trash, CheckCircle, Vote, Flag, Cog, Calendar, X, Zap, UserCheck } from 'lucide-react';
 import LetsMeetScheduler from './LetsMeetScheduler';
 import LoadingScreenUser from "../admincomponents/LoadingScreenUser";
 import { UserContext } from "../context/user";
@@ -259,9 +259,9 @@ const FullWidthButton = styled.button`
 
   &:hover {
     ${({ $primary }) =>
-        $primary
-            ? `background: linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(204, 49, 232, 0.3);`
-            : `background: rgba(204, 49, 232, 0.1); color: #cc31e8; transform: translateY(-1px);`}
+    $primary
+      ? `background: linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(204, 49, 232, 0.3);`
+      : `background: rgba(204, 49, 232, 0.1); color: #cc31e8; transform: translateY(-1px);`}
   }
   &:disabled {
     opacity: 0.5;
@@ -341,6 +341,36 @@ const TimeSlotActions = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+`;
+
+const TimeSlotStats = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const StatRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+`;
+
+const StatLabel = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #ccc;
+`;
+
+const StatValue = styled.div`
+  color: ${({ $type }) =>
+    $type === 'votes' ? '#e25555' :
+      $type === 'available' ? '#28a745' : '#fff'};
+  font-weight: 500;
 `;
 
 const VoteButton = styled.button`
@@ -557,22 +587,22 @@ const Button = styled.button`
   width: 100%;
   
   background: ${({ $primary }) =>
-        $primary
-            ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)'
-            : 'rgba(255, 255, 255, 0.05)'};
+    $primary
+      ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)'
+      : 'rgba(255, 255, 255, 0.05)'};
   color: ${({ $primary }) => ($primary ? 'white' : '#cc31e8')};
   border: ${({ $primary }) => ($primary ? 'none' : '1px solid rgba(204, 49, 232, 0.3)')};
   
   &:hover:not(:disabled) { 
     transform: translateY(-1px);
     box-shadow: ${({ $primary }) =>
-        $primary
-            ? '0 4px 12px rgba(204, 49, 232, 0.3)'
-            : '0 2px 8px rgba(0, 0, 0, 0.2)'};
+    $primary
+      ? '0 4px 12px rgba(204, 49, 232, 0.3)'
+      : '0 2px 8px rgba(0, 0, 0, 0.2)'};
     background: ${({ $primary }) =>
-        $primary
-            ? 'linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%)'
-            : 'rgba(255, 255, 255, 0.08)'};
+    $primary
+      ? 'linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%)'
+      : 'rgba(255, 255, 255, 0.08)'};
   }
   
   &:disabled {
@@ -590,484 +620,526 @@ const ButtonRow = styled.div`
 `;
 
 export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, toggleVote, handleTimeSlotDelete, isOwner, setCurrentActivity }) {
-    const { user, setUser } = useContext(UserContext);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [showScheduler, setShowScheduler] = useState(false);
-    const [showMoveToVotingModal, setShowMoveToVotingModal] = useState(false);
-    const [showFinalizeModal, setShowFinalizeModal] = useState(false);
+  const { user, setUser } = useContext(UserContext);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showScheduler, setShowScheduler] = useState(false);
+  const [showMoveToVotingModal, setShowMoveToVotingModal] = useState(false);
+  const [showFinalizeModal, setShowFinalizeModal] = useState(false);
 
-    const { id, responses, collecting, voting, finalized, selected_time_slot_id } = currentActivity;
+  const { id, responses, collecting, voting, finalized, selected_time_slot_id } = currentActivity;
 
-    const totalParticipants = currentActivity.participants.length + 1;
-    const availabilityResponses = responses.filter(r => r.notes === "LetsMeetAvailabilityResponse");
-    const responseRate = (availabilityResponses.length / totalParticipants) * 100;
-    const currentUserResponse = availabilityResponses.find(r => r.user_id === user.id);
+  const totalParticipants = currentActivity.participants.length + 1;
+  const availabilityResponses = responses.filter(r => r.notes === "LetsMeetAvailabilityResponse");
+  const responseRate = (availabilityResponses.length / totalParticipants) * 100;
+  const currentUserResponse = availabilityResponses.find(r => r.user_id === user.id);
 
-    const participantsWithVotes = new Set();
-    pinned.forEach(slot => {
-        if (slot.voter_ids && Array.isArray(slot.voter_ids)) {
-            slot.voter_ids.forEach(voterId => {
-                participantsWithVotes.add(voterId);
-            });
-        }
-    });
-    const votingRate = (participantsWithVotes.size / totalParticipants) * 100;
+  const participantsWithVotes = new Set();
+  pinned.forEach(slot => {
+    if (slot.voter_ids && Array.isArray(slot.voter_ids)) {
+      slot.voter_ids.forEach(voterId => {
+        participantsWithVotes.add(voterId);
+      });
+    }
+  });
+  const votingRate = (participantsWithVotes.size / totalParticipants) * 100;
 
-    const moveToVotingPhase = async () => {
-        setLoading(true);
-        setError("");
+  // Availability counts are now calculated on the backend
 
-        try {
-            const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+  const moveToVotingPhase = async () => {
+    setLoading(true);
+    setError("");
 
-            const availabilityMap = {};
-            availabilityResponses.forEach(({ availability }) => {
-                if (availability.open === true) return;
-                Object.entries(availability).forEach(([date, times]) => {
-                    if (!Array.isArray(times)) return;
-                    if (!availabilityMap[date]) availabilityMap[date] = {};
-                    times.forEach(time => {
-                        availabilityMap[date][time] = (availabilityMap[date][time] || 0) + 1;
-                    });
-                });
-            });
+    try {
+      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
-            const allSlots = [];
-            Object.entries(availabilityMap).forEach(([date, times]) => {
-                Object.entries(times).forEach(([time, count]) => {
-                    allSlots.push({ date, time, count });
-                });
-            });
-
-            const topSlots = allSlots
-                .sort((a, b) => b.count - a.count)
-                .slice(0, 8);
-
-            const pinnedPromises = topSlots.map(slot =>
-                fetch(`${API_URL}/activities/${id}/time_slots`, {
-                    method: "POST",
-                    credentials: "include",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        date: slot.date,
-                        time: slot.time
-                    }),
-                })
-            );
-
-            const pinnedResults = await Promise.all(pinnedPromises);
-            const newPinnedSlots = await Promise.all(
-                pinnedResults.map(res => res.json())
-            );
-
-            const activityUpdateResponse = await fetch(`${API_URL}/activities/${id}`, {
-                method: "PATCH",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    activity: {
-                        collecting: false,
-                        voting: true
-                    }
-                }),
-            });
-
-            if (!activityUpdateResponse.ok) {
-                throw new Error("Failed to update activity phase");
-            }
-
-            setPinned(newPinnedSlots);
-
-            setUser(prev => ({
-                ...prev,
-                activities: prev.activities.map(act =>
-                    act.id === id
-                        ? { ...act, collecting: false, voting: true, finalized: false }
-                        : act
-                ),
-                participant_activities: prev.participant_activities.map(part =>
-                    part.activity.id === id
-                        ? {
-                            ...part,
-                            activity: { ...part.activity, collecting: false, voting: true, finalized: false }
-                        }
-                        : part
-                )
-            }));
-
-            setCurrentActivity(prev => ({
-                ...prev,
-                collecting: false,
-                voting: true,
-                finalized: false
-            }));
-
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-            setShowMoveToVotingModal(false);
-        }
-    };
-
-    const finalizeActivity = async () => {
-        setShowFinalizeModal(false);
-    };
-
-    const handleAvailabilityUpdate = (newResponse, newComment) => {
-        setCurrentActivity(prev => {
-            const otherResponses = prev.responses?.filter(r =>
-                !(r.notes === "LetsMeetAvailabilityResponse" && r.user_id === user.id)
-            ) || [];
-
-            return {
-                ...prev,
-                responses: [...otherResponses, newResponse],
-                comments: [...(prev.comments || []), newComment]
-            };
+      const availabilityMap = {};
+      availabilityResponses.forEach(({ availability }) => {
+        if (availability.open === true) return;
+        Object.entries(availability).forEach(([date, times]) => {
+          if (!Array.isArray(times)) return;
+          if (!availabilityMap[date]) availabilityMap[date] = {};
+          times.forEach(time => {
+            availabilityMap[date][time] = (availabilityMap[date][time] || 0) + 1;
+          });
         });
-    };
+      });
 
-    const shareUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${currentActivity.id}/share`;
+      const allSlots = [];
+      Object.entries(availabilityMap).forEach(([date, times]) => {
+        Object.entries(times).forEach(([time, count]) => {
+          allSlots.push({ date, time, count });
+        });
+      });
 
-    const handleClick = () => {
-        window.open(
-            shareUrl,    // your URL
-            '_blank',                 // open in new tab
-            'noopener,noreferrer'     // recommended for security
-        );
-    };
+      const topSlots = allSlots
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 8);
 
-    if (loading) return <LoadingScreenUser autoDismiss={false} />;
+      const pinnedPromises = topSlots.map(slot =>
+        fetch(`${API_URL}/activities/${id}/time_slots`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            date: slot.date,
+            time: slot.time
+          }),
+        })
+      );
 
-    if (collecting && !voting) {
-        return (
-            <Container>
-                <TopBar>
-                    <Heading>Submit Your Availability</Heading>
-                </TopBar>
+      const pinnedResults = await Promise.all(pinnedPromises);
+      const newPinnedSlots = await Promise.all(
+        pinnedResults.map(res => res.json())
+      );
 
-                {error && <ErrorText>{error}</ErrorText>}
+      const activityUpdateResponse = await fetch(`${API_URL}/activities/${id}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          activity: {
+            collecting: false,
+            voting: true
+          }
+        }),
+      });
 
-                <PhaseIndicator>
-                    <PhaseIcon><Calendar size={24} /></PhaseIcon>
-                    <PhaseContent>
-                        <PhaseTitle>Collecting Availability</PhaseTitle>
-                        <PhaseSubtitle>{availabilityResponses.length}/{totalParticipants} participants have submitted</PhaseSubtitle>
-                    </PhaseContent>
-                </PhaseIndicator>
+      if (!activityUpdateResponse.ok) {
+        throw new Error("Failed to update activity phase");
+      }
 
-                <ProgressBarContainer>
-                    <ProgressBar $percent={responseRate} />
-                </ProgressBarContainer>
+      setPinned(newPinnedSlots);
 
-                {isOwner && (
-                    <OrganizerSection>
-                        <OrganizerTitle><Cog size={20} style={{ marginBottom: '4px' }} /> Organizer Controls</OrganizerTitle>
-                        <ParticipantsList>
-                            {currentActivity.participants.concat([{ id: user.id, name: currentActivity.user?.name || 'You' }]).map((participant, index) => {
-                                const hasSubmitted = availabilityResponses.some(r => r.user_id === participant.id);
-                                return (
-                                    <ParticipantItem key={index}>
-                                        <ParticipantName>{participant.name || participant.email}</ParticipantName>
-                                        <ParticipantStatus $submitted={hasSubmitted}>
-                                            {hasSubmitted ? <CheckCircle size={16} /> : <Clock size={16} />}
-                                            {hasSubmitted ? 'Submitted' : 'Waiting'}
-                                        </ParticipantStatus>
-                                    </ParticipantItem>
-                                );
-                            })}
-                        </ParticipantsList>
-                        <FullWidthButton $primary onClick={() => setShowMoveToVotingModal(true)}>
-                            <Vote size={20} />
-                            Move to Voting Phase
-                        </FullWidthButton>
-                    </OrganizerSection>
-                )}
+      setUser(prev => ({
+        ...prev,
+        activities: prev.activities.map(act =>
+          act.id === id
+            ? { ...act, collecting: false, voting: true, finalized: false }
+            : act
+        ),
+        participant_activities: prev.participant_activities.map(part =>
+          part.activity.id === id
+            ? {
+              ...part,
+              activity: { ...part.activity, collecting: false, voting: true, finalized: false }
+            }
+            : part
+        )
+      }));
 
-                {!currentUserResponse ? (
-                    <PreferencesCard>
-                        <PreferencesIcon><Calendar size={48} /></PreferencesIcon>
-                        <PreferencesTitle>Submit Your Availability!</PreferencesTitle>
-                        <PreferencesText>
-                            Help us find the perfect time by sharing when you're available to meet.
-                        </PreferencesText>
-                        <PreferencesButton onClick={() => setShowScheduler(true)}>
-                            <Calendar size={20} />
-                            Set Your Availability
-                        </PreferencesButton>
-                    </PreferencesCard>
-                ) : (
-                    <SubmittedCard>
-                        <SubmittedIcon><CheckCircle size={48} /></SubmittedIcon>
-                        <SubmittedTitle>Thank you for submitting your availability!</SubmittedTitle>
-                        <SubmittedText>
-                            The organizer will gather the best time slots shortly. You can update your availability if needed.
-                        </SubmittedText>
-                        <ResubmitButton onClick={() => setShowScheduler('update')}>
-                            <Calendar size={18} />
-                            Update Availability
-                        </ResubmitButton>
-                    </SubmittedCard>
-                )}
+      setCurrentActivity(prev => ({
+        ...prev,
+        collecting: false,
+        voting: true,
+        finalized: false
+      }));
 
-                {showScheduler && (
-                    <LetsMeetScheduler
-                        onClose={() => setShowScheduler(false)}
-                        responseSubmitted={!!currentUserResponse}
-                        currentActivity={currentActivity}
-                        activityId={currentActivity.id}
-                        isUpdate={showScheduler === 'update'}
-                        onAvailabilityUpdate={handleAvailabilityUpdate}
-                    />
-                )}
-
-                {showMoveToVotingModal && (
-                    <ModalOverlay onClick={() => setShowMoveToVotingModal(false)}>
-                        <ModalContainer onClick={(e) => e.stopPropagation()}>
-                            <ModalHeader>
-                                <ModalTitle>Move to voting phase?</ModalTitle>
-                                <ModalSubtitle>Generate time slots and start group voting</ModalSubtitle>
-                                <CloseButton onClick={() => setShowMoveToVotingModal(false)}>
-                                    <X size={20} />
-                                </CloseButton>
-                            </ModalHeader>
-
-                            <ModalBody>
-                                <Section>
-                                    <ModalProgressContainer>
-                                        <ModalProgressBarContainer>
-                                            <ModalProgressBar $percent={responseRate} />
-                                        </ModalProgressBarContainer>
-                                        <ProgressInfo>
-                                            <ProgressLeft>
-                                                <Users size={16} />
-                                                <span>{availabilityResponses.length}/{totalParticipants} users submitted</span>
-                                            </ProgressLeft>
-                                            <ProgressPercentage>{Math.round(responseRate)}%</ProgressPercentage>
-                                        </ProgressInfo>
-                                    </ModalProgressContainer>
-
-                                    {responseRate < 50 && (
-                                        <WarningBox>
-                                            <span>⚠️ Less than 50% of participants have submitted their availability. Consider waiting for more responses to get better time slots.</span>
-                                        </WarningBox>
-                                    )}
-                                </Section>
-
-                                <ButtonRow>
-                                    <Button onClick={() => setShowMoveToVotingModal(false)}>
-                                        Cancel
-                                    </Button>
-                                    <Button $primary onClick={moveToVotingPhase}>
-                                        <Zap size={16} />
-                                        Generate Time Slots
-                                    </Button>
-                                </ButtonRow>
-                            </ModalBody>
-                        </ModalContainer>
-                    </ModalOverlay>
-                )}
-            </Container>
-        );
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+      setShowMoveToVotingModal(false);
     }
+  };
 
-    if (voting && !collecting && !finalized) {
-        return (
-            <Container>
-                <TopBar>
-                    <Heading>Vote on Time Slots</Heading>
-                </TopBar>
+  const finalizeActivity = async () => {
+    setShowFinalizeModal(false);
+  };
 
-                <PhaseIndicator>
-                    <PhaseIcon><Vote size={24} /></PhaseIcon>
-                    <PhaseContent>
-                        <PhaseTitle>Voting Phase</PhaseTitle>
-                        <PhaseSubtitle>{participantsWithVotes.size}/{totalParticipants} participants have voted</PhaseSubtitle>
-                    </PhaseContent>
-                </PhaseIndicator>
+  const handleAvailabilityUpdate = (newResponse, newComment) => {
+    setCurrentActivity(prev => {
+      const otherResponses = prev.responses?.filter(r =>
+        !(r.notes === "LetsMeetAvailabilityResponse" && r.user_id === user.id)
+      ) || [];
 
-                <ProgressBarContainer>
-                    <ProgressBar $percent={votingRate} />
-                </ProgressBarContainer>
+      return {
+        ...prev,
+        responses: [...otherResponses, newResponse],
+        comments: [...(prev.comments || []), newComment]
+      };
+    });
+  };
 
-                {error && <ErrorText>{error}</ErrorText>}
+  const shareUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${currentActivity.id}/share`;
 
-                {isOwner && (
-                    <OrganizerSection>
-                        <OrganizerTitle><Cog style={{ marginBottom: '4px' }} size={20} /> Organizer Controls</OrganizerTitle>
-                        <ParticipantsList>
-                            {currentActivity.participants.concat([{ id: user.id, name: currentActivity.user?.name || 'You' }]).map((participant, index) => {
-                                const hasVoted = Array.from(participantsWithVotes).includes(participant.id);
-                                return (
-                                    <ParticipantItem key={index}>
-                                        <ParticipantName>{participant.name || participant.email}</ParticipantName>
-                                        <ParticipantStatus $submitted={hasVoted}>
-                                            {hasVoted ? <CheckCircle size={16} /> : <Clock size={16} />}
-                                            {hasVoted ? 'Voted' : 'Waiting'}
-                                        </ParticipantStatus>
-                                    </ParticipantItem>
-                                );
-                            })}
-                        </ParticipantsList>
-                        <FullWidthButton $primary onClick={onEdit}>
-                            <Flag size={20} />
-                            Finalize Activity
-                        </FullWidthButton>
-                    </OrganizerSection>
-                )}
-
-                <TimeSlotsList>
-                    {[...pinned]
-                        .sort((a, b) => (b.votes_count || 0) - (a.votes_count || 0))
-                        .map((slot) => {
-                            const dateObj = parseISO(slot.date);
-                            const formattedDate = format(dateObj, 'MMM do');
-                            const [h, m] = slot.time.slice(11, 16).split(':');
-                            const timeObj = new Date();
-                            timeObj.setHours(+h, +m);
-                            const formattedTime = format(timeObj, 'h:mm a');
-
-                            return (
-                                <TimeSlotCard key={slot.id}>
-                                    <TimeSlotHeader>
-                                        <div>
-                                            <TimeSlotDate>{formattedDate}</TimeSlotDate>
-                                            <TimeSlotTime>{formattedTime}</TimeSlotTime>
-                                        </div>
-                                        <TimeSlotActions>
-                                            <VoteButton
-                                                $liked={slot.user_voted}
-                                                onClick={() => toggleVote(slot)}
-                                            >
-                                                {slot.user_voted ? '❤️' : '🤍'} {slot.votes_count || 0}
-                                            </VoteButton>
-                                            {isOwner && (
-                                                <DeleteButton onClick={() => handleTimeSlotDelete(slot.id)}>
-                                                    <Trash size={16} />
-                                                </DeleteButton>
-                                            )}
-                                        </TimeSlotActions>
-                                    </TimeSlotHeader>
-                                </TimeSlotCard>
-                            );
-                        })}
-                </TimeSlotsList>
-
-                {showFinalizeModal && (
-                    <ModalOverlay onClick={() => setShowFinalizeModal(false)}>
-                        <ModalContainer onClick={(e) => e.stopPropagation()}>
-                            <ModalHeader>
-                                <ModalTitle>Finalize activity?</ModalTitle>
-                                <ModalSubtitle>Select the winning time slot and end voting</ModalSubtitle>
-                                <CloseButton onClick={() => setShowFinalizeModal(false)}>
-                                    <X size={20} />
-                                </CloseButton>
-                            </ModalHeader>
-
-                            <ModalBody>
-                                <Section>
-                                    <ModalProgressContainer>
-                                        <ModalProgressBarContainer>
-                                            <ModalProgressBar $percent={votingRate} />
-                                        </ModalProgressBarContainer>
-                                        <ProgressInfo>
-                                            <ProgressLeft>
-                                                <Users size={16} />
-                                                <span>{participantsWithVotes.size}/{totalParticipants} users voted</span>
-                                            </ProgressLeft>
-                                            <ProgressPercentage>{Math.round(votingRate)}%</ProgressPercentage>
-                                        </ProgressInfo>
-                                    </ModalProgressContainer>
-
-                                    {votingRate < 50 && (
-                                        <WarningBox>
-                                            <span>⚠️ Less than 50% of participants have voted. Consider waiting for more votes before finalizing.</span>
-                                        </WarningBox>
-                                    )}
-                                </Section>
-
-                                <ButtonRow>
-                                    <Button onClick={() => setShowFinalizeModal(false)}>
-                                        Cancel
-                                    </Button>
-                                    <Button $primary onClick={finalizeActivity}>
-                                        <Flag size={16} />
-                                        Finalize Activity
-                                    </Button>
-                                </ButtonRow>
-                            </ModalBody>
-                        </ModalContainer>
-                    </ModalOverlay>
-                )}
-            </Container>
-        );
-    }
-
-    if (finalized) {
-        return (
-            <Container>
-                <TopBar>
-                    <Heading>Activity Finalized</Heading>
-                </TopBar>
-
-                <PhaseIndicator style={{ cursor: 'pointer' }} onClick={handleClick}>
-                    <PhaseIcon><Share size={24} /> </PhaseIcon>
-                    <PhaseContent>
-                        <PhaseTitle>Share Finalized Activity Link!</PhaseTitle>
-                        <PhaseSubtitle>Click here to view & share finalized activity.</PhaseSubtitle>
-                    </PhaseContent>
-                </PhaseIndicator>
-
-                {error && <ErrorText>{error}</ErrorText>}
-
-                <TimeSlotsList>
-                    {[...pinned]
-                        .sort((a, b) => (b.votes_count || 0) - (a.votes_count || 0))
-                        .map((slot) => {
-                            const isSelected = slot.id === selected_time_slot_id;
-                            const dateObj = parseISO(slot.date);
-                            const formattedDate = format(dateObj, 'MMM do');
-                            const [h, m] = slot.time.slice(11, 16).split(':');
-                            const timeObj = new Date();
-                            timeObj.setHours(+h, +m);
-                            const formattedTime = format(timeObj, 'h:mm a');
-
-                            return (
-                                <TimeSlotCard key={slot.id} $selected={isSelected}>
-                                    {isSelected && (
-                                        <SelectedBadge>
-                                            <CheckCircle size={16} />
-                                            <span>SELECTED</span>
-                                        </SelectedBadge>
-                                    )}
-                                    <TimeSlotHeader>
-                                        <div>
-                                            <TimeSlotDate>{formattedDate}</TimeSlotDate>
-                                            <TimeSlotTime>{formattedTime}</TimeSlotTime>
-                                        </div>
-                                        <TimeSlotActions>
-                                            <VoteCount>
-                                                <HeartPulse size={16} />
-                                                {slot.votes_count || 0}
-                                            </VoteCount>
-                                        </TimeSlotActions>
-                                    </TimeSlotHeader>
-                                </TimeSlotCard>
-                            );
-                        })}
-                </TimeSlotsList>
-            </Container >
-        );
-    }
-
-    return (
-        <Container>
-            <TopBar>
-                <Heading>Time Scheduling</Heading>
-            </TopBar>
-            <p>Activity is not in collecting or voting phase.</p>
-        </Container>
+  const handleClick = () => {
+    window.open(
+      shareUrl,    // your URL
+      '_blank',                 // open in new tab
+      'noopener,noreferrer'     // recommended for security
     );
+  };
+
+  if (loading) return <LoadingScreenUser autoDismiss={false} />;
+
+  if (collecting && !voting) {
+    return (
+      <Container>
+        <TopBar>
+          <Heading>Submit Your Availability</Heading>
+        </TopBar>
+
+        {error && <ErrorText>{error}</ErrorText>}
+
+        <PhaseIndicator>
+          <PhaseIcon><Calendar size={24} /></PhaseIcon>
+          <PhaseContent>
+            <PhaseTitle>Collecting Availability</PhaseTitle>
+            <PhaseSubtitle>{availabilityResponses.length}/{totalParticipants} participants have submitted</PhaseSubtitle>
+          </PhaseContent>
+        </PhaseIndicator>
+
+        <ProgressBarContainer>
+          <ProgressBar $percent={responseRate} />
+        </ProgressBarContainer>
+
+        {isOwner && (
+          <OrganizerSection>
+            <OrganizerTitle><Cog size={20} style={{ marginBottom: '4px' }} /> Organizer Controls</OrganizerTitle>
+            <ParticipantsList>
+              {currentActivity.participants.concat([{ id: user.id, name: currentActivity.user?.name || 'You' }]).map((participant, index) => {
+                const hasSubmitted = availabilityResponses.some(r => r.user_id === participant.id);
+                return (
+                  <ParticipantItem key={index}>
+                    <ParticipantName>{participant.name || participant.email}</ParticipantName>
+                    <ParticipantStatus $submitted={hasSubmitted}>
+                      {hasSubmitted ? <CheckCircle size={16} /> : <Clock size={16} />}
+                      {hasSubmitted ? 'Submitted' : 'Waiting'}
+                    </ParticipantStatus>
+                  </ParticipantItem>
+                );
+              })}
+            </ParticipantsList>
+            <FullWidthButton $primary onClick={() => setShowMoveToVotingModal(true)}>
+              <Vote size={20} />
+              Move to Voting Phase
+            </FullWidthButton>
+          </OrganizerSection>
+        )}
+
+        {!currentUserResponse ? (
+          <PreferencesCard>
+            <PreferencesIcon><Calendar size={48} /></PreferencesIcon>
+            <PreferencesTitle>Submit Your Availability!</PreferencesTitle>
+            <PreferencesText>
+              Help us find the perfect time by sharing when you're available to meet.
+            </PreferencesText>
+            <PreferencesButton onClick={() => setShowScheduler(true)}>
+              <Calendar size={20} />
+              Set Your Availability
+            </PreferencesButton>
+          </PreferencesCard>
+        ) : (
+          <SubmittedCard>
+            <SubmittedIcon><CheckCircle size={48} /></SubmittedIcon>
+            <SubmittedTitle>Thank you for submitting your availability!</SubmittedTitle>
+            <SubmittedText>
+              The organizer will gather the best time slots shortly. You can update your availability if needed.
+            </SubmittedText>
+            <ResubmitButton onClick={() => setShowScheduler('update')}>
+              <Calendar size={18} />
+              Update Availability
+            </ResubmitButton>
+          </SubmittedCard>
+        )}
+
+        {showScheduler && (
+          <LetsMeetScheduler
+            onClose={() => setShowScheduler(false)}
+            responseSubmitted={!!currentUserResponse}
+            currentActivity={currentActivity}
+            activityId={currentActivity.id}
+            isUpdate={showScheduler === 'update'}
+            onAvailabilityUpdate={handleAvailabilityUpdate}
+          />
+        )}
+
+        {showMoveToVotingModal && (
+          <ModalOverlay onClick={() => setShowMoveToVotingModal(false)}>
+            <ModalContainer onClick={(e) => e.stopPropagation()}>
+              <ModalHeader>
+                <ModalTitle>Move to voting phase?</ModalTitle>
+                <ModalSubtitle>Generate time slots and start group voting</ModalSubtitle>
+                <CloseButton onClick={() => setShowMoveToVotingModal(false)}>
+                  <X size={20} />
+                </CloseButton>
+              </ModalHeader>
+
+              <ModalBody>
+                <Section>
+                  <ModalProgressContainer>
+                    <ModalProgressBarContainer>
+                      <ModalProgressBar $percent={responseRate} />
+                    </ModalProgressBarContainer>
+                    <ProgressInfo>
+                      <ProgressLeft>
+                        <Users size={16} />
+                        <span>{availabilityResponses.length}/{totalParticipants} users submitted</span>
+                      </ProgressLeft>
+                      <ProgressPercentage>{Math.round(responseRate)}%</ProgressPercentage>
+                    </ProgressInfo>
+                  </ModalProgressContainer>
+
+                  {responseRate < 50 && (
+                    <WarningBox>
+                      <span>⚠️ Less than 50% of participants have submitted their availability. Consider waiting for more responses to get better time slots.</span>
+                    </WarningBox>
+                  )}
+                </Section>
+
+                <ButtonRow>
+                  <Button onClick={() => setShowMoveToVotingModal(false)}>
+                    Cancel
+                  </Button>
+                  <Button $primary onClick={moveToVotingPhase}>
+                    <Zap size={16} />
+                    Generate Time Slots
+                  </Button>
+                </ButtonRow>
+              </ModalBody>
+            </ModalContainer>
+          </ModalOverlay>
+        )}
+      </Container>
+    );
+  }
+
+  if (voting && !collecting && !finalized) {
+    return (
+      <Container>
+        <TopBar>
+          <Heading>Vote on Time Slots</Heading>
+        </TopBar>
+
+        <PhaseIndicator>
+          <PhaseIcon><Vote size={24} /></PhaseIcon>
+          <PhaseContent>
+            <PhaseTitle>Voting Phase</PhaseTitle>
+            <PhaseSubtitle>{participantsWithVotes.size}/{totalParticipants} participants have voted</PhaseSubtitle>
+          </PhaseContent>
+        </PhaseIndicator>
+
+        <ProgressBarContainer>
+          <ProgressBar $percent={votingRate} />
+        </ProgressBarContainer>
+
+        {error && <ErrorText>{error}</ErrorText>}
+
+        {isOwner && (
+          <OrganizerSection>
+            <OrganizerTitle><Cog style={{ marginBottom: '4px' }} size={20} /> Organizer Controls</OrganizerTitle>
+            <ParticipantsList>
+              {currentActivity.participants.concat([{ id: user.id, name: currentActivity.user?.name || 'You' }]).map((participant, index) => {
+                const hasVoted = Array.from(participantsWithVotes).includes(participant.id);
+                return (
+                  <ParticipantItem key={index}>
+                    <ParticipantName>{participant.name || participant.email}</ParticipantName>
+                    <ParticipantStatus $submitted={hasVoted}>
+                      {hasVoted ? <CheckCircle size={16} /> : <Clock size={16} />}
+                      {hasVoted ? 'Voted' : 'Waiting'}
+                    </ParticipantStatus>
+                  </ParticipantItem>
+                );
+              })}
+            </ParticipantsList>
+            <FullWidthButton $primary onClick={onEdit}>
+              <Flag size={20} />
+              Finalize Activity
+            </FullWidthButton>
+          </OrganizerSection>
+        )}
+
+        <TimeSlotsList>
+          {[...pinned]
+            .sort((a, b) => (b.votes_count || 0) - (a.votes_count || 0))
+            .map((slot) => {
+              const dateObj = parseISO(slot.date);
+              const formattedDate = format(dateObj, 'MMM do');
+              const [h, m] = slot.time.slice(11, 16).split(':');
+              const timeObj = new Date();
+              timeObj.setHours(+h, +m);
+              const formattedTime = format(timeObj, 'h:mm a');
+
+              // Use availability count from backend
+              const availabilityCount = slot.availability_count || 0;
+
+              return (
+                <TimeSlotCard key={slot.id}>
+                  <TimeSlotHeader>
+                    <div>
+                      <TimeSlotDate>{formattedDate}</TimeSlotDate>
+                      <TimeSlotTime>{formattedTime}</TimeSlotTime>
+                    </div>
+                    <TimeSlotActions>
+                      <VoteButton
+                        $liked={slot.user_voted}
+                        onClick={() => toggleVote(slot)}
+                      >
+                        {slot.user_voted ? '❤️' : '🤍'} {slot.votes_count || 0}
+                      </VoteButton>
+                      {isOwner && (
+                        <DeleteButton onClick={() => handleTimeSlotDelete(slot.id)}>
+                          <Trash size={16} />
+                        </DeleteButton>
+                      )}
+                    </TimeSlotActions>
+                  </TimeSlotHeader>
+
+                  <TimeSlotStats>
+                    <StatRow>
+                      <StatLabel>
+                        <HeartPulse size={16} />
+                        Votes
+                      </StatLabel>
+                      <StatValue $type="votes">{slot.votes_count || 0}</StatValue>
+                    </StatRow>
+                    <StatRow>
+                      <StatLabel>
+                        <UserCheck size={16} />
+                        Available
+                      </StatLabel>
+                      <StatValue $type="available">{availabilityCount}</StatValue>
+                    </StatRow>
+                  </TimeSlotStats>
+                </TimeSlotCard>
+              );
+            })}
+        </TimeSlotsList>
+
+        {showFinalizeModal && (
+          <ModalOverlay onClick={() => setShowFinalizeModal(false)}>
+            <ModalContainer onClick={(e) => e.stopPropagation()}>
+              <ModalHeader>
+                <ModalTitle>Finalize activity?</ModalTitle>
+                <ModalSubtitle>Select the winning time slot and end voting</ModalSubtitle>
+                <CloseButton onClick={() => setShowFinalizeModal(false)}>
+                  <X size={20} />
+                </CloseButton>
+              </ModalHeader>
+
+              <ModalBody>
+                <Section>
+                  <ModalProgressContainer>
+                    <ModalProgressBarContainer>
+                      <ModalProgressBar $percent={votingRate} />
+                    </ModalProgressBarContainer>
+                    <ProgressInfo>
+                      <ProgressLeft>
+                        <Users size={16} />
+                        <span>{participantsWithVotes.size}/{totalParticipants} users voted</span>
+                      </ProgressLeft>
+                      <ProgressPercentage>{Math.round(votingRate)}%</ProgressPercentage>
+                    </ProgressInfo>
+                  </ModalProgressContainer>
+
+                  {votingRate < 50 && (
+                    <WarningBox>
+                      <span>⚠️ Less than 50% of participants have voted. Consider waiting for more votes before finalizing.</span>
+                    </WarningBox>
+                  )}
+                </Section>
+
+                <ButtonRow>
+                  <Button onClick={() => setShowFinalizeModal(false)}>
+                    Cancel
+                  </Button>
+                  <Button $primary onClick={finalizeActivity}>
+                    <Flag size={16} />
+                    Finalize Activity
+                  </Button>
+                </ButtonRow>
+              </ModalBody>
+            </ModalContainer>
+          </ModalOverlay>
+        )}
+      </Container>
+    );
+  }
+
+  if (finalized) {
+    return (
+      <Container>
+        <TopBar>
+          <Heading>Activity Finalized</Heading>
+        </TopBar>
+
+        <PhaseIndicator style={{ cursor: 'pointer' }} onClick={handleClick}>
+          <PhaseIcon><Share size={24} /> </PhaseIcon>
+          <PhaseContent>
+            <PhaseTitle>Share Finalized Activity Link!</PhaseTitle>
+            <PhaseSubtitle>Click here to view & share finalized activity.</PhaseSubtitle>
+          </PhaseContent>
+        </PhaseIndicator>
+
+        {error && <ErrorText>{error}</ErrorText>}
+
+        <TimeSlotsList>
+          {[...pinned]
+            .sort((a, b) => (b.votes_count || 0) - (a.votes_count || 0))
+            .map((slot) => {
+              const isSelected = slot.id === selected_time_slot_id;
+              const dateObj = parseISO(slot.date);
+              const formattedDate = format(dateObj, 'MMM do');
+              const [h, m] = slot.time.slice(11, 16).split(':');
+              const timeObj = new Date();
+              timeObj.setHours(+h, +m);
+              const formattedTime = format(timeObj, 'h:mm a');
+
+              // Use availability count from backend
+              const availabilityCount = slot.availability_count || 0;
+
+              return (
+                <TimeSlotCard key={slot.id} $selected={isSelected}>
+                  {isSelected && (
+                    <SelectedBadge>
+                      <CheckCircle size={16} />
+                      <span>SELECTED</span>
+                    </SelectedBadge>
+                  )}
+                  <TimeSlotHeader>
+                    <div>
+                      <TimeSlotDate>{formattedDate}</TimeSlotDate>
+                      <TimeSlotTime>{formattedTime}</TimeSlotTime>
+                    </div>
+                    <TimeSlotActions>
+                      <VoteCount>
+                        <HeartPulse size={16} />
+                        {slot.votes_count || 0}
+                      </VoteCount>
+                    </TimeSlotActions>
+                  </TimeSlotHeader>
+
+                  <TimeSlotStats>
+                    <StatRow>
+                      <StatLabel>
+                        <HeartPulse size={16} />
+                        Final Votes
+                      </StatLabel>
+                      <StatValue $type="votes">{slot.votes_count || 0}</StatValue>
+                    </StatRow>
+                    <StatRow>
+                      <StatLabel>
+                        <UserCheck size={16} />
+                        Were Available
+                      </StatLabel>
+                      <StatValue $type="available">{availabilityCount}</StatValue>
+                    </StatRow>
+                  </TimeSlotStats>
+                </TimeSlotCard>
+              );
+            })}
+        </TimeSlotsList>
+      </Container >
+    );
+  }
+
+  return (
+    <Container>
+      <TopBar>
+        <Heading>Time Scheduling</Heading>
+      </TopBar>
+      <p>Activity is not in collecting or voting phase.</p>
+    </Container>
+  );
 }
