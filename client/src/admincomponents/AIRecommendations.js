@@ -1262,7 +1262,6 @@ export default function AIRecommendations({
                             src={generateGoogleMapsEmbedUrl(selectedRec.address, GOOGLE_MAPS_API_KEY)}
                             allowFullScreen
                             loading="lazy"
-                            referrerPolicy="no-referrer-when-downgrade"
                             onLoad={() => {
                               console.log('Map iframe loaded');
                               setTimeout(() => setMapLoading(false), 500); // Small delay to ensure map content loads
@@ -1450,10 +1449,9 @@ export default function AIRecommendations({
                             src={generateGoogleMapsEmbedUrl(selectedRec.address, GOOGLE_MAPS_API_KEY)}
                             allowFullScreen
                             loading="lazy"
-                            referrerPolicy="no-referrer-when-downgrade"
                             onLoad={() => {
                               console.log('Map iframe loaded');
-                              setTimeout(() => setMapLoading(false), 500); // Small delay to ensure map content loads
+                              setTimeout(() => setMapLoading(false), 500);
                             }}
                             onError={() => {
                               console.log('Map failed to load');
