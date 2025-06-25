@@ -1393,7 +1393,6 @@ export default function AIRecommendations({
                     </SectionHeader>
                     <Description>{selectedRec.address}</Description>
 
-                    {/* Google Maps Embed with Loading State */}
                     {GOOGLE_MAPS_API_KEY ? (
                       <div style={{ position: 'relative' }}>
                         {mapLoading && (
@@ -1453,7 +1452,7 @@ export default function AIRecommendations({
                         const src = p.photo_reference
                           ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${p.photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}`
                           : p;
-                        return <Photo key={i} src={src} alt="" />;
+                        return <Photo key={i} src={src} alt="" referrerPolicy="origin" crossOrigin="anonymous" />;
                       })}
                     </PhotoGallery>
                   </Section>
