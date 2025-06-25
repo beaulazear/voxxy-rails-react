@@ -547,22 +547,6 @@ const ReasonText = styled.p`
   font-size: 0.85rem;
 `;
 
-const ReasonList = styled.ul`
-  color: #ccc;
-  margin: 0;
-  padding-left: 1rem;
-  line-height: 1.4;
-  font-size: 0.85rem;
-  
-  li {
-    margin-bottom: 0.25rem;
-    
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-`;
-
 const WebsiteLink = styled.a`
   display: inline-flex;
   align-items: center;
@@ -954,23 +938,6 @@ export default function AIRecommendations({
     setSelectedRec(null);
   }
 
-  // Function to parse reason into bullet points
-  const parseReasonToBullets = (reason) => {
-    if (!reason) return [];
-
-    // Split by common bullet point indicators or line breaks
-    const bullets = reason.split(/[•\-*\n]/)
-      .map(item => item.trim())
-      .filter(item => item.length > 0);
-
-    // If no clear bullets found, return the original as single item
-    if (bullets.length <= 1) {
-      return [reason];
-    }
-
-    return bullets;
-  };
-
   const shareUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activity.id}/share`;
   const sharePlanUrlClick = () => {
     window.open(
@@ -1292,15 +1259,7 @@ export default function AIRecommendations({
                 {selectedRec.reason && (
                   <Reason style={{ marginBottom: '1rem' }}>
                     <ReasonTitle>Why This Restaurant?</ReasonTitle>
-                    {parseReasonToBullets(selectedRec.reason).length > 1 ? (
-                      <ReasonList>
-                        {parseReasonToBullets(selectedRec.reason).map((bullet, index) => (
-                          <li key={index}>{bullet}</li>
-                        ))}
-                      </ReasonList>
-                    ) : (
-                      <ReasonText>{selectedRec.reason}</ReasonText>
-                    )}
+                    <ReasonText>{selectedRec.reason}</ReasonText>
                   </Reason>
                 )}
 
@@ -1479,15 +1438,7 @@ export default function AIRecommendations({
                 {selectedRec.reason && (
                   <Reason style={{ marginBottom: '1rem' }}>
                     <ReasonTitle>Why This Restaurant?</ReasonTitle>
-                    {parseReasonToBullets(selectedRec.reason).length > 1 ? (
-                      <ReasonList>
-                        {parseReasonToBullets(selectedRec.reason).map((bullet, index) => (
-                          <li key={index}>{bullet}</li>
-                        ))}
-                      </ReasonList>
-                    ) : (
-                      <ReasonText>{selectedRec.reason}</ReasonText>
-                    )}
+                    <ReasonText>{selectedRec.reason}</ReasonText>
                   </Reason>
                 )}
 
