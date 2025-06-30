@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { UserContext } from "../context/user";
 import SmallTriangle from "../assets/SmallTriangle.png";
 import NoCommunityMembers from "./NoCommunityMembers";
-import { Users, Mail, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
+import { Users, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function MultiSelectCommunity({ onSelectionChange, onCreateBoard }) {
     const { user } = useContext(UserContext);
@@ -142,10 +142,6 @@ export default function MultiSelectCommunity({ onSelectionChange, onCreateBoard 
                                     />
                                     <Info>
                                         <PeerName>{peer.name}</PeerName>
-                                        <InfoRow>
-                                            <Mail size={12} />
-                                            <Since>{peer.email}</Since>
-                                        </InfoRow>
                                         <InfoRow>
                                             <Calendar size={12} />
                                             <Since>Since {formatSince(peer.created_at)}</Since>

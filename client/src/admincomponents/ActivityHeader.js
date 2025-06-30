@@ -521,7 +521,6 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onLeave, onBack, onDele
                       <ParticipantName>
                         {p.name}{p.isHost && ' (Organizer)'}
                       </ParticipantName>
-                      <EmailLine>{p.email}</EmailLine>
 
                       <StatusRow>
                         {hasResponded(p) ? (
@@ -1614,16 +1613,6 @@ const ParticipantName = styled.div`
   
   @media (min-width: 768px) {
     font-size: 1rem;
-  }
-`;
-
-const EmailLine = styled.div`
-  font-size: 0.75rem;
-  color: ${colors.textMuted};
-  margin-bottom: 0.5rem;
-  
-  @media (min-width: 768px) {
-    font-size: 0.85rem;
   }
 `;
 

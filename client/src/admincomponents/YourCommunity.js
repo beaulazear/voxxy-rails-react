@@ -1,7 +1,6 @@
 import React, { useContext, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { UserContext } from "../context/user";
-import SmallTriangle from "../assets/SmallTriangle.png";
 import Woman from "../assets/Woman.jpg";
 import NoCommunityMembers from "./NoCommunityMembers";
 import { Users, Calendar, MapPin, Utensils, Clock } from "lucide-react";
