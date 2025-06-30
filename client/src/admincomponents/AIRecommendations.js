@@ -1452,7 +1452,7 @@ export default function AIRecommendations({
                         const src = p.photo_reference
                           ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${p.photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}`
                           : p;
-                        return <Photo key={i} src={src} alt="" referrerPolicy="origin" crossOrigin="anonymous" />;
+                        return <Photo key={i} src={src} alt="" />;
                       })}
                     </PhotoGallery>
                   </Section>

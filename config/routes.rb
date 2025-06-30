@@ -44,10 +44,7 @@ Rails.application.routes.draw do
   get "/me", to: "users#show"
   patch "/make_admin", to: "users#make_admin"
 
-  post "/api/openai/haiku", to: "openai#generate_haiku"
   post "/api/openai/restaurant_recommendations", to: "openai#restaurant_recommendations"
-  get "/check_cached_recommendations", to: "openai#check_cached_recommendations"
-  post "/api/openai/trending_recommendations", to: "openai#trending_recommendations"
   post "/try_voxxy_recommendations", to: "openai#try_voxxy_recommendations"
   get "/try_voxxy_cached",         to: "openai#try_voxxy_cached"
 
