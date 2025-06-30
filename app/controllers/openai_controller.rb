@@ -112,14 +112,14 @@ class OpenaiController < ApplicationController
         • a date (#{date_notes})
         • and a strict radius of #{radius} mile#{ radius == 1 ? "" : "s" }.
 
-      The user’s preferences (exactly as they typed them) are:
+      The user's preferences (exactly as they typed them) are:
       #{notes_text}
 
       IMPORTANT:
       1. **PRIORITIZE dietary preferences** (e.g., allergies, vegan, gluten-free) above all else.#{'  '}
-        If they say “Vegan please!” or “No shellfish,” those conditions must drive your picks.
-      2. Next, honor budget constraints (“Prefer upscale,” etc.).
-      3. Then consider ambiance (“Rooftop,” “Cozy,” etc.)—but only after dietary & budget are satisfied.
+        If they say "Vegan please!" or "No shellfish," those conditions must drive your picks.
+      2. Next, honor budget constraints ("Prefer upscale," etc.).
+      3. Then consider ambiance ("Rooftop," "Cozy," etc.)—but only after dietary & budget are satisfied.
       4. Only include restaurants located *within* #{radius} mile#{ radius == 1 ? "" : "s" } of "#{activity_location}".#{'  '}
         Do NOT list any restaurant that you know (or strongly suspect) is outside that boundary.
       5. Keep the tone warm and human — avoid calling people "users" or referencing individual budgets.
@@ -133,7 +133,7 @@ class OpenaiController < ApplicationController
             "name":        "Restaurant Name",
             "price_range": "$ - $$$$",
             "description": "Short description (cuisine + atmosphere).",
-            "reason":      "Why this recommendation was chosen based on the user’s dietary, budget, and ambiance preferences.",
+            "reason":      "Provide a comprehensive explanation covering: (1) How this restaurant specifically addresses their dietary needs/restrictions mentioned in their preferences, (2) Why this choice aligns with their stated budget or ambiance preferences, (3) What makes this restaurant special or unique compared to more obvious choices, (4) How it fits perfectly within the #{radius}-mile radius of #{activity_location}, and (5) What specific dishes, features, or qualities make this an ideal match for their exact preferences. Be detailed and connect directly to what they wrote.",
             "hours":       "Hours of operation (e.g., Mon-Fri: 9 AM - 10 PM, Sat-Sun: 8 AM - 11 PM)",
             "website":     "Valid website link or null if unknown",
             "address":     "Full address or 'Not available'"

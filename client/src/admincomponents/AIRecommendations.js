@@ -1206,6 +1206,13 @@ export default function AIRecommendations({
                   </Section>
                 )}
 
+                {selectedRec.reason && (
+                  <Reason style={{ marginBottom: '1rem' }}>
+                    <ReasonTitle>Why This Restaurant?</ReasonTitle>
+                    <ReasonText>{selectedRec.reason}</ReasonText>
+                  </Reason>
+                )}
+
                 {selectedRec.address && (
                   <Section>
                     <SectionHeader>
@@ -1214,7 +1221,6 @@ export default function AIRecommendations({
                     </SectionHeader>
                     <Description>{selectedRec.address}</Description>
 
-                    {/* Google Maps Embed with Loading State */}
                     {GOOGLE_MAPS_API_KEY ? (
                       <div style={{ position: 'relative' }}>
                         {mapLoading && (
@@ -1254,13 +1260,6 @@ export default function AIRecommendations({
                       </div>
                     )}
                   </Section>
-                )}
-
-                {selectedRec.reason && (
-                  <Reason style={{ marginBottom: '1rem' }}>
-                    <ReasonTitle>Why This Restaurant?</ReasonTitle>
-                    <ReasonText>{selectedRec.reason}</ReasonText>
-                  </Reason>
                 )}
 
                 {(selectedRec.photos || []).length > 0 && (
