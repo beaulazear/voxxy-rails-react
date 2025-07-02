@@ -1,5 +1,17 @@
 <!-- app/views/activities/share.html.erb -->
 <div class="share-page">
+
+    <!-- Final date & time -->
+    <% if @activity.date_day.present? && @activity.date_time.present? %>
+      <div class="card">
+        <h2>🗓 Final Date &amp; Time</h2>
+        <p>
+          <%= @activity.date_day.strftime("%A, %B %-d, %Y") %>
+          at
+          <%= @activity.date_time.strftime("%I:%M %p") %>
+        </p>
+      </div>
+    <% end %>
   <!-- Main activity card -->
   <section class="card">
     <h2 class="activity-title">
@@ -32,52 +44,40 @@
     <% end %>
   </section>
 
-    <!-- Final date & time -->
-  <% if @activity.date_day.present? && @activity.date_time.present? %>
-    <div class="card">
-      <h2>🗓 Final Date &amp; Time</h2>
-      <p>
-        <%= @activity.date_day.strftime("%A, %B %-d, %Y") %>
-         at
-        <%= @activity.date_time.strftime("%I:%M %p") %>
-      </p>
-    </div>
-  <% end %>
+    <!-- Final restaurant -->
+    <% if (pinned = @activity.pinned_activities.find_by(selected: true)) %>
+      <div class="card">
+        <h2>📍 Final Restaurant</h2>
+        <p class="rest-name"><%= pinned.title %></p>
+        <% if pinned.description.present? %>
+          <p class="rest-desc"><%= pinned.description %></p>
+        <% end %>
+        <p class="rest-address"><%= pinned.address %></p>
+        <p class="rest-price">Price: <%= pinned.price_range %></p>
+        <div class="action-buttons">
+        <% if pinned.website.present? %>
+          <a href="<%= pinned.website %>" target="_blank" rel="noopener" class="glass-button">
+            Website
+          </a>
+        <% end %>
+        <% if pinned.address.present? %>
+          <a
+            href="https://maps.google.com?q=<%= CGI.escape(pinned.address) %>"
+            target="_blank" rel="noopener"
+            class="glass-button"
+          >
+            Map View
+          </a>
+        <% end %>
+        </div>
+      </div>
+    <% end %>
 
   <!-- Organizer message -->
   <% if @activity.welcome_message.present? %>
     <div class="card">
       <h2>🗣️ Message from Organizer</h2>
       <p class="rest-desc"><%= @activity.welcome_message %></p>
-    </div>
-  <% end %>
-
-  <!-- Final restaurant -->
-  <% if (pinned = @activity.pinned_activities.find_by(selected: true)) %>
-    <div class="card">
-      <h2>📍 Final Restaurant</h2>
-      <p class="rest-name"><%= pinned.title %></p>
-      <% if pinned.description.present? %>
-        <p class="rest-desc"><%= pinned.description %></p>
-      <% end %>
-      <p class="rest-address"><%= pinned.address %></p>
-      <p class="rest-price">Price: <%= pinned.price_range %></p>
-      <div class="action-buttons">
-      <% if pinned.website.present? %>
-        <a href="<%= pinned.website %>" target="_blank" rel="noopener" class="glass-button">
-          Website
-        </a>
-      <% end %>
-      <% if pinned.address.present? %>
-        <a
-          href="https://maps.google.com?q=<%= CGI.escape(pinned.address) %>"
-          target="_blank" rel="noopener"
-          class="glass-button"
-        >
-          Map View
-        </a>
-      <% end %>
-      </div>
     </div>
   <% end %>
 
