@@ -283,13 +283,37 @@ const ResponseText = styled.p`
   line-height: 1.5;
 `;
 
-export default function LetsMeetScheduler({ activityId, currentActivity, responseSubmitted, onClose, isUpdate = false, onAvailabilityUpdate }) {
+export default function LetsMeetScheduler({
+    activityId,
+    currentActivity,
+    responseSubmitted,
+    onClose,
+    isUpdate = false,
+    onAvailabilityUpdate,
+    // Guest mode props
+    guestMode = false,
+    guestToken = null,
+    guestEmail = null,
+    onChatComplete = null
+}) {
     const { user, setUser } = useContext(UserContext);
 
-    // Initialize state with existing response data if updating
-    const existingResponse = currentActivity.responses?.find(r =>
-        r.notes === "LetsMeetAvailabilityResponse" && r.user_id === user.id
-    );
+    // Handle both user and guest modes for finding existing response
+    const existingResponse = useMemo(() => {
+        if (!currentActivity.responses) return null;
+
+        return currentActivity.responses.find(r => {
+            if (r.notes !== "LetsMeetAvailabilityResponse") return false;
+
+            if (guestMode) {
+                // For guests, match by email
+                return r.email === guestEmail;
+            } else {
+                // For logged-in users, match by user_id
+                return r.user_id === user?.id;
+            }
+        });
+    }, [currentActivity.responses, guestMode, guestEmail, user?.id]);
 
     const [selectedDates, setSelectedDates] = useState(() => {
         if (!isUpdate || !existingResponse?.availability) return [];
@@ -390,26 +414,41 @@ export default function LetsMeetScheduler({ activityId, currentActivity, respons
     }
 
     const handleSubmit = async () => {
-        if (process.env.NODE_ENV === "production") {
+        // Only track for logged-in users
+        if (!guestMode && process.env.NODE_ENV === "production" && user?.name) {
             mixpanel.track("Voxxy Chat 2 Completed", { name: user.name });
         }
 
         const availability = openAll ? { open: true } : slotsByDate;
         const notes = "LetsMeetAvailabilityResponse";
 
+        // Prepare request body
+        const requestBody = {
+            response: {
+                notes,
+                availability
+            }
+        };
+
+        // Use different endpoints for guest vs user mode
+        const url = guestMode
+            ? `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activityId}/respond/${guestToken}`
+            : `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/responses`;
+
+        // Add activity_id for user mode (guest mode gets it from URL)
+        if (!guestMode) {
+            requestBody.response.activity_id = activityId;
+        }
+
+        const headers = { "Content-Type": "application/json" };
+
         try {
-            // Always create a new response - backend will handle deleting the old one
-            const res = await fetch(
-                `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/responses`,
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify({
-                        response: { activity_id: activityId, availability, notes },
-                    }),
-                }
-            );
+            const res = await fetch(url, {
+                method: "POST",
+                headers,
+                credentials: guestMode ? "omit" : "include",
+                body: JSON.stringify(requestBody),
+            });
 
             if (!res.ok) {
                 console.error("❌ Failed to save availability:", await res.json());
@@ -420,35 +459,43 @@ export default function LetsMeetScheduler({ activityId, currentActivity, respons
             const newResponse = responseData.response;
             const newComment = responseData.comment;
 
-            // Update user context - replace old availability response with new one
-            setUser((prev) => {
-                const updateActivityResponses = (activity) => {
-                    if (activity.id !== activityId) return activity;
+            // Handle guest mode vs user mode differently
+            if (guestMode) {
+                // For guest mode, just call onChatComplete to update parent
+                if (onChatComplete) {
+                    onChatComplete();
+                }
+            } else {
+                // For logged-in users, update user context
+                setUser((prev) => {
+                    const updateActivityResponses = (activity) => {
+                        if (activity.id !== activityId) return activity;
 
-                    // Remove old availability response and add new one
-                    const otherResponses = activity.responses?.filter(r =>
-                        !(r.notes === "LetsMeetAvailabilityResponse" && r.user_id === user.id)
-                    ) || [];
+                        // Remove old availability response and add new one
+                        const otherResponses = activity.responses?.filter(r =>
+                            !(r.notes === "LetsMeetAvailabilityResponse" && r.user_id === user.id)
+                        ) || [];
 
-                    return {
-                        ...activity,
-                        responses: [...otherResponses, newResponse],
-                        comments: [...(activity.comments || []), newComment]
+                        return {
+                            ...activity,
+                            responses: [...otherResponses, newResponse],
+                            comments: [...(activity.comments || []), newComment]
+                        };
                     };
-                };
 
-                const updActs = prev.activities.map(updateActivityResponses);
-                const updPart = prev.participant_activities.map((part) => ({
-                    ...part,
-                    activity: updateActivityResponses(part.activity)
-                }));
+                    const updActs = prev.activities.map(updateActivityResponses);
+                    const updPart = prev.participant_activities.map((part) => ({
+                        ...part,
+                        activity: updateActivityResponses(part.activity)
+                    }));
 
-                return { ...prev, activities: updActs, participant_activities: updPart };
-            });
+                    return { ...prev, activities: updActs, participant_activities: updPart };
+                });
 
-            // Update parent component's currentActivity state
-            if (onAvailabilityUpdate) {
-                onAvailabilityUpdate(newResponse, newComment);
+                // Update parent component's currentActivity state
+                if (onAvailabilityUpdate) {
+                    onAvailabilityUpdate(newResponse, newComment);
+                }
             }
 
             onClose();

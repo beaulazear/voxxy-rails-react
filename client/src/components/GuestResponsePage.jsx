@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled, { keyframes } from 'styled-components';
 import CuisineChat from "../admincomponents/CuisineChat";
+import LetsMeetScheduler from "../letsmeet/LetsMeetScheduler";
 import LoadingScreenUser from "../admincomponents/LoadingScreenUser.js";
-import { HelpCircle, CheckCircle, BookHeart, AlertCircle, ArrowRight } from 'lucide-react';
+import { HelpCircle, CheckCircle, BookHeart, AlertCircle, ArrowRight, Calendar } from 'lucide-react';
 
 const fadeInNoTransform = keyframes`
   from { opacity: 0; }
@@ -347,8 +348,15 @@ export default function GuestResponsePage() {
     <FullScreenBackground>
       <Container>
         <TopBar>
-          <Heading>🍽️ You're Invited!</Heading>
-          <Subheading>Submit your food preferences for the group</Subheading>
+          <Heading>
+            {activity?.activity_type === 'Meeting' ? '👥 You\'re Invited to Meet!' : '🍽️ You\'re Invited!'}
+          </Heading>
+          <Subheading>
+            {activity?.activity_type === 'Meeting'
+              ? 'Share your availability for the group'
+              : 'Submit your food preferences for the group'
+            }
+          </Subheading>
         </TopBar>
 
         <ActivityCard>
@@ -377,24 +385,44 @@ export default function GuestResponsePage() {
               Response Submitted Successfully! 🎉
             </SubmittedTitle>
             <SubmittedText>
-              Thank you for submitting your preferences! The organizer will gather everyone's responses and send you the final restaurant options soon.
+              Thank you for submitting your {activity?.activity_type === 'Meeting' ? 'availability' : 'preferences'}! The organizer will gather everyone's responses and send you the final {activity?.activity_type === 'Meeting' ? 'meeting details' : 'restaurant options'} soon.
             </SubmittedText>
           </SubmittedCard>
         )}
 
         {!existingResponse && !submissionSuccess ? (
           <PreferencesCard>
-            <PreferencesIcon>
-              <BookHeart size={48} />
-            </PreferencesIcon>
-            <PreferencesTitle>Submit Your Food Preferences!</PreferencesTitle>
-            <PreferencesText>
-              Help the group find the perfect restaurant by sharing your cuisine preferences, dietary needs, and budget.
-            </PreferencesText>
-            <PreferencesButton onClick={handleStartChat}>
-              <HelpCircle size={20} />
-              Start Preferences Quiz
-            </PreferencesButton>
+            {activity.activity_type === 'Restaurant' && (
+              <>
+                <PreferencesIcon>
+                  <BookHeart size={48} />
+                </PreferencesIcon>
+                <PreferencesTitle>Submit Your Food Preferences!</PreferencesTitle>
+                <PreferencesText>
+                  Help the group find the perfect restaurant by sharing your cuisine preferences, dietary needs, and budget.
+                </PreferencesText>
+                <PreferencesButton onClick={handleStartChat}>
+                  <HelpCircle size={20} />
+                  Start Preferences Quiz
+                </PreferencesButton>
+              </>
+            )}
+            {activity.activity_type === 'Meeting' && (
+              <>
+                <PreferencesIcon>
+                  <Calendar size={48} />
+                </PreferencesIcon>
+                <PreferencesTitle>Submit Your Availability!</PreferencesTitle>
+                <PreferencesText>
+                  Help the group find the perfect time to meet by sharing your availability.
+                </PreferencesText>
+                <PreferencesButton onClick={handleStartChat}>
+                  <HelpCircle size={20} />
+                  Start Preferences Quiz
+                </PreferencesButton>
+              </>
+            )}
+
           </PreferencesCard>
         ) : existingResponse && !submissionSuccess ? (
           <SubmittedCard>
@@ -423,14 +451,27 @@ export default function GuestResponsePage() {
         {showChat && (
           <>
             <DimOverlay onClick={() => setShowChat(false)} />
-            <CuisineChat
-              activityId={activityId}
-              guestMode={true}
-              guestToken={token}
-              guestEmail={guestEmail}
-              onClose={() => setShowChat(false)}
-              onChatComplete={handleChatComplete}
-            />
+            {activity?.activity_type === 'Meeting' ? (
+              <LetsMeetScheduler
+                activityId={activityId}
+                currentActivity={activity}
+                responseSubmitted={submissionSuccess}
+                onClose={() => setShowChat(false)}
+                guestMode={true}
+                guestToken={token}
+                guestEmail={guestEmail}
+                onChatComplete={handleChatComplete}
+              />
+            ) : (
+              <CuisineChat
+                activityId={activityId}
+                guestMode={true}
+                guestToken={token}
+                guestEmail={guestEmail}
+                onClose={() => setShowChat(false)}
+                onChatComplete={handleChatComplete}
+              />
+            )}
           </>
         )}
       </Container>
