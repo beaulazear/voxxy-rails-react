@@ -323,45 +323,6 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onLeave, onBack, onDele
     toggleHelp();
   }
 
-  console.log('=== DEBUGGING ACTIVITY DATA ===');
-  console.log('Activity responses:', responses);
-  console.log('Participants array:', participantsArray);
-  console.log('Pending invites array:', pendingInvitesArray);
-  console.log('All participants will be:', allParticipants);
-
-  // Detailed debugging for each participant
-  allParticipants.forEach((p, index) => {
-    console.log(`Participant ${index}:`, {
-      name: p.name,
-      email: p.email,
-      confirmed: p.confirmed,
-      isHost: p.isHost,
-      isGuest: p.isGuest,
-      invitedEmail: p.invitedEmail,
-      apId: p.apId,
-      hasResponded: hasResponded(p)
-    });
-  });
-
-  // Check specific response matching
-  console.log('Full response objects:', responses);
-
-  // Show ALL fields in the response object
-  if (responses.length > 0) {
-    console.log('Response object keys:', Object.keys(responses[0]));
-    console.log('Full response object structure:', JSON.stringify(responses[0], null, 2));
-  }
-
-  console.log('Response emails:', responses.map(r => r.email));
-  console.log('Response emails (alt field):', responses.map(r => r.invited_email || r.guest_email));
-  console.log('Guest participant invitedEmail check:',
-    allParticipants.filter(p => p.isGuest).map(p => ({
-      email: p.email,
-      invitedEmail: p.invitedEmail,
-      responseExists: responses.some(r => r.email === p.invitedEmail)
-    }))
-  );
-
   return (
     <>
       <HeaderContainer>

@@ -782,8 +782,9 @@ export default function AIRecommendations({
   const totalParticipants = allParticipants.length + 1; // +1 for organizer
 
   // Updated response checking - handles both user_id and email responses
-  const currentUserResponse = user ? responses.find(r => r.user_id === user.id) : null;
-  const responseRate = (responses.length / totalParticipants) * 100;
+  const currentUserResponse = user ? responses.find(r =>
+    r.user_id === user.id || r.email === user.email
+  ) : null; const responseRate = (responses.length / totalParticipants) * 100;
 
   // Updated voting rate calculation
   const participantsWithVotes = new Set();
