@@ -33,6 +33,8 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onLeave, onBack, onDele
   const { responses = [] } = activity;
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
+  const isCurrentUserOrganizer = user?.id === activity.user?.id;
+
   const getDisplayImage = (userObj) => {
     if (userObj?.profile_pic_url) {
       const profilePicUrl = userObj.profile_pic_url.startsWith('http')
@@ -203,7 +205,7 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onLeave, onBack, onDele
   }
 
   const hostParticipant = {
-    name: `${activity.user?.name || "Unknown"}`,
+    name: isCurrentUserOrganizer ? "You" : `${activity.user?.name || "Unknown"}`,
     email: activity.user?.email || "N/A",
     confirmed: true,
     avatar: SmallTriangle, // Using your SmallTriangle icon for host
@@ -388,7 +390,9 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onLeave, onBack, onDele
             </HostAvatar>
             <HostInfo style={{ textAlign: 'left' }}>
               <HostName>
-                <span>Organized by {activity.user?.name || "Unknown"}</span>
+                <span>
+                  Organized by {isCurrentUserOrganizer ? "You" : (activity.user?.name || "Unknown")}
+                </span>
               </HostName>
               <WelcomeMessage>
                 {activity.welcome_message || "Welcome to this activity! Let's make it amazing together 🎉"}
@@ -537,7 +541,9 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onLeave, onBack, onDele
 
                     <Details>
                       <ParticipantName>
-                        {p.name}{p.isHost && ' (Organizer)'}{p.isGuest && ' (guest)'}
+                        {p.isHost && isCurrentUserOrganizer ? "You" : p.name}
+                        {p.isHost && ' (Organizer)'}
+                        {p.isGuest && ' (guest)'}
                       </ParticipantName>
 
                       <StatusRow>
@@ -1269,7 +1275,6 @@ const AvatarImage = styled.img`
   height: 100%;
   object-fit: cover;
   background: #fff;
-  padding-top: 2px;
   border-radius: 50%;
 `;
 
