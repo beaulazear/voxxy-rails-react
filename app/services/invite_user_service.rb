@@ -29,7 +29,7 @@ class InviteUserService
   private
 
   def self.send_new_user_invite(email, activity, inviter, participant)
-    frontend_host = Rails.env.production? ? "https://voxxyai.com" : "http://localhost:3000"
+    frontend_host = ENV.fetch("APP_BASE_URL", Rails.env.production? ? "https://voxxyai.com" : "http://localhost:3000")
 
     # Use guest response link instead of signup link
     response_link = "#{frontend_host}#/activities/#{activity.id}/respond/#{participant.guest_response_token}"
@@ -72,7 +72,7 @@ class InviteUserService
   end
 
   def self.send_existing_user_invite(user, activity, inviter, participant)
-    frontend_host = Rails.env.production? ? "https://voxxyai.com" : "http://localhost:3000"
+    frontend_host = ENV.fetch("APP_BASE_URL", Rails.env.production? ? "https://voxxyai.com" : "http://localhost:3000")
 
     # Provide both options - quick response and full login
     response_link = "#{frontend_host}#/activities/#{activity.id}/respond/#{participant.guest_response_token}"
