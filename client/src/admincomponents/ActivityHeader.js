@@ -228,15 +228,18 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onLeave, onBack, onDele
         isHost: false
       })),
     ...pendingInvitesArray.map(p => ({
-      name: 'Invite Pending',
+      name: p.invited_email,
       email: p.invited_email,
       confirmed: false,
       avatar: Woman,
-      profile_pic_url: null, // Pending invites won't have profile pics
+      profile_pic_url: null,
       created_at: null,
       apId: p.id,
-      isHost: false
+      isHost: false,
+      isGuest: true, // NEW: Mark as guest participant
+      invitedEmail: p.invited_email // NEW: Keep track of invited email for guest responses
     })),
+
   ];
 
   const hasVoted = p => {
@@ -254,11 +257,27 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onLeave, onBack, onDele
 
     return false;
   };
-  const hasResponded = p => p.confirmed && responses.some(r => r.user_id === p.apId);
+  const hasResponded = p => {
+    // For confirmed users (registered accounts)
+    if (p.confirmed && p.apId) {
+      const userResponse = responses.some(r => r.user_id === p.apId);
+      if (userResponse) return true;
+    }
+
+    // For guest participants (pending invites) - check by email
+    if (p.isGuest && p.invitedEmail) {
+      return responses.some(r => r.email === p.invitedEmail);
+    }
+
+    // For confirmed users who might have submitted as guests before registering
+    if (p.confirmed && p.email) {
+      return responses.some(r => r.email === p.email);
+    }
+
+    return false;
+  };
   const totalToRespond = allParticipants.length;
-  const responsesCount = allParticipants.filter(p =>
-    responses.some(r => r.user_id === p.apId)
-  ).length;
+  const responsesCount = allParticipants.filter(p => hasResponded(p)).length;
   const votesCount = allParticipants.filter(p => hasVoted(p)).length;
 
   const shareUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activity.id}/share`;
@@ -303,6 +322,45 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onLeave, onBack, onDele
     setHelpStep(0);
     toggleHelp();
   }
+
+  console.log('=== DEBUGGING ACTIVITY DATA ===');
+  console.log('Activity responses:', responses);
+  console.log('Participants array:', participantsArray);
+  console.log('Pending invites array:', pendingInvitesArray);
+  console.log('All participants will be:', allParticipants);
+
+  // Detailed debugging for each participant
+  allParticipants.forEach((p, index) => {
+    console.log(`Participant ${index}:`, {
+      name: p.name,
+      email: p.email,
+      confirmed: p.confirmed,
+      isHost: p.isHost,
+      isGuest: p.isGuest,
+      invitedEmail: p.invitedEmail,
+      apId: p.apId,
+      hasResponded: hasResponded(p)
+    });
+  });
+
+  // Check specific response matching
+  console.log('Full response objects:', responses);
+
+  // Show ALL fields in the response object
+  if (responses.length > 0) {
+    console.log('Response object keys:', Object.keys(responses[0]));
+    console.log('Full response object structure:', JSON.stringify(responses[0], null, 2));
+  }
+
+  console.log('Response emails:', responses.map(r => r.email));
+  console.log('Response emails (alt field):', responses.map(r => r.invited_email || r.guest_email));
+  console.log('Guest participant invitedEmail check:',
+    allParticipants.filter(p => p.isGuest).map(p => ({
+      email: p.email,
+      invitedEmail: p.invitedEmail,
+      responseExists: responses.some(r => r.email === p.invitedEmail)
+    }))
+  );
 
   return (
     <>
@@ -430,8 +488,7 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onLeave, onBack, onDele
                     .filter(p => !p.confirmed)
                     .slice(0, 3)
                     .map((p, i) => (
-                      <ParticipantAvatar key={`pending-${i}`} $pending>
-                        <AvatarImage src={getDisplayImage(p)} alt={p.name} />
+                      <ParticipantAvatar key={`pending-${i}`} $pending={!hasResponded(p)} $guestResponded={hasResponded(p)}>                        <AvatarImage src={getDisplayImage(p)} alt={p.name} />
                         <PendingIndicator>
                           <Clock size={12} />
                         </PendingIndicator>
@@ -519,7 +576,7 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onLeave, onBack, onDele
 
                     <Details>
                       <ParticipantName>
-                        {p.name}{p.isHost && ' (Organizer)'}
+                        {p.name}{p.isHost && ' (Organizer)'}{p.isGuest && ' (guest)'}
                       </ParticipantName>
 
                       <StatusRow>
@@ -1228,10 +1285,11 @@ const ParticipantAvatar = styled.div`
   border-radius: 50%;
   border: ${props =>
     props.$isHost ? `3px solid ${colors.primary}` :
-      props.$pending ? `2px dashed ${colors.textMuted}` :
-        `2px solid ${colors.border}`
+      props.$guestResponded ? `2px solid ${colors.success}` : // NEW: Green border for guest responses
+        props.$pending ? `2px dashed ${colors.textMuted}` :
+          `2px solid ${colors.border}`
   };
-  opacity: ${props => props.$pending ? 0.6 : 1};
+  opacity: ${props => props.$pending && !props.$guestResponded ? 0.6 : 1}; // NEW: Full opacity if guest responded
   transition: all 0.3s ease;
 
   @media (min-width: 768px) {

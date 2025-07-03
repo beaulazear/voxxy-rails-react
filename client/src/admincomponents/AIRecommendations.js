@@ -231,6 +231,10 @@ const ParticipantItem = styled.div`
 
 const ParticipantName = styled.span`
   font-size: 0.9rem;
+  ${({ $isGuest }) => $isGuest && `
+    font-style: italic;
+    opacity: 0.9;
+  `}
 `;
 
 const ParticipantStatus = styled.div`
@@ -773,10 +777,15 @@ export default function AIRecommendations({
 
   const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_KEY;
 
-  const totalParticipants = activity.participants.length + 1;
-  const currentUserResponse = responses.find(r => r.user_id === user.id);
+  // Updated participant counting - includes both registered users and invited emails
+  const allParticipants = activity.participants || [];
+  const totalParticipants = allParticipants.length + 1; // +1 for organizer
+
+  // Updated response checking - handles both user_id and email responses
+  const currentUserResponse = user ? responses.find(r => r.user_id === user.id) : null;
   const responseRate = (responses.length / totalParticipants) * 100;
 
+  // Updated voting rate calculation
   const participantsWithVotes = new Set();
   pinnedActivities.forEach(pin => {
     (pin.voters || []).forEach(voter => {
@@ -785,8 +794,34 @@ export default function AIRecommendations({
   });
   const votingRate = (participantsWithVotes.size / totalParticipants) * 100;
 
+  // Helper function to check if a participant has submitted a response
+  const hasParticipantSubmitted = (participant) => {
+    // Check by user_id if participant has a user account
+    if (participant.user_id) {
+      return responses.some(r => r.user_id === participant.user_id);
+    }
+    // Check by email for guest participants
+    if (participant.invited_email) {
+      return responses.some(r => r.email === participant.invited_email);
+    }
+    return false;
+  };
+
+  // Helper function to get participant display name
+  const getParticipantDisplayName = (participant) => {
+    if (participant.user_id && participant.name) {
+      return participant.name;
+    }
+    return participant.invited_email || participant.email || 'Unknown';
+  };
+
+  // Helper function to check if participant is guest
+  const isGuestParticipant = (participant) => {
+    return !participant.user_id && participant.invited_email;
+  };
+
   const handleStartChat = () => {
-    if (process.env.NODE_ENV === "production") {
+    if (process.env.NODE_ENV === "production" && user) {
       mixpanel.track("Chat with Voxxy Clicked", { activity: id });
     }
     setShowChat(true);
@@ -853,14 +888,16 @@ export default function AIRecommendations({
         }),
       });
 
-      setUser(prevUser => ({
-        ...prevUser,
-        activities: prevUser.activities.map(act =>
-          act.id === id
-            ? { ...act, collecting: false, voting: true }
-            : act
-        )
-      }));
+      if (user && setUser) {
+        setUser(prevUser => ({
+          ...prevUser,
+          activities: prevUser.activities.map(act =>
+            act.id === id
+              ? { ...act, collecting: false, voting: true }
+              : act
+          )
+        }));
+      }
       setPinnedActivities(newPinnedActivities);
       setRefreshTrigger(f => !f);
 
@@ -873,6 +910,8 @@ export default function AIRecommendations({
   };
 
   const handleLike = (pin) => {
+    if (!user) return; // Can't vote without being logged in
+
     if (process.env.NODE_ENV === "production") {
       mixpanel.track("Pinned Activity Voted On", { user: user.id });
     }
@@ -974,12 +1013,28 @@ export default function AIRecommendations({
           <OrganizerSection>
             <OrganizerTitle><Cog size={20} style={{ marginBottom: '4px' }} /> Organizer Controls</OrganizerTitle>
             <ParticipantsList>
-              {activity.participants.concat([{ id: user.id, name: activity.organizer?.name || 'You' }]).map((participant, index) => {
-                const hasSubmitted = responses.some(r => r.user_id === participant.id) ||
-                  (participant.name === activity.organizer?.name && responses.some(r => r.user_id === user.id));
+              {/* Show organizer first */}
+              <ParticipantItem>
+                <ParticipantName>
+                  {activity.organizer?.name || user?.name || 'You'} (Organizer)
+                </ParticipantName>
+                <ParticipantStatus $submitted={currentUserResponse !== null}>
+                  {currentUserResponse ? <CheckCircle size={16} /> : <Clock size={16} />}
+                  {currentUserResponse ? 'Submitted' : 'Waiting'}
+                </ParticipantStatus>
+              </ParticipantItem>
+
+              {/* Show all other participants */}
+              {allParticipants.map((participant, index) => {
+                const hasSubmitted = hasParticipantSubmitted(participant);
+                const displayName = getParticipantDisplayName(participant);
+                const isGuest = isGuestParticipant(participant);
+
                 return (
                   <ParticipantItem key={index}>
-                    <ParticipantName>{participant.name || participant.email}</ParticipantName>
+                    <ParticipantName $isGuest={isGuest}>
+                      {displayName} {isGuest && '(guest)'}
+                    </ParticipantName>
                     <ParticipantStatus $submitted={hasSubmitted}>
                       {hasSubmitted ? <CheckCircle size={16} /> : <Clock size={16} />}
                       {hasSubmitted ? 'Submitted' : 'Waiting'}
@@ -995,7 +1050,7 @@ export default function AIRecommendations({
           </OrganizerSection>
         )}
 
-        {!currentUserResponse ? (
+        {user && !currentUserResponse ? (
           <PreferencesCard>
             <PreferencesIcon><BookHeart size={48} /></PreferencesIcon>
             <PreferencesTitle>Submit Your Preferences!</PreferencesTitle>
@@ -1007,7 +1062,7 @@ export default function AIRecommendations({
               Take Preferences Quiz
             </PreferencesButton>
           </PreferencesCard>
-        ) : (
+        ) : user && currentUserResponse ? (
           <SubmittedCard>
             <SubmittedIcon><CheckCircle size={48} /></SubmittedIcon>
             <SubmittedTitle>Thank you for submitting your response!</SubmittedTitle>
@@ -1019,9 +1074,9 @@ export default function AIRecommendations({
               Resubmit Preferences
             </ResubmitButton>
           </SubmittedCard>
-        )}
+        ) : null}
 
-        {showChat && (
+        {showChat && user && (
           <>
             <DimOverlay onClick={() => setShowChat(false)} />
             <CuisineChat
@@ -1110,12 +1165,28 @@ export default function AIRecommendations({
           <OrganizerSection>
             <OrganizerTitle><Cog style={{ marginBottom: '4px' }} size={20} /> Organizer Controls</OrganizerTitle>
             <ParticipantsList>
-              {activity.participants.concat([{ id: user.id, name: activity.organizer?.name || 'You' }]).map((participant, index) => {
-                const hasVoted = Array.from(participantsWithVotes).includes(participant.id) ||
-                  (participant.name === activity.organizer?.name && Array.from(participantsWithVotes).includes(user.id));
+              {/* Show organizer first */}
+              <ParticipantItem>
+                <ParticipantName>
+                  {activity.organizer?.name || user?.name || 'You'} (Organizer)
+                </ParticipantName>
+                <ParticipantStatus $submitted={Array.from(participantsWithVotes).includes(user?.id)}>
+                  {Array.from(participantsWithVotes).includes(user?.id) ? <CheckCircle size={16} /> : <Clock size={16} />}
+                  {Array.from(participantsWithVotes).includes(user?.id) ? 'Voted' : 'Waiting'}
+                </ParticipantStatus>
+              </ParticipantItem>
+
+              {/* Show all other participants */}
+              {allParticipants.map((participant, index) => {
+                const hasVoted = participant.user_id && Array.from(participantsWithVotes).includes(participant.user_id);
+                const displayName = getParticipantDisplayName(participant);
+                const isGuest = isGuestParticipant(participant);
+
                 return (
                   <ParticipantItem key={index}>
-                    <ParticipantName>{participant.name || participant.email}</ParticipantName>
+                    <ParticipantName $isGuest={isGuest}>
+                      {displayName} {isGuest && '(guest - cannot vote)'}
+                    </ParticipantName>
                     <ParticipantStatus $submitted={hasVoted}>
                       {hasVoted ? <CheckCircle size={16} /> : <Clock size={16} />}
                       {hasVoted ? 'Voted' : 'Waiting'}
@@ -1147,12 +1218,19 @@ export default function AIRecommendations({
                       <div>{p.address || "N/A"}</div>
                     </div>
                     <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                      <LikeButton
-                        onClick={e => { e.stopPropagation(); handleLike(p); }}
-                        $liked={(p.voters || []).some(v => v.id === user.id)}
-                      >
-                        {(p.voters || []).some(v => v.id === user.id) ? "❤️" : "🤍"} {(p.votes || []).length}
-                      </LikeButton>
+                      {user && (
+                        <LikeButton
+                          onClick={e => { e.stopPropagation(); handleLike(p); }}
+                          $liked={(p.voters || []).some(v => v.id === user.id)}
+                        >
+                          {(p.voters || []).some(v => v.id === user.id) ? "❤️" : "🤍"} {(p.votes || []).length}
+                        </LikeButton>
+                      )}
+                      {!user && (
+                        <VoteCount>
+                          ❤️ {(p.votes || []).length}
+                        </VoteCount>
+                      )}
                     </div>
                   </ListBottom>
                 </ContentWrapper>

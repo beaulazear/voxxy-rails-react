@@ -359,7 +359,14 @@ const InputWrapper = styled.div`
   flex: 1;
 `;
 
-export default function CuisineChat({ onClose, activityId, onChatComplete }) {
+export default function CuisineChat({
+  onClose,
+  activityId,
+  onChatComplete,
+  guestMode = false,
+  guestToken = null,
+  guestEmail = null
+}) {
   const { user, setUser } = useContext(UserContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
@@ -404,7 +411,7 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
   ];
   const [selectedBudget, setSelectedBudget] = useState('No preference');
 
-  const [dietary, setDietary] = useState(user.preferences || '');
+  const [dietary, setDietary] = useState(guestMode ? '' : (user?.preferences || ''));
 
   const handleInputFocus = (e) => {
     const target = e.target;
@@ -426,6 +433,7 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
       setSelectedCuisines([...withoutSurprise, cuisine]);
     }
   };
+
   const addCustomCuisine = () => {
     const trimmed = otherCuisine.trim();
     if (!trimmed) return;
@@ -441,6 +449,7 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
       prev.includes(atm) ? prev.filter((a) => a !== atm) : [...prev, atm]
     );
   };
+
   const addCustomAtmosphere = () => {
     const trimmed = otherAtmosphere.trim();
     if (!trimmed) return;
@@ -482,21 +491,39 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
       `Dietary Preferences: ${dietaryText}`,
     ].join('\n\n');
 
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'production' && !guestMode) {
       mixpanel.track('Voxxy Chat Custom Completed', {
         name: user.name,
       });
     }
 
     try {
-      const res = await fetch(`${API_URL}/responses`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          response: { notes, activity_id: activityId },
-        }),
-      });
+      let endpoint, requestOptions;
+
+      if (guestMode) {
+        // Guest response submission
+        endpoint = `${API_URL}/activities/${activityId}/respond/${guestToken}`;
+        requestOptions = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            response: { notes },
+          }),
+        };
+      } else {
+        // Authenticated user response submission
+        endpoint = `${API_URL}/responses`;
+        requestOptions = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            response: { notes, activity_id: activityId },
+          }),
+        };
+      }
+
+      const res = await fetch(endpoint, requestOptions);
 
       if (!res.ok) {
         const errorData = await res.json();
@@ -504,57 +531,65 @@ export default function CuisineChat({ onClose, activityId, onChatComplete }) {
         return;
       }
 
-      const { response: newResponse, comment: newComment } = await res.json();
+      const data = await res.json();
 
-      setUser((prev) => {
-        const activities = prev.activities.map((act) => {
-          if (act.id === activityId) {
-            const filteredResponses = (act.responses || []).filter(
-              response => response.user_id !== user.id
-            );
-            const filteredComments = (act.comments || []).filter(
-              comment => comment.user_id !== user.id
-            );
+      // Only update user state for authenticated users
+      if (!guestMode && user) {
+        const { response: newResponse, comment: newComment } = data;
 
-            return {
-              ...act,
-              responses: [...filteredResponses, newResponse],
-              comments: [...filteredComments, newComment],
-            };
-          }
-          return act;
-        });
+        setUser((prev) => {
+          const activities = prev.activities.map((act) => {
+            if (act.id === activityId) {
+              const filteredResponses = (act.responses || []).filter(
+                response => response.user_id !== user.id
+              );
+              const filteredComments = (act.comments || []).filter(
+                comment => comment.user_id !== user.id
+              );
 
-        const participant_activities = prev.participant_activities.map((pa) => {
-          if (pa.activity.id === activityId) {
-            // Filter out any existing responses from this user
-            const filteredResponses = (pa.activity.responses || []).filter(
-              response => response.user_id !== user.id
-            );
-            const filteredComments = (pa.activity.comments || []).filter(
-              comment => comment.user_id !== user.id
-            );
-
-            return {
-              ...pa,
-              activity: {
-                ...pa.activity,
+              return {
+                ...act,
                 responses: [...filteredResponses, newResponse],
                 comments: [...filteredComments, newComment],
-              },
-            };
-          }
-          return pa;
+              };
+            }
+            return act;
+          });
+
+          const participant_activities = prev.participant_activities.map((pa) => {
+            if (pa.activity.id === activityId) {
+              const filteredResponses = (pa.activity.responses || []).filter(
+                response => response.user_id !== user.id
+              );
+              const filteredComments = (pa.activity.comments || []).filter(
+                comment => comment.user_id !== user.id
+              );
+
+              return {
+                ...pa,
+                activity: {
+                  ...pa.activity,
+                  responses: [...filteredResponses, newResponse],
+                  comments: [...filteredComments, newComment],
+                },
+              };
+            }
+            return pa;
+          });
+
+          return {
+            ...prev,
+            activities,
+            participant_activities,
+          };
         });
 
-        return {
-          ...prev,
-          activities,
-          participant_activities,
-        };
-      });
+        onChatComplete(newResponse, newComment);
+      } else {
+        // For guest mode, just call onChatComplete
+        onChatComplete();
+      }
 
-      onChatComplete(newResponse, newComment);
     } catch (error) {
       console.error('❌ Error submitting response:', error);
     }

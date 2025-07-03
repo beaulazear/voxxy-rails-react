@@ -3,16 +3,26 @@ include SendGrid
 
 class ActivityResponseEmailService
   def self.send_response_email(response, activity)
-    participant = response.user
     host = activity.user
 
-    return unless activity && host&.email && participant&.name
+    # Handle both user and guest responses
+    if response.is_guest_response?
+      participant_name = response.email
+      participant_email = response.email
+    else
+      participant = response.user
+      return unless participant&.name && participant&.email
+      participant_name = participant.name
+      participant_email = participant.email
+    end
+
+    return unless activity && host&.email && participant_name
 
     Rails.logger.info "Sending response email to host (#{host.email}) for Activity ##{activity.id}"
 
     from    = SendGrid::Email.new(email: "team@voxxyai.com", name: "Voxxy Team")
     to      = SendGrid::Email.new(email: host.email)
-    subject = "📝 #{participant.name} submitted their Voxxy preferences!"
+    subject = "📝 #{participant_name} submitted their Voxxy preferences!"
 
     homepage_url = "https://www.voxxyai.com"
 
@@ -27,7 +37,7 @@ class ActivityResponseEmailService
             <h1 style="color: #8e44ad;">New Preferences Received! 🥳</h1>
 
             <p style="font-size: 18px; color: #444;">
-              <strong>#{participant.name}</strong> just submitted their preferences for:<br>
+              <strong>#{participant_name}</strong> just submitted their preferences for:<br>
               <strong>#{activity.emoji} #{activity.activity_name}</strong>
             </p>
 

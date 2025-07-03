@@ -36,7 +36,7 @@ class SessionsController < ApplicationController
                   :group_size, :radius, :date_notes, :created_at, :active, :emoji, :date_day,
                   :date_time, :welcome_message, :completed ],
           include: {
-            responses: { only: [ :id, :notes, :availability, :created_at, :user_id, :activity_id ] },
+            responses: { only: [ :id, :notes, :availability, :created_at, :user_id, :activity_id, :email ] },
             activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] }
           }
         ).merge(
@@ -74,7 +74,7 @@ class SessionsController < ApplicationController
                     :group_size, :radius, :date_notes, :created_at, :emoji, :date_day,
                     :date_time, :welcome_message, :completed ],
             include: {
-              responses: { only: [ :id, :notes, :availability, :created_at, :user_id, :activity_id ] }
+              responses: { only: [ :id, :notes, :availability, :created_at, :email, :user_id, :activity_id ] }
             }
           ).merge(
             "user" => activity.user.as_json(only: [ :id, :name, :email, :avatar, :created_at ]).merge("profile_pic_url" => activity.user.profile_pic_url),

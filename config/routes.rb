@@ -51,6 +51,9 @@ Rails.application.routes.draw do
   post "/activities/:id/send_thank_you", to: "activities#send_thank_you"
   post "/activities/:id/mark_complete", to: "activities#mark_complete"
 
+  get "/activities/:activity_id/respond/:token", to: "guest_responses#show"
+  post "/activities/:activity_id/respond/:token", to: "guest_responses#create"
+
   get "/test", to: "application#test"
 
   get "up" => "rails/health#show", as: :rails_health_check

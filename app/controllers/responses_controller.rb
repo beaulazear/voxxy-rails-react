@@ -11,21 +11,34 @@ class ResponsesController < ApplicationController
       return render json: { error: "Activity not found" }, status: :not_found
     end
 
-    response = activity.responses.build(response_params.except(:availability))
-    response.user_id      = current_user.id
-    response.availability = response_params[:availability] || {}
+    existing_guest_response = activity.responses.find_by(email: current_user.email)
 
-    if response.save
-      activity.responses
-              .where(user_id: current_user.id)
-              .where.not(id: response.id)
-              .destroy_all
+    if existing_guest_response
+      existing_guest_response.update!(
+        user_id: current_user.id,
+        email: nil,
+        **response_params.except(:availability)
+      )
+      existing_guest_response.update!(availability: response_params[:availability] || {})
+      response = existing_guest_response
+    else
+      response = activity.responses.build(response_params.except(:availability))
+      response.user_id = current_user.id
+      response.availability = response_params[:availability] || {}
+      response.save!
+    end
+
+    activity.responses
+            .where(user_id: current_user.id)
+            .where.not(id: response.id)
+            .destroy_all
 
     ActivityResponseEmailService.send_response_email(response, activity)
     comment = activity.comments.create!(
       user_id: current_user.id,
       content: "#{current_user.name} has submitted their preferences! 💕"
     )
+
     render json: {
       response: response,
       comment: comment.as_json(
@@ -34,9 +47,9 @@ class ResponsesController < ApplicationController
         }
       )
     }, status: :created
-    else
-      render json: { errors: response.errors.full_messages }, status: :unprocessable_entity
-    end
+
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
   end
 
   def index

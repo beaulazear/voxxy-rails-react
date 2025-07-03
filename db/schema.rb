@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_06_15_054445) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_02_231819) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -71,7 +71,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_15_054445) do
     t.boolean "accepted", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "guest_response_token"
     t.index ["activity_id"], name: "index_activity_participants_on_activity_id"
+    t.index ["guest_response_token"], name: "index_activity_participants_on_guest_response_token", unique: true
     t.index ["user_id"], name: "index_activity_participants_on_user_id"
   end
 
@@ -141,7 +143,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_15_054445) do
     t.datetime "updated_at", null: false
     t.bigint "user_id"
     t.jsonb "availability", default: {}, null: false
+    t.string "email"
+    t.index ["activity_id", "email"], name: "index_responses_on_activity_and_email", unique: true, where: "(email IS NOT NULL)"
     t.index ["activity_id"], name: "index_responses_on_activity_id"
+    t.check_constraint "user_id IS NOT NULL OR email IS NOT NULL", name: "responses_user_or_email_present"
   end
 
   create_table "time_slot_votes", force: :cascade do |t|

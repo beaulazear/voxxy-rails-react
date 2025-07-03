@@ -1,0 +1,108 @@
+# app/controllers/guest_responses_controller.rb
+class GuestResponsesController < ApplicationController
+  skip_before_action :authorized
+  before_action :find_activity_and_participant
+
+  def show
+    # Show the guest response form
+    @response = @activity.responses.find_by(email: @participant.invited_email)
+
+    render json: {
+      activity: @activity.as_json(include: [ :user, :participants ]),
+      existing_response: @response,
+      participant_email: @participant.invited_email
+    }
+  end
+
+  def create
+    # Check for existing response from this email
+    existing_response = @activity.responses.find_by(email: @participant.invited_email)
+
+    if existing_response
+      # Force update using update_columns to bypass validations and callbacks
+      existing_response.update_columns(
+        user_id: nil,
+        email: @participant.invited_email,
+        notes: guest_response_params[:notes],
+        availability: (guest_response_params[:availability] || {}).to_json,
+        updated_at: Time.current
+      )
+      @response = existing_response.reload
+    else
+      # Create new guest response
+      @response = @activity.responses.new
+      @response.activity = @activity
+      @response.email = @participant.invited_email
+      @response.user_id = nil  # Explicitly set to nil for guest
+      @response.notes = guest_response_params[:notes]
+      @response.availability = guest_response_params[:availability] || {}
+      @response.save!
+    end
+
+    # Remove any duplicate responses from same email (cleanup)
+    @activity.responses
+             .where(email: @participant.invited_email)
+             .where.not(id: @response.id)
+             .destroy_all
+
+    # Send notification email if service exists - but handle errors gracefully
+    begin
+      if defined?(ActivityResponseEmailService)
+        # Reload to ensure we have fresh data
+        @response.reload
+        ActivityResponseEmailService.send_response_email(@response, @activity)
+      end
+    rescue => e
+      Rails.logger.error "Failed to send response email (but response was saved): #{e.message}"
+      # Don't fail the whole request just because email failed
+    end
+
+    # Create comment - adjusted for guest users
+    begin
+      comment = @activity.comments.create!(
+        content: "#{@participant.invited_email} has submitted their preferences! 💕"
+      )
+    rescue => e
+      Rails.logger.error "Failed to create comment: #{e.message}"
+      comment = nil
+    end
+
+    render json: {
+      response: {
+        id: @response.id,
+        notes: @response.notes,
+        email: @response.email,
+        is_guest_response: @response.is_guest_response?,
+        created_at: @response.created_at,
+        updated_at: @response.updated_at
+      },
+      comment: comment&.as_json,
+      message: "Response submitted successfully! The organizer will send you the final details once everyone has responded."
+    }, status: :created
+
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.error "Guest response validation failed: #{e.record.errors.full_messages}"
+    render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
+  rescue => e
+    Rails.logger.error "Guest response creation failed: #{e.message}"
+    render json: { error: "Unable to save response. Please try again." }, status: :internal_server_error
+  end
+
+  private
+
+  def find_activity_and_participant
+    @activity = Activity.find(params[:activity_id])
+    @participant = @activity.activity_participants.find_by!(guest_response_token: params[:token])
+
+    if @participant.invited_email.blank?
+      render json: { error: "Invalid invitation" }, status: :unauthorized
+      nil
+    end
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Invalid invitation link" }, status: :not_found
+  end
+
+  def guest_response_params
+    params.require(:response).permit(:notes, availability: {})
+  end
+end

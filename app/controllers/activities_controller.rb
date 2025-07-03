@@ -65,7 +65,7 @@ class ActivitiesController < HtmlController
               :welcome_message, :finalized, :radius ],
       include: {
         activity_participants:   { only: [ :id, :user_id, :invited_email, :accepted, :created_at ] },
-        responses:               { only: [ :id, :activity_id, :notes, :created_at, :user_id ] }
+        responses:               { only: [ :id, :activity_id, :notes, :created_at, :user_id, :email ] }
       }
     ).merge(
       "user" => activity.user.as_json(only: [ :id, :name, :email, :avatar, :created_at ]).merge("profile_pic_url" => activity.user.profile_pic_url),
@@ -94,7 +94,7 @@ class ActivitiesController < HtmlController
       activity.as_json(
         only: [ :id, :activity_name, :activity_type, :collecting, :voting, :finalized, :activity_location, :group_size, :radius, :date_notes, :created_at, :active, :emoji, :user_id, :date_day, :date_time, :welcome_message, :completed ],
         include: {
-          responses: { only: [ :id, :notes, :created_at, :user_id, :activity_id ] },
+          responses: { only: [ :id, :notes, :created_at, :user_id, :activity_id, :email ] },
           activity_participants: { only: [ :id, :user_id, :invited_email, :accepted, :created_at, :avatar ] }
         }
       ).merge(
@@ -123,7 +123,7 @@ class ActivitiesController < HtmlController
         activity.as_json(
           only: [ :id, :activity_name, :collecting, :voting, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :radius, :date_day, :date_time, :welcome_message, :completed ],
           include: {
-            responses: { only: [ :id, :notes, :created_at ] },
+            responses: { only: [ :id, :notes, :created_at, :email ] },
             activity_participants: { only: [ :id, :user_id, :invited_email, :accepted, :avatar, :created_at ] },
             comments: { include: { user: { only: [ :id, :name, :avatar ] } } }
           }
