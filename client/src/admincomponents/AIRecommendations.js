@@ -778,16 +778,13 @@ export default function AIRecommendations({
 
   const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_KEY;
 
-  // Updated participant counting - includes both registered users and invited emails
   const allParticipants = activity.participants || [];
   const totalParticipants = allParticipants.length + 1; // +1 for organizer
 
-  // Updated response checking - handles both user_id and email responses
   const currentUserResponse = user ? responses.find(r =>
     r.user_id === user.id || r.email === user.email
   ) : null; const responseRate = (responses.length / totalParticipants) * 100;
 
-  // Updated voting rate calculation
   const participantsWithVotes = new Set();
   pinnedActivities.forEach(pin => {
     (pin.voters || []).forEach(voter => {
@@ -796,20 +793,16 @@ export default function AIRecommendations({
   });
   const votingRate = (participantsWithVotes.size / totalParticipants) * 100;
 
-  // Helper function to check if a participant has submitted a response
   const hasParticipantSubmitted = (participant) => {
-    // Check by user_id if participant has a user account
     if (participant.user_id) {
       return responses.some(r => r.user_id === participant.user_id);
     }
-    // Check by email for guest participants
     if (participant.invited_email) {
       return responses.some(r => r.email === participant.invited_email);
     }
     return false;
   };
 
-  // Helper function to get participant display name
   const getParticipantDisplayName = (participant) => {
     if (participant.user_id && participant.name) {
       return participant.name;
@@ -817,7 +810,6 @@ export default function AIRecommendations({
     return participant.invited_email || participant.email || 'Unknown';
   };
 
-  // Helper function to check if participant is guest
   const isGuestParticipant = (participant) => {
     return !participant.user_id && participant.invited_email;
   };
@@ -912,7 +904,7 @@ export default function AIRecommendations({
   };
 
   const handleLike = (pin) => {
-    if (!user) return; // Can't vote without being logged in
+    if (!user) return;
 
     if (process.env.NODE_ENV === "production") {
       mixpanel.track("Pinned Activity Voted On", { user: user.id });
@@ -971,7 +963,7 @@ export default function AIRecommendations({
   function openDetail(rec) {
     setSelectedRec(rec);
     setShowDetailModal(true);
-    setMapLoading(true); // Reset loading state when opening new modal
+    setMapLoading(true);
   }
 
   function closeDetail() {
@@ -982,9 +974,9 @@ export default function AIRecommendations({
   const shareUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${activity.id}/share`;
   const sharePlanUrlClick = () => {
     window.open(
-      shareUrl,    // your URL
-      '_blank',                 // open in new tab
-      'noopener,noreferrer'     // recommended for security
+      shareUrl,
+      '_blank',
+      'noopener,noreferrer'
     );
   };
 

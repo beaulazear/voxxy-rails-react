@@ -39,7 +39,7 @@ const Heading = styled.h1`
   font-family: 'Montserrat', sans-serif;
   font-size: 2rem;
   margin: 0 0 0.5rem 0;
-  background: linear-gradient(135deg, #cc31e8 0%, #9051e1 100%);
+  background: #fff;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
