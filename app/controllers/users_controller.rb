@@ -11,7 +11,6 @@ class UsersController < ApplicationController
       pending_invites.find_each do |invite|
         invite.update!(user: user, accepted: true)
         activity = invite.activity
-        activity.update!(group_size: activity.group_size + 1)
         activity.comments.create!(
           user_id: user.id,
           content: "#{user.name} has joined the chat 🎉"

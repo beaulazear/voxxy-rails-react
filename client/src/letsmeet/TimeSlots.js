@@ -175,6 +175,7 @@ const SubmittedText = styled.p`
   margin: 0 0 1.5rem 0;
   color: #ccc;
   line-height: 1.5;
+  text-align: left;
 `;
 
 const ResubmitButton = styled.button`
@@ -632,7 +633,11 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
   const totalParticipants = currentActivity.participants.length + 1;
   const availabilityResponses = responses.filter(r => r.notes === "LetsMeetAvailabilityResponse");
   const responseRate = (availabilityResponses.length / totalParticipants) * 100;
-  const currentUserResponse = availabilityResponses.find(r => r.user_id === user.id);
+
+  // Updated to handle both user_id and email matching (guest responses)
+  const currentUserResponse = availabilityResponses.find(r =>
+    r.user_id === user.id || r.email === user.email
+  );
 
   const participantsWithVotes = new Set();
   pinned.forEach(slot => {
@@ -749,8 +754,9 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
 
   const handleAvailabilityUpdate = (newResponse, newComment) => {
     setCurrentActivity(prev => {
+      // Updated to handle both user_id and email matching (guest responses)
       const otherResponses = prev.responses?.filter(r =>
-        !(r.notes === "LetsMeetAvailabilityResponse" && r.user_id === user.id)
+        !(r.notes === "LetsMeetAvailabilityResponse" && (r.user_id === user.id || r.email === user.email))
       ) || [];
 
       return {
@@ -799,7 +805,10 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
             <OrganizerTitle><Cog size={20} style={{ marginBottom: '4px' }} /> Organizer Controls</OrganizerTitle>
             <ParticipantsList>
               {currentActivity.participants.concat([{ id: user.id, name: currentActivity.user?.name || 'You' }]).map((participant, index) => {
-                const hasSubmitted = availabilityResponses.some(r => r.user_id === participant.id);
+                // Updated to handle both user_id and email matching for participants
+                const hasSubmitted = availabilityResponses.some(r =>
+                  r.user_id === participant.id || r.email === participant.email
+                );
                 return (
                   <ParticipantItem key={index}>
                     <ParticipantName>{participant.name || participant.email}</ParticipantName>
@@ -961,7 +970,6 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
               timeObj.setHours(+h, +m);
               const formattedTime = format(timeObj, 'h:mm a');
 
-              // Use availability count from backend
               const availabilityCount = slot.availability_count || 0;
 
               return (

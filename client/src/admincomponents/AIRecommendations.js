@@ -175,6 +175,7 @@ const SubmittedText = styled.p`
   margin: 0 0 1.5rem 0;
   color: #ccc;
   line-height: 1.5;
+  text-align: left;
 `;
 
 const ResubmitButton = styled.button`
