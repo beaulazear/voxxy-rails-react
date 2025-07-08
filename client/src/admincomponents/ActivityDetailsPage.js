@@ -677,6 +677,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
                 isOwner={isOwner}
                 pinnedActivities={pinnedActivities}
                 setPinnedActivities={setPinnedActivities}
+                setPinned={handleTimeSlotPin}
                 activity={currentActivity}
                 setRefreshTrigger={setRefreshTrigger}
               />

@@ -569,7 +569,7 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities, pi
               </EmptyState>
             )}
 
-            {activity.activity_type !== 'Meeting' && (
+            {activity.activity_type !== 'Meeting' && pinned.length < 1 && (
               <Section>
                 <SectionHeader>
                   <Calendar size={20} />

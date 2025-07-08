@@ -1053,6 +1053,7 @@ export default function AIRecommendations({
     setError("");
 
     try {
+      // Get restaurant recommendations (existing logic)
       const res = await fetch(
         `${API_URL}/api/openai/restaurant_recommendations`,
         {
@@ -1071,7 +1072,8 @@ export default function AIRecommendations({
       if (!res.ok) throw new Error("❌ Error fetching recommendations");
       const { recommendations: recs } = await res.json();
 
-      const pinnedPromises = recs.map(rec =>
+      // Create pinned activities (existing logic)
+      const pinnedActivityPromises = recs.map(rec =>
         fetch(`${API_URL}/activities/${id}/pinned_activities`, {
           method: "POST",
           credentials: "include",
@@ -1094,11 +1096,65 @@ export default function AIRecommendations({
         })
       );
 
-      const pinnedResults = await Promise.all(pinnedPromises);
+      // If time selection is enabled, also create time slots
+      let pinnedTimeSlotPromises = [];
+      if (activity.allow_participant_time_selection) {
+        // Analyze availability data from responses
+        const availabilityMap = {};
+        responses.forEach(response => {
+          const availability = response.availability;
+          if (!availability) return;
+
+          Object.entries(availability).forEach(([date, times]) => {
+            if (!Array.isArray(times)) return;
+            if (!availabilityMap[date]) availabilityMap[date] = {};
+            times.forEach(time => {
+              availabilityMap[date][time] = (availabilityMap[date][time] || 0) + 1;
+            });
+          });
+        });
+
+        // Get top time slots
+        const allSlots = [];
+        Object.entries(availabilityMap).forEach(([date, times]) => {
+          Object.entries(times).forEach(([time, count]) => {
+            allSlots.push({ date, time, count });
+          });
+        });
+
+        const topSlots = allSlots
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 8);
+
+        // Create time slot promises
+        pinnedTimeSlotPromises = topSlots.map(slot =>
+          fetch(`${API_URL}/activities/${id}/time_slots`, {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              date: slot.date,
+              time: slot.time
+            }),
+          })
+        );
+      }
+
+      // Execute all promises in parallel
+      const [pinnedActivityResults, pinnedTimeSlotResults] = await Promise.all([
+        Promise.all(pinnedActivityPromises),
+        Promise.all(pinnedTimeSlotPromises)
+      ]);
+
       const newPinnedActivities = await Promise.all(
-        pinnedResults.map(res => res.json())
+        pinnedActivityResults.map(res => res.json())
       );
 
+      const newTimeSlots = await Promise.all(
+        pinnedTimeSlotResults.map(res => res.json())
+      )
+
+      // Update activity phase
       await fetch(`${API_URL}/activities/${id}`, {
         method: "PATCH",
         credentials: "include",
@@ -1119,7 +1175,9 @@ export default function AIRecommendations({
           )
         }));
       }
+
       setPinnedActivities(newPinnedActivities);
+      setPinnedActivities(newTimeSlots)
       setRefreshTrigger(f => !f);
 
     } catch (err) {

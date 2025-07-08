@@ -431,7 +431,8 @@ export default function CuisineChat({
   onChatComplete,
   guestMode = false,
   guestToken = null,
-  guestEmail = null
+  guestEmail = null,
+  guestActivity
 }) {
   const { user, setUser } = useContext(UserContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -498,6 +499,14 @@ export default function CuisineChat({
 
   useEffect(() => {
     const fetchActivity = async () => {
+      // If in guest mode and guestActivity is provided, use it directly
+      if (guestMode && guestActivity) {
+        setActivity(guestActivity);
+        console.log('Using guest activity:', guestActivity);
+        console.log('allow_participant_time_selection:', guestActivity.allow_participant_time_selection);
+        return;
+      }
+
       try {
         const response = await fetch(`${API_URL}/activities/${activityId}`, {
           credentials: guestMode ? 'omit' : 'include'
@@ -518,11 +527,8 @@ export default function CuisineChat({
 
         if (foundActivity) {
           setActivity(foundActivity);
-          console.log('Found activity:', foundActivity);
-          console.log('allow_participant_time_selection:', foundActivity.allow_participant_time_selection);
         } else {
           console.error('Activity not found in activities or participant_activities');
-          // Fallback if the structure is different
           setActivity(data);
         }
       } catch (error) {
@@ -530,9 +536,7 @@ export default function CuisineChat({
       }
     };
     fetchActivity();
-  }, [activityId, API_URL, guestMode]);
-
-  console.log('Full activity object:', JSON.stringify(activity, null, 2));
+  }, [activityId, API_URL, guestMode, guestActivity]);
 
   const handleInputFocus = (e) => {
     const target = e.target;

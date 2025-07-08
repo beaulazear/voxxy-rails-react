@@ -468,6 +468,7 @@ export default function GuestResponsePage() {
                 guestMode={true}
                 guestToken={token}
                 guestEmail={guestEmail}
+                guestActivity={activity}
                 onClose={() => setShowChat(false)}
                 onChatComplete={handleChatComplete}
               />

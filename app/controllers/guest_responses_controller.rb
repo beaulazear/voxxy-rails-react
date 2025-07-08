@@ -1,4 +1,3 @@
-# app/controllers/guest_responses_controller.rb
 class GuestResponsesController < ApplicationController
   skip_before_action :authorized
   before_action :find_activity_and_participant
@@ -7,8 +6,22 @@ class GuestResponsesController < ApplicationController
     # Show the guest response form
     @response = @activity.responses.find_by(email: @participant.invited_email)
 
+    # Format activity data the same way the regular activities endpoint does
+    activity_json = @activity.as_json(
+      include: {
+        user: { only: [ :id, :name, :email, :avatar, :profile_pic_url ] },
+        participants: { only: [ :id, :name, :email, :avatar, :profile_pic_url ] }
+      }
+    )
+
+    # Include all the fields that CuisineChat expects
+    activity_json.merge!(
+      "allow_participant_time_selection" => @activity.allow_participant_time_selection,
+      "activity_type" => @activity.activity_type || "Restaurant"
+    )
+
     render json: {
-      activity: @activity.as_json(include: [ :user, :participants ]),
+      activity: activity_json,
       existing_response: @response,
       participant_email: @participant.invited_email
     }
@@ -19,15 +32,12 @@ class GuestResponsesController < ApplicationController
     existing_response = @activity.responses.find_by(email: @participant.invited_email)
 
     if existing_response
-      # Force update using update_columns to bypass validations and callbacks
-      existing_response.update_columns(
-        user_id: nil,
-        email: @participant.invited_email,
+      # Update existing response
+      existing_response.update!(
         notes: guest_response_params[:notes],
-        availability: (guest_response_params[:availability] || {}).to_json,
-        updated_at: Time.current
+        availability: guest_response_params[:availability] || {}
       )
-      @response = existing_response.reload
+      @response = existing_response
     else
       # Create new guest response
       @response = @activity.responses.new
@@ -48,13 +58,11 @@ class GuestResponsesController < ApplicationController
     # Send notification email if service exists - but handle errors gracefully
     begin
       if defined?(ActivityResponseEmailService)
-        # Reload to ensure we have fresh data
         @response.reload
         ActivityResponseEmailService.send_response_email(@response, @activity)
       end
     rescue => e
       Rails.logger.error "Failed to send response email (but response was saved): #{e.message}"
-      # Don't fail the whole request just because email failed
     end
 
     # Create comment - adjusted for guest users
@@ -72,6 +80,7 @@ class GuestResponsesController < ApplicationController
         id: @response.id,
         notes: @response.notes,
         email: @response.email,
+        availability: @response.availability,
         is_guest_response: @response.is_guest_response?,
         created_at: @response.created_at,
         updated_at: @response.updated_at
