@@ -462,6 +462,8 @@ export default function RestaurantChat({ onClose }) {
   const [eventName, setEventName] = useState('');
   const [welcomeMessage, setWelcomeMessage] = useState('');
 
+  const [allowParticipantTimeSelection, setAllowParticipantTimeSelection] = useState(false);
+
   const headers = [
     {
       title: 'Where to meet?',
@@ -537,6 +539,10 @@ export default function RestaurantChat({ onClose }) {
     if (step === 1) return !location.trim() && !currentLocationUsed;
     if (step === 2) return !groupSize;
     if (step === 3) {
+      // If participants are selecting time, no validation needed
+      if (allowParticipantTimeSelection) return false;
+
+      // Otherwise, use existing validation
       if (skipDateTime) return !timeOfDay;
       if (!date || !time) return true;
       const selected = new Date(`${date}T${time}`);
@@ -579,7 +585,7 @@ export default function RestaurantChat({ onClose }) {
   };
 
   const handleSubmit = async () => {
-    const date_notes = computeDateNotes();
+    const date_notes = allowParticipantTimeSelection ? 'TBD' : computeDateNotes();
 
     const payload = {
       activity_type: 'Restaurant',
@@ -593,6 +599,7 @@ export default function RestaurantChat({ onClose }) {
       date_time: skipDateTime ? null : time,
       activity_name: eventName.trim(),
       welcome_message: welcomeMessage.trim(),
+      allow_participant_time_selection: allowParticipantTimeSelection, // NEW FIELD
       date_notes,
       participants: [], // Empty array since we removed the invite step
       collecting: true
@@ -706,10 +713,20 @@ export default function RestaurantChat({ onClose }) {
             </Section>
           )}
 
+          {/* ENHANCED STEP 3 */}
           {step === 3 && (
             <Section>
-              {!skipDateTime && (
-                <DateTimeGrid>
+              {/* First, ask if participants should choose time */}
+              <CheckboxLabel onClick={() => setAllowParticipantTimeSelection(!allowParticipantTimeSelection)}>
+                <ToggleWrapper checked={allowParticipantTimeSelection}>
+                  <ToggleCircle checked={allowParticipantTimeSelection} />
+                </ToggleWrapper>
+                Let participants vote on their preferred times
+              </CheckboxLabel>
+
+              {/* Only show organizer time selection if participants aren't choosing */}
+              {!allowParticipantTimeSelection && !skipDateTime && (
+                <DateTimeGrid style={{ marginTop: '1rem' }}>
                   <FormGroup>
                     <Label htmlFor="date">
                       <Calendar size={16} />
@@ -740,8 +757,8 @@ export default function RestaurantChat({ onClose }) {
                 </DateTimeGrid>
               )}
 
-              {skipDateTime && (
-                <>
+              {!allowParticipantTimeSelection && skipDateTime && (
+                <div style={{ marginTop: '1rem' }}>
                   <Label>
                     <Clock size={16} />
                     Choose Time of Day
@@ -778,15 +795,35 @@ export default function RestaurantChat({ onClose }) {
                       Late Night Cocktails 🍸
                     </TimeCard>
                   </TimeCardContainer>
-                </>
+                </div>
               )}
 
-              <CheckboxLabel onClick={() => setSkipDateTime(!skipDateTime)}>
-                <ToggleWrapper checked={skipDateTime}>
-                  <ToggleCircle checked={skipDateTime} />
-                </ToggleWrapper>
-                I'll select time &amp; date later
-              </CheckboxLabel>
+              {/* Show organizer's time selection toggle only if not using participant selection */}
+              {!allowParticipantTimeSelection && (
+                <CheckboxLabel onClick={() => setSkipDateTime(!skipDateTime)} style={{ marginTop: '1rem' }}>
+                  <ToggleWrapper checked={skipDateTime}>
+                    <ToggleCircle checked={skipDateTime} />
+                  </ToggleWrapper>
+                  I'll select time &amp; date later
+                </CheckboxLabel>
+              )}
+
+              {/* Show message when participants will choose time */}
+              {allowParticipantTimeSelection && (
+                <div style={{
+                  background: 'rgba(204, 49, 232, 0.1)',
+                  border: '1px solid rgba(204, 49, 232, 0.3)',
+                  borderRadius: '0.75rem',
+                  padding: '1rem',
+                  color: '#ddd',
+                  fontSize: '0.9rem',
+                  lineHeight: 1.4,
+                  textAlign: 'center',
+                  marginTop: '1rem'
+                }}>
+                  🗳️ Participants will submit their preferred times along with restaurant preferences. You can finalize the time during the voting phase.
+                </div>
+              )}
             </Section>
           )}
 

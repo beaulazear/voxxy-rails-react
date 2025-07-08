@@ -13,6 +13,8 @@ class ResponsesController < ApplicationController
 
     existing_guest_response = activity.responses.find_by(email: current_user.email)
 
+    existing_user_response = activity.responses.find_by(user_id: current_user.id)
+
     if existing_guest_response
       existing_guest_response.update!(
         user_id: current_user.id,
@@ -21,6 +23,12 @@ class ResponsesController < ApplicationController
       )
       existing_guest_response.update!(availability: response_params[:availability] || {})
       response = existing_guest_response
+    elsif existing_user_response
+      existing_user_response.update!(
+        **response_params.except(:availability)
+      )
+      existing_user_response.update!(availability: response_params[:availability] || {})
+      response = existing_user_response
     else
       response = activity.responses.build(response_params.except(:availability))
       response.user_id = current_user.id

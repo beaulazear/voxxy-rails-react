@@ -4,7 +4,7 @@ import CuisineChat from "./CuisineChat";
 import LoadingScreenUser from "./LoadingScreenUser.js";
 import mixpanel from "mixpanel-browser";
 import { UserContext } from "../context/user";
-import { Users, Share, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, Cog, X, ExternalLink, MapPin, DollarSign, Globe, Zap } from 'lucide-react';
+import { Users, Share, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, Cog, X, ExternalLink, MapPin, DollarSign, Globe, Zap, Calendar } from 'lucide-react';
 
 const fadeIn = keyframes`
   from { 
@@ -261,6 +261,111 @@ const ErrorText = styled.p`
   text-align: center;
   font-style: italic;
   margin-bottom: 1rem;
+`;
+
+// NEW: Availability-specific styled components
+const AvailabilitySection = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+`;
+
+const AvailabilityTitle = styled.h3`
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const AvailabilityGrid = styled.div`
+  display: grid;
+  gap: 1rem;
+`;
+
+const DateCard = styled.div`
+  background: rgba(204, 49, 232, 0.1);
+  border: 1px solid rgba(204, 49, 232, 0.3);
+  padding: 1rem;
+  border-radius: 0.75rem;
+`;
+
+const DateHeader = styled.div`
+  font-weight: 600;
+  color: #cc31e8;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+`;
+
+const TimeSlots = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+`;
+
+const TimeSlot = styled.span`
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.8rem;
+  color: #ccc;
+`;
+
+const ParticipantAvailability = styled.div`
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0.5rem;
+  border-left: 3px solid #cc31e8;
+`;
+
+const ParticipantNameAvailability = styled.div`
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+`;
+
+const OverlapAnalysis = styled.div`
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(40, 167, 69, 0.1);
+  border: 1px solid rgba(40, 167, 69, 0.3);
+  border-radius: 0.75rem;
+`;
+
+const OverlapTitle = styled.h4`
+  color: #28a745;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const TimeOverlapItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const TimeText = styled.span`
+  color: #fff;
+`;
+
+const AvailabilityBadge = styled.span`
+  color: ${({ $percentage }) => $percentage >= 70 ? '#28a745' : $percentage >= 50 ? '#ffc107' : '#dc3545'};
+  font-size: 0.8rem;
+  font-weight: 600;
 `;
 
 const RecommendationsList = styled.ul`
@@ -746,6 +851,127 @@ const generateGoogleMapsEmbedUrl = (address, apiKey) => {
   return url;
 };
 
+// NEW: Function to analyze availability conflicts
+const analyzeAvailability = (responses) => {
+  const availabilityData = {};
+  const participantCount = {};
+
+  responses.forEach(response => {
+    const availability = response.availability || {};
+    const participantName = response.user?.name || response.email || 'Anonymous';
+
+    Object.entries(availability).forEach(([date, times]) => {
+      if (!availabilityData[date]) {
+        availabilityData[date] = {};
+        participantCount[date] = 0;
+      }
+      participantCount[date]++;
+
+      times.forEach(time => {
+        if (!availabilityData[date][time]) {
+          availabilityData[date][time] = [];
+        }
+        availabilityData[date][time].push(participantName);
+      });
+    });
+  });
+
+  return { availabilityData, participantCount };
+};
+
+// NEW: Availability Display Component
+const AvailabilityDisplay = ({ responses, activity }) => {
+  if (!activity.allow_participant_time_selection) return null;
+
+  const responsesWithAvailability = responses.filter(r =>
+    r.availability && Object.keys(r.availability).length > 0
+  );
+
+  if (responsesWithAvailability.length === 0) {
+    return (
+      <AvailabilitySection>
+        <AvailabilityTitle>
+          <Calendar size={20} />
+          Time Preferences
+        </AvailabilityTitle>
+        <p style={{ color: '#ccc', margin: 0 }}>
+          No availability submitted yet. Participants will share their preferred times along with restaurant preferences.
+        </p>
+      </AvailabilitySection>
+    );
+  }
+
+  const { availabilityData, participantCount } = analyzeAvailability(responsesWithAvailability);
+
+  return (
+    <AvailabilitySection>
+      <AvailabilityTitle>
+        <Calendar size={20} />
+        Group Availability ({responsesWithAvailability.length} responses)
+      </AvailabilityTitle>
+
+      {/* Show individual participant availability */}
+      <AvailabilityGrid>
+        {responsesWithAvailability.map((response, index) => (
+          <ParticipantAvailability key={index}>
+            <ParticipantNameAvailability>
+              {response.user?.name || response.email || 'Anonymous'}
+            </ParticipantNameAvailability>
+            <AvailabilityGrid>
+              {Object.entries(response.availability || {}).map(([date, times]) => (
+                <DateCard key={date}>
+                  <DateHeader>{new Date(date).toLocaleDateString()}</DateHeader>
+                  <TimeSlots>
+                    {times.map((time, i) => (
+                      <TimeSlot key={i}>{time}</TimeSlot>
+                    ))}
+                  </TimeSlots>
+                </DateCard>
+              ))}
+            </AvailabilityGrid>
+          </ParticipantAvailability>
+        ))}
+      </AvailabilityGrid>
+
+      {/* Show availability overlap analysis */}
+      {Object.keys(availabilityData).length > 0 && (
+        <OverlapAnalysis>
+          <OverlapTitle>
+            📊 Best Times (Most Available)
+          </OverlapTitle>
+          {Object.entries(availabilityData).map(([date, timeData]) => {
+            const sortedTimes = Object.entries(timeData)
+              .sort(([, a], [, b]) => b.length - a.length)
+              .slice(0, 5); // Show top 5 times
+
+            return (
+              <DateCard key={date} style={{ marginBottom: '1rem', background: 'rgba(40, 167, 69, 0.1)' }}>
+                <DateHeader style={{ color: '#28a745' }}>
+                  {new Date(date).toLocaleDateString()}
+                  <span style={{ fontWeight: 'normal', marginLeft: '0.5rem' }}>
+                    ({participantCount[date]} participant{participantCount[date] !== 1 ? 's' : ''})
+                  </span>
+                </DateHeader>
+                {sortedTimes.map(([time, participants]) => {
+                  const percentage = (participants.length / responsesWithAvailability.length) * 100;
+                  return (
+                    <TimeOverlapItem key={time}>
+                      <TimeText>{time}</TimeText>
+                      <AvailabilityBadge $percentage={percentage}>
+                        {participants.length}/{responsesWithAvailability.length} available ({Math.round(percentage)}%)
+                      </AvailabilityBadge>
+                    </TimeOverlapItem>
+                  );
+                })}
+              </DateCard>
+            );
+          })}
+        </OverlapAnalysis>
+      )}
+    </AvailabilitySection>
+  );
+};
+
 export default function AIRecommendations({
   activity,
   pinnedActivities,
@@ -783,7 +1009,8 @@ export default function AIRecommendations({
 
   const currentUserResponse = user ? responses.find(r =>
     r.user_id === user.id || r.email === user.email
-  ) : null; const responseRate = (responses.length / totalParticipants) * 100;
+  ) : null;
+  const responseRate = (responses.length / totalParticipants) * 100;
 
   const participantsWithVotes = new Set();
   pinnedActivities.forEach(pin => {
@@ -995,13 +1222,19 @@ export default function AIRecommendations({
           <PhaseIcon><HelpCircle size={24} /></PhaseIcon>
           <PhaseContent>
             <PhaseTitle>Group Status</PhaseTitle>
-            <PhaseSubtitle>{responses.length}/{totalParticipants} participants have submitted</PhaseSubtitle>
+            <PhaseSubtitle>
+              {responses.length}/{totalParticipants} participants have submitted
+              {activity.allow_participant_time_selection && " preferences & availability"}
+            </PhaseSubtitle>
           </PhaseContent>
         </PhaseIndicator>
 
         <ProgressBarContainer>
           <ProgressBar $percent={responseRate} />
         </ProgressBarContainer>
+
+        {/* NEW: Add availability display */}
+        <AvailabilityDisplay responses={responses} activity={activity} />
 
         {isOwner && (
           <OrganizerSection>
@@ -1049,11 +1282,12 @@ export default function AIRecommendations({
             <PreferencesIcon><BookHeart size={48} /></PreferencesIcon>
             <PreferencesTitle>Submit Your Preferences!</PreferencesTitle>
             <PreferencesText>
-              Help us find the perfect restaurant by sharing your food preferences and dietary needs.
+              Help us find the perfect restaurant by sharing your food preferences and dietary needs
+              {activity.allow_participant_time_selection && " and your availability"}.
             </PreferencesText>
             <PreferencesButton onClick={handleStartChat}>
               <HelpCircle size={20} />
-              Take Preferences Quiz
+              {activity.allow_participant_time_selection ? 'Take Preferences & Availability Quiz' : 'Take Preferences Quiz'}
             </PreferencesButton>
           </PreferencesCard>
         ) : user && currentUserResponse ? (
@@ -1061,11 +1295,12 @@ export default function AIRecommendations({
             <SubmittedIcon><CheckCircle size={48} /></SubmittedIcon>
             <SubmittedTitle>Thank you for submitting your response!</SubmittedTitle>
             <SubmittedText>
-              The organizer will gather recommendations shortly. You can resubmit your preferences if you'd like to make changes.
+              The organizer will gather recommendations shortly. You can resubmit your preferences
+              {activity.allow_participant_time_selection && " and availability"} if you'd like to make changes.
             </SubmittedText>
             <ResubmitButton onClick={handleStartChat}>
               <HelpCircle size={18} />
-              Resubmit Preferences
+              Resubmit {activity.allow_participant_time_selection ? 'Preferences & Availability' : 'Preferences'}
             </ResubmitButton>
           </SubmittedCard>
         ) : null}

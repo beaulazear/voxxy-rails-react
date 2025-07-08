@@ -99,6 +99,7 @@ class ActivityParticipantsController < ApplicationController
       user: activity.user ? { id: activity.user.id, name: activity.user.name, email: activity.user.email, created_at: activity.user.created_at, avatar: activity.user.avatar } : nil,
       participants: activity.participants.select(:id, :name, :email, :avatar, :created_at),
       completed: false,
+      allow_participant_time_selection: activity.allow_participant_time_selection,
       finalized: activity.finalized,
       collecting: activity.collecting,
       voting: activity.voting,
@@ -161,7 +162,7 @@ class ActivityParticipantsController < ApplicationController
       include: {
         user: { only: [ :id, :name, :email, :avatar, :created_at ] },
         activity: {
-          only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :completed ],
+          only: [ :id, :activity_name, :allow_participant_time_selection, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :completed ],
           include: { user: { only: [ :id, :name, :email, :avatar, :created_at ] } }
         }
       }

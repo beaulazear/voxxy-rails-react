@@ -32,7 +32,7 @@ class SessionsController < ApplicationController
       # Process user's activities with profile pics
       user_activities_with_pics = user.activities.map do |activity|
         activity.as_json(
-          only: [ :id, :activity_name, :collecting, :voting, :finalized, :activity_type, :activity_location,
+          only: [ :id, :activity_name, :allow_participant_time_selection, :collecting, :voting, :finalized, :activity_type, :activity_location,
                   :group_size, :radius, :date_notes, :created_at, :active, :emoji, :date_day,
                   :date_time, :welcome_message, :completed ],
           include: {
@@ -70,7 +70,7 @@ class SessionsController < ApplicationController
         activity = ap.activity
         ap.as_json(only: [ :id, :accepted, :invited_email ]).merge(
           "activity" => activity.as_json(
-            only: [ :id, :activity_name, :collecting, :voting, :finalized, :activity_type, :activity_location,
+            only: [ :id, :activity_name, :allow_participant_time_selection, :collecting, :voting, :finalized, :activity_type, :activity_location,
                     :group_size, :radius, :date_notes, :created_at, :emoji, :date_day,
                     :date_time, :welcome_message, :completed ],
             include: {

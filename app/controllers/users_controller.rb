@@ -48,7 +48,7 @@ class UsersController < ApplicationController
       # Process user's activities with profile pics
       user_activities_with_pics = user.activities.map do |activity|
         activity.as_json(
-          only: [ :id, :activity_name, :collecting, :voting, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :date_day, :date_time, :welcome_message, :completed ],
+          only: [ :id, :activity_name, :allow_participant_time_selection, :collecting, :voting, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :date_day, :date_time, :welcome_message, :completed ],
           include: {
             responses: { only: [ :id, :notes, :availability, :created_at, :user_id, :email, :activity_id ] },
             activity_participants: { only: [ :id, :user_id, :invited_email, :accepted, :created_at ] }
@@ -84,7 +84,7 @@ class UsersController < ApplicationController
         activity = ap.activity
         ap.as_json(only: [ :id, :accepted, :invited_email ]).merge(
           "activity" => activity.as_json(
-            only: [ :id, :activity_name, :finalized, :collecting, :voting, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :completed ],
+            only: [ :id, :activity_name, :allow_participant_time_selection, :finalized, :collecting, :voting, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :completed ],
             include: {
               responses: { only: [ :id, :notes, :availability, :email, :created_at, :user_id, :activity_id ] }
             }
@@ -178,7 +178,7 @@ class UsersController < ApplicationController
       # Process user's activities with profile pics (same as show action)
       user_activities_with_pics = user.activities.map do |activity|
         activity.as_json(
-          only: [ :id, :activity_name, :collecting, :voting, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :date_day, :date_time, :welcome_message, :completed ],
+          only: [ :id, :activity_name, :allow_participant_time_selection, :collecting, :voting, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :date_day, :date_time, :welcome_message, :completed ],
           include: {
             responses: { only: [ :id, :notes, :email, :availability, :created_at, :user_id, :activity_id ] },
             activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] }
@@ -214,7 +214,7 @@ class UsersController < ApplicationController
         activity = ap.activity
         ap.as_json(only: [ :id, :accepted, :invited_email ]).merge(
           "activity" => activity.as_json(
-            only: [ :id, :activity_name, :collecting, :voting, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :completed ],
+            only: [ :id, :activity_name, :allow_participant_time_selection, :collecting, :voting, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :completed ],
             include: {
               responses: { only: [ :id, :email, :notes, :availability, :created_at, :user_id, :activity_id ] }
             }
