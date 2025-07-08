@@ -1,10 +1,13 @@
 import React, { useState, useContext } from "react";
 import styled, { keyframes } from 'styled-components';
 import CuisineChat from "./CuisineChat";
+import BarChat from "../cocktails//BarChat"; // NEW: Import BarChat
 import LoadingScreenUser from "./LoadingScreenUser.js";
 import mixpanel from "mixpanel-browser";
 import { UserContext } from "../context/user";
 import { Users, Share, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, Cog, X, ExternalLink, MapPin, DollarSign, Globe, Zap, Calendar } from 'lucide-react';
+
+// ... keep all the existing styled components exactly the same ...
 
 const fadeIn = keyframes`
   from { 
@@ -263,7 +266,7 @@ const ErrorText = styled.p`
   margin-bottom: 1rem;
 `;
 
-// NEW: Availability-specific styled components
+// Availability components (keep existing)
 const AvailabilitySection = styled.div`
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -841,6 +844,7 @@ const ProgressPercentage = styled.div`
   font-weight: 600;
 `;
 
+// Keep all existing helper functions
 const generateGoogleMapsEmbedUrl = (address, apiKey) => {
   if (!address || !apiKey) {
     return null;
@@ -851,7 +855,6 @@ const generateGoogleMapsEmbedUrl = (address, apiKey) => {
   return url;
 };
 
-// NEW: Function to analyze availability conflicts
 const analyzeAvailability = (responses) => {
   const availabilityData = {};
   const participantCount = {};
@@ -879,7 +882,6 @@ const analyzeAvailability = (responses) => {
   return { availabilityData, participantCount };
 };
 
-// NEW: Availability Display Component
 const AvailabilityDisplay = ({ responses, activity }) => {
   if (!activity.allow_participant_time_selection) return null;
 
@@ -895,7 +897,7 @@ const AvailabilityDisplay = ({ responses, activity }) => {
           Time Preferences
         </AvailabilityTitle>
         <p style={{ color: '#ccc', margin: 0 }}>
-          No availability submitted yet. Participants will share their preferred times along with restaurant preferences.
+          No availability submitted yet. Participants will share their preferred times along with their preferences.
         </p>
       </AvailabilitySection>
     );
@@ -910,7 +912,6 @@ const AvailabilityDisplay = ({ responses, activity }) => {
         Group Availability ({responsesWithAvailability.length} responses)
       </AvailabilityTitle>
 
-      {/* Show individual participant availability */}
       <AvailabilityGrid>
         {responsesWithAvailability.map((response, index) => (
           <ParticipantAvailability key={index}>
@@ -933,7 +934,6 @@ const AvailabilityDisplay = ({ responses, activity }) => {
         ))}
       </AvailabilityGrid>
 
-      {/* Show availability overlap analysis */}
       {Object.keys(availabilityData).length > 0 && (
         <OverlapAnalysis>
           <OverlapTitle>
@@ -942,7 +942,7 @@ const AvailabilityDisplay = ({ responses, activity }) => {
           {Object.entries(availabilityData).map(([date, timeData]) => {
             const sortedTimes = Object.entries(timeData)
               .sort(([, a], [, b]) => b.length - a.length)
-              .slice(0, 5); // Show top 5 times
+              .slice(0, 5);
 
             return (
               <DateCard key={date} style={{ marginBottom: '1rem', background: 'rgba(40, 167, 69, 0.1)' }}>
@@ -976,6 +976,7 @@ export default function AIRecommendations({
   activity,
   pinnedActivities,
   setPinnedActivities,
+  setPinned,
   setRefreshTrigger,
   isOwner,
   onEdit,
@@ -993,7 +994,7 @@ export default function AIRecommendations({
     if (mapLoading && showDetailModal) {
       const timer = setTimeout(() => {
         setMapLoading(false);
-      }, 3000); // Hide loading after 3 seconds max
+      }, 3000);
 
       return () => clearTimeout(timer);
     }
@@ -1004,8 +1005,42 @@ export default function AIRecommendations({
 
   const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_KEY;
 
+  // NEW: Determine activity type for dynamic text and API calls
+  const activityType = activity.activity_type || 'Restaurant';
+  const isCocktailsActivity = activityType === 'Cocktails';
+
+  // NEW: Dynamic text based on activity type
+  const getActivityText = () => {
+    if (isCocktailsActivity) {
+      return {
+        submitTitle: 'Submit Your Bar Preferences',
+        submitDescription: 'Help us find the perfect bar by sharing your drink preferences and atmosphere needs',
+        planningTitle: 'Bar Planning',
+        votingTitle: 'Vote on Bars',
+        finalizedTitle: 'Activity Finalized',
+        preferencesQuiz: 'Take Bar Preferences Quiz',
+        resubmitPreferences: 'Resubmit Bar Preferences',
+        reasonTitle: 'Why This Bar?',
+        apiEndpoint: '/api/openai/bar_recommendations'
+      };
+    }
+    return {
+      submitTitle: 'Submit Your Preferences',
+      submitDescription: 'Help us find the perfect restaurant by sharing your food preferences and dietary needs',
+      planningTitle: 'Restaurant Planning',
+      votingTitle: 'Vote on Restaurants',
+      finalizedTitle: 'Activity Finalized',
+      preferencesQuiz: 'Take Preferences Quiz',
+      resubmitPreferences: 'Resubmit Preferences',
+      reasonTitle: 'Why This Restaurant?',
+      apiEndpoint: '/api/openai/restaurant_recommendations'
+    };
+  };
+
+  const activityText = getActivityText();
+
   const allParticipants = activity.participants || [];
-  const totalParticipants = allParticipants.length + 1; // +1 for organizer
+  const totalParticipants = allParticipants.length + 1;
 
   const currentUserResponse = user ? responses.find(r =>
     r.user_id === user.id || r.email === user.email
@@ -1043,7 +1078,8 @@ export default function AIRecommendations({
 
   const handleStartChat = () => {
     if (process.env.NODE_ENV === "production" && user) {
-      mixpanel.track("Chat with Voxxy Clicked", { activity: id });
+      const trackingEvent = isCocktailsActivity ? "Bar Chat with Voxxy Clicked" : "Chat with Voxxy Clicked";
+      mixpanel.track(trackingEvent, { activity: id });
     }
     setShowChat(true);
   };
@@ -1053,9 +1089,9 @@ export default function AIRecommendations({
     setError("");
 
     try {
-      // Get restaurant recommendations (existing logic)
+      // NEW: Use dynamic API endpoint based on activity type
       const res = await fetch(
-        `${API_URL}/api/openai/restaurant_recommendations`,
+        `${API_URL}${activityText.apiEndpoint}`,
         {
           method: "POST",
           credentials: "include",
@@ -1072,7 +1108,6 @@ export default function AIRecommendations({
       if (!res.ok) throw new Error("❌ Error fetching recommendations");
       const { recommendations: recs } = await res.json();
 
-      // Create pinned activities (existing logic)
       const pinnedActivityPromises = recs.map(rec =>
         fetch(`${API_URL}/activities/${id}/pinned_activities`, {
           method: "POST",
@@ -1096,10 +1131,8 @@ export default function AIRecommendations({
         })
       );
 
-      // If time selection is enabled, also create time slots
       let pinnedTimeSlotPromises = [];
       if (activity.allow_participant_time_selection) {
-        // Analyze availability data from responses
         const availabilityMap = {};
         responses.forEach(response => {
           const availability = response.availability;
@@ -1114,7 +1147,6 @@ export default function AIRecommendations({
           });
         });
 
-        // Get top time slots
         const allSlots = [];
         Object.entries(availabilityMap).forEach(([date, times]) => {
           Object.entries(times).forEach(([time, count]) => {
@@ -1126,7 +1158,6 @@ export default function AIRecommendations({
           .sort((a, b) => b.count - a.count)
           .slice(0, 8);
 
-        // Create time slot promises
         pinnedTimeSlotPromises = topSlots.map(slot =>
           fetch(`${API_URL}/activities/${id}/time_slots`, {
             method: "POST",
@@ -1140,7 +1171,6 @@ export default function AIRecommendations({
         );
       }
 
-      // Execute all promises in parallel
       const [pinnedActivityResults, pinnedTimeSlotResults] = await Promise.all([
         Promise.all(pinnedActivityPromises),
         Promise.all(pinnedTimeSlotPromises)
@@ -1152,9 +1182,8 @@ export default function AIRecommendations({
 
       const newTimeSlots = await Promise.all(
         pinnedTimeSlotResults.map(res => res.json())
-      )
+      );
 
-      // Update activity phase
       await fetch(`${API_URL}/activities/${id}`, {
         method: "PATCH",
         credentials: "include",
@@ -1271,7 +1300,7 @@ export default function AIRecommendations({
     return (
       <Container>
         <TopBar>
-          <Heading>Submit Your Preferences</Heading>
+          <Heading>{activityText.submitTitle}</Heading>
         </TopBar>
 
         {error && <ErrorText>{error}</ErrorText>}
@@ -1291,14 +1320,12 @@ export default function AIRecommendations({
           <ProgressBar $percent={responseRate} />
         </ProgressBarContainer>
 
-        {/* NEW: Add availability display */}
         <AvailabilityDisplay responses={responses} activity={activity} />
 
         {isOwner && (
           <OrganizerSection>
             <OrganizerTitle><Cog size={20} style={{ marginBottom: '4px' }} /> Organizer Controls</OrganizerTitle>
             <ParticipantsList>
-              {/* Show organizer first */}
               <ParticipantItem>
                 <ParticipantName>
                   {activity.organizer?.name || user?.name || 'You'} (Organizer)
@@ -1309,7 +1336,6 @@ export default function AIRecommendations({
                 </ParticipantStatus>
               </ParticipantItem>
 
-              {/* Show all other participants */}
               {allParticipants.map((participant, index) => {
                 const hasSubmitted = hasParticipantSubmitted(participant);
                 const displayName = getParticipantDisplayName(participant);
@@ -1340,12 +1366,12 @@ export default function AIRecommendations({
             <PreferencesIcon><BookHeart size={48} /></PreferencesIcon>
             <PreferencesTitle>Submit Your Preferences!</PreferencesTitle>
             <PreferencesText>
-              Help us find the perfect restaurant by sharing your food preferences and dietary needs
+              {activityText.submitDescription}
               {activity.allow_participant_time_selection && " and your availability"}.
             </PreferencesText>
             <PreferencesButton onClick={handleStartChat}>
               <HelpCircle size={20} />
-              {activity.allow_participant_time_selection ? 'Take Preferences & Availability Quiz' : 'Take Preferences Quiz'}
+              {activity.allow_participant_time_selection ? `${activityText.preferencesQuiz} & Availability` : activityText.preferencesQuiz}
             </PreferencesButton>
           </PreferencesCard>
         ) : user && currentUserResponse ? (
@@ -1358,22 +1384,34 @@ export default function AIRecommendations({
             </SubmittedText>
             <ResubmitButton onClick={handleStartChat}>
               <HelpCircle size={18} />
-              Resubmit {activity.allow_participant_time_selection ? 'Preferences & Availability' : 'Preferences'}
+              {activity.allow_participant_time_selection ? `${activityText.resubmitPreferences} & Availability` : activityText.resubmitPreferences}
             </ResubmitButton>
           </SubmittedCard>
         ) : null}
 
+        {/* NEW: Conditionally render correct chat component */}
         {showChat && user && (
           <>
             <DimOverlay onClick={() => setShowChat(false)} />
-            <CuisineChat
-              activityId={id}
-              onClose={() => setShowChat(false)}
-              onChatComplete={async () => {
-                setRefreshTrigger(f => !f);
-                setShowChat(false);
-              }}
-            />
+            {isCocktailsActivity ? (
+              <BarChat
+                activityId={id}
+                onClose={() => setShowChat(false)}
+                onChatComplete={async () => {
+                  setRefreshTrigger(f => !f);
+                  setShowChat(false);
+                }}
+              />
+            ) : (
+              <CuisineChat
+                activityId={id}
+                onClose={() => setShowChat(false)}
+                onChatComplete={async () => {
+                  setRefreshTrigger(f => !f);
+                  setShowChat(false);
+                }}
+              />
+            )}
           </>
         )}
 
@@ -1431,7 +1469,7 @@ export default function AIRecommendations({
     return (
       <Container>
         <TopBar>
-          <Heading>Vote on Restaurants</Heading>
+          <Heading>{activityText.votingTitle}</Heading>
         </TopBar>
 
         <PhaseIndicator>
@@ -1452,7 +1490,6 @@ export default function AIRecommendations({
           <OrganizerSection>
             <OrganizerTitle><Cog style={{ marginBottom: '4px' }} size={20} /> Organizer Controls</OrganizerTitle>
             <ParticipantsList>
-              {/* Show organizer first */}
               <ParticipantItem>
                 <ParticipantName>
                   {activity.organizer?.name || user?.name || 'You'} (Organizer)
@@ -1463,7 +1500,6 @@ export default function AIRecommendations({
                 </ParticipantStatus>
               </ParticipantItem>
 
-              {/* Show all other participants */}
               {allParticipants.map((participant, index) => {
                 const hasVoted = participant.user_id && Array.from(participantsWithVotes).includes(participant.user_id);
                 const displayName = getParticipantDisplayName(participant);
@@ -1573,7 +1609,7 @@ export default function AIRecommendations({
 
                 {selectedRec.reason && (
                   <Reason style={{ marginBottom: '1rem' }}>
-                    <ReasonTitle>Why This Restaurant?</ReasonTitle>
+                    <ReasonTitle>{activityText.reasonTitle}</ReasonTitle>
                     <ReasonText>{selectedRec.reason}</ReasonText>
                   </Reason>
                 )}
@@ -1602,7 +1638,7 @@ export default function AIRecommendations({
                             loading="lazy"
                             onLoad={() => {
                               console.log('Map iframe loaded');
-                              setTimeout(() => setMapLoading(false), 500); // Small delay to ensure map content loads
+                              setTimeout(() => setMapLoading(false), 500);
                             }}
                             onError={() => {
                               console.log('Map failed to load');
@@ -1655,7 +1691,7 @@ export default function AIRecommendations({
     return (
       <Container>
         <TopBar>
-          <Heading>Activity Finalized</Heading>
+          <Heading>{activityText.finalizedTitle}</Heading>
         </TopBar>
 
         <PhaseIndicator style={{ cursor: 'pointer' }} onClick={sharePlanUrlClick}>
@@ -1800,7 +1836,7 @@ export default function AIRecommendations({
 
                 {selectedRec.reason && (
                   <Reason style={{ marginBottom: '1rem' }}>
-                    <ReasonTitle>Why This Restaurant?</ReasonTitle>
+                    <ReasonTitle>{activityText.reasonTitle}</ReasonTitle>
                     <ReasonText>{selectedRec.reason}</ReasonText>
                   </Reason>
                 )}
@@ -1832,7 +1868,7 @@ export default function AIRecommendations({
   return (
     <Container>
       <TopBar>
-        <Heading>Restaurant Planning</Heading>
+        <Heading>{activityText.planningTitle}</Heading>
       </TopBar>
       <p>Activity is not in collecting or voting phase.</p>
     </Container>

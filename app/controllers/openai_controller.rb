@@ -5,6 +5,7 @@ require "uri"
 class OpenaiController < ApplicationController
   skip_before_action :authorized, only: [
     :restaurant_recommendations,
+    :bar_recommendations,
     :try_voxxy_recommendations,
     :try_voxxy_cached
   ]
@@ -23,10 +24,37 @@ class OpenaiController < ApplicationController
     user_id  = current_user.id
     cache_key = "user_#{user_id}_" \
                 "activity_#{activity_id}_" \
-                "#{generate_cache_key(user_responses, activity_location, date_notes)}"
+                "#{generate_cache_key(user_responses, activity_location, date_notes, 'restaurant')}"
 
     recommendations = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
-      fetch_recommendations_from_openai(user_responses, activity_location, date_notes, radius)
+      fetch_restaurant_recommendations_from_openai(user_responses, activity_location, date_notes, radius)
+    end
+
+    if recommendations.present?
+      render json: { recommendations: recommendations }, status: :ok
+    else
+      render json: { error: "Failed to generate recommendations" }, status: :unprocessable_entity
+    end
+  end
+
+  def bar_recommendations
+    user_responses     = params[:responses]
+    activity_location  = params[:activity_location]
+    date_notes         = params[:date_notes]
+    activity_id        = params[:activity_id]
+    radius             = params[:radius]
+
+    if user_responses.blank?
+      render json: { error: "No responses provided" }, status: :unprocessable_entity and return
+    end
+
+    user_id  = current_user.id
+    cache_key = "user_#{user_id}_" \
+                "activity_#{activity_id}_" \
+                "#{generate_cache_key(user_responses, activity_location, date_notes, 'bar')}"
+
+    recommendations = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+      fetch_bar_recommendations_from_openai(user_responses, activity_location, date_notes, radius)
     end
 
     if recommendations.present?
@@ -66,7 +94,7 @@ class OpenaiController < ApplicationController
       return render json: { error: "Missing required parameters" }, status: :unprocessable_entity
     end
 
-    recs = fetch_recommendations_from_openai(user_responses, activity_location, date_notes, radius)
+    recs = fetch_restaurant_recommendations_from_openai(user_responses, activity_location, date_notes, radius)
 
     if recs
       Rails.cache.write(cache_key, recs, expires_in: 1.hour)
@@ -93,7 +121,7 @@ class OpenaiController < ApplicationController
 
   private
 
-  def fetch_recommendations_from_openai(responses, activity_location, date_notes, radius)
+  def fetch_restaurant_recommendations_from_openai(responses, activity_location, date_notes, radius)
     client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
 
     notes_text = if responses.is_a?(Array)
@@ -164,6 +192,78 @@ class OpenaiController < ApplicationController
     end
   end
 
+  def fetch_bar_recommendations_from_openai(responses, activity_location, date_notes, radius)
+    client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
+
+    notes_text = if responses.is_a?(Array)
+      responses
+        .map { |r| r.is_a?(Hash) ? r["notes"].to_s.strip : r.to_s.strip }
+        .reject(&:empty?)
+        .join("\n\n")
+    else
+      responses.to_s.strip
+    end
+
+    prompt = <<~PROMPT
+      You are an AI assistant that provides bar and nightlife recommendations based on:
+        • user drink preferences & atmosphere needs
+        • a central location (#{activity_location})
+        • a date/time (#{date_notes})
+        • and a strict radius of #{radius} mile#{ radius == 1 ? "" : "s" }.
+
+      The user's preferences (exactly as they typed them) are:
+      #{notes_text}
+
+      IMPORTANT:
+      1. **PRIORITIZE drink preferences** (e.g., cocktails, beer, wine, non-alcoholic options) above all else.#{'  '}
+        If they say "craft cocktails only" or "need non-alcoholic options," those must drive your picks.
+      2. Next, honor budget constraints ("budget-friendly," "prefer upscale," etc.).
+      3. Then consider atmosphere preferences ("dive bar," "rooftop," "live music," "quiet conversation," etc.).
+      4. Consider timing - for late night activities, prioritize bars with later hours.
+      5. Only include bars/lounges located *within* #{radius} mile#{ radius == 1 ? "" : "s" } of "#{activity_location}".#{'  '}
+        Do NOT list any establishment that you know (or strongly suspect) is outside that boundary.
+      6. Keep the tone warm and human — avoid calling people "users" or referencing individual budgets.
+      7. Avoid large chains or obvious tourist spots—seek out local gems, craft cocktail lounges, or unique nightlife spots.
+
+      Return exactly **5** bars/lounges that match these criteria. Output must be valid JSON (no extra commentary, no markdown fences) in this structure:
+
+      {
+        "restaurants": [
+          {
+            "name":        "Bar/Lounge Name",
+            "price_range": "$ - $$$$",
+            "description": "Short description (drink specialties + atmosphere).",
+            "reason":      "Provide a comprehensive explanation covering: (1) How this bar specifically addresses their drink preferences and special needs mentioned in their preferences, (2) Why this choice aligns with their stated budget or atmosphere preferences, (3) What makes this bar special or unique compared to more obvious choices, (4) How it fits perfectly within the #{radius}-mile radius of #{activity_location}, and (5) What specific drinks, features, happy hour deals, or atmosphere qualities make this an ideal match for their exact preferences. Be detailed and connect directly to what they wrote.",
+            "hours":       "Hours of operation (e.g., Mon-Thu: 5 PM - 1 AM, Fri-Sat: 5 PM - 2 AM)",
+            "website":     "Valid website link or null if unknown",
+            "address":     "Full address or 'Not available'"
+          }
+        ]
+      }
+    PROMPT
+
+    response = client.chat(
+      parameters: {
+        model:       "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: "You are an AI assistant that outputs strictly valid JSON." },
+          { role: "user",   content: prompt }
+        ],
+        temperature: 0.0
+      }
+    )
+
+    raw_json = response.dig("choices", 0, "message", "content")
+
+    begin
+      parsed         = JSON.parse(raw_json)
+      recommendations = parsed.fetch("restaurants", [])  # Keep same key for frontend compatibility
+      enrich_recommendations(recommendations)
+    rescue JSON::ParserError
+      nil
+    end
+  end
+
   def enrich_recommendations(recommendations)
     recommendations.map { |rec| enrich_recommendation(rec) }
   end
@@ -195,8 +295,8 @@ class OpenaiController < ApplicationController
     rec
   end
 
-  def generate_cache_key(user_responses, activity_location, date_notes)
-    hash_input = "#{user_responses}-#{activity_location}-#{date_notes}"
+  def generate_cache_key(user_responses, activity_location, date_notes, type = "restaurant")
+    hash_input = "#{type}-#{user_responses}-#{activity_location}-#{date_notes}"
     "recommendations_#{Digest::SHA256.hexdigest(hash_input)}"
   end
 

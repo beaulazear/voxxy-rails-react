@@ -10,6 +10,7 @@ import NoBoardsDisplay from './NoBoardsDisplay.js';
 import { HelpCircle, X, User, Users, CalendarDays, Clock } from 'lucide-react';
 import LetsEat from '../assets/LetsEat.png';
 import LetsMeet from '../assets/LetsMeet.png';
+import LetsDrink from '../assets/LetsDrink.png';
 import VoxxyFooter from '../components/VoxxyFooter.js'
 
 const fadeIn = keyframes`
@@ -153,7 +154,7 @@ const ProgressBar = styled.div`
   --progress-width: ${props => props.$progress}%;
   width: ${props => props.$progress}%;
   box-shadow: 0 0 15px rgba(207, 56, 221, 0.8);
-  overflow: hidden; // Add this to contain the shine effect
+  overflow: hidden;
   
   &::after {
     content: '';
@@ -167,15 +168,13 @@ const ProgressBar = styled.div`
       rgba(255, 255, 255, 0.4), 
       transparent
     );
-    // Shine only during initial fill animation
     animation: ${progressShine} 2s ease-in-out 1;
-    animation-delay: 0.5s; // Start after progress begins filling
+    animation-delay: 0.5s;
   }
   
   ${props => props.$isActive && css`
     animation: ${progressFill} 2s ease-out, ${progressPulse} 3s ease-in-out infinite 2s;
     
-    // Only show continuous shine on active/incomplete progress bars
     &::after {
       animation: ${progressShine} 3s ease-in-out infinite 2s;
     }
@@ -672,9 +671,9 @@ const CountdownText = styled.span`
   font-size: 2.5rem;
   background-image: linear-gradient(
     to right,
-    rgba(207, 56, 221, 0.9),   /* primary */
-    rgba(211, 148, 245, 0.9),  /* secondary */
-    rgba(185, 84, 236, 0.9)    /* highlight */
+    rgba(207, 56, 221, 0.9),
+    rgba(211, 148, 245, 0.9),
+    rgba(185, 84, 236, 0.9)
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -698,6 +697,44 @@ const Message = styled.p`
   margin: 0.5rem 0.5rem 0;
   text-align: left;
 `;
+
+// NEW: Helper functions for activity type handling
+const getActivityTypeConfig = (activityType) => {
+  switch (activityType) {
+    case 'Restaurant':
+      return {
+        tagText: 'Lets Eat!',
+        fallbackImage: LetsEat
+      };
+    case 'Cocktails':
+      return {
+        tagText: 'Lets Drink!',
+        fallbackImage: LetsDrink
+      };
+    case 'Meeting':
+      return {
+        tagText: 'Lets Meet!',
+        fallbackImage: LetsMeet
+      };
+    default:
+      return {
+        tagText: 'Lets Go!',
+        fallbackImage: LetsEat
+      };
+  }
+};
+
+const getActivityBackgroundImage = (activity) => {
+  const selectedPin = activity.pinned_activities?.find(p => p.selected);
+
+  if (selectedPin && selectedPin.photos?.length > 0) {
+    const { photo_reference } = selectedPin.photos[0];
+    return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}`;
+  }
+
+  const config = getActivityTypeConfig(activity.activity_type);
+  return config.fallbackImage;
+};
 
 function UserActivities() {
   const { user, setUser } = useContext(UserContext);
@@ -723,7 +760,6 @@ function UserActivities() {
 
     if (activityId) {
       setSelectedActivityId(Number(activityId));
-
       navigate(location.pathname, { replace: true });
     }
   }, [location.search, setSelectedActivityId, navigate, location.pathname]);
@@ -747,7 +783,7 @@ function UserActivities() {
         !activity.completed &&
         !processedRef.current.has(activity.id)
       ) {
-        const rawTime = activity.date_time?.slice(11, 19)  // "17:00:00"
+        const rawTime = activity.date_time?.slice(11, 19)
         if (activity.date_day && rawTime) {
           const [Y, M, D] = activity.date_day.split('-').map(Number)
           const [h, m, s] = rawTime.split(':').map(Number)
@@ -891,7 +927,7 @@ function UserActivities() {
     let stage = 'collecting';
     let stageDisplay = 'Collecting Ideas';
     let subtitle = 'Gathering the group\'s preferences';
-    let progress = 33; // Start at 1/3
+    let progress = 33;
 
     if (hasSelectedPin && hasDateTime) {
       stage = 'finalized';
@@ -902,7 +938,7 @@ function UserActivities() {
       stage = 'voting';
       stageDisplay = 'Voting Phase';
       subtitle = 'Vote on your recommendations';
-      progress = 67; // 2/3 full
+      progress = 67;
     }
 
     return {
@@ -1019,7 +1055,6 @@ function UserActivities() {
             <>
               <CardGrid>
                 {activitiesToRender?.map(activity => {
-                  const selectedPin = activity.pinned_activities?.find(p => p.selected);
                   const isInvite = isPendingInvite(activity);
                   const isInProgress = !activity.finalized && !activity.completed && !isInvite;
                   const progressData = isInProgress ? getProgressData(activity) : null;
@@ -1039,15 +1074,11 @@ function UserActivities() {
                     eventDateTime = new Date(year, month - 1, day, hour, minute, second);
                   }
 
-                  let bgUrl;
-                  if (selectedPin && selectedPin.photos?.length > 0) {
-                    const { photo_reference } = selectedPin.photos[0];
-                    bgUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}`;
-                  } else {
-                    bgUrl = activity.activity_type.toLowerCase() === 'meeting'
-                      ? LetsMeet
-                      : LetsEat;
-                  }
+                  // NEW: Use helper function to get background image
+                  const bgUrl = getActivityBackgroundImage(activity);
+
+                  // NEW: Get activity type configuration
+                  const typeConfig = getActivityTypeConfig(activity.activity_type);
 
                   return (
                     <ActivityCard
@@ -1107,8 +1138,9 @@ function UserActivities() {
                         </InviteTag>
                       )}
 
+                      {/* NEW: Updated TypeTag to use dynamic text */}
                       <TypeTag $isInvite={isInvite}>
-                        {activity.emoji} {activity.activity_type === 'Restaurant' ? 'Lets Eat!' : 'Lets Meet!'}
+                        {activity.emoji} {typeConfig.tagText}
                       </TypeTag>
 
                       <CardLabel $isInvite={isInvite}>

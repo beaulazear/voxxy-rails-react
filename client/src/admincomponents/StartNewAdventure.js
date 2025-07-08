@@ -141,6 +141,7 @@ const LogoIcon = styled.img`
 function StartNewAdventure({ onTripSelect }) {
   const adventures = [
     { name: 'Lets Eat', emoji: '🍜', active: true, description: 'Schedule your next group meal together.' },
+    { name: 'Lets Drink', emoji: '🍸', active: true, description: 'Plan your perfect night out with friends.' },
     { name: 'Lets Meet', emoji: '⏰', active: true, description: 'Find a time that works for everyone.' },
     { name: 'Movie Night', emoji: '🎥', active: false, description: 'Plan your perfect movie night.' },
     { name: 'Ski Trip', emoji: '🎿', active: false, description: 'Organize your next ski adventure.' },
@@ -168,7 +169,7 @@ function StartNewAdventure({ onTripSelect }) {
           <AdminSubtitle>Choose an activity to start planning!</AdminSubtitle>
           <GoBackButton to="/dashboard">
             Return to Dashboard
-            <LogoIcon style={{marginBottom: '4px'}} src={Logo} alt="Voxxy logo" />
+            <LogoIcon style={{ marginBottom: '4px' }} src={Logo} alt="Voxxy logo" />
           </GoBackButton>
         </AdminHeroContainer>
       </AdminHero>

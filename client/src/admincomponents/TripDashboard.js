@@ -3,6 +3,7 @@ import styled, { keyframes } from 'styled-components';
 import { UserContext } from '../context/user';
 import StartNewAdventure from './StartNewAdventure';
 import RestaurantChat from './RestaurantChat';
+import CocktailsChat from '../cocktails/CocktailsChat';
 import LetsMeetForm from '../letsmeet/LetsMeetForm';
 
 const fadeIn = keyframes`
@@ -91,6 +92,10 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
         setSelectedTrip('Lets Meet');
         break;
 
+      case 'Lets Drink':
+        setSelectedTrip('Lets Drink');
+        break;
+
       default:
         alert(`Selected Trip: ${tripName}`);
     }
@@ -127,6 +132,13 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
       {selectedTrip === 'Lets Meet' && (
         <>
           <LetsMeetForm onClose={handleClose} />
+        </>
+      )}
+
+      {selectedTrip === 'Lets Drink' && (
+        <>
+          <DimmedOverlay />
+          <CocktailsChat onClose={handleClose} />
         </>
       )}
     </PageContainer>

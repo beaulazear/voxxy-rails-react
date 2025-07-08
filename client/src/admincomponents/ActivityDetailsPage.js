@@ -671,7 +671,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
           </>
         ) : (
           <>
-            {currentActivity.activity_type === 'Restaurant' && (
+            {(currentActivity.activity_type === 'Restaurant' || currentActivity.activity_type === 'Cocktails') && (
               <AIRecommendations
                 onEdit={() => setShowModal(true)}
                 isOwner={isOwner}
