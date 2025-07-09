@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_08_121012) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_09_215321) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -167,6 +167,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_08_121012) do
     t.time "time", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "recommendations", default: {}
     t.index ["activity_id", "date", "time"], name: "index_time_slots_on_activity_id_and_date_and_time", unique: true
     t.index ["activity_id"], name: "index_time_slots_on_activity_id"
   end

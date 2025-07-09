@@ -11,6 +11,9 @@ Rails.application.routes.draw do
   resources :pinned_activities, only: [ :index, :create, :update, :destroy ]
   resources :comments, only: [ :index, :create ]
   resources :time_slots, only: [ :index, :create, :destroy ] do
+    collection do
+      get :ai_recommendations
+    end
     member do
       post :vote
       post :unvote

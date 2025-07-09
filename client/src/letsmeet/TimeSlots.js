@@ -1,7 +1,7 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { format, parseISO } from 'date-fns';
-import { Users, Share, HeartPulse, Clock, Trash, CheckCircle, Vote, Flag, Cog, Calendar, X, Zap, UserCheck } from 'lucide-react';
+import { Users, Share, Clock, Trash, CheckCircle, Flag, Cog, Calendar, X, UserCheck, Brain, Star, TrendingUp } from 'lucide-react';
 import LetsMeetScheduler from './LetsMeetScheduler';
 import LoadingScreenUser from "../admincomponents/LoadingScreenUser";
 import { UserContext } from "../context/user";
@@ -26,6 +26,11 @@ const gradientAnimation = keyframes`
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+`;
+
+const pulse = keyframes`
+  0%, 100% { transform: translateY(-50%) scale(1); }
+  50% { transform: translateY(-50%) scale(1.05); }
 `;
 
 const Container = styled.div`
@@ -277,6 +282,125 @@ const ErrorText = styled.p`
   margin-bottom: 1rem;
 `;
 
+// AI Recommendations Styles
+const AISection = styled.div`
+  background: linear-gradient(135deg, rgba(204, 49, 232, 0.1) 0%, rgba(144, 81, 225, 0.1) 100%);
+  border: 1px solid rgba(204, 49, 232, 0.3);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+`;
+
+const AITitle = styled.h3`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1.5rem 0;
+  font-size: 1.2rem;
+  color: #cc31e8;
+  font-family: 'Montserrat', sans-serif;
+  text-align: left;
+`;
+
+const RecommendationCard = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1rem;
+  text-align: left;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(204, 49, 232, 0.3);
+    transform: translateY(-1px);
+  }
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const RecommendationHeader = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 1rem;
+`;
+
+const RecommendationTitle = styled.h4`
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.3;
+  flex: 1;
+`;
+
+const ParticipantCount = styled.div`
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+  border: 1px solid rgba(40, 167, 69, 0.3);
+`;
+
+const RecommendationReason = styled.p`
+  margin: 0 0 1.25rem 0;
+  font-size: 0.9rem;
+  color: #ccc;
+  line-height: 1.5;
+  text-align: left;
+`;
+
+const ProsCons = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-top: 1rem;
+  
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+`;
+
+const ProsConsSection = styled.div`
+  text-align: left;
+`;
+
+const ProsConsTitle = styled.h5`
+  margin: 0 0 0.75rem 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: ${({ $type }) => $type === 'pros' ? '#28a745' : '#ffc107'};
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: left;
+`;
+
+const ProsConsList = styled.ul`
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.85rem;
+  color: #ccc;
+  line-height: 1.4;
+`;
+
+const ProsConsItem = styled.li`
+  margin-bottom: 0.5rem;
+  text-align: left;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
 const TimeSlotsList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -290,15 +414,24 @@ const TimeSlotsList = styled.div`
 `;
 
 const TimeSlotCard = styled.div`
-  background: ${({ $selected }) => $selected ? 'rgba(40, 167, 69, 0.2)' : 'rgba(255, 255, 255, 0.05)'};
-  border: ${({ $selected }) => $selected ? '1px solid #28a745' : '1px solid rgba(255, 255, 255, 0.1)'};
+  background: ${({ $selected, $recommended }) =>
+    $selected ? 'rgba(40, 167, 69, 0.2)' :
+      $recommended ? 'rgba(204, 49, 232, 0.15)' :
+        'rgba(255, 255, 255, 0.05)'};
+  border: ${({ $selected, $recommended }) =>
+    $selected ? '1px solid #28a745' :
+      $recommended ? '1px solid #cc31e8' :
+        '1px solid rgba(255, 255, 255, 0.1)'};
   padding: 1rem;
   border-radius: 0.75rem;
   position: relative;
   transition: all 0.2s ease;
   
   &:hover {
-    background: ${({ $selected }) => $selected ? 'rgba(40, 167, 69, 0.3)' : 'rgba(255, 255, 255, 0.08)'};
+    background: ${({ $selected, $recommended }) =>
+    $selected ? 'rgba(40, 167, 69, 0.3)' :
+      $recommended ? 'rgba(204, 49, 232, 0.2)' :
+        'rgba(255, 255, 255, 0.08)'};
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
@@ -319,11 +452,33 @@ const SelectedBadge = styled.div`
   gap: 0.25rem;
 `;
 
+const RecommendedBadge = styled.div`
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, #cc31e8 0%, #9051e1 100%);
+  color: #fff;
+  padding: 0.375rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  box-shadow: 0 2px 8px rgba(204, 49, 232, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 2;
+  animation: ${pulse} 2s ease-in-out infinite;
+`;
+
 const TimeSlotHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 0.75rem;
+  padding-right: ${({ $hasRecommendation }) => $hasRecommendation ? '6rem' : '0'};
+  position: relative;
 `;
 
 const TimeSlotDate = styled.div`
@@ -369,35 +524,15 @@ const StatLabel = styled.div`
 
 const StatValue = styled.div`
   color: ${({ $type }) =>
-    $type === 'votes' ? '#e25555' :
-      $type === 'available' ? '#28a745' : '#fff'};
+    $type === 'availability' ? '#28a745' : '#fff'};
   font-weight: 500;
 `;
 
-const VoteButton = styled.button`
+const AvailabilityCount = styled.div`
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  background: none;
-  border: none;
-  color: ${(props) => (props.$liked ? "#e25555" : "#ccc")};
-  cursor: pointer;
-  font-size: 0.875rem;
-  & svg {
-    fill: ${(props) => (props.$liked ? "#e25555" : "none")};
-  }
-  transition: all 0.2s ease;
-  
-  &:hover {
-    transform: scale(1.05);
-  }
-`;
-
-const VoteCount = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  color: #ccc;
+  color: #28a745;
   font-size: 0.875rem;
 `;
 
@@ -627,6 +762,8 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
   const [showScheduler, setShowScheduler] = useState(false);
   const [showMoveToVotingModal, setShowMoveToVotingModal] = useState(false);
   const [showFinalizeModal, setShowFinalizeModal] = useState(false);
+  const [aiRecommendations, setAiRecommendations] = useState([]);
+  const [loadingAI, setLoadingAI] = useState(false);
 
   const { id, responses, collecting, voting, finalized, selected_time_slot_id } = currentActivity;
 
@@ -634,22 +771,41 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
   const availabilityResponses = responses.filter(r => r.notes === "LetsMeetAvailabilityResponse");
   const responseRate = (availabilityResponses.length / totalParticipants) * 100;
 
-  // Updated to handle both user_id and email matching (guest responses)
   const currentUserResponse = availabilityResponses.find(r =>
     r.user_id === user.id || r.email === user.email
   );
 
-  const participantsWithVotes = new Set();
-  pinned.forEach(slot => {
-    if (slot.voter_ids && Array.isArray(slot.voter_ids)) {
-      slot.voter_ids.forEach(voterId => {
-        participantsWithVotes.add(voterId);
-      });
-    }
-  });
-  const votingRate = (participantsWithVotes.size / totalParticipants) * 100;
+  // Check if we have saved recommendations in the time slots
+  const hasExistingRecommendations = pinned.some(slot =>
+    slot.recommendation && Object.keys(slot.recommendation).length > 0
+  );
 
-  // Availability counts are now calculated on the backend
+  // Auto-load AI recommendations when entering voting phase if they don't exist yet
+  React.useEffect(() => {
+    if (voting && !collecting && !finalized && !hasExistingRecommendations && !loadingAI && aiRecommendations.length === 0) {
+      const fetchAI = async () => {
+        setLoadingAI(true);
+        try {
+          const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+          const aiResponse = await fetch(`${API_URL}/activities/${id}/time_slots/ai_recommendations`, {
+            method: "GET",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" }
+          });
+
+          if (aiResponse.ok) {
+            const aiData = await aiResponse.json();
+            setAiRecommendations(aiData.recommendations || []);
+          }
+        } catch (aiError) {
+          console.error("Failed to fetch AI recommendations:", aiError);
+        } finally {
+          setLoadingAI(false);
+        }
+      };
+      fetchAI();
+    }
+  }, [voting, collecting, finalized, hasExistingRecommendations, loadingAI, aiRecommendations.length, id]);
 
   const moveToVotingPhase = async () => {
     setLoading(true);
@@ -740,6 +896,25 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
         finalized: false
       }));
 
+      // Fetch AI recommendations
+      setLoadingAI(true);
+      try {
+        const aiResponse = await fetch(`${API_URL}/activities/${id}/time_slots/ai_recommendations`, {
+          method: "GET",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" }
+        });
+
+        if (aiResponse.ok) {
+          const aiData = await aiResponse.json();
+          setAiRecommendations(aiData.recommendations || []);
+        }
+      } catch (aiError) {
+        console.error("Failed to fetch AI recommendations:", aiError);
+      } finally {
+        setLoadingAI(false);
+      }
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -754,7 +929,6 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
 
   const handleAvailabilityUpdate = (newResponse, newComment) => {
     setCurrentActivity(prev => {
-      // Updated to handle both user_id and email matching (guest responses)
       const otherResponses = prev.responses?.filter(r =>
         !(r.notes === "LetsMeetAvailabilityResponse" && (r.user_id === user.id || r.email === user.email))
       ) || [];
@@ -771,10 +945,15 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
 
   const handleClick = () => {
     window.open(
-      shareUrl,    // your URL
-      '_blank',                 // open in new tab
-      'noopener,noreferrer'     // recommended for security
+      shareUrl,
+      '_blank',
+      'noopener,noreferrer'
     );
+  };
+
+  // Helper function to check if a time slot is recommended
+  const isRecommended = (slot) => {
+    return slot.recommendation && Object.keys(slot.recommendation).length > 0;
   };
 
   if (loading) return <LoadingScreenUser autoDismiss={false} />;
@@ -805,7 +984,6 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
             <OrganizerTitle><Cog size={20} style={{ marginBottom: '4px' }} /> Organizer Controls</OrganizerTitle>
             <ParticipantsList>
               {currentActivity.participants.concat([{ id: user.id, name: currentActivity.user?.name || 'You' }]).map((participant, index) => {
-                // Updated to handle both user_id and email matching for participants
                 const hasSubmitted = availabilityResponses.some(r =>
                   r.user_id === participant.id || r.email === participant.email
                 );
@@ -821,8 +999,8 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
               })}
             </ParticipantsList>
             <FullWidthButton $primary onClick={() => setShowMoveToVotingModal(true)}>
-              <Vote size={20} />
-              Move to Voting Phase
+              <TrendingUp size={20} />
+              Generate Results & AI Recommendations
             </FullWidthButton>
           </OrganizerSection>
         )}
@@ -844,7 +1022,7 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
             <SubmittedIcon><CheckCircle size={48} /></SubmittedIcon>
             <SubmittedTitle>Thank you for submitting your availability!</SubmittedTitle>
             <SubmittedText>
-              The organizer will gather the best time slots shortly. You can update your availability if needed.
+              The organizer will generate time slot results and AI recommendations shortly. You can update your availability if needed.
             </SubmittedText>
             <ResubmitButton onClick={() => setShowScheduler('update')}>
               <Calendar size={18} />
@@ -868,8 +1046,8 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
           <ModalOverlay onClick={() => setShowMoveToVotingModal(false)}>
             <ModalContainer onClick={(e) => e.stopPropagation()}>
               <ModalHeader>
-                <ModalTitle>Move to voting phase?</ModalTitle>
-                <ModalSubtitle>Generate time slots and start group voting</ModalSubtitle>
+                <ModalTitle>Generate time slot results?</ModalTitle>
+                <ModalSubtitle>Generate time slots with availability counts and AI recommendations</ModalSubtitle>
                 <CloseButton onClick={() => setShowMoveToVotingModal(false)}>
                   <X size={20} />
                 </CloseButton>
@@ -892,7 +1070,7 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
 
                   {responseRate < 50 && (
                     <WarningBox>
-                      <span>⚠️ Less than 50% of participants have submitted their availability. Consider waiting for more responses to get better time slots.</span>
+                      <span>⚠️ Less than 50% of participants have submitted their availability. Consider waiting for more responses to get better time slots and AI recommendations.</span>
                     </WarningBox>
                   )}
                 </Section>
@@ -902,8 +1080,8 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
                     Cancel
                   </Button>
                   <Button $primary onClick={moveToVotingPhase}>
-                    <Zap size={16} />
-                    Generate Time Slots
+                    <Brain size={16} />
+                    Generate Results & AI Analysis
                   </Button>
                 </ButtonRow>
               </ModalBody>
@@ -918,40 +1096,111 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
     return (
       <Container>
         <TopBar>
-          <Heading>Vote on Time Slots</Heading>
+          <Heading>Time Slot Results</Heading>
         </TopBar>
 
         <PhaseIndicator>
-          <PhaseIcon><Vote size={24} /></PhaseIcon>
+          <PhaseIcon><TrendingUp size={24} /></PhaseIcon>
           <PhaseContent>
-            <PhaseTitle>Voting Phase</PhaseTitle>
-            <PhaseSubtitle>{participantsWithVotes.size}/{totalParticipants} participants have voted</PhaseSubtitle>
+            <PhaseTitle>Results Generated</PhaseTitle>
+            <PhaseSubtitle>Time slots ranked by availability with AI recommendations</PhaseSubtitle>
           </PhaseContent>
         </PhaseIndicator>
 
-        <ProgressBarContainer>
-          <ProgressBar $percent={votingRate} />
-        </ProgressBarContainer>
-
         {error && <ErrorText>{error}</ErrorText>}
+
+        {loadingAI && (
+          <AISection>
+            <AITitle>
+              <Brain size={20} />
+              Generating AI Recommendations...
+            </AITitle>
+            <p style={{ color: '#ccc', margin: 0 }}>Analyzing group availability patterns...</p>
+          </AISection>
+        )}
+
+        {!loadingAI && aiRecommendations.length > 0 && (
+          <AISection>
+            <AITitle>
+              <Brain size={20} />
+              AI Recommendations
+            </AITitle>
+            {aiRecommendations.map((rec, index) => (
+              <RecommendationCard key={index}>
+                <RecommendationHeader>
+                  <RecommendationTitle>{rec.title}</RecommendationTitle>
+                  <ParticipantCount>
+                    {rec.participants_available}/{totalParticipants} available
+                  </ParticipantCount>
+                </RecommendationHeader>
+                <RecommendationReason>{rec.reason}</RecommendationReason>
+                <ProsCons>
+                  <ProsConsSection>
+                    <ProsConsTitle $type="pros">Pros</ProsConsTitle>
+                    <ProsConsList>
+                      {rec.pros?.map((pro, i) => (
+                        <ProsConsItem key={i}>{pro}</ProsConsItem>
+                      ))}
+                    </ProsConsList>
+                  </ProsConsSection>
+                  <ProsConsSection>
+                    <ProsConsTitle $type="cons">Considerations</ProsConsTitle>
+                    <ProsConsList>
+                      {rec.cons?.map((con, i) => (
+                        <ProsConsItem key={i}>{con}</ProsConsItem>
+                      ))}
+                    </ProsConsList>
+                  </ProsConsSection>
+                </ProsCons>
+              </RecommendationCard>
+            ))}
+          </AISection>
+        )}
+
+        {/* Show saved recommendations if they exist but no fresh AI data */}
+        {!loadingAI && aiRecommendations.length === 0 && pinned.some(slot => slot.recommendation && Object.keys(slot.recommendation).length > 0) && (
+          <AISection>
+            <AITitle>
+              <Brain size={20} />
+              AI Recommendations
+            </AITitle>
+            {pinned
+              .filter(slot => slot.recommendation && Object.keys(slot.recommendation).length > 0)
+              .map((slot, index) => (
+                <RecommendationCard key={index}>
+                  <RecommendationHeader>
+                    <RecommendationTitle>{slot.recommendation.title}</RecommendationTitle>
+                    <ParticipantCount>
+                      {slot.recommendation.participants_available}/{totalParticipants} available
+                    </ParticipantCount>
+                  </RecommendationHeader>
+                  <RecommendationReason>{slot.recommendation.reason}</RecommendationReason>
+                  <ProsCons>
+                    <ProsConsSection>
+                      <ProsConsTitle $type="pros">Pros</ProsConsTitle>
+                      <ProsConsList>
+                        {slot.recommendation.pros?.map((pro, i) => (
+                          <ProsConsItem key={i}>{pro}</ProsConsItem>
+                        ))}
+                      </ProsConsList>
+                    </ProsConsSection>
+                    <ProsConsSection>
+                      <ProsConsTitle $type="cons">Considerations</ProsConsTitle>
+                      <ProsConsList>
+                        {slot.recommendation.cons?.map((con, i) => (
+                          <ProsConsItem key={i}>{con}</ProsConsItem>
+                        ))}
+                      </ProsConsList>
+                    </ProsConsSection>
+                  </ProsCons>
+                </RecommendationCard>
+              ))}
+          </AISection>
+        )}
 
         {isOwner && (
           <OrganizerSection>
             <OrganizerTitle><Cog style={{ marginBottom: '4px' }} size={20} /> Organizer Controls</OrganizerTitle>
-            <ParticipantsList>
-              {currentActivity.participants.concat([{ id: user.id, name: currentActivity.user?.name || 'You' }]).map((participant, index) => {
-                const hasVoted = Array.from(participantsWithVotes).includes(participant.id);
-                return (
-                  <ParticipantItem key={index}>
-                    <ParticipantName>{participant.name || participant.email}</ParticipantName>
-                    <ParticipantStatus $submitted={hasVoted}>
-                      {hasVoted ? <CheckCircle size={16} /> : <Clock size={16} />}
-                      {hasVoted ? 'Voted' : 'Waiting'}
-                    </ParticipantStatus>
-                  </ParticipantItem>
-                );
-              })}
-            </ParticipantsList>
             <FullWidthButton $primary onClick={onEdit}>
               <Flag size={20} />
               Finalize Activity
@@ -970,22 +1219,26 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
               timeObj.setHours(+h, +m);
               const formattedTime = format(timeObj, 'h:mm a');
 
-              const availabilityCount = slot.availability_count || 0;
+              const recommended = isRecommended(slot);
 
               return (
-                <TimeSlotCard key={slot.id}>
-                  <TimeSlotHeader>
+                <TimeSlotCard key={slot.id} $recommended={recommended}>
+                  {recommended && (
+                    <RecommendedBadge>
+                      <Star size={16} />
+                      <span>AI PICK</span>
+                    </RecommendedBadge>
+                  )}
+                  <TimeSlotHeader $hasRecommendation={recommended}>
                     <div>
                       <TimeSlotDate>{formattedDate}</TimeSlotDate>
                       <TimeSlotTime>{formattedTime}</TimeSlotTime>
                     </div>
                     <TimeSlotActions>
-                      <VoteButton
-                        $liked={slot.user_voted}
-                        onClick={() => toggleVote(slot)}
-                      >
-                        {slot.user_voted ? '❤️' : '🤍'} {slot.votes_count || 0}
-                      </VoteButton>
+                      <AvailabilityCount>
+                        <UserCheck size={16} />
+                        {slot.votes_count || 0}
+                      </AvailabilityCount>
                       {isOwner && (
                         <DeleteButton onClick={() => handleTimeSlotDelete(slot.id)}>
                           <Trash size={16} />
@@ -997,17 +1250,10 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
                   <TimeSlotStats>
                     <StatRow>
                       <StatLabel>
-                        <HeartPulse size={16} />
-                        Votes
-                      </StatLabel>
-                      <StatValue $type="votes">{slot.votes_count || 0}</StatValue>
-                    </StatRow>
-                    <StatRow>
-                      <StatLabel>
                         <UserCheck size={16} />
-                        Available
+                        Participants Available
                       </StatLabel>
-                      <StatValue $type="available">{availabilityCount}</StatValue>
+                      <StatValue $type="availability">{slot.votes_count || 0}/{totalParticipants}</StatValue>
                     </StatRow>
                   </TimeSlotStats>
                 </TimeSlotCard>
@@ -1020,34 +1266,13 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
             <ModalContainer onClick={(e) => e.stopPropagation()}>
               <ModalHeader>
                 <ModalTitle>Finalize activity?</ModalTitle>
-                <ModalSubtitle>Select the winning time slot and end voting</ModalSubtitle>
+                <ModalSubtitle>Select the winning time slot and end the scheduling process</ModalSubtitle>
                 <CloseButton onClick={() => setShowFinalizeModal(false)}>
                   <X size={20} />
                 </CloseButton>
               </ModalHeader>
 
               <ModalBody>
-                <Section>
-                  <ModalProgressContainer>
-                    <ModalProgressBarContainer>
-                      <ModalProgressBar $percent={votingRate} />
-                    </ModalProgressBarContainer>
-                    <ProgressInfo>
-                      <ProgressLeft>
-                        <Users size={16} />
-                        <span>{participantsWithVotes.size}/{totalParticipants} users voted</span>
-                      </ProgressLeft>
-                      <ProgressPercentage>{Math.round(votingRate)}%</ProgressPercentage>
-                    </ProgressInfo>
-                  </ModalProgressContainer>
-
-                  {votingRate < 50 && (
-                    <WarningBox>
-                      <span>⚠️ Less than 50% of participants have voted. Consider waiting for more votes before finalizing.</span>
-                    </WarningBox>
-                  )}
-                </Section>
-
                 <ButtonRow>
                   <Button onClick={() => setShowFinalizeModal(false)}>
                     Cancel
@@ -1094,9 +1319,6 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
               timeObj.setHours(+h, +m);
               const formattedTime = format(timeObj, 'h:mm a');
 
-              // Use availability count from backend
-              const availabilityCount = slot.availability_count || 0;
-
               return (
                 <TimeSlotCard key={slot.id} $selected={isSelected}>
                   {isSelected && (
@@ -1105,33 +1327,26 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
                       <span>SELECTED</span>
                     </SelectedBadge>
                   )}
-                  <TimeSlotHeader>
+                  <TimeSlotHeader $hasRecommendation={false}>
                     <div>
                       <TimeSlotDate>{formattedDate}</TimeSlotDate>
                       <TimeSlotTime>{formattedTime}</TimeSlotTime>
                     </div>
                     <TimeSlotActions>
-                      <VoteCount>
-                        <HeartPulse size={16} />
+                      <AvailabilityCount>
+                        <UserCheck size={16} />
                         {slot.votes_count || 0}
-                      </VoteCount>
+                      </AvailabilityCount>
                     </TimeSlotActions>
                   </TimeSlotHeader>
 
                   <TimeSlotStats>
                     <StatRow>
                       <StatLabel>
-                        <HeartPulse size={16} />
-                        Final Votes
-                      </StatLabel>
-                      <StatValue $type="votes">{slot.votes_count || 0}</StatValue>
-                    </StatRow>
-                    <StatRow>
-                      <StatLabel>
                         <UserCheck size={16} />
                         Were Available
                       </StatLabel>
-                      <StatValue $type="available">{availabilityCount}</StatValue>
+                      <StatValue $type="availability">{slot.votes_count || 0}/{totalParticipants}</StatValue>
                     </StatRow>
                   </TimeSlotStats>
                 </TimeSlotCard>
