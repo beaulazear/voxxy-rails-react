@@ -1,3 +1,4 @@
+# app/controllers/users_controller.rb
 class UsersController < ApplicationController
   skip_before_action :authorized, only: [ :create, :verify, :resend_verification ]
 
@@ -6,28 +7,13 @@ class UsersController < ApplicationController
 
     if user.save
       EmailVerificationService.send_verification_email(user)
+      handle_pending_invites(user)
 
-      pending_invites = ActivityParticipant.where(invited_email: user.email, accepted: false)
-      pending_invites.find_each do |invite|
-        invite.update!(user: user, accepted: true)
-        activity = invite.activity
-        activity.comments.create!(
-          user_id: user.id,
-          content: "#{user.name} has joined the chat 🎉"
-        )
-      end
-
-      if request.headers["X-Mobile-App"] == "true"
-        token = JsonWebToken.encode(user_id: user.id)
-        render json: user.as_json(only: [ :id, :name, :email, :avatar ]).merge(
-          "token" => token,
-          "profile_pic_url" => user.profile_pic_url
-        ), status: :created
+      if mobile_app_request?
+        render_mobile_response(user)
       else
-        session[:user_id] = user.id
-        render json: user.as_json.merge("profile_pic_url" => user.profile_pic_url), status: :created
+        render_web_response(user)
       end
-
     else
       render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
     end
@@ -38,90 +24,34 @@ class UsersController < ApplicationController
       return render json: { error: "Not authorized" }, status: :unauthorized
     end
 
-    user = User.includes(activities: [ :responses, :participants, :activity_participants ]).find_by(id: current_user.id)
+    user = User.includes(
+      activities: [
+        :user, :participants, :activity_participants, :responses,
+        { comments: :user },
+        { pinned_activities: [ :votes, { comments: :user }, :voters ] }
+      ]
+    ).find_by(id: current_user.id)
 
     if user
-      activity_participants = ActivityParticipant.includes(:activity).where("user_id = ? OR invited_email = ?", user.id, user.email)
-
-      participant_activities = activity_participants.map(&:activity).uniq
-
-      # Process user's activities with profile pics
-      user_activities_with_pics = user.activities.map do |activity|
-        activity.as_json(
-          only: [ :id, :activity_name, :allow_participant_time_selection, :collecting, :voting, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :date_day, :date_time, :welcome_message, :completed ],
-          include: {
-            responses: { only: [ :id, :notes, :availability, :created_at, :user_id, :email, :activity_id ] },
-            activity_participants: { only: [ :id, :user_id, :invited_email, :accepted, :created_at ] }
-          }
-        ).merge(
-          "user" => activity.user.as_json(only: [ :id, :name, :email, :avatar, :created_at ]).merge("profile_pic_url" => activity.user.profile_pic_url),
-          "participants" => activity.participants.map { |p| p.as_json(only: [ :id, :name, :email, :avatar, :created_at ]).merge("profile_pic_url" => p.profile_pic_url) },
-          "comments" => activity.comments.map do |comment|
-            comment.as_json.merge(
-              "user" => comment.user.as_json(only: [ :id, :name, :avatar ]).merge("profile_pic_url" => comment.user.profile_pic_url)
-            )
-          end,
-          "pinned_activities" => activity.pinned_activities.map do |pinned|
-            pinned.as_json(
-              only: [ :id, :title, :hours, :price_range, :address, :selected,
-                      :description, :activity_id, :reviews, :photos, :reason, :website ],
-              methods: [ :vote_count ]
-            ).merge(
-              "comments" => pinned.comments.map do |comment|
-                comment.as_json(only: [ :id, :content, :created_at ]).merge(
-                  "user" => comment.user.as_json(only: [ :id, :name, :email, :avatar ]).merge("profile_pic_url" => comment.user.profile_pic_url)
-                )
-              end,
-              "voters" => pinned.voters.map { |voter| voter.as_json(only: [ :id, :name, :avatar ]).merge("profile_pic_url" => voter.profile_pic_url) },
-              "votes" => pinned.votes.as_json(only: [ :id, :user_id ])
-            )
-          end
-        )
-      end
-
-      # Process participant activities with profile pics
-      participant_activities_with_pics = activity_participants.map do |ap|
-        activity = ap.activity
-        ap.as_json(only: [ :id, :accepted, :invited_email ]).merge(
-          "activity" => activity.as_json(
-            only: [ :id, :activity_name, :allow_participant_time_selection, :finalized, :collecting, :voting, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :completed ],
-            include: {
-              responses: { only: [ :id, :notes, :availability, :email, :created_at, :user_id, :activity_id ] }
-            }
-          ).merge(
-            "user" => activity.user.as_json(only: [ :id, :name, :email, :avatar, :created_at ]).merge("profile_pic_url" => activity.user.profile_pic_url),
-            "participants" => activity.participants.map { |p| p.as_json(only: [ :id, :name, :email, :avatar, :created_at ]).merge("profile_pic_url" => p.profile_pic_url) },
-            "comments" => activity.comments.map do |comment|
-              comment.as_json.merge(
-                "user" => comment.user.as_json(only: [ :id, :name, :avatar ]).merge("profile_pic_url" => comment.user.profile_pic_url)
-              )
-            end,
-            "pinned_activities" => activity.pinned_activities.map do |pinned|
-              pinned.as_json(
-                only: [ :id, :title, :hours, :price_range, :address, :selected,
-                        :description, :activity_id, :reviews, :photos, :reason, :website ],
-                methods: [ :vote_count ]
-              ).merge(
-                "comments" => pinned.comments.map do |comment|
-                  comment.as_json(only: [ :id, :content, :created_at ]).merge(
-                    "user" => comment.user.as_json(only: [ :id, :name, :email, :avatar ]).merge("profile_pic_url" => comment.user.profile_pic_url)
-                  )
-                end,
-                "voters" => pinned.voters.map { |voter| voter.as_json(only: [ :id, :name, :avatar ]).merge("profile_pic_url" => voter.profile_pic_url) },
-                "votes" => pinned.votes.as_json(only: [ :id, :user_id ])
-              )
-            end
-          )
-        )
-      end
-
-      render json: user.as_json.merge(
-        "profile_pic_url" => user.profile_pic_url,
-        "activities" => user_activities_with_pics,
-        "participant_activities" => participant_activities_with_pics
-      )
+      render json: UserSerializer.dashboard(user)
     else
       render json: { error: "Not authorized" }, status: :unauthorized
+    end
+  end
+
+  def update
+    if current_user.update(user_params)
+      user = User.includes(
+        activities: [
+          :user, :participants, :activity_participants, :responses,
+          { comments: :user },
+          { pinned_activities: [ :votes, { comments: :user }, :voters ] }
+        ]
+      ).find(current_user.id)
+
+      render json: UserSerializer.dashboard(user)
+    else
+      render json: { errors: current_user.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -168,104 +98,11 @@ class UsersController < ApplicationController
     end
   end
 
-  def update
-    user = current_user
-    if user.update(user_params)
-      activity_participants = ActivityParticipant.includes(:activity).where("user_id = ? OR invited_email = ?", user.id, user.email)
-
-      participant_activities = activity_participants.map(&:activity).uniq
-
-      # Process user's activities with profile pics (same as show action)
-      user_activities_with_pics = user.activities.map do |activity|
-        activity.as_json(
-          only: [ :id, :activity_name, :allow_participant_time_selection, :collecting, :voting, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :date_day, :date_time, :welcome_message, :completed ],
-          include: {
-            responses: { only: [ :id, :notes, :email, :availability, :created_at, :user_id, :activity_id ] },
-            activity_participants: { only: [ :id, :user_id, :invited_email, :accepted ] }
-          }
-        ).merge(
-          "user" => activity.user.as_json(only: [ :id, :name, :email, :avatar, :created_at ]).merge("profile_pic_url" => activity.user.profile_pic_url),
-          "participants" => activity.participants.map { |p| p.as_json(only: [ :id, :name, :email, :avatar, :created_at ]).merge("profile_pic_url" => p.profile_pic_url) },
-          "comments" => activity.comments.map do |comment|
-            comment.as_json.merge(
-              "user" => comment.user.as_json(only: [ :id, :name, :avatar ]).merge("profile_pic_url" => comment.user.profile_pic_url)
-            )
-          end,
-          "pinned_activities" => activity.pinned_activities.map do |pinned|
-            pinned.as_json(
-              only: [ :id, :title, :hours, :price_range, :address, :selected,
-                      :description, :activity_id, :reviews, :photos, :reason, :website ],
-              methods: [ :vote_count ]
-            ).merge(
-              "comments" => pinned.comments.map do |comment|
-                comment.as_json(only: [ :id, :content, :created_at ]).merge(
-                  "user" => comment.user.as_json(only: [ :id, :name, :email, :avatar ]).merge("profile_pic_url" => comment.user.profile_pic_url)
-                )
-              end,
-              "voters" => pinned.voters.map { |voter| voter.as_json(only: [ :id, :name, :avatar ]).merge("profile_pic_url" => voter.profile_pic_url) },
-              "votes" => pinned.votes.as_json(only: [ :id, :user_id ])
-            )
-          end
-        )
-      end
-
-      # Process participant activities with profile pics (same as show action)
-      participant_activities_with_pics = activity_participants.map do |ap|
-        activity = ap.activity
-        ap.as_json(only: [ :id, :accepted, :invited_email ]).merge(
-          "activity" => activity.as_json(
-            only: [ :id, :activity_name, :allow_participant_time_selection, :collecting, :voting, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :completed ],
-            include: {
-              responses: { only: [ :id, :email, :notes, :availability, :created_at, :user_id, :activity_id ] }
-            }
-          ).merge(
-            "user" => activity.user.as_json(only: [ :id, :name, :email, :avatar, :created_at ]).merge("profile_pic_url" => activity.user.profile_pic_url),
-            "participants" => activity.participants.map { |p| p.as_json(only: [ :id, :name, :email, :avatar, :created_at ]).merge("profile_pic_url" => p.profile_pic_url) },
-            "comments" => activity.comments.map do |comment|
-              comment.as_json.merge(
-                "user" => comment.user.as_json(only: [ :id, :name, :avatar ]).merge("profile_pic_url" => comment.user.profile_pic_url)
-              )
-            end,
-            "pinned_activities" => activity.pinned_activities.map do |pinned|
-              pinned.as_json(
-                only: [ :id, :title, :hours, :price_range, :address, :selected,
-                        :description, :activity_id, :reviews, :photos, :reason, :website ],
-                methods: [ :vote_count ]
-              ).merge(
-                "comments" => pinned.comments.map do |comment|
-                  comment.as_json(only: [ :id, :content, :created_at ]).merge(
-                    "user" => comment.user.as_json(only: [ :id, :name, :email, :avatar ]).merge("profile_pic_url" => comment.user.profile_pic_url)
-                  )
-                end,
-                "voters" => pinned.voters.map { |voter| voter.as_json(only: [ :id, :name, :avatar ]).merge("profile_pic_url" => voter.profile_pic_url) },
-                "votes" => pinned.votes.as_json(only: [ :id, :user_id ])
-              )
-            end
-          )
-        )
-      end
-
-      render json: user.as_json.merge(
-        "profile_pic_url" => user.profile_pic_url,
-        "activities" => user_activities_with_pics,
-        "participant_activities" => participant_activities_with_pics
-      )
-    else
-      render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
-    end
-  end
-
   def destroy
-    user = current_user
-
-    if user
-      if user.destroy
-        render json: { message: "User account successfully deleted" }, status: :ok
-      else
-        render json: { error: "Failed to delete account" }, status: :unprocessable_entity
-      end
+    if current_user&.destroy
+      render json: { message: "User account successfully deleted" }, status: :ok
     else
-      render json: { error: "User not found" }, status: :not_found
+      render json: { error: "Failed to delete account" }, status: :unprocessable_entity
     end
   end
 
@@ -273,16 +110,33 @@ class UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(
-      :name,
-      :email,
-      :password,
-      :password_confirmation,
-      :avatar,
-      :preferences,
-      :text_notifications,
-      :email_notifications,
-      :push_notifications,
-      :profile_pic
+      :name, :email, :password, :password_confirmation, :avatar, :preferences,
+      :text_notifications, :email_notifications, :push_notifications, :profile_pic
     )
+  end
+
+  def handle_pending_invites(user)
+    pending_invites = ActivityParticipant.where(invited_email: user.email, accepted: false)
+    pending_invites.find_each do |invite|
+      invite.update!(user: user, accepted: true)
+      invite.activity.comments.create!(
+        user_id: user.id,
+        content: "#{user.name} has joined the chat 🎉"
+      )
+    end
+  end
+
+  def mobile_app_request?
+    request.headers["X-Mobile-App"] == "true"
+  end
+
+  def render_mobile_response(user)
+    token = JsonWebToken.encode(user_id: user.id)
+    render json: UserSerializer.basic(user).merge(token: token), status: :created
+  end
+
+  def render_web_response(user)
+    session[:user_id] = user.id
+    render json: UserSerializer.full(user), status: :created
   end
 end

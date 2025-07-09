@@ -307,15 +307,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
         ),
         activities: prevUser.activities.map((activity) =>
           activity.id === updatedActivity.id
-            ? {
-              ...updatedActivity,
-              participants: [
-                ...(updatedActivity.participants || []),
-                { id: user.id, name: user.name, email: user.email },
-              ],
-              group_size: updatedActivity.group_size + 1,
-              comments: updatedActivity.comments,
-            }
+            ? updatedActivity  // ← Just use the complete updated activity
             : activity
         ),
       }));

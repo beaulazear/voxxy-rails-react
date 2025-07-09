@@ -9,14 +9,7 @@ class ActivityParticipantsController < ApplicationController
     end
 
     raw_emails = params[:email]
-    # Ensure we have an Array of strings
-    emails = if raw_emails.is_a?(Array)
-               raw_emails
-    else
-               [ raw_emails ]
-    end
-
-    # Keep track of results or errors
+    emails = raw_emails.is_a?(Array) ? raw_emails : [ raw_emails ]
     results = []
 
     emails.each do |e|
@@ -27,8 +20,6 @@ class ActivityParticipantsController < ApplicationController
       end
 
       user = User.find_by("lower(email) = ?", invited_email)
-
-      # Try to find or build a new ActivityParticipant
       participant = ActivityParticipant.find_or_initialize_by(
         activity_id: activity.id,
         invited_email: invited_email
@@ -42,7 +33,6 @@ class ActivityParticipantsController < ApplicationController
       participant.user_id = user.id if user
       participant.accepted = false
       if participant.save
-        # fire off your mailer or service
         InviteUserService.send_invitation(activity, invited_email, current_user)
         results << { email: invited_email, status: "invited" }
       else
@@ -50,11 +40,9 @@ class ActivityParticipantsController < ApplicationController
       end
     end
 
-    # If **all** failed, return unprocessable
     if results.all? { |r| r[:status].nil? }
       render json: { errors: results }, status: :unprocessable_entity
     else
-      # Otherwise return array of results (some may be invited, some may have errors)
       render json: { results: results }, status: :ok
     end
   end
@@ -77,52 +65,18 @@ class ActivityParticipantsController < ApplicationController
     ActivityAcceptanceEmailService.send_acceptance_email(participant)
 
     activity = participant.activity
-
-    new_comment = activity.comments.create!(
+    activity.comments.create!(
       user_id: user.id,
       content: "#{user.name} has joined the group 🎉"
-      )
+    )
 
-    activity.reload
+    activity = Activity.includes(
+      :user, :participants, :activity_participants, :responses,
+      { comments: :user },
+      { pinned_activities: [ :votes, { comments: :user }, :voters ] }
+    ).find(activity.id)
 
-    updated_activity = {
-      id: activity.id,
-      activity_name: activity.activity_name,
-      activity_type: activity.activity_type,
-      activity_location: activity.activity_location,
-      emoji: activity.emoji,
-      welcome_message: activity.welcome_message,
-      group_size: activity.group_size,
-      date_notes: activity.date_notes,
-      date_day: activity.date_day,
-      date_time: activity.date_time,
-      user: activity.user ? { id: activity.user.id, name: activity.user.name, email: activity.user.email, created_at: activity.user.created_at, avatar: activity.user.avatar } : nil,
-      participants: activity.participants.select(:id, :name, :email, :avatar, :created_at),
-      completed: false,
-      allow_participant_time_selection: activity.allow_participant_time_selection,
-      finalized: activity.finalized,
-      collecting: activity.collecting,
-      voting: activity.voting,
-      comments: activity.comments.order(created_at: :asc).map do |comment|
-        {
-          id: comment.id,
-          content: comment.content,
-          user_id: comment.user_id,
-          created_at: comment.created_at,
-          user: comment.user ? { id: comment.user.id, name: comment.user.name, avatar: comment.user.avatar } : nil
-        }
-      end
-    }
-    updated_activity[:responses] = activity.responses.order(created_at: :asc).map do |res|
-      {
-        id:         res.id,
-        notes:      res.notes,
-        availability: res.availability,
-        user_id:    res.user_id
-      }
-    end
-
-    render json: updated_activity, status: :ok
+    render json: ActivitySerializer.participant_view(activity), status: :ok
   rescue => e
     render json: { error: e.message }, status: :unprocessable_entity
   end
@@ -142,7 +96,6 @@ class ActivityParticipantsController < ApplicationController
     end
 
     activity = participant.activity
-
     activity.comments.create!(
       user_id: user.id,
       content: "#{user.name} has declined the invitation 😔"
@@ -156,39 +109,43 @@ class ActivityParticipantsController < ApplicationController
   end
 
   def index
-    activity_participants = ActivityParticipant.includes(:activity).where("user_id = ? OR invited_email = ?", current_user.id, current_user.email)
+    activity_participants = ActivityParticipant
+      .includes(activity: [ :user, :participants ])
+      .where("user_id = ? OR invited_email = ?", current_user.id, current_user.email)
 
-    render json: activity_participants.as_json(
-      include: {
-        user: { only: [ :id, :name, :email, :avatar, :created_at ] },
-        activity: {
-          only: [ :id, :activity_name, :allow_participant_time_selection, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :emoji, :completed ],
-          include: { user: { only: [ :id, :name, :email, :avatar, :created_at ] } }
-        }
+    render json: activity_participants.map do |ap|
+      {
+        id: ap.id,
+        accepted: ap.accepted,
+        invited_email: ap.invited_email,
+        user: ap.user ? UserSerializer.basic(ap.user) : nil,
+        activity: ActivitySerializer.basic(ap.activity).merge(
+          user: UserSerializer.basic(ap.activity.user),
+          participants: ap.activity.participants.map { |p| UserSerializer.basic(p) }
+        )
       }
-    )
+    end
   end
 
   def leave
-      activity = Activity.find_by(id: params[:activity_id])
-      return render json: { error: "Activity not found" }, status: :not_found unless activity
+    activity = Activity.find_by(id: params[:activity_id])
+    return render json: { error: "Activity not found" }, status: :not_found unless activity
 
-      participant = activity.activity_participants.find_by(user_id: current_user.id)
-      return render json: { error: "You are not a participant of this activity." }, status: :unprocessable_entity unless participant
-      return render json: { error: "Hosts cannot leave an activity they created." }, status: :forbidden if activity.user_id == current_user.id
+    participant = activity.activity_participants.find_by(user_id: current_user.id)
+    return render json: { error: "You are not a participant of this activity." }, status: :unprocessable_entity unless participant
+    return render json: { error: "Hosts cannot leave an activity they created." }, status: :forbidden if activity.user_id == current_user.id
 
-      Response.where(activity_id: activity.id, user_id: current_user.id).destroy_all
+    Response.where(activity_id: activity.id, user_id: current_user.id).destroy_all
+    participant.destroy!
 
-      participant.destroy!
+    activity.comments.create!(
+      user_id: current_user.id,
+      content: "#{current_user.name} has left the group 😢"
+    )
 
-      activity.comments.create!(
-        user_id: current_user.id,
-        content: "#{current_user.name} has left the group 😢"
-      )
-
-      render json: { message: "You have successfully left the activity." }, status: :ok
-    rescue => e
-      render json: { error: e.message }, status: :unprocessable_entity
+    render json: { message: "You have successfully left the activity." }, status: :ok
+  rescue => e
+    render json: { error: e.message }, status: :unprocessable_entity
   end
 
   def destroy_by_email
@@ -204,23 +161,18 @@ class ActivityParticipantsController < ApplicationController
       return render json: { error: "Only the host can remove participants." }, status: :forbidden
     end
 
-  Response.where(activity_id: activity.id, user_id: participant.user_id).destroy_all if participant.user_id
+    Response.where(activity_id: activity.id, user_id: participant.user_id).destroy_all if participant.user_id
+    participant.destroy!
 
-  participant.destroy!
-
-  new_comment = activity.comments.create!(
-    user_id: current_user.id,
-    content: "#{participant.invited_email} was removed from the activity. 😢"
-  )
-
-  render json: {
-    message: "Participant Removed",
-    comment: new_comment.as_json(
-      include: {
-        user: { only: [ :id, :name, :email, :avatar ] }
-      }
+    new_comment = activity.comments.create!(
+      user_id: current_user.id,
+      content: "#{participant.invited_email} was removed from the activity. 😢"
     )
-  }, status: :created
+
+    render json: {
+      message: "Participant Removed",
+      comment: CommentSerializer.basic(new_comment)
+    }, status: :created
   rescue => e
     render json: { error: e.message }, status: :unprocessable_entity
   end

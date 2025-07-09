@@ -1,31 +1,24 @@
 class ActivitiesController < HtmlController
   skip_before_action :verify_authenticity_token,
-  if: -> { request.format.json? && !action_name.eql?("share") }
+    if: -> { request.format.json? && !action_name.eql?("share") }
 
   protect_from_forgery with: :exception, only: [ :share ]
-
-  protect_from_forgery with: :null_session,
-  if: -> { request.format.json? }
+  protect_from_forgery with: :null_session, if: -> { request.format.json? }
 
   before_action :authorized
   skip_before_action :authorized, only: [ :share, :calendar ]
 
   def create
     activity = current_user.activities.build(activity_params.except(:participants))
+
     if activity.save
       invite_emails = activity_params[:participants] || []
       invite_emails.each { |email| invite_participant(email, activity) }
-      render json: activity.as_json(
-        only: [ :id, :activity_name, :activity_type, :activity_location, :group_size, :allow_participant_time_selection, :radius, :date_notes, :created_at, :emoji, :date_day, :date_time, :welcome_message, :finalized, :collecting, :voting ],
-        include: {
-          user: { only: [ :id, :name, :email, :avatar, :created_at ] },
-          activity_participants: { only: [ :id, :user_id, :invited_email, :accepted, :created_at ] },
-          participants: { only: [ :id, :name, :email, :avatar ] }
-        }
-      ).merge(
-        "user" => activity.user.as_json(only: [ :id, :name, :email, :avatar, :created_at ]).merge("profile_pic_url" => activity.user.profile_pic_url),
-        "participants" => activity.participants.map { |p| p.as_json(only: [ :id, :name, :email, :avatar ]).merge("profile_pic_url" => p.profile_pic_url) }
-      ), status: :created
+
+      activity = Activity.includes(:user, :participants, :activity_participants)
+                        .find(activity.id)
+
+      render json: ActivitySerializer.created(activity), status: :created
     else
       render json: { errors: activity.errors.full_messages }, status: :unprocessable_entity
     end
@@ -58,18 +51,10 @@ class ActivitiesController < HtmlController
     ActivityFinalizationEmailService.send_finalization_emails(activity) if should_email_finalized
     ActivityVotingEmailService.send_voting_emails(activity)             if should_email_voting
 
-    render json: activity.as_json(
-      only: [ :id, :activity_name, :allow_participant_time_selection, :collecting, :voting, :activity_type, :activity_location,
-              :group_size, :date_notes, :created_at, :emoji, :date_day, :date_time,
-              :welcome_message, :finalized, :radius ],
-      include: {
-        activity_participants:   { only: [ :id, :user_id, :invited_email, :accepted, :created_at ] },
-        responses:               { only: [ :id, :activity_id, :notes, :created_at, :user_id, :email ] }
-      }
-    ).merge(
-      "user" => activity.user.as_json(only: [ :id, :name, :email, :avatar, :created_at ]).merge("profile_pic_url" => activity.user.profile_pic_url),
-      "participants" => activity.participants.map { |p| p.as_json(only: [ :id, :name, :email, :avatar ]).merge("profile_pic_url" => p.profile_pic_url) }
-    ), status: :ok
+    activity = Activity.includes(:user, :participants, :activity_participants, :responses)
+                      .find(activity.id)
+
+    render json: ActivitySerializer.updated(activity), status: :ok
 
   rescue ActiveRecord::RecordInvalid => invalid
     Rails.logger.error "❌ Activity update failed: #{invalid.record.errors.full_messages}"
@@ -87,69 +72,30 @@ class ActivitiesController < HtmlController
   end
 
   def index
-    activities = current_user.activities.includes(:user, :responses, :activity_participants, :participants)
+    activities = current_user.activities
+                            .includes(:user, :responses, :activity_participants, :participants)
 
-    activities_with_profile_pics = activities.map do |activity|
-      activity.as_json(
-        only: [ :id, :activity_name, :allow_participant_time_selection, :activity_type, :collecting, :voting, :finalized, :activity_location, :group_size, :radius, :date_notes, :created_at, :active, :emoji, :user_id, :date_day, :date_time, :welcome_message, :completed ],
-        include: {
-          responses: { only: [ :id, :notes, :created_at, :user_id, :activity_id, :email ] },
-          activity_participants: { only: [ :id, :user_id, :invited_email, :accepted, :created_at, :avatar ] }
-        }
-      ).merge(
-        "user" => activity.user.as_json(only: [ :id, :name, :email, :avatar, :created_at ]).merge("profile_pic_url" => activity.user.profile_pic_url),
-        "participants" => activity.participants.map { |p| p.as_json(only: [ :id, :name, :email, :avatar ]).merge("profile_pic_url" => p.profile_pic_url) }
-      )
-    end
-
-    render json: activities_with_profile_pics
+    render json: activities.map { |activity| ActivitySerializer.list_item(activity) }
   end
 
   def show
+    # This seems to duplicate UserController#show functionality
+    # Consider if this is needed or if clients should use /me instead
     unless current_user
       return render json: { error: "Not authorized" }, status: :unauthorized
     end
 
-    user = User.includes(activities: [ :responses, :participants, :activity_participants ]).find_by(id: current_user.id)
+    # Reuse the same dashboard logic from UserController
+    user = User.includes(
+      activities: [
+        :user, :participants, :activity_participants, :responses,
+        { comments: :user },
+        { pinned_activities: [ :votes, { comments: :user }, :voters ] }
+      ]
+    ).find(current_user.id)
 
     if user
-      activity_participants = ActivityParticipant.includes(:activity).where("user_id = ? OR invited_email = ?", user.id, user.email)
-
-      participant_activities = activity_participants.map(&:activity).uniq
-
-      # Process user's activities with profile pics
-      user_activities_with_pics = user.activities.map do |activity|
-        activity.as_json(
-          only: [ :id, :activity_name, :allow_participant_time_selection, :collecting, :voting, :finalized, :activity_type, :activity_location, :group_size, :date_notes, :created_at, :active, :emoji, :radius, :date_day, :date_time, :welcome_message, :completed ],
-          include: {
-            responses: { only: [ :id, :notes, :created_at, :email ] },
-            activity_participants: { only: [ :id, :user_id, :invited_email, :accepted, :avatar, :created_at ] },
-            comments: { include: { user: { only: [ :id, :name, :avatar ] } } }
-          }
-        ).merge(
-          "user" => activity.user.as_json(only: [ :id, :name, :email, :avatar, :created_at ]).merge("profile_pic_url" => activity.user.profile_pic_url),
-          "participants" => activity.participants.map { |p| p.as_json(only: [ :id, :name, :email, :avatar ]).merge("profile_pic_url" => p.profile_pic_url) }
-        )
-      end
-
-      # Process participant activities with profile pics
-      participant_activities_with_pics = participant_activities.map do |activity|
-        activity.as_json(
-          only: [ :id, :activity_name, :allow_participant_time_selection, :collecting, :voting, :emoji, :user_id, :date_notes, :finalized, :activity_location, :group_size, :radius, :date_day, :date_time, :welcome_message, :completed ],
-          include: {
-            activity_participants: { only: [ :id, :user_id, :invited_email, :accepted, :avatar, :created_at ] }
-          }
-        ).merge(
-          "user" => activity.user.as_json(only: [ :id, :name, :email, :avatar, :created_at ]).merge("profile_pic_url" => activity.user.profile_pic_url),
-          "participants" => activity.participants.map { |p| p.as_json(only: [ :id, :name, :email, :avatar ]).merge("profile_pic_url" => p.profile_pic_url) }
-        )
-      end
-
-      render json: user.as_json.merge(
-        "profile_pic_url" => user.profile_pic_url,
-        "activities" => user_activities_with_pics,
-        "participant_activities" => participant_activities_with_pics
-      )
+      render json: UserSerializer.dashboard(user)
     else
       render json: { error: "Not authorized" }, status: :unauthorized
     end
@@ -171,7 +117,10 @@ class ActivitiesController < HtmlController
 
     if activity.update(completed: true)
       ActivityCompletionEmailService.send_completion_emails(activity)
-      render json: activity, status: :ok
+
+      activity = Activity.includes(:user, :participants, :activity_participants, :responses)
+                        .find(activity.id)
+      render json: ActivitySerializer.updated(activity), status: :ok
     else
       Rails.logger.error "❌ Activity update failed: #{activity.errors.full_messages}"
       render json: { error: activity.errors.full_messages }, status: :unprocessable_entity
@@ -191,7 +140,7 @@ class ActivitiesController < HtmlController
   def calendar
     @activity = Activity.find(params[:id])
     cal = Icalendar::Calendar.new
-    # build a one-hour event (adjust as you like)
+
     starts = DateTime.parse("#{@activity.date_day} #{@activity.date_time.strftime('%H:%M:%S')}")
     finishes = starts + 1.hour
 
@@ -203,8 +152,8 @@ class ActivitiesController < HtmlController
       e.location    = @activity.pinned_activities.find_by(selected: true)&.address.to_s
       e.url         = share_activity_url(@activity)
     end
-    cal.publish
 
+    cal.publish
     response.headers["Content-Type"] = "text/calendar; charset=UTF-8"
     render plain: cal.to_ical
   end
@@ -212,7 +161,12 @@ class ActivitiesController < HtmlController
   private
 
   def activity_params
-    params.require(:activity).permit(:activity_name, :collecting, :voting, :activity_type, :finalized, :selected_pinned_id, :activity_location, :group_size, :radius, :date_notes, :active, :emoji, :date_day, :date_time, :welcome_message, :allow_participant_time_selection, :completed, participants: [])
+    params.require(:activity).permit(
+      :activity_name, :collecting, :voting, :activity_type, :finalized,
+      :selected_pinned_id, :activity_location, :group_size, :radius,
+      :date_notes, :active, :emoji, :date_day, :date_time, :welcome_message,
+      :allow_participant_time_selection, :completed, participants: []
+    )
   end
 
   def invite_participant(raw_email, activity)
@@ -224,7 +178,7 @@ class ActivitiesController < HtmlController
       invited_email: invited_email
     )
 
-    return if participant.persisted?  # already invited
+    return if participant.persisted?
 
     if (user = User.find_by("lower(email) = ?", invited_email))
       participant.user_id = user.id
