@@ -55,6 +55,10 @@ Rails.application.routes.draw do
   get "/activities/:activity_id/respond/:token", to: "guest_responses#show"
   post "/activities/:activity_id/respond/:token", to: "guest_responses#create"
 
+  get "/photos/:photo_reference", to: "photos#show",
+      constraints: { photo_reference: /[^\/]+/ },
+      as: "photo"
+
   get "/test", to: "application#test"
 
   get "up" => "rails/health#show", as: :rails_health_check

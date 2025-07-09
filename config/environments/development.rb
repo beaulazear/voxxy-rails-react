@@ -31,6 +31,8 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: "localhost:3001" }
   # This also affects Active Storage URL generation
   Rails.application.routes.default_url_options = { host: "localhost:3001" }
+  # Use HTTP for local development
+  config.force_ssl = false
 
   # Enable/disable caching. By default caching is disabled.
   # Run rails dev:cache to toggle caching.

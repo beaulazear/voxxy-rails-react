@@ -7,7 +7,9 @@ class PinnedActivitiesController < ApplicationController
     pinned_activity = activity.pinned_activities.build(pinned_activity_params)
 
     if pinned_activity.save
-      render json: pinned_activity, status: :created
+      # Enrich with Google Places data on creation
+      enriched_pinned_activity = PinnedActivitySerializer.with_places_data(pinned_activity)
+      render json: enriched_pinned_activity, status: :created
     else
       render json: { errors: pinned_activity.errors.full_messages }, status: :unprocessable_entity
     end
@@ -17,35 +19,10 @@ class PinnedActivitiesController < ApplicationController
     activity = Activity.find_by(id: params[:activity_id])
 
     if activity
-      pinned_activities = activity.pinned_activities.includes(:comments, :votes)
+      pinned_activities = activity.pinned_activities
+                                 .includes(:comments, :votes, :voters)
 
-      render json: pinned_activities.as_json(
-        only: [
-          :id,
-          :title,
-          :hours,
-          :price_range,
-          :address,
-          :selected,
-          :description,
-          :activity_id,
-          :reviews,
-          :photos,
-          :reason,
-          :website
-        ],
-        methods: [ :vote_count ],
-        include: {
-          comments: {
-            only: [ :id, :content, :created_at ],
-            include: {
-              user: { only: [ :id, :name, :email, :avatar ] }
-            }
-          },
-          voters: { only: [ :id, :name, :avatar ] },
-          votes: { only: [ :id, :user_id ] }
-        }
-      )
+      render json: PinnedActivitySerializer.list_for_activity(pinned_activities)
     else
       render json: { error: "Activity not found" }, status: :not_found
     end
@@ -72,32 +49,9 @@ class PinnedActivitiesController < ApplicationController
 
   def pinned_activity_params
     params.require(:pinned_activity).permit(
-      :title,
-      :hours,
-      :price_range,
-      :selected,
-      :address,
-      :description,
-      :reason,
-      :website,
-      reviews: [
-        :author_name,
-        :author_url,
-        :language,
-        :original_language,
-        :profile_photo_url,
-        :rating,
-        :relative_time_description,
-        :text,
-        :time,
-        :translated
-      ],
-      photos: [
-        :height,
-        :html_attributions,
-        :photo_reference,
-        :width
-      ]
+      :title, :hours, :price_range, :selected, :address,
+      :description, :reason, :website
+      # Remove photos and reviews from params - we'll fetch them automatically
     )
   end
 end

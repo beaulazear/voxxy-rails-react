@@ -5,7 +5,7 @@ import BarChat from "../cocktails//BarChat"; // NEW: Import BarChat
 import LoadingScreenUser from "./LoadingScreenUser.js";
 import mixpanel from "mixpanel-browser";
 import { UserContext } from "../context/user";
-import { Users, Share, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, Cog, X, ExternalLink, MapPin, DollarSign, Globe, Zap, Calendar } from 'lucide-react';
+import { Users, Share, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, Cog, X, ExternalLink, MapPin, DollarSign, Globe, Zap, Calendar, Star } from 'lucide-react';
 
 // ... keep all the existing styled components exactly the same ...
 
@@ -844,6 +844,48 @@ const ProgressPercentage = styled.div`
   font-weight: 600;
 `;
 
+// NEW: Reviews section styles
+const ReviewsContainer = styled.div`
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+`;
+
+const ReviewItem = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 1rem;
+`;
+
+const ReviewHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+`;
+
+const ReviewAuthor = styled.div`
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.9rem;
+`;
+
+const ReviewRating = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #ffd700;
+  font-size: 0.85rem;
+`;
+
+const ReviewText = styled.p`
+  color: #ccc;
+  margin: 0;
+  line-height: 1.4;
+  font-size: 0.85rem;
+`;
+
 // Keep all existing helper functions
 const generateGoogleMapsEmbedUrl = (address, apiKey) => {
   if (!address || !apiKey) {
@@ -853,6 +895,44 @@ const generateGoogleMapsEmbedUrl = (address, apiKey) => {
   const encodedAddress = encodeURIComponent(address);
   const url = `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodedAddress}&zoom=15`;
   return url;
+};
+
+// NEW: Helper function to safely parse JSON data
+const safeJsonParse = (data, fallback = []) => {
+  if (!data) return fallback;
+
+  // If it's already an array/object, return it
+  if (typeof data === 'object') return data;
+
+  // If it's a string, try to parse it
+  if (typeof data === 'string') {
+    try {
+      return JSON.parse(data);
+    } catch (e) {
+      console.warn('Failed to parse JSON data:', e);
+      return fallback;
+    }
+  }
+
+  return fallback;
+};
+
+// NEW: Helper function to get photo URLs (now from backend-generated URLs)
+const getPhotoUrl = (photo) => {
+  if (!photo) return null;
+
+  // Check for backend-generated photo URLs (preferred)
+  if (photo.photo_url) {
+    return photo.photo_url;
+  }
+
+  // Fallback: if it's already a direct URL
+  if (typeof photo === 'string' && (photo.startsWith('http') || photo.startsWith('https'))) {
+    return photo;
+  }
+
+  // If we only have photo_reference but no generated URL, we can't display it securely
+  return null;
 };
 
 const analyzeAvailability = (responses) => {
@@ -1122,10 +1202,9 @@ export default function AIRecommendations({
               address: rec.address || "",
               votes: [],
               voters: [],
-              reviews: rec.reviews || [],
-              photos: rec.photos || [],
               reason: rec.reason || "",
               website: rec.website || "",
+              // Remove photos and reviews - backend will fetch them automatically
             },
           }),
         })
@@ -1206,7 +1285,7 @@ export default function AIRecommendations({
       }
 
       setPinnedActivities(newPinnedActivities);
-      setPinnedActivities(newTimeSlots)
+      setPinned(newTimeSlots)
       setRefreshTrigger(f => !f);
 
     } catch (err) {
@@ -1663,22 +1742,66 @@ export default function AIRecommendations({
                   </Section>
                 )}
 
-                {(selectedRec.photos || []).length > 0 && (
-                  <Section>
-                    <SectionHeader>
-                      <span>📸</span>
-                      <SectionTitle>Photos</SectionTitle>
-                    </SectionHeader>
-                    <PhotoGallery>
-                      {(selectedRec.photos || []).map((p, i) => {
-                        const src = p.photo_reference
-                          ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${p.photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}`
-                          : p;
-                        return <Photo key={i} src={src} alt="" />;
-                      })}
-                    </PhotoGallery>
-                  </Section>
-                )}
+                {/* NEW: Enhanced photos section with backend-generated URLs */}
+                {(() => {
+                  const photos = safeJsonParse(selectedRec.photos, []);
+                  const validPhotos = photos.filter(photo => getPhotoUrl(photo));
+
+                  return validPhotos.length > 0 && (
+                    <Section>
+                      <SectionHeader>
+                        <span>📸</span>
+                        <SectionTitle>Photos ({validPhotos.length})</SectionTitle>
+                      </SectionHeader>
+                      <PhotoGallery>
+                        {validPhotos.map((photo, i) => {
+                          const photoUrl = getPhotoUrl(photo);
+                          return (
+                            <Photo
+                              key={i}
+                              src={photoUrl}
+                              alt={`Photo of ${selectedRec.title || selectedRec.name}`}
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                              }}
+                            />
+                          );
+                        })}
+                      </PhotoGallery>
+                    </Section>
+                  );
+                })()}
+
+                {/* NEW: Reviews section */}
+                {(() => {
+                  const reviews = safeJsonParse(selectedRec.reviews, []);
+                  return reviews.length > 0 && (
+                    <Section>
+                      <SectionHeader>
+                        <Star size={20} />
+                        <SectionTitle>Reviews</SectionTitle>
+                      </SectionHeader>
+                      <ReviewsContainer>
+                        {reviews.slice(0, 3).map((review, i) => (
+                          <ReviewItem key={i}>
+                            <ReviewHeader>
+                              <ReviewAuthor>{review.author_name || 'Anonymous'}</ReviewAuthor>
+                              <ReviewRating>
+                                {review.rating && (
+                                  <>
+                                    <Star size={14} fill="currentColor" />
+                                    {review.rating}/5
+                                  </>
+                                )}
+                              </ReviewRating>
+                            </ReviewHeader>
+                            <ReviewText>{review.text}</ReviewText>
+                          </ReviewItem>
+                        ))}
+                      </ReviewsContainer>
+                    </Section>
+                  );
+                })()}
               </ModalBody>
             </ModalContainer>
           </ModalOverlay>
@@ -1841,22 +1964,66 @@ export default function AIRecommendations({
                   </Reason>
                 )}
 
-                {(selectedRec.photos || []).length > 0 && (
-                  <Section>
-                    <SectionHeader>
-                      <span>📸</span>
-                      <SectionTitle>Photos</SectionTitle>
-                    </SectionHeader>
-                    <PhotoGallery>
-                      {(selectedRec.photos || []).map((p, i) => {
-                        const src = p.photo_reference
-                          ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${p.photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}`
-                          : p;
-                        return <Photo key={i} src={src} alt="" />;
-                      })}
-                    </PhotoGallery>
-                  </Section>
-                )}
+                {/* NEW: Enhanced photos section for finalized view */}
+                {(() => {
+                  const photos = safeJsonParse(selectedRec.photos, []);
+                  const validPhotos = photos.filter(photo => getPhotoUrl(photo));
+
+                  return validPhotos.length > 0 && (
+                    <Section>
+                      <SectionHeader>
+                        <span>📸</span>
+                        <SectionTitle>Photos ({validPhotos.length})</SectionTitle>
+                      </SectionHeader>
+                      <PhotoGallery>
+                        {validPhotos.map((photo, i) => {
+                          const photoUrl = getPhotoUrl(photo);
+                          return (
+                            <Photo
+                              key={i}
+                              src={photoUrl}
+                              alt={`Photo of ${selectedRec.title || selectedRec.name}`}
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                              }}
+                            />
+                          );
+                        })}
+                      </PhotoGallery>
+                    </Section>
+                  );
+                })()}
+
+                {/* NEW: Reviews section for finalized view */}
+                {(() => {
+                  const reviews = safeJsonParse(selectedRec.reviews, []);
+                  return reviews.length > 0 && (
+                    <Section>
+                      <SectionHeader>
+                        <Star size={20} />
+                        <SectionTitle>Reviews</SectionTitle>
+                      </SectionHeader>
+                      <ReviewsContainer>
+                        {reviews.slice(0, 3).map((review, i) => (
+                          <ReviewItem key={i}>
+                            <ReviewHeader>
+                              <ReviewAuthor>{review.author_name || 'Anonymous'}</ReviewAuthor>
+                              <ReviewRating>
+                                {review.rating && (
+                                  <>
+                                    <Star size={14} fill="currentColor" />
+                                    {review.rating}/5
+                                  </>
+                                )}
+                              </ReviewRating>
+                            </ReviewHeader>
+                            <ReviewText>{review.text}</ReviewText>
+                          </ReviewItem>
+                        ))}
+                      </ReviewsContainer>
+                    </Section>
+                  );
+                })()}
               </ModalBody>
             </ModalContainer>
           </ModalOverlay>

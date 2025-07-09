@@ -184,9 +184,10 @@ class OpenaiController < ApplicationController
     raw_json = response.dig("choices", 0, "message", "content")
 
     begin
-      parsed         = JSON.parse(raw_json)
+      parsed = JSON.parse(raw_json)
       recommendations = parsed.fetch("restaurants", [])
-      enrich_recommendations(recommendations)
+      # Remove the enrichment since it now happens in PinnedActivity creation
+      recommendations
     rescue JSON::ParserError
       nil
     end
@@ -256,43 +257,13 @@ class OpenaiController < ApplicationController
     raw_json = response.dig("choices", 0, "message", "content")
 
     begin
-      parsed         = JSON.parse(raw_json)
+      parsed = JSON.parse(raw_json)
       recommendations = parsed.fetch("restaurants", [])  # Keep same key for frontend compatibility
-      enrich_recommendations(recommendations)
+      # Remove the enrichment since it now happens in PinnedActivity creation
+      recommendations
     rescue JSON::ParserError
       nil
     end
-  end
-
-  def enrich_recommendations(recommendations)
-    recommendations.map { |rec| enrich_recommendation(rec) }
-  end
-
-  def enrich_recommendation(rec)
-    query = CGI.escape("#{rec['name']} #{rec['address']}")
-    find_place_url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=#{query}&inputtype=textquery&fields=place_id&key=#{ENV['PLACES_KEY']}"
-
-    begin
-      find_place_response = Net::HTTP.get_response(URI(find_place_url))
-      find_place_data = JSON.parse(find_place_response.body)
-
-      if find_place_data["candidates"] && find_place_data["candidates"].any?
-        place_id = find_place_data["candidates"].first["place_id"]
-
-        details_url = "https://maps.googleapis.com/maps/api/place/details/json?place_id=#{place_id}&fields=photos,reviews&key=#{ENV['PLACES_KEY']}"
-        details_response = Net::HTTP.get_response(URI(details_url))
-        details_data = JSON.parse(details_response.body)
-
-        if details_data["result"]
-          rec["photos"] = details_data["result"]["photos"] || []
-          rec["reviews"] = details_data["result"]["reviews"] || []
-        end
-      end
-    rescue StandardError => e
-      Rails.logger.error "Error enriching recommendation #{rec['name']}: #{e.message}"
-    end
-
-    rec
   end
 
   def generate_cache_key(user_responses, activity_location, date_notes, type = "restaurant")
