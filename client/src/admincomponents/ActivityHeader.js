@@ -341,7 +341,11 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onLeave, onBack, onDele
 
           <ActivityTypeChip>
             <ActivityTypeText>
-              {activity.activity_type === 'Restaurant' ? 'Lets Eat! 🍜' : '👥 Lets Meet!'}
+              {activity.activity_type === 'Restaurant'
+                ? 'Lets Eat! 🍜'
+                : activity.activity_type === 'Cocktails'
+                  ? 'Night Out 🍸'
+                  : '👥 Lets Meet!'}
             </ActivityTypeText>
           </ActivityTypeChip>
 

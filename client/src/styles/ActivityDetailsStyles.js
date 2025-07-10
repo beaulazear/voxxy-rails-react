@@ -6,24 +6,28 @@ const fadeIn = keyframes`
 `;
 
 const gradientAnimation = keyframes`
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% { background-position: 50% 50%; }
+  20% { background-position: 80% 30%; }
+  40% { background-position: 70% 80%; }
+  60% { background-position: 30% 70%; }
+  80% { background-position: 20% 20%; }
+  100% { background-position: 50% 50%; }
 `;
 
 export const PageContainer = styled.div`
   width: 100%;
   min-height: 100vh;
-  padding: 1.5rem;
+  padding: 1rem;
   padding-bottom: 40px;
-  padding-top: 80px;
+  padding-top: 20px;
   box-sizing: border-box;
   background-size: 400% 400%;
 background-image: linear-gradient(
   to right,
-  #201925,    /* base */
-  #1e1824,    /* –2R –1G –1B */
-  #1c1422     /* –4R –5G –3B */
+  #201925,    /* your base */
+  #251C2C,    /* your backgroundTwo */
+  #2a1e30,    /* your cardBackground */
+  #422151     /* purple2 */
 );
   animation: ${fadeIn} 0.8s ease-in-out, ${gradientAnimation} 15s ease infinite;
 `;

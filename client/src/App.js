@@ -1,6 +1,6 @@
 import './App.css';
 import React, { useContext, useEffect } from "react";
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { UserContext } from "./context/user.js";
 import Navbar from './components/Navbar';
@@ -30,6 +30,7 @@ import ActivityDetailsPage from './admincomponents/ActivityDetailsPage.js';
 function App() {
   const { user, loading } = useContext(UserContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!loading && user && !user.confirmed_at) {
@@ -41,13 +42,26 @@ function App() {
   const isConfirmed = user && user.confirmed_at;
   const isAdmin = user && user.admin;
 
+  // Define routes that should NOT show the navbar
+  const routesWithoutNavbar = [
+    '/activities', // This will match any route starting with /activities
+    '/activity'    // This will match any route starting with /activity
+  ];
+
+  // Check if current route should hide navbar
+  const shouldHideNavbar = routesWithoutNavbar.some(route =>
+    location.pathname.startsWith(route)
+  );
+
   if (loading) {
     return <LoadingScreen />;
   }
 
   return (
     <div className="App">
-      <Navbar />
+      {/* Conditionally render Navbar */}
+      {!shouldHideNavbar && <Navbar />}
+
       <Routes>
         <Route path="/" element={isLoggedIn ? <UserActivities /> : <LandingPage />} />
         <Route path="/signup" element={<SignUp />} />

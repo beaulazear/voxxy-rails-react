@@ -92,8 +92,8 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
         setSelectedTrip('Lets Meet');
         break;
 
-      case 'Lets Drink':
-        setSelectedTrip('Lets Drink');
+      case 'Night Out':
+        setSelectedTrip('Night Out');
         break;
 
       default:
@@ -135,7 +135,7 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
         </>
       )}
 
-      {selectedTrip === 'Lets Drink' && (
+      {selectedTrip === 'Night Out' && (
         <>
           <DimmedOverlay />
           <CocktailsChat onClose={handleClose} />

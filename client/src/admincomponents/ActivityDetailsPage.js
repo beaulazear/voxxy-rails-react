@@ -245,6 +245,7 @@ function ActivityDetailsPage() {
     p => p.activity.id === numericActivityId && !p.accepted
   );
 
+  //. turn this into a conditional only run it if the activity is lets meet or if the activity is marked true for user voting
   useEffect(() => {
     fetch(`${API_URL}/activities/${numericActivityId}/time_slots`, {
       method: 'GET',
