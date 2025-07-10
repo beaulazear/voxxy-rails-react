@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import { UserContext } from '../context/user';
 import {
@@ -223,31 +224,38 @@ const HostName = styled.span`
   font-weight: 600;
 `;
 
-function ActivityDetailsPage({ activityId, onBack }) {
+function ActivityDetailsPage() {
   const { user, setUser } = useContext(UserContext);
+  const { activityId } = useParams();
+  const numericActivityId = parseInt(activityId, 10);
+
   const [refreshTrigger, setRefreshTrigger] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [currentActivity, setCurrentActivity] = useState(null);
   const [pinnedActivities, setPinnedActivities] = useState([]);
   const [pinned, setPinned] = useState([]);
 
+  const navigate = useNavigate();
+
   const topRef = useRef(null)
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
   const pendingInvite = user?.participant_activities?.find(
-    p => p.activity.id === activityId && !p.accepted
+    p => p.activity.id === numericActivityId && !p.accepted
   );
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activityId}/time_slots`, {
-      method: 'GET', credentials: 'include', headers: { 'Content-Type': 'application/json' }
+    fetch(`${API_URL}/activities/${numericActivityId}/time_slots`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }
     })
       .then(res => res.json())
       .then(data => {
         setPinned(data);
       });
-  }, [activityId])
+  }, [numericActivityId, API_URL]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -257,15 +265,15 @@ function ActivityDetailsPage({ activityId, onBack }) {
     }, 100);
 
     const latestActivity =
-      user.activities.find((act) => act.id === activityId) ||
-      user.participant_activities.find((p) => p.activity.id === activityId)?.activity;
+      user.activities.find((act) => act.id === numericActivityId) ||
+      user.participant_activities.find((p) => p.activity.id === numericActivityId)?.activity;
 
     if (latestActivity) {
       setCurrentActivity({ ...latestActivity });
 
-      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
-
-      fetch(`${API_URL}/activities/${activityId}/pinned_activities`, { credentials: "include" })
+      fetch(`${API_URL}/activities/${numericActivityId}/pinned_activities`, {
+        credentials: "include"
+      })
         .then((res) => res.json())
         .then((data) => {
           setPinnedActivities(data)
@@ -274,8 +282,11 @@ function ActivityDetailsPage({ activityId, onBack }) {
     }
 
     return () => clearTimeout(timer);
+  }, [user, numericActivityId, refreshTrigger, API_URL]);
 
-  }, [user, activityId, refreshTrigger]);
+  const handleBack = () => {
+    navigate('/');
+  };
 
   const handleAcceptInvite = async () => {
     if (!pendingInvite) return;
@@ -287,7 +298,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ email: user.email, activity_id: activityId }),
+          body: JSON.stringify({ email: user.email, activity_id: numericActivityId }),
         }
       );
 
@@ -330,7 +341,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ email: user.email, activity_id: activityId }),
+          body: JSON.stringify({ email: user.email, activity_id: numericActivityId }),
         }
       );
 
@@ -338,11 +349,11 @@ function ActivityDetailsPage({ activityId, onBack }) {
         setUser((prevUser) => ({
           ...prevUser,
           participant_activities: prevUser.participant_activities.filter(
-            (p) => p.activity.id !== activityId
+            (p) => p.activity.id !== numericActivityId
           ),
         }));
         message.success("Invite declined.");
-        onBack(); // Navigate back since they're no longer part of this activity
+        handleBack(); // Navigate back since they're no longer part of this activity
       } else {
         message.error("Failed to decline invite.");
       }
@@ -444,7 +455,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
                 (activity) => activity.id !== id
               ),
             }));
-            onBack();
+            handleBack();
           } else {
             console.error("Failed to delete activity");
           }
@@ -467,7 +478,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
     const isVoting = endpoint === 'vote';
 
     fetch(
-      `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activityId}/time_slots/${slot.id}/${endpoint}`,
+      `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${numericActivityId}/time_slots/${slot.id}/${endpoint}`,
       { method: 'POST', credentials: 'include' }
     )
       .then(res => res.json())
@@ -568,7 +579,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ activity_id: activityId }),
+          body: JSON.stringify({ activity_id: numericActivityId }),
         }
       );
 
@@ -582,17 +593,26 @@ function ActivityDetailsPage({ activityId, onBack }) {
       setUser((prevUser) => ({
         ...prevUser,
         participant_activities: prevUser.participant_activities.filter(
-          (p) => p.activity.id !== activityId
+          (p) => p.activity.id !== numericActivityId
         ),
       }));
 
       message.success("You have successfully left the activity.");
-      onBack();
+      handleBack();
     } catch (error) {
       console.error("Error leaving activity:", error);
       message.error("Failed to leave activity.");
     }
   };
+
+  if (!currentActivity && !pendingInvite) {
+    return (
+      <div>
+        <h2>Activity not found</h2>
+        <button onClick={handleBack}>Go Back</button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -601,7 +621,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
         <ActivityHeader
           activity={currentActivity}
           isOwner={isOwner}
-          onBack={onBack}
+          onBack={handleBack}
           onLeave={handleLeaveActivity}
           onEdit={() => setShowModal(true)}
           onDelete={handleDelete}
@@ -640,7 +660,7 @@ function ActivityDetailsPage({ activityId, onBack }) {
 
             <InvitePromptOverlay>
               <InvitePromptCard onClick={(e) => e.stopPropagation()}>
-                <CloseButton onClick={onBack}>
+                <CloseButton onClick={handleBack}>
                   ×
                 </CloseButton>
                 <InviteTitle>🎉 You're Invited!</InviteTitle>

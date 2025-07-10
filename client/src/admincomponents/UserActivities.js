@@ -1,9 +1,8 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styled, { keyframes, css } from 'styled-components';
 import Countdown from 'react-countdown';
 import { UserContext } from '../context/user';
-import ActivityDetailsPage from './ActivityDetailsPage';
 import TripDashboard from './TripDashboard.js';
 import YourCommunity from './YourCommunity.js';
 import NoBoardsDisplay from './NoBoardsDisplay.js';
@@ -698,7 +697,6 @@ const Message = styled.p`
   text-align: left;
 `;
 
-// NEW: Helper functions for activity type handling
 const getActivityTypeConfig = (activityType) => {
   switch (activityType) {
     case 'Restaurant':
@@ -708,7 +706,7 @@ const getActivityTypeConfig = (activityType) => {
       };
     case 'Cocktails':
       return {
-        tagText: 'Lets Drink!',
+        tagText: 'Night Out!',
         fallbackImage: LetsDrink
       };
     case 'Meeting':
@@ -743,7 +741,6 @@ function UserActivities() {
     ?.filter(invite => !invite.accepted)
     .length || 0;
 
-  const [selectedActivityId, setSelectedActivityId] = useState(null);
   const [showActivities, setShowActivities] = useState(false);
   const [helpVisible, setHelpVisible] = useState(false);
   const [showAllPast, setShowAllPast] = useState(false);
@@ -751,18 +748,7 @@ function UserActivities() {
   const topRef = useRef(null)
   const processedRef = useRef(new Set())
 
-  const location = useLocation();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const activityId = params.get('activity_id');
-
-    if (activityId) {
-      setSelectedActivityId(Number(activityId));
-      navigate(location.pathname, { replace: true });
-    }
-  }, [location.search, setSelectedActivityId, navigate, location.pathname]);
 
   useEffect(() => {
     if (!user) return
@@ -822,12 +808,7 @@ function UserActivities() {
   }, [user, setUser])
 
   const handleActivityClick = (activity) => {
-    setSelectedActivityId(activity.id);
-  };
-
-  const handleBack = () => {
-    setSelectedActivityId(null);
-    setShowActivities(false)
+    navigate(`/activity/${activity.id}`);
   };
 
   const toggleHelp = () => setHelpVisible(v => !v);
@@ -953,18 +934,10 @@ function UserActivities() {
     return pendingInviteActivities.some(invite => invite.id === activity.id);
   };
 
-  if (selectedActivityId) {
-    return (
-      <>
-        <ActivityDetailsPage activityId={selectedActivityId} onBack={handleBack} />
-      </>
-    )
-  }
-
   if (showActivities) {
     return (
       <>
-        <TripDashboard setShowActivities={setShowActivities} setSelectedActivityId={setSelectedActivityId} />
+        <TripDashboard setShowActivities={setShowActivities} setSelectedActivityId={(id) => navigate(`/activity/${id}`)} />
       </>
     )
   }
