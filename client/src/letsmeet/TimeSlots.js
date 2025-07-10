@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
-import { Users, Share, Clock, Trash, CheckCircle, Flag, Calendar, X, UserCheck, Brain, Star, TrendingUp } from 'lucide-react';
+import { Users, Share, Clock, CheckCircle, Flag, Calendar, X, UserCheck, Brain, Star, TrendingUp } from 'lucide-react';
 import LetsMeetScheduler from './LetsMeetScheduler';
 import LoadingScreenUser from "../admincomponents/LoadingScreenUser";
 import { UserContext } from "../context/user";
@@ -52,7 +52,7 @@ import {
   StatLabel,
   StatValue,
   AvailabilityCount,
-  DeleteButton,
+
   ModalOverlay,
   ModalContainer,
   ModalHeader,
@@ -72,7 +72,7 @@ import {
   ButtonRow
 } from '../styles/TimeSlotStyles';
 
-export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, toggleVote, handleTimeSlotDelete, isOwner, setCurrentActivity }) {
+export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, toggleVote, isOwner, setCurrentActivity }) {
   const { user, setUser } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -84,8 +84,16 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
 
   const { id, responses, collecting, voting, finalized, selected_time_slot_id } = currentActivity;
 
-  const totalParticipants = currentActivity.participants.length + 1;
+  // Calculate total participants including guests who responded
   const availabilityResponses = responses.filter(r => r.notes === "LetsMeetAvailabilityResponse");
+
+  // Count unique participants: invited participants + owner + guest responses
+  const invitedParticipantEmails = new Set(currentActivity.participants.map(p => p.email));
+  const guestResponses = availabilityResponses.filter(r =>
+    r.email && !invitedParticipantEmails.has(r.email) && r.email !== user.email
+  );
+
+  const totalParticipants = 1 + currentActivity.participants.length + guestResponses.length; // owner + invited + guests
   const responseRate = (availabilityResponses.length / totalParticipants) * 100;
 
   const currentUserResponse = availabilityResponses.find(r =>
@@ -271,13 +279,34 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
     return slot.recommendation && Object.keys(slot.recommendation).length > 0;
   };
 
+  // Helper function to format date and time for AI recommendations
+  const formatDateTime = (dateStr, timeStr) => {
+    const dateObj = parseISO(dateStr);
+    const formattedDate = format(dateObj, 'MMMM do, yyyy');
+
+    const [h, m] = timeStr.slice(11, 16).split(':');
+    const timeObj = new Date();
+    timeObj.setHours(+h, +m);
+    const formattedTime = format(timeObj, 'h:mm a');
+
+    return { formattedDate, formattedTime };
+  };
+
+  // Helper function to find time slot for AI recommendation
+  const findTimeSlotForRecommendation = (rec) => {
+    return pinned.find(slot =>
+      slot.recommendation &&
+      slot.recommendation.title === rec.title
+    );
+  };
+
   if (loading) return <LoadingScreenUser autoDismiss={false} />;
 
   if (collecting && !voting) {
     return (
       <Container>
         <TopBar>
-          <Heading>Submit Your Availability</Heading>
+          <Heading>Collecting Availability</Heading>
         </TopBar>
 
         {error && <ErrorText>{error}</ErrorText>}
@@ -285,7 +314,7 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
         <PhaseIndicator>
           <PhaseIcon><Calendar size={24} /></PhaseIcon>
           <PhaseContent>
-            <PhaseTitle>Collecting Availability</PhaseTitle>
+            <PhaseTitle>Submit Your Availability</PhaseTitle>
             <PhaseSubtitle>{availabilityResponses.length}/{totalParticipants} participants have submitted</PhaseSubtitle>
           </PhaseContent>
           {isOwner && (
@@ -315,9 +344,9 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
         ) : (
           <SubmittedCard>
             <SubmittedIcon><CheckCircle size={48} /></SubmittedIcon>
-            <SubmittedTitle>Thank you for submitting your availability!</SubmittedTitle>
+            <SubmittedTitle>Availability Submitted!</SubmittedTitle>
             <SubmittedText>
-              The organizer will generate time slot results and AI recommendations shortly. You can update your availability if needed.
+              Waiting for the organizer to generate results and AI recommendations.
             </SubmittedText>
             <ResubmitButton onClick={() => setShowScheduler('update')}>
               <Calendar size={18} />
@@ -376,7 +405,7 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
                   </Button>
                   <Button $primary onClick={moveToVotingPhase}>
                     <Brain size={16} />
-                    Generate Results & AI Analysis
+                    Generate Results
                   </Button>
                 </ButtonRow>
               </ModalBody>
@@ -391,13 +420,13 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
     return (
       <Container>
         <TopBar>
-          <Heading>Time Slot Results</Heading>
+          <Heading>Results Generated</Heading>
         </TopBar>
 
         <PhaseIndicator>
           <PhaseIcon><TrendingUp size={24} /></PhaseIcon>
           <PhaseContent>
-            <PhaseTitle>Results Generated</PhaseTitle>
+            <PhaseTitle>Time Slot Results</PhaseTitle>
             <PhaseSubtitle>Time slots ranked by availability with AI recommendations</PhaseSubtitle>
           </PhaseContent>
           {isOwner && (
@@ -428,52 +457,32 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
               AI Recommendations
             </AITitle>
             {aiRecommendations.length > 0 ? (
-              aiRecommendations.map((rec, index) => (
-                <RecommendationCard key={index}>
-                  <RecommendationHeader>
-                    <RecommendationTitle>{rec.title}</RecommendationTitle>
-                    <ParticipantCount>
-                      {rec.participants_available}/{totalParticipants} available
-                    </ParticipantCount>
-                  </RecommendationHeader>
-                  <RecommendationReason>{rec.reason}</RecommendationReason>
-                  <ProsCons>
-                    <ProsConsSection>
-                      <ProsConsTitle $type="pros">Pros</ProsConsTitle>
-                      <ProsConsList>
-                        {rec.pros?.map((pro, i) => (
-                          <ProsConsItem key={i}>{pro}</ProsConsItem>
-                        ))}
-                      </ProsConsList>
-                    </ProsConsSection>
-                    <ProsConsSection>
-                      <ProsConsTitle $type="cons">Considerations</ProsConsTitle>
-                      <ProsConsList>
-                        {rec.cons?.map((con, i) => (
-                          <ProsConsItem key={i}>{con}</ProsConsItem>
-                        ))}
-                      </ProsConsList>
-                    </ProsConsSection>
-                  </ProsCons>
-                </RecommendationCard>
-              ))
-            ) : (
-              (() => {
-                const uniqueRecommendations = pinned
-                  .filter(slot => slot.recommendation && Object.keys(slot.recommendation).length > 0)
-                  .map(slot => slot.recommendation)
-                  .filter((rec, index, arr) =>
-                    arr.findIndex(r => r.title === rec.title) === index
-                  );
+              aiRecommendations.map((rec, index) => {
+                const slot = findTimeSlotForRecommendation(rec);
+                const dateTime = slot ? formatDateTime(slot.date, slot.time) : null;
 
-                return uniqueRecommendations.map((rec, index) => (
+                return (
                   <RecommendationCard key={index}>
                     <RecommendationHeader>
                       <RecommendationTitle>{rec.title}</RecommendationTitle>
                       <ParticipantCount>
-                        {rec.participants_available}/{totalParticipants} available
+                        {slot ? (slot.votes_count || 0) : rec.participants_available}/{totalParticipants} available
                       </ParticipantCount>
                     </RecommendationHeader>
+                    {dateTime && (
+                      <div style={{
+                        color: '#cc31e8',
+                        fontWeight: '600',
+                        fontSize: '0.95rem',
+                        marginBottom: '0.75rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                      }}>
+                        <Calendar size={16} />
+                        {dateTime.formattedDate} at {dateTime.formattedTime}
+                      </div>
+                    )}
                     <RecommendationReason>{rec.reason}</RecommendationReason>
                     <ProsCons>
                       <ProsConsSection>
@@ -484,17 +493,79 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
                           ))}
                         </ProsConsList>
                       </ProsConsSection>
-                      <ProsConsSection>
-                        <ProsConsTitle $type="cons">Considerations</ProsConsTitle>
-                        <ProsConsList>
-                          {rec.cons?.map((con, i) => (
-                            <ProsConsItem key={i}>{con}</ProsConsItem>
-                          ))}
-                        </ProsConsList>
-                      </ProsConsSection>
+                      {rec.cons && rec.cons.length > 0 && (
+                        <ProsConsSection>
+                          <ProsConsTitle $type="cons">Considerations</ProsConsTitle>
+                          <ProsConsList>
+                            {rec.cons.map((con, i) => (
+                              <ProsConsItem key={i}>{con}</ProsConsItem>
+                            ))}
+                          </ProsConsList>
+                        </ProsConsSection>
+                      )}
                     </ProsCons>
                   </RecommendationCard>
-                ));
+                );
+              })
+            ) : (
+              (() => {
+                const slotsWithRecommendations = pinned.filter(slot =>
+                  slot.recommendation && Object.keys(slot.recommendation).length > 0
+                );
+
+                const uniqueRecommendations = slotsWithRecommendations
+                  .map(slot => ({ ...slot.recommendation, slot }))
+                  .filter((rec, index, arr) =>
+                    arr.findIndex(r => r.title === rec.title) === index
+                  );
+
+                return uniqueRecommendations.map((rec, index) => {
+                  const dateTime = formatDateTime(rec.slot.date, rec.slot.time);
+
+                  return (
+                    <RecommendationCard key={index}>
+                      <RecommendationHeader>
+                        <RecommendationTitle>{rec.title}</RecommendationTitle>
+                        <ParticipantCount>
+                          {rec.slot.votes_count || 0}/{totalParticipants} available
+                        </ParticipantCount>
+                      </RecommendationHeader>
+                      <div style={{
+                        color: '#cc31e8',
+                        fontWeight: '600',
+                        fontSize: '0.95rem',
+                        marginBottom: '0.75rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                      }}>
+                        <Calendar size={16} />
+                        {dateTime.formattedDate} at {dateTime.formattedTime}
+                      </div>
+                      <RecommendationReason>{rec.reason}</RecommendationReason>
+                      <ProsCons>
+                        <ProsConsSection>
+                          <ProsConsTitle $type="pros">Pros</ProsConsTitle>
+                          <ProsConsList>
+                            {rec.pros?.map((pro, i) => (
+                              <ProsConsItem key={i}>{pro}</ProsConsItem>
+                            ))}
+                          </ProsConsList>
+                        </ProsConsSection>
+                        {rec.cons && rec.cons.length > 0 && (
+                          <ProsConsSection>
+                            <ProsConsTitle $type="cons">Considerations</ProsConsTitle>
+                            <ProsConsList>
+                              {rec.cons.map((con, i) => (
+                                <ProsConsItem key={i}>{con}</ProsConsItem>
+                              ))}
+                            </ProsConsList>
+                          </ProsConsSection>
+                        )}
+                      </ProsCons>
+                    </RecommendationCard>
+                  );
+                });
               })()
             )}
           </AISection>
@@ -531,11 +602,6 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
                         <UserCheck size={16} />
                         {slot.votes_count || 0}
                       </AvailabilityCount>
-                      {isOwner && (
-                        <DeleteButton onClick={() => handleTimeSlotDelete(slot.id)}>
-                          <Trash size={16} />
-                        </DeleteButton>
-                      )}
                     </TimeSlotActions>
                   </TimeSlotHeader>
 

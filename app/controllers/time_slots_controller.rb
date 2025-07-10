@@ -162,7 +162,7 @@ class TimeSlotsController < ApplicationController
     # Process availability data for AI
     availability_summary = process_availability_for_ai(responses)
     time_slots_data = process_time_slots_for_ai(@activity.time_slots)
-    total_participants = responses.count + 1 # +1 for organizer
+    total_participants = @activity.participants.count
 
     prompt = <<~PROMPT
       You are an AI scheduling assistant that analyzes group availability and provides recommendations for the best meeting times.

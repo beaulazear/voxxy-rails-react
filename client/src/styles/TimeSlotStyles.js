@@ -30,7 +30,7 @@ export const pulse = keyframes`
 export const Container = styled.div`
   max-width: 40rem;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding-top: 1rem;
   color: #fff;
   animation: ${fadeInNoTransform} 0.8s ease-in-out,
              ${gradientAnimation} 15s ease infinite;
@@ -48,6 +48,10 @@ export const Heading = styled.h2`
   font-size: 1.75rem;
   margin: 0 auto;
   text-align: center;
+  
+  @media (max-width: 640px) {
+    font-size: 1.5rem;
+  }
 `;
 
 export const PhaseIndicator = styled.div`
@@ -65,6 +69,13 @@ export const PhaseIndicator = styled.div`
     background: rgba(255, 255, 255, 0.08);
     transform: translateY(-1px);
   }
+  
+  @media (max-width: 640px) {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+    text-align: center;
+  }
 `;
 
 export const PhaseIndicatorButton = styled.button`
@@ -81,21 +92,36 @@ export const PhaseIndicatorButton = styled.button`
   gap: 0.4rem;
   transition: all 0.2s ease;
   margin-left: auto;
+  white-space: nowrap;
   
   &:hover {
     background: linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(204, 49, 232, 0.3);
   }
+  
+  @media (max-width: 640px) {
+    margin-left: 0;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+  }
 `;
 
 export const PhaseIcon = styled.div`
   color: #cc31e8;
+  
+  @media (max-width: 640px) {
+    align-self: center;
+  }
 `;
 
 export const PhaseContent = styled.div`
   flex: 1;
   text-align: left;
+  
+  @media (max-width: 640px) {
+    text-align: center;
+  }
 `;
 
 export const PhaseTitle = styled.h3`
@@ -177,6 +203,7 @@ export const SubmittedCard = styled.div`
   padding: 2rem;
   border-radius: 1rem;
   margin-bottom: 2rem;
+  text-align: center;
 `;
 
 export const SubmittedIcon = styled.div`
@@ -190,13 +217,14 @@ export const SubmittedTitle = styled.h3`
   font-size: 1.3rem;
   margin: 0 0 1rem 0;
   color: #28a745;
+  font-weight: 600;
 `;
 
 export const SubmittedText = styled.p`
   margin: 0 0 1.5rem 0;
   color: #ccc;
   line-height: 1.5;
-  text-align: left;
+  font-size: 0.9rem;
 `;
 
 export const ResubmitButton = styled.button`
