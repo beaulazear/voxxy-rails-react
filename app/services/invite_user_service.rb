@@ -30,9 +30,9 @@ class InviteUserService
 
   def self.get_activity_type_info(activity_type)
     activity_types = {
-      "Restaurant" => { emoji: "\u{1F35C}", description: "Schedule your next group meal together." },
-      "Cocktails" => { emoji: "\u{1F378}", description: "Plan your perfect night out with friends." },
-      "Meeting" => { emoji: "\u23F0", description: "Find a time that works for everyone." }
+      "Restaurant" => { emoji: "\u{1F35C}", description: "Let's Eat! Schedule your next group meal together." },
+      "Cocktails" => { emoji: "\u{1F378}", description: "Night Out! Plan your perfect night out with friends." },
+      "Meeting" => { emoji: "\u23F0", description: "Let's Meet! Find a time that works for everyone." }
     }
 
     activity_types[activity_type] || { emoji: "\u{1F389}", description: "Join this activity!" }
