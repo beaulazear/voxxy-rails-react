@@ -251,29 +251,41 @@ function ActivityDetailsPage() {
   }, [activityId, numericActivityId, navigate]);
 
   const pendingInvite = user?.participant_activities?.find(
-    p => p.activity.id === numericActivityId && !p.accepted
+    p => {
+      // Try both activity.id and activity_id to handle different data structures
+      const activityId = p.activity?.id || p.activity_id;
+      return activityId === numericActivityId && !p.accepted;
+    }
   );
-
-  //. turn this into a conditional only run it if the activity is lets meet or if the activity is marked true for user voting
-  useEffect(() => {
-    if (isNaN(numericActivityId)) return;
-
-    fetch(`${API_URL}/activities/${numericActivityId}/time_slots`, {
-      method: 'GET',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' }
-    })
-      .then(res => res.json())
-      .then(data => {
-        setPinned(data);
-      })
-      .catch(error => {
-        console.error('Error fetching time slots:', error);
-      });
-  }, [numericActivityId, API_URL]);
 
   useEffect(() => {
     if (isNaN(numericActivityId) || !user) return;
+
+    // COMPREHENSIVE DEBUGGING
+    console.log('=== DEBUGGING ACTIVITY DATA ===');
+    console.log('Looking for activityId:', numericActivityId);
+    console.log('user.activities:', user.activities);
+    console.log('user.participant_activities:', user.participant_activities);
+
+    // Check each participant activity
+    user.participant_activities?.forEach((p, index) => {
+      console.log(`participant_activity[${index}]:`, {
+        activity_id: p.activity_id,
+        activity: p.activity,
+        accepted: p.accepted,
+        invited_email: p.invited_email
+      });
+    });
+
+    console.log('pendingInvite found:', pendingInvite);
+    if (pendingInvite) {
+      console.log('pendingInvite structure:', {
+        activity_id: pendingInvite.activity_id,
+        activity: pendingInvite.activity,
+        accepted: pendingInvite.accepted,
+        invited_email: pendingInvite.invited_email
+      });
+    }
 
     const timer = setTimeout(() => {
       if (topRef.current) {
@@ -283,9 +295,10 @@ function ActivityDetailsPage() {
 
     const latestActivity =
       user.activities?.find((act) => act.id === numericActivityId) ||
-      user.participant_activities?.find((p) => p.activity.id === numericActivityId)?.activity;
+      user.participant_activities?.find((p) => p.activity?.id === numericActivityId)?.activity;
 
     if (latestActivity) {
+      console.log('✅ Using latestActivity (regular flow):', latestActivity);
       setCurrentActivity({ ...latestActivity });
 
       fetch(`${API_URL}/activities/${numericActivityId}/pinned_activities`, {
@@ -296,10 +309,48 @@ function ActivityDetailsPage() {
           setPinnedActivities(data)
         })
         .catch((error) => console.error("Error fetching pinned activities:", error));
+    } else if (pendingInvite) {
+      console.log('🔄 Handling pending invite...');
+
+      if (pendingInvite.activity && Object.keys(pendingInvite.activity).length > 0) {
+        console.log('✅ Using pendingInvite.activity:', pendingInvite.activity);
+        setCurrentActivity({ ...pendingInvite.activity });
+      } else {
+        console.log('❌ No activity data in pendingInvite, fetching from API...');
+
+        fetch(`${API_URL}/activities/${numericActivityId}`, {
+          credentials: "include"
+        })
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+          })
+          .then((completeActivity) => {
+            console.log('✅ Fetched complete activity from API:', completeActivity);
+            setCurrentActivity(completeActivity);
+          })
+          .catch((error) => {
+            console.error("❌ Error fetching activity data:", error);
+          });
+      }
+
+      // Fetch pinned activities for invites
+      fetch(`${API_URL}/activities/${numericActivityId}/pinned_activities`, {
+        credentials: "include"
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setPinnedActivities(data);
+        })
+        .catch((error) => console.error("Error fetching pinned activities:", error));
+    } else {
+      console.log('❌ No activity found - neither regular nor pending invite');
     }
 
     return () => clearTimeout(timer);
-  }, [user, numericActivityId, refreshTrigger, API_URL]);
+  }, [user, numericActivityId, refreshTrigger, API_URL, pendingInvite]);
 
   const handleBack = () => {
     navigate('/');
@@ -387,6 +438,20 @@ function ActivityDetailsPage() {
 
   if (!currentActivity && !pendingInvite) {
     return <ActivityNotFoundScreen onReturnHome={handleBack} />;
+  }
+
+  if (pendingInvite && !currentActivity) {
+    return (
+      <>
+        <AnimatedSmokeBackground ref={topRef} />
+        <PageContainer>
+          <div style={{ color: 'white', padding: '2rem', textAlign: 'center' }}>
+            <h2>Loading invitation...</h2>
+            <p>Please wait while we fetch the activity details.</p>
+          </div>
+        </PageContainer>
+      </>
+    );
   }
 
   const isOwner = user?.id === currentActivity?.user_id || user?.id === currentActivity?.user?.id;
@@ -642,13 +707,13 @@ function ActivityDetailsPage() {
           onDelete={handleDelete}
           onInvite={handleInvite}
           onRemoveParticipant={handleRemoveParticipant}
-          votes={currentActivity.activity_type === 'Meeting' ? pinned : pinnedActivities}
+          votes={currentActivity?.activity_type === 'Meeting' ? pinned : pinnedActivities}
         />
 
         {pendingInvite ? (
           <>
             <BlurredOverlay>
-              {currentActivity.activity_type === 'Restaurant' && (
+              {currentActivity?.activity_type === 'Restaurant' && (
                 <AIRecommendations
                   onEdit={() => setShowModal(true)}
                   isOwner={isOwner}
@@ -658,7 +723,7 @@ function ActivityDetailsPage() {
                   setRefreshTrigger={setRefreshTrigger}
                 />
               )}
-              {currentActivity.activity_type === 'Meeting' && (
+              {currentActivity?.activity_type === 'Meeting' && (
                 <TimeSlots
                   onEdit={() => setShowModal(true)}
                   isOwner={isOwner}
@@ -670,7 +735,7 @@ function ActivityDetailsPage() {
                   setCurrentActivity={setCurrentActivity}
                 />
               )}
-              <ActivityCommentSection activity={currentActivity} />
+              {currentActivity && <ActivityCommentSection activity={currentActivity} />}
             </BlurredOverlay>
 
             <InvitePromptOverlay>
@@ -680,10 +745,10 @@ function ActivityDetailsPage() {
                 </CloseButton>
                 <InviteTitle>🎉 You're Invited!</InviteTitle>
                 <InviteSubtitle>
-                  <HostName>{currentActivity.user?.name}</HostName> invited you to join{' '}
-                  <ActivityName>{currentActivity.activity_name}</ActivityName>:
+                  <HostName>{currentActivity?.user?.name}</HostName> invited you to join{' '}
+                  <ActivityName>{currentActivity?.activity_name}</ActivityName>:
                   <br></br>
-                  <i style={{ fontFamily: 'Roboto' }}>{currentActivity.welcome_message}</i>
+                  <i style={{ fontFamily: 'Roboto' }}>{currentActivity?.welcome_message}</i>
                 </InviteSubtitle>
                 <ButtonGroup>
                   <InviteButton onClick={handleAcceptInvite}>
@@ -698,7 +763,7 @@ function ActivityDetailsPage() {
           </>
         ) : (
           <>
-            {(currentActivity.activity_type === 'Restaurant' || currentActivity.activity_type === 'Cocktails') && (
+            {(currentActivity?.activity_type === 'Restaurant' || currentActivity?.activity_type === 'Cocktails') && (
               <AIRecommendations
                 onEdit={() => setShowModal(true)}
                 isOwner={isOwner}
@@ -709,7 +774,7 @@ function ActivityDetailsPage() {
                 setRefreshTrigger={setRefreshTrigger}
               />
             )}
-            {currentActivity.activity_type === 'Meeting' && (
+            {currentActivity?.activity_type === 'Meeting' && (
               <TimeSlots
                 onEdit={() => setShowModal(true)}
                 isOwner={isOwner}
@@ -721,7 +786,7 @@ function ActivityDetailsPage() {
                 setCurrentActivity={setCurrentActivity}
               />
             )}
-            <ActivityCommentSection activity={currentActivity} />
+            {currentActivity && <ActivityCommentSection activity={currentActivity} />}
           </>
         )}
 
