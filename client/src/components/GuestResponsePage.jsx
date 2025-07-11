@@ -14,7 +14,13 @@ const fadeInNoTransform = keyframes`
 const FullScreenBackground = styled.div`
   min-height: 100vh;
   width: 100%;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background-image: linear-gradient(
+    to right,
+    #201925,    /* your base */
+    #251C2C,    /* your backgroundTwo */
+    #2a1e30,    /* your cardBackground */
+    #422151     /* purple2 */
+  ); 
   animation: ${fadeInNoTransform} 0.8s ease-in-out;
 `;
 

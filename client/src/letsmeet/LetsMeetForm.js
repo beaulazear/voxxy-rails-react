@@ -3,7 +3,7 @@ import React, { useState, useContext } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { UserContext } from '../context/user';
 import mixpanel from 'mixpanel-browser';
-import { Calendar, MessageSquare, Edit3 } from 'lucide-react';
+import { Calendar, MessageSquare, Edit3, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 const fadeIn = keyframes`
   from { 
@@ -90,7 +90,7 @@ const Subtitle = styled.p`
 `;
 
 const StepContent = styled.div`
-  padding: 1.5rem 2rem;
+  padding: 1.5rem;
   flex: 1;
   overflow-y: auto;
   
@@ -106,6 +106,10 @@ const StepContent = styled.div`
   &::-webkit-scrollbar-thumb {
     background: #cc31e8;
     border-radius: 2px;
+  }
+
+  @media (max-width: 420px) {
+    padding: 0.5rem;
   }
 `;
 
@@ -195,17 +199,22 @@ const Textarea = styled.textarea`
 
 const Tabs = styled.div`
   display: flex;
-  gap: 0.5rem;
+  gap: 0.25rem;
   margin-bottom: 1.5rem;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   padding: 0.25rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  @media (max-width: 480px) {
+    gap: 0.125rem;
+    padding: 0.125rem;
+  }
 `;
 
 const Tab = styled.button`
   flex: 1;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 0.75rem;
   background: ${({ $active }) =>
     $active
       ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)'
@@ -213,11 +222,16 @@ const Tab = styled.button`
   };
   color: ${({ $active }) => ($active ? 'white' : '#ccc')};
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.25rem;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
   transition: all 0.2s ease;
+  
+  @media (max-width: 480px) {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.75rem;
+  }
   
   &:hover:not(:disabled) {
     background: ${({ $active }) =>
@@ -234,15 +248,136 @@ const Tab = styled.button`
   }
 `;
 
-const OpenDatesMessage = styled.div`
-  background: rgba(204, 49, 232, 0.1);
-  border: 1px solid rgba(204, 49, 232, 0.3);
+const CalendarContainer = styled.div`
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
   padding: 1rem;
-  color: #ddd;
-  font-size: 0.9rem;
-  line-height: 1.4;
+  margin-top: 1rem;
+`;
+
+const CalendarHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+`;
+
+const CalendarNav = styled.button`
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  color: #fff;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const MonthYear = styled.div`
+  font-weight: 600;
+  color: #fff;
+  font-size: 1rem;
+`;
+
+const CalendarGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+`;
+
+const DayHeader = styled.div`
   text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #aaa;
+  padding: 0.5rem 0;
+`;
+
+const DayCell = styled.button`
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  background: ${({ $isSelected, $isInRange, $isToday, $isDisabled, $isRangeStart, $isRangeEnd }) => {
+    if ($isDisabled) return 'rgba(255, 255, 255, 0.02)';
+    if ($isSelected || $isRangeStart || $isRangeEnd) return 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)';
+    if ($isInRange) return 'rgba(204, 49, 232, 0.3)';
+    if ($isToday) return 'rgba(255, 255, 255, 0.1)';
+    return 'rgba(255, 255, 255, 0.05)';
+  }};
+  color: ${({ $isSelected, $isDisabled, $isRangeStart, $isRangeEnd }) => {
+    if ($isDisabled) return '#555';
+    if ($isSelected || $isRangeStart || $isRangeEnd) return '#fff';
+    return '#ccc';
+  }};
+  cursor: ${({ $isDisabled }) => ($isDisabled ? 'not-allowed' : 'pointer')};
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  
+  &:hover:not(:disabled) {
+    background: ${({ $isSelected, $isDisabled, $isRangeStart, $isRangeEnd }) => {
+    if ($isDisabled) return 'rgba(255, 255, 255, 0.02)';
+    if ($isSelected || $isRangeStart || $isRangeEnd) return 'linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%)';
+    return 'rgba(255, 255, 255, 0.1)';
+  }};
+    transform: ${({ $isDisabled }) => ($isDisabled ? 'none' : 'scale(1.05)')};
+  }
+`;
+
+const SelectedDatesList = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+`;
+
+const SelectedDate = styled.div`
+  background: rgba(204, 49, 232, 0.2);
+  border: 1px solid rgba(204, 49, 232, 0.4);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  color: #fff;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const RemoveDateButton = styled.button`
+  background: none;
+  border: none;
+  color: #cc31e8;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(204, 49, 232, 0.3);
+  }
+`;
+
+const ErrorMessage = styled.div`
+  background: rgba(255, 99, 132, 0.1);
+  border: 1px solid rgba(255, 99, 132, 0.3);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  color: #ff6384;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
 `;
 
 const ButtonRow = styled.div`
@@ -294,17 +429,6 @@ const Button = styled.button`
   }
 `;
 
-const DateGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-`;
-
 const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
@@ -322,10 +446,18 @@ export default function LetsMeetFormModal({ onClose }) {
   const [singleDate, setSingleDate] = useState('');
   const [rangeStart, setRangeStart] = useState('');
   const [rangeEnd, setRangeEnd] = useState('');
+  const [multipleDates, setMultipleDates] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  // Calendar state
+  const [calendarDate, setCalendarDate] = useState(new Date());
+  const [rangeStartTemp, setRangeStartTemp] = useState('');
 
   const totalSteps = 2;
   const percent = (step / totalSteps) * 100;
+
+  const today = new Date().toISOString().split('T')[0];
 
   const headers = [
     { title: "Tell us about your meeting", subtitle: "Basic information to help coordinate with your group." },
@@ -333,15 +465,136 @@ export default function LetsMeetFormModal({ onClose }) {
   ];
   const { title, subtitle } = headers[step - 1];
 
+  // Validation functions
+  const isDateValid = (dateStr) => {
+    if (!dateStr) return false;
+    return dateStr >= today;
+  };
+
+  const isDateRangeValid = (start, end) => {
+    if (!start || !end) return false;
+    if (start < today || end < today) return false;
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const diffTime = endDate - startDate;
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+    return diffDays >= 1;
+  };
+
+  // Calendar functions
+  const formatDate = (date) => {
+    return date.toISOString().split('T')[0];
+  };
+
+  const isSameDate = (date1, date2) => {
+    return formatDate(date1) === formatDate(date2);
+  };
+
+  const isDateInPast = (dateStr) => {
+    return dateStr < today;
+  };
+
+  const getDaysInMonth = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+
+    const days = [];
+
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(null);
+    }
+
+    // Add days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(new Date(year, month, day));
+    }
+
+    return days;
+  };
+
+  const handleCalendarDateClick = (date) => {
+    const dateStr = formatDate(date);
+
+    if (isDateInPast(dateStr)) return;
+
+    setError('');
+
+    if (tab === 'single') {
+      setSingleDate(dateStr);
+    } else if (tab === 'range') {
+      if (!rangeStartTemp) {
+        // First click - set start date
+        setRangeStartTemp(dateStr);
+        setRangeStart('');
+        setRangeEnd('');
+      } else if (dateStr === rangeStartTemp) {
+        // Clicking same date - clear selection
+        setRangeStartTemp('');
+        setRangeStart('');
+        setRangeEnd('');
+      } else {
+        // Second click - set range
+        const start = rangeStartTemp < dateStr ? rangeStartTemp : dateStr;
+        const end = rangeStartTemp < dateStr ? dateStr : rangeStartTemp;
+
+        if (isDateRangeValid(start, end)) {
+          setRangeStart(start);
+          setRangeEnd(end);
+          setRangeStartTemp('');
+        } else {
+          setError('Date range must be at least one day apart');
+        }
+      }
+    } else if (tab === 'multiple') {
+      const newDates = multipleDates.includes(dateStr)
+        ? multipleDates.filter(d => d !== dateStr)
+        : [...multipleDates, dateStr].sort();
+      setMultipleDates(newDates);
+    }
+  };
+
+  const removeMultipleDate = (dateToRemove) => {
+    setMultipleDates(multipleDates.filter(date => date !== dateToRemove));
+  };
+
   const dateNotes = () => {
     if (tab === 'single') return singleDate;
     if (tab === 'range') return `${rangeStart} to ${rangeEnd}`;
-    return 'open';
+    if (tab === 'multiple') return multipleDates.join(', ');
+    return '';
   };
 
   const handleNext = () => {
-    if (step < 2) return setStep(step + 1);
-    handleSubmit();
+    setError('');
+
+    if (step === 2) {
+      // Validate dates before submitting
+      if (tab === 'single' && !isDateValid(singleDate)) {
+        setError('Please select a valid date (today or in the future)');
+        return;
+      }
+      if (tab === 'range' && !isDateRangeValid(rangeStart, rangeEnd)) {
+        setError('Please select a valid date range (at least one day apart, not in the past)');
+        return;
+      }
+      if (tab === 'multiple' && multipleDates.length === 0) {
+        setError('Please select at least one date');
+        return;
+      }
+      if (tab === 'multiple' && multipleDates.some(date => isDateInPast(date))) {
+        setError('All selected dates must be today or in the future');
+        return;
+      }
+
+      handleSubmit();
+    } else {
+      setStep(step + 1);
+    }
   };
 
   const handleSubmit = async () => {
@@ -381,9 +634,102 @@ export default function LetsMeetFormModal({ onClose }) {
       onClose(data.id);
     } catch (err) {
       console.error(err);
-      alert('Oops, something went wrong.');
+      setError('Oops, something went wrong. Please try again.');
       setSubmitting(false);
     }
+  };
+
+  const handleTabChange = (newTab) => {
+    setTab(newTab);
+    setError('');
+    // Reset temporary range selection when switching tabs
+    setRangeStartTemp('');
+  };
+
+  const renderCalendar = () => {
+    const days = getDaysInMonth(calendarDate);
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    const isDateSelected = (date) => {
+      if (!date) return false;
+      const dateStr = formatDate(date);
+
+      if (tab === 'single') {
+        return dateStr === singleDate;
+      } else if (tab === 'range') {
+        return dateStr === rangeStart || dateStr === rangeEnd || dateStr === rangeStartTemp;
+      } else if (tab === 'multiple') {
+        return multipleDates.includes(dateStr);
+      }
+      return false;
+    };
+
+    const isDateInRange = (date) => {
+      if (!date || tab !== 'range') return false;
+      const dateStr = formatDate(date);
+
+      if (!rangeStart || !rangeEnd) return false;
+      return dateStr > rangeStart && dateStr < rangeEnd;
+    };
+
+    const isRangeStart = (date) => {
+      if (!date || tab !== 'range') return false;
+      const dateStr = formatDate(date);
+      return dateStr === rangeStart || dateStr === rangeStartTemp;
+    };
+
+    const isRangeEnd = (date) => {
+      if (!date || tab !== 'range') return false;
+      const dateStr = formatDate(date);
+      return dateStr === rangeEnd;
+    };
+
+    return (
+      <CalendarContainer>
+        <CalendarHeader>
+          <CalendarNav
+            onClick={() => setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() - 1))}
+          >
+            <ChevronLeft size={16} />
+          </CalendarNav>
+          <MonthYear>
+            {monthNames[calendarDate.getMonth()]} {calendarDate.getFullYear()}
+          </MonthYear>
+          <CalendarNav
+            onClick={() => setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1))}
+          >
+            <ChevronRight size={16} />
+          </CalendarNav>
+        </CalendarHeader>
+
+        <CalendarGrid>
+          {dayNames.map(day => (
+            <DayHeader key={day}>{day}</DayHeader>
+          ))}
+          {days.map((date, index) => (
+            <DayCell
+              key={index}
+              onClick={() => date && handleCalendarDateClick(date)}
+              $isSelected={isDateSelected(date)}
+              $isInRange={isDateInRange(date)}
+              $isRangeStart={isRangeStart(date)}
+              $isRangeEnd={isRangeEnd(date)}
+              $isToday={date && isSameDate(date, new Date())}
+              $isDisabled={!date || isDateInPast(formatDate(date))}
+              disabled={!date || isDateInPast(formatDate(date))}
+            >
+              {date ? date.getDate() : ''}
+            </DayCell>
+          ))}
+        </CalendarGrid>
+
+        {error && <ErrorMessage>{error}</ErrorMessage>}
+      </CalendarContainer>
+    );
   };
 
   return (
@@ -437,63 +783,48 @@ export default function LetsMeetFormModal({ onClose }) {
           {step === 2 && (
             <Section>
               <Tabs>
-                <Tab $active={tab === 'single'} onClick={() => setTab('single')}>
+                <Tab $active={tab === 'single'} onClick={() => handleTabChange('single')}>
                   Single Date
                 </Tab>
-                <Tab $active={tab === 'range'} onClick={() => setTab('range')}>
+                <Tab $active={tab === 'range'} onClick={() => handleTabChange('range')}>
                   Date Range
                 </Tab>
-                <Tab $active={tab === 'open'} onClick={() => setTab('open')}>
-                  Open Dates
+                <Tab $active={tab === 'multiple'} onClick={() => handleTabChange('multiple')}>
+                  Multiple Dates
                 </Tab>
               </Tabs>
 
-              {tab === 'single' && (
-                <FormGroup>
-                  <Label>
-                    <Calendar size={16} />
-                    Select Date
-                  </Label>
-                  <Input
-                    type="date"
-                    value={singleDate}
-                    onChange={e => setSingleDate(e.target.value)}
-                  />
-                </FormGroup>
-              )}
+              <FormGroup>
+                <Label>
+                  <Calendar size={16} />
+                  {tab === 'single' && 'Select Date'}
+                  {tab === 'range' && 'Select Date Range'}
+                  {tab === 'multiple' && 'Select Multiple Dates'}
+                </Label>
 
-              {tab === 'range' && (
-                <DateGrid>
-                  <FormGroup>
-                    <Label>
-                      <Calendar size={16} />
-                      Start Date
-                    </Label>
-                    <Input
-                      type="date"
-                      value={rangeStart}
-                      onChange={e => setRangeStart(e.target.value)}
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label>
-                      <Calendar size={16} />
-                      End Date
-                    </Label>
-                    <Input
-                      type="date"
-                      value={rangeEnd}
-                      onChange={e => setRangeEnd(e.target.value)}
-                    />
-                  </FormGroup>
-                </DateGrid>
-              )}
+                {tab === 'range' && rangeStart && rangeEnd && (
+                  <SelectedDatesList>
+                    <SelectedDate>
+                      {new Date(rangeStart).toLocaleDateString()} - {new Date(rangeEnd).toLocaleDateString()}
+                    </SelectedDate>
+                  </SelectedDatesList>
+                )}
 
-              {tab === 'open' && (
-                <OpenDatesMessage>
-                  Everyone can suggest their own times. You'll finalize later.
-                </OpenDatesMessage>
-              )}
+                {tab === 'multiple' && multipleDates.length > 0 && (
+                  <SelectedDatesList>
+                    {multipleDates.map((date) => (
+                      <SelectedDate key={date}>
+                        {new Date(date).toLocaleDateString()}
+                        <RemoveDateButton onClick={() => removeMultipleDate(date)}>
+                          <X size={12} />
+                        </RemoveDateButton>
+                      </SelectedDate>
+                    ))}
+                  </SelectedDatesList>
+                )}
+              </FormGroup>
+
+              {renderCalendar()}
             </Section>
           )}
         </StepContent>
@@ -512,7 +843,8 @@ export default function LetsMeetFormModal({ onClose }) {
               submitting ||
               (step === 1 && (!activityName.trim() || !welcomeMessage.trim())) ||
               (step === 2 && tab === 'single' && !singleDate) ||
-              (step === 2 && tab === 'range' && (!rangeStart || !rangeEnd))
+              (step === 2 && tab === 'range' && (!rangeStart || !rangeEnd)) ||
+              (step === 2 && tab === 'multiple' && multipleDates.length === 0)
             }
           >
             {step < 2 ? 'Next' : (submitting ? 'Saving...' : 'Finish')}
