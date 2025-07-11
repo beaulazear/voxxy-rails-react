@@ -19,7 +19,7 @@ export const PageContainer = styled.div`
   min-height: 100vh;
   padding: 1rem;
   padding-bottom: 40px;
-  padding-top: 20px;
+  padding-top: 30px;
   box-sizing: border-box;
   background-size: 400% 400%;
 background-image: linear-gradient(

@@ -580,8 +580,7 @@ export default function RestaurantChat({ onClose }) {
     if (hour >= 16 && hour < 22) {
       return 'dinner';
     }
-    // Covers 22–24 and 0–4
-    return 'late night cocktails';
+    return 'dinner';
   };
 
   const handleSubmit = async () => {
@@ -787,12 +786,6 @@ export default function RestaurantChat({ onClose }) {
                       onClick={() => setTimeOfDay('dinner')}
                     >
                       Dinner 🥘
-                    </TimeCard>
-                    <TimeCard
-                      selected={timeOfDay === 'late night cocktails'}
-                      onClick={() => setTimeOfDay('late night cocktails')}
-                    >
-                      Late Night Cocktails 🍸
                     </TimeCard>
                   </TimeCardContainer>
                 </div>

@@ -227,7 +227,7 @@ const HostName = styled.span`
 function ActivityDetailsPage() {
   const { user, setUser } = useContext(UserContext);
   const { activityId } = useParams();
-  const numericActivityId = parseInt(activityId, 10);
+  const navigate = useNavigate();
 
   const [refreshTrigger, setRefreshTrigger] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -235,11 +235,19 @@ function ActivityDetailsPage() {
   const [pinnedActivities, setPinnedActivities] = useState([]);
   const [pinned, setPinned] = useState([]);
 
-  const navigate = useNavigate();
-
   const topRef = useRef(null)
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
+  // Simple validation
+  const numericActivityId = parseInt(activityId, 10);
+
+  // If invalid ID, redirect to home
+  useEffect(() => {
+    if (!activityId || isNaN(numericActivityId)) {
+      navigate('/', { replace: true });
+    }
+  }, [activityId, numericActivityId, navigate]);
 
   const pendingInvite = user?.participant_activities?.find(
     p => p.activity.id === numericActivityId && !p.accepted
@@ -247,6 +255,8 @@ function ActivityDetailsPage() {
 
   //. turn this into a conditional only run it if the activity is lets meet or if the activity is marked true for user voting
   useEffect(() => {
+    if (isNaN(numericActivityId)) return;
+
     fetch(`${API_URL}/activities/${numericActivityId}/time_slots`, {
       method: 'GET',
       credentials: 'include',
@@ -255,10 +265,15 @@ function ActivityDetailsPage() {
       .then(res => res.json())
       .then(data => {
         setPinned(data);
+      })
+      .catch(error => {
+        console.error('Error fetching time slots:', error);
       });
   }, [numericActivityId, API_URL]);
 
   useEffect(() => {
+    if (isNaN(numericActivityId) || !user) return;
+
     const timer = setTimeout(() => {
       if (topRef.current) {
         topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -266,8 +281,8 @@ function ActivityDetailsPage() {
     }, 100);
 
     const latestActivity =
-      user.activities.find((act) => act.id === numericActivityId) ||
-      user.participant_activities.find((p) => p.activity.id === numericActivityId)?.activity;
+      user.activities?.find((act) => act.id === numericActivityId) ||
+      user.participant_activities?.find((p) => p.activity.id === numericActivityId)?.activity;
 
     if (latestActivity) {
       setCurrentActivity({ ...latestActivity });
@@ -288,6 +303,11 @@ function ActivityDetailsPage() {
   const handleBack = () => {
     navigate('/');
   };
+
+  // Show loading if invalid ID or no user
+  if (isNaN(numericActivityId) || !user) {
+    return <LoadingScreen />;
+  }
 
   const handleAcceptInvite = async () => {
     if (!pendingInvite) return;
@@ -364,7 +384,14 @@ function ActivityDetailsPage() {
     }
   };
 
-  if (!currentActivity) return <LoadingScreen />;
+  if (!currentActivity && !pendingInvite) {
+    return (
+      <div>
+        <h2>Activity not found</h2>
+        <button onClick={handleBack}>Go Back</button>
+      </div>
+    );
+  }
 
   const isOwner = user?.id === currentActivity?.user_id || user?.id === currentActivity?.user?.id;
 
@@ -605,15 +632,6 @@ function ActivityDetailsPage() {
       message.error("Failed to leave activity.");
     }
   };
-
-  if (!currentActivity && !pendingInvite) {
-    return (
-      <div>
-        <h2>Activity not found</h2>
-        <button onClick={handleBack}>Go Back</button>
-      </div>
-    );
-  }
 
   return (
     <>

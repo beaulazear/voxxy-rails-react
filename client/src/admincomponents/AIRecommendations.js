@@ -1,11 +1,12 @@
 // components/AIRecommendations.js
 import React, { useState, useContext } from "react";
+import styled from 'styled-components';
 import CuisineChat from "./CuisineChat";
 import BarChat from "../cocktails//BarChat";
 import LoadingScreenUser from "./LoadingScreenUser.js";
 import mixpanel from "mixpanel-browser";
 import { UserContext } from "../context/user";
-import { Users, Share, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, Cog, X, ExternalLink, MapPin, DollarSign, Globe, Zap, Calendar, Star } from 'lucide-react';
+import { Users, Share, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, X, ExternalLink, MapPin, DollarSign, Globe, Zap, Calendar, Star } from 'lucide-react';
 
 // Import all styled components from the styles file
 import {
@@ -29,12 +30,6 @@ import {
   SubmittedTitle,
   SubmittedText,
   ResubmitButton,
-  OrganizerSection,
-  OrganizerTitle,
-  ParticipantsList,
-  ParticipantItem,
-  ParticipantName,
-  ParticipantStatus,
   WarningBox,
   ErrorText,
   AvailabilitySection,
@@ -89,7 +84,6 @@ import {
   MapLoadingText,
   Button,
   ButtonRow,
-  FullWidthButton,
   ModalProgressContainer,
   ModalProgressBarContainer,
   ModalProgressBar,
@@ -176,6 +170,104 @@ const analyzeAvailability = (responses) => {
   });
 
   return { availabilityData, participantCount };
+};
+
+// New styled component for enhanced phase indicator with integrated button
+const EnhancedPhaseIndicator = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(20px);
+  gap: 1rem;
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+`;
+
+const PhaseIndicatorContent = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+`;
+
+const PhaseActionButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  }
+
+  @media (max-width: 767px) {
+    width: 100%;
+    justify-content: center;
+  }
+`;
+
+// Truncated review component
+const TruncatedReview = ({ review, maxLength = 150 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const shouldTruncate = review.text && review.text.length > maxLength;
+
+  const displayText = shouldTruncate && !isExpanded
+    ? review.text.substring(0, maxLength) + '...'
+    : review.text;
+
+  return (
+    <ReviewItem>
+      <ReviewHeader>
+        <ReviewAuthor>{review.author_name || 'Anonymous'}</ReviewAuthor>
+        <ReviewRating>
+          {review.rating && (
+            <>
+              <Star size={14} fill="currentColor" />
+              {review.rating}/5
+            </>
+          )}
+        </ReviewRating>
+      </ReviewHeader>
+      <ReviewText style={{ textAlign: 'left' }}>
+        {displayText}
+        {shouldTruncate && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#667eea',
+              cursor: 'pointer',
+              fontWeight: '600',
+              marginLeft: '0.5rem',
+              padding: 0,
+              textDecoration: 'underline'
+            }}
+          >
+            {isExpanded ? 'Show less' : 'Show more'}
+          </button>
+        )}
+      </ReviewText>
+    </ReviewItem>
+  );
 };
 
 const AvailabilityDisplay = ({ responses, activity }) => {
@@ -350,27 +442,6 @@ export default function AIRecommendations({
     });
   });
   const votingRate = (participantsWithVotes.size / totalParticipants) * 100;
-
-  const hasParticipantSubmitted = (participant) => {
-    if (participant.user_id) {
-      return responses.some(r => r.user_id === participant.user_id);
-    }
-    if (participant.invited_email) {
-      return responses.some(r => r.email === participant.invited_email);
-    }
-    return false;
-  };
-
-  const getParticipantDisplayName = (participant) => {
-    if (participant.user_id && participant.name) {
-      return participant.name;
-    }
-    return participant.invited_email || participant.email || 'Unknown';
-  };
-
-  const isGuestParticipant = (participant) => {
-    return !participant.user_id && participant.invited_email;
-  };
 
   const handleStartChat = () => {
     if (process.env.NODE_ENV === "production" && user) {
@@ -600,61 +671,31 @@ export default function AIRecommendations({
 
         {error && <ErrorText>{error}</ErrorText>}
 
-        <PhaseIndicator>
-          <PhaseIcon><HelpCircle size={24} /></PhaseIcon>
-          <PhaseContent>
-            <PhaseTitle>Group Status</PhaseTitle>
-            <PhaseSubtitle>
-              {responses.length}/{totalParticipants} participants have submitted
-              {activity.allow_participant_time_selection && " preferences & availability"}
-            </PhaseSubtitle>
-          </PhaseContent>
-        </PhaseIndicator>
+        <EnhancedPhaseIndicator>
+          <PhaseIndicatorContent>
+            <PhaseIcon><HelpCircle size={24} /></PhaseIcon>
+            <PhaseContent>
+              <PhaseTitle>Group Status</PhaseTitle>
+              <PhaseSubtitle>
+                {responses.length}/{totalParticipants} participants have submitted
+                {activity.allow_participant_time_selection && " preferences & availability"}
+              </PhaseSubtitle>
+            </PhaseContent>
+          </PhaseIndicatorContent>
+
+          {isOwner && (
+            <PhaseActionButton onClick={() => setShowMoveToVotingModal(true)}>
+              <Vote size={20} />
+              Move to Voting Phase
+            </PhaseActionButton>
+          )}
+        </EnhancedPhaseIndicator>
 
         <ProgressBarContainer>
           <ProgressBar $percent={responseRate} />
         </ProgressBarContainer>
 
         <AvailabilityDisplay responses={responses} activity={activity} />
-
-        {isOwner && (
-          <OrganizerSection>
-            <OrganizerTitle><Cog size={20} style={{ marginBottom: '4px' }} /> Organizer Controls</OrganizerTitle>
-            <ParticipantsList>
-              <ParticipantItem>
-                <ParticipantName>
-                  {activity.organizer?.name || user?.name || 'You'} (Organizer)
-                </ParticipantName>
-                <ParticipantStatus $submitted={currentUserResponse !== null}>
-                  {currentUserResponse ? <CheckCircle size={16} /> : <Clock size={16} />}
-                  {currentUserResponse ? 'Submitted' : 'Waiting'}
-                </ParticipantStatus>
-              </ParticipantItem>
-
-              {allParticipants.map((participant, index) => {
-                const hasSubmitted = hasParticipantSubmitted(participant);
-                const displayName = getParticipantDisplayName(participant);
-                const isGuest = isGuestParticipant(participant);
-
-                return (
-                  <ParticipantItem key={index}>
-                    <ParticipantName $isGuest={isGuest}>
-                      {displayName} {isGuest && '(guest)'}
-                    </ParticipantName>
-                    <ParticipantStatus $submitted={hasSubmitted}>
-                      {hasSubmitted ? <CheckCircle size={16} /> : <Clock size={16} />}
-                      {hasSubmitted ? 'Submitted' : 'Waiting'}
-                    </ParticipantStatus>
-                  </ParticipantItem>
-                );
-              })}
-            </ParticipantsList>
-            <FullWidthButton $primary onClick={() => setShowMoveToVotingModal(true)}>
-              <Vote size={20} />
-              Move to Voting Phase
-            </FullWidthButton>
-          </OrganizerSection>
-        )}
 
         {user && !currentUserResponse ? (
           <PreferencesCard>
@@ -767,58 +808,28 @@ export default function AIRecommendations({
           <Heading>{activityText.votingTitle}</Heading>
         </TopBar>
 
-        <PhaseIndicator>
-          <PhaseIcon><Vote size={24} /></PhaseIcon>
-          <PhaseContent>
-            <PhaseTitle>Voting Phase</PhaseTitle>
-            <PhaseSubtitle>{participantsWithVotes.size}/{totalParticipants} participants have voted. After everyone has voted, your organizer can finalize the activity plans. ✨</PhaseSubtitle>
-          </PhaseContent>
-        </PhaseIndicator>
+        <EnhancedPhaseIndicator>
+          <PhaseIndicatorContent>
+            <PhaseIcon><Vote size={24} /></PhaseIcon>
+            <PhaseContent>
+              <PhaseTitle>Voting Phase</PhaseTitle>
+              <PhaseSubtitle>{participantsWithVotes.size}/{totalParticipants} participants have voted. After everyone has voted, your organizer can finalize the activity plans. ✨</PhaseSubtitle>
+            </PhaseContent>
+          </PhaseIndicatorContent>
+
+          {isOwner && (
+            <PhaseActionButton onClick={onEdit}>
+              <Flag size={20} />
+              Finalize Activity
+            </PhaseActionButton>
+          )}
+        </EnhancedPhaseIndicator>
 
         <ProgressBarContainer>
           <ProgressBar $percent={votingRate} />
         </ProgressBarContainer>
 
         {error && <ErrorText>{error}</ErrorText>}
-
-        {isOwner && (
-          <OrganizerSection>
-            <OrganizerTitle><Cog style={{ marginBottom: '4px' }} size={20} /> Organizer Controls</OrganizerTitle>
-            <ParticipantsList>
-              <ParticipantItem>
-                <ParticipantName>
-                  {activity.organizer?.name || user?.name || 'You'} (Organizer)
-                </ParticipantName>
-                <ParticipantStatus $submitted={Array.from(participantsWithVotes).includes(user?.id)}>
-                  {Array.from(participantsWithVotes).includes(user?.id) ? <CheckCircle size={16} /> : <Clock size={16} />}
-                  {Array.from(participantsWithVotes).includes(user?.id) ? 'Voted' : 'Waiting'}
-                </ParticipantStatus>
-              </ParticipantItem>
-
-              {allParticipants.map((participant, index) => {
-                const hasVoted = participant.user_id && Array.from(participantsWithVotes).includes(participant.user_id);
-                const displayName = getParticipantDisplayName(participant);
-                const isGuest = isGuestParticipant(participant);
-
-                return (
-                  <ParticipantItem key={index}>
-                    <ParticipantName $isGuest={isGuest}>
-                      {displayName} {isGuest && '(guest - cannot vote)'}
-                    </ParticipantName>
-                    <ParticipantStatus $submitted={hasVoted}>
-                      {hasVoted ? <CheckCircle size={16} /> : <Clock size={16} />}
-                      {hasVoted ? 'Voted' : 'Waiting'}
-                    </ParticipantStatus>
-                  </ParticipantItem>
-                );
-              })}
-            </ParticipantsList>
-            <FullWidthButton $primary onClick={onEdit}>
-              <Flag size={20} />
-              Finalize Activity
-            </FullWidthButton>
-          </OrganizerSection>
-        )}
 
         <RecommendationsList>
           {[...pinnedActivities]
@@ -988,7 +999,7 @@ export default function AIRecommendations({
                   );
                 })()}
 
-                {/* Reviews section */}
+                {/* Reviews section with truncation */}
                 {(() => {
                   const reviews = safeJsonParse(selectedRec.reviews, []);
                   return reviews.length > 0 && (
@@ -999,20 +1010,7 @@ export default function AIRecommendations({
                       </SectionHeader>
                       <ReviewsContainer>
                         {reviews.slice(0, 3).map((review, i) => (
-                          <ReviewItem key={i}>
-                            <ReviewHeader>
-                              <ReviewAuthor>{review.author_name || 'Anonymous'}</ReviewAuthor>
-                              <ReviewRating>
-                                {review.rating && (
-                                  <>
-                                    <Star size={14} fill="currentColor" />
-                                    {review.rating}/5
-                                  </>
-                                )}
-                              </ReviewRating>
-                            </ReviewHeader>
-                            <ReviewText>{review.text}</ReviewText>
-                          </ReviewItem>
+                          <TruncatedReview key={i} review={review} />
                         ))}
                       </ReviewsContainer>
                     </Section>
@@ -1210,7 +1208,7 @@ export default function AIRecommendations({
                   );
                 })()}
 
-                {/* Reviews section for finalized view */}
+                {/* Reviews section for finalized view with truncation */}
                 {(() => {
                   const reviews = safeJsonParse(selectedRec.reviews, []);
                   return reviews.length > 0 && (
@@ -1221,20 +1219,7 @@ export default function AIRecommendations({
                       </SectionHeader>
                       <ReviewsContainer>
                         {reviews.slice(0, 3).map((review, i) => (
-                          <ReviewItem key={i}>
-                            <ReviewHeader>
-                              <ReviewAuthor>{review.author_name || 'Anonymous'}</ReviewAuthor>
-                              <ReviewRating>
-                                {review.rating && (
-                                  <>
-                                    <Star size={14} fill="currentColor" />
-                                    {review.rating}/5
-                                  </>
-                                )}
-                              </ReviewRating>
-                            </ReviewHeader>
-                            <ReviewText>{review.text}</ReviewText>
-                          </ReviewItem>
+                          <TruncatedReview key={i} review={review} />
                         ))}
                       </ReviewsContainer>
                     </Section>

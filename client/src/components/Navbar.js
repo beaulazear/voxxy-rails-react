@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { Menu, ArrowLeft, X } from 'lucide-react';
 import { UserContext } from '../context/user';
 import colors from '../styles/Colors';
@@ -18,16 +18,58 @@ function useIsMobile() {
   return isMobile;
 }
 
+// Animations
+const slideDown = keyframes`
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+`;
+
+const slideInRight = keyframes`
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+`;
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
 const StyledNav = styled.nav`
   width: 100%;
-  border-bottom: 1px solid;
-  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   position: fixed;
   top: 0;
   z-index: 50;
-  transition: background 0.2s ease;
-  background-color: ${({ $scrolled }) =>
-    $scrolled ? `rgba(32, 25, 37, 0.95)` : `rgba(32, 25, 37, 0.8)`};
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  animation: ${slideDown} 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+  background: ${({ $scrolled }) =>
+    $scrolled
+      ? `linear-gradient(135deg, rgba(32, 25, 37, 0.95) 0%, rgba(45, 35, 55, 0.95) 100%)`
+      : `linear-gradient(135deg, rgba(32, 25, 37, 0.8) 0%, rgba(45, 35, 55, 0.8) 100%)`
+  };
+  box-shadow: ${({ $scrolled }) =>
+    $scrolled
+      ? `0 10px 40px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)`
+      : `0 4px 20px rgba(0, 0, 0, 0.1)`
+  };
 `;
 
 const NavContainer = styled.div`
@@ -47,11 +89,17 @@ const LogoLink = styled(Link)`
   display: flex;
   align-items: center;
   text-decoration: none;
+  transition: transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  
+  &:hover {
+    transform: scale(1.05);
+  }
 `;
 
 const LogoImage = styled.img`
   height: 36px;
   width: auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
   @media (max-width: 480px) {
     height: 30px;
   }
@@ -62,48 +110,113 @@ const DesktopNav = styled.div`
   @media (min-width: 768px) {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 8px;
   }
 `;
 
 const NavLinkItem = styled(Link)`
-  padding: 8px 12px;
+  padding: 8px 16px;
   font-size: 0.875rem;
   font-weight: 500;
   color: ${colors.textSecondary};
   text-decoration: none;
-  border-radius: 4px;
-  transition: color 0.2s ease;
+  border-radius: 8px;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(157, 96, 248, 0.1) 0%, rgba(157, 96, 248, 0.05) 100%);
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+  
   &:hover {
     color: ${colors.primaryButton};
+    transform: translateY(-1px);
+    
+    &::before {
+      opacity: 1;
+    }
   }
 `;
 
 const SolidButton = styled(Link)`
-  padding: 8px 16px;
+  padding: 8px 20px;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   text-decoration: none;
-  border-radius: 4px;
-  background-color: ${colors.primaryButton};
+  border-radius: 12px;
+  background: linear-gradient(135deg, ${colors.primaryButton} 0%, #b865f7 100%);
   color: ${colors.textPrimary};
-  transition: background-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(157, 96, 248, 0.3);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, ${colors.hoverHighlight} 0%, #c975f8 100%);
+    opacity: 0;
+    transition: opacity 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+  
   &:hover {
-    background-color: ${colors.hoverHighlight};
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(157, 96, 248, 0.4);
+    
+    &::before {
+      opacity: 1;
+    }
   }
 `;
 
 const OutlineButton = styled(Link)`
-  padding: 8px 16px;
+  padding: 8px 20px;
   font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
-  border: .1px solid;
-  border-radius: 4px;
+  border: 1.5px solid ${colors.primarySolid};
+  border-radius: 12px;
   color: ${colors.primarySolid};
-  transition: background-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  background: transparent;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(157, 96, 248, 0.1) 0%, rgba(157, 96, 248, 0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+  
   &:hover {
-    background-color: rgba(157, 96, 248, 0.1);
+    transform: translateY(-1px);
+    border-color: ${colors.primaryButton};
+    color: ${colors.primaryButton};
+    box-shadow: 0 4px 15px rgba(157, 96, 248, 0.2);
+    
+    &::before {
+      opacity: 1;
+    }
   }
 `;
 
@@ -114,6 +227,16 @@ const MobileMenuButton = styled.button`
   display: flex;
   align-items: center;
   cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  
+  &:hover {
+    background: rgba(157, 96, 248, 0.1);
+    color: ${colors.primaryButton};
+    transform: scale(1.05);
+  }
+  
   @media (min-width: 768px) {
     display: none;
   }
@@ -123,15 +246,31 @@ const MobileMenuOverlay = styled.div`
   position: fixed;
   top: 0;
   right: 0;
-  width: 60%;
-  height: 100%;
-  background-color: rgba(32, 25, 37, 0.95);
-  backdrop-filter: blur(8px);
+  width: 75%;
+  max-width: 320px;
+  height: 100vh;
+  background: linear-gradient(135deg, rgba(32, 25, 37, 0.98) 0%, rgba(45, 35, 55, 0.98) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   z-index: 60;
   padding: 2rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  animation: ${slideInRight} 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const MobileMenuBackdrop = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 55;
+  animation: ${fadeIn} 0.3s ease-out;
 `;
 
 const MobileMenuCloseButton = styled.button`
@@ -140,6 +279,33 @@ const MobileMenuCloseButton = styled.button`
   border: none;
   color: ${colors.textSecondary};
   cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  
+  &:hover {
+    background: rgba(157, 96, 248, 0.1);
+    color: ${colors.primaryButton};
+    transform: scale(1.05);
+  }
+`;
+
+const MobileNavLinkItem = styled(Link)`
+  padding: 12px 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: ${colors.textSecondary};
+  text-decoration: none;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  border: 1px solid transparent;
+  
+  &:hover {
+    color: ${colors.primaryButton};
+    background: rgba(157, 96, 248, 0.1);
+    border-color: rgba(157, 96, 248, 0.2);
+    transform: translateX(4px);
+  }
 `;
 
 export default function Navbar() {
@@ -157,6 +323,19 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (showMobileNav) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showMobileNav]);
 
   const handleLogout = () => {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -235,47 +414,50 @@ export default function Navbar() {
       </StyledNav>
 
       {showMobileNav && (
-        <MobileMenuOverlay>
-          <MobileMenuCloseButton onClick={() => setShowMobileNav(false)}>
-            <X size={24} />
-          </MobileMenuCloseButton>
-          {isAdmin && (
-            <NavLinkItem to="/voxxyad" onClick={() => setShowMobileNav(false)}>
-              Admin
-            </NavLinkItem>
-          )}
-          {user ? (
-            <>
-              <NavLinkItem to="/dashboard" onClick={() => setShowMobileNav(false)}>
-                Dashboard
-              </NavLinkItem>
-              <NavLinkItem to="/faq" onClick={() => setShowMobileNav(false)}>
-                Help Center
-              </NavLinkItem>
-              <NavLinkItem to="/profile" onClick={() => setShowMobileNav(false)}>
-                Profile
-              </NavLinkItem>
-              <NavLinkItem to="/logout" onClick={handleLogout}>
-                Log Out
-              </NavLinkItem>
-            </>
-          ) : (
-            <>
-              <NavLinkItem to="/try-voxxy" onClick={() => setShowMobileNav(false)}>
-                Try Voxxy
-              </NavLinkItem>
-              <NavLinkItem to="/blogs" onClick={() => setShowMobileNav(false)}>
-                Blogs
-              </NavLinkItem>
-              <NavLinkItem to="/login" onClick={() => setShowMobileNav(false)}>
-                Log In
-              </NavLinkItem>
-              <NavLinkItem to="/signup" onClick={() => setShowMobileNav(false)}>
-                Sign Up
-              </NavLinkItem>
-            </>
-          )}
-        </MobileMenuOverlay>
+        <>
+          <MobileMenuBackdrop onClick={() => setShowMobileNav(false)} />
+          <MobileMenuOverlay>
+            <MobileMenuCloseButton onClick={() => setShowMobileNav(false)}>
+              <X size={24} />
+            </MobileMenuCloseButton>
+            {isAdmin && (
+              <MobileNavLinkItem to="/voxxyad" onClick={() => setShowMobileNav(false)}>
+                Admin
+              </MobileNavLinkItem>
+            )}
+            {user ? (
+              <>
+                <MobileNavLinkItem to="/dashboard" onClick={() => setShowMobileNav(false)}>
+                  Dashboard
+                </MobileNavLinkItem>
+                <MobileNavLinkItem to="/faq" onClick={() => setShowMobileNav(false)}>
+                  Help Center
+                </MobileNavLinkItem>
+                <MobileNavLinkItem to="/profile" onClick={() => setShowMobileNav(false)}>
+                  Profile
+                </MobileNavLinkItem>
+                <MobileNavLinkItem to="/logout" onClick={handleLogout}>
+                  Log Out
+                </MobileNavLinkItem>
+              </>
+            ) : (
+              <>
+                <MobileNavLinkItem to="/try-voxxy" onClick={() => setShowMobileNav(false)}>
+                  Try Voxxy
+                </MobileNavLinkItem>
+                <MobileNavLinkItem to="/blogs" onClick={() => setShowMobileNav(false)}>
+                  Blogs
+                </MobileNavLinkItem>
+                <MobileNavLinkItem to="/login" onClick={() => setShowMobileNav(false)}>
+                  Log In
+                </MobileNavLinkItem>
+                <MobileNavLinkItem to="/signup" onClick={() => setShowMobileNav(false)}>
+                  Sign Up
+                </MobileNavLinkItem>
+              </>
+            )}
+          </MobileMenuOverlay>
+        </>
       )}
     </>
   );

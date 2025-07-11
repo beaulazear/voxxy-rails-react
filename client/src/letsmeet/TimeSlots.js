@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
-import { Users, Share, Clock, CheckCircle, Flag, Calendar, X, UserCheck, Brain, Star, TrendingUp } from 'lucide-react';
+import { Users, Share, CheckCircle, Flag, Calendar, X, UserCheck, Brain, Star, TrendingUp } from 'lucide-react';
 import LetsMeetScheduler from './LetsMeetScheduler';
 import LoadingScreenUser from "../admincomponents/LoadingScreenUser";
 import { UserContext } from "../context/user";
