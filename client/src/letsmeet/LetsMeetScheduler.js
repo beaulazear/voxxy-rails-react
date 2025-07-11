@@ -509,9 +509,8 @@ export default function LetsMeetScheduler({
         }
     };
 
-    const canSubmit = selectedDates.length > 0 && Object.values(slotsByDate).some(times => times.length > 0);
+    const canSubmit = (dateSelectionType === 'single' || selectedDates.length > 0) && Object.values(slotsByDate).some(times => times.length > 0);
 
-    // Show confirmation only if response was submitted AND this is not an update
     if (responseSubmitted && !isUpdate) {
         return (
             <ModalOverlay>
