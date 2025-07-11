@@ -4,7 +4,7 @@ import styled, { keyframes } from 'styled-components';
 import CuisineChat from "../admincomponents/CuisineChat";
 import LetsMeetScheduler from "../letsmeet/LetsMeetScheduler";
 import LoadingScreenUser from "../admincomponents/LoadingScreenUser.js";
-import { HelpCircle, CheckCircle, BookHeart, AlertCircle, ArrowRight, Calendar } from 'lucide-react';
+import { HelpCircle, CheckCircle, BookHeart, AlertCircle, ArrowRight, Calendar, MessageSquare } from 'lucide-react';
 
 const fadeInNoTransform = keyframes`
   from { opacity: 0; }
@@ -47,7 +47,6 @@ const Heading = styled.h1`
   margin: 0 0 0.5rem 0;
   background: #fff;
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
 `;
 
@@ -74,6 +73,29 @@ const ActivityName = styled.h2`
   color: #fff;
   font-family: 'Montserrat', sans-serif;
   text-align: center;
+`;
+
+const WelcomeMessage = styled.div`
+  background: rgba(255, 193, 7, 0.1);
+  border-left: 4px solid #ffc107;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0 0.5rem 0.5rem 0;
+`;
+
+const WelcomeMessageFrom = styled.p`
+  color: #ffb74d;
+  font-size: 0.8rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+`;
+
+const WelcomeMessageText = styled.p`
+  color: #ffd54f;
+  font-size: 0.95rem;
+  margin: 0;
+  font-style: italic;
+  line-height: 1.5;
 `;
 
 const ActivityDetails = styled.div`
@@ -263,6 +285,16 @@ export default function GuestResponsePage() {
 
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
+  const getActivityTypeInfo = (activityType) => {
+    const activityTypes = {
+      'Restaurant': { emoji: '🍜', description: 'Schedule your next group meal together.' },
+      'Cocktails': { emoji: '🍸', description: 'Plan your perfect night out with friends.' },
+      'Meeting': { emoji: '⏰', description: 'Find a time that works for everyone.' }
+    };
+
+    return activityTypes[activityType] || { emoji: '🎉', description: 'Join this activity!' };
+  };
+
   const fetchGuestData = useCallback(async () => {
     try {
       const response = await fetch(`${API_URL}/activities/${activityId}/respond/${token}`);
@@ -350,23 +382,34 @@ export default function GuestResponsePage() {
     );
   }
 
+  const activityInfo = getActivityTypeInfo(activity.activity_type);
+
   return (
     <FullScreenBackground>
       <Container>
         <TopBar>
           <Heading>
-            {activity?.activity_type === 'Meeting' ? '👥 You\'re Invited to Meet!' : '🍽️ You\'re Invited!'}
+            {activityInfo.emoji} You're Invited!
           </Heading>
           <Subheading>
-            {activity?.activity_type === 'Meeting'
-              ? 'Share your availability for the group'
-              : 'Submit your food preferences for the group'
-            }
+            {activityInfo.description}
           </Subheading>
         </TopBar>
 
         <ActivityCard>
           <ActivityName>{activity.activity_name}</ActivityName>
+
+          {activity.welcome_message && (
+            <WelcomeMessage>
+              <WelcomeMessageFrom>
+                Message from {activity.organizer_name || activity.created_by_name || 'the organizer'}:
+              </WelcomeMessageFrom>
+              <WelcomeMessageText>
+                "{activity.welcome_message}"
+              </WelcomeMessageText>
+            </WelcomeMessage>
+          )}
+
           <ActivityDetails>
             {activity.activity_location && (
               <ActivityDetail>
@@ -391,21 +434,21 @@ export default function GuestResponsePage() {
               Response Submitted Successfully! 🎉
             </SubmittedTitle>
             <SubmittedText>
-              Thank you for submitting your {activity?.activity_type === 'Meeting' ? 'availability' : 'preferences'}! The organizer will gather everyone's responses and send you the final {activity?.activity_type === 'Meeting' ? 'meeting details' : 'restaurant options'} soon.
+              Thank you for submitting your {activity?.activity_type === 'Meeting' ? 'availability' : 'preferences'}! The organizer will gather everyone's responses and send you the final {activity?.activity_type === 'Meeting' ? 'meeting details' : 'plans'} soon.
             </SubmittedText>
           </SubmittedCard>
         )}
 
         {!existingResponse && !submissionSuccess ? (
           <PreferencesCard>
-            {activity.activity_type === 'Restaurant' && (
+            {(activity.activity_type === 'Restaurant' || activity.activity_type === 'Cocktails') && (
               <>
                 <PreferencesIcon>
                   <BookHeart size={48} />
                 </PreferencesIcon>
-                <PreferencesTitle>Submit Your Food Preferences!</PreferencesTitle>
+                <PreferencesTitle>Submit Your Preferences!</PreferencesTitle>
                 <PreferencesText>
-                  Help the group find the perfect restaurant by sharing your cuisine preferences, dietary needs, and budget.
+                  Help the group find the perfect {activity.activity_type === 'Restaurant' ? 'restaurant' : 'night out'} by sharing your preferences, dietary needs, and budget.
                 </PreferencesText>
                 <PreferencesButton onClick={handleStartChat}>
                   <HelpCircle size={20} />
@@ -423,12 +466,11 @@ export default function GuestResponsePage() {
                   Help the group find the perfect time to meet by sharing your availability.
                 </PreferencesText>
                 <PreferencesButton onClick={handleStartChat}>
-                  <HelpCircle size={20} />
-                  Start Preferences Quiz
+                  <Calendar size={20} />
+                  Share Availability
                 </PreferencesButton>
               </>
             )}
-
           </PreferencesCard>
         ) : existingResponse && !submissionSuccess ? (
           <SubmittedCard>
@@ -437,11 +479,11 @@ export default function GuestResponsePage() {
               Thank you for your response!
             </SubmittedTitle>
             <SubmittedText>
-              You've already submitted your preferences. The organizer will send final details once everyone has responded. You can update your preferences if needed.
+              You've already submitted your {activity?.activity_type === 'Lets Meet' ? 'availability' : 'preferences'}. The organizer will send final details once everyone has responded. You can update your response if needed.
             </SubmittedText>
             <ResubmitButton onClick={handleStartChat}>
-              <HelpCircle size={18} />
-              Update Preferences
+              <MessageSquare size={18} />
+              Update Response
             </ResubmitButton>
           </SubmittedCard>
         ) : null}
@@ -457,7 +499,7 @@ export default function GuestResponsePage() {
         {showChat && (
           <>
             <DimOverlay onClick={() => setShowChat(false)} />
-            {activity?.activity_type === 'Meeting' ? (
+            {activity?.activity_type === 'Lets Meet' ? (
               <LetsMeetScheduler
                 activityId={activityId}
                 currentActivity={activity}

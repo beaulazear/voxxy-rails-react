@@ -28,11 +28,23 @@ class InviteUserService
 
   private
 
+  def self.get_activity_type_info(activity_type)
+    activity_types = {
+      "Restaurant" => { emoji: "\u{1F35C}", description: "Schedule your next group meal together." },
+      "Cocktails" => { emoji: "\u{1F378}", description: "Plan your perfect night out with friends." },
+      "Meeting" => { emoji: "\u23F0", description: "Find a time that works for everyone." }
+    }
+
+    activity_types[activity_type] || { emoji: "\u{1F389}", description: "Join this activity!" }
+  end
+
   def self.send_new_user_invite(email, activity, inviter, participant)
     frontend_host = ENV.fetch("APP_BASE_URL", Rails.env.production? ? "https://voxxyai.com" : "http://localhost:3000")
 
     response_link = "#{frontend_host}#/activities/#{activity.id}/respond/#{participant.guest_response_token}"
     signup_link = "#{frontend_host}#/invite_signup?invited_email=#{email}&activity_id=#{activity.id}"
+
+    activity_info = get_activity_type_info(activity.activity_type)
 
     subject = "#{inviter.name} invited you to #{activity.activity_name}!"
     content = <<~HTML
@@ -54,9 +66,28 @@ class InviteUserService
               </h1>
       #{'        '}
               <!-- Subtitle -->
-              <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 16px; color: #718096; margin: 0 0 35px 0; line-height: 1.5;">
+              <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 16px; color: #718096; margin: 0 0 20px 0; line-height: 1.5;">
                 <strong style="color: #2d3748;">#{inviter.name}</strong> wants you to join <strong style="color: #2d3748;">#{activity.activity_name}</strong> on Voxxy
               </p>
+
+              <!-- Activity Type -->
+              <div style="background-color: #f0f4ff; border-radius: 8px; padding: 15px; margin-bottom: 25px;">
+                <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 14px; color: #4c51bf; margin: 0; font-weight: 500;">
+                  #{activity_info[:emoji]} #{activity_info[:description]}
+                </p>
+              </div>
+
+              #{activity.welcome_message.present? ? "
+              <!-- Welcome Message -->
+              <div style=\"background-color: #fefcbf; border-left: 4px solid #f6e05e; padding: 20px; margin-bottom: 25px; text-align: left;\">
+                <p style=\"font-family: 'Montserrat', Arial, sans-serif; font-size: 13px; color: #b45309; margin: 0 0 8px 0; font-weight: 600;\">
+                  Message from #{inviter.name}:
+                </p>
+                <p style=\"font-family: 'Montserrat', Arial, sans-serif; font-size: 15px; color: #744210; margin: 0; line-height: 1.5; font-style: italic;\">
+                  &ldquo;#{activity.welcome_message}&rdquo;
+                </p>
+              </div>
+              " : ""}
 
               <!-- Main CTA Section -->
               <div style="background-color: #f7fafc; border: 2px solid #9D60F8; border-radius: 12px; padding: 30px; margin-bottom: 25px;">
@@ -102,6 +133,8 @@ class InviteUserService
     response_link = "#{frontend_host}#/activities/#{activity.id}/respond/#{participant.guest_response_token}"
     login_link = "#{frontend_host}#/login?redirect=boards"
 
+    activity_info = get_activity_type_info(activity.activity_type)
+
     subject = "#{inviter.name} invited you to #{activity.activity_name}!"
     content = <<~HTML
       <html>
@@ -122,9 +155,28 @@ class InviteUserService
               </h1>
       #{'        '}
               <!-- Subtitle -->
-              <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 16px; color: #718096; margin: 0 0 35px 0; line-height: 1.5;">
+              <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 16px; color: #718096; margin: 0 0 20px 0; line-height: 1.5;">
                 <strong style="color: #2d3748;">#{inviter.name}</strong> invited you to join <strong style="color: #2d3748;">#{activity.activity_name}</strong>
               </p>
+
+              <!-- Activity Type -->
+              <div style="background-color: #f0f4ff; border-radius: 8px; padding: 15px; margin-bottom: 25px;">
+                <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 14px; color: #4c51bf; margin: 0; font-weight: 500;">
+                  #{activity_info[:emoji]} #{activity_info[:description]}
+                </p>
+              </div>
+
+              #{activity.welcome_message.present? ? "
+              <!-- Welcome Message -->
+              <div style=\"background-color: #fefcbf; border-left: 4px solid #f6e05e; padding: 20px; margin-bottom: 25px; text-align: left;\">
+                <p style=\"font-family: 'Montserrat', Arial, sans-serif; font-size: 13px; color: #b45309; margin: 0 0 8px 0; font-weight: 600;\">
+                  Message from #{inviter.name}:
+                </p>
+                <p style=\"font-family: 'Montserrat', Arial, sans-serif; font-size: 15px; color: #744210; margin: 0; line-height: 1.5; font-style: italic;\">
+                  &ldquo;#{activity.welcome_message}&rdquo;
+                </p>
+              </div>
+              " : ""}
 
               <!-- Main CTA Section -->
               <div style="background-color: #f7fafc; border: 2px solid #9D60F8; border-radius: 12px; padding: 30px; margin-bottom: 25px;">
