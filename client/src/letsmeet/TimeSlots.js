@@ -27,30 +27,6 @@ import {
   SubmittedText,
   ResubmitButton,
   ErrorText,
-  AISection,
-  AITitle,
-  RecommendationCard,
-  RecommendationHeader,
-  RecommendationTitle,
-  ParticipantCount,
-  RecommendationReason,
-  ProsCons,
-  ProsConsSection,
-  ProsConsTitle,
-  ProsConsList,
-  ProsConsItem,
-  TimeSlotsList,
-  TimeSlotCard,
-  SelectedBadge,
-  RecommendedBadge,
-  TimeSlotHeader,
-  TimeSlotDate,
-  TimeSlotTime,
-  TimeSlotActions,
-  TimeSlotStats,
-  StatRow,
-  StatLabel,
-  StatValue,
   AvailabilityCount,
 
   ModalOverlay,
@@ -72,6 +48,34 @@ import {
   ButtonRow
 } from '../styles/TimeSlotStyles';
 
+import {
+  UnifiedCardsList,
+  UnifiedCard,
+  CardBadge,
+  CardHeader,
+  CardContent,
+  CardTitle,
+  CardSubtitle,
+  CardStats,
+  StatItem,
+  StatNumber,
+  LoadingSection,
+  DetailModalOverlay,
+  DetailModalContainer,
+  DetailModalHeader,
+  DetailModalTitle,
+  DetailModalSubtitle,
+  DetailModalAvailability,
+  DetailModalCloseButton,
+  DetailModalBody,
+  DetailModalDescription,
+  ProConsContainer,
+  ProConsSection,
+  ProConsTitle,
+  ProConsList,
+  ProsConsItem
+} from '../styles/UnifiedCardStyles';
+
 export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, toggleVote, isOwner, setCurrentActivity }) {
   const { user, setUser } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
@@ -81,6 +85,8 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
   const [showFinalizeModal, setShowFinalizeModal] = useState(false);
   const [aiRecommendations, setAiRecommendations] = useState([]);
   const [loadingAI, setLoadingAI] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   const { id, responses, collecting, voting, finalized, selected_time_slot_id } = currentActivity;
 
@@ -279,7 +285,7 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
     return slot.recommendation && Object.keys(slot.recommendation).length > 0;
   };
 
-  // Helper function to format date and time for AI recommendations
+  // Helper function to format date and time
   const formatDateTime = (dateStr, timeStr) => {
     const dateObj = parseISO(dateStr);
     const formattedDate = format(dateObj, 'MMMM do, yyyy');
@@ -299,6 +305,101 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
       slot.recommendation.title === rec.title
     );
   };
+
+  // Handle card click to open detail modal
+  const handleCardClick = (card) => {
+    setSelectedCard(card);
+    setShowDetailModal(true);
+  };
+
+  // Close detail modal
+  const closeDetailModal = () => {
+    setShowDetailModal(false);
+    setSelectedCard(null);
+  };
+
+  // Create unified list of recommendations and time slots
+  const createUnifiedCardsList = () => {
+    const cards = [];
+
+    // Add AI recommendations first
+    if (aiRecommendations.length > 0) {
+      aiRecommendations.forEach((rec, index) => {
+        const slot = findTimeSlotForRecommendation(rec);
+        const dateTime = slot ? formatDateTime(slot.date, slot.time) : null;
+
+        cards.push({
+          id: `rec-${index}`,
+          type: 'recommendation',
+          title: rec.title,
+          description: rec.reason,
+          pros: rec.pros || [],
+          cons: rec.cons || [],
+          dateTime,
+          availableCount: slot ? (slot.votes_count || 0) : rec.participants_available,
+          totalParticipants,
+          slot,
+          recommendation: rec
+        });
+      });
+    } else if (hasExistingRecommendations) {
+      // Handle existing recommendations stored in time slots
+      const slotsWithRecommendations = pinned.filter(slot =>
+        slot.recommendation && Object.keys(slot.recommendation).length > 0
+      );
+
+      const uniqueRecommendations = slotsWithRecommendations
+        .map(slot => ({ ...slot.recommendation, slot }))
+        .filter((rec, index, arr) =>
+          arr.findIndex(r => r.title === rec.title) === index
+        );
+
+      uniqueRecommendations.forEach((rec, index) => {
+        const dateTime = formatDateTime(rec.slot.date, rec.slot.time);
+
+        cards.push({
+          id: `stored-rec-${index}`,
+          type: 'recommendation',
+          title: rec.title,
+          description: rec.reason,
+          pros: rec.pros || [],
+          cons: rec.cons || [],
+          dateTime,
+          availableCount: rec.slot.votes_count || 0,
+          totalParticipants,
+          slot: rec.slot,
+          recommendation: rec
+        });
+      });
+    }
+
+    // Add regular time slots (excluding those that are already recommendations)
+    const regularSlots = pinned.filter(slot => !isRecommended(slot));
+
+    regularSlots
+      .sort((a, b) => (b.votes_count || 0) - (a.votes_count || 0))
+      .forEach((slot) => {
+        const dateTime = formatDateTime(slot.date, slot.time);
+
+        cards.push({
+          id: `slot-${slot.id}`,
+          type: 'timeslot',
+          title: null,
+          description: null,
+          pros: [],
+          cons: [],
+          dateTime,
+          availableCount: slot.votes_count || 0,
+          totalParticipants,
+          slot,
+          isSelected: slot.id === selected_time_slot_id
+        });
+      });
+
+    return cards;
+  };
+
+  console.log(pinned);
 
   if (loading) return <LoadingScreenUser autoDismiss={false} />;
 
@@ -427,7 +528,7 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
           <PhaseIcon><TrendingUp size={24} /></PhaseIcon>
           <PhaseContent>
             <PhaseTitle>Time Slot Results</PhaseTitle>
-            <PhaseSubtitle>Time slots ranked by availability with AI recommendations</PhaseSubtitle>
+            <PhaseSubtitle>Select a recommendation to view its detailed AI analysis.</PhaseSubtitle>
           </PhaseContent>
           {isOwner && (
             <PhaseIndicatorButton onClick={onEdit}>
@@ -440,184 +541,135 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
         {error && <ErrorText>{error}</ErrorText>}
 
         {loadingAI && (
-          <AISection>
-            <AITitle>
+          <LoadingSection>
+            <h3>
               <Brain size={20} />
               Generating AI Recommendations...
-            </AITitle>
-            <p style={{ color: '#ccc', margin: 0 }}>Analyzing group availability patterns...</p>
-          </AISection>
+            </h3>
+            <p>Analyzing group availability patterns...</p>
+          </LoadingSection>
         )}
 
-        {/* Consolidated AI Recommendations Section */}
-        {!loadingAI && (aiRecommendations.length > 0 || pinned.some(slot => slot.recommendation && Object.keys(slot.recommendation).length > 0)) && (
-          <AISection>
-            <AITitle>
-              <Brain size={20} />
-              AI Recommendations
-            </AITitle>
-            {aiRecommendations.length > 0 ? (
-              aiRecommendations.map((rec, index) => {
-                const slot = findTimeSlotForRecommendation(rec);
-                const dateTime = slot ? formatDateTime(slot.date, slot.time) : null;
-
-                return (
-                  <RecommendationCard key={index}>
-                    <RecommendationHeader>
-                      <RecommendationTitle>{rec.title}</RecommendationTitle>
-                      <ParticipantCount>
-                        {slot ? (slot.votes_count || 0) : rec.participants_available}/{totalParticipants} available
-                      </ParticipantCount>
-                    </RecommendationHeader>
-                    {dateTime && (
-                      <div style={{
-                        color: '#cc31e8',
-                        fontWeight: '600',
-                        fontSize: '0.95rem',
-                        marginBottom: '0.75rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem'
-                      }}>
-                        <Calendar size={16} />
-                        {dateTime.formattedDate} at {dateTime.formattedTime}
-                      </div>
-                    )}
-                    <RecommendationReason>{rec.reason}</RecommendationReason>
-                    <ProsCons>
-                      <ProsConsSection>
-                        <ProsConsTitle $type="pros">Pros</ProsConsTitle>
-                        <ProsConsList>
-                          {rec.pros?.map((pro, i) => (
-                            <ProsConsItem key={i}>{pro}</ProsConsItem>
-                          ))}
-                        </ProsConsList>
-                      </ProsConsSection>
-                      {rec.cons && rec.cons.length > 0 && (
-                        <ProsConsSection>
-                          <ProsConsTitle $type="cons">Considerations</ProsConsTitle>
-                          <ProsConsList>
-                            {rec.cons.map((con, i) => (
-                              <ProsConsItem key={i}>{con}</ProsConsItem>
-                            ))}
-                          </ProsConsList>
-                        </ProsConsSection>
-                      )}
-                    </ProsCons>
-                  </RecommendationCard>
-                );
-              })
-            ) : (
-              (() => {
-                const slotsWithRecommendations = pinned.filter(slot =>
-                  slot.recommendation && Object.keys(slot.recommendation).length > 0
-                );
-
-                const uniqueRecommendations = slotsWithRecommendations
-                  .map(slot => ({ ...slot.recommendation, slot }))
-                  .filter((rec, index, arr) =>
-                    arr.findIndex(r => r.title === rec.title) === index
-                  );
-
-                return uniqueRecommendations.map((rec, index) => {
-                  const dateTime = formatDateTime(rec.slot.date, rec.slot.time);
-
-                  return (
-                    <RecommendationCard key={index}>
-                      <RecommendationHeader>
-                        <RecommendationTitle>{rec.title}</RecommendationTitle>
-                        <ParticipantCount>
-                          {rec.slot.votes_count || 0}/{totalParticipants} available
-                        </ParticipantCount>
-                      </RecommendationHeader>
-                      <div style={{
-                        color: '#cc31e8',
-                        fontWeight: '600',
-                        fontSize: '0.95rem',
-                        marginBottom: '0.75rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem'
-                      }}>
-                        <Calendar size={16} />
-                        {dateTime.formattedDate} at {dateTime.formattedTime}
-                      </div>
-                      <RecommendationReason>{rec.reason}</RecommendationReason>
-                      <ProsCons>
-                        <ProsConsSection>
-                          <ProsConsTitle $type="pros">Pros</ProsConsTitle>
-                          <ProsConsList>
-                            {rec.pros?.map((pro, i) => (
-                              <ProsConsItem key={i}>{pro}</ProsConsItem>
-                            ))}
-                          </ProsConsList>
-                        </ProsConsSection>
-                        {rec.cons && rec.cons.length > 0 && (
-                          <ProsConsSection>
-                            <ProsConsTitle $type="cons">Considerations</ProsConsTitle>
-                            <ProsConsList>
-                              {rec.cons.map((con, i) => (
-                                <ProsConsItem key={i}>{con}</ProsConsItem>
-                              ))}
-                            </ProsConsList>
-                          </ProsConsSection>
-                        )}
-                      </ProsCons>
-                    </RecommendationCard>
-                  );
-                });
-              })()
-            )}
-          </AISection>
-        )}
-
-        <TimeSlotsList>
-          {[...pinned]
-            .sort((a, b) => (b.votes_count || 0) - (a.votes_count || 0))
-            .map((slot) => {
-              const dateObj = parseISO(slot.date);
-              const formattedDate = format(dateObj, 'MMM do');
-              const [h, m] = slot.time.slice(11, 16).split(':');
-              const timeObj = new Date();
-              timeObj.setHours(+h, +m);
-              const formattedTime = format(timeObj, 'h:mm a');
-
-              const recommended = isRecommended(slot);
-
-              return (
-                <TimeSlotCard key={slot.id} $recommended={recommended}>
-                  {recommended && (
-                    <RecommendedBadge>
-                      <Star size={16} />
+        {!loadingAI && (
+          <>
+            <UnifiedCardsList>
+              {createUnifiedCardsList().map((card) => (
+                <UnifiedCard
+                  key={card.id}
+                  $isRecommendation={card.type === 'recommendation'}
+                  $selected={card.isSelected}
+                  onClick={() => handleCardClick(card)}
+                >
+                  {card.type === 'recommendation' && (
+                    <CardBadge $type="recommendation">
+                      <Star size={12} />
                       <span>AI PICK</span>
-                    </RecommendedBadge>
+                    </CardBadge>
                   )}
-                  <TimeSlotHeader>
-                    <div>
-                      <TimeSlotDate>{formattedDate}</TimeSlotDate>
-                      <TimeSlotTime>{formattedTime}</TimeSlotTime>
-                    </div>
-                    <TimeSlotActions>
-                      <AvailabilityCount>
-                        <UserCheck size={16} />
-                        {slot.votes_count || 0}
-                      </AvailabilityCount>
-                    </TimeSlotActions>
-                  </TimeSlotHeader>
 
-                  <TimeSlotStats>
-                    <StatRow>
-                      <StatLabel>
-                        <UserCheck size={16} />
-                        Participants Available
-                      </StatLabel>
-                      <StatValue $type="availability">{slot.votes_count || 0}/{totalParticipants}</StatValue>
-                    </StatRow>
-                  </TimeSlotStats>
-                </TimeSlotCard>
-              );
-            })}
-        </TimeSlotsList>
+                  {card.isSelected && (
+                    <CardBadge $type="selected">
+                      <CheckCircle size={12} />
+                      <span>SELECTED</span>
+                    </CardBadge>
+                  )}
+
+                  <CardHeader>
+                    <CardContent>
+                      {card.title && (
+                        <CardTitle $isRecommendation={card.type === 'recommendation'}>
+                          {card.title}
+                        </CardTitle>
+                      )}
+
+                      <CardSubtitle>
+                        <Calendar size={16} />
+                        {card.dateTime.formattedDate} at {card.dateTime.formattedTime}
+                      </CardSubtitle>
+                    </CardContent>
+
+                    <AvailabilityCount>
+                      <UserCheck size={16} />
+                      {card.availableCount}
+                    </AvailabilityCount>
+                  </CardHeader>
+
+                  <CardStats>
+                    <StatItem>
+                      <UserCheck size={16} />
+                      <span>
+                        <StatNumber>{card.availableCount}</StatNumber>
+                        /{card.totalParticipants} participants available
+                      </span>
+                    </StatItem>
+                  </CardStats>
+                </UnifiedCard>
+              ))}
+            </UnifiedCardsList>
+
+            {/* Detail Modal */}
+            {showDetailModal && selectedCard && (
+              <DetailModalOverlay onClick={closeDetailModal}>
+                <DetailModalContainer onClick={(e) => e.stopPropagation()}>
+                  <DetailModalHeader>
+                    <DetailModalTitle>
+                      {selectedCard.title || 'Time Slot Details'}
+                    </DetailModalTitle>
+                    <DetailModalSubtitle>
+                      <Calendar size={20} />
+                      {selectedCard.dateTime.formattedDate} at {selectedCard.dateTime.formattedTime}
+                    </DetailModalSubtitle>
+                    <DetailModalAvailability>
+                      <UserCheck size={16} />
+                      {selectedCard.availableCount}/{selectedCard.totalParticipants} participants available
+                    </DetailModalAvailability>
+                    <DetailModalCloseButton onClick={closeDetailModal}>
+                      <X size={20} />
+                    </DetailModalCloseButton>
+                  </DetailModalHeader>
+
+                  <DetailModalBody>
+                    {selectedCard.description && (
+                      <DetailModalDescription>
+                        {selectedCard.description}
+                      </DetailModalDescription>
+                    )}
+
+                    {selectedCard.type === 'recommendation' && (selectedCard.pros.length > 0 || selectedCard.cons.length > 0) && (
+                      <ProConsContainer>
+                        {selectedCard.pros.length > 0 && (
+                          <ProConsSection>
+                            <ProConsTitle $type="pros">
+                              ✓ Pros
+                            </ProConsTitle>
+                            <ProConsList>
+                              {selectedCard.pros.map((pro, i) => (
+                                <ProsConsItem key={i} $type="pros">{pro}</ProsConsItem>
+                              ))}
+                            </ProConsList>
+                          </ProConsSection>
+                        )}
+
+                        {selectedCard.cons.length > 0 && (
+                          <ProConsSection>
+                            <ProConsTitle $type="cons">
+                              ⚠ Considerations
+                            </ProConsTitle>
+                            <ProConsList>
+                              {selectedCard.cons.map((con, i) => (
+                                <ProsConsItem key={i} $type="cons">{con}</ProsConsItem>
+                              ))}
+                            </ProConsList>
+                          </ProConsSection>
+                        )}
+                      </ProConsContainer>
+                    )}
+                  </DetailModalBody>
+                </DetailModalContainer>
+              </DetailModalOverlay>
+            )}
+          </>
+        )}
 
         {showFinalizeModal && (
           <ModalOverlay onClick={() => setShowFinalizeModal(false)}>
@@ -665,53 +717,128 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
 
         {error && <ErrorText>{error}</ErrorText>}
 
-        <TimeSlotsList>
-          {[...pinned]
-            .sort((a, b) => (b.votes_count || 0) - (a.votes_count || 0))
-            .map((slot) => {
-              const isSelected = slot.id === selected_time_slot_id;
-              const dateObj = parseISO(slot.date);
-              const formattedDate = format(dateObj, 'MMM do');
-              const [h, m] = slot.time.slice(11, 16).split(':');
-              const timeObj = new Date();
-              timeObj.setHours(+h, +m);
-              const formattedTime = format(timeObj, 'h:mm a');
+        <UnifiedCardsList>
+          {createUnifiedCardsList().map((card) => (
+            <UnifiedCard
+              key={card.id}
+              $isRecommendation={card.type === 'recommendation'}
+              $selected={card.isSelected}
+              onClick={() => handleCardClick(card)}
+            >
+              {card.type === 'recommendation' && (
+                <CardBadge $type="recommendation">
+                  <Star size={12} />
+                  <span>AI PICK</span>
+                </CardBadge>
+              )}
 
-              return (
-                <TimeSlotCard key={slot.id} $selected={isSelected}>
-                  {isSelected && (
-                    <SelectedBadge>
-                      <CheckCircle size={16} />
-                      <span>SELECTED</span>
-                    </SelectedBadge>
+              {card.isSelected && (
+                <CardBadge $type="selected">
+                  <CheckCircle size={12} />
+                  <span>SELECTED</span>
+                </CardBadge>
+              )}
+
+              <CardHeader>
+                <CardContent>
+                  {card.title && (
+                    <CardTitle $isRecommendation={card.type === 'recommendation'}>
+                      {card.title}
+                    </CardTitle>
                   )}
-                  <TimeSlotHeader>
-                    <div>
-                      <TimeSlotDate>{formattedDate}</TimeSlotDate>
-                      <TimeSlotTime>{formattedTime}</TimeSlotTime>
-                    </div>
-                    <TimeSlotActions>
-                      <AvailabilityCount>
-                        <UserCheck size={16} />
-                        {slot.votes_count || 0}
-                      </AvailabilityCount>
-                    </TimeSlotActions>
-                  </TimeSlotHeader>
 
-                  <TimeSlotStats>
-                    <StatRow>
-                      <StatLabel>
-                        <UserCheck size={16} />
-                        Were Available
-                      </StatLabel>
-                      <StatValue $type="availability">{slot.votes_count || 0}/{totalParticipants}</StatValue>
-                    </StatRow>
-                  </TimeSlotStats>
-                </TimeSlotCard>
-              );
-            })}
-        </TimeSlotsList>
-      </Container >
+                  <CardSubtitle>
+                    <Calendar size={16} />
+                    {card.dateTime.formattedDate} at {card.dateTime.formattedTime}
+                  </CardSubtitle>
+                </CardContent>
+
+                <AvailabilityCount>
+                  <UserCheck size={16} />
+                  {card.availableCount}
+                </AvailabilityCount>
+              </CardHeader>
+
+              <CardStats>
+                <StatItem>
+                  <UserCheck size={16} />
+                  <span>
+                    <StatNumber>{card.availableCount}</StatNumber>
+                    /{card.totalParticipants} participants {finalized ? 'were' : ''} available
+                  </span>
+                </StatItem>
+              </CardStats>
+            </UnifiedCard>
+          ))}
+        </UnifiedCardsList>
+
+        {/* Detail Modal */}
+        {showDetailModal && selectedCard && (
+          <DetailModalOverlay onClick={closeDetailModal}>
+            <DetailModalContainer onClick={(e) => e.stopPropagation()}>
+              <DetailModalHeader>
+                <DetailModalTitle>
+                  {selectedCard.title || 'Time Slot Details'}
+                  {selectedCard.type === 'recommendation' && (
+                    <span style={{ color: '#cc31e8', marginLeft: '0.5rem' }}>
+                      <Star size={20} />
+                    </span>
+                  )}
+                </DetailModalTitle>
+                <DetailModalSubtitle>
+                  <Calendar size={20} />
+                  {selectedCard.dateTime.formattedDate} at {selectedCard.dateTime.formattedTime}
+                </DetailModalSubtitle>
+                <DetailModalAvailability>
+                  <UserCheck size={16} />
+                  {selectedCard.availableCount}/{selectedCard.totalParticipants} participants were available
+                </DetailModalAvailability>
+                <DetailModalCloseButton onClick={closeDetailModal}>
+                  <X size={20} />
+                </DetailModalCloseButton>
+              </DetailModalHeader>
+
+              <DetailModalBody>
+                {selectedCard.description && (
+                  <DetailModalDescription>
+                    {selectedCard.description}
+                  </DetailModalDescription>
+                )}
+
+                {selectedCard.type === 'recommendation' && (selectedCard.pros.length > 0 || selectedCard.cons.length > 0) && (
+                  <ProConsContainer>
+                    {selectedCard.pros.length > 0 && (
+                      <ProConsSection>
+                        <ProConsTitle $type="pros">
+                          ✓ Pros
+                        </ProConsTitle>
+                        <ProConsList>
+                          {selectedCard.pros.map((pro, i) => (
+                            <ProsConsItem key={i} $type="pros">{pro}</ProsConsItem>
+                          ))}
+                        </ProConsList>
+                      </ProConsSection>
+                    )}
+
+                    {selectedCard.cons.length > 0 && (
+                      <ProConsSection>
+                        <ProConsTitle $type="cons">
+                          ⚠ Considerations
+                        </ProConsTitle>
+                        <ProConsList>
+                          {selectedCard.cons.map((con, i) => (
+                            <ProsConsItem key={i} $type="cons">{con}</ProsConsItem>
+                          ))}
+                        </ProConsList>
+                      </ProConsSection>
+                    )}
+                  </ProConsContainer>
+                )}
+              </DetailModalBody>
+            </DetailModalContainer>
+          </DetailModalOverlay>
+        )}
+      </Container>
     );
   }
 

@@ -240,10 +240,8 @@ function ActivityDetailsPage() {
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
-  // Simple validation
   const numericActivityId = parseInt(activityId, 10);
 
-  // If invalid ID, redirect to home
   useEffect(() => {
     if (!activityId || isNaN(numericActivityId)) {
       navigate('/', { replace: true });
@@ -252,7 +250,6 @@ function ActivityDetailsPage() {
 
   const pendingInvite = user?.participant_activities?.find(
     p => {
-      // Try both activity.id and activity_id to handle different data structures
       const activityId = p.activity?.id || p.activity_id;
       return activityId === numericActivityId && !p.accepted;
     }
@@ -260,32 +257,6 @@ function ActivityDetailsPage() {
 
   useEffect(() => {
     if (isNaN(numericActivityId) || !user) return;
-
-    // COMPREHENSIVE DEBUGGING
-    console.log('=== DEBUGGING ACTIVITY DATA ===');
-    console.log('Looking for activityId:', numericActivityId);
-    console.log('user.activities:', user.activities);
-    console.log('user.participant_activities:', user.participant_activities);
-
-    // Check each participant activity
-    user.participant_activities?.forEach((p, index) => {
-      console.log(`participant_activity[${index}]:`, {
-        activity_id: p.activity_id,
-        activity: p.activity,
-        accepted: p.accepted,
-        invited_email: p.invited_email
-      });
-    });
-
-    console.log('pendingInvite found:', pendingInvite);
-    if (pendingInvite) {
-      console.log('pendingInvite structure:', {
-        activity_id: pendingInvite.activity_id,
-        activity: pendingInvite.activity,
-        accepted: pendingInvite.accepted,
-        invited_email: pendingInvite.invited_email
-      });
-    }
 
     const timer = setTimeout(() => {
       if (topRef.current) {
@@ -336,17 +307,28 @@ function ActivityDetailsPage() {
           });
       }
 
-      // Fetch pinned activities for invites
       fetch(`${API_URL}/activities/${numericActivityId}/pinned_activities`, {
         credentials: "include"
       })
         .then((res) => res.json())
         .then((data) => {
           setPinnedActivities(data);
+          console.log(data)
         })
         .catch((error) => console.error("Error fetching pinned activities:", error));
     } else {
       console.log('❌ No activity found - neither regular nor pending invite');
+    }
+
+    if (latestActivity.activity_type === 'Meeting') {
+      fetch(`${API_URL}/activities/${numericActivityId}/time_slots`, {
+        credentials: "include"
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setPinned(data) // This will populate your pinned time slots
+        })
+        .catch((error) => console.error("Error fetching time slots:", error));
     }
 
     return () => clearTimeout(timer);
