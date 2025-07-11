@@ -12,6 +12,7 @@ import LoadingScreen from '../components/LoadingScreen.js';
 import ActivityHeader from './ActivityHeader.js';
 import ActivityCommentSection from './ActivityCommentSection.js';
 import TimeSlots from '../letsmeet/TimeSlots.js';
+import ActivityNotFoundScreen from './ActivityNotFoundScreen';
 
 const gradientMove = keyframes`
   0%   { background-position: 0% 50%; }
@@ -385,12 +386,7 @@ function ActivityDetailsPage() {
   };
 
   if (!currentActivity && !pendingInvite) {
-    return (
-      <div>
-        <h2>Activity not found</h2>
-        <button onClick={handleBack}>Go Back</button>
-      </div>
-    );
+    return <ActivityNotFoundScreen onReturnHome={handleBack} />;
   }
 
   const isOwner = user?.id === currentActivity?.user_id || user?.id === currentActivity?.user?.id;

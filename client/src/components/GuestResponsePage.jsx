@@ -28,11 +28,11 @@ const Container = styled.div`
   max-width: 40rem;
   margin: 0 auto;
   color: #fff;
-  padding: 40px 1rem 2rem;
+  padding: 50px 1rem 2rem;
   min-height: 100vh;
   
   @media (max-width: 768px) {
-    padding: 110px 1rem 2rem;
+    padding: 50px 1rem 2rem;
   }
 `;
 
@@ -499,7 +499,7 @@ export default function GuestResponsePage() {
         {showChat && (
           <>
             <DimOverlay onClick={() => setShowChat(false)} />
-            {activity?.activity_type === 'Lets Meet' ? (
+            {activity?.activity_type === 'Meeting' ? (
               <LetsMeetScheduler
                 activityId={activityId}
                 currentActivity={activity}
