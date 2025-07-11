@@ -435,6 +435,12 @@ const FormGroup = styled.div`
   gap: 0.5rem;
 `;
 
+const formatDateForDisplay = (dateStr) => {
+  const [year, month, day] = dateStr.split('-');
+  const date = new Date(year, month - 1, day); // month is 0-indexed
+  return date.toLocaleDateString();
+};
+
 export default function LetsMeetFormModal({ onClose }) {
   const { user, setUser } = useContext(UserContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -805,7 +811,7 @@ export default function LetsMeetFormModal({ onClose }) {
                 {tab === 'range' && rangeStart && rangeEnd && (
                   <SelectedDatesList>
                     <SelectedDate>
-                      {new Date(rangeStart).toLocaleDateString()} - {new Date(rangeEnd).toLocaleDateString()}
+                      {formatDateForDisplay(rangeStart)} - {formatDateForDisplay(rangeEnd)}
                     </SelectedDate>
                   </SelectedDatesList>
                 )}
@@ -814,7 +820,7 @@ export default function LetsMeetFormModal({ onClose }) {
                   <SelectedDatesList>
                     {multipleDates.map((date) => (
                       <SelectedDate key={date}>
-                        {new Date(date).toLocaleDateString()}
+                        {formatDateForDisplay(date)}
                         <RemoveDateButton onClick={() => removeMultipleDate(date)}>
                           <X size={12} />
                         </RemoveDateButton>

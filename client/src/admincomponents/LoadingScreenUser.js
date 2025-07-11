@@ -115,50 +115,6 @@ const ProgressBar = styled.div`
   animation: ${shimmer} 2s linear infinite;
 `;
 
-const StepsContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 25px;
-  padding: 0 10px;
-`;
-
-const Step = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  position: relative;
-`;
-
-const StepDot = styled.div`
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: ${props => props.$active ? '#cc31e8' : 'rgba(255, 255, 255, 0.2)'};
-  transition: all 0.3s ease;
-  box-shadow: ${props => props.$active ? '0 0 10px rgba(204, 49, 232, 0.5)' : 'none'};
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 100%;
-    width: ${props => props.$isLast ? '0' : '100%'};
-    height: 2px;
-    background: ${props => props.$completed ? '#cc31e8' : 'rgba(255, 255, 255, 0.1)'};
-    transform: translateY(-50%);
-    transition: background 0.3s ease;
-  }
-`;
-
-const StepLabel = styled.span`
-  font-size: 0.75rem;
-  color: ${props => props.$active ? '#cc31e8' : '#888'};
-  margin-top: 8px;
-  font-weight: ${props => props.$active ? '600' : '400'};
-  transition: all 0.3s ease;
-`;
-
 const LoadingText = styled.div`
   font-size: 0.9rem;
   color: #b0b0b0;
@@ -176,14 +132,8 @@ const messages = [
   "Putting the finishing touches..."
 ];
 
-const steps = [
-  "Analyzing",
-  "Doing some magic"
-];
-
 function LoadingScreenUser({ onComplete, autoDismiss = true }) {
   const [currentMessage, setCurrentMessage] = useState(0);
-  const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -200,11 +150,6 @@ function LoadingScreenUser({ onComplete, autoDismiss = true }) {
       setCurrentMessage(prev => (prev + 1) % messages.length);
     }, 2500);
 
-    // Step progression - move to step 2 after 4 seconds
-    const stepTimer = setTimeout(() => {
-      setCurrentStep(1);
-    }, 2500);
-
     // Auto dismiss
     let dismissTimer;
     if (autoDismiss && onComplete) {
@@ -216,7 +161,6 @@ function LoadingScreenUser({ onComplete, autoDismiss = true }) {
     return () => {
       clearInterval(progressInterval);
       clearInterval(messageInterval);
-      clearTimeout(stepTimer);
       if (dismissTimer) clearTimeout(dismissTimer);
     };
   }, [onComplete, autoDismiss]);
@@ -235,21 +179,6 @@ function LoadingScreenUser({ onComplete, autoDismiss = true }) {
         <Logo src={HEADER} alt="Voxxy logo" />
         <Title>Gathering your recommendations</Title>
         <Subtitle>This may take a few moments...</Subtitle>
-
-        <StepsContainer>
-          {steps.map((step, index) => (
-            <Step key={index}>
-              <StepDot
-                $active={index === currentStep}
-                $completed={index < currentStep}
-                $isLast={index === steps.length - 1}
-              />
-              <StepLabel $active={index === currentStep}>
-                {step}
-              </StepLabel>
-            </Step>
-          ))}
-        </StepsContainer>
 
         <ProgressContainer>
           <ProgressBar $progress={progress} />

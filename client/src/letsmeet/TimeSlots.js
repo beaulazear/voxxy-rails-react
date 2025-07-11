@@ -90,10 +90,8 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
 
   const { id, responses, collecting, voting, finalized, selected_time_slot_id } = currentActivity;
 
-  // Calculate total participants including guests who responded
   const availabilityResponses = responses.filter(r => r.notes === "LetsMeetAvailabilityResponse");
 
-  // Count unique participants: invited participants + owner + guest responses
   const invitedParticipantEmails = new Set(currentActivity.participants.map(p => p.email));
   const guestResponses = availabilityResponses.filter(r =>
     r.email && !invitedParticipantEmails.has(r.email) && r.email !== user.email
@@ -106,7 +104,6 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
     r.user_id === user.id || r.email === user.email
   );
 
-  // Check if we have saved recommendations in the time slots
   const hasExistingRecommendations = pinned.some(slot =>
     slot.recommendation && Object.keys(slot.recommendation).length > 0
   );
@@ -280,53 +277,74 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
     );
   };
 
-  // Helper function to check if a time slot is recommended
-  const isRecommended = (slot) => {
-    return slot.recommendation && Object.keys(slot.recommendation).length > 0;
-  };
-
-  // Helper function to format date and time
   const formatDateTime = (dateStr, timeStr) => {
-    const dateObj = parseISO(dateStr);
-    const formattedDate = format(dateObj, 'MMMM do, yyyy');
+    try {
+      const dateObj = parseISO(dateStr);
+      const formattedDate = format(dateObj, 'MMMM do, yyyy');
 
-    const [h, m] = timeStr.slice(11, 16).split(':');
-    const timeObj = new Date();
-    timeObj.setHours(+h, +m);
-    const formattedTime = format(timeObj, 'h:mm a');
+      let timeOnly;
+      if (!timeStr) {
+        console.error('timeStr is null/undefined');
+        return { formattedDate: 'Invalid Date', formattedTime: 'Invalid Time' };
+      }
 
-    return { formattedDate, formattedTime };
+      if (timeStr.includes('T')) {
+        timeOnly = timeStr.slice(11, 16);
+      } else {
+        timeOnly = timeStr.substring(0, 5);
+      }
+
+      const [h, m] = timeOnly.split(':');
+      if (!h || !m) {
+        console.error('Invalid time format:', timeOnly);
+        return { formattedDate, formattedTime: 'Invalid Time' };
+      }
+
+      const timeObj = new Date();
+      timeObj.setHours(parseInt(h), parseInt(m));
+      const formattedTime = format(timeObj, 'h:mm a');
+
+      return { formattedDate, formattedTime };
+    } catch (error) {
+      console.error('formatDateTime error:', error, { dateStr, timeStr });
+      return { formattedDate: 'Invalid Date', formattedTime: 'Invalid Time' };
+    }
   };
 
-  // Helper function to find time slot for AI recommendation
-  const findTimeSlotForRecommendation = (rec) => {
-    return pinned.find(slot =>
-      slot.recommendation &&
-      slot.recommendation.title === rec.title
-    );
-  };
-
-  // Handle card click to open detail modal
   const handleCardClick = (card) => {
     setSelectedCard(card);
     setShowDetailModal(true);
   };
 
-  // Close detail modal
   const closeDetailModal = () => {
     setShowDetailModal(false);
     setSelectedCard(null);
   };
 
-  // Create unified list of recommendations and time slots
+  const getRecommendationPriority = (title) => {
+    const priorities = {
+      'Best Overall Choice': 1,
+      'Alternative Option': 2,
+      'Compromise Choice': 3
+    };
+    return priorities[title] || 999; // Unknown titles go to the end
+  };
+
   const createUnifiedCardsList = () => {
     const cards = [];
 
-    // Add AI recommendations first
+    // Add AI recommendations first (sorted by priority)
     if (aiRecommendations.length > 0) {
-      aiRecommendations.forEach((rec, index) => {
-        const slot = findTimeSlotForRecommendation(rec);
-        const dateTime = slot ? formatDateTime(slot.date, slot.time) : null;
+      // Sort recommendations by priority: Best -> Alternative -> Compromise
+      const sortedRecommendations = [...aiRecommendations].sort((a, b) =>
+        getRecommendationPriority(a.title) - getRecommendationPriority(b.title)
+      );
+
+      sortedRecommendations.forEach((rec, index) => {
+        const slot = pinned.find(slot => slot.id === rec.time_slot_id);
+        const dateTime = rec.date && rec.time
+          ? formatDateTime(rec.date, rec.time)
+          : (slot ? formatDateTime(slot.date, slot.time) : null);
 
         cards.push({
           id: `rec-${index}`,
@@ -335,15 +353,15 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
           description: rec.reason,
           pros: rec.pros || [],
           cons: rec.cons || [],
-          dateTime,
-          availableCount: slot ? (slot.votes_count || 0) : rec.participants_available,
+          dateTime: dateTime || { formattedDate: 'TBD', formattedTime: 'TBD' },
+          availableCount: rec.participants_available || (slot ? slot.votes_count : 0),
           totalParticipants,
           slot,
           recommendation: rec
         });
       });
     } else if (hasExistingRecommendations) {
-      // Handle existing recommendations stored in time slots
+      // Handle existing recommendations stored in time slots (also sorted)
       const slotsWithRecommendations = pinned.filter(slot =>
         slot.recommendation && Object.keys(slot.recommendation).length > 0
       );
@@ -352,7 +370,8 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
         .map(slot => ({ ...slot.recommendation, slot }))
         .filter((rec, index, arr) =>
           arr.findIndex(r => r.title === rec.title) === index
-        );
+        )
+        .sort((a, b) => getRecommendationPriority(a.title) - getRecommendationPriority(b.title));
 
       uniqueRecommendations.forEach((rec, index) => {
         const dateTime = formatDateTime(rec.slot.date, rec.slot.time);
@@ -374,7 +393,11 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
     }
 
     // Add regular time slots (excluding those that are already recommendations)
-    const regularSlots = pinned.filter(slot => !isRecommended(slot));
+    const regularSlots = pinned.filter(slot => {
+      const hasAIRec = aiRecommendations.some(rec => rec.time_slot_id === slot.id);
+      const hasStoredRec = slot.recommendation && Object.keys(slot.recommendation).length > 0;
+      return !hasAIRec && !hasStoredRec;
+    });
 
     regularSlots
       .sort((a, b) => (b.votes_count || 0) - (a.votes_count || 0))
@@ -398,8 +421,6 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
 
     return cards;
   };
-
-  console.log(pinned);
 
   if (loading) return <LoadingScreenUser autoDismiss={false} />;
 
@@ -584,7 +605,10 @@ export default function TimeSlots({ onEdit, currentActivity, pinned, setPinned, 
 
                       <CardSubtitle>
                         <Calendar size={16} />
-                        {card.dateTime.formattedDate} at {card.dateTime.formattedTime}
+                        {card.dateTime ?
+                          `${card.dateTime.formattedDate} at ${card.dateTime.formattedTime}` :
+                          'Date/time pending'
+                        }
                       </CardSubtitle>
                     </CardContent>
 

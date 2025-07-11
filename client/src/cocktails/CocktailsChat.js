@@ -714,12 +714,12 @@ export default function CocktailsChat({ onClose }) {
                     {step === 3 && (
                         <Section>
                             {/* First, ask if participants should choose time */}
-                            <CheckboxLabel onClick={() => setAllowParticipantTimeSelection(!allowParticipantTimeSelection)}>
+                            {/* <CheckboxLabel onClick={() => setAllowParticipantTimeSelection(!allowParticipantTimeSelection)}>
                                 <ToggleWrapper checked={allowParticipantTimeSelection}>
                                     <ToggleCircle checked={allowParticipantTimeSelection} />
                                 </ToggleWrapper>
                                 Let participants vote on their preferred times
-                            </CheckboxLabel>
+                            </CheckboxLabel> */}
 
                             {/* Only show organizer time selection if participants aren't choosing */}
                             {!allowParticipantTimeSelection && !skipDateTime && (

@@ -472,7 +472,7 @@ export default function BarChat({
         'Brewery',
         'Dance Club',
         'Live Music',
-        'Quiet Spot',
+        'LGBTQ+',
     ];
     const [selectedAtmospheres, setSelectedAtmospheres] = useState([]);
     const [otherAtmosphere, setOtherAtmosphere] = useState('');
@@ -907,7 +907,7 @@ export default function BarChat({
                                                                         ? '💃'
                                                                         : atm === 'Live Music'
                                                                             ? '🎵'
-                                                                            : '🤫'}
+                                                                            : '🏳️‍🌈'}
                                         </IconWrapper>
                                         {atm}
                                     </RadioCard>

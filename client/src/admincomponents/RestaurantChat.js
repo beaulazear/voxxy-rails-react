@@ -716,14 +716,13 @@ export default function RestaurantChat({ onClose }) {
           {step === 3 && (
             <Section>
               {/* First, ask if participants should choose time */}
-              <CheckboxLabel onClick={() => setAllowParticipantTimeSelection(!allowParticipantTimeSelection)}>
+              {/* <CheckboxLabel onClick={() => setAllowParticipantTimeSelection(!allowParticipantTimeSelection)}>
                 <ToggleWrapper checked={allowParticipantTimeSelection}>
                   <ToggleCircle checked={allowParticipantTimeSelection} />
                 </ToggleWrapper>
                 Let participants vote on their preferred times
-              </CheckboxLabel>
+              </CheckboxLabel> */}
 
-              {/* Only show organizer time selection if participants aren't choosing */}
               {!allowParticipantTimeSelection && !skipDateTime && (
                 <DateTimeGrid style={{ marginTop: '1rem' }}>
                   <FormGroup>
@@ -791,7 +790,6 @@ export default function RestaurantChat({ onClose }) {
                 </div>
               )}
 
-              {/* Show organizer's time selection toggle only if not using participant selection */}
               {!allowParticipantTimeSelection && (
                 <CheckboxLabel onClick={() => setSkipDateTime(!skipDateTime)} style={{ marginTop: '1rem' }}>
                   <ToggleWrapper checked={skipDateTime}>

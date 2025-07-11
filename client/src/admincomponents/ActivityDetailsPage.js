@@ -269,7 +269,6 @@ function ActivityDetailsPage() {
       user.participant_activities?.find((p) => p.activity?.id === numericActivityId)?.activity;
 
     if (latestActivity) {
-      console.log('✅ Using latestActivity (regular flow):', latestActivity);
       setCurrentActivity({ ...latestActivity });
 
       fetch(`${API_URL}/activities/${numericActivityId}/pinned_activities`, {
@@ -281,8 +280,7 @@ function ActivityDetailsPage() {
         })
         .catch((error) => console.error("Error fetching pinned activities:", error));
     } else if (pendingInvite) {
-      console.log('🔄 Handling pending invite...');
-
+      
       if (pendingInvite.activity && Object.keys(pendingInvite.activity).length > 0) {
         console.log('✅ Using pendingInvite.activity:', pendingInvite.activity);
         setCurrentActivity({ ...pendingInvite.activity });
