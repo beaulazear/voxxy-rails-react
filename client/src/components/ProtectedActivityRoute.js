@@ -15,6 +15,19 @@ const ProtectedActivityRoute = () => {
     const numericActivityId = parseInt(activityId, 10);
 
     useEffect(() => {
+        // Handle redirect when access is denied
+        if (accessStatus === 'denied') {
+            console.log('🏠 Redirecting to home due to access denial');
+            navigate('/', {
+                replace: true,
+                state: {
+                    message: 'You don\'t have access to this activity or it doesn\'t exist.'
+                }
+            });
+        }
+    }, [accessStatus, navigate]);
+
+    useEffect(() => {
         // Wait for user to load first
         if (userLoading) return;
 
@@ -62,13 +75,16 @@ const ProtectedActivityRoute = () => {
 
                 if (response.ok) {
                     const activityData = await response.json();
+                    console.log('📊 Activity data received:', activityData);
 
+                    // Validate that we actually received activity data, not user data
                     if (!activityData.activity_name && !activityData.name) {
                         console.log('❌ Invalid response - not activity data');
                         setAccessStatus('denied');
                         return;
                     }
 
+                    // Check if user is owner or participant (be more permissive)
                     const isOwner = activityData.user_id === user.id || activityData.user?.id === user.id;
                     const isParticipant = activityData.participants?.some(p =>
                         p.id === user.id || p.email?.toLowerCase() === user.email?.toLowerCase()
@@ -92,11 +108,14 @@ const ProtectedActivityRoute = () => {
                     console.log('❌ Access forbidden (403)');
                     setAccessStatus('denied');
                 } else {
+                    // For other HTTP errors, log but don't block - could be temporary server issues
                     console.warn(`⚠️ Unexpected response status: ${response.status}. Allowing access to prevent false blocks.`);
                     setAccessStatus('allowed');
                 }
             } catch (error) {
                 console.error('⚠️ Error validating activity access:', error);
+                // On network/parsing errors, allow access to prevent false blocks
+                // The ActivityDetailsPage itself will handle the actual data fetching
                 console.log('🔓 Network error - allowing access, let ActivityDetailsPage handle it');
                 setAccessStatus('allowed');
             } finally {
@@ -107,26 +126,18 @@ const ProtectedActivityRoute = () => {
         validateAccess();
     }, [user, userLoading, activityId, numericActivityId, navigate, API_URL]);
 
-    if (userLoading || isValidating || accessStatus === 'checking') {
+    // Show loading while validating OR while redirecting
+    if (userLoading || isValidating || accessStatus === 'checking' || accessStatus === 'denied') {
         return <LoadingScreen />;
     }
 
-    if (accessStatus === 'denied') {
-        navigate('/', {
-            replace: true,
-            state: {
-                message: 'You don\'t have access to this activity or it doesn\'t exist.'
-            }
-        });
-
-        return <LoadingScreen />;
-    }
-
+    // Only render ActivityDetailsPage if access is explicitly allowed
     if (accessStatus === 'allowed') {
         console.log('🎯 Rendering ActivityDetailsPage');
         return <ActivityDetailsPage />;
     }
 
+    // Fallback - should never reach here, but return loading if we do
     return <LoadingScreen />;
 };
 
