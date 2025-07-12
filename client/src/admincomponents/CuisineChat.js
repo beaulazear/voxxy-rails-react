@@ -499,11 +499,8 @@ export default function CuisineChat({
 
   useEffect(() => {
     const fetchActivity = async () => {
-      // If in guest mode and guestActivity is provided, use it directly
       if (guestMode && guestActivity) {
         setActivity(guestActivity);
-        console.log('Using guest activity:', guestActivity);
-        console.log('allow_participant_time_selection:', guestActivity.allow_participant_time_selection);
         return;
       }
 
@@ -515,12 +512,10 @@ export default function CuisineChat({
 
         let foundActivity = null;
 
-        // Check participant_activities first (for activities user participates in)
         if (data.participant_activities) {
           foundActivity = data.participant_activities.find(pa => pa.id === parseInt(activityId));
         }
 
-        // If not found, check activities (for activities user owns/hosts)
         if (!foundActivity && data.activities) {
           foundActivity = data.activities.find(act => act.id === parseInt(activityId));
         }

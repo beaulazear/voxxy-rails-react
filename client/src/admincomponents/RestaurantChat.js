@@ -561,11 +561,9 @@ export default function RestaurantChat({ onClose }) {
   };
 
   const computeDateNotes = () => {
-    // If skipped date/time, use timeOfDay directly
     if (skipDateTime) {
       return timeOfDay;
     }
-    // Otherwise infer from numeric time
     const [hourStr] = time.split(':');
     const hour = parseInt(hourStr, 10);
     if (hour >= 5 && hour < 10) {
@@ -598,9 +596,9 @@ export default function RestaurantChat({ onClose }) {
       date_time: skipDateTime ? null : time,
       activity_name: eventName.trim(),
       welcome_message: welcomeMessage.trim(),
-      allow_participant_time_selection: allowParticipantTimeSelection, // NEW FIELD
+      allow_participant_time_selection: allowParticipantTimeSelection,
       date_notes,
-      participants: [], // Empty array since we removed the invite step
+      participants: [],
       collecting: true
     };
 

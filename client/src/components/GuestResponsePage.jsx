@@ -2,9 +2,10 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled, { keyframes } from 'styled-components';
 import CuisineChat from "../admincomponents/CuisineChat";
+import BarChat from "../cocktails/BarChat";
 import LetsMeetScheduler from "../letsmeet/LetsMeetScheduler";
 import LoadingScreenUser from "../admincomponents/LoadingScreenUser.js";
-import { HelpCircle, CheckCircle, BookHeart, AlertCircle, ArrowRight, Calendar, MessageSquare } from 'lucide-react';
+import { HelpCircle, CheckCircle, BookHeart, AlertCircle, ArrowRight, Calendar, MessageSquare, User } from 'lucide-react';
 
 const fadeInNoTransform = keyframes`
   from { opacity: 0; }
@@ -16,10 +17,10 @@ const FullScreenBackground = styled.div`
   width: 100%;
   background-image: linear-gradient(
     to right,
-    #201925,    /* your base */
-    #251C2C,    /* your backgroundTwo */
-    #2a1e30,    /* your cardBackground */
-    #422151     /* purple2 */
+    #201925,
+    #251C2C,
+    #2a1e30,
+    #422151
   ); 
   animation: ${fadeInNoTransform} 0.8s ease-in-out;
 `;
@@ -161,6 +162,24 @@ const PreferencesButton = styled.button`
   }
 `;
 
+const UserNotice = styled.div`
+  background: rgba(46, 125, 50, 0.15);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+`;
+
+const UserNoticeText = styled.p`
+  color: #81c784;
+  font-size: 0.85rem;
+  margin: 0;
+  line-height: 1.4;
+`;
+
 const SubmittedCard = styled.div`
   background: rgba(40, 167, 69, 0.2);
   border: 1px solid rgba(40, 167, 69, 0.3);
@@ -278,6 +297,7 @@ export default function GuestResponsePage() {
   const [activity, setActivity] = useState(null);
   const [guestEmail, setGuestEmail] = useState(null);
   const [existingResponse, setExistingResponse] = useState(null);
+  const [isExistingUser, setIsExistingUser] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showChat, setShowChat] = useState(false);
@@ -312,6 +332,7 @@ export default function GuestResponsePage() {
       setActivity(data.activity);
       setGuestEmail(data.participant_email);
       setExistingResponse(data.existing_response);
+      setIsExistingUser(data.is_existing_user || false); // Add this line to handle existing user status
     } catch (err) {
       console.error("Error fetching guest data:", err);
       setError("Unable to connect to the server. Please check your internet connection.");
@@ -335,9 +356,51 @@ export default function GuestResponsePage() {
     fetchGuestData();
   };
 
-  const handleCreateAccount = () => {
-    // Navigate to signup with activity context
-    navigate(`/signup?invited_email=${encodeURIComponent(guestEmail)}&activity_id=${activityId}`);
+  const renderChatComponent = () => {
+    const commonProps = {
+      activityId,
+      onClose: () => setShowChat(false),
+      guestMode: true,
+      guestToken: token,
+      guestEmail: guestEmail,
+      onChatComplete: handleChatComplete
+    };
+
+    switch (activity?.activity_type) {
+      case 'Meeting':
+        return (
+          <LetsMeetScheduler
+            {...commonProps}
+            currentActivity={activity}
+            responseSubmitted={submissionSuccess}
+          />
+        );
+      case 'Cocktails':
+        return (
+          <BarChat
+            {...commonProps}
+            guestActivity={activity}
+          />
+        );
+      case 'Restaurant':
+      default:
+        return (
+          <CuisineChat
+            {...commonProps}
+            guestActivity={activity}
+          />
+        );
+    }
+  };
+
+  const handleCreateAccountOrLogin = () => {
+    if (isExistingUser) {
+      // Navigate to login with activity context
+      navigate(`/login?invited_email=${encodeURIComponent(guestEmail)}&activity_id=${activityId}`);
+    } else {
+      // Navigate to signup with activity context
+      navigate(`/signup?invited_email=${encodeURIComponent(guestEmail)}&activity_id=${activityId}`);
+    }
   };
 
   if (loading) {
@@ -434,7 +497,7 @@ export default function GuestResponsePage() {
               Response Submitted Successfully! 🎉
             </SubmittedTitle>
             <SubmittedText>
-              Thank you for submitting your {activity?.activity_type === 'Meeting' ? 'availability' : 'preferences'}! The organizer will gather everyone's responses and send you the final {activity?.activity_type === 'Meeting' ? 'meeting details' : 'plans'} soon.
+              Thank you for submitting your {activity?.activity_type === 'Meeting' ? 'availability' : 'preferences'}! {isExistingUser && 'You have also accepted the invitation to this activity. '}The organizer will gather everyone's responses and send you the final {activity?.activity_type === 'Meeting' ? 'meeting details' : 'plans'} soon.
             </SubmittedText>
           </SubmittedCard>
         )}
@@ -446,13 +509,24 @@ export default function GuestResponsePage() {
                 <PreferencesIcon>
                   <BookHeart size={48} />
                 </PreferencesIcon>
-                <PreferencesTitle>Submit Your Preferences!</PreferencesTitle>
+                <PreferencesTitle>
+                  {isExistingUser ? 'Submit Preferences & Accept Invite!' : 'Submit Your Preferences!'}
+                </PreferencesTitle>
                 <PreferencesText>
                   Help the group find the perfect {activity.activity_type === 'Restaurant' ? 'restaurant' : 'night out'} by sharing your preferences, dietary needs, and budget.
+                  {isExistingUser && ' This will also accept the invitation to the activity.'}
                 </PreferencesText>
+                {isExistingUser && (
+                  <UserNotice>
+                    <User size={16} />
+                    <UserNoticeText>
+                      Your response will be associated with your existing Voxxy account and you'll automatically accept this invitation.
+                    </UserNoticeText>
+                  </UserNotice>
+                )}
                 <PreferencesButton onClick={handleStartChat}>
                   <HelpCircle size={20} />
-                  Start Preferences Quiz
+                  {isExistingUser ? 'Submit & Accept' : 'Start Preferences Quiz'}
                 </PreferencesButton>
               </>
             )}
@@ -461,13 +535,24 @@ export default function GuestResponsePage() {
                 <PreferencesIcon>
                   <Calendar size={48} />
                 </PreferencesIcon>
-                <PreferencesTitle>Submit Your Availability!</PreferencesTitle>
+                <PreferencesTitle>
+                  {isExistingUser ? 'Submit Availability & Accept Invite!' : 'Submit Your Availability!'}
+                </PreferencesTitle>
                 <PreferencesText>
                   Help the group find the perfect time to meet by sharing your availability.
+                  {isExistingUser && ' This will also accept the invitation to the activity.'}
                 </PreferencesText>
+                {isExistingUser && (
+                  <UserNotice>
+                    <User size={16} />
+                    <UserNoticeText>
+                      Your response will be associated with your existing Voxxy account and you'll automatically accept this invitation.
+                    </UserNoticeText>
+                  </UserNotice>
+                )}
                 <PreferencesButton onClick={handleStartChat}>
                   <Calendar size={20} />
-                  Share Availability
+                  {isExistingUser ? 'Submit & Accept' : 'Share Availability'}
                 </PreferencesButton>
               </>
             )}
@@ -489,38 +574,30 @@ export default function GuestResponsePage() {
         ) : null}
 
         <InfoText>
-          Want to create an account to manage all your activities?
-          <br />
-          <ActionButton onClick={handleCreateAccount} style={{ marginTop: '1rem' }}>
-            Create Free Account
-          </ActionButton>
+          {isExistingUser ? (
+            <>
+              Already have an account with this email?
+              <br />
+              <ActionButton onClick={handleCreateAccountOrLogin} style={{ marginTop: '1rem' }}>
+                <User size={16} />
+                Log In
+              </ActionButton>
+            </>
+          ) : (
+            <>
+              Want to create an account to manage all your activities?
+              <br />
+              <ActionButton onClick={handleCreateAccountOrLogin} style={{ marginTop: '1rem' }}>
+                Create Free Account
+              </ActionButton>
+            </>
+          )}
         </InfoText>
 
         {showChat && (
           <>
             <DimOverlay onClick={() => setShowChat(false)} />
-            {activity?.activity_type === 'Meeting' ? (
-              <LetsMeetScheduler
-                activityId={activityId}
-                currentActivity={activity}
-                responseSubmitted={submissionSuccess}
-                onClose={() => setShowChat(false)}
-                guestMode={true}
-                guestToken={token}
-                guestEmail={guestEmail}
-                onChatComplete={handleChatComplete}
-              />
-            ) : (
-              <CuisineChat
-                activityId={activityId}
-                guestMode={true}
-                guestToken={token}
-                guestEmail={guestEmail}
-                guestActivity={activity}
-                onClose={() => setShowChat(false)}
-                onChatComplete={handleChatComplete}
-              />
-            )}
+            {renderChatComponent()}
           </>
         )}
       </Container>
