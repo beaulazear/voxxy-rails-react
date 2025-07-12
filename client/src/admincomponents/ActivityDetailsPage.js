@@ -318,7 +318,7 @@ function ActivityDetailsPage() {
       console.log('❌ No activity found - neither regular nor pending invite');
     }
 
-    if (latestActivity.activity_type === 'Meeting') {
+    if (latestActivity?.activity_type === 'Meeting') {
       fetch(`${API_URL}/activities/${numericActivityId}/time_slots`, {
         credentials: "include"
       })

@@ -25,7 +25,7 @@ import TermsOfServicePage from './components/TermsOfServicePage.js';
 import PricingPage from './components/PricingPage.js';
 import Profile from './admincomponents/Profile.js';
 import GuestResponsePage from './components/GuestResponsePage.jsx';
-import ActivityDetailsPage from './admincomponents/ActivityDetailsPage.js';
+import ProtectedActivityRoute from './components/ProtectedActivityRoute.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -82,7 +82,9 @@ function App() {
         <Route path='/pricing' element={<PricingPage />} />
         <Route path='/profile' element={<Profile />} />
         <Route path="/activities/:activityId/respond/:token" element={<GuestResponsePage />} />
-        <Route path="/activity/:activityId" element={<ActivityDetailsPage />} />
+
+        {/* Protected Activity Route - Only accessible if user has proper access */}
+        <Route path="/activity/:activityId" element={<ProtectedActivityRoute />} />
 
         {isLoggedIn && !isConfirmed && (
           <Route path="/confirm-email" element={<ConfirmEmail />} />
