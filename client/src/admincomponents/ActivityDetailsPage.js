@@ -14,7 +14,7 @@ import ActivityHeader from './ActivityHeader.js';
 import ActivityCommentSection from './ActivityCommentSection.js';
 import TimeSlots from '../letsmeet/TimeSlots.js';
 import ActivityNotFoundScreen from './ActivityNotFoundScreen';
-import { ExternalLink, CheckCircle, Clock, MapPin, DollarSign, Globe } from 'lucide-react';
+import { ExternalLink, CheckCircle, Clock, MapPin, DollarSign, Globe, Users, Gamepad2 } from 'lucide-react';
 
 const gradientMove = keyframes`
   0%   { background-position: 0% 50%; }
@@ -228,16 +228,10 @@ const HostName = styled.span`
 `;
 
 const FinalizedMessage = styled.div`
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid ${colors.border};
-  border-radius: 20px;
-  padding: 2rem;
-  margin: 1rem auto;
+  max-width: 600px;
+  margin: 2rem auto;
   text-align: center;
   color: ${colors.text};
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(8px);
-  max-width: 575px;
 
   h3 {
     color: ${colors.success};
@@ -267,7 +261,7 @@ const FinalizedContent = styled.div`
 `;
 
 const CountdownContainer = styled.div`
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid ${colors.border};
   border-radius: 16px;
   padding: 1.5rem;
@@ -292,17 +286,37 @@ const CountdownGrid = styled.div`
   gap: 1rem;
   margin-top: 1rem;
   
+  @media (max-width: 640px) {
+    gap: 0.75rem;
+  }
+  
   @media (max-width: 480px) {
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  
+  @media (max-width: 320px) {
+    gap: 0.375rem;
   }
 `;
 
 const CountdownCard = styled.div`
-  background: rgba(139, 92, 246, 0.1);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(139, 92, 246, 0.3);
   border-radius: 12px;
   padding: 1rem 0.5rem;
   text-align: center;
+  min-width: 0; /* Prevent overflow */
+
+  @media (max-width: 640px) {
+    padding: 0.75rem 0.375rem;
+    border-radius: 10px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0.5rem 0.25rem;
+    border-radius: 8px;
+  }
 
   strong {
     display: block;
@@ -310,6 +324,20 @@ const CountdownCard = styled.div`
     color: ${colors.text};
     font-weight: 700;
     margin-bottom: 0.25rem;
+    line-height: 1;
+    
+    @media (max-width: 640px) {
+      font-size: 1.25rem;
+    }
+    
+    @media (max-width: 480px) {
+      font-size: 1.1rem;
+      margin-bottom: 0.125rem;
+    }
+    
+    @media (max-width: 320px) {
+      font-size: 1rem;
+    }
   }
 
   small {
@@ -318,6 +346,21 @@ const CountdownCard = styled.div`
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    line-height: 1;
+    
+    @media (max-width: 640px) {
+      font-size: 0.75rem;
+      letter-spacing: 0.25px;
+    }
+    
+    @media (max-width: 480px) {
+      font-size: 0.7rem;
+      letter-spacing: 0;
+    }
+    
+    @media (max-width: 320px) {
+      font-size: 0.65rem;
+    }
   }
 `;
 
@@ -510,24 +553,24 @@ function ActivityDetailsPage() {
     if (latestActivity) {
       setCurrentActivity({ ...latestActivity });
 
-      // Only fetch voting data if activity is not finalized
-      if (!isActivityFinalized(latestActivity)) {
-        fetch(`${API_URL}/activities/${numericActivityId}/pinned_activities`, {
-          credentials: "include"
+      // Fetch voting data with error handling for old activities
+      fetch(`${API_URL}/activities/${numericActivityId}/pinned_activities`, {
+        credentials: "include"
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
         })
-          .then((res) => res.json())
-          .then((data) => {
-            // Add safety check for array
-            setPinnedActivities(Array.isArray(data) ? data : []);
-          })
-          .catch((error) => {
-            console.error("Error fetching pinned activities:", error);
-            setPinnedActivities([]); // Set empty array on error
-          });
-      } else {
-        console.log("Skipping pinned activities fetch - activity is finalized");
-        setPinnedActivities([]);
-      }
+        .then((data) => {
+          // Add safety check for array
+          setPinnedActivities(Array.isArray(data) ? data : []);
+        })
+        .catch((error) => {
+          console.error("Error fetching pinned activities:", error);
+          setPinnedActivities([]); // Set empty array on error
+        });
     } else if (pendingInvite) {
 
       if (pendingInvite.activity && Object.keys(pendingInvite.activity).length > 0) {
@@ -554,12 +597,17 @@ function ActivityDetailsPage() {
           });
       }
 
-      // Only fetch voting data if activity is not finalized
-      if (pendingInvite.activity && !isActivityFinalized(pendingInvite.activity)) {
+      // Fetch voting data with error handling
+      if (pendingInvite.activity) {
         fetch(`${API_URL}/activities/${numericActivityId}/pinned_activities`, {
           credentials: "include"
         })
-          .then((res) => res.json())
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+          })
           .then((data) => {
             // Add safety check for array
             setPinnedActivities(Array.isArray(data) ? data : []);
@@ -569,21 +617,22 @@ function ActivityDetailsPage() {
             console.error("Error fetching pinned activities:", error);
             setPinnedActivities([]); // Set empty array on error
           });
-      } else {
-        console.log("Skipping pinned activities fetch for pending invite - activity is finalized");
-        setPinnedActivities([]);
       }
     } else {
       console.log('❌ No activity found - neither regular nor pending invite');
     }
 
-    // Only fetch time slots if it's a Meeting activity and not finalized
     const activityToCheck = latestActivity || pendingInvite?.activity;
-    if (activityToCheck?.activity_type === 'Meeting' && !isActivityFinalized(activityToCheck)) {
+    if (activityToCheck?.activity_type === 'Meeting') {
       fetch(`${API_URL}/activities/${numericActivityId}/time_slots`, {
         credentials: "include"
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
         .then((data) => {
           // Add safety check for array
           setPinned(Array.isArray(data) ? data : []); // This will populate your pinned time slots
@@ -592,9 +641,6 @@ function ActivityDetailsPage() {
           console.error("Error fetching time slots:", error);
           setPinned([]); // Set empty array on error
         });
-    } else if (activityToCheck?.activity_type === 'Meeting') {
-      console.log("Skipping time slots fetch - Meeting activity is finalized");
-      setPinned([]);
     }
 
     return () => clearTimeout(timer);
@@ -642,7 +688,6 @@ function ActivityDetailsPage() {
     navigate('/');
   };
 
-  // Show loading if invalid ID or no user
   if (isNaN(numericActivityId) || !user) {
     return <LoadingScreen />;
   }
@@ -743,12 +788,10 @@ function ActivityDetailsPage() {
   const isOwner = user?.id === currentActivity?.user_id || user?.id === currentActivity?.user?.id;
 
   const handleViewFinalPlans = () => {
-    // Construct the finalized board URL - adjust this based on your routing structure
     const finalizedUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${currentActivity.id}/share`;
     window.open(finalizedUrl, '_blank');
   };
 
-  // Get selected restaurant/activity for finalized display
   const selectedActivity = pinnedActivities.find(activity => activity.selected === true);
 
   const handleInvite = async (email) => {
@@ -1013,7 +1056,7 @@ function ActivityDetailsPage() {
                 <FinalizedMessage>
                   <h3>
                     <CheckCircle size={24} />
-                    Activity Completed
+                    Activity Finalized
                   </h3>
                   <p>This activity has been finalized! All the voting and planning is complete.</p>
 
@@ -1046,7 +1089,6 @@ function ActivityDetailsPage() {
                       </CountdownContainer>
                     )}
 
-                    {/* Selected Restaurant/Activity */}
                     {selectedActivity && currentActivity?.activity_type !== 'Meeting' && (
                       <SelectedRestaurant>
                         <h4>
@@ -1054,18 +1096,47 @@ function ActivityDetailsPage() {
                         </h4>
                         <div className="restaurant-name">{selectedActivity.title}</div>
 
-                        {selectedActivity.address && (
-                          <div className="restaurant-detail">
-                            <MapPin size={16} />
-                            {selectedActivity.address}
-                          </div>
+                        {currentActivity?.activity_type === 'Game Night' && (
+                          <>
+                            {selectedActivity.address && (
+                              <div className="restaurant-detail">
+                                <Users size={16} />
+                                {selectedActivity.address}
+                              </div>
+                            )}
+
+                            {selectedActivity.hours && (
+                              <div className="restaurant-detail">
+                                <Clock size={16} />
+                                {selectedActivity.hours}
+                              </div>
+                            )}
+
+                            {selectedActivity.price_range && (
+                              <div className="restaurant-detail">
+                                <Gamepad2 size={16} />
+                                Difficulty: {selectedActivity.price_range}
+                              </div>
+                            )}
+                          </>
                         )}
 
-                        {selectedActivity.price_range && (
-                          <div className="restaurant-detail">
-                            <DollarSign size={16} />
-                            {selectedActivity.price_range}
-                          </div>
+                        {(currentActivity?.activity_type === 'Restaurant' || currentActivity?.activity_type === 'Cocktails') && (
+                          <>
+                            {selectedActivity.address && (
+                              <div className="restaurant-detail">
+                                <MapPin size={16} />
+                                {selectedActivity.address}
+                              </div>
+                            )}
+
+                            {selectedActivity.price_range && (
+                              <div className="restaurant-detail">
+                                <DollarSign size={16} />
+                                {selectedActivity.price_range}
+                              </div>
+                            )}
+                          </>
                         )}
 
                         {selectedActivity.description && (
@@ -1082,10 +1153,11 @@ function ActivityDetailsPage() {
                               rel="noopener noreferrer"
                             >
                               <Globe size={14} />
-                              Website
+                              {currentActivity?.activity_type === 'Game Night' ? 'Game Info' : 'Website'}
                             </RestaurantButton>
                           )}
-                          {selectedActivity.address && (
+                          {/* Only show map link for restaurants/cocktails with real addresses */}
+                          {selectedActivity.address && (currentActivity?.activity_type === 'Restaurant' || currentActivity?.activity_type === 'Cocktails') && (
                             <RestaurantButton
                               href={`https://maps.google.com?q=${encodeURIComponent(selectedActivity.address)}`}
                               target="_blank"
@@ -1170,7 +1242,6 @@ function ActivityDetailsPage() {
                 <p>This activity has been finalized! All the voting and planning is complete.</p>
 
                 <FinalizedContent>
-                  {/* Countdown Timer */}
                   {currentActivity?.date_day && currentActivity?.date_time && (
                     <CountdownContainer>
                       <h4>
@@ -1206,18 +1277,49 @@ function ActivityDetailsPage() {
                       </h4>
                       <div className="restaurant-name">{selectedActivity.title}</div>
 
-                      {selectedActivity.address && (
-                        <div className="restaurant-detail">
-                          <MapPin size={16} />
-                          {selectedActivity.address}
-                        </div>
+                      {/* Game Night specific fields */}
+                      {currentActivity?.activity_type === 'Game Night' && (
+                        <>
+                          {selectedActivity.address && (
+                            <div className="restaurant-detail">
+                              <Users size={16} />
+                              {selectedActivity.address}
+                            </div>
+                          )}
+
+                          {selectedActivity.hours && (
+                            <div className="restaurant-detail">
+                              <Clock size={16} />
+                              {selectedActivity.hours}
+                            </div>
+                          )}
+
+                          {selectedActivity.price_range && (
+                            <div className="restaurant-detail">
+                              <Gamepad2 size={16} />
+                              Difficulty: {selectedActivity.price_range}
+                            </div>
+                          )}
+                        </>
                       )}
 
-                      {selectedActivity.price_range && (
-                        <div className="restaurant-detail">
-                          <DollarSign size={16} />
-                          {selectedActivity.price_range}
-                        </div>
+                      {/* Restaurant/Cocktails specific fields */}
+                      {(currentActivity?.activity_type === 'Restaurant' || currentActivity?.activity_type === 'Cocktails') && (
+                        <>
+                          {selectedActivity.address && (
+                            <div className="restaurant-detail">
+                              <MapPin size={16} />
+                              {selectedActivity.address}
+                            </div>
+                          )}
+
+                          {selectedActivity.price_range && (
+                            <div className="restaurant-detail">
+                              <DollarSign size={16} />
+                              {selectedActivity.price_range}
+                            </div>
+                          )}
+                        </>
                       )}
 
                       {selectedActivity.description && (
@@ -1234,10 +1336,11 @@ function ActivityDetailsPage() {
                             rel="noopener noreferrer"
                           >
                             <Globe size={14} />
-                            Website
+                            {currentActivity?.activity_type === 'Game Night' ? 'Game Info' : 'Website'}
                           </RestaurantButton>
                         )}
-                        {selectedActivity.address && (
+                        {/* Only show map link for restaurants/cocktails with real addresses */}
+                        {selectedActivity.address && (currentActivity?.activity_type === 'Restaurant' || currentActivity?.activity_type === 'Cocktails') && (
                           <RestaurantButton
                             href={`https://maps.google.com?q=${encodeURIComponent(selectedActivity.address)}`}
                             target="_blank"
