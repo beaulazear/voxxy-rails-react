@@ -597,12 +597,12 @@ function GameNightChat({ onClose }) {
 
                     {step === 3 && (
                         <Section>
-                            <CheckboxLabel onClick={() => setAllowParticipantTimeSelection(!allowParticipantTimeSelection)}>
+                            {/* <CheckboxLabel onClick={() => setAllowParticipantTimeSelection(!allowParticipantTimeSelection)}>
                                 <ToggleWrapper checked={allowParticipantTimeSelection}>
                                     <ToggleCircle checked={allowParticipantTimeSelection} />
                                 </ToggleWrapper>
                                 Let participants vote on their preferred times
-                            </CheckboxLabel>
+                            </CheckboxLabel> */}
 
                             {!allowParticipantTimeSelection && !skipDateTime && (
                                 <DateTimeGrid style={{ marginTop: '1rem' }}>

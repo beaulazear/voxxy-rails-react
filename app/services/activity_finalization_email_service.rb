@@ -54,7 +54,7 @@ class ActivityFinalizationEmailService
       if pinned
         html += <<~HTML
               <p style="font-size: 16px; color: #444;">
-                <strong>📍 Final Restaurant:</strong><br>
+                <strong>📍 Final Selection:</strong><br>
                 #{pinned.title}<br>
                 #{pinned.address}
               </p>

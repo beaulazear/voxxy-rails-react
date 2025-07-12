@@ -6,6 +6,7 @@ class OpenaiController < ApplicationController
   skip_before_action :authorized, only: [
     :restaurant_recommendations,
     :bar_recommendations,
+    :game_recommendations,
     :try_voxxy_recommendations,
     :try_voxxy_cached
   ]
@@ -61,6 +62,32 @@ class OpenaiController < ApplicationController
       render json: { recommendations: recommendations }, status: :ok
     else
       render json: { error: "Failed to generate recommendations" }, status: :unprocessable_entity
+    end
+  end
+
+  def game_recommendations
+    user_responses     = params[:responses]
+    activity_location  = params[:activity_location]
+    date_notes         = params[:date_notes]
+    activity_id        = params[:activity_id]
+
+    if user_responses.blank?
+      render json: { error: "No responses provided" }, status: :unprocessable_entity and return
+    end
+
+    user_id  = current_user.id
+    cache_key = "user_#{user_id}_" \
+                "activity_#{activity_id}_" \
+                "#{generate_cache_key(user_responses, activity_location, date_notes, 'game')}"
+
+    recommendations = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+      fetch_game_recommendations_from_openai(user_responses, activity_location, date_notes)
+    end
+
+    if recommendations.present?
+      render json: { recommendations: recommendations }, status: :ok
+    else
+      render json: { error: "Failed to generate game recommendations" }, status: :unprocessable_entity
     end
   end
 
@@ -262,6 +289,94 @@ class OpenaiController < ApplicationController
       # Remove the enrichment since it now happens in PinnedActivity creation
       recommendations
     rescue JSON::ParserError
+      nil
+    end
+  end
+
+  def fetch_game_recommendations_from_openai(responses, activity_location, date_notes)
+    client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
+
+    notes_text = if responses.is_a?(Array)
+      responses
+        .map { |r| r.is_a?(Hash) ? r["notes"].to_s.strip : r.to_s.strip }
+        .reject(&:empty?)
+        .join("\n\n")
+    else
+      responses.to_s.strip
+    end
+
+    Rails.logger.info("Game recommendations - notes_text length: #{notes_text.length}")
+    Rails.logger.info("Game recommendations - activity_location: #{activity_location}")
+    Rails.logger.info("Game recommendations - date_notes: #{date_notes}")
+
+    prompt = <<~PROMPT
+      You are an AI assistant that provides game recommendations for a game night based on:
+        • user game preferences and group dynamics
+        • activity location (#{activity_location})
+        • timing/occasion (#{date_notes})
+
+      The user's preferences are:
+      #{notes_text}
+
+      IMPORTANT:
+      1. PRIORITIZE group size and player count mentioned in their preferences.
+      2. Honor game type preferences (video games vs board games vs card games).
+      3. Consider complexity level and experience preferences.
+      4. Consider specific games they mentioned owning or wanting to play.
+      5. Match the atmosphere and competitiveness level they described.
+      6. Consider the session duration they prefer.
+      7. Focus on popular, well-reviewed games that are widely available.
+      8. For video games, consider the consoles/platforms they have available.
+      9. For board/card games, prioritize games that are easy to learn but engaging.
+
+      Return exactly 5 games that match these criteria. Output must be valid JSON with the key "restaurants" (for compatibility):
+
+      {
+        "restaurants": [
+          {
+            "name": "Game Title",
+            "price_range": "Easy",
+            "description": "Brief description of the game type and mechanics.",
+            "reason": "Why this game matches their preferences, considering their player count, game types, complexity level, and specific preferences mentioned.",
+            "hours": "30-45 minutes",
+            "website": "https://boardgamegeek.com/boardgame/example or null",
+            "address": "2-4 players"
+          }
+        ]
+      }
+
+      CRITICAL: Use "restaurants" as the JSON key, NOT "games".
+    PROMPT
+
+    Rails.logger.info("Game recommendations - Making OpenAI API call")
+
+    begin
+      response = client.chat(
+        parameters: {
+          model:       "gpt-3.5-turbo",
+          messages: [
+            { role: "system", content: "You are an AI assistant that outputs strictly valid JSON for game recommendations." },
+            { role: "user",   content: prompt }
+          ],
+          temperature: 0.0,
+          max_tokens: 2000  # Add token limit to prevent issues
+        }
+      )
+
+      raw_json = response.dig("choices", 0, "message", "content")
+      Rails.logger.info("Game recommendations - OpenAI response length: #{raw_json&.length}")
+      Rails.logger.info("Game recommendations - Raw JSON: #{raw_json&.first(500)}...")
+
+      parsed = JSON.parse(raw_json)
+      recommendations = parsed.fetch("restaurants", [])
+      Rails.logger.info("Game recommendations - Successfully parsed #{recommendations.length} recommendations")
+      recommendations
+    rescue JSON::ParserError => e
+      Rails.logger.error("Game recommendations - JSON Parse Error: #{e.message}")
+      Rails.logger.error("Game recommendations - Raw response: #{raw_json}")
+      nil
+    rescue => e
+      Rails.logger.error("Game recommendations - OpenAI API Error: #{e.message}")
       nil
     end
   end

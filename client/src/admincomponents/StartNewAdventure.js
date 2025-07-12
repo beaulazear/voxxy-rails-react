@@ -143,13 +143,11 @@ function StartNewAdventure({ onTripSelect }) {
     { name: 'Lets Eat', emoji: '🍜', active: true, description: 'Schedule your next group meal together.' },
     { name: 'Night Out', emoji: '🍸', active: true, description: 'Plan your perfect night out with friends.' },
     { name: 'Lets Meet', emoji: '⏰', active: true, description: 'Find a time that works for everyone.' },
+    { name: 'Game Night', emoji: '🎮', active: true, description: 'Set up a memorable game night.' },
     { name: 'Movie Night', emoji: '🎥', active: false, description: 'Plan your perfect movie night.' },
-    { name: 'Ski Trip', emoji: '🎿', active: false, description: 'Organize your next ski adventure.' },
     { name: 'Kids Play Date', emoji: '👩‍👧‍👦', active: false, description: 'Coordinate a fun playdate for little ones.' },
     { name: 'Find a Destination', emoji: '🗺️', active: false, description: 'Discover new travel destinations.' },
-    { name: 'Game Night', emoji: '🎮', active: false, description: 'Set up a memorable game night.' },
     { name: 'Family Reunion', emoji: '👨‍👩‍👧‍👦', active: false, description: 'Plan a family gathering.' },
-    { name: 'Road Trip', emoji: '🚗', active: false, description: 'Map out your road trip route.' },
   ];
 
   const handleSelection = (name) => {

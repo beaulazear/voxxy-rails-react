@@ -5,6 +5,7 @@ import { UserContext } from '../context/user';
 import {
   PageContainer,
 } from "../styles/ActivityDetailsStyles";
+import { colors } from "../styles/ActivityHeaderStyles";
 import { message, Modal } from "antd";
 import AIRecommendations from "./AIRecommendations";
 import UpdateActivityModal from './UpdateActivityModal';
@@ -13,6 +14,7 @@ import ActivityHeader from './ActivityHeader.js';
 import ActivityCommentSection from './ActivityCommentSection.js';
 import TimeSlots from '../letsmeet/TimeSlots.js';
 import ActivityNotFoundScreen from './ActivityNotFoundScreen';
+import { ExternalLink, CheckCircle, Clock, MapPin, DollarSign, Globe } from 'lucide-react';
 
 const gradientMove = keyframes`
   0%   { background-position: 0% 50%; }
@@ -225,6 +227,228 @@ const HostName = styled.span`
   font-weight: 600;
 `;
 
+const FinalizedMessage = styled.div`
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid ${colors.border};
+  border-radius: 20px;
+  padding: 2rem;
+  margin: 1rem auto;
+  text-align: center;
+  color: ${colors.text};
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  max-width: 575px;
+
+  h3 {
+    color: ${colors.success};
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+  }
+
+  > p {
+    color: ${colors.textSecondary};
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+`;
+
+const FinalizedContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2rem;
+`;
+
+const CountdownContainer = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid ${colors.border};
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+
+  h4 {
+    color: ${colors.primary};
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+  }
+`;
+
+const CountdownGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+  
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+`;
+
+const CountdownCard = styled.div`
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  padding: 1rem 0.5rem;
+  text-align: center;
+
+  strong {
+    display: block;
+    font-size: 1.5rem;
+    color: ${colors.text};
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  small {
+    color: ${colors.primary};
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+`;
+
+const SelectedRestaurant = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid ${colors.border};
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: left;
+
+  h4 {
+    color: ${colors.primary};
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .restaurant-name {
+    color: ${colors.text};
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .restaurant-detail {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: ${colors.textSecondary};
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+
+    svg {
+      color: ${colors.primary};
+      flex-shrink: 0;
+    }
+  }
+
+  .restaurant-description {
+    color: ${colors.textMuted};
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 1rem 0;
+    font-style: italic;
+  }
+`;
+
+const RestaurantActions = styled.div`
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+`;
+
+const RestaurantButton = styled.a`
+  padding: 0.5rem 1rem;
+  border: 1px solid ${colors.primary};
+  border-radius: 10px;
+  color: ${colors.primary};
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+  background: rgba(139, 92, 246, 0.1);
+
+  &:hover {
+    background: rgba(139, 92, 246, 0.2);
+    transform: translateY(-1px);
+    color: ${colors.primary};
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.25);
+  }
+
+  svg {
+    font-size: 0.75rem;
+  }
+`;
+
+const FinalizedButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+`;
+
+const FinalizedButton = styled.button`
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 160px;
+  
+  background: ${({ $primary }) =>
+    $primary
+      ? `linear-gradient(135deg, ${colors.primary}, ${colors.primaryLight})`
+      : 'rgba(255, 255, 255, 0.05)'};
+  color: ${({ $primary }) => ($primary ? 'white' : colors.primary)};
+  border: ${({ $primary }) => ($primary ? 'none' : `1px solid ${colors.primary}`)};
+  
+  &:hover { 
+    transform: translateY(-3px);
+    box-shadow: ${({ $primary }) =>
+    $primary
+      ? '0 8px 25px rgba(139, 92, 246, 0.4)'
+      : '0 4px 12px rgba(0, 0, 0, 0.2)'};
+    background: ${({ $primary }) =>
+    $primary
+      ? `linear-gradient(135deg, ${colors.primaryDark}, ${colors.primary})`
+      : 'rgba(255, 255, 255, 0.1)'};
+  }
+
+  &:active {
+    transform: translateY(-1px);
+  }
+`;
+
 function ActivityDetailsPage() {
   const { user, setUser } = useContext(UserContext);
   const { activityId } = useParams();
@@ -235,6 +459,7 @@ function ActivityDetailsPage() {
   const [currentActivity, setCurrentActivity] = useState(null);
   const [pinnedActivities, setPinnedActivities] = useState([]);
   const [pinned, setPinned] = useState([]);
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   const topRef = useRef(null)
 
@@ -255,6 +480,20 @@ function ActivityDetailsPage() {
     }
   );
 
+  // Helper function to check if activity is finalized
+  const isActivityFinalized = (activity) => {
+    if (!activity) return false;
+    // Check for various finalized states - adjust these based on your data structure
+    return activity.finalized === true ||
+      activity.completed === true ||
+      activity.status === 'finalized' ||
+      activity.status === 'completed' ||
+      (activity.collecting === false && activity.voting === false);
+  };
+
+  // Calculate if activity is finalized
+  const activityFinalized = isActivityFinalized(currentActivity);
+
   useEffect(() => {
     if (isNaN(numericActivityId) || !user) return;
 
@@ -271,16 +510,26 @@ function ActivityDetailsPage() {
     if (latestActivity) {
       setCurrentActivity({ ...latestActivity });
 
-      fetch(`${API_URL}/activities/${numericActivityId}/pinned_activities`, {
-        credentials: "include"
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          setPinnedActivities(data)
+      // Only fetch voting data if activity is not finalized
+      if (!isActivityFinalized(latestActivity)) {
+        fetch(`${API_URL}/activities/${numericActivityId}/pinned_activities`, {
+          credentials: "include"
         })
-        .catch((error) => console.error("Error fetching pinned activities:", error));
+          .then((res) => res.json())
+          .then((data) => {
+            // Add safety check for array
+            setPinnedActivities(Array.isArray(data) ? data : []);
+          })
+          .catch((error) => {
+            console.error("Error fetching pinned activities:", error);
+            setPinnedActivities([]); // Set empty array on error
+          });
+      } else {
+        console.log("Skipping pinned activities fetch - activity is finalized");
+        setPinnedActivities([]);
+      }
     } else if (pendingInvite) {
-      
+
       if (pendingInvite.activity && Object.keys(pendingInvite.activity).length > 0) {
         console.log('✅ Using pendingInvite.activity:', pendingInvite.activity);
         setCurrentActivity({ ...pendingInvite.activity });
@@ -305,32 +554,89 @@ function ActivityDetailsPage() {
           });
       }
 
-      fetch(`${API_URL}/activities/${numericActivityId}/pinned_activities`, {
-        credentials: "include"
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          setPinnedActivities(data);
-          console.log(data)
+      // Only fetch voting data if activity is not finalized
+      if (pendingInvite.activity && !isActivityFinalized(pendingInvite.activity)) {
+        fetch(`${API_URL}/activities/${numericActivityId}/pinned_activities`, {
+          credentials: "include"
         })
-        .catch((error) => console.error("Error fetching pinned activities:", error));
+          .then((res) => res.json())
+          .then((data) => {
+            // Add safety check for array
+            setPinnedActivities(Array.isArray(data) ? data : []);
+            console.log(data)
+          })
+          .catch((error) => {
+            console.error("Error fetching pinned activities:", error);
+            setPinnedActivities([]); // Set empty array on error
+          });
+      } else {
+        console.log("Skipping pinned activities fetch for pending invite - activity is finalized");
+        setPinnedActivities([]);
+      }
     } else {
       console.log('❌ No activity found - neither regular nor pending invite');
     }
 
-    if (latestActivity?.activity_type === 'Meeting') {
+    // Only fetch time slots if it's a Meeting activity and not finalized
+    const activityToCheck = latestActivity || pendingInvite?.activity;
+    if (activityToCheck?.activity_type === 'Meeting' && !isActivityFinalized(activityToCheck)) {
       fetch(`${API_URL}/activities/${numericActivityId}/time_slots`, {
         credentials: "include"
       })
         .then((res) => res.json())
         .then((data) => {
-          setPinned(data) // This will populate your pinned time slots
+          // Add safety check for array
+          setPinned(Array.isArray(data) ? data : []); // This will populate your pinned time slots
         })
-        .catch((error) => console.error("Error fetching time slots:", error));
+        .catch((error) => {
+          console.error("Error fetching time slots:", error);
+          setPinned([]); // Set empty array on error
+        });
+    } else if (activityToCheck?.activity_type === 'Meeting') {
+      console.log("Skipping time slots fetch - Meeting activity is finalized");
+      setPinned([]);
     }
 
     return () => clearTimeout(timer);
   }, [user, numericActivityId, refreshTrigger, API_URL, pendingInvite]);
+
+  // Countdown effect for finalized activities
+  useEffect(() => {
+    if (!activityFinalized || !currentActivity?.date_day || !currentActivity?.date_time) return;
+
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+
+      // Extract time from date_time (which has format "2000-01-01T22:03:00.000Z")
+      const timeOnly = new Date(currentActivity.date_time);
+      const hours = timeOnly.getHours();
+      const minutes = timeOnly.getMinutes();
+      const seconds = timeOnly.getSeconds();
+
+      // Combine date_day with the extracted time
+      const eventDate = new Date(currentActivity.date_day);
+      eventDate.setHours(hours, minutes, seconds, 0);
+
+      const difference = eventDate.getTime() - now;
+
+      if (difference <= 0) {
+        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours24 = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes60 = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds60 = Math.floor((difference % (1000 * 60)) / 1000);
+
+      setCountdown({ days, hours: hours24, minutes: minutes60, seconds: seconds60 });
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, [activityFinalized, currentActivity?.date_day, currentActivity?.date_time]);
 
   const handleBack = () => {
     navigate('/');
@@ -435,6 +741,15 @@ function ActivityDetailsPage() {
   }
 
   const isOwner = user?.id === currentActivity?.user_id || user?.id === currentActivity?.user?.id;
+
+  const handleViewFinalPlans = () => {
+    // Construct the finalized board URL - adjust this based on your routing structure
+    const finalizedUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/activities/${currentActivity.id}/share`;
+    window.open(finalizedUrl, '_blank');
+  };
+
+  // Get selected restaurant/activity for finalized display
+  const selectedActivity = pinnedActivities.find(activity => activity.selected === true);
 
   const handleInvite = async (email) => {
 
@@ -674,6 +989,7 @@ function ActivityDetailsPage() {
     }
   };
 
+  console.log(currentActivity)
   return (
     <>
       <AnimatedSmokeBackground ref={topRef} />
@@ -693,27 +1009,129 @@ function ActivityDetailsPage() {
         {pendingInvite ? (
           <>
             <BlurredOverlay>
-              {currentActivity?.activity_type === 'Restaurant' && (
-                <AIRecommendations
-                  onEdit={() => setShowModal(true)}
-                  isOwner={isOwner}
-                  pinnedActivities={pinnedActivities}
-                  setPinnedActivities={setPinnedActivities}
-                  activity={currentActivity}
-                  setRefreshTrigger={setRefreshTrigger}
-                />
-              )}
-              {currentActivity?.activity_type === 'Meeting' && (
-                <TimeSlots
-                  onEdit={() => setShowModal(true)}
-                  isOwner={isOwner}
-                  handleTimeSlotDelete={handleTimeSlotDelete}
-                  toggleVote={toggleVote}
-                  setPinned={handleTimeSlotPin}
-                  pinned={pinned}
-                  currentActivity={currentActivity}
-                  setCurrentActivity={setCurrentActivity}
-                />
+              {activityFinalized ? (
+                <FinalizedMessage>
+                  <h3>
+                    <CheckCircle size={24} />
+                    Activity Completed
+                  </h3>
+                  <p>This activity has been finalized! All the voting and planning is complete.</p>
+
+                  <FinalizedContent>
+                    {/* Countdown Timer */}
+                    {currentActivity?.date_day && currentActivity?.date_time && (
+                      <CountdownContainer>
+                        <h4>
+                          <Clock size={20} />
+                          Event starts in
+                        </h4>
+                        <CountdownGrid>
+                          <CountdownCard>
+                            <strong>{String(countdown.days).padStart(2, '0')}</strong>
+                            <small>Days</small>
+                          </CountdownCard>
+                          <CountdownCard>
+                            <strong>{String(countdown.hours).padStart(2, '0')}</strong>
+                            <small>Hours</small>
+                          </CountdownCard>
+                          <CountdownCard>
+                            <strong>{String(countdown.minutes).padStart(2, '0')}</strong>
+                            <small>Minutes</small>
+                          </CountdownCard>
+                          <CountdownCard>
+                            <strong>{String(countdown.seconds).padStart(2, '0')}</strong>
+                            <small>Seconds</small>
+                          </CountdownCard>
+                        </CountdownGrid>
+                      </CountdownContainer>
+                    )}
+
+                    {/* Selected Restaurant/Activity */}
+                    {selectedActivity && currentActivity?.activity_type !== 'Meeting' && (
+                      <SelectedRestaurant>
+                        <h4>
+                          📍 Final Selection
+                        </h4>
+                        <div className="restaurant-name">{selectedActivity.title}</div>
+
+                        {selectedActivity.address && (
+                          <div className="restaurant-detail">
+                            <MapPin size={16} />
+                            {selectedActivity.address}
+                          </div>
+                        )}
+
+                        {selectedActivity.price_range && (
+                          <div className="restaurant-detail">
+                            <DollarSign size={16} />
+                            {selectedActivity.price_range}
+                          </div>
+                        )}
+
+                        {selectedActivity.description && (
+                          <div className="restaurant-description">
+                            {selectedActivity.description}
+                          </div>
+                        )}
+
+                        <RestaurantActions>
+                          {selectedActivity.website && (
+                            <RestaurantButton
+                              href={selectedActivity.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Globe size={14} />
+                              Website
+                            </RestaurantButton>
+                          )}
+                          {selectedActivity.address && (
+                            <RestaurantButton
+                              href={`https://maps.google.com?q=${encodeURIComponent(selectedActivity.address)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <MapPin size={14} />
+                              Map View
+                            </RestaurantButton>
+                          )}
+                        </RestaurantActions>
+                      </SelectedRestaurant>
+                    )}
+                  </FinalizedContent>
+
+                  <FinalizedButtonContainer>
+                    <FinalizedButton $primary onClick={handleViewFinalPlans}>
+                      <ExternalLink size={16} />
+                      View Final Plans
+                    </FinalizedButton>
+                  </FinalizedButtonContainer>
+                </FinalizedMessage>
+              ) : (
+                <>
+                  {currentActivity?.activity_type === 'Restaurant' && (
+                    <AIRecommendations
+                      onEdit={() => setShowModal(true)}
+                      isOwner={isOwner}
+                      pinnedActivities={pinnedActivities}
+                      setPinnedActivities={setPinnedActivities}
+                      activity={currentActivity}
+                      setRefreshTrigger={setRefreshTrigger}
+                    />
+                  )}
+                  {currentActivity?.activity_type === 'Meeting' && (
+                    <TimeSlots
+                      onEdit={() => setShowModal(true)}
+                      isOwner={isOwner}
+                      handleTimeSlotDelete={handleTimeSlotDelete}
+                      toggleVote={toggleVote}
+                      setPinned={handleTimeSlotPin}
+                      pinned={pinned}
+                      currentActivity={currentActivity}
+                      setCurrentActivity={setCurrentActivity}
+                    />
+                  )}
+                </>
               )}
               {currentActivity && <ActivityCommentSection activity={currentActivity} />}
             </BlurredOverlay>
@@ -743,28 +1161,130 @@ function ActivityDetailsPage() {
           </>
         ) : (
           <>
-            {(currentActivity?.activity_type === 'Restaurant' || currentActivity?.activity_type === 'Cocktails') && (
-              <AIRecommendations
-                onEdit={() => setShowModal(true)}
-                isOwner={isOwner}
-                pinnedActivities={pinnedActivities}
-                setPinnedActivities={setPinnedActivities}
-                setPinned={handleTimeSlotPin}
-                activity={currentActivity}
-                setRefreshTrigger={setRefreshTrigger}
-              />
-            )}
-            {currentActivity?.activity_type === 'Meeting' && (
-              <TimeSlots
-                onEdit={() => setShowModal(true)}
-                isOwner={isOwner}
-                handleTimeSlotDelete={handleTimeSlotDelete}
-                toggleVote={toggleVote}
-                setPinned={handleTimeSlotPin}
-                pinned={pinned}
-                currentActivity={currentActivity}
-                setCurrentActivity={setCurrentActivity}
-              />
+            {activityFinalized ? (
+              <FinalizedMessage>
+                <h3>
+                  <CheckCircle size={24} />
+                  Activity Finalized
+                </h3>
+                <p>This activity has been finalized! All the voting and planning is complete.</p>
+
+                <FinalizedContent>
+                  {/* Countdown Timer */}
+                  {currentActivity?.date_day && currentActivity?.date_time && (
+                    <CountdownContainer>
+                      <h4>
+                        <Clock size={20} />
+                        Event starts in
+                      </h4>
+                      <CountdownGrid>
+                        <CountdownCard>
+                          <strong>{String(countdown.days).padStart(2, '0')}</strong>
+                          <small>Days</small>
+                        </CountdownCard>
+                        <CountdownCard>
+                          <strong>{String(countdown.hours).padStart(2, '0')}</strong>
+                          <small>Hours</small>
+                        </CountdownCard>
+                        <CountdownCard>
+                          <strong>{String(countdown.minutes).padStart(2, '0')}</strong>
+                          <small>Minutes</small>
+                        </CountdownCard>
+                        <CountdownCard>
+                          <strong>{String(countdown.seconds).padStart(2, '0')}</strong>
+                          <small>Seconds</small>
+                        </CountdownCard>
+                      </CountdownGrid>
+                    </CountdownContainer>
+                  )}
+
+                  {/* Selected Restaurant/Activity */}
+                  {selectedActivity && currentActivity?.activity_type !== 'Meeting' && (
+                    <SelectedRestaurant>
+                      <h4>
+                        📍 Final Selection
+                      </h4>
+                      <div className="restaurant-name">{selectedActivity.title}</div>
+
+                      {selectedActivity.address && (
+                        <div className="restaurant-detail">
+                          <MapPin size={16} />
+                          {selectedActivity.address}
+                        </div>
+                      )}
+
+                      {selectedActivity.price_range && (
+                        <div className="restaurant-detail">
+                          <DollarSign size={16} />
+                          {selectedActivity.price_range}
+                        </div>
+                      )}
+
+                      {selectedActivity.description && (
+                        <div className="restaurant-description">
+                          {selectedActivity.description}
+                        </div>
+                      )}
+
+                      <RestaurantActions>
+                        {selectedActivity.website && (
+                          <RestaurantButton
+                            href={selectedActivity.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Globe size={14} />
+                            Website
+                          </RestaurantButton>
+                        )}
+                        {selectedActivity.address && (
+                          <RestaurantButton
+                            href={`https://maps.google.com?q=${encodeURIComponent(selectedActivity.address)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <MapPin size={14} />
+                            Map View
+                          </RestaurantButton>
+                        )}
+                      </RestaurantActions>
+                    </SelectedRestaurant>
+                  )}
+                </FinalizedContent>
+
+                <FinalizedButtonContainer>
+                  <FinalizedButton $primary onClick={handleViewFinalPlans}>
+                    <ExternalLink size={16} />
+                    View Final Plans
+                  </FinalizedButton>
+                </FinalizedButtonContainer>
+              </FinalizedMessage>
+            ) : (
+              <>
+                {(currentActivity?.activity_type === 'Restaurant' || currentActivity?.activity_type === 'Cocktails' || currentActivity?.activity_type === 'Game Night') && (
+                  <AIRecommendations
+                    onEdit={() => setShowModal(true)}
+                    isOwner={isOwner}
+                    pinnedActivities={pinnedActivities}
+                    setPinnedActivities={setPinnedActivities}
+                    setPinned={handleTimeSlotPin}
+                    activity={currentActivity}
+                    setRefreshTrigger={setRefreshTrigger}
+                  />
+                )}
+                {currentActivity?.activity_type === 'Meeting' && (
+                  <TimeSlots
+                    onEdit={() => setShowModal(true)}
+                    isOwner={isOwner}
+                    handleTimeSlotDelete={handleTimeSlotDelete}
+                    toggleVote={toggleVote}
+                    setPinned={handleTimeSlotPin}
+                    pinned={pinned}
+                    currentActivity={currentActivity}
+                    setCurrentActivity={setCurrentActivity}
+                  />
+                )}
+              </>
             )}
             {currentActivity && <ActivityCommentSection activity={currentActivity} />}
           </>

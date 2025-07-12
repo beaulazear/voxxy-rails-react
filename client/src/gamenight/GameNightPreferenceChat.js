@@ -1,8 +1,8 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { UserContext } from '../context/user';
 import mixpanel from 'mixpanel-browser';
-import { Gamepad2, Users, Calendar, Clock, MessageSquare, Send, X, ChevronLeft, ChevronRight, Monitor, Dice6, Zap, Target, Heart, Trophy, Timer, Smile } from 'lucide-react';
+import { Gamepad2, Users, Calendar, Clock, MessageSquare, Send, X, ChevronLeft, ChevronRight, Monitor, Dice6, Zap, Target, Heart, Trophy, Timer, Smile, Plus, Trash2 } from 'lucide-react';
 
 const fadeIn = keyframes`
   from { 
@@ -277,6 +277,98 @@ const Slider = styled.input.attrs({ type: 'range' })`
   }
 `;
 
+const CustomGameSection = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+`;
+
+const CustomGameTitle = styled.h4`
+  margin: 0 0 1rem 0;
+  color: #cc31e8;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const GameInput = styled.input`
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  
+  &::placeholder {
+    color: #aaa;
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: #cc31e8;
+    box-shadow: 0 0 0 2px rgba(204, 49, 232, 0.2);
+  }
+`;
+
+const AddGameButton = styled.button`
+  background: rgba(204, 49, 232, 0.2);
+  border: 1px solid #cc31e8;
+  color: #cc31e8;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(204, 49, 232, 0.3);
+    transform: translateY(-1px);
+  }
+`;
+
+const GameList = styled.div`
+  margin-top: 1rem;
+`;
+
+const GameItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+`;
+
+const GameName = styled.span`
+  color: #fff;
+  font-size: 0.9rem;
+`;
+
+const RemoveButton = styled.button`
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  
+  &:hover {
+    background: rgba(255, 107, 107, 0.1);
+  }
+`;
+
 const AvailabilitySection = styled.div`
   margin-top: 1rem;
 `;
@@ -429,15 +521,26 @@ const SectionDescription = styled.p`
   line-height: 1.4;
 `;
 
-export default function GameNightPreferenceChat({ activityId, onClose, onChatComplete }) {
-    const { user } = useContext(UserContext);
+export default function GameNightPreferenceChat({
+    activityId,
+    onClose,
+    onChatComplete,
+    guestMode = false,
+    guestToken = null,
+    guestEmail = null,
+    guestActivity
+}) {
+    const { user, setUser } = useContext(UserContext);
     const [currentStep, setCurrentStep] = useState(1);
     const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState('');
 
     // Form state
     const [gameType, setGameType] = useState('');
     const [consoles, setConsoles] = useState([]);
     const [traditionalGames, setTraditionalGames] = useState([]);
+    const [customGames, setCustomGames] = useState([]);
+    const [newGameInput, setNewGameInput] = useState('');
     const [gameGenres, setGameGenres] = useState([]);
     const [playStyle, setPlayStyle] = useState('');
     const [competitiveness, setCompetitiveness] = useState('');
@@ -454,9 +557,7 @@ export default function GameNightPreferenceChat({ activityId, onClose, onChatCom
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
     const [activity, setActivity] = useState(null);
 
-    const totalSteps = 9;
-
-    React.useEffect(() => {
+    useEffect(() => {
         fetch(`${API_URL}/activities/${activityId}`, {
             credentials: 'include'
         })
@@ -468,7 +569,7 @@ export default function GameNightPreferenceChat({ activityId, onClose, onChatCom
     const stepTitles = [
         "What type of games interest you?",
         "Gaming consoles & platforms",
-        "Traditional games you have",
+        "Games you own or want to play",
         "What game genres do you enjoy?",
         "How do you like to play?",
         "How competitive is your group?",
@@ -481,11 +582,30 @@ export default function GameNightPreferenceChat({ activityId, onClose, onChatCom
         stepTitles.push("Your availability");
     }
 
+    const totalSteps = stepTitles.length;
+
     const handleMultiSelect = (value, currentArray, setter) => {
         const newArray = currentArray.includes(value)
             ? currentArray.filter(item => item !== value)
             : [...currentArray, value];
         setter(newArray);
+    };
+
+    const handleAddCustomGame = () => {
+        if (newGameInput.trim() && !customGames.includes(newGameInput.trim())) {
+            setCustomGames([...customGames, newGameInput.trim()]);
+            setNewGameInput('');
+        }
+    };
+
+    const handleRemoveCustomGame = (gameToRemove) => {
+        setCustomGames(customGames.filter(game => game !== gameToRemove));
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleAddCustomGame();
+        }
     };
 
     const addTimeSlot = () => {
@@ -530,7 +650,7 @@ export default function GameNightPreferenceChat({ activityId, onClose, onChatCom
         switch (currentStep) {
             case 1: return gameType !== '';
             case 2: return true; // Optional
-            case 3: return true; // Optional
+            case 3: return true; // Optional custom games
             case 4: return gameGenres.length > 0;
             case 5: return playStyle !== '';
             case 6: return competitiveness !== '';
@@ -543,8 +663,7 @@ export default function GameNightPreferenceChat({ activityId, onClose, onChatCom
     };
 
     const handleNext = () => {
-        const finalStep = activity?.allow_participant_time_selection ? 10 : 9;
-        if (currentStep < finalStep) {
+        if (currentStep < totalSteps) {
             setCurrentStep(currentStep + 1);
         } else {
             handleSubmit();
@@ -554,66 +673,144 @@ export default function GameNightPreferenceChat({ activityId, onClose, onChatCom
     const handleSubmit = async () => {
         setSubmitting(true);
 
-        const preferences = {
-            gameType,
-            consoles: consoles.length > 0 ? consoles : ['None specified'],
-            traditionalGames: traditionalGames.length > 0 ? traditionalGames : ['Open to suggestions'],
-            gameGenres,
-            playStyle,
-            competitiveness,
-            duration: formatDuration(duration),
-            atmosphere,
-            experienceLevel,
-            additionalNotes: additionalNotes || 'No additional preferences'
-        };
+        // Compile custom games with traditional games
+        const allTraditionalGames = [...traditionalGames];
+        if (customGames.length > 0) {
+            allTraditionalGames.push(`Custom Games: ${customGames.join(', ')}`);
+        }
+
+        // Compile all preferences into notes
+        const gameTypeText = gameType === "video" ? "Video Games" : "Board/Traditional Games";
 
         const notes = `Game Night Preferences:
-🎮 Game Type: ${preferences.gameType}
-🖥️ Consoles Available: ${preferences.consoles.join(', ')}
-🎲 Traditional Games: ${preferences.traditionalGames.join(', ')}
-🎯 Favorite Genres: ${preferences.gameGenres.join(', ')}
-🤝 Play Style: ${preferences.playStyle}
-🏆 Competitiveness: ${preferences.competitiveness}
-⏱️ Preferred Duration: ${preferences.duration}
-🌟 Atmosphere: ${preferences.atmosphere}
-📊 Experience Level: ${preferences.experienceLevel}
-💭 Additional Notes: ${preferences.additionalNotes}`;
+🎮 Game Type: ${gameTypeText}
+🖥️ Consoles Available: ${consoles.length > 0 ? consoles.join(', ') : 'None specified'}
+🎲 Traditional Games: ${allTraditionalGames.length > 0 ? allTraditionalGames.join(', ') : 'Open to suggestions'}
+🎯 Favorite Genres: ${gameGenres.join(', ')}
+🤝 Play Style: ${playStyle}
+🏆 Competitiveness: ${competitiveness}
+⏱️ Preferred Duration: ${formatDuration(duration)}
+🌟 Atmosphere: ${atmosphere}
+📊 Experience Level: ${experienceLevel}
+💭 Additional Notes: ${additionalNotes || 'No additional preferences'}`.trim();
+
+        if (process.env.NODE_ENV === 'production' && !guestMode) {
+            mixpanel.track('Game Night Preferences Submitted', {
+                user: user.id,
+                activityId: activityId,
+                gameType: gameType,
+                atmosphere: atmosphere
+            });
+        }
 
         try {
-            const response = await fetch(`${API_URL}/activities/${activityId}/responses`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({
-                    notes,
-                    availability: activity?.allow_participant_time_selection ? availability : undefined
-                })
-            });
+            let endpoint, requestOptions;
+
+            if (guestMode) {
+                endpoint = `${API_URL}/activities/${activityId}/respond/${guestToken}`;
+                requestOptions = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        response: {
+                            notes,
+                            ...(activity?.allow_participant_time_selection && { availability })
+                        },
+                    }),
+                };
+            } else {
+                endpoint = `${API_URL}/responses`;
+                requestOptions = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        response: {
+                            notes,
+                            activity_id: activityId,
+                            ...(activity?.allow_participant_time_selection && { availability })
+                        },
+                    }),
+                };
+            }
+
+            const response = await fetch(endpoint, requestOptions);
 
             if (!response.ok) {
-                throw new Error('Failed to submit preferences');
+                const errorData = await response.json();
+                console.error('❌ Failed to save response:', errorData);
+                setError('Failed to submit preferences. Please try again.');
+                return;
             }
 
-            if (process.env.NODE_ENV === 'production') {
-                mixpanel.track('Game Night Preferences Submitted', {
-                    user: user.id,
-                    activityId: activityId,
-                    gameType: preferences.gameType,
-                    atmosphere: preferences.atmosphere
+            const data = await response.json();
+
+            if (!guestMode && user) {
+                const { response: newResponse, comment: newComment } = data;
+
+                setUser((prev) => {
+                    const activities = prev.activities.map((act) => {
+                        if (act.id === activityId) {
+                            const filteredResponses = (act.responses || []).filter(
+                                response => response.user_id !== user.id
+                            );
+                            const filteredComments = (act.comments || []).filter(
+                                comment => comment.user_id !== user.id
+                            );
+
+                            return {
+                                ...act,
+                                responses: [...filteredResponses, newResponse],
+                                comments: [...filteredComments, newComment],
+                            };
+                        }
+                        return act;
+                    });
+
+                    const participant_activities = prev.participant_activities.map((pa) => {
+                        if (pa.activity.id === activityId) {
+                            const filteredResponses = (pa.activity.responses || []).filter(
+                                response => response.user_id !== user.id
+                            );
+                            const filteredComments = (pa.activity.comments || []).filter(
+                                comment => comment.user_id !== user.id
+                            );
+
+                            return {
+                                ...pa,
+                                activity: {
+                                    ...pa.activity,
+                                    responses: [...filteredResponses, newResponse],
+                                    comments: [...filteredComments, newComment],
+                                },
+                            };
+                        }
+                        return pa;
+                    });
+
+                    return {
+                        ...prev,
+                        activities,
+                        participant_activities,
+                    };
                 });
+
+                onChatComplete(newResponse, newComment);
+            } else {
+                onChatComplete();
             }
 
-            onChatComplete();
         } catch (error) {
             console.error('Error submitting preferences:', error);
-            alert('Failed to submit preferences. Please try again.');
+            setError('Failed to submit preferences. Please try again.');
         } finally {
             setSubmitting(false);
         }
+
+        onClose();
     };
 
-    const finalStep = activity?.allow_participant_time_selection ? 10 : 9;
-    const percent = (currentStep / finalStep) * 100;
+    const percent = (currentStep / totalSteps) * 100;
 
     return (
         <Overlay onClick={() => onClose()}>
@@ -623,8 +820,21 @@ export default function GameNightPreferenceChat({ activityId, onClose, onChatCom
                 </ProgressBarContainer>
 
                 <StepLabel>
-                    Step {currentStep} of {finalStep}
+                    Step {currentStep} of {totalSteps}
                 </StepLabel>
+
+                {error && (
+                    <div style={{
+                        background: 'rgba(220, 53, 69, 0.1)',
+                        border: '1px solid rgba(220, 53, 69, 0.3)',
+                        color: '#dc3545',
+                        padding: '1rem 2rem',
+                        fontSize: '0.9rem',
+                        textAlign: 'center'
+                    }}>
+                        {error}
+                    </div>
+                )}
 
                 <ModalHeader>
                     <Title>
@@ -646,25 +856,29 @@ export default function GameNightPreferenceChat({ activityId, onClose, onChatCom
                                     $selected={gameType === 'Video Games'}
                                     onClick={() => setGameType('Video Games')}
                                 >
-                                    🎮 Video Games
+                                    🎮 Video Games<br />
+                                    <small style={{ opacity: 0.8 }}>Console, PC, mobile</small>
                                 </OptionCard>
                                 <OptionCard
                                     $selected={gameType === 'Board Games'}
                                     onClick={() => setGameType('Board Games')}
                                 >
-                                    🎲 Board Games
+                                    🎲 Board Games<br />
+                                    <small style={{ opacity: 0.8 }}>Traditional tabletop</small>
                                 </OptionCard>
                                 <OptionCard
                                     $selected={gameType === 'Card Games'}
                                     onClick={() => setGameType('Card Games')}
                                 >
-                                    🃏 Card Games
+                                    🃏 Card Games<br />
+                                    <small style={{ opacity: 0.8 }}>Playing cards, etc.</small>
                                 </OptionCard>
                                 <OptionCard
                                     $selected={gameType === 'Open to All'}
                                     onClick={() => setGameType('Open to All')}
                                 >
-                                    ✨ Open to All
+                                    ✨ Open to All<br />
+                                    <small style={{ opacity: 0.8 }}>Any type of game</small>
                                 </OptionCard>
                             </OptionsGrid>
                         </Section>
@@ -690,10 +904,11 @@ export default function GameNightPreferenceChat({ activityId, onClose, onChatCom
 
                     {currentStep === 3 && (
                         <Section>
-                            <SectionTitle><Dice6 size={20} />Traditional Games Collection</SectionTitle>
-                            <SectionDescription>What traditional games do you have available? (Select all that apply)</SectionDescription>
+                            <SectionTitle><Dice6 size={20} />Games You Own or Want to Play</SectionTitle>
+                            <SectionDescription>What games do you have available or want to try? (Select categories and add specific games)</SectionDescription>
+
                             <MultiSelectGrid>
-                                {['Classic Board Games', 'Strategy Board Games', 'Party Board Games', 'Card Games (Poker, etc.)', 'Jackbox Games', 'Trivia Games', 'Puzzle Games', 'Cooperative Games', 'Role-Playing Games', 'None - Need Suggestions'].map(game => (
+                                {['Classic Board Games', 'Strategy Board Games', 'Party Board Games', 'Card Games (Poker, etc.)', 'Jackbox Games', 'Trivia Games', 'Puzzle Games', 'Cooperative Games', 'Role-Playing Games'].map(game => (
                                     <MultiSelectCard
                                         key={game}
                                         $selected={traditionalGames.includes(game)}
@@ -703,6 +918,38 @@ export default function GameNightPreferenceChat({ activityId, onClose, onChatCom
                                     </MultiSelectCard>
                                 ))}
                             </MultiSelectGrid>
+
+                            <CustomGameSection>
+                                <CustomGameTitle>
+                                    <Plus size={16} />
+                                    Specific Games You Own or Want to Play
+                                </CustomGameTitle>
+                                <GameInput
+                                    value={newGameInput}
+                                    onChange={(e) => setNewGameInput(e.target.value)}
+                                    onKeyPress={handleKeyPress}
+                                    placeholder={gameType === 'Video Games' ?
+                                        "e.g., Mario Kart, Among Us, Rocket League..." :
+                                        "e.g., Codenames, Ticket to Ride, Uno, Monopoly..."}
+                                />
+                                <AddGameButton onClick={handleAddCustomGame}>
+                                    <Plus size={16} />
+                                    Add Game
+                                </AddGameButton>
+
+                                {customGames.length > 0 && (
+                                    <GameList>
+                                        {customGames.map((game, index) => (
+                                            <GameItem key={index}>
+                                                <GameName>{game}</GameName>
+                                                <RemoveButton onClick={() => handleRemoveCustomGame(game)}>
+                                                    <Trash2 size={14} />
+                                                </RemoveButton>
+                                            </GameItem>
+                                        ))}
+                                    </GameList>
+                                )}
+                            </CustomGameSection>
                         </Section>
                     )}
 
@@ -965,7 +1212,7 @@ export default function GameNightPreferenceChat({ activityId, onClose, onChatCom
                         onClick={handleNext}
                         disabled={!isStepValid() || submitting}
                     >
-                        {currentStep === finalStep ? (
+                        {currentStep === totalSteps ? (
                             submitting ? 'Submitting...' : <><Send size={16} />Submit Preferences</>
                         ) : (
                             <><ChevronRight size={16} />Next</>

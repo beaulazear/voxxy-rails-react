@@ -495,7 +495,7 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities, pi
               <Section>
                 <SectionHeader>
                   <Users size={20} />
-                  <SectionTitle>Restaurant Selection</SectionTitle>
+                  <SectionTitle>{activity.activity_type === 'Game Night' ? 'Game Selections' : 'Restaurant Selection'}</SectionTitle>
                 </SectionHeader>
                 <OptionList>
                   {[...pinnedActivities]

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import styled, { keyframes } from 'styled-components';
 import CuisineChat from "../admincomponents/CuisineChat";
 import BarChat from "../cocktails/BarChat";
+import GameNightPreferenceChat from "../gamenight/GameNightPreferenceChat";
 import LetsMeetScheduler from "../letsmeet/LetsMeetScheduler";
 import LoadingScreenUser from "../admincomponents/LoadingScreenUser.js";
 import { HelpCircle, CheckCircle, BookHeart, AlertCircle, ArrowRight, Calendar, MessageSquare, User } from 'lucide-react';
@@ -162,24 +163,6 @@ const PreferencesButton = styled.button`
   }
 `;
 
-const UserNotice = styled.div`
-  background: rgba(46, 125, 50, 0.15);
-  border: 1px solid rgba(76, 175, 80, 0.3);
-  padding: 1rem;
-  margin: 1rem 0;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-`;
-
-const UserNoticeText = styled.p`
-  color: #81c784;
-  font-size: 0.85rem;
-  margin: 0;
-  line-height: 1.4;
-`;
-
 const SubmittedCard = styled.div`
   background: rgba(40, 167, 69, 0.2);
   border: 1px solid rgba(40, 167, 69, 0.3);
@@ -309,7 +292,9 @@ export default function GuestResponsePage() {
     const activityTypes = {
       'Restaurant': { emoji: '🍜', description: 'Schedule your next group meal together.' },
       'Cocktails': { emoji: '🍸', description: 'Plan your perfect night out with friends.' },
-      'Meeting': { emoji: '⏰', description: 'Find a time that works for everyone.' }
+      'Game Night': { emoji: '🎮', description: 'Set up a memorable game night with friends.' },
+      'Meeting': { emoji: '⏰', description: 'Find a time that works for everyone.' },
+      'Night Out': { emoji: '🎉', description: 'Plan an exciting night out together.' }
     };
 
     return activityTypes[activityType] || { emoji: '🎉', description: 'Join this activity!' };
@@ -332,7 +317,7 @@ export default function GuestResponsePage() {
       setActivity(data.activity);
       setGuestEmail(data.participant_email);
       setExistingResponse(data.existing_response);
-      setIsExistingUser(data.is_existing_user || false); // Add this line to handle existing user status
+      setIsExistingUser(data.is_existing_user || false);
     } catch (err) {
       console.error("Error fetching guest data:", err);
       setError("Unable to connect to the server. Please check your internet connection.");
@@ -352,7 +337,6 @@ export default function GuestResponsePage() {
   const handleChatComplete = () => {
     setShowChat(false);
     setSubmissionSuccess(true);
-    // Refresh data to get updated response
     fetchGuestData();
   };
 
@@ -382,6 +366,13 @@ export default function GuestResponsePage() {
             guestActivity={activity}
           />
         );
+      case 'Game Night':
+        return (
+          <GameNightPreferenceChat
+            {...commonProps}
+            guestActivity={activity}
+          />
+        );
       case 'Restaurant':
       default:
         return (
@@ -395,10 +386,8 @@ export default function GuestResponsePage() {
 
   const handleCreateAccountOrLogin = () => {
     if (isExistingUser) {
-      // Navigate to login with activity context
       navigate(`/login?invited_email=${encodeURIComponent(guestEmail)}&activity_id=${activityId}`);
     } else {
-      // Navigate to signup with activity context
       navigate(`/signup?invited_email=${encodeURIComponent(guestEmail)}&activity_id=${activityId}`);
     }
   };
@@ -504,7 +493,7 @@ export default function GuestResponsePage() {
 
         {!existingResponse && !submissionSuccess ? (
           <PreferencesCard>
-            {(activity.activity_type === 'Restaurant' || activity.activity_type === 'Cocktails') && (
+            {(activity.activity_type === 'Restaurant' || activity.activity_type === 'Cocktails' || activity.activity_type === 'Game Night') && (
               <>
                 <PreferencesIcon>
                   <BookHeart size={48} />
@@ -513,17 +502,14 @@ export default function GuestResponsePage() {
                   {isExistingUser ? 'Submit Preferences & Accept Invite!' : 'Submit Your Preferences!'}
                 </PreferencesTitle>
                 <PreferencesText>
-                  Help the group find the perfect {activity.activity_type === 'Restaurant' ? 'restaurant' : 'night out'} by sharing your preferences, dietary needs, and budget.
-                  {isExistingUser && ' This will also accept the invitation to the activity.'}
+                  Help the group find the perfect {
+                    activity.activity_type === 'Restaurant' ? 'restaurant' :
+                      activity.activity_type === 'Cocktails' ? 'night out' :
+                        'game night'
+                  } by sharing your preferences{activity.activity_type === 'Restaurant' ? ', dietary needs, and budget' :
+                    activity.activity_type === 'Game Night' ? ' and favorite games' : ' and budget'}.
+                  {isExistingUser && ' This will also accept the invitation to the activity & your response will be associated with your existing Voxxy account.'}
                 </PreferencesText>
-                {isExistingUser && (
-                  <UserNotice>
-                    <User size={16} />
-                    <UserNoticeText>
-                      Your response will be associated with your existing Voxxy account and you'll automatically accept this invitation.
-                    </UserNoticeText>
-                  </UserNotice>
-                )}
                 <PreferencesButton onClick={handleStartChat}>
                   <HelpCircle size={20} />
                   {isExistingUser ? 'Submit & Accept' : 'Start Preferences Quiz'}
@@ -540,16 +526,8 @@ export default function GuestResponsePage() {
                 </PreferencesTitle>
                 <PreferencesText>
                   Help the group find the perfect time to meet by sharing your availability.
-                  {isExistingUser && ' This will also accept the invitation to the activity.'}
+                  {isExistingUser && ' This will also accept the invitation to the activity& your response will be associated with your existing Voxxy account.'}
                 </PreferencesText>
-                {isExistingUser && (
-                  <UserNotice>
-                    <User size={16} />
-                    <UserNoticeText>
-                      Your response will be associated with your existing Voxxy account and you'll automatically accept this invitation.
-                    </UserNoticeText>
-                  </UserNotice>
-                )}
                 <PreferencesButton onClick={handleStartChat}>
                   <Calendar size={20} />
                   {isExistingUser ? 'Submit & Accept' : 'Share Availability'}

@@ -47,7 +47,7 @@
     <!-- Final restaurant -->
     <% if (pinned = @activity.pinned_activities.find_by(selected: true)) %>
       <div class="card">
-        <h2>📍 Final Restaurant</h2>
+        <h2>📍 Final Selection</h2>
         <p class="rest-name"><%= pinned.title %></p>
         <% if pinned.description.present? %>
           <p class="rest-desc"><%= pinned.description %></p>

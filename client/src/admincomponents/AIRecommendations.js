@@ -3,6 +3,7 @@ import React, { useState, useContext } from "react";
 import styled from 'styled-components';
 import CuisineChat from "./CuisineChat";
 import BarChat from "../cocktails//BarChat";
+import GameNightPreferenceChat from "../gamenight/GameNightPreferenceChat"; // Add this import
 import LoadingScreenUser from "./LoadingScreenUser.js";
 import mixpanel from "mixpanel-browser";
 import { UserContext } from "../context/user";
@@ -396,6 +397,7 @@ export default function AIRecommendations({
   // Determine activity type for dynamic text and API calls
   const activityType = activity.activity_type || 'Restaurant';
   const isCocktailsActivity = activityType === 'Cocktails';
+  const isGameNightActivity = activityType === 'Game Night'; // Add this line
 
   // Dynamic text based on activity type
   const getActivityText = () => {
@@ -412,6 +414,23 @@ export default function AIRecommendations({
         apiEndpoint: '/api/openai/bar_recommendations'
       };
     }
+
+    // Add Game Night case
+    if (isGameNightActivity) {
+      return {
+        submitTitle: 'Submit Your Game Preferences',
+        submitDescription: 'Help us find the perfect games by sharing your game preferences and group dynamics',
+        planningTitle: 'Game Night Planning',
+        votingTitle: 'Vote on Games',
+        finalizedTitle: 'Game Night Finalized',
+        preferencesQuiz: 'Take Game Preferences Quiz',
+        resubmitPreferences: 'Resubmit Game Preferences',
+        reasonTitle: 'Why This Game?',
+        apiEndpoint: '/api/openai/game_recommendations'
+      };
+    }
+
+    // Default Restaurant case
     return {
       submitTitle: 'Submit Your Preferences',
       submitDescription: 'Help us find the perfect restaurant by sharing your food preferences and dietary needs',
@@ -445,7 +464,9 @@ export default function AIRecommendations({
 
   const handleStartChat = () => {
     if (process.env.NODE_ENV === "production" && user) {
-      const trackingEvent = isCocktailsActivity ? "Bar Chat with Voxxy Clicked" : "Chat with Voxxy Clicked";
+      let trackingEvent = "Chat with Voxxy Clicked";
+      if (isCocktailsActivity) trackingEvent = "Bar Chat with Voxxy Clicked";
+      if (isGameNightActivity) trackingEvent = "Game Night Chat with Voxxy Clicked";
       mixpanel.track(trackingEvent, { activity: id });
     }
     setShowChat(true);
@@ -725,12 +746,21 @@ export default function AIRecommendations({
           </SubmittedCard>
         ) : null}
 
-        {/* Conditionally render correct chat component */}
+        {/* Updated chat component rendering */}
         {showChat && user && (
           <>
             <DimOverlay onClick={() => setShowChat(false)} />
             {isCocktailsActivity ? (
               <BarChat
+                activityId={id}
+                onClose={() => setShowChat(false)}
+                onChatComplete={async () => {
+                  setRefreshTrigger(f => !f);
+                  setShowChat(false);
+                }}
+              />
+            ) : isGameNightActivity ? (
+              <GameNightPreferenceChat
                 activityId={id}
                 onClose={() => setShowChat(false)}
                 onChatComplete={async () => {
@@ -843,8 +873,17 @@ export default function AIRecommendations({
                   </ListTop>
                   <ListBottom>
                     <div style={{ textAlign: 'left' }}>
-                      <div>{p.hours || "N/A"}</div>
-                      <div>{p.address || "N/A"}</div>
+                      {isGameNightActivity ? (
+                        <>
+                          <div>{p.hours || "N/A"}</div> {/* Play time */}
+                          <div>{p.address || "N/A"}</div> {/* Player count */}
+                        </>
+                      ) : (
+                        <>
+                          <div>{p.hours || "N/A"}</div>
+                          <div>{p.address || "N/A"}</div>
+                        </>
+                      )}
                     </div>
                     <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
                       {user && (
@@ -879,16 +918,40 @@ export default function AIRecommendations({
 
               <ModalBody>
                 <DetailGrid>
-                  <DetailItem>
-                    <DollarSign style={{ color: '#D4AF37' }} size={16} />
-                    <DetailLabel>Price:</DetailLabel>
-                    <DetailValue>{selectedRec.price_range || "N/A"}</DetailValue>
-                  </DetailItem>
-                  <DetailItem>
-                    <Clock size={16} />
-                    <DetailLabel>Hours:</DetailLabel>
-                    <DetailValue>{selectedRec.hours || "N/A"}</DetailValue>
-                  </DetailItem>
+                  {isGameNightActivity ? (
+                    // Game-specific details
+                    <>
+                      <DetailItem>
+                        <Users size={16} />
+                        <DetailLabel>Players:</DetailLabel>
+                        <DetailValue>{selectedRec.address || "N/A"}</DetailValue>
+                      </DetailItem>
+                      <DetailItem>
+                        <Clock size={16} />
+                        <DetailLabel>Play Time:</DetailLabel>
+                        <DetailValue>{selectedRec.hours || "N/A"}</DetailValue>
+                      </DetailItem>
+                      <DetailItem>
+                        <DollarSign style={{ color: '#D4AF37' }} size={16} />
+                        <DetailLabel>Price:</DetailLabel>
+                        <DetailValue>{selectedRec.price_range || "N/A"}</DetailValue>
+                      </DetailItem>
+                    </>
+                  ) : (
+                    // Restaurant/Bar details (existing)
+                    <>
+                      <DetailItem>
+                        <DollarSign style={{ color: '#D4AF37' }} size={16} />
+                        <DetailLabel>Price:</DetailLabel>
+                        <DetailValue>{selectedRec.price_range || "N/A"}</DetailValue>
+                      </DetailItem>
+                      <DetailItem>
+                        <Clock size={16} />
+                        <DetailLabel>Hours:</DetailLabel>
+                        <DetailValue>{selectedRec.hours || "N/A"}</DetailValue>
+                      </DetailItem>
+                    </>
+                  )}
                 </DetailGrid>
 
                 {selectedRec.description && (
@@ -920,7 +983,8 @@ export default function AIRecommendations({
                   </Reason>
                 )}
 
-                {selectedRec.address && (
+                {/* Conditionally show location/map section only for non-game activities */}
+                {!isGameNightActivity && selectedRec.address && (
                   <Section>
                     <SectionHeader>
                       <MapPin size={20} />
@@ -969,8 +1033,8 @@ export default function AIRecommendations({
                   </Section>
                 )}
 
-                {/* Enhanced photos section with backend-generated URLs */}
-                {(() => {
+                {/* Enhanced photos section with backend-generated URLs - hide for games */}
+                {!isGameNightActivity && (() => {
                   const photos = safeJsonParse(selectedRec.photos, []);
                   const validPhotos = photos.filter(photo => getPhotoUrl(photo));
 
@@ -999,8 +1063,7 @@ export default function AIRecommendations({
                   );
                 })()}
 
-                {/* Reviews section with truncation */}
-                {(() => {
+                {!isGameNightActivity && (() => {
                   const reviews = safeJsonParse(selectedRec.reviews, []);
                   return reviews.length > 0 && (
                     <Section>
@@ -1061,8 +1124,17 @@ export default function AIRecommendations({
                     </ListTop>
                     <ListBottom>
                       <div style={{ textAlign: 'left' }}>
-                        <div>{p.hours || "N/A"}</div>
-                        <div>{p.address || "N/A"}</div>
+                        {isGameNightActivity ? (
+                          <>
+                            <div>{p.hours || "N/A"}</div> {/* Play time */}
+                            <div>{p.address || "N/A"}</div> {/* Player count */}
+                          </>
+                        ) : (
+                          <>
+                            <div>{p.hours || "N/A"}</div>
+                            <div>{p.address || "N/A"}</div>
+                          </>
+                        )}
                       </div>
                       <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
                         <VoteCount>
@@ -1088,16 +1160,38 @@ export default function AIRecommendations({
 
               <ModalBody>
                 <DetailGrid>
-                  <DetailItem>
-                    <DollarSign style={{ color: '#D4AF37' }} size={16} />
-                    <DetailLabel>Price:</DetailLabel>
-                    <DetailValue>{selectedRec.price_range || "N/A"}</DetailValue>
-                  </DetailItem>
-                  <DetailItem>
-                    <Clock size={16} />
-                    <DetailLabel>Hours:</DetailLabel>
-                    <DetailValue>{selectedRec.hours || "N/A"}</DetailValue>
-                  </DetailItem>
+                  {isGameNightActivity ? (
+                    <>
+                      <DetailItem>
+                        <Users size={16} />
+                        <DetailLabel>Players:</DetailLabel>
+                        <DetailValue>{selectedRec.address || "N/A"}</DetailValue>
+                      </DetailItem>
+                      <DetailItem>
+                        <Clock size={16} />
+                        <DetailLabel>Play Time:</DetailLabel>
+                        <DetailValue>{selectedRec.hours || "N/A"}</DetailValue>
+                      </DetailItem>
+                      <DetailItem>
+                        <DollarSign style={{ color: '#D4AF37' }} size={16} />
+                        <DetailLabel>Price:</DetailLabel>
+                        <DetailValue>{selectedRec.price_range || "N/A"}</DetailValue>
+                      </DetailItem>
+                    </>
+                  ) : (
+                    <>
+                      <DetailItem>
+                        <DollarSign style={{ color: '#D4AF37' }} size={16} />
+                        <DetailLabel>Price:</DetailLabel>
+                        <DetailValue>{selectedRec.price_range || "N/A"}</DetailValue>
+                      </DetailItem>
+                      <DetailItem>
+                        <Clock size={16} />
+                        <DetailLabel>Hours:</DetailLabel>
+                        <DetailValue>{selectedRec.hours || "N/A"}</DetailValue>
+                      </DetailItem>
+                    </>
+                  )}
                 </DetailGrid>
 
                 {selectedRec.description && (
@@ -1122,7 +1216,15 @@ export default function AIRecommendations({
                   </Section>
                 )}
 
-                {selectedRec.address && (
+                {selectedRec.reason && (
+                  <Reason style={{ marginBottom: '1rem' }}>
+                    <ReasonTitle>{activityText.reasonTitle}</ReasonTitle>
+                    <ReasonText>{selectedRec.reason}</ReasonText>
+                  </Reason>
+                )}
+
+                {/* Conditionally show location section only for non-game activities */}
+                {!isGameNightActivity && selectedRec.address && (
                   <Section>
                     <SectionHeader>
                       <MapPin size={20} />
@@ -1171,15 +1273,8 @@ export default function AIRecommendations({
                   </Section>
                 )}
 
-                {selectedRec.reason && (
-                  <Reason style={{ marginBottom: '1rem' }}>
-                    <ReasonTitle>{activityText.reasonTitle}</ReasonTitle>
-                    <ReasonText>{selectedRec.reason}</ReasonText>
-                  </Reason>
-                )}
-
-                {/* Enhanced photos section for finalized view */}
-                {(() => {
+                {/* Enhanced photos section for finalized view - hide for games */}
+                {!isGameNightActivity && (() => {
                   const photos = safeJsonParse(selectedRec.photos, []);
                   const validPhotos = photos.filter(photo => getPhotoUrl(photo));
 
@@ -1208,8 +1303,7 @@ export default function AIRecommendations({
                   );
                 })()}
 
-                {/* Reviews section for finalized view with truncation */}
-                {(() => {
+                {!isGameNightActivity && (() => {
                   const reviews = safeJsonParse(selectedRec.reviews, []);
                   return reviews.length > 0 && (
                     <Section>

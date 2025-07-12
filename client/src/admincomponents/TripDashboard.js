@@ -5,6 +5,7 @@ import StartNewAdventure from './StartNewAdventure';
 import RestaurantChat from './RestaurantChat';
 import CocktailsChat from '../cocktails/CocktailsChat';
 import LetsMeetForm from '../letsmeet/LetsMeetForm';
+import GameNightChat from '../gamenight/GameNightChat';
 
 const fadeIn = keyframes`
   from {
@@ -96,6 +97,10 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
         setSelectedTrip('Night Out');
         break;
 
+      case 'Game Night':
+        setSelectedTrip('Game Night');
+        break;
+
       default:
         alert(`Selected Trip: ${tripName}`);
     }
@@ -139,6 +144,13 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
         <>
           <DimmedOverlay />
           <CocktailsChat onClose={handleClose} />
+        </>
+      )}
+
+      {selectedTrip === 'Game Night' && (
+        <>
+          <DimmedOverlay />
+          <GameNightChat onClose={handleClose} />
         </>
       )}
     </PageContainer>
