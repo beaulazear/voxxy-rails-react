@@ -55,6 +55,49 @@ class UsersController < ApplicationController
     end
   end
 
+  def pending_invitations
+    unless current_user
+      return render json: { error: "Not authorized" }, status: :unauthorized
+    end
+
+    # Make sure user can only check their own invitations
+    unless current_user.id == params[:id].to_i
+      return render json: { error: "Unauthorized" }, status: :unauthorized
+    end
+
+    # Get all pending invitations for this user
+    pending_invitations = ActivityParticipant
+      .includes(activity: :user)
+      .where(
+        invited_email: current_user.email,
+        accepted: false,
+        user_id: nil # Not yet accepted
+      )
+      .map do |participant|
+        {
+          id: participant.id,
+          invited_at: participant.created_at,
+          accepted: participant.accepted,
+          activity: {
+            id: participant.activity.id,
+            activity_name: participant.activity.activity_name,
+            activity_type: participant.activity.activity_type,
+            description: participant.activity.description,
+            activity_location: participant.activity.activity_location,
+            date_notes: participant.activity.date_notes,
+            welcome_message: participant.activity.welcome_message,
+            user: {
+              id: participant.activity.user.id,
+              name: participant.activity.user.name,
+              email: participant.activity.user.email
+            }
+          }
+        }
+      end
+
+    render json: pending_invitations
+  end
+
   def verify
     user = User.find_by(confirmation_token: params[:token])
 

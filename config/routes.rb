@@ -54,6 +54,8 @@ Rails.application.routes.draw do
   post "/try_voxxy_recommendations", to: "openai#try_voxxy_recommendations"
   get "/try_voxxy_cached",         to: "openai#try_voxxy_cached"
 
+  get "/users/:id/pending_invitations", to: "users#pending_invitations"
+
   post "/activities/:id/send_thank_you", to: "activities#send_thank_you"
   post "/activities/:id/mark_complete", to: "activities#mark_complete"
 
