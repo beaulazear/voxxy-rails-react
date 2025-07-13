@@ -144,9 +144,9 @@ function StartNewAdventure({ onTripSelect }) {
     { name: 'Night Out', emoji: '🍸', active: true, description: 'Plan your perfect night out with friends.' },
     { name: 'Lets Meet', emoji: '⏰', active: true, description: 'Find a time that works for everyone.' },
     { name: 'Game Night', emoji: '🎮', active: true, description: 'Set up a memorable game night.' },
+    { name: 'Find a Destination', emoji: '🗺️', active: true, description: 'Discover new travel destinations.' },
     { name: 'Movie Night', emoji: '🎥', active: false, description: 'Plan your perfect movie night.' },
     { name: 'Kids Play Date', emoji: '👩‍👧‍👦', active: false, description: 'Coordinate a fun playdate for little ones.' },
-    { name: 'Find a Destination', emoji: '🗺️', active: false, description: 'Discover new travel destinations.' },
     { name: 'Family Reunion', emoji: '👨‍👩‍👧‍👦', active: false, description: 'Plan a family gathering.' },
   ];
 

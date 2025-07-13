@@ -101,6 +101,10 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
         setSelectedTrip('Game Night');
         break;
 
+      case 'Find a Destination':
+        setSelectedTrip('Find a Destination');
+        break;
+
       default:
         alert(`Selected Trip: ${tripName}`);
     }

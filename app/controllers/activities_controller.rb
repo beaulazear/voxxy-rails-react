@@ -1,11 +1,8 @@
 class ActivitiesController < HtmlController
-  skip_before_action :verify_authenticity_token,
-    if: -> { request.format.json? && !action_name.eql?("share") }
-
+  # CSRF protection handled by HtmlController based on Authorization header
   protect_from_forgery with: :exception, only: [ :share ]
   protect_from_forgery with: :null_session, if: -> { request.format.json? }
 
-  before_action :authorized
   skip_before_action :authorized, only: [ :share, :calendar ]
 
   def create
