@@ -106,33 +106,6 @@ namespace :notifications do
   end
 end
 
-# Add this to your ActivitiesController for testing from the app
-class ActivitiesController < ApplicationController
-  # ... your existing methods
-
-  # Add this method for testing reminders
-  def send_test_reminder
-    activity = Activity.find(params[:id])
-
-    if current_user.can_receive_push_notifications?
-      PushNotificationService.send_test_reminder(activity, current_user)
-      render json: { success: true, message: "Test reminder sent!" }
-    else
-      render json: {
-        success: false,
-        message: "Push notifications not enabled for your account"
-      }
-    end
-  end
-end
-
-# Add this route for testing reminders from the app
-# In config/routes.rb, add:
-resources :activities do
-  member do
-    post :send_test_reminder
-  end
-end
 
 # Optional: Add a console helper for quick testing
 # Create lib/notification_helper.rb

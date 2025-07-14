@@ -9,7 +9,7 @@ Rails.application.routes.draw do
       get :calendar, defaults: { format: "ics" }
     end
     member do
-      post :send_test_reminder  # Add this for testing activity reminders
+      post :send_test_reminder
     end
     resources :pinned_activities, only: [ :index, :create, :update, :destroy ]
     resources :comments, only: [ :index, :create ]

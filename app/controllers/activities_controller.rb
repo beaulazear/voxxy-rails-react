@@ -4,6 +4,20 @@ class ActivitiesController < HtmlController
 
   skip_before_action :authorized, only: [ :share, :calendar ]
 
+  def send_test_reminder
+    activity = Activity.find(params[:id])
+
+    if current_user.can_receive_push_notifications?
+      PushNotificationService.send_test_reminder(activity, current_user)
+      render json: { success: true, message: "Test reminder sent!" }
+    else
+      render json: {
+        success: false,
+        message: "Push notifications not enabled for your account"
+      }
+    end
+  end
+
   def create
     activity = current_user.activities.build(activity_params.except(:participants))
 
