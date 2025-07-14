@@ -30,6 +30,7 @@ gem "jwt"
 gem "icalendar"
 gem "aws-sdk-s3", require: false
 gem "image_processing", "~> 1.2"
+gem "sidekiq"
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"

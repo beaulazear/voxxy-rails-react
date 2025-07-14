@@ -2,23 +2,26 @@ Rails.application.routes.draw do
   resources :responses, only: [ :index, :create, :destroy ]
   resources :users, only: [ :create, :destroy, :update ]
   resources :activities, only: [ :create, :destroy, :update, :index, :show ] do
-  member do
-    get :share
-  end
-  member do
-    get :calendar, defaults: { format: "ics" }
-  end
-  resources :pinned_activities, only: [ :index, :create, :update, :destroy ]
-  resources :comments, only: [ :index, :create ]
-  resources :time_slots, only: [ :index, :create, :destroy ] do
-    collection do
-      get :ai_recommendations
+    member do
+      get :share
     end
     member do
-      post :vote
-      post :unvote
+      get :calendar, defaults: { format: "ics" }
     end
-  end
+    member do
+      post :send_test_reminder  # Add this for testing activity reminders
+    end
+    resources :pinned_activities, only: [ :index, :create, :update, :destroy ]
+    resources :comments, only: [ :index, :create ]
+    resources :time_slots, only: [ :index, :create, :destroy ] do
+      collection do
+        get :ai_recommendations
+      end
+      member do
+        post :vote
+        post :unvote
+      end
+    end
   end
   resource :password_reset, only: [ :create, :update ]
   resources :activity_participants, only: [ :index ] do
@@ -62,8 +65,10 @@ Rails.application.routes.draw do
   get "/activities/:activity_id/respond/:token", to: "guest_responses#show"
   post "/activities/:activity_id/respond/:token", to: "guest_responses#create"
 
+  # Push Notification Routes
   post "/users/:id/update_push_token", to: "users#update_push_token"
   post "/test_notification", to: "notifications#test"
+  post "/send_test_to_self", to: "notifications#send_test_to_self"  # Add this new route
 
   get "/photos/:photo_reference", to: "photos#show",
       constraints: { photo_reference: /[^\/]+/ },
@@ -74,6 +79,10 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   mount ActionCable.server => "/cable"
+
+  # Mount Sidekiq Web UI (optional - for monitoring background jobs)
+  require "sidekiq/web"
+  mount Sidekiq::Web => "/sidekiq"
 
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest

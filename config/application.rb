@@ -17,6 +17,8 @@ module VoxxyRails
     # Initialize configuration defaults for originally generated Rails version
     config.load_defaults 7.2
 
+    config.active_job.queue_adapter = :sidekiq
+
     local_ip = ENV.fetch("LOCAL_IP", nil)
     allowed_origins = [
       "http://localhost:3000",
