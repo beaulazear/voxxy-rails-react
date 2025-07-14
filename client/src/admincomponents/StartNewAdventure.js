@@ -6,19 +6,31 @@ const Container = styled.div`
   background-color: #201925;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 `;
 
 const Header = styled.div`
+  position: sticky;
+  top: 0;
+  background-color: #201925;
+  z-index: 10;
   display: flex;
   align-items: center;
-  padding: 30px 24px 20px 24px;
-  gap: 20px;
+  padding: 40px 32px 32px 32px;
+  gap: 24px;
+  border-bottom: 1px solid rgba(64, 51, 71, 0.2);
+  
+  @media (max-width: 768px) {
+    padding: 32px 24px 24px 24px;
+    gap: 20px;
+  }
 `;
 
 const BackButton = styled.button`
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
   background-color: rgba(139, 92, 246, 0.9);
   border: 1px solid #8b5cf6;
   display: flex;
@@ -34,8 +46,19 @@ const BackButton = styled.button`
   }
 
   svg {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
+  }
+  
+  @media (max-width: 768px) {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    
+    svg {
+      width: 20px;
+      height: 20px;
+    }
   }
 `;
 
@@ -47,12 +70,17 @@ const HeaderContent = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
   color: #fff;
   text-align: center;
-  margin: 0 0 8px 0;
+  margin: 0 0 12px 0;
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  @media (max-width: 768px) {
+    font-size: 28px;
+    margin: 0 0 8px 0;
+  }
 `;
 
 const GradientText = styled.span`
@@ -63,11 +91,15 @@ const GradientText = styled.span`
 `;
 
 const Subtitle = styled.p`
-  font-size: 16px;
+  font-size: 18px;
   color: #ccc;
   text-align: center;
   line-height: 1.4;
   margin: 0;
+  
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
 `;
 
 const ScrollContainer = styled.div`
@@ -75,35 +107,60 @@ const ScrollContainer = styled.div`
   overflow-y: auto;
   
   &::-webkit-scrollbar {
-    display: none;
+    width: 6px;
   }
-  scrollbar-width: none;
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(64, 51, 71, 0.1);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.3);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.5);
+  }
+  
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.3) rgba(64, 51, 71, 0.1);
 `;
 
 const ScrollContent = styled.div`
-  padding: 24px;
-  padding-top: 0;
+  padding: 40px 32px 48px 32px;
+  
+  @media (max-width: 768px) {
+    padding: 32px 24px 40px 24px;
+  }
 `;
 
 const Grid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 24px;
+  max-width: 800px;
+  margin: 0 auto;
 
   @media (max-width: 768px) {
+    gap: 20px;
+  }
+  
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
     gap: 16px;
   }
 `;
 
 const ActivityCard = styled.button`
   background-color: #3a2a40;
-  border-radius: 16px;
-  padding: 28px 24px;
+  border-radius: 20px;
+  padding: 36px 28px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  min-height: 180px;
+  min-height: 200px;
   position: relative;
   border: 2px solid;
   cursor: pointer;
@@ -116,7 +173,8 @@ const ActivityCard = styled.button`
     
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(185, 49, 214, 0.4);
+      box-shadow: 0 8px 16px rgba(185, 49, 214, 0.4);
+      background-color: #423249;
     }
     
     &:active {
@@ -129,64 +187,76 @@ const ActivityCard = styled.button`
   `}
 
   @media (max-width: 768px) {
-    padding: 24px 20px;
-    min-height: 160px;
+    padding: 32px 24px;
+    min-height: 180px;
+    border-radius: 18px;
   }
 `;
 
 const Emoji = styled.div`
-  font-size: 48px;
+  font-size: 56px;
   line-height: 1.2;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   text-align: center;
 
   @media (max-width: 768px) {
-    font-size: 40px;
-    margin-bottom: 10px;
+    font-size: 48px;
+    margin-bottom: 12px;
   }
 `;
 
 const ActivityName = styled.h3`
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: ${props => props.$active ? '#fff' : '#888'};
   text-align: center;
-  margin: 0 0 10px 0;
+  margin: 0 0 12px 0;
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
 
   @media (max-width: 768px) {
-    font-size: 14px;
-    margin: 0 0 8px 0;
+    font-size: 16px;
+    margin: 0 0 10px 0;
   }
 `;
 
 const Description = styled.p`
-  font-size: 12px;
+  font-size: 14px;
   color: ${props => props.$active ? '#ccc' : '#666'};
   text-align: center;
-  line-height: 1.3;
+  line-height: 1.4;
   margin: 0;
   flex-shrink: 1;
 
   @media (max-width: 768px) {
-    font-size: 11px;
+    font-size: 13px;
   }
 `;
 
 const ComingSoonBadge = styled.div`
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 12px;
+  right: 12px;
   background-color: rgba(255, 152, 0, 0.9);
-  padding: 3px 6px;
-  border-radius: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
   
   span {
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 600;
     color: #fff;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
+  }
+  
+  @media (max-width: 768px) {
+    top: 10px;
+    right: 10px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    
+    span {
+      font-size: 9px;
+    }
   }
 `;
 
@@ -278,7 +348,7 @@ export default function StartNewAdventure({ onTripSelect, onBack }) {
 
   return (
     <Container>
-      {/* Header */}
+      {/* Fixed Header */}
       <Header>
         <BackButton onClick={onBack}>
           <ArrowLeftIcon />
@@ -291,7 +361,6 @@ export default function StartNewAdventure({ onTripSelect, onBack }) {
         </HeaderContent>
       </Header>
 
-      {/* Activity Grid */}
       <ScrollContainer>
         <ScrollContent>
           <Grid>
