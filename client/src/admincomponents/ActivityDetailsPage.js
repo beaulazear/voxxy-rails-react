@@ -576,7 +576,6 @@ function ActivityDetailsPage() {
     }
   };
 
-  console.log(currentActivity)
   return (
     <>
       <AnimatedSmokeBackground ref={topRef} />

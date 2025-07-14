@@ -26,6 +26,7 @@ import PricingPage from './components/PricingPage.js';
 import Profile from './admincomponents/Profile.js';
 import GuestResponsePage from './components/GuestResponsePage.jsx';
 import ProtectedActivityRoute from './components/ProtectedActivityRoute.js';
+import TripDashboardPage from './admincomponents/TripDashboardPage.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -44,8 +45,9 @@ function App() {
 
   // Define routes that should NOT show the navbar
   const routesWithoutNavbar = [
-    '/activities', // This will match any route starting with /activities
-    '/activity'    // This will match any route starting with /activity
+    '/activities',
+    '/activity',
+    '/create-trip'
   ];
 
   // Check if current route should hide navbar
@@ -59,7 +61,6 @@ function App() {
 
   return (
     <div className="App">
-      {/* Conditionally render Navbar */}
       {!shouldHideNavbar && <Navbar />}
 
       <Routes>
@@ -81,9 +82,9 @@ function App() {
         <Route path='/terms' element={<TermsOfServicePage />} />
         <Route path='/pricing' element={<PricingPage />} />
         <Route path='/profile' element={<Profile />} />
+        <Route path='/create-trip' element={<TripDashboardPage />} />
         <Route path="/activities/:activityId/respond/:token" element={<GuestResponsePage />} />
 
-        {/* Protected Activity Route - Only accessible if user has proper access */}
         <Route path="/activity/:activityId" element={<ProtectedActivityRoute />} />
 
         {isLoggedIn && !isConfirmed && (

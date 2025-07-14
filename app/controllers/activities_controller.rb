@@ -1,5 +1,4 @@
 class ActivitiesController < HtmlController
-  # CSRF protection handled by HtmlController based on Authorization header
   protect_from_forgery with: :exception, only: [ :share ]
   protect_from_forgery with: :null_session, if: -> { request.format.json? }
 

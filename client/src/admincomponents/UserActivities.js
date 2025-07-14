@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled, { keyframes, css } from 'styled-components';
 import Countdown from 'react-countdown';
 import { UserContext } from '../context/user';
-import TripDashboard from './TripDashboard.js';
+// Remove TripDashboard import since it's now its own route
 import YourCommunity from './YourCommunity.js';
 import NoBoardsDisplay from './NoBoardsDisplay.js';
 import { HelpCircle, X, User, Users, CalendarDays, Clock } from 'lucide-react';
@@ -388,7 +388,7 @@ const getActivityBackgroundImage = (activity) => {
 
 function UserActivities() {
   const { user, setUser } = useContext(UserContext);
-  const [showActivities, setShowActivities] = useState(false);
+  // Remove showActivities state since we're using routing now
   const [helpVisible, setHelpVisible] = useState(false);
   const [showAllPast, setShowAllPast] = useState(false);
   const topRef = useRef(null);
@@ -565,14 +565,7 @@ function UserActivities() {
   const isPendingInvite = (activity) =>
     pendingInviteActivities.some(inv => inv.id === activity.id);
 
-  if (showActivities) {
-    return (
-      <TripDashboard
-        setShowActivities={setShowActivities}
-        setSelectedActivityId={(id) => navigate(`/activity/${id}`)}
-      />
-    );
-  }
+  // Remove the conditional TripDashboard rendering - it's now handled by routing
 
   return (
     <>
@@ -624,7 +617,8 @@ function UserActivities() {
           )}
 
           <FilterRow>
-            <NewBoardButton onClick={() => setShowActivities(true)}>+ New</NewBoardButton>
+            {/* Update the navigation to use the new route */}
+            <NewBoardButton onClick={() => navigate('/create-trip')}>+ New</NewBoardButton>
             <FilterButton $active={filterType === "inprogress"} onClick={() => setFilterType("inprogress")}>In Progress</FilterButton>
             <FilterButton $active={filterType === "finalized"} onClick={() => setFilterType("finalized")}>Finalized</FilterButton>
             <FilterButton $active={filterType === "past"} onClick={() => setFilterType("past")}>Past</FilterButton>
@@ -732,11 +726,12 @@ function UserActivities() {
                 <Message>No pending invites!</Message>
               </NoBoardsContainer>
             ) : (
-              <NoBoardsDisplay onCreateBoard={() => setShowActivities(true)} />
+              <NoBoardsDisplay onCreateBoard={() => navigate('/create-trip')} />
             )
           )}
 
-          <YourCommunity onCreateBoard={() => setShowActivities(true)} />
+          {/* Update YourCommunity to use the new route as well */}
+          <YourCommunity onCreateBoard={() => navigate('/create-trip')} />
         </DashboardContainer>
       </Padding>
       <VoxxyFooter />

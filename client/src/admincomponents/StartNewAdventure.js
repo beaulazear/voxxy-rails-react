@@ -1,194 +1,306 @@
 import React from 'react';
 import styled from 'styled-components';
-import mixpanel from 'mixpanel-browser';
-import { Heading1, MutedText } from '../styles/Typography';
-import colors from '../styles/Colors';
-import Logo from '../assets/v_no_bg.svg';
-import { Link } from 'react-router-dom';
 
-const SectionWrapper = styled.div`
-  width: 100%;
+const Container = styled.div`
+  flex: 1;
+  background-color: #201925;
+  display: flex;
+  flex-direction: column;
+`;
+
+const Header = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 30px 24px 20px 24px;
+  gap: 20px;
+`;
+
+const BackButton = styled.button`
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background-color: rgba(139, 92, 246, 0.9);
+  border: 1px solid #8b5cf6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(139, 92, 246, 1);
+    transform: translateY(-1px);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+`;
+
+const HeaderContent = styled.div`
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 3rem;
 `;
 
-const CardGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 2fr));
-  gap: 1.5rem;
-  width: 100%;
-  max-width: 960px;
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(2, minmax(140px, 1fr));
-    gap: 1rem;
-  }
-  @media (max-width: 480px) {
-    grid-template-columns: repeat(1, minmax(120px, 1fr));
-    gap: 0.75rem;
-  }
+const Title = styled.h1`
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  margin: 0 0 8px 0;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
 `;
 
 const GradientText = styled.span`
-  background: linear-gradient(90deg, #B931D6 0%, #9051E1 100%);
+  background: linear-gradient(135deg, #B931D6, #e942f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
 `;
 
-const ActivityCard = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== 'active',
-})`
-  position: relative;
+const Subtitle = styled.p`
+  font-size: 16px;
+  color: #ccc;
+  text-align: center;
+  line-height: 1.4;
+  margin: 0;
+`;
+
+const ScrollContainer = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  scrollbar-width: none;
+`;
+
+const ScrollContent = styled.div`
+  padding: 24px;
+  padding-top: 0;
+`;
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    gap: 16px;
+  }
+`;
+
+const ActivityCard = styled.button`
+  background-color: #3a2a40;
+  border-radius: 16px;
+  padding: 28px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #3a2a40;
-  border-radius: 12px;
-  padding: 1.5rem;
-  color: #fff;
-  cursor: ${({ active }) => (active ? 'pointer' : 'default')};
-  opacity: ${({ active }) => (active ? 1 : 0.5)};
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border: 2px solid transparent;
-  ${({ active }) => active && `
-    border-image: linear-gradient(135deg,
-      hsl(291, 80%, 55%, 0.9),
-      hsl(262, 95%, 70%, 0.9),
-      hsl(267, 90%, 65%, 0.9)
-    ) 1;
+  justify-content: space-between;
+  min-height: 180px;
+  position: relative;
+  border: 2px solid;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  ${props => props.$active ? `
+    border-color: #B931D6;
+    opacity: 1;
+    box-shadow: 0 4px 8px rgba(185, 49, 214, 0.3);
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(185, 49, 214, 0.4);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  ` : `
+    border-color: rgba(64, 51, 71, 0.3);
+    opacity: 0.5;
+    cursor: not-allowed;
   `}
-  &:hover {
-    transform: ${({ active }) => (active ? 'translateY(-5px)' : 'none')};
-    box-shadow: ${({ active }) => (active ? '0 8px 16px rgba(0,0,0,0.2)' : 'none')};
-  }
-  .emoji {
-    font-size: 3.5rem;
-    margin-bottom: 0.5rem;
-    line-height: 1;
+
+  @media (max-width: 768px) {
+    padding: 24px 20px;
+    min-height: 160px;
   }
 `;
 
-const ActivityName = styled.h3.withConfig({
-  shouldForwardProp: (prop) => prop !== 'active',
-})`
-  font-size: clamp(1rem, 1.5vw, 1.3rem);
-  font-weight: 500;
-  color: #fff;
-  margin: 0.25rem 0;
+const Emoji = styled.div`
+  font-size: 48px;
+  line-height: 1.2;
+  margin-bottom: 12px;
   text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 40px;
+    margin-bottom: 10px;
+  }
+`;
+
+const ActivityName = styled.h3`
+  font-size: 16px;
+  font-weight: 600;
+  color: ${props => props.$active ? '#fff' : '#888'};
+  text-align: center;
+  margin: 0 0 10px 0;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    margin: 0 0 8px 0;
+  }
 `;
 
 const Description = styled.p`
-  font-size: 0.875rem;
-  color: #ccc;
+  font-size: 12px;
+  color: ${props => props.$active ? '#ccc' : '#666'};
   text-align: center;
-  margin: 0.5rem 0 0;
-  max-height: 3rem;
-  overflow: hidden;
-`;
+  line-height: 1.3;
+  margin: 0;
+  flex-shrink: 1;
 
-const AdminHero = styled.section`
-  background-color: ${colors.background};
-  color: ${colors.textPrimary};
-  text-align: center;
-  padding: 1rem 1.5rem;
-  padding-top: 120px;
-  box-sizing: border-box;
-`;
-const AdminHeroContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-`;
-const AdminTitle = styled(Heading1)`
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 1rem;
-  color: ${colors.textPrimary};
-`;
-const AdminSubtitle = styled(MutedText)`
-  font-size: 1.125rem;
-  color: ${colors.textMuted};
-  max-width: 700px;
-  margin: 0 auto 1rem;
-  line-height: 1.6;
-`;
-const GoBackButton = styled(Link)`
-  display: inline-block;
-  background: none;
-  border: solid 1px;
-  color: ${colors.primaryButton};
-  padding: 0.8rem 1.5rem;
-  border-radius: 9999px;
-  font-weight: 500;
-  font-family: 'Inter', sans-serif;
-  text-decoration: none;
-  transition: opacity 0.2s ease;
-  margin-bottom: 20px;
-
-  &:hover {
-    box-shadow: 0 0 10px #592566, 0 0 20px #592566;
-    background-color: ${colors.cardBackground};
+  @media (max-width: 768px) {
+    font-size: 11px;
   }
 `;
-const LogoIcon = styled.img`
-  width: 1.3rem;
-  height: 1.3rem;
-  margin-left: 0.5rem;
+
+const ComingSoonBadge = styled.div`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: rgba(255, 152, 0, 0.9);
+  padding: 3px 6px;
+  border-radius: 8px;
+  
+  span {
+    font-size: 9px;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
 `;
 
-function StartNewAdventure({ onTripSelect }) {
+// Arrow Left Icon Component
+const ArrowLeftIcon = () => (
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+  </svg>
+);
+
+export default function StartNewAdventure({ onTripSelect, onBack }) {
   const adventures = [
-    { name: 'Lets Eat', emoji: '🍜', active: true, description: 'Schedule your next group meal together.' },
-    { name: 'Night Out', emoji: '🍸', active: true, description: 'Plan your perfect night out with friends.' },
-    { name: 'Lets Meet', emoji: '⏰', active: true, description: 'Find a time that works for everyone.' },
-    { name: 'Game Night', emoji: '🎮', active: true, description: 'Set up a memorable game night.' },
-    { name: 'Find a Destination', emoji: '🗺️', active: true, description: 'Discover new travel destinations.' },
-    { name: 'Movie Night', emoji: '🎥', active: false, description: 'Plan your perfect movie night.' },
-    { name: 'Kids Play Date', emoji: '👩‍👧‍👦', active: false, description: 'Coordinate a fun playdate for little ones.' },
-    { name: 'Family Reunion', emoji: '👨‍👩‍👧‍👦', active: false, description: 'Plan a family gathering.' },
+    {
+      name: 'Lets Eat',
+      emoji: '🍜',
+      active: true,
+      description: 'Schedule your next group meal together.'
+    },
+    {
+      name: 'Night Out',
+      emoji: '🍸',
+      active: true,
+      description: 'Plan your perfect night out with friends.'
+    },
+    {
+      name: 'Lets Meet',
+      emoji: '⏰',
+      active: true,
+      description: 'Find a time that works for everyone.'
+    },
+    {
+      name: 'Game Night',
+      emoji: '🎮',
+      active: true,
+      description: 'Set up a memorable game night.'
+    },
+    {
+      name: 'Find a Destination',
+      emoji: '🗺️',
+      active: false,
+      description: 'Discover new travel destinations.'
+    },
+    {
+      name: 'Movie Night',
+      emoji: '🎥',
+      active: false,
+      description: 'Plan your perfect movie night.'
+    },
+    {
+      name: 'Kids Play Date',
+      emoji: '👩‍👧‍👦',
+      active: false,
+      description: 'Coordinate a fun playdate for little ones.'
+    },
+    {
+      name: 'Family Reunion',
+      emoji: '👨‍👩‍👧‍👦',
+      active: false,
+      description: 'Plan a family gathering.'
+    },
   ];
 
-  const handleSelection = (name) => {
-    if (process.env.NODE_ENV === 'production') {
-      mixpanel.track(`${name} Clicked`, { name });
-    }
+  const handleSelection = (name, active) => {
+    if (!active) return;
     onTripSelect(name);
   };
 
-  return (
-    <>
-      <AdminHero>
-        <AdminHeroContainer>
-          <AdminTitle>
-            New <GradientText>Voxxy</GradientText> Board
-          </AdminTitle>
-          <AdminSubtitle>Choose an activity to start planning!</AdminSubtitle>
-          <GoBackButton to="/dashboard">
-            Return to Dashboard
-            <LogoIcon style={{ marginBottom: '4px' }} src={Logo} alt="Voxxy logo" />
-          </GoBackButton>
-        </AdminHeroContainer>
-      </AdminHero>
+  const renderActivityCard = (adventure, index) => {
+    const { name, emoji, active, description } = adventure;
 
-      <SectionWrapper>
-        <CardGrid>
-          {adventures.map(({ name, emoji, active, description }) => (
-            <ActivityCard
-              key={name}
-              active={active}
-              onClick={active ? () => handleSelection(name) : undefined}
-            >
-              <div className="emoji">{emoji}</div>
-              <ActivityName active={active}>{name}</ActivityName>
-              <Description>{description}</Description>
-            </ActivityCard>
-          ))}
-        </CardGrid>
-      </SectionWrapper>
-    </>
+    return (
+      <ActivityCard
+        key={name}
+        $active={active}
+        onClick={() => handleSelection(name, active)}
+        disabled={!active}
+      >
+        <Emoji>{emoji}</Emoji>
+        <ActivityName $active={active}>{name}</ActivityName>
+        <Description $active={active}>{description}</Description>
+        {!active && (
+          <ComingSoonBadge>
+            <span>Coming Soon</span>
+          </ComingSoonBadge>
+        )}
+      </ActivityCard>
+    );
+  };
+
+  return (
+    <Container>
+      {/* Header */}
+      <Header>
+        <BackButton onClick={onBack}>
+          <ArrowLeftIcon />
+        </BackButton>
+        <HeaderContent>
+          <Title>
+            New <GradientText>Voxxy</GradientText> Board
+          </Title>
+          <Subtitle>Choose an activity to start planning!</Subtitle>
+        </HeaderContent>
+      </Header>
+
+      {/* Activity Grid */}
+      <ScrollContainer>
+        <ScrollContent>
+          <Grid>
+            {adventures.map((adventure, index) =>
+              renderActivityCard(adventure, index)
+            )}
+          </Grid>
+        </ScrollContent>
+      </ScrollContainer>
+    </Container>
   );
 }
-
-export default StartNewAdventure;
