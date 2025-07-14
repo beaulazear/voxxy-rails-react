@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_09_215321) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_14_045924) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -189,6 +189,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_09_215321) do
     t.boolean "text_notifications", default: true, null: false
     t.boolean "email_notifications", default: true, null: false
     t.boolean "push_notifications", default: true, null: false
+    t.string "push_token"
+    t.string "platform"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 

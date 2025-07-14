@@ -2,6 +2,16 @@
 class UsersController < ApplicationController
   skip_before_action :authorized, only: [ :create, :verify, :resend_verification ]
 
+  def update_push_token
+    current_user.update!(
+      push_token: params[:push_token],
+      platform: params[:platform]
+    )
+    render json: { success: true }
+  rescue => e
+    render json: { error: e.message }, status: 422
+  end
+
   def create
     user = User.new(user_params)
 

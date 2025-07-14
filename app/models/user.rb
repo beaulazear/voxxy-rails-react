@@ -52,6 +52,10 @@ class User < ApplicationRecord
     save!
   end
 
+  def can_receive_push_notifications?
+    push_notifications && push_token.present?
+  end
+
   private
 
   def generate_confirmation_token
