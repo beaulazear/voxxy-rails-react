@@ -9,7 +9,6 @@ import mixpanel from "mixpanel-browser";
 import { UserContext } from "../context/user";
 import { Users, Share, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, X, ExternalLink, MapPin, DollarSign, Globe, Zap, Calendar, Star } from 'lucide-react';
 
-// Import all styled components from the styles file
 import {
   Container,
   TopBar,
@@ -132,17 +131,14 @@ const safeJsonParse = (data, fallback = []) => {
 const getPhotoUrl = (photo) => {
   if (!photo) return null;
 
-  // Check for backend-generated photo URLs (preferred)
   if (photo.photo_url) {
     return photo.photo_url;
   }
 
-  // Fallback: if it's already a direct URL
   if (typeof photo === 'string' && (photo.startsWith('http') || photo.startsWith('https'))) {
     return photo;
   }
 
-  // If we only have photo_reference but no generated URL, we can't display it securely
   return null;
 };
 
@@ -173,7 +169,6 @@ const analyzeAvailability = (responses) => {
   return { availabilityData, participantCount };
 };
 
-// New styled component for enhanced phase indicator with integrated button
 const EnhancedPhaseIndicator = styled.div`
   display: flex;
   align-items: center;

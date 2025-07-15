@@ -11,35 +11,23 @@ class ResponsesController < ApplicationController
       return render json: { error: "Activity not found" }, status: :not_found
     end
 
-    existing_guest_response = activity.responses.find_by(email: current_user.email)
+    response = nil
 
-    existing_user_response = activity.responses.find_by(user_id: current_user.id)
+    ActiveRecord::Base.transaction do
+      activity.responses.where(
+        "user_id = ? OR email = ?",
+        current_user.id,
+        current_user.email
+      ).destroy_all
 
-    if existing_guest_response
-      existing_guest_response.update!(
+      response = activity.responses.create!(
         user_id: current_user.id,
         email: nil,
-        **response_params.except(:availability)
+        notes: response_params[:notes],
+        activity_id: response_params[:activity_id],
+        availability: response_params[:availability] || {}
       )
-      existing_guest_response.update!(availability: response_params[:availability] || {})
-      response = existing_guest_response
-    elsif existing_user_response
-      existing_user_response.update!(
-        **response_params.except(:availability)
-      )
-      existing_user_response.update!(availability: response_params[:availability] || {})
-      response = existing_user_response
-    else
-      response = activity.responses.build(response_params.except(:availability))
-      response.user_id = current_user.id
-      response.availability = response_params[:availability] || {}
-      response.save!
     end
-
-    activity.responses
-            .where(user_id: current_user.id)
-            .where.not(id: response.id)
-            .destroy_all
 
     ActivityResponseEmailService.send_response_email(response, activity)
     comment = activity.comments.create!(
