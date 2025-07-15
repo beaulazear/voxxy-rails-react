@@ -232,6 +232,8 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onLeave, onBack, onDele
     setManualInput("");
   };
 
+  console.log(activity)
+
   const handleInviteSubmit = () => {
     const emails = Array.from(
       new Set([

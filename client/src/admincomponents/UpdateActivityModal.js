@@ -366,7 +366,7 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities, pi
   useEffect(() => {
     if (pinnedActivities?.length) {
       const top = pinnedActivities.reduce(
-        (prev, curr) => (curr.vote_count || 0) > (prev.vote_count || 0) ? curr : prev,
+        (prev, curr) => (curr.votes_count || 0) > (prev.votes_count || 0) ? curr : prev,
         pinnedActivities[0]
       );
       setSelectedPinnedId(top.id);
@@ -414,21 +414,51 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities, pi
     }
 
     const payload = {
-      ...formData,
-      date_time: formData.date_day
-        ? `${formData.date_day}T${formData.date_time}:00`
-        : null,
+      welcome_message: formData.welcome_message,
       finalized: true,
     };
 
-    if (activity.activity_type !== 'Meeting') {
+    // For Meeting activities with selected time slots
+    if (activity.activity_type === 'Meeting' && selectedTimeSlotId) {
+      const selectedSlot = pinned.find(slot => slot.id === selectedTimeSlotId);
+      if (selectedSlot) {
+        payload.date_day = selectedSlot.date;
+        // Extract time from the slot and format it properly
+        const timeOnly = selectedSlot.time.includes('T') ? selectedSlot.time.slice(11, 16) : selectedSlot.time.slice(0, 5);
+        payload.date_time = `2000-01-01T${timeOnly}:00.000Z`;
+      }
+    }
+    // For all other activities (Restaurant, Game Night, Cocktails) or Meetings without time slots
+    else {
+      // Set date and time from form data
+      if (formData.date_day) {
+        payload.date_day = formData.date_day;
+      }
+
+      if (formData.date_time) {
+        payload.date_time = `2000-01-01T${formData.date_time}:00.000Z`;
+      }
+
+      // Set location 
+      if (formData.activity_location) {
+        payload.activity_location = formData.activity_location;
+      }
+    }
+
+    // For non-Meeting activities, include the selected pinned option
+    if (activity.activity_type !== 'Meeting' && selectedPinnedId) {
       payload.selected_pinned_id = selectedPinnedId;
     }
 
     try {
       const res = await fetch(
         `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activity.id}`,
-        { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ activity: payload }) }
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ activity: payload })
+        }
       );
       const data = await res.json();
       if (!res.ok) setErrors(data.errors || [data.error] || ['Unknown error']);
@@ -499,7 +529,7 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities, pi
                 </SectionHeader>
                 <OptionList>
                   {[...pinnedActivities]
-                    .sort((a, b) => (b.vote_count || 0) - (a.vote_count || 0))
+                    .sort((a, b) => (b.votes_count || 0) - (a.votes_count || 0))
                     .map(p => (
                       <OptionItem key={p.id}>
                         <input
@@ -514,7 +544,7 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities, pi
                           <OptionMeta>
                             <VoteCount>
                               <HeartPulse size={14} />
-                              {p.vote_count || 0} votes
+                              {p.votes_count || 0} votes
                             </VoteCount>
                           </OptionMeta>
                         </OptionContent>

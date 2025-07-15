@@ -605,7 +605,7 @@ function ActivityDetailsPage() {
 
                   <FinalizedContent>
                     {/* Countdown Timer */}
-                    {currentActivity?.date_day && currentActivity?.date_time && (
+                    {/* {currentActivity?.date_day && currentActivity?.date_time && (
                       <CountdownContainer>
                         <h4>
                           <Clock size={20} />
@@ -630,7 +630,7 @@ function ActivityDetailsPage() {
                           </CountdownCard>
                         </CountdownGrid>
                       </CountdownContainer>
-                    )}
+                    )} */}
 
                     {selectedActivity && currentActivity?.activity_type !== 'Meeting' && (
                       <SelectedRestaurant>
