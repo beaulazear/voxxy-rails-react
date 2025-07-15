@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { User, Users, Calendar, Clock, Plus, Mail, Coffee, MapPin, Star } from 'lucide-react';
 import { UserContext } from '../context/user';
 import { useNavigate } from 'react-router-dom';
+import YourCommunity from './YourCommunity';
 import {
   // Main containers
   Container,
@@ -446,18 +447,9 @@ function UserActivities() {
                         <InviteContent>
                           <InviteHeader>
                             <Mail stroke="#d394f5" width={18} height={18} />
-                            <InviteLabel>{firstName} invited you!</InviteLabel>
+                            <InviteLabel>{firstName}: {item.welcome_message}</InviteLabel>
                           </InviteHeader>
-                          <FunMessage>
-                            Ready to join the {displayInfo.emoji} fun?
-                          </FunMessage>
                         </InviteContent>
-                        <AddParticipantButton onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/activity/${item.id}`);
-                        }}>
-                          <span>+ Accept Invite</span>
-                        </AddParticipantButton>
                       </InviteContainer>
                     ) : countdownTs ? (
                       <CountdownText targetTs={countdownTs} activityType={item.activity_type} />

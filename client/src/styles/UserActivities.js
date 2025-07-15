@@ -51,12 +51,13 @@ export const HeroContainer = styled.div`
   justify-content: space-between;
   padding: 1rem;
   padding-top: 4rem;
-  margin: 2rem auto;
+  margin: 1rem auto;
   position: relative;
   
   @media (max-width: 768px) {
     padding: 1rem;
     padding-top: 4rem;
+    margin-bottom: 0rem;
     flex-direction: column;
     align-items: flex-start;
   }
@@ -642,7 +643,11 @@ export const CreateArrow = styled.div`
 
 export const CreateCardFooter = styled.div`
   padding: 16px 20px;
-  background: rgba(10, 8, 12, 0.95);
+  background: linear-gradient(135deg, 
+    rgba(207, 56, 221, 0.85), 
+    rgba(185, 84, 236, 0.9),
+    rgba(211, 148, 245, 0.85)
+  );
   border-top: 1px solid rgba(64, 51, 71, 0.4);
   z-index: 2;
   backdrop-filter: blur(8px);
