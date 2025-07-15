@@ -3,12 +3,12 @@ import styled, { keyframes } from "styled-components";
 import { UserContext } from "../context/user";
 import Woman from "../assets/Woman.jpg";
 import NoCommunityMembers from "./NoCommunityMembers";
-import { Users, Calendar, MapPin, Utensils, Clock } from "lucide-react";
+import { Users, Calendar, Utensils, X } from "lucide-react";
 
 const fadeIn = keyframes`
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -18,28 +18,32 @@ const fadeIn = keyframes`
 
 const cardHover = keyframes`
   0%, 100% {
-    box-shadow: 0 4px 20px rgba(207, 56, 221, 0.15);
+    transform: translateY(0) scale(1);
+    box-shadow: 0 8px 32px rgba(207, 56, 221, 0.2);
   }
   50% {
-    box-shadow: 0 8px 32px rgba(207, 56, 221, 0.3);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 16px 48px rgba(207, 56, 221, 0.4);
   }
 `;
 
-const avatarGlow = keyframes`
+const avatarPulse = keyframes`
   0%, 100% {
-    box-shadow: 0 0 20px rgba(207, 56, 221, 0.4);
+    box-shadow: 0 0 0 0 rgba(207, 56, 221, 0.4);
   }
   50% {
-    box-shadow: 0 0 30px rgba(207, 56, 221, 0.7);
+    box-shadow: 0 0 0 4px rgba(207, 56, 221, 0.1);
   }
 `;
 
-const badgeFloat = keyframes`
-  0%, 100% {
-    transform: translateY(0px);
+const modalSlideIn = keyframes`
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
   }
-  50% {
-    transform: translateY(-2px);
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 `;
 
@@ -57,7 +61,6 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
         : `${API_URL}${userObj.profile_pic_url}`;
       return profilePicUrl;
     }
-
     return userObj?.avatar || Woman;
   };
 
@@ -65,6 +68,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
 
   const allUsersMap = new Map();
 
+  // Process user's activities
   user.activities?.forEach(act => {
     act.participants?.forEach(p => {
       if (p.id !== user.id) {
@@ -107,6 +111,7 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
     });
   });
 
+  // Process participant activities
   user.participant_activities?.forEach(pa => {
     const { activity: act } = pa;
     const host = act.user;
@@ -205,7 +210,8 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
     .sort((a, b) => b.count - a.count || a.user.name.localeCompare(b.user.name));
 
   if (community.length === 0) return <NoCommunityMembers onCreateBoard={onCreateBoard} />;
-  const displayed = showAll ? community : community.slice(0, 3);
+
+  const displayed = showAll ? community : community.slice(0, 4);
 
   function handleCardClick(peerData) {
     if (showInvitePopup && onSelectUser) {
@@ -219,74 +225,43 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
     <Wrapper>
       <Header>
         <TitleText>Your Voxxy Crew</TitleText>
-        <Subtitle>Friends you've gone on adventures with</Subtitle>
+        <Subtitle>Friends you've shared adventures with</Subtitle>
       </Header>
 
-      <ScrollArea>
+      <GridContainer>
         <Grid>
           {displayed.map(peerData => (
             <Card
               key={peerData.user.id}
               onClick={() => handleCardClick(peerData)}
             >
-              <CardHeader>
-                <ProfileSection>
-                  <Avatar
-                    src={getDisplayImage(peerData.user)}
-                    alt={peerData.user.name}
-                  />
-                  <UserInfo>
-                    <PeerName>{peerData.user.name}</PeerName>
-                    <JoinDate>
-                      <Calendar size={12} /> Since {formatSince(peerData.firstActivity)}
-                    </JoinDate>
-                  </UserInfo>
-                  <ActivityBadge>
-                    <span className="count">{peerData.count}</span>
-                    <span className="label">Activities</span>
-                  </ActivityBadge>
-                </ProfileSection>
-              </CardHeader>
-
               <CardContent>
-                {peerData.recentRestaurants.length > 0 && (
-                  <RecentVenue>
-                    <VenueIcon>
-                      <MapPin size={14} />
-                    </VenueIcon>
-                    <VenueDetails>
-                      <VenueName>{peerData.recentRestaurants[peerData.recentRestaurants.length - 1].name}</VenueName>
-                      {peerData.recentRestaurants[peerData.recentRestaurants.length - 1].rating && (
-                        <Rating>⭐ {peerData.recentRestaurants[peerData.recentRestaurants.length - 1].rating}</Rating>
-                      )}
-                    </VenueDetails>
-                  </RecentVenue>
-                )}
-
-                <LastActivity>
-                  <ActivityIcon>
-                    <Clock size={14} />
-                  </ActivityIcon>
-                  <ActivityText>
-                    Last: <em>{peerData.lastName}</em>
-                  </ActivityText>
-                </LastActivity>
+                <Avatar
+                  src={getDisplayImage(peerData.user)}
+                  alt={peerData.user.name}
+                />
+                <UserName>{peerData.user.name}</UserName>
+                <ActivityCount>
+                  {peerData.count} {peerData.count === 1 ? 'activity' : 'activities'}
+                </ActivityCount>
               </CardContent>
             </Card>
           ))}
         </Grid>
-      </ScrollArea>
+      </GridContainer>
 
-      {community.length > 3 && (
-        <Toggle onClick={() => setShowAll(v => !v)}>
+      {community.length > 4 && (
+        <ViewAllButton onClick={() => setShowAll(v => !v)}>
           {showAll ? 'Show Less' : `View All ${community.length} Members`}
-        </Toggle>
+        </ViewAllButton>
       )}
 
       {selectedPeer && !showInvitePopup && (
         <ModalOverlay onClick={() => setSelectedPeer(null)}>
           <ModalContent onClick={e => e.stopPropagation()}>
-            <CloseButton onClick={() => setSelectedPeer(null)}>×</CloseButton>
+            <CloseButton onClick={() => setSelectedPeer(null)}>
+              <X size={20} />
+            </CloseButton>
 
             <ModalHeader>
               <LargeAvatarContainer>
@@ -300,9 +275,9 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
                 <JoinDate>
                   <Calendar size={14} /> Voxxing since {formatSince(selectedPeer.firstActivity)}
                 </JoinDate>
-                <ActivityCount>
+                <ActivityCountDetail>
                   <Users size={14} /> {selectedPeer.count} shared activities
-                </ActivityCount>
+                </ActivityCountDetail>
               </UserDetails>
             </ModalHeader>
 
@@ -362,76 +337,73 @@ export default function YourCommunity({ showInvitePopup, onSelectUser, onCreateB
 }
 
 const Wrapper = styled.div`
-  text-align: left;
-  animation: ${fadeIn} 0.8s ease-out;
+  text-align: center;
+  animation: ${fadeIn} 0.6s ease-out;
+  padding: 0 1rem;
 `;
 
 const Header = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 3rem 1rem 1rem;
+  padding: 2rem 0 1.5rem;
 `;
 
 const TitleText = styled.h2`
   font-family: 'Montserrat', sans-serif;
   font-size: clamp(1.8rem, 4vw, 2.5rem);
-  font-weight: bold;
-  background: linear-gradient(135deg, #f4f0f5, #d394f5);
+  font-weight: 800;
+  background: linear-gradient(135deg, #f4f0f5, #d394f5, #cf38dd);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin: 0;
+  letter-spacing: -0.02em;
 `;
 
 const Subtitle = styled.p`
   font-family: 'Inter', sans-serif;
-  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
   color: #d8cce2;
   margin: 0.5rem 0 0;
   font-weight: 400;
+  opacity: 0.9;
 `;
 
-const ScrollArea = styled.div`
-  overflow-y: auto;
-  padding: 1rem;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+const GridContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 0;
 `;
 
 const Grid = styled.div`
   display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  max-width: 400px;
+  width: 100%;
   
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
+  @media (max-width: 480px) {
+    gap: 1rem;
+    max-width: 320px;
   }
 `;
 
 const Card = styled.div`
+  aspect-ratio: 1;
   background: linear-gradient(135deg, 
-    rgba(42, 30, 46, 0.95), 
-    rgba(64, 51, 71, 0.9)
+    rgba(42, 30, 46, 0.7), 
+    rgba(64, 51, 71, 0.8)
   );
-  backdrop-filter: blur(12px);
-  border: 2px solid rgba(207, 56, 221, 0.25);
-  border-radius: 20px;
-  padding: 0;
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(207, 56, 221, 0.3);
+  border-radius: 24px;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 6px 24px rgba(207, 56, 221, 0.1);
-  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(207, 56, 221, 0.15);
   position: relative;
+  overflow: hidden;
 
   &:hover {
-    transform: translateY(-4px) scale(1.01);
-    border-color: rgba(207, 56, 221, 0.5);
-    animation: ${cardHover} 2s ease-in-out;
-    box-shadow: 0 12px 36px rgba(207, 56, 221, 0.2);
+    animation: ${cardHover} 0.6s ease-out;
+    border-color: rgba(207, 56, 221, 0.6);
   }
 
   &::before {
@@ -440,195 +412,60 @@ const Card = styled.div`
     top: 0;
     left: 0;
     right: 0;
-    height: 2px;
+    height: 3px;
     background: linear-gradient(90deg, #cf38dd, #d394f5, #b954ec);
     opacity: 0.8;
   }
 `;
 
-const CardHeader = styled.div`
-  padding: 1rem 1rem 0;
-`;
-
-const ProfileSection = styled.div`
+const CardContent = styled.div`
+  height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  justify-content: center;
+  padding: 1.75rem;
+  gap: 0.8rem;
 `;
 
 const Avatar = styled.img`
-  width: 45px;
-  height: 45px;
+  width: 56px;
+  height: 56px;
   object-fit: cover;
   border-radius: 50%;
-  border: 2px solid rgba(207, 56, 221, 0.6);
+  border: 3px solid rgba(207, 56, 221, 0.6);
   background-color: #f4f0f5;
   transition: all 0.3s ease;
-  animation: ${avatarGlow} 4s ease-in-out infinite;
-  flex-shrink: 0;
+  animation: ${avatarPulse} 3s ease-in-out infinite;
 
   &:hover {
-    transform: scale(1.05);
-    border-color: rgba(207, 56, 221, 0.8);
+    transform: scale(1.1);
+    border-color: rgba(207, 56, 221, 0.9);
   }
 `;
 
-const UserInfo = styled.div`
-  flex: 1;
-  min-width: 0;
-`;
-
-const PeerName = styled.h3`
-  font-size: 1.1rem;
+const UserName = styled.h3`
+  font-size: 1rem;
   font-weight: 700;
   color: #f4f0f5;
-  margin: 0 0 0.2rem 0;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-  line-height: 1.2;
-  word-wrap: break-word;
-`;
-
-const JoinDate = styled.div`
-  font-size: 0.75rem;
-  color: #d8cce2;
-  display: flex;
-  align-items: center;
-  gap: 0.2rem;
-  font-weight: 500;
-`;
-
-const ActivityBadge = styled.div`
-  background: linear-gradient(135deg, #cf38dd, #b954ec);
-  border-radius: 12px;
-  padding: 0.4rem 0.6rem;
+  margin: 0;
   text-align: center;
-  border: 1px solid rgba(244, 240, 245, 0.2);
-  box-shadow: 0 3px 12px rgba(207, 56, 221, 0.3);
-  animation: ${badgeFloat} 3s ease-in-out infinite;
-  align-self: flex-start;
-  flex-shrink: 0;
-
-  .count {
-    display: block;
-    font-size: 0.95rem;
-    font-weight: 800;
-    color: #f4f0f5;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-    line-height: 1.1;
-  }
-
-  .label {
-    display: block;
-    font-size: 0.55rem;
-    color: rgba(244, 240, 245, 0.9);
-    text-transform: uppercase;
-    font-weight: 600;
-    line-height: 1;
-    margin-top: 1px;
-    letter-spacing: 0.5px;
-  }
+  line-height: 1.2;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  word-wrap: break-word;
+  max-width: 100%;
 `;
 
-const CardContent = styled.div`
-  padding: 0 1rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-`;
-
-const RecentVenue = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem;
-  background: rgba(207, 56, 221, 0.08);
-  border-radius: 10px;
-  border: 1px solid rgba(207, 56, 221, 0.2);
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(207, 56, 221, 0.12);
-    border-color: rgba(207, 56, 221, 0.3);
-  }
-`;
-
-const VenueIcon = styled.div`
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
-  background: rgba(207, 56, 221, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  
-  svg {
-    color: #cf38dd;
-  }
-`;
-
-const VenueDetails = styled.div`
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const VenueName = styled.span`
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #f4f0f5;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-const Rating = styled.span`
-  font-size: 0.7rem;
-  color: #d394f5;
-  flex-shrink: 0;
-  margin-left: 0.4rem;
-`;
-
-const LastActivity = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem;
-  background: rgba(64, 51, 71, 0.4);
-  border-radius: 10px;
-  border: 1px solid rgba(207, 56, 221, 0.1);
-`;
-
-const ActivityIcon = styled.div`
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
-  background: rgba(185, 84, 236, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  
-  svg {
-    color: #b954ec;
-  }
-`;
-
-const ActivityText = styled.div`
+const ActivityCount = styled.div`
   font-size: 0.75rem;
-  color: #d8cce2;
-  
-  em {
-    color: #cf38dd;
-    font-weight: 600;
-    font-style: normal;
-  }
+  color: #d394f5;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.9;
 `;
 
-const Toggle = styled.button`
+const ViewAllButton = styled.button`
   margin: 2rem auto 1rem;
   display: block;
   background: linear-gradient(135deg, #cf38dd, #d394f5);
@@ -637,8 +474,8 @@ const Toggle = styled.button`
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 600;
-  padding: 0.75rem 2rem;
-  border-radius: 999px;
+  padding: 0.8rem 2.5rem;
+  border-radius: 50px;
   transition: all 0.3s ease;
   box-shadow: 0 8px 24px rgba(207, 56, 221, 0.2);
 
@@ -653,8 +490,8 @@ const Toggle = styled.button`
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -667,28 +504,31 @@ const ModalContent = styled.div`
     rgba(42, 30, 46, 0.95), 
     rgba(64, 51, 71, 0.95)
   );
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
   border: 2px solid rgba(207, 56, 221, 0.4);
   padding: 2rem;
   border-radius: 24px;
   max-width: 480px;
   width: 100%;
-  max-height: 80vh;
+  max-height: 85vh;
   overflow-y: auto;
   position: relative;
   box-shadow: 0 24px 48px rgba(207, 56, 221, 0.3);
+  animation: ${modalSlideIn} 0.3s ease-out;
 `;
 
 const CloseButton = styled.button`
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 1.25rem;
+  right: 1.25rem;
   background: rgba(207, 56, 221, 0.2);
   border: 2px solid rgba(207, 56, 221, 0.4);
   border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  font-size: 1.2rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #f4f0f5;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -696,6 +536,7 @@ const CloseButton = styled.button`
   &:hover {
     background: rgba(207, 56, 221, 0.4);
     border-color: rgba(207, 56, 221, 0.8);
+    transform: scale(1.05);
   }
 `;
 
@@ -723,15 +564,33 @@ const LargeAvatar = styled.img`
 
 const UserDetails = styled.div`
   flex: 1;
+  text-align: left;
 `;
 
-const ActivityCount = styled.div`
+const PeerName = styled.h3`
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #f4f0f5;
+  margin: 0 0 0.5rem 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+`;
+
+const JoinDate = styled.div`
+  font-size: 0.85rem;
+  color: #d8cce2;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+`;
+
+const ActivityCountDetail = styled.div`
   font-size: 0.85rem;
   color: #d394f5;
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  margin-top: 0.5rem;
+  font-weight: 600;
 `;
 
 const Section = styled.div`
@@ -761,8 +620,14 @@ const RestaurantList = styled.div`
 const RestaurantItem = styled.div`
   background: rgba(207, 56, 221, 0.1);
   border: 1px solid rgba(207, 56, 221, 0.2);
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 0.75rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(207, 56, 221, 0.15);
+    border-color: rgba(207, 56, 221, 0.3);
+  }
 `;
 
 const RestaurantName = styled.div`
@@ -790,8 +655,14 @@ const ActivityItem = styled.div`
   gap: 0.75rem;
   padding: 0.75rem;
   background: rgba(64, 51, 71, 0.5);
-  border-radius: 8px;
+  border-radius: 12px;
   border: 1px solid rgba(207, 56, 221, 0.1);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(64, 51, 71, 0.7);
+    border-color: rgba(207, 56, 221, 0.2);
+  }
 `;
 
 const ActivityEmoji = styled.div`
@@ -802,6 +673,7 @@ const ActivityEmoji = styled.div`
 const ActivityDetails = styled.div`
   flex: 1;
   min-width: 0;
+  text-align: left;
 `;
 
 const ActivityName = styled.div`

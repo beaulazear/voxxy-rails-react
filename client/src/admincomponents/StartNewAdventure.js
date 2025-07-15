@@ -133,6 +133,10 @@ const ScrollContent = styled.div`
   @media (max-width: 768px) {
     padding: 32px 24px 40px 24px;
   }
+  
+  @media (max-width: 480px) {
+    padding: 24px 16px 32px 16px;
+  }
 `;
 
 const Grid = styled.div`
@@ -146,9 +150,12 @@ const Grid = styled.div`
     gap: 20px;
   }
   
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
+  @media (max-width: 480px) {
     gap: 16px;
+  }
+  
+  @media (max-width: 380px) {
+    gap: 12px;
   }
 `;
 
@@ -191,6 +198,18 @@ const ActivityCard = styled.button`
     min-height: 180px;
     border-radius: 18px;
   }
+  
+  @media (max-width: 480px) {
+    padding: 24px 16px;
+    min-height: 160px;
+    border-radius: 16px;
+  }
+  
+  @media (max-width: 380px) {
+    padding: 20px 12px;
+    min-height: 140px;
+    border-radius: 14px;
+  }
 `;
 
 const Emoji = styled.div`
@@ -202,6 +221,16 @@ const Emoji = styled.div`
   @media (max-width: 768px) {
     font-size: 48px;
     margin-bottom: 12px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 40px;
+    margin-bottom: 10px;
+  }
+  
+  @media (max-width: 380px) {
+    font-size: 32px;
+    margin-bottom: 8px;
   }
 `;
 
@@ -217,6 +246,16 @@ const ActivityName = styled.h3`
     font-size: 16px;
     margin: 0 0 10px 0;
   }
+  
+  @media (max-width: 480px) {
+    font-size: 14px;
+    margin: 0 0 8px 0;
+  }
+  
+  @media (max-width: 380px) {
+    font-size: 13px;
+    margin: 0 0 6px 0;
+  }
 `;
 
 const Description = styled.p`
@@ -229,6 +268,16 @@ const Description = styled.p`
 
   @media (max-width: 768px) {
     font-size: 13px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 12px;
+    line-height: 1.3;
+  }
+  
+  @media (max-width: 380px) {
+    font-size: 11px;
+    line-height: 1.3;
   }
 `;
 
@@ -256,6 +305,18 @@ const ComingSoonBadge = styled.div`
     
     span {
       font-size: 9px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    top: 8px;
+    right: 8px;
+    padding: 3px 6px;
+    border-radius: 6px;
+    
+    span {
+      font-size: 8px;
+      letter-spacing: 0.3px;
     }
   }
 `;
@@ -370,6 +431,6 @@ export default function StartNewAdventure({ onTripSelect, onBack }) {
           </Grid>
         </ScrollContent>
       </ScrollContainer>
-    </Container>
+    </Container >
   );
 }
