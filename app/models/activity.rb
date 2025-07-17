@@ -33,7 +33,7 @@ class Activity < ApplicationRecord
     begin
       # Combine date_day with the time portion of date_time to get actual activity datetime
       # date_time is stored as "2000-01-01T14:36:00.000Z" so we extract just the time part
-      time_part = date_time.strftime('%H:%M:%S')
+      time_part = date_time.strftime("%H:%M:%S")
       activity_datetime = DateTime.parse("#{date_day} #{time_part}")
       current_time = Time.current
 
