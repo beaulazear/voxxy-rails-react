@@ -5,7 +5,7 @@ export const BaseText = styled.p`
   font-size: 16px;
   line-height: 1.5;
   font-weight: 400;
-  color: #111; /* Or use a prop for dynamic theming */
+  color: #111;
 `;
 
 export const Heading1 = styled.h1`

@@ -33,7 +33,6 @@ export const UnifiedCard = styled.div`
   }
 `;
 
-// Badge for recommendations and selected items - NOW IN BOTTOM-RIGHT
 export const CardBadge = styled.div`
   position: absolute;
   bottom: 12px;
@@ -63,12 +62,10 @@ export const CardHeader = styled.div`
   text-align: left;
 `;
 
-// Main content area of the card
 export const CardContent = styled.div`
   flex: 1;
 `;
 
-// Title for recommendations
 export const CardTitle = styled.h3`
   color: ${props => props.$isRecommendation ? '#cc31e8' : '#ffffff'};
   font-size: 1.1rem;
@@ -78,7 +75,6 @@ export const CardTitle = styled.h3`
   font-family: 'Montserrat', sans-serif;
 `;
 
-// Date and time subtitle
 export const CardSubtitle = styled.div`
   color: #ffffff;
   font-weight: 600;
@@ -89,7 +85,6 @@ export const CardSubtitle = styled.div`
   gap: 0.5rem;
 `;
 
-// Statistics section at bottom of card
 export const CardStats = styled.div`
   display: flex;
   align-items: center;
@@ -99,7 +94,6 @@ export const CardStats = styled.div`
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 `;
 
-// Individual stat item
 export const StatItem = styled.div`
   display: flex;
   align-items: center;
@@ -108,13 +102,11 @@ export const StatItem = styled.div`
   font-size: 0.85rem;
 `;
 
-// Highlighted stat number
 export const StatNumber = styled.span`
   color: #ffffff;
   font-weight: 600;
 `;
 
-// Loading section for AI recommendations
 export const LoadingSection = styled.div`
   display: flex;
   flex-direction: column;
@@ -138,7 +130,6 @@ export const LoadingSection = styled.div`
   }
 `;
 
-// Modal styles for detailed time slot view
 export const DetailModalOverlay = styled.div`
   position: fixed;
   top: 0;

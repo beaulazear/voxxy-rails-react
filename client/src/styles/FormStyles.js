@@ -32,7 +32,7 @@ export const ModalContainer = styled.div`
   padding: 0;
   border-radius: 1.5rem;
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
   max-height: 90vh;
   overflow: hidden;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
@@ -60,14 +60,23 @@ export const StepLabel = styled.div`
   padding: 1rem 2rem 0.5rem;
   font-size: 0.85rem;
   color: #cc31e8;
-  text-align: center;
+  text-align: left;
   font-weight: 600;
+  
+  @media (max-width: 768px) {
+    padding: 1rem 1.5rem 0.5rem;
+  }
 `;
 
 export const ModalHeader = styled.div`
   padding: 0 2rem 1rem;
   text-align: left;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  
+  @media (max-width: 768px) {
+    padding: 0 1.5rem 1rem;
+  }
 `;
 
 export const Title = styled.h2`
@@ -76,6 +85,27 @@ export const Title = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
   font-family: 'Montserrat', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  text-align: left;
+  
+  svg {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    
+    @media (max-width: 768px) {
+      width: 32px;
+      height: 32px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+    gap: 1rem;
+  }
 `;
 
 export const Subtitle = styled.p`
@@ -83,12 +113,17 @@ export const Subtitle = styled.p`
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.4;
+  text-align: left;
 `;
 
 export const StepContent = styled.div`
   padding: 1.5rem 2rem;
   flex: 1;
   overflow-y: auto;
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem 1.5rem;
+  }
   
   &::-webkit-scrollbar {
     width: 4px;
@@ -108,12 +143,134 @@ export const StepContent = styled.div`
 export const Section = styled.div`
   background: rgba(255, 255, 255, 0.05);
   border-radius: 1rem;
-  padding: 1rem;
+  padding: 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   margin-bottom: 1.5rem;
   
   &:last-child {
     margin-bottom: 0;
+  }
+`;
+
+export const SectionTitle = styled.h3`
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: left;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+`;
+
+export const SectionDescription = styled.p`
+  color: #ccc;
+  font-size: 0.85rem;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+  text-align: left;
+`;
+
+export const OptionsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+`;
+
+export const OptionCard = styled.button`
+  background: ${({ $selected }) =>
+    $selected
+      ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)'
+      : 'rgba(255, 255, 255, 0.05)'};
+  border: ${({ $selected }) =>
+    $selected
+      ? 'none'
+      : '2px solid rgba(255, 255, 255, 0.1)'};
+  color: #fff;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  
+  @media (max-width: 768px) {
+    padding: 1.25rem;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+  
+  &:hover {
+    background: ${({ $selected }) =>
+    $selected
+      ? 'linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%)'
+      : 'rgba(255, 255, 255, 0.08)'};
+    transform: translateY(-2px);
+    box-shadow: ${({ $selected }) =>
+    $selected
+      ? '0 8px 20px rgba(204, 49, 232, 0.3)'
+      : '0 4px 12px rgba(0, 0, 0, 0.2)'};
+    border-color: ${({ $selected }) =>
+    $selected
+      ? 'transparent'
+      : '#cc31e8'};
+  }
+`;
+
+export const MultiSelectGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+  }
+`;
+
+export const MultiSelectCard = styled.button`
+  background: ${({ $selected }) =>
+    $selected
+      ? 'rgba(204, 49, 232, 0.3)'
+      : 'rgba(255, 255, 255, 0.05)'};
+  border: ${({ $selected }) =>
+    $selected
+      ? '2px solid #cc31e8'
+      : '2px solid rgba(255, 255, 255, 0.1)'};
+  color: #fff;
+  padding: 0.75rem 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 500;
+  
+  @media (max-width: 768px) {
+    padding: 1rem;
+    font-size: 0.85rem;
+    text-align: left;
+  }
+  
+  &:hover {
+    background: ${({ $selected }) =>
+    $selected
+      ? 'rgba(204, 49, 232, 0.4)'
+      : 'rgba(255, 255, 255, 0.08)'};
+    transform: translateY(-1px);
+    border-color: #cc31e8;
   }
 `;
 
@@ -125,6 +282,7 @@ export const Label = styled.label`
   font-weight: 600;
   color: #fff;
   font-size: 0.9rem;
+  text-align: left;
 `;
 
 export const Input = styled.input`
@@ -201,6 +359,7 @@ export const RangeLabel = styled.div`
   font-weight: 600;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
+  text-align: left;
 `;
 
 export const Textarea = styled.textarea`
@@ -212,7 +371,7 @@ export const Textarea = styled.textarea`
   background: rgba(255, 255, 255, 0.05);
   color: #fff;
   resize: vertical;
-  min-height: 100px;
+  min-height: 120px;
   font-family: inherit;
   transition: all 0.2s ease;
   
@@ -220,6 +379,7 @@ export const Textarea = styled.textarea`
     border-color: #cc31e8; 
     outline: none;
     background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 2px rgba(204, 49, 232, 0.2);
   }
   
   &::placeholder { 
@@ -335,6 +495,7 @@ export const CheckboxLabel = styled.label`
   cursor: pointer;
   font-weight: 500;
   gap: 0.75rem;
+  text-align: left;
 `;
 
 export const ButtonRow = styled.div`
@@ -343,6 +504,10 @@ export const ButtonRow = styled.div`
   padding: 1.5rem 2rem 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   gap: 1rem;
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem 1.5rem 2rem;
+  }
 `;
 
 export const Button = styled.button`
@@ -357,25 +522,25 @@ export const Button = styled.button`
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  min-width: 100px;
+  min-width: 120px;
   
   background: ${({ $primary }) =>
-        $primary
-            ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)'
-            : 'rgba(255, 255, 255, 0.05)'};
+    $primary
+      ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)'
+      : 'rgba(255, 255, 255, 0.05)'};
   color: ${({ $primary }) => ($primary ? 'white' : '#cc31e8')};
   border: ${({ $primary }) => ($primary ? 'none' : '2px solid rgba(204, 49, 232, 0.3)')};
   
   &:hover:not(:disabled) { 
     transform: translateY(-2px);
     box-shadow: ${({ $primary }) =>
-        $primary
-            ? '0 8px 20px rgba(204, 49, 232, 0.3)'
-            : '0 4px 12px rgba(0, 0, 0, 0.2)'};
+    $primary
+      ? '0 8px 20px rgba(204, 49, 232, 0.3)'
+      : '0 4px 12px rgba(0, 0, 0, 0.2)'};
     background: ${({ $primary }) =>
-        $primary
-            ? 'linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%)'
-            : 'rgba(255, 255, 255, 0.08)'};
+    $primary
+      ? 'linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%)'
+      : 'rgba(255, 255, 255, 0.08)'};
   }
   
   &:disabled {
@@ -383,6 +548,31 @@ export const Button = styled.button`
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+  }
+`;
+
+export const CloseButton = styled.button`
+  position: absolute;
+  top: -0.5rem;
+  right: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-right: 0.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.2s ease;
+  width: 34px;
+  height: 34px;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
   }
 `;
 
@@ -420,6 +610,7 @@ export const DateTimeGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+  margin-bottom: 1rem;
   
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
@@ -431,4 +622,57 @@ export const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+`;
+
+export const AddTimeButton = styled.button`
+  background: rgba(204, 49, 232, 0.1);
+  border: 2px solid rgba(204, 49, 232, 0.3);
+  color: #cc31e8;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(204, 49, 232, 0.2);
+    transform: translateY(-1px);
+  }
+`;
+
+export const AvailabilitySection = styled.div`
+  margin-top: 1rem;
+`;
+
+export const TimeSlotsList = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+`;
+
+export const TimeSlot = styled.div`
+  background: rgba(204, 49, 232, 0.2);
+  border: 1px solid rgba(204, 49, 232, 0.4);
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+export const RemoveTimeButton = styled.button`
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  
+  &:hover {
+    color: #ff6b6b;
+  }
 `;
