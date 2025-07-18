@@ -6,6 +6,7 @@ class ActivityVotingEmailService
     Rails.logger.info "Sending voting-stage emails for Activity ##{activity.id}: “#{activity.activity_name}”"
 
     recipient_emails = activity.participants.map(&:email).map(&:strip).map(&:downcase).uniq
+    recipient_emails.reject! { |email| email == activity.user&.email }
 
     recipient_emails.each do |email|
       user = User.find_by("lower(email) = ?", email)

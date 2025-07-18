@@ -16,11 +16,11 @@ class ActivityFinalizationEmailService
     url_opts  = Rails.application.config.action_mailer.default_url_options
     share_url = Rails.application.routes.url_helpers.share_activity_url(activity, **url_opts)
 
-    # Collect recipients
     recipient_emails = []
-    recipient_emails << activity.user.email if activity.respond_to?(:user) && activity.user&.email
     recipient_emails += activity.participants.map(&:email)
+    recipient_emails += activity.responses.map(&:email).compact
     recipient_emails.uniq!
+    recipient_emails.reject! { |email| email == activity.user&.email }
 
     # Fetch pinned restaurant selection, if any
     pinned = activity.pinned_activities.find_by(selected: true)

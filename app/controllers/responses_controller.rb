@@ -29,11 +29,13 @@ class ResponsesController < ApplicationController
       )
     end
 
-    ActivityResponseEmailService.send_response_email(response, activity)
-    comment = activity.comments.create!(
-      user_id: current_user.id,
-      content: "#{current_user.name} has submitted their preferences! 💕"
-    )
+    if activity.user_id != current_user.id
+      ActivityResponseEmailService.send_response_email(response, activity)
+      comment = activity.comments.create!(
+        user_id: current_user.id,
+        content: "#{current_user.name} has submitted their preferences! 💕"
+      )
+    end
 
     render json: {
       response: response,
