@@ -418,7 +418,6 @@ function UpdateActivityModal({ activity, onClose, onUpdate, pinnedActivities, pi
       finalized: true,
     };
 
-    // For Meeting activities with selected time slots
     if (activity.activity_type === 'Meeting' && selectedTimeSlotId) {
       const selectedSlot = pinned.find(slot => slot.id === selectedTimeSlotId);
       if (selectedSlot) {

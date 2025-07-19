@@ -33,7 +33,6 @@ import {
     Button
 } from '../styles/FormStyles';
 
-// Override Input to remove margin-bottom for date/time inputs
 const Input = styled(BaseInput)`
   margin-bottom: 0;
 `;
@@ -52,14 +51,12 @@ export default function GameNightPreferenceChat({
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
 
-    // Form state for new questions
     const [gameTypes, setGameTypes] = useState([]);
     const [vibe, setVibe] = useState('');
     const [skillLevel, setSkillLevel] = useState('');
     const [gamePreferences, setGamePreferences] = useState('');
     const [ownedGames, setOwnedGames] = useState('');
 
-    // Availability state
     const [availability, setAvailability] = useState({});
     const [currentDate, setCurrentDate] = useState('');
     const [currentTime, setCurrentTime] = useState('');
@@ -77,7 +74,6 @@ export default function GameNightPreferenceChat({
             .catch(err => console.error('Error fetching activity:', err));
     }, [activityId, API_URL]);
 
-    // Scroll to top when step changes
     useEffect(() => {
         if (stepContentRef.current) {
             stepContentRef.current.scrollTo({
@@ -105,15 +101,12 @@ export default function GameNightPreferenceChat({
         const openToAnything = "I'm open to anything!";
 
         if (gameType === openToAnything) {
-            // If selecting "open to anything", clear all other selections
             setGameTypes([openToAnything]);
         } else {
-            // If selecting any other option, remove "open to anything" if it's selected
             let newGameTypes = gameTypes.includes(gameType)
                 ? gameTypes.filter(item => item !== gameType)
                 : [...gameTypes, gameType];
 
-            // Remove "open to anything" from the array if present
             newGameTypes = newGameTypes.filter(item => item !== openToAnything);
 
             setGameTypes(newGameTypes);
