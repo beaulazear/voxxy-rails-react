@@ -116,10 +116,15 @@ GEM
     connection_pool (2.4.1)
     crass (1.0.6)
     csv (3.3.2)
+    database_cleaner-active_record (2.2.1)
+      activerecord (>= 5.a)
+      database_cleaner-core (~> 2.0.0)
+    database_cleaner-core (2.0.1)
     date (3.4.0)
     debug (1.10.0)
       irb (~> 1.10)
       reline (>= 0.3.8)
+    diff-lcs (1.6.2)
     dotenv (3.1.7)
     dotenv-rails (3.1.7)
       dotenv (= 3.1.7)
@@ -127,6 +132,13 @@ GEM
     drb (2.2.1)
     erubi (1.13.1)
     event_stream_parser (1.0.0)
+    factory_bot (6.5.4)
+      activesupport (>= 6.1.0)
+    factory_bot_rails (6.5.0)
+      factory_bot (~> 6.5)
+      railties (>= 6.1.0)
+    faker (3.5.2)
+      i18n (>= 1.8.11, < 2)
     faraday (2.12.2)
       faraday-net_http (>= 2.0, < 3.5)
       json
@@ -270,6 +282,23 @@ GEM
     reline (0.6.0)
       io-console (~> 0.5)
     rexml (3.4.1)
+    rspec-core (3.13.5)
+      rspec-support (~> 3.13.0)
+    rspec-expectations (3.13.5)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-mocks (3.13.5)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-rails (6.1.5)
+      actionpack (>= 6.1)
+      activesupport (>= 6.1)
+      railties (>= 6.1)
+      rspec-core (~> 3.13)
+      rspec-expectations (~> 3.13)
+      rspec-mocks (~> 3.13)
+      rspec-support (~> 3.13)
+    rspec-support (3.13.4)
     rubocop (1.68.0)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
@@ -317,6 +346,8 @@ GEM
       websocket (~> 1.0)
     sendgrid-ruby (6.7.0)
       ruby_http_client (~> 3.4)
+    shoulda-matchers (5.3.0)
+      activesupport (>= 5.2.0)
     sidekiq (7.3.9)
       base64
       connection_pool (>= 2.3.0)
@@ -368,8 +399,11 @@ DEPENDENCIES
   bootsnap
   brakeman
   capybara
+  database_cleaner-active_record (~> 2.1)
   debug
   dotenv-rails
+  factory_bot_rails (~> 6.2)
+  faker (~> 3.2)
   httparty
   icalendar
   image_processing (~> 1.2)
@@ -381,10 +415,12 @@ DEPENDENCIES
   rack-cors
   rails (~> 7.2.2)
   redis (~> 4.0)
+  rspec-rails (~> 6.0)
   rubocop-rails-omakase
   ruby-openai
   selenium-webdriver
   sendgrid-ruby (~> 6.7.0)
+  shoulda-matchers (~> 5.3)
   sidekiq
   sprockets-rails
   stimulus-rails

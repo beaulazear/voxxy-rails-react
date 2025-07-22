@@ -49,6 +49,7 @@ class User < ApplicationRecord
     self.reset_password_token = nil
     self.reset_password_sent_at = nil
     self.password = new_password
+    self.password_confirmation = new_password
     save!
   end
 
