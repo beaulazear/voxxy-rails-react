@@ -10,61 +10,197 @@ const slideUp = keyframes`
 `;
 
 const CommentsSection = ({ activity }) => {
-  const [comments, setComments] = useState(activity.comments || []);
+  const [comments, setComments] = useState(() => {
+    try {
+      return Array.isArray(activity?.comments) ? activity.comments : [];
+    } catch (error) {
+      console.warn('Error initializing comments:', error);
+      return [];
+    }
+  });
+
   const [newComment, setNewComment] = useState("");
   const { user } = useContext(UserContext);
   const commentsRef = useRef(null);
 
-  // Scroll to bottom on new message
   useEffect(() => {
-    if (commentsRef.current) {
-      commentsRef.current.scrollTop = commentsRef.current.scrollHeight;
+    try {
+      if (commentsRef.current) {
+        commentsRef.current.scrollTop = commentsRef.current.scrollHeight;
+      }
+    } catch (error) {
+      console.warn('Error scrolling to bottom:', error);
     }
   }, [comments]);
 
-  // Also scroll to bottom on first render
   useEffect(() => {
-    if (commentsRef.current) {
-      commentsRef.current.scrollTop = commentsRef.current.scrollHeight;
+    try {
+      if (commentsRef.current) {
+        commentsRef.current.scrollTop = commentsRef.current.scrollHeight;
+      }
+    } catch (error) {
+      console.warn('Error scrolling to bottom on mount:', error);
     }
   }, []);
 
-  // Post a new comment
-  const handleCommentSubmit = async () => {
-    if (!newComment.trim()) return;
-    const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
-    const res = await fetch(`${API_URL}/activities/${activity.id}/comments`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ comment: { content: newComment } }),
-    });
-    if (res.ok) {
-      const comment = await res.json();
-      setComments(prev => [...prev, comment]);
-      setNewComment("");
-    } else {
-      alert("Failed to add comment.");
+  const formatTime = (timestamp) => {
+    try {
+      if (!timestamp) return 'Unknown time';
+
+      const date = new Date(timestamp);
+
+      if (isNaN(date.getTime())) {
+        return 'Invalid time';
+      }
+
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+      });
+    } catch (error) {
+      console.warn('Error formatting time:', error, timestamp);
+      return 'Unknown time';
     }
   };
 
-  // Helpers to format
-  const formatTime = ts => {
-    const d = new Date(ts);
-    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
-  const formatDate = ts => {
-    const d = new Date(ts);
-    return d.toLocaleDateString([], { month: "long", day: "numeric", year: "numeric" });
+  const formatDate = (timestamp) => {
+    try {
+      if (!timestamp) return 'Unknown date';
+
+      const date = new Date(timestamp);
+
+      if (isNaN(date.getTime())) {
+        return 'Invalid date';
+      }
+
+      return date.toLocaleDateString([], {
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      });
+    } catch (error) {
+      console.warn('Error formatting date:', error, timestamp);
+      return 'Unknown date';
+    }
   };
 
-  // Group comments by date
-  const grouped = comments.reduce((acc, c) => {
-    const date = formatDate(c.created_at);
-    if (!acc[date]) acc[date] = [];
-    acc[date].push(c);
-    return acc;
-  }, {});
+  const getUserName = (userObj) => {
+    try {
+      if (!userObj || !userObj.name) return 'Unknown User';
+      return userObj.name.split(" ")[0] || 'Unknown User';
+    } catch (error) {
+      console.warn('Error getting user name:', error);
+      return 'Unknown User';
+    }
+  };
+
+  const getAvatarUrl = (userObj) => {
+    try {
+      return userObj?.avatar || Woman;
+    } catch (error) {
+      console.warn('Error getting avatar URL:', error);
+      return Woman;
+    }
+  };
+
+  const handleCommentSubmit = async () => {
+    try {
+      if (!newComment.trim()) return;
+
+      if (!activity?.id) {
+        alert("Unable to post comment: Activity not found.");
+        return;
+      }
+
+      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+      const res = await fetch(`${API_URL}/activities/${activity.id}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ comment: { content: newComment } }),
+      });
+
+      if (res.ok) {
+        const comment = await res.json();
+        setComments(prev => [...prev, comment]);
+        setNewComment("");
+      } else {
+        const errorText = await res.text().catch(() => 'Unknown error');
+        console.error('Failed to add comment:', res.status, errorText);
+        alert("Failed to add comment. Please try again.");
+      }
+    } catch (error) {
+      console.error('Error submitting comment:', error);
+      alert("Network error. Please check your connection and try again.");
+    }
+  };
+
+  const getGroupedComments = () => {
+    try {
+      if (!Array.isArray(comments)) return {};
+
+      return comments.reduce((acc, comment) => {
+        try {
+          // Skip invalid comments
+          if (!comment || typeof comment !== 'object') {
+            console.warn('Invalid comment object:', comment);
+            return acc;
+          }
+
+          const date = formatDate(comment.created_at);
+          if (!acc[date]) acc[date] = [];
+          acc[date].push(comment);
+          return acc;
+        } catch (error) {
+          console.warn('Error processing comment:', error, comment);
+          return acc;
+        }
+      }, {});
+    } catch (error) {
+      console.error('Error grouping comments:', error);
+      return {};
+    }
+  };
+
+  const grouped = getGroupedComments();
+
+  // Safe user ID comparison
+  const isCurrentUser = (commentUser) => {
+    try {
+      return commentUser?.id && user?.id && commentUser.id === user.id;
+    } catch (error) {
+      console.warn('Error comparing user IDs:', error);
+      return false;
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    try {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleCommentSubmit();
+      }
+    } catch (error) {
+      console.warn('Error handling key down:', error);
+    }
+  };
+
+  if (!activity) {
+    return (
+      <Wrapper>
+        <ChatPanel>
+          <Header>
+            <IconWrapper><NotepadText size={20} /></IconWrapper>
+            <Title>Activity Updates</Title>
+          </Header>
+          <Messages>
+            <EmptyState>Unable to load activity.</EmptyState>
+          </Messages>
+        </ChatPanel>
+      </Wrapper>
+    );
+  }
 
   return (
     <Wrapper>
@@ -80,28 +216,59 @@ const CommentsSection = ({ activity }) => {
           {Object.entries(grouped).map(([date, msgs]) => (
             <React.Fragment key={date}>
               <DateSeparator>{date}</DateSeparator>
-              {msgs.map(c => {
-                const isMe = c.user.id === user.id;
-                return (
-                  <MessageRow key={c.id} $me={isMe}>
-                    {!isMe && (
-                      <AvatarContainer>
-                        <Avatar src={c.user.avatar || Woman} alt={c.user.name} />
-                        <UserName>{c.user.name.split(" ")[0]}</UserName>
-                      </AvatarContainer>
-                    )}
-                    <Bubble $me={isMe}>
-                      <Text style={{ textAlign: 'left' }}>{c.content}</Text>
-                      <TimeStamp $me={isMe}>{formatTime(c.created_at)}</TimeStamp>
-                    </Bubble>
-                    {isMe && (
-                      <AvatarContainer>
-                        <Avatar src={user.avatar || Woman} alt={user.name} />
-                        <UserName>{user.name.split(" ")[0]}</UserName>
-                      </AvatarContainer>
-                    )}
-                  </MessageRow>
-                );
+              {Array.isArray(msgs) && msgs.map(comment => {
+                try {
+                  if (!comment || !comment.id) {
+                    console.warn('Skipping invalid comment:', comment);
+                    return null;
+                  }
+
+                  const isMe = isCurrentUser(comment.user);
+                  const userName = getUserName(comment.user);
+                  const avatarUrl = getAvatarUrl(comment.user);
+                  const currentUserName = getUserName(user);
+                  const currentUserAvatar = getAvatarUrl(user);
+
+                  return (
+                    <MessageRow key={comment.id} $me={isMe}>
+                      {!isMe && (
+                        <AvatarContainer>
+                          <Avatar
+                            src={avatarUrl}
+                            alt={userName}
+                            onError={(e) => {
+                              e.target.src = Woman;
+                            }}
+                          />
+                          <UserName>{userName}</UserName>
+                        </AvatarContainer>
+                      )}
+                      <Bubble $me={isMe}>
+                        <Text style={{ textAlign: 'left' }}>
+                          {comment.content || 'No content'}
+                        </Text>
+                        <TimeStamp $me={isMe}>
+                          {formatTime(comment.created_at)}
+                        </TimeStamp>
+                      </Bubble>
+                      {isMe && (
+                        <AvatarContainer>
+                          <Avatar
+                            src={currentUserAvatar}
+                            alt={currentUserName}
+                            onError={(e) => {
+                              e.target.src = Woman;
+                            }}
+                          />
+                          <UserName>{currentUserName}</UserName>
+                        </AvatarContainer>
+                      )}
+                    </MessageRow>
+                  );
+                } catch (error) {
+                  console.error('Error rendering comment:', error, comment);
+                  return null;
+                }
               })}
             </React.Fragment>
           ))}
@@ -111,8 +278,14 @@ const CommentsSection = ({ activity }) => {
           <Input
             placeholder="Type a message…"
             value={newComment}
-            onChange={e => setNewComment(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleCommentSubmit()}
+            onChange={(e) => {
+              try {
+                setNewComment(e.target.value);
+              } catch (error) {
+                console.warn('Error updating comment input:', error);
+              }
+            }}
+            onKeyDown={handleKeyDown}
           />
           <SendBtn onClick={handleCommentSubmit} disabled={!newComment.trim()}>
             <Send size={16} />
@@ -125,7 +298,7 @@ const CommentsSection = ({ activity }) => {
 
 export default CommentsSection;
 
-/* Styled Components */
+/* Styled Components - Same as original */
 
 const Wrapper = styled.div`
   width: 100%;

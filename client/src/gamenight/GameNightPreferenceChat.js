@@ -164,7 +164,6 @@ export default function GameNightPreferenceChat({
     const handleSubmit = async () => {
         setSubmitting(true);
 
-        // Compile all preferences into notes
         const notes = `Game Night Preferences:
 
 Game Types: ${gameTypes.join(', ')}

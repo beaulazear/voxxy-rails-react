@@ -1,228 +1,35 @@
 // BarChat.js - Response form for cocktails/bars
-import React, { useState, useRef, useContext, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import { useState, useRef, useContext, useEffect } from 'react';
+import styled from 'styled-components';
 import { UserContext } from '../context/user';
 import mixpanel from 'mixpanel-browser';
-import { Wine, MapPin, DollarSign, Heart, Plus, Calendar, Clock, Users } from 'lucide-react';
-
-const fadeIn = keyframes`
-  from { 
-    opacity: 0; 
-    transform: scale(0.95);
-  }
-  to { 
-    opacity: 1; 
-    transform: scale(1);
-  }
-`;
-
-const Overlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-  padding: 1rem;
-`;
-
-const ModalContainer = styled.div`
-  background: linear-gradient(135deg, #2a1e30 0%, #342540 100%);
-  padding: 0;
-  border-radius: 1.5rem;
-  width: 100%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-  color: #fff;
-  animation: ${fadeIn} 0.3s ease-out;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  flex-direction: column;
-`;
-
-const ProgressBarContainer = styled.div`
-  height: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  width: 100%;
-`;
-
-const ProgressBar = styled.div`
-  height: 4px;
-  background: linear-gradient(135deg, #cc31e8 0%, #9051e1 100%);
-  width: ${({ $percent }) => $percent}%;
-  transition: width 0.3s ease;
-`;
-
-const StepLabel = styled.div`
-  padding: 1rem 2rem 0.5rem;
-  font-size: 0.85rem;
-  color: #cc31e8;
-  text-align: center;
-  font-weight: 600;
-`;
-
-const ModalHeader = styled.div`
-  padding: 0 2rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-`;
-
-const Title = styled.h2`
-  color: #fff;
-  margin: 0 0 0.5rem;
-  font-size: 1.5rem;
-  font-weight: 600;
-  font-family: 'Montserrat', sans-serif;
-`;
-
-const Subtitle = styled.p`
-  color: #ccc;
-  margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.4;
-`;
-
-const StepContent = styled.div`
-  padding: 1.5rem 2rem;
-  flex: 1;
-  overflow-y: auto;
-  
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: #cc31e8;
-    border-radius: 2px;
-  }
-`;
-
-const Section = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 1rem;
-  padding: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 1.5rem;
-  
-  &:last-child {
-    margin-bottom: 0;
-  }
-`;
-
-const Label = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  font-weight: 600;
-  color: #fff;
-  font-size: 0.9rem;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 0.9rem;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-  transition: all 0.2s ease;
-  margin-bottom: 1rem;
-  
-  &:focus { 
-    border-color: #cc31e8; 
-    outline: none;
-    background: rgba(255, 255, 255, 0.08);
-  }
-  
-  &:-webkit-autofill { 
-    box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.05) inset !important; 
-    -webkit-text-fill-color: #fff !important; 
-  }
-  
-  &::-webkit-calendar-picker-indicator { 
-    filter: invert(1) brightness(2); 
-    cursor: pointer; 
-  }
-  
-  &::placeholder { 
-    color: #aaa; 
-  }
-`;
-
-const Textarea = styled.textarea`
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 0.9rem;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-  resize: vertical;
-  min-height: 120px;
-  font-family: inherit;
-  transition: all 0.2s ease;
-  
-  &:focus { 
-    border-color: #cc31e8; 
-    outline: none;
-    background: rgba(255, 255, 255, 0.08);
-  }
-  
-  &::placeholder { 
-    color: #aaa; 
-  }
-`;
-
-const RadioCardContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-`;
-
-const RadioCard = styled.div`
-  padding: 1rem 0.75rem;
-  text-align: center;
-  border-radius: 0.75rem;
-  background: ${({ selected }) => (selected ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)' : 'rgba(255, 255, 255, 0.05)')};
-  color: #fff;
-  border: ${({ selected }) => (selected ? 'none' : '2px solid rgba(255, 255, 255, 0.1)')};
-  cursor: pointer;
-  user-select: none;
-  font-size: 0.9rem;
-  font-weight: 600;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: ${({ selected }) => (selected ? 'linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%)' : 'rgba(255, 255, 255, 0.08)')};
-    transform: translateY(-2px);
-    box-shadow: ${({ selected }) => (selected ? '0 8px 20px rgba(204, 49, 232, 0.3)' : '0 4px 12px rgba(0, 0, 0, 0.2)')};
-    border-color: ${({ selected }) => (selected ? 'transparent' : '#cc31e8')};
-  }
-`;
-
-const IconWrapper = styled.div`
-  font-size: 1.4rem;
-  margin-bottom: 0.5rem;
-  line-height: 1;
-`;
+import { Wine, Plus, Calendar, Clock, Users, ChevronLeft, ChevronRight, Send, X } from 'lucide-react';
+import {
+  Overlay,
+  ModalContainer,
+  ProgressBarContainer,
+  ProgressBar,
+  StepLabel,
+  ModalHeader,
+  CloseButton,
+  Title,
+  StepContent,
+  Section,
+  SectionTitle,
+  SectionDescription,
+  OptionsGrid,
+  OptionCard,
+  MultiSelectGrid,
+  MultiSelectCard,
+  Label,
+  Input,
+  Textarea,
+  ButtonRow,
+  Button,
+  DateTimeGrid,
+  FormGroup,
+  AvailabilitySection,
+} from '../styles/FormStyles';
 
 const PillContainer = styled.div`
   display: flex;
@@ -273,56 +80,18 @@ const RemoveIcon = styled.span`
   }
 `;
 
-const ButtonRow = styled.div`
+const InputRow = styled.div`
   display: flex;
-  justify-content: space-between;
-  padding: 1.5rem 2rem 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  gap: 1rem;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
 `;
 
-const Button = styled.button`
-  padding: 1rem 1.5rem;
-  border: none;
-  border-radius: 0.75rem;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  min-width: 100px;
-  
-  background: ${({ $primary }) =>
-        $primary
-            ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)'
-            : 'rgba(255, 255, 255, 0.05)'};
-  color: ${({ $primary }) => ($primary ? 'white' : '#cc31e8')};
-  border: ${({ $primary }) => ($primary ? 'none' : '2px solid rgba(204, 49, 232, 0.3)')};
-  
-  &:hover:not(:disabled) { 
-    transform: translateY(-2px);
-    box-shadow: ${({ $primary }) =>
-        $primary
-            ? '0 8px 20px rgba(204, 49, 232, 0.3)'
-            : '0 4px 12px rgba(0, 0, 0, 0.2)'};
-    background: ${({ $primary }) =>
-        $primary
-            ? 'linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%)'
-            : 'rgba(255, 255, 255, 0.08)'};
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
+const InputWrapper = styled.div`
+  flex: 1;
 `;
 
-const AddButton = styled.button`
+const CustomAddButton = styled.button`
   background: rgba(204, 49, 232, 0.1);
   border: 2px solid rgba(204, 49, 232, 0.3);
   color: #cc31e8;
@@ -353,18 +122,7 @@ const AddButton = styled.button`
   }
 `;
 
-const InputRow = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-`;
-
-const InputWrapper = styled.div`
-  flex: 1;
-`;
-
-// Availability components (same as CuisineChat)
+// Availability components for time selection
 const TimeGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
@@ -372,7 +130,7 @@ const TimeGrid = styled.div`
   margin: 1rem 0;
 `;
 
-const TimeSlot = styled.button`
+const TimeSlotButton = styled.button`
   padding: 0.5rem;
   border: 2px solid ${({ selected }) => (selected ? '#cc31e8' : 'rgba(255, 255, 255, 0.1)')};
   background: ${({ selected }) => (selected ? '#cc31e8' : 'rgba(255, 255, 255, 0.05)')};
@@ -439,19 +197,20 @@ export default function BarChat({
 
     const contentRef = useRef(null);
 
-    // Activity and availability state
     const [activity, setActivity] = useState(null);
     const [availability, setAvailability] = useState({});
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedTimes, setSelectedTimes] = useState([]);
 
     const [step, setStep] = useState(1);
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState('');
+
     const getTotalSteps = () => {
         return activity?.allow_participant_time_selection ? 5 : 4;
     };
     const percent = (step / getTotalSteps()) * 100;
 
-    // Bar-specific preferences
     const drinkOptions = [
         'Cocktails',
         'Beer',
@@ -478,19 +237,29 @@ export default function BarChat({
     const [otherAtmosphere, setOtherAtmosphere] = useState('');
 
     const budgetOptions = [
-        { label: 'No preference', icon: '🤷' },
-        { label: 'Budget-friendly', icon: '💰' },
-        { label: 'Prefer upscale', icon: '🥂' },
+        'No preference',
+        'Budget-friendly',
+        'Prefer upscale',
     ];
     const [selectedBudget, setSelectedBudget] = useState('No preference');
 
     const [preferences, setPreferences] = useState(guestMode ? '' : (user?.preferences || ''));
 
-    // Time slots for availability (later times for bars)
     const timeSlots = [
         '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM',
         '9:00 PM', '10:00 PM', '11:00 PM', '12:00 AM', '1:00 AM', '2:00 AM'
     ];
+
+    const stepTitles = [
+        "What drinks do you prefer?",
+        "What bar atmosphere are you looking for?",
+        "What's your budget preference?",
+        "Any special preferences?"
+    ];
+
+    if (activity?.allow_participant_time_selection) {
+        stepTitles.push("When are you available?");
+    }
 
     useEffect(() => {
         const fetchActivity = async () => {
@@ -524,6 +293,15 @@ export default function BarChat({
         };
         fetchActivity();
     }, [activityId, API_URL, guestMode, guestActivity]);
+
+    useEffect(() => {
+        if (contentRef.current) {
+            contentRef.current.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    }, [step]);
 
     const handleInputFocus = (e) => {
         const target = e.target;
@@ -608,15 +386,15 @@ export default function BarChat({
         });
     };
 
-    const isNextDisabled = () => {
-        if (step === 1) return selectedDrinks.length === 0;
-        if (step === 2) return selectedAtmospheres.length === 0;
-        if (step === 3) return !selectedBudget;
-        if (step === 4) return false; // Preferences are optional
+    const isStepValid = () => {
+        if (step === 1) return selectedDrinks.length > 0;
+        if (step === 2) return selectedAtmospheres.length > 0;
+        if (step === 3) return selectedBudget !== '';
+        if (step === 4) return true; // Preferences are optional
         if (step === 5 && activity?.allow_participant_time_selection) {
-            return Object.keys(availability).length === 0;
+            return Object.keys(availability).length > 0;
         }
-        return false;
+        return true;
     };
 
     const handleNext = () => {
@@ -629,6 +407,9 @@ export default function BarChat({
     };
 
     const handleSubmit = async () => {
+        setSubmitting(true);
+        setError('');
+
         const drinksText = selectedDrinks.join(', ');
         const atmosText = selectedAtmospheres.join(', ');
         const budgetText = selectedBudget;
@@ -683,6 +464,7 @@ export default function BarChat({
             if (!res.ok) {
                 const errorData = await res.json();
                 console.error('❌ Failed to save response:', errorData);
+                setError('Failed to submit preferences. Please try again.');
                 return;
             }
 
@@ -745,44 +527,13 @@ export default function BarChat({
 
         } catch (error) {
             console.error('❌ Error submitting response:', error);
+            setError('Failed to submit preferences. Please try again.');
+        } finally {
+            setSubmitting(false);
         }
 
         onClose();
     };
-
-    const getStepContent = () => {
-        switch (step) {
-            case 1:
-                return {
-                    title: 'What drinks do you prefer?',
-                    subtitle: 'Select your favorite types of drinks or let us surprise you.'
-                };
-            case 2:
-                return {
-                    title: 'What bar atmosphere are you looking for?',
-                    subtitle: 'Choose the vibe that matches your ideal night out.'
-                };
-            case 3:
-                return {
-                    title: 'What\'s your budget preference?',
-                    subtitle: 'Pick one budget option for drinks and venue.'
-                };
-            case 4:
-                return {
-                    title: 'Any special preferences?',
-                    subtitle: 'Let us know about any specific needs or preferences.'
-                };
-            case 5:
-                return {
-                    title: 'When are you available?',
-                    subtitle: 'Select your preferred dates and times for the night out.'
-                };
-            default:
-                return { title: '', subtitle: '' };
-        }
-    };
-
-    const { title, subtitle } = getStepContent();
 
     return (
         <Overlay onClick={onClose}>
@@ -795,42 +546,44 @@ export default function BarChat({
                     Step {step} of {getTotalSteps()}
                 </StepLabel>
 
+                {error && (
+                    <div style={{
+                        background: 'rgba(220, 53, 69, 0.1)',
+                        border: '1px solid rgba(220, 53, 69, 0.3)',
+                        color: '#dc3545',
+                        padding: '1rem 2rem',
+                        fontSize: '0.9rem',
+                        textAlign: 'center'
+                    }}>
+                        {error}
+                    </div>
+                )}
+
                 <ModalHeader>
-                    <Title>{title}</Title>
-                    <Subtitle>{subtitle}</Subtitle>
+                    <Title>
+                        <Wine />
+                        {stepTitles[step - 1]}
+                    </Title>
+                    <CloseButton onClick={onClose}>
+                        <X size={20} />
+                    </CloseButton>
                 </ModalHeader>
 
                 <StepContent ref={contentRef}>
                     {step === 1 && (
                         <Section>
-                            <Label>
-                                <Wine size={16} />
-                                Choose Drink Types
-                            </Label>
-                            <RadioCardContainer>
+                            <SectionDescription>Select your favorite types of drinks or let us surprise you.</SectionDescription>
+                            <MultiSelectGrid>
                                 {drinkOptions.map((drink) => (
-                                    <RadioCard
+                                    <MultiSelectCard
                                         key={drink}
-                                        selected={selectedDrinks.includes(drink)}
+                                        $selected={selectedDrinks.includes(drink)}
                                         onClick={() => toggleDrink(drink)}
                                     >
-                                        <IconWrapper>
-                                            {drink === 'Cocktails'
-                                                ? '🍸'
-                                                : drink === 'Beer'
-                                                    ? '🍺'
-                                                    : drink === 'Wine'
-                                                        ? '🍷'
-                                                        : drink === 'Whiskey/Spirits'
-                                                            ? '🥃'
-                                                            : drink === 'Non-alcoholic'
-                                                                ? '🥤'
-                                                                : '🎲'}
-                                        </IconWrapper>
                                         {drink}
-                                    </RadioCard>
+                                    </MultiSelectCard>
                                 ))}
-                            </RadioCardContainer>
+                            </MultiSelectGrid>
 
                             <Label>
                                 <Plus size={16} />
@@ -845,13 +598,13 @@ export default function BarChat({
                                         onFocus={handleInputFocus}
                                     />
                                 </InputWrapper>
-                                <AddButton
+                                <CustomAddButton
                                     onClick={addCustomDrink}
                                     disabled={!otherDrink.trim()}
                                 >
                                     <Plus size={16} />
                                     Add
-                                </AddButton>
+                                </CustomAddButton>
                             </InputRow>
 
                             {selectedDrinks.length > 0 && (
@@ -879,40 +632,18 @@ export default function BarChat({
 
                     {step === 2 && (
                         <Section>
-                            <Label>
-                                <MapPin size={16} />
-                                Select Bar Atmosphere
-                            </Label>
-                            <RadioCardContainer>
+                            <SectionDescription>Choose the vibe that matches your ideal night out.</SectionDescription>
+                            <MultiSelectGrid>
                                 {atmosphereOptions.map((atm) => (
-                                    <RadioCard
+                                    <MultiSelectCard
                                         key={atm}
-                                        selected={selectedAtmospheres.includes(atm)}
+                                        $selected={selectedAtmospheres.includes(atm)}
                                         onClick={() => toggleAtmosphereOption(atm)}
                                     >
-                                        <IconWrapper>
-                                            {atm === 'Dive Bar'
-                                                ? '🏚️'
-                                                : atm === 'Cocktail Lounge'
-                                                    ? '🍸'
-                                                    : atm === 'Sports Bar'
-                                                        ? '⚽'
-                                                        : atm === 'Rooftop Bar'
-                                                            ? '🌆'
-                                                            : atm === 'Wine Bar'
-                                                                ? '🍷'
-                                                                : atm === 'Brewery'
-                                                                    ? '🍺'
-                                                                    : atm === 'Dance Club'
-                                                                        ? '💃'
-                                                                        : atm === 'Live Music'
-                                                                            ? '🎵'
-                                                                            : '🏳️‍🌈'}
-                                        </IconWrapper>
                                         {atm}
-                                    </RadioCard>
+                                    </MultiSelectCard>
                                 ))}
-                            </RadioCardContainer>
+                            </MultiSelectGrid>
 
                             <Label>
                                 <Plus size={16} />
@@ -927,13 +658,13 @@ export default function BarChat({
                                         onFocus={handleInputFocus}
                                     />
                                 </InputWrapper>
-                                <AddButton
+                                <CustomAddButton
                                     onClick={addCustomAtmosphere}
                                     disabled={!otherAtmosphere.trim()}
                                 >
                                     <Plus size={16} />
                                     Add
-                                </AddButton>
+                                </CustomAddButton>
                             </InputRow>
 
                             {selectedAtmospheres.length > 0 && (
@@ -961,31 +692,24 @@ export default function BarChat({
 
                     {step === 3 && (
                         <Section>
-                            <Label>
-                                <DollarSign size={16} />
-                                Budget Preference
-                            </Label>
-                            <RadioCardContainer>
-                                {budgetOptions.map((opt) => (
-                                    <RadioCard
-                                        key={opt.label}
-                                        selected={selectedBudget === opt.label}
-                                        onClick={() => setSelectedBudget(opt.label)}
+                            <SectionDescription>Pick one budget option for drinks and venue.</SectionDescription>
+                            <OptionsGrid>
+                                {budgetOptions.map((budget) => (
+                                    <OptionCard
+                                        key={budget}
+                                        $selected={selectedBudget === budget}
+                                        onClick={() => setSelectedBudget(budget)}
                                     >
-                                        <IconWrapper>{opt.icon}</IconWrapper>
-                                        {opt.label}
-                                    </RadioCard>
+                                        {budget}
+                                    </OptionCard>
                                 ))}
-                            </RadioCardContainer>
+                            </OptionsGrid>
                         </Section>
                     )}
 
                     {step === 4 && (
                         <Section>
-                            <Label>
-                                <Heart size={16} />
-                                Special Preferences
-                            </Label>
+                            <SectionDescription>Let us know about any specific needs or preferences.</SectionDescription>
                             <Textarea
                                 rows={4}
                                 placeholder="e.g. Need non-alcoholic options, prefer late night hours, want food available, quiet conversation space..."
@@ -998,16 +722,28 @@ export default function BarChat({
 
                     {step === 5 && activity?.allow_participant_time_selection && (
                         <Section>
-                            <Label>
-                                <Calendar size={16} />
-                                Select Date
-                            </Label>
-                            <Input
-                                type="date"
-                                value={selectedDate}
-                                onChange={(e) => handleDateChange(e.target.value)}
-                                min={new Date().toISOString().split('T')[0]}
-                            />
+                            <SectionTitle><Calendar size={20} />Your Availability</SectionTitle>
+                            <SectionDescription>Select your preferred dates and times for the night out.</SectionDescription>
+
+                            <DateTimeGrid>
+                                <FormGroup>
+                                    <Label style={{ fontSize: '0.8rem', color: '#ccc' }}>Date</Label>
+                                    <Input
+                                        type="date"
+                                        value={selectedDate}
+                                        onChange={(e) => handleDateChange(e.target.value)}
+                                        min={new Date().toISOString().split('T')[0]}
+                                    />
+                                </FormGroup>
+                                <FormGroup>
+                                    <Label style={{ fontSize: '0.8rem', color: '#ccc' }}>Time</Label>
+                                    <Input
+                                        type="time"
+                                        value={selectedDate ? '' : ''}
+                                        style={{ display: 'none' }}
+                                    />
+                                </FormGroup>
+                            </DateTimeGrid>
 
                             {selectedDate && (
                                 <>
@@ -1017,28 +753,30 @@ export default function BarChat({
                                     </Label>
                                     <TimeGrid>
                                         {timeSlots.map(time => (
-                                            <TimeSlot
+                                            <TimeSlotButton
                                                 key={time}
                                                 selected={selectedTimes.includes(time)}
                                                 onClick={() => handleTimeToggle(time)}
                                             >
                                                 {time}
-                                            </TimeSlot>
+                                            </TimeSlotButton>
                                         ))}
                                     </TimeGrid>
 
                                     {selectedTimes.length > 0 && (
-                                        <AddButton onClick={addAvailability} style={{ marginTop: '1rem', width: '100%' }}>
+                                        <CustomAddButton onClick={addAvailability} style={{ marginTop: '1rem', width: '100%' }}>
                                             <Users size={16} />
                                             Add This Date ({selectedTimes.length} times selected)
-                                        </AddButton>
+                                        </CustomAddButton>
                                     )}
                                 </>
                             )}
 
                             {Object.keys(availability).length > 0 && (
-                                <>
-                                    <Label style={{ marginTop: '1.5rem' }}>Your Selected Availability:</Label>
+                                <AvailabilitySection>
+                                    <h4 style={{ color: '#fff', margin: '1.5rem 0 0.5rem 0', fontSize: '0.9rem' }}>
+                                        Your Selected Availability:
+                                    </h4>
                                     {Object.entries(availability).map(([date, times]) => (
                                         <AvailabilityCard key={date}>
                                             <div>
@@ -1050,7 +788,7 @@ export default function BarChat({
                                             </RemoveButton>
                                         </AvailabilityCard>
                                     ))}
-                                </>
+                                </AvailabilitySection>
                             )}
                         </Section>
                     )}
@@ -1058,12 +796,26 @@ export default function BarChat({
 
                 <ButtonRow>
                     {step > 1 ? (
-                        <Button onClick={() => setStep(step - 1)}>Back</Button>
+                        <Button onClick={() => setStep(step - 1)}>
+                            <ChevronLeft size={16} />
+                            Back
+                        </Button>
                     ) : (
-                        <div />
+                        <Button onClick={onClose}>
+                            Cancel
+                        </Button>
                     )}
-                    <Button $primary onClick={handleNext} disabled={isNextDisabled()}>
-                        {step < getTotalSteps() ? 'Next' : 'Finish'}
+                    
+                    <Button
+                        $primary
+                        onClick={handleNext}
+                        disabled={!isStepValid() || submitting}
+                    >
+                        {step === getTotalSteps() ? (
+                            submitting ? 'Submitting...' : <><Send size={16} />Submit Preferences</>
+                        ) : (
+                            <><ChevronRight size={16} />Next</>
+                        )}
                     </Button>
                 </ButtonRow>
             </ModalContainer>

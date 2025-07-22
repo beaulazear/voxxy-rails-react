@@ -67,10 +67,8 @@ function ActivityDetailsPage() {
     }
   );
 
-  // Helper function to check if activity is finalized
   const isActivityFinalized = (activity) => {
     if (!activity) return false;
-    // Check for various finalized states - adjust these based on your data structure
     return activity.finalized === true ||
       activity.completed === true ||
       activity.status === 'finalized' ||
@@ -78,7 +76,6 @@ function ActivityDetailsPage() {
       (activity.collecting === false && activity.voting === false);
   };
 
-  // Calculate if activity is finalized
   const activityFinalized = isActivityFinalized(currentActivity);
 
   useEffect(() => {
@@ -97,7 +94,6 @@ function ActivityDetailsPage() {
     if (latestActivity) {
       setCurrentActivity({ ...latestActivity });
 
-      // Fetch voting data with error handling for old activities
       fetch(`${API_URL}/activities/${numericActivityId}/pinned_activities`, {
         credentials: "include"
       })
@@ -108,17 +104,15 @@ function ActivityDetailsPage() {
           return res.json();
         })
         .then((data) => {
-          // Add safety check for array
           setPinnedActivities(Array.isArray(data) ? data : []);
         })
         .catch((error) => {
           console.error("Error fetching pinned activities:", error);
-          setPinnedActivities([]); // Set empty array on error
+          setPinnedActivities([]);
         });
     } else if (pendingInvite) {
 
       if (pendingInvite.activity && Object.keys(pendingInvite.activity).length > 0) {
-        console.log('✅ Using pendingInvite.activity:', pendingInvite.activity);
         setCurrentActivity({ ...pendingInvite.activity });
       } else {
         console.log('❌ No activity data in pendingInvite, fetching from API...');
@@ -133,7 +127,6 @@ function ActivityDetailsPage() {
             return res.json();
           })
           .then((completeActivity) => {
-            console.log('✅ Fetched complete activity from API:', completeActivity);
             setCurrentActivity(completeActivity);
           })
           .catch((error) => {
@@ -141,7 +134,6 @@ function ActivityDetailsPage() {
           });
       }
 
-      // Fetch voting data with error handling
       if (pendingInvite.activity) {
         fetch(`${API_URL}/activities/${numericActivityId}/pinned_activities`, {
           credentials: "include"
@@ -153,13 +145,12 @@ function ActivityDetailsPage() {
             return res.json();
           })
           .then((data) => {
-            // Add safety check for array
             setPinnedActivities(Array.isArray(data) ? data : []);
             console.log(data)
           })
           .catch((error) => {
             console.error("Error fetching pinned activities:", error);
-            setPinnedActivities([]); // Set empty array on error
+            setPinnedActivities([]);
           });
       }
     } else {
@@ -178,32 +169,28 @@ function ActivityDetailsPage() {
           return res.json();
         })
         .then((data) => {
-          // Add safety check for array
-          setPinned(Array.isArray(data) ? data : []); // This will populate your pinned time slots
+          setPinned(Array.isArray(data) ? data : []);
         })
         .catch((error) => {
           console.error("Error fetching time slots:", error);
-          setPinned([]); // Set empty array on error
+          setPinned([]);
         });
     }
 
     return () => clearTimeout(timer);
   }, [user, numericActivityId, refreshTrigger, API_URL, pendingInvite]);
 
-  // Countdown effect for finalized activities
   useEffect(() => {
     if (!activityFinalized || !currentActivity?.date_day || !currentActivity?.date_time) return;
 
     const updateCountdown = () => {
       const now = new Date().getTime();
 
-      // Extract time from date_time (which has format "2000-01-01T22:03:00.000Z")
       const timeOnly = new Date(currentActivity.date_time);
       const hours = timeOnly.getHours();
       const minutes = timeOnly.getMinutes();
       const seconds = timeOnly.getSeconds();
 
-      // Combine date_day with the extracted time
       const eventDate = new Date(currentActivity.date_day);
       eventDate.setHours(hours, minutes, seconds, 0);
 
@@ -395,6 +382,8 @@ function ActivityDetailsPage() {
   };
 
   async function handleUpdate(newData) {
+
+    console.log(newData)
 
     setUser((prevUser) => ({
       ...prevUser,
