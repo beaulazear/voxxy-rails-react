@@ -78,10 +78,6 @@ import {
   ReasonTitle,
   ReasonText,
   WebsiteLink,
-  GoogleMapContainer,
-  MapLoadingContainer,
-  MapLoadingSpinner,
-  MapLoadingText,
   Button,
   ButtonRow,
   ModalProgressContainer,
@@ -99,15 +95,58 @@ import {
 } from '../styles/ActivityStyles';
 
 // Helper functions
-const generateGoogleMapsEmbedUrl = (address, apiKey) => {
-  if (!address || !apiKey) {
-    return null;
-  }
+const renderItemDetails = (selectedRec, isGameNightActivity) => (
+  <div style={{ textAlign: 'left' }}>
+    {isGameNightActivity ? (
+      <>
+        <div>{selectedRec.hours || "N/A"}</div>
+        <div>{selectedRec.address || "N/A"}</div>
+      </>
+    ) : (
+      <>
+        <div>{selectedRec.hours || "N/A"}</div>
+        <div>{selectedRec.address || "N/A"}</div>
+      </>
+    )}
+  </div>
+);
 
-  const encodedAddress = encodeURIComponent(address);
-  const url = `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodedAddress}&zoom=15`;
-  return url;
-};
+const renderDetailGrid = (selectedRec, isGameNightActivity) => (
+  <DetailGrid>
+    {isGameNightActivity ? (
+      <>
+        <DetailItem>
+          <Users size={16} />
+          <DetailLabel>Players:</DetailLabel>
+          <DetailValue>{selectedRec.address || "N/A"}</DetailValue>
+        </DetailItem>
+        <DetailItem>
+          <Clock size={16} />
+          <DetailLabel>Play Time:</DetailLabel>
+          <DetailValue>{selectedRec.hours || "N/A"}</DetailValue>
+        </DetailItem>
+        <DetailItem>
+          <DollarSign style={{ color: '#D4AF37' }} size={16} />
+          <DetailLabel>Price:</DetailLabel>
+          <DetailValue>{selectedRec.price_range || "N/A"}</DetailValue>
+        </DetailItem>
+      </>
+    ) : (
+      <>
+        <DetailItem>
+          <DollarSign style={{ color: '#D4AF37' }} size={16} />
+          <DetailLabel>Price:</DetailLabel>
+          <DetailValue>{selectedRec.price_range || "N/A"}</DetailValue>
+        </DetailItem>
+        <DetailItem>
+          <Clock size={16} />
+          <DetailLabel>Hours:</DetailLabel>
+          <DetailValue>{selectedRec.hours || "N/A"}</DetailValue>
+        </DetailItem>
+      </>
+    )}
+  </DetailGrid>
+);
 
 const safeJsonParse = (data, fallback = []) => {
   if (!data) return fallback;
@@ -372,22 +411,9 @@ export default function AIRecommendations({
   const [selectedRec, setSelectedRec] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showMoveToVotingModal, setShowMoveToVotingModal] = useState(false);
-  const [mapLoading, setMapLoading] = useState(true);
-
-  React.useEffect(() => {
-    if (mapLoading && showDetailModal) {
-      const timer = setTimeout(() => {
-        setMapLoading(false);
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [mapLoading, showDetailModal]);
 
   const { id, responses, activity_location, date_notes, collecting, voting, finalized, selected_pinned_activity_id } = activity;
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
-
-  const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_KEY;
 
   // Determine activity type for dynamic text and API calls
   const activityType = activity.activity_type || 'Restaurant';
@@ -599,59 +625,44 @@ export default function AIRecommendations({
     }
   };
 
+  const updatePinnedActivityVotes = (pinId, data) => {
+    setPinnedActivities((prev) =>
+      prev.map((a) =>
+        a.id === pinId
+          ? { ...a, votes: data.votes, voters: data.voters }
+          : a
+      )
+    );
+    setRefreshTrigger(f => !f);
+  };
+
   const handleLike = (pin) => {
     if (!user) return;
 
     if (process.env.NODE_ENV === "production") {
       mixpanel.track("Pinned Activity Voted On", { user: user.id });
     }
+    
     const hasLiked = (pin.voters || []).some(v => v.id === user.id);
+    const vote = hasLiked ? (pin.votes || []).find(v => v.user_id === user.id) : null;
 
-    if (hasLiked) {
-      const vote = (pin.votes || []).find(v => v.user_id === user.id)
-      if (!vote) return;
+    if (hasLiked && vote) {
       fetch(`${API_URL}/pinned_activities/${pin.id}/votes/${vote.id}`, {
         method: "DELETE",
         credentials: "include",
       })
         .then((r) => r.json())
         .then((data) => {
-          if (data.success) {
-            setPinnedActivities((prev) =>
-              prev.map((a) =>
-                a.id === pin.id
-                  ? {
-                    ...a,
-                    votes: data.votes,
-                    voters: data.voters,
-                  }
-                  : a
-              )
-            );
-            setRefreshTrigger(f => !f)
-          }
+          if (data.success) updatePinnedActivityVotes(pin.id, data);
         });
-    } else {
+    } else if (!hasLiked) {
       fetch(`${API_URL}/pinned_activities/${pin.id}/votes`, {
         method: "POST",
         credentials: "include",
       })
         .then((r) => r.json())
         .then((data) => {
-          if (data.success) {
-            setPinnedActivities((prev) =>
-              prev.map((a) =>
-                a.id === pin.id
-                  ? {
-                    ...a,
-                    votes: data.votes,
-                    voters: data.voters,
-                  }
-                  : a
-              )
-            );
-            setRefreshTrigger(f => !f)
-          }
+          if (data.success) updatePinnedActivityVotes(pin.id, data);
         });
     }
   };
@@ -659,7 +670,6 @@ export default function AIRecommendations({
   function openDetail(rec) {
     setSelectedRec(rec);
     setShowDetailModal(true);
-    setMapLoading(true);
   }
 
   function closeDetail() {
@@ -867,19 +877,7 @@ export default function AIRecommendations({
                     <ListMeta>{p.price_range || "N/A"}</ListMeta>
                   </ListTop>
                   <ListBottom>
-                    <div style={{ textAlign: 'left' }}>
-                      {isGameNightActivity ? (
-                        <>
-                          <div>{p.hours || "N/A"}</div> {/* Play time */}
-                          <div>{p.address || "N/A"}</div> {/* Player count */}
-                        </>
-                      ) : (
-                        <>
-                          <div>{p.hours || "N/A"}</div>
-                          <div>{p.address || "N/A"}</div>
-                        </>
-                      )}
-                    </div>
+                    {renderItemDetails(p, isGameNightActivity)}
                     <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
                       {user && (
                         <LikeButton
@@ -912,42 +910,7 @@ export default function AIRecommendations({
               </ModalHeader>
 
               <ModalBody>
-                <DetailGrid>
-                  {isGameNightActivity ? (
-                    // Game-specific details
-                    <>
-                      <DetailItem>
-                        <Users size={16} />
-                        <DetailLabel>Players:</DetailLabel>
-                        <DetailValue>{selectedRec.address || "N/A"}</DetailValue>
-                      </DetailItem>
-                      <DetailItem>
-                        <Clock size={16} />
-                        <DetailLabel>Play Time:</DetailLabel>
-                        <DetailValue>{selectedRec.hours || "N/A"}</DetailValue>
-                      </DetailItem>
-                      <DetailItem>
-                        <DollarSign style={{ color: '#D4AF37' }} size={16} />
-                        <DetailLabel>Price:</DetailLabel>
-                        <DetailValue>{selectedRec.price_range || "N/A"}</DetailValue>
-                      </DetailItem>
-                    </>
-                  ) : (
-                    // Restaurant/Bar details (existing)
-                    <>
-                      <DetailItem>
-                        <DollarSign style={{ color: '#D4AF37' }} size={16} />
-                        <DetailLabel>Price:</DetailLabel>
-                        <DetailValue>{selectedRec.price_range || "N/A"}</DetailValue>
-                      </DetailItem>
-                      <DetailItem>
-                        <Clock size={16} />
-                        <DetailLabel>Hours:</DetailLabel>
-                        <DetailValue>{selectedRec.hours || "N/A"}</DetailValue>
-                      </DetailItem>
-                    </>
-                  )}
-                </DetailGrid>
+                {renderDetailGrid(selectedRec, isGameNightActivity)}
 
                 {selectedRec.description && (
                   <Section>
@@ -978,7 +941,7 @@ export default function AIRecommendations({
                   </Reason>
                 )}
 
-                {/* Conditionally show location/map section only for non-game activities */}
+                {/* Show address for non-game activities */}
                 {!isGameNightActivity && selectedRec.address && (
                   <Section>
                     <SectionHeader>
@@ -986,45 +949,6 @@ export default function AIRecommendations({
                       <SectionTitle>Location</SectionTitle>
                     </SectionHeader>
                     <Description>{selectedRec.address}</Description>
-
-                    {GOOGLE_MAPS_API_KEY ? (
-                      <div style={{ position: 'relative' }}>
-                        {mapLoading && (
-                          <MapLoadingContainer>
-                            <MapLoadingSpinner />
-                            <MapLoadingText>Loading map...</MapLoadingText>
-                          </MapLoadingContainer>
-                        )}
-                        <GoogleMapContainer style={{ display: mapLoading ? 'none' : 'block' }}>
-                          <iframe
-                            title={`Map showing location of ${selectedRec.title || selectedRec.name}`}
-                            src={generateGoogleMapsEmbedUrl(selectedRec.address, GOOGLE_MAPS_API_KEY)}
-                            allowFullScreen
-                            loading="lazy"
-                            onLoad={() => {
-                              console.log('Map iframe loaded');
-                              setTimeout(() => setMapLoading(false), 500);
-                            }}
-                            onError={() => {
-                              console.log('Map failed to load');
-                              setMapLoading(false);
-                            }}
-                          />
-                        </GoogleMapContainer>
-                      </div>
-                    ) : (
-                      <div style={{
-                        padding: '1rem',
-                        background: 'rgba(255, 193, 7, 0.1)',
-                        border: '1px solid rgba(255, 193, 7, 0.3)',
-                        borderRadius: '0.75rem',
-                        color: '#ffc107',
-                        fontSize: '0.85rem',
-                        marginTop: '1rem'
-                      }}>
-                        ⚠️ Google Maps API key not found. Check your environment variables.
-                      </div>
-                    )}
                   </Section>
                 )}
 
@@ -1118,19 +1042,7 @@ export default function AIRecommendations({
                       <ListMeta>{p.price_range || "N/A"}</ListMeta>
                     </ListTop>
                     <ListBottom>
-                      <div style={{ textAlign: 'left' }}>
-                        {isGameNightActivity ? (
-                          <>
-                            <div>{p.hours || "N/A"}</div> {/* Play time */}
-                            <div>{p.address || "N/A"}</div> {/* Player count */}
-                          </>
-                        ) : (
-                          <>
-                            <div>{p.hours || "N/A"}</div>
-                            <div>{p.address || "N/A"}</div>
-                          </>
-                        )}
-                      </div>
+                      {renderItemDetails(p, isGameNightActivity)}
                       <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
                         <VoteCount>
                           ❤️ {(p.votes || []).length}
@@ -1154,40 +1066,7 @@ export default function AIRecommendations({
               </ModalHeader>
 
               <ModalBody>
-                <DetailGrid>
-                  {isGameNightActivity ? (
-                    <>
-                      <DetailItem>
-                        <Users size={16} />
-                        <DetailLabel>Players:</DetailLabel>
-                        <DetailValue>{selectedRec.address || "N/A"}</DetailValue>
-                      </DetailItem>
-                      <DetailItem>
-                        <Clock size={16} />
-                        <DetailLabel>Play Time:</DetailLabel>
-                        <DetailValue>{selectedRec.hours || "N/A"}</DetailValue>
-                      </DetailItem>
-                      <DetailItem>
-                        <DollarSign style={{ color: '#D4AF37' }} size={16} />
-                        <DetailLabel>Price:</DetailLabel>
-                        <DetailValue>{selectedRec.price_range || "N/A"}</DetailValue>
-                      </DetailItem>
-                    </>
-                  ) : (
-                    <>
-                      <DetailItem>
-                        <DollarSign style={{ color: '#D4AF37' }} size={16} />
-                        <DetailLabel>Price:</DetailLabel>
-                        <DetailValue>{selectedRec.price_range || "N/A"}</DetailValue>
-                      </DetailItem>
-                      <DetailItem>
-                        <Clock size={16} />
-                        <DetailLabel>Hours:</DetailLabel>
-                        <DetailValue>{selectedRec.hours || "N/A"}</DetailValue>
-                      </DetailItem>
-                    </>
-                  )}
-                </DetailGrid>
+                {renderDetailGrid(selectedRec, isGameNightActivity)}
 
                 {selectedRec.description && (
                   <Section>
@@ -1218,7 +1097,7 @@ export default function AIRecommendations({
                   </Reason>
                 )}
 
-                {/* Conditionally show location section only for non-game activities */}
+                {/* Show address for non-game activities */}
                 {!isGameNightActivity && selectedRec.address && (
                   <Section>
                     <SectionHeader>
@@ -1226,45 +1105,6 @@ export default function AIRecommendations({
                       <SectionTitle>Location</SectionTitle>
                     </SectionHeader>
                     <Description>{selectedRec.address}</Description>
-
-                    {GOOGLE_MAPS_API_KEY ? (
-                      <div style={{ position: 'relative' }}>
-                        {mapLoading && (
-                          <MapLoadingContainer>
-                            <MapLoadingSpinner />
-                            <MapLoadingText>Loading map...</MapLoadingText>
-                          </MapLoadingContainer>
-                        )}
-                        <GoogleMapContainer style={{ display: mapLoading ? 'none' : 'block' }}>
-                          <iframe
-                            title={`Map showing location of ${selectedRec.title || selectedRec.name}`}
-                            src={generateGoogleMapsEmbedUrl(selectedRec.address, GOOGLE_MAPS_API_KEY)}
-                            allowFullScreen
-                            loading="lazy"
-                            onLoad={() => {
-                              console.log('Map iframe loaded');
-                              setTimeout(() => setMapLoading(false), 500);
-                            }}
-                            onError={() => {
-                              console.log('Map failed to load');
-                              setMapLoading(false);
-                            }}
-                          />
-                        </GoogleMapContainer>
-                      </div>
-                    ) : (
-                      <div style={{
-                        padding: '1rem',
-                        background: 'rgba(255, 193, 7, 0.1)',
-                        border: '1px solid rgba(255, 193, 7, 0.3)',
-                        borderRadius: '0.75rem',
-                        color: '#ffc107',
-                        fontSize: '0.85rem',
-                        marginTop: '1rem'
-                      }}>
-                        ⚠️ Google Maps API key not found. Check your environment variables.
-                      </div>
-                    )}
                   </Section>
                 )}
 
