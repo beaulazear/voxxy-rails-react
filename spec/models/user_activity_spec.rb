@@ -21,11 +21,10 @@ RSpec.describe UserActivity, type: :model do
   end
 
   describe 'validations' do
-
     it 'validates uniqueness of user_id scoped to pinned_activity_id' do
       create(:user_activity, user: user, pinned_activity: pinned_activity)
       duplicate = build(:user_activity, user: user, pinned_activity: pinned_activity)
-      
+
       expect(duplicate).not_to be_valid
       expect(duplicate.errors[:user_id]).to include('has already interacted with this pinned activity')
     end
@@ -33,10 +32,10 @@ RSpec.describe UserActivity, type: :model do
     it 'allows same user with different pinned_activities' do
       other_activity = create(:activity, user: user)
       other_pinned_activity = create(:pinned_activity, activity: other_activity)
-      
+
       create(:user_activity, user: user, pinned_activity: pinned_activity)
       duplicate = build(:user_activity, user: user, pinned_activity: other_pinned_activity)
-      
+
       expect(duplicate).to be_valid
     end
   end
@@ -50,18 +49,18 @@ RSpec.describe UserActivity, type: :model do
     end
 
     it 'can store and retrieve review data' do
-      review_data = [{ "author" => "John", "rating" => 5, "text" => "Great place!" }]
+      review_data = [ { "author" => "John", "rating" => 5, "text" => "Great place!" } ]
       user_activity.update!(reviews: review_data)
       user_activity.reload
-      
+
       expect(user_activity.reviews).to eq(review_data)
     end
 
     it 'can store and retrieve photo data' do
-      photo_data = [{ "photo_reference" => "abc123", "height" => 400, "width" => 600 }]
+      photo_data = [ { "photo_reference" => "abc123", "height" => 400, "width" => 600 } ]
       user_activity.update!(photos: photo_data)
       user_activity.reload
-      
+
       expect(user_activity.photos).to eq(photo_data)
     end
   end
@@ -187,7 +186,7 @@ RSpec.describe UserActivity, type: :model do
       it 'updates and saves data from pinned_activity' do
         pinned_activity_with_data.update!(title: "New Restaurant Name")
         user_activity.sync_with_pinned_activity!
-        
+
         expect(user_activity.reload.title).to eq("New Restaurant Name")
       end
     end
@@ -203,18 +202,18 @@ RSpec.describe UserActivity, type: :model do
 
       it 'returns existing user_activity if one exists' do
         existing = create(:user_activity, user: user, pinned_activity: pinned_activity)
-        
+
         result = UserActivity.find_or_create_for_user_and_pinned_activity(user, pinned_activity)
-        
+
         expect(result).to eq(existing)
         expect(UserActivity.count).to eq(1)
       end
 
       it 'copies data from pinned_activity when creating new record' do
         pinned_activity.update!(title: "Test Restaurant", price_range: "$$$")
-        
+
         user_activity = UserActivity.find_or_create_for_user_and_pinned_activity(user, pinned_activity)
-        
+
         expect(user_activity.title).to eq("Test Restaurant")
         expect(user_activity.price_range).to eq("$$$")
       end

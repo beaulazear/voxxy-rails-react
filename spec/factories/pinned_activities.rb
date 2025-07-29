@@ -3,7 +3,7 @@ FactoryBot.define do
     association :activity
     title { Faker::Restaurant.name }
     hours { "Mon-Sun: 11:00 AM - 10:00 PM" }
-    price_range { ["$", "$$", "$$$", "$$$$"].sample }
+    price_range { [ "$", "$$", "$$$", "$$$$" ].sample }
     address { Faker::Address.full_address }
     description { Faker::Restaurant.description }
     reason { Faker::Lorem.paragraph(sentence_count: 2) }

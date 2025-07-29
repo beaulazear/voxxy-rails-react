@@ -92,42 +92,71 @@ class OpenaiController < ApplicationController
   end
 
   def try_voxxy_recommendations
+    Rails.logger.info("🔍 try_voxxy_recommendations called")
+    
     session_token = request.headers["X-Session-Token"] || params[:session_token]
+    Rails.logger.info("📝 Session token: #{session_token}")
 
     if session_token.blank?
+      Rails.logger.warn("❌ Missing session token")
       return render json: { error: "Missing session token" }, status: :unauthorized
     end
 
     rate_key  = "try_voxxy_rate:#{session_token}"
     cache_key = "try_voxxy_last:#{session_token}"
+    Rails.logger.info("🔑 Cache keys - rate: #{rate_key}, cache: #{cache_key}")
 
-    if Rails.cache.exist?(rate_key)
-      if (last = Rails.cache.read(cache_key))
-        return render json: { recommendations: last }, status: :ok
-      else
-        minutes_left = ((Rails.cache.read(rate_key) - Time.current) / 60.0).ceil
-        return render json: { error: "Rate limit exceeded. Try again in #{minutes_left} minute(s)." }, status: :too_many_requests
+    begin
+      # Check rate limiting and cache
+      if Rails.cache.exist?(rate_key)
+        Rails.logger.info("⏰ Rate key exists, checking cache...")
+        if (last = Rails.cache.read(cache_key))
+          Rails.logger.info("✅ Found cached recommendations, returning #{last.length} items")
+          return render json: { recommendations: last }, status: :ok
+        else
+          rate_time = Rails.cache.read(rate_key)
+          minutes_left = ((rate_time - Time.current) / 60.0).ceil
+          Rails.logger.info("🚫 Rate limited, #{minutes_left} minutes left")
+          return render json: { error: "Rate limit exceeded. Try again in #{minutes_left} minute(s)." }, status: :too_many_requests
+        end
       end
-    end
 
-    Rails.cache.write(rate_key, Time.current + 1.hour, expires_in: 1.hour)
+      Rails.logger.info("⏳ Setting rate limit for 1 hour")
+      Rails.cache.write(rate_key, Time.current + 1.hour, expires_in: 1.hour)
 
-    user_responses    = params[:responses]
-    activity_location = params[:activity_location]
-    date_notes        = params[:date_notes]
-    radius = 10
+      # Log incoming parameters
+      user_responses    = params[:responses]
+      activity_location = params[:activity_location]
+      date_notes        = params[:date_notes]
+      radius = 10
 
-    if user_responses.blank? || activity_location.blank? || date_notes.blank?
-      return render json: { error: "Missing required parameters" }, status: :unprocessable_entity
-    end
+      Rails.logger.info("📋 Parameters:")
+      Rails.logger.info("  - responses: #{user_responses&.truncate(100)}")
+      Rails.logger.info("  - activity_location: #{activity_location}")
+      Rails.logger.info("  - date_notes: #{date_notes}")
+      Rails.logger.info("  - radius: #{radius}")
 
-    recs = fetch_restaurant_recommendations_from_openai(user_responses, activity_location, date_notes, radius)
+      if user_responses.blank? || activity_location.blank? || date_notes.blank?
+        Rails.logger.warn("❌ Missing required parameters")
+        return render json: { error: "Missing required parameters" }, status: :unprocessable_entity
+      end
 
-    if recs
-      Rails.cache.write(cache_key, recs, expires_in: 1.hour)
-      render json: { recommendations: recs }, status: :ok
-    else
-      render json: { error: "Failed to generate recommendations" }, status: :unprocessable_entity
+      Rails.logger.info("🤖 Calling OpenAI API...")
+      recs = fetch_restaurant_recommendations_from_openai(user_responses, activity_location, date_notes, radius)
+
+      if recs
+        Rails.logger.info("✅ Got #{recs.length} recommendations from OpenAI")
+        Rails.cache.write(cache_key, recs, expires_in: 1.hour)
+        render json: { recommendations: recs }, status: :ok
+      else
+        Rails.logger.error("❌ OpenAI returned nil recommendations")
+        render json: { error: "Failed to generate recommendations" }, status: :unprocessable_entity
+      end
+
+    rescue => e
+      Rails.logger.error("💥 Exception in try_voxxy_recommendations: #{e.class.name}: #{e.message}")
+      Rails.logger.error("📍 Backtrace: #{e.backtrace.first(5).join("\n")}")
+      render json: { error: "Internal server error: #{e.message}" }, status: :internal_server_error
     end
   end
 
@@ -149,15 +178,32 @@ class OpenaiController < ApplicationController
   private
 
   def fetch_restaurant_recommendations_from_openai(responses, activity_location, date_notes, radius)
-    client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
+    Rails.logger.info("🤖 Starting OpenAI API call...")
+    
+    # Check for API key
+    api_key = ENV["OPENAI_API_KEY"]
+    if api_key.blank?
+      Rails.logger.error("❌ OPENAI_API_KEY environment variable is missing!")
+      return nil
+    end
+    Rails.logger.info("✅ OpenAI API key present (#{api_key.length} chars)")
 
-    notes_text = if responses.is_a?(Array)
-      responses
-        .map { |r| r.is_a?(Hash) ? r["notes"].to_s.strip : r.to_s.strip }
-        .reject(&:empty?)
-        .join("\n\n")
-    else
-      responses.to_s.strip
+    begin
+      client = OpenAI::Client.new(access_token: api_key)
+
+      notes_text = if responses.is_a?(Array)
+        responses
+          .map { |r| r.is_a?(Hash) ? r["notes"].to_s.strip : r.to_s.strip }
+          .reject(&:empty?)
+          .join("\n\n")
+      else
+        responses.to_s.strip
+      end
+
+      Rails.logger.info("📝 Processed notes_text: #{notes_text.truncate(200)}")
+    rescue => e
+      Rails.logger.error("💥 Error initializing OpenAI client: #{e.message}")
+      return nil
     end
 
     prompt = <<~PROMPT
@@ -197,25 +243,44 @@ class OpenaiController < ApplicationController
       }
     PROMPT
 
-    response = client.chat(
-      parameters: {
-        model:       "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: "You are an AI assistant that outputs strictly valid JSON." },
-          { role: "user",   content: prompt }
-        ],
-        temperature: 0.0
-      }
-    )
-
-    raw_json = response.dig("choices", 0, "message", "content")
-
     begin
-      parsed = JSON.parse(raw_json)
-      recommendations = parsed.fetch("restaurants", [])
-      # Remove the enrichment since it now happens in PinnedActivity creation
-      recommendations
-    rescue JSON::ParserError
+      Rails.logger.info("🌐 Making OpenAI API request...")
+      
+      response = client.chat(
+        parameters: {
+          model:       "gpt-3.5-turbo",
+          messages: [
+            { role: "system", content: "You are an AI assistant that outputs strictly valid JSON." },
+            { role: "user",   content: prompt }
+          ],
+          temperature: 0.0
+        }
+      )
+
+      Rails.logger.info("📥 OpenAI API response received")
+      raw_json = response.dig("choices", 0, "message", "content")
+      
+      if raw_json.blank?
+        Rails.logger.error("❌ OpenAI returned empty content")
+        return nil
+      end
+      
+      Rails.logger.info("📄 Raw JSON response: #{raw_json.truncate(300)}")
+
+      begin
+        parsed = JSON.parse(raw_json)
+        recommendations = parsed.fetch("restaurants", [])
+        Rails.logger.info("✅ Successfully parsed #{recommendations.length} recommendations")
+        recommendations
+      rescue JSON::ParserError => e
+        Rails.logger.error("❌ JSON Parse Error: #{e.message}")
+        Rails.logger.error("📄 Raw JSON that failed to parse: #{raw_json}")
+        nil
+      end
+      
+    rescue => e
+      Rails.logger.error("💥 OpenAI API Error: #{e.class.name}: #{e.message}")
+      Rails.logger.error("📍 Backtrace: #{e.backtrace.first(3).join("\n")}")
       nil
     end
   end
