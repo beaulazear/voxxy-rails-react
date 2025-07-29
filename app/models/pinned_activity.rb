@@ -3,6 +3,7 @@ class PinnedActivity < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_many :votes, dependent: :destroy
   has_many :voters, through: :votes, source: :user
+  has_many :user_activities, dependent: :destroy
 
   serialize :reviews, coder: JSON
   serialize :photos, coder: JSON

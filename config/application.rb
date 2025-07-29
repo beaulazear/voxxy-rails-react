@@ -29,6 +29,9 @@ module VoxxyRails
     ]
     allowed_origins << local_ip if local_ip
 
+    # Rate limiting middleware (before CORS)
+    config.middleware.use Rack::Attack
+
     # CORS configuration for development and production
     config.middleware.insert_before 0, Rack::Cors do
       allow do

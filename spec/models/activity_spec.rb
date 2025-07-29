@@ -25,7 +25,7 @@ RSpec.describe Activity, type: :model do
 
       it 'allows past date when marking as completed' do
         activity = create(:activity, date_day: 1.day.from_now)
-        activity.update(date_day: 1.day.ago, completed: true)
+        activity.assign_attributes(date_day: 1.day.ago, completed: true)
         expect(activity).to be_valid
       end
     end

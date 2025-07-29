@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_14_045924) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_29_191528) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -172,6 +172,27 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_14_045924) do
     t.index ["activity_id"], name: "index_time_slots_on_activity_id"
   end
 
+  create_table "user_activities", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "pinned_activity_id", null: false
+    t.string "title"
+    t.string "hours"
+    t.string "price_range"
+    t.string "address"
+    t.text "description"
+    t.text "reason"
+    t.string "website"
+    t.text "reviews"
+    t.text "photos"
+    t.boolean "flagged", default: false, null: false
+    t.boolean "favorited", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["pinned_activity_id"], name: "index_user_activities_on_pinned_activity_id"
+    t.index ["user_id", "pinned_activity_id"], name: "index_user_activities_on_user_and_pinned_activity", unique: true
+    t.index ["user_id"], name: "index_user_activities_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -226,6 +247,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_14_045924) do
   add_foreign_key "time_slot_votes", "time_slots"
   add_foreign_key "time_slot_votes", "users"
   add_foreign_key "time_slots", "activities"
+  add_foreign_key "user_activities", "pinned_activities"
+  add_foreign_key "user_activities", "users"
   add_foreign_key "votes", "pinned_activities"
   add_foreign_key "votes", "users"
 end
