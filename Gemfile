@@ -25,7 +25,7 @@ gem "dotenv-rails", groups: [ :development, :test ]
 gem "sendgrid-ruby", "~> 6.7.0"
 gem "ruby-openai"
 gem "httparty"
-gem "redis", "~> 4.0"
+gem "redis", "~> 5.4"
 gem "jwt"
 gem "icalendar"
 gem "aws-sdk-s3", require: false
