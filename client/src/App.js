@@ -27,6 +27,7 @@ import Profile from './admincomponents/Profile.js';
 import GuestResponsePage from './components/GuestResponsePage.jsx';
 import ProtectedActivityRoute from './components/ProtectedActivityRoute.js';
 import TripDashboardPage from './admincomponents/TripDashboardPage.js';
+import ComingSoonPlaceholder from './components/ComingSoonPlaceholder.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -59,12 +60,20 @@ function App() {
     return <LoadingScreen />;
   }
 
+  // Show coming soon placeholder for confirmed non-admin users (except for auth routes and guest responses)
+  const isAuthRoute = ['/login', '/signup', '/invite_signup', '/forgot-password', '/reset-password', '/verification'].includes(location.pathname);
+  const isGuestRoute = location.pathname.includes('/activities/') && location.pathname.includes('/respond/');
+  
+  if (isLoggedIn && isConfirmed && !isAdmin && !isAuthRoute && !isGuestRoute) {
+    return <ComingSoonPlaceholder />;
+  }
+
   return (
     <div className="App">
       {!shouldHideNavbar && <Navbar />}
 
       <Routes>
-        <Route path="/" element={isLoggedIn ? <UserActivities /> : <LandingPage />} />
+        <Route path="/" element={isLoggedIn && isAdmin ? <UserActivities /> : !isLoggedIn ? <LandingPage /> : isConfirmed ? <ComingSoonPlaceholder /> : <ConfirmEmail />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/invite_signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
@@ -81,11 +90,18 @@ function App() {
         <Route path='/privacy' element={<PrivacyPolicyPage />} />
         <Route path='/terms' element={<TermsOfServicePage />} />
         <Route path='/pricing' element={<PricingPage />} />
-        <Route path='/profile' element={<Profile />} />
-        <Route path='/create-trip' element={<TripDashboardPage />} />
+        
+        {/* Admin-only routes */}
+        {isAdmin && (
+          <>
+            <Route path='/profile' element={<Profile />} />
+            <Route path='/create-trip' element={<TripDashboardPage />} />
+            <Route path="/activity/:activityId" element={<ProtectedActivityRoute />} />
+          </>
+        )}
+        
+        {/* Guest response route - always available */}
         <Route path="/activities/:activityId/respond/:token" element={<GuestResponsePage />} />
-
-        <Route path="/activity/:activityId" element={<ProtectedActivityRoute />} />
 
         {isLoggedIn && !isConfirmed && (
           <Route path="/confirm-email" element={<ConfirmEmail />} />

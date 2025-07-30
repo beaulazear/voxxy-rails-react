@@ -11,9 +11,9 @@ class Rack::Attack
 
   # Mobile-friendly rate limiting - higher limits to not break mobile apps
 
-  # General API rate limiting per IP
+  # General API rate limiting per IP (excluding login which has its own throttle)
   throttle("api/ip", limit: 300, period: 1.hour) do |req|
-    req.ip if req.path.start_with?("/api/") || api_endpoint?(req.path)
+    req.ip if (req.path.start_with?("/api/") || api_endpoint?(req.path)) && req.path != "/login"
   end
 
   # Authenticated user rate limiting (more generous for logged-in users)
@@ -43,6 +43,11 @@ class Rack::Attack
     req.ip if req.path.start_with?("/photos/")
   end
 
+  # Places API proxy endpoint (protect Google Places API costs)
+  throttle("places/ip", limit: 100, period: 1.hour) do |req|
+    req.ip if req.path.start_with?("/api/places/")
+  end
+
   # Block obviously malicious requests
   blocklist("block bad actors") do |req|
     # Block requests with suspicious user agents
@@ -51,15 +56,17 @@ class Rack::Attack
 
   # Custom response for rate limited requests
   self.throttled_responder = lambda do |env|
-    match_data = env["rack.attack.match_data"]
-    now = match_data[:epoch_time]
+    match_data = env["rack.attack.match_data"] || {}
+    now = match_data[:epoch_time] || Time.now.to_i
+    period = match_data[:period] || 3600
+    limit = match_data[:limit] || 0
 
     headers = {
       "Content-Type" => "application/json",
-      "Retry-After" => match_data[:period].to_s,
-      "X-RateLimit-Limit" => match_data[:limit].to_s,
+      "Retry-After" => period.to_s,
+      "X-RateLimit-Limit" => limit.to_s,
       "X-RateLimit-Remaining" => "0",
-      "X-RateLimit-Reset" => (now + match_data[:period]).to_s
+      "X-RateLimit-Reset" => (now + period).to_s
     }
 
     [ 429, headers, [ { error: "Rate limit exceeded. Please try again later." }.to_json ] ]

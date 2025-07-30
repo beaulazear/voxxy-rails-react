@@ -124,7 +124,7 @@ export default function SelectedPinnedActivity({ pinned }) {
             {pinned.photos.slice(0, 3).map((photo, idx) => (
               <img
                 key={idx}
-                src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}`}
+                src={`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/places/photo/${photo.photo_reference}?max_width=400`}
                 alt={`${pinned.title} ${idx + 1}`}
               />
             ))}

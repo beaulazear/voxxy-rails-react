@@ -321,7 +321,7 @@ export default function TryVoxxy() {
           <DetailText><strong>Why:</strong> {selectedRec.reason}</DetailText>
           {selectedRec.website && <DetailLink href={selectedRec.website} target="_blank">Visit Website</DetailLink>}
           <DetailText><strong>Address:</strong> {selectedRec.address}</DetailText>
-          <PhotoGallery>{(selectedRec.photos || []).map((url, i) => <Photo key={i} src={url.photo_reference ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${url.photo_reference}&key=${process.env.REACT_APP_PLACES_KEY}` : url} />)}</PhotoGallery>
+          <PhotoGallery>{(selectedRec.photos || []).map((url, i) => <Photo key={i} src={url.photo_reference ? `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/places/photo/${url.photo_reference}?max_width=400` : url} />)}</PhotoGallery>
         </DetailModalContent></Overlay>
       )}
 

@@ -93,7 +93,7 @@ class OpenaiController < ApplicationController
 
   def try_voxxy_recommendations
     Rails.logger.info("🔍 try_voxxy_recommendations called")
-    
+
     session_token = request.headers["X-Session-Token"] || params[:session_token]
     Rails.logger.info("📝 Session token: #{session_token}")
 
@@ -179,7 +179,7 @@ class OpenaiController < ApplicationController
 
   def fetch_restaurant_recommendations_from_openai(responses, activity_location, date_notes, radius)
     Rails.logger.info("🤖 Starting OpenAI API call...")
-    
+
     # Check for API key
     api_key = ENV["OPENAI_API_KEY"]
     if api_key.blank?
@@ -245,7 +245,7 @@ class OpenaiController < ApplicationController
 
     begin
       Rails.logger.info("🌐 Making OpenAI API request...")
-      
+
       response = client.chat(
         parameters: {
           model:       "gpt-3.5-turbo",
@@ -259,12 +259,12 @@ class OpenaiController < ApplicationController
 
       Rails.logger.info("📥 OpenAI API response received")
       raw_json = response.dig("choices", 0, "message", "content")
-      
+
       if raw_json.blank?
         Rails.logger.error("❌ OpenAI returned empty content")
         return nil
       end
-      
+
       Rails.logger.info("📄 Raw JSON response: #{raw_json.truncate(300)}")
 
       begin
@@ -277,7 +277,7 @@ class OpenaiController < ApplicationController
         Rails.logger.error("📄 Raw JSON that failed to parse: #{raw_json}")
         nil
       end
-      
+
     rescue => e
       Rails.logger.error("💥 OpenAI API Error: #{e.class.name}: #{e.message}")
       Rails.logger.error("📍 Backtrace: #{e.backtrace.first(3).join("\n")}")
