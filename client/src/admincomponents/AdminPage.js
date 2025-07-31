@@ -136,7 +136,7 @@ const StatCard = styled.div`
   .number {
     font-size: 2rem;
     font-weight: 700;
-    color: ${colors.accent};
+    color: white;
     margin-bottom: 0.5rem;
   }
   
