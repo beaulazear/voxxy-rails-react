@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Heading1, MutedText } from '../styles/Typography';
 import colors from '../styles/Colors';
-import { Users, Star, Mail, Bug, BarChart3, Activity, UserCheck } from 'lucide-react';
+import { Users, Star, Mail, Bug, BarChart3, Activity, UserCheck, Shield } from 'lucide-react';
 import Footer from '../components/Footer'
 
 const AdminHero = styled.section`
@@ -192,6 +192,7 @@ export default function AdminDashboard() {
   const [contacts, setContacts] = useState([]);
   const [bugs, setBugs] = useState([]);
   const [analytics, setAnalytics] = useState(null);
+  const [adminUsers, setAdminUsers] = useState(null);
 
   useEffect(() => {
     const API = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -200,13 +201,15 @@ export default function AdminDashboard() {
 
     Promise.all([
       fetch(`${API}/admin/analytics`, { credentials: 'include' }).then(r => r.ok ? r.json() : Promise.reject(`Analytics: ${r.status}`)),
+      fetch(`${API}/admin/admin_users`, { credentials: 'include' }).then(r => r.ok ? r.json() : Promise.reject(`Admin Users: ${r.status}`)),
       fetch(`${API}/waitlists`, { credentials: 'include' }).then(r => r.ok ? r.json() : Promise.reject(`Waitlists: ${r.status}`)),
       fetch(`${API}/feedbacks`, { credentials: 'include' }).then(r => r.ok ? r.json() : Promise.reject(`Feedbacks: ${r.status}`)),
       fetch(`${API}/contacts`, { credentials: 'include' }).then(r => r.ok ? r.json() : Promise.reject(`Contacts: ${r.status}`)),
       fetch(`${API}/bug_reports`, { credentials: 'include' }).then(r => r.ok ? r.json() : Promise.reject(`Bugs: ${r.status}`)),
     ])
-      .then(([a, w, f, c, b]) => {
+      .then(([a, au, w, f, c, b]) => {
         setAnalytics(a);
+        setAdminUsers(au);
         setWaitlists(w);
         setFeedbacks(f);
         setContacts(c);
@@ -266,7 +269,7 @@ export default function AdminDashboard() {
             <StatsGrid>
               <StatCard>
                 <div className="icon">
-                  <UserCheck size={24} color={colors.accent} />
+                  <UserCheck size={24} color="white" />
                 </div>
                 <div className="number">{analytics.total_users}</div>
                 <div className="label">Total Users</div>
@@ -274,11 +277,21 @@ export default function AdminDashboard() {
               
               <StatCard>
                 <div className="icon">
-                  <Activity size={24} color={colors.accent} />
+                  <Activity size={24} color="white" />
                 </div>
                 <div className="number">{analytics.total_activities}</div>
                 <div className="label">Total Activities</div>
               </StatCard>
+              
+              {adminUsers && (
+                <StatCard>
+                  <div className="icon">
+                    <Shield size={24} color="white" />
+                  </div>
+                  <div className="number">{adminUsers.total_admin_users}</div>
+                  <div className="label">Admin Users</div>
+                </StatCard>
+              )}
             </StatsGrid>
 
             <AnalyticsTitle>Activity Status Breakdown</AnalyticsTitle>
@@ -303,6 +316,20 @@ export default function AdminDashboard() {
                 <div className="label">Completed</div>
               </StatusCard>
             </ActivityStatusGrid>
+
+            {adminUsers && adminUsers.admin_users && adminUsers.admin_users.length > 0 && (
+              <>
+                <AnalyticsTitle>Admin Users</AnalyticsTitle>
+                <ActivityStatusGrid>
+                  {adminUsers.admin_users.map((user, index) => (
+                    <StatusCard key={index} color={colors.accent}>
+                      <div className="number">{user.name}</div>
+                      <div className="label">{user.email}</div>
+                    </StatusCard>
+                  ))}
+                </ActivityStatusGrid>
+              </>
+            )}
           </AnalyticsContainer>
         </AnalyticsSection>
       )}

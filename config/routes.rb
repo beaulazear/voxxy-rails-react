@@ -50,6 +50,7 @@ Rails.application.routes.draw do
   get "/me", to: "users#show"
   patch "/make_admin", to: "users#make_admin"
   get "/admin/analytics", to: "admin#analytics"
+  get "/admin/admin_users", to: "admin#admin_users"
 
   post "/api/openai/restaurant_recommendations", to: "openai#restaurant_recommendations"
   post "/api/openai/bar_recommendations", to: "openai#bar_recommendations"

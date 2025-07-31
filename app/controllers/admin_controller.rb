@@ -15,6 +15,14 @@ class AdminController < ApplicationController
     }
   end
 
+  def admin_users
+    admin_users = User.where(admin: true).select(:id, :name, :email)
+    render json: {
+      total_admin_users: admin_users.count,
+      admin_users: admin_users.map { |user| { name: user.name, email: user.email } }
+    }
+  end
+
   private
 
   def admin_authorized
