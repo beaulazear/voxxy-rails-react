@@ -12,13 +12,21 @@ class Rack::Attack
   # Mobile-friendly rate limiting - higher limits to not break mobile apps
 
   # General API rate limiting per IP (excluding login which has its own throttle)
+  # Skip rate limiting for admin users
   throttle("api/ip", limit: 300, period: 1.hour) do |req|
-    req.ip if (req.path.start_with?("/api/") || api_endpoint?(req.path)) && req.path != "/login"
+    if (req.path.start_with?("/api/") || api_endpoint?(req.path)) && req.path != "/login"
+      # Don't rate limit admin users
+      next if admin_user?(req)
+      req.ip
+    end
   end
 
   # Authenticated user rate limiting (more generous for logged-in users)
+  # Skip rate limiting for admin users
   throttle("api/user", limit: 500, period: 1.hour) do |req|
     if (req.path.start_with?("/api/") || api_endpoint?(req.path)) && authenticated_user_id(req)
+      # Don't rate limit admin users
+      next if admin_user?(req)
       authenticated_user_id(req)
     end
   end
@@ -30,22 +38,34 @@ class Rack::Attack
 
   # Try Voxxy specific limiting (already has custom rate limiting, this is backup)
   throttle("try_voxxy/ip", limit: 20, period: 1.hour) do |req|
-    req.ip if req.path.include?("try_voxxy")
+    if req.path.include?("try_voxxy")
+      next if admin_user?(req)
+      req.ip
+    end
   end
 
   # OpenAI endpoints (protect expensive API calls)
   throttle("openai/ip", limit: 50, period: 1.hour) do |req|
-    req.ip if req.path.include?("openai")
+    if req.path.include?("openai")
+      next if admin_user?(req)
+      req.ip
+    end
   end
 
   # Photo proxy endpoint
   throttle("photos/ip", limit: 200, period: 1.hour) do |req|
-    req.ip if req.path.start_with?("/photos/")
+    if req.path.start_with?("/photos/")
+      next if admin_user?(req)
+      req.ip
+    end
   end
 
   # Places API proxy endpoint (protect Google Places API costs)
   throttle("places/ip", limit: 100, period: 1.hour) do |req|
-    req.ip if req.path.start_with?("/api/places/")
+    if req.path.start_with?("/api/places/")
+      next if admin_user?(req)
+      req.ip
+    end
   end
 
   # Block obviously malicious requests
@@ -98,6 +118,19 @@ class Rack::Attack
       decoded["user_id"]
     rescue JWT::DecodeError
       nil
+    end
+  end
+
+  # Check if the request is from an admin user
+  def self.admin_user?(request)
+    user_id = authenticated_user_id(request)
+    return false unless user_id
+
+    begin
+      user = User.find_by(id: user_id)
+      user&.admin == true
+    rescue
+      false
     end
   end
 
