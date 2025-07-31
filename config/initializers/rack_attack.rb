@@ -55,8 +55,8 @@ class Rack::Attack
   end
 
   # Custom response for rate limited requests
-  self.throttled_responder = lambda do |env|
-    match_data = env["rack.attack.match_data"] || {}
+  self.throttled_responder = lambda do |request|
+    match_data = request.env["rack.attack.match_data"] || {}
     now = match_data[:epoch_time] || Time.now.to_i
     period = match_data[:period] || 3600
     limit = match_data[:limit] || 0
@@ -80,7 +80,7 @@ class Rack::Attack
       "/login", "/logout", "/me", "/activities", "/responses", "/users",
       "/pinned_activities", "/comments", "/votes", "/time_slots",
       "/activity_participants", "/waitlists", "/feedbacks", "/contacts",
-      "/bug_reports", "/password_reset"
+      "/bug_reports", "/password_reset", "/admin"
     ]
 
     api_paths.any? { |api_path| path.start_with?(api_path) }
