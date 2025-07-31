@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { FileText, UserCheck, Share2, Cookie, Shield, User, UserX, RefreshCcw } from 'lucide-react';
+import { FileText, UserCheck, Share2, Cookie, Shield, User, UserX, RefreshCcw, MapPin, Smartphone, Globe, DollarSign, Clock } from 'lucide-react';
 import Footer from './Footer';
 import colors from '../styles/Colors';
 
@@ -97,7 +97,7 @@ export default function PrivacyPolicyPage() {
           <IntroWrapper>
             <Bar />
             <IntroText>
-              At Voxxy, your privacy matters. This Privacy Policy explains how we collect, use, and protect your information when you use our website and services.
+              At Voxxy, your privacy matters. This Privacy Policy explains how we collect, use, and protect your information when you use our website and mobile app.
             </IntroText>
           </IntroWrapper>
 
@@ -110,9 +110,13 @@ export default function PrivacyPolicyPage() {
               <CardDescription>
                 <ul>
                   <li><strong>Personal Info:</strong> Name, email address, and any optional profile details you provide.</li>
-                  <li><strong>Usage Data:</strong> IP address, browser type, pages visited, time spent, and actions taken on the site.</li>
-                  <li><strong>Group Planning Preferences:</strong> Responses to Voxxy's quizzes, polls, and feedback tools.</li>
-                  <li><strong>Communications:</strong> Feedback or inquiries submitted through our contact forms.</li>
+                  <li><strong>Guest Users:</strong> We may collect your email if you participate in polls or activity boards without registering.</li>
+                  <li><strong>Usage & Device Data:</strong> IP address, browser type, device type, operating system, pages visited, time spent, and actions taken in the app.</li>
+                  <li><strong>Location Data:</strong> City-level and precise location (when enabled) to recommend events and activities.</li>
+                  <li><strong>Push Notifications:</strong> Push notification tokens for sending alerts and updates.</li>
+                  <li><strong>Group Planning Preferences:</strong> Responses to Voxxy quizzes, polls, votes, and feedback tools.</li>
+                  <li><strong>Activity Preferences:</strong> Event preferences used for AI recommendations.</li>
+                  <li><strong>Communications:</strong> Feedback, support requests, and messages submitted through our contact forms.</li>
                 </ul>
               </CardDescription>
             </Card>
@@ -127,6 +131,7 @@ export default function PrivacyPolicyPage() {
                   <li>Provide and personalize your Voxxy experience</li>
                   <li>Improve our product through analytics and feedback</li>
                   <li>Send updates, surveys, and support messages</li>
+                  <li>Generate AI-driven recommendations for events and activities</li>
                   <li>Prevent fraud or abuse</li>
                 </ul>
                 <p>We never sell your personal data.</p>
@@ -144,8 +149,9 @@ export default function PrivacyPolicyPage() {
                   <li>AWS (Hosting providers)</li>
                   <li>Mixpanel (Analytics tools)</li>
                   <li>SendGrid (Email tools)</li>
+                  <li>OpenAI (AI-powered recommendations)</li>
                 </ul>
-                <p>These partners follow strict data protection practices.</p>
+                <p>When you use Voxxy's recommendation features, we send your activity preferences, location, and group responses to OpenAI to generate personalized restaurant, bar, and activity suggestions. Some anonymized data may be sent to OpenAI for processing. These partners follow strict data protection practices.</p>
               </CardDescription>
             </Card>
 
@@ -171,6 +177,21 @@ export default function PrivacyPolicyPage() {
 
             <Card>
               <CardHeader>
+                <Clock size={24} color="#9261E5" />
+                <CardTitle>Data Retention</CardTitle>
+              </CardHeader>
+              <CardDescription>
+                <ul>
+                  <li><strong>Personal account data:</strong> Retained until you request deletion</li>
+                  <li><strong>Guest user emails:</strong> Deleted after 12 months if inactive</li>
+                  <li><strong>Poll and planning data:</strong> Retained for 18 months for analytics</li>
+                  <li><strong>Push notification tokens:</strong> Deleted after 90 days of inactivity</li>
+                </ul>
+              </CardDescription>
+            </Card>
+
+            <Card>
+              <CardHeader>
                 <User size={24} color="#9261E5" />
                 <CardTitle>Your Rights</CardTitle>
               </CardHeader>
@@ -187,10 +208,62 @@ export default function PrivacyPolicyPage() {
             <Card>
               <CardHeader>
                 <UserX size={24} color="#9261E5" />
-                <CardTitle>Children's Privacy</CardTitle>
+                <CardTitle>Children's Privacy & Age Verification</CardTitle>
               </CardHeader>
               <CardDescription>
-                <p>Voxxy AI is not designed for children under 13. We don't knowingly collect information from children.</p>
+                <p>Voxxy is not designed for children under 13. We verify age during registration and may require parental consent where applicable. We don't knowingly collect information from children. If we discover that a child under 13 has provided us with personal information, we will delete it immediately. If you believe we have collected information from a child under 13, please contact us.</p>
+              </CardDescription>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <MapPin size={24} color="#9261E5" />
+                <CardTitle>Location Data</CardTitle>
+              </CardHeader>
+              <CardDescription>
+                <p>When you create or respond to activities, we collect location information to provide recommendations near your chosen meeting spot. This data is used solely for providing our services and is not sold or used for advertising. You can choose not to provide location data, but this may limit our recommendation features.</p>
+              </CardDescription>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <Smartphone size={24} color="#9261E5" />
+                <CardTitle>Mobile App Permissions</CardTitle>
+              </CardHeader>
+              <CardDescription>
+                <p>Our mobile app may request the following permissions:</p>
+                <ul>
+                  <li><strong>Push Notifications:</strong> To send you activity updates and reminders (optional)</li>
+                  <li><strong>Camera/Photos:</strong> To upload profile pictures (optional)</li>
+                </ul>
+                <p>You can manage these permissions in your device settings at any time.</p>
+              </CardDescription>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <Globe size={24} color="#9261E5" />
+                <CardTitle>International Users</CardTitle>
+              </CardHeader>
+              <CardDescription>
+                <p>Voxxy is operated from the United States. If you use our services from outside the US, your data will be transferred to and processed in the US. By using Voxxy, you consent to this transfer.</p>
+              </CardDescription>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <DollarSign size={24} color="#9261E5" />
+                <CardTitle>California Privacy Rights</CardTitle>
+              </CardHeader>
+              <CardDescription>
+                <p>California residents have additional rights under the CCPA:</p>
+                <ul>
+                  <li>Right to know what personal information we collect</li>
+                  <li>Right to delete your personal information</li>
+                  <li>Right to opt-out of data sales (we don't sell your data)</li>
+                  <li>Right to non-discrimination for exercising your rights</li>
+                </ul>
+                <p>To exercise these rights, contact us at team@voxxyai.com.</p>
               </CardDescription>
             </Card>
 
@@ -200,7 +273,7 @@ export default function PrivacyPolicyPage() {
                 <CardTitle>Policy Updates</CardTitle>
               </CardHeader>
               <CardDescription>
-                <p>We may update this policy over time. If we make material changes, we'll notify you via email or on our site.</p>
+                <p>We may update this policy over time. If we make material changes, we'll notify you via email or on our site. Your continued use of Voxxy after changes means you accept the updated policy.</p>
               </CardDescription>
             </Card>
           </CardsContainer>

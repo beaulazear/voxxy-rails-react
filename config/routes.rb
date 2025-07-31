@@ -49,6 +49,7 @@ Rails.application.routes.draw do
   delete "logout", to: "sessions#destroy"
   get "/me", to: "users#show"
   patch "/make_admin", to: "users#make_admin"
+  get "/admin/analytics", to: "admin#analytics"
 
   post "/api/openai/restaurant_recommendations", to: "openai#restaurant_recommendations"
   post "/api/openai/bar_recommendations", to: "openai#bar_recommendations"

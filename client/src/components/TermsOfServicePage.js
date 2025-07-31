@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { FileText, UserCheck, User, Slash, Code, CloudOff, AlertTriangle, Power, Gavel, Mail } from 'lucide-react';
+import { FileText, UserCheck, User, Slash, Code, CloudOff, AlertTriangle, Power, Gavel, Mail, Shield, CreditCard, MessageSquare, AlertCircle } from 'lucide-react';
 import Footer from './Footer';
 import colors from '../styles/Colors';
 
@@ -97,7 +97,7 @@ export default function TermsOfServicePage() {
                     <IntroWrapper>
                         <Bar />
                         <IntroText>
-                            Welcome to Voxxy! By using our website and services, you agree to these terms.
+                            Welcome to Voxxy! By using our website, mobile app, and services, you agree to these terms. You must be at least 13 years old to use Voxxy.
                         </IntroText>
                     </IntroWrapper>
 
@@ -118,7 +118,7 @@ export default function TermsOfServicePage() {
                                 <CardTitle>2. Eligibility</CardTitle>
                             </CardHeader>
                             <CardDescription>
-                                <p>You must be 13 or older to use Voxxy.</p>
+                                <p><strong>You must be at least 13 years old to use Voxxy.</strong> By creating an account or using our services, you confirm that you meet this age requirement. If you are under 13, you may not use Voxxy without parental consent.</p>
                             </CardDescription>
                         </Card>
 
@@ -163,8 +163,18 @@ export default function TermsOfServicePage() {
 
                         <Card>
                             <CardHeader>
+                                <Code size={24} color="#9261E5" />
+                                <CardTitle>6. AI Services & Content Generation</CardTitle>
+                            </CardHeader>
+                            <CardDescription>
+                                <p>Voxxy uses AI services (including OpenAI) to generate recommendations. You retain rights to your submitted data, but Voxxy and its AI providers may process it for recommendations and improvements.</p>
+                            </CardDescription>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
                                 <CloudOff size={24} color="#9261E5" />
-                                <CardTitle>6. Availability</CardTitle>
+                                <CardTitle>7. Availability</CardTitle>
                             </CardHeader>
                             <CardDescription>
                                 <p>We're constantly improving. We may change or remove features at any time without notice. We're not responsible for downtime.</p>
@@ -174,17 +184,23 @@ export default function TermsOfServicePage() {
                         <Card>
                             <CardHeader>
                                 <AlertTriangle size={24} color="#9261E5" />
-                                <CardTitle>7. Liability Disclaimer</CardTitle>
+                                <CardTitle>8. Liability Disclaimer</CardTitle>
                             </CardHeader>
                             <CardDescription>
-                                <p>To the fullest extent permitted by Delaware law, Voxxy is not liable for any indirect, incidental, or consequential damages related to your use of the service.</p>
+                                <p>VOXXY IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND. TO THE FULLEST EXTENT PERMITTED BY DELAWARE LAW:</p>
+                                <ul>
+                                    <li>We disclaim all warranties, express or implied</li>
+                                    <li>We're not liable for any indirect, incidental, special, or consequential damages</li>
+                                    <li>Our total liability will not exceed $100 or the amount you've paid us in the past 12 months, whichever is greater</li>
+                                    <li>We're not responsible for third-party services, venues, or recommendations</li>
+                                </ul>
                             </CardDescription>
                         </Card>
 
                         <Card>
                             <CardHeader>
                                 <Power size={24} color="#9261E5" />
-                                <CardTitle>8. Termination</CardTitle>
+                                <CardTitle>9. Termination</CardTitle>
                             </CardHeader>
                             <CardDescription>
                                 <p>We may suspend or terminate your account for any violations of these terms.</p>
@@ -194,7 +210,7 @@ export default function TermsOfServicePage() {
                         <Card>
                             <CardHeader>
                                 <Gavel size={24} color="#9261E5" />
-                                <CardTitle>9. Governing Law</CardTitle>
+                                <CardTitle>10. Governing Law</CardTitle>
                             </CardHeader>
                             <CardDescription>
                                 <p>These Terms are governed by the laws of the State of Delaware, without regard to its conflict of law principles.</p>
@@ -203,11 +219,72 @@ export default function TermsOfServicePage() {
 
                         <Card>
                             <CardHeader>
-                                <Mail size={24} color="#9261E5" />
-                                <CardTitle>10. Contact</CardTitle>
+                                <Shield size={24} color="#9261E5" />
+                                <CardTitle>11. Indemnification</CardTitle>
                             </CardHeader>
                             <CardDescription>
-                                <p>Have questions? Contact us at <a href="mailto:team@voxxyai.com" style={{ color: '#9261E5' }}>team@voxxyai.com</a>.</p>
+                                <p>You agree to defend, indemnify, and hold Voxxy Inc., its officers, directors, employees, and agents harmless from any claims, damages, or expenses (including attorney's fees) arising from:</p>
+                                <ul>
+                                    <li>Your violation of these Terms</li>
+                                    <li>Your use of the service</li>
+                                    <li>Content you submit through Voxxy</li>
+                                    <li>Your violation of any law or third-party rights</li>
+                                </ul>
+                            </CardDescription>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CreditCard size={24} color="#9261E5" />
+                                <CardTitle>12. Payment Terms</CardTitle>
+                            </CardHeader>
+                            <CardDescription>
+                                <p>If we introduce paid features:</p>
+                                <ul>
+                                    <li>All fees are non-refundable unless required by law</li>
+                                    <li>We may change prices with 30 days notice</li>
+                                    <li>You're responsible for all applicable taxes</li>
+                                    <li>Failure to pay may result in service termination</li>
+                                </ul>
+                            </CardDescription>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <MessageSquare size={24} color="#9261E5" />
+                                <CardTitle>13. Dispute Resolution</CardTitle>
+                            </CardHeader>
+                            <CardDescription>
+                                <p><strong>PLEASE READ CAREFULLY:</strong> Any disputes will be resolved through binding arbitration in Delaware, not in court. You waive your right to a jury trial and class actions. This doesn't affect your rights to file complaints with government agencies.</p>
+                            </CardDescription>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <AlertCircle size={24} color="#9261E5" />
+                                <CardTitle>14. User Content</CardTitle>
+                            </CardHeader>
+                            <CardDescription>
+                                <p>When you submit content to Voxxy:</p>
+                                <ul>
+                                    <li>You retain ownership of your content</li>
+                                    <li>You grant us a worldwide, royalty-free license to use, modify, and display it for operating Voxxy</li>
+                                    <li>You confirm you have the right to share this content</li>
+                                    <li>We may remove content that violates these terms</li>
+                                </ul>
+                            </CardDescription>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <Mail size={24} color="#9261E5" />
+                                <CardTitle>15. Contact</CardTitle>
+                            </CardHeader>
+                            <CardDescription>
+                                <p>Have questions? Contact us at:</p>
+                                <p>Voxxy Inc.<br />
+                                Email: <a href="mailto:team@voxxyai.com" style={{ color: '#9261E5' }}>team@voxxyai.com</a><br />
+                                Address: [Your Delaware registered agent address]</p>
                             </CardDescription>
                         </Card>
                     </CardsContainer>
