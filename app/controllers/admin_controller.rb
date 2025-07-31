@@ -8,7 +8,7 @@ class AdminController < ApplicationController
       total_activities: Activity.count,
       activities_by_status: {
         collecting: Activity.where(active: true, finalized: false, completed: false).count,
-        voting: Activity.joins(:responses).where(active: true, finalized: false, completed: false).having('COUNT(responses.id) > 0').group('activities.id').count.length,
+        voting: Activity.joins(:responses).where(active: true, finalized: false, completed: false).having("COUNT(responses.id) > 0").group("activities.id").count.length,
         finalized: Activity.where(finalized: true, completed: false).count,
         completed: Activity.where(completed: true).count
       }
