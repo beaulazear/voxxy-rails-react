@@ -16,11 +16,16 @@ class AdminController < ApplicationController
   end
 
   def admin_users
-    admin_users = User.where(admin: true).select(:id, :name, :email)
-    render json: {
-      total_admin_users: admin_users.count,
-      admin_users: admin_users.map { |user| { name: user.name || '', email: user.email || '' } }
-    }
+    begin
+      admin_users_data = User.where(admin: true).select(:id, :name, :email)
+      admin_users_count = User.where(admin: true).count
+      render json: {
+        total_admin_users: admin_users_count,
+        admin_users: admin_users_data.map { |user| { name: user.name || "", email: user.email || "" } }
+      }
+    rescue => e
+      render json: { error: "Failed to fetch admin users: #{e.message}" }, status: :internal_server_error
+    end
   end
 
   private
