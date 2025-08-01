@@ -30,6 +30,17 @@ Rails.application.routes.draw do
   resources :pinned_activities, only: [] do
     resources :comments, only: [ :index, :create ]
     resources :votes, only: [ :create, :destroy ]
+    member do
+      post :toggle_flag, to: "user_activities#toggle_flag"
+      post :toggle_favorite, to: "user_activities#toggle_favorite"
+    end
+  end
+
+  resources :user_activities, only: [ :index, :destroy ] do
+    collection do
+      get :flagged
+      get :favorited
+    end
   end
   resources :waitlists, only: [ :index, :show, :create, :update, :destroy ]
   resources :feedbacks, only: [ :index, :show, :create ]
@@ -51,6 +62,8 @@ Rails.application.routes.draw do
   patch "/make_admin", to: "users#make_admin"
   get "/admin/analytics", to: "admin#analytics"
   get "/admin/admin_users", to: "admin#admin_users"
+  get "/admin/user_breakdown", to: "admin#user_breakdown"
+  get "/admin/unconfirmed_users", to: "admin#unconfirmed_users"
 
   post "/api/openai/restaurant_recommendations", to: "openai#restaurant_recommendations"
   post "/api/openai/bar_recommendations", to: "openai#bar_recommendations"

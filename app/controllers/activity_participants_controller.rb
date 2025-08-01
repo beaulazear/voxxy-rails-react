@@ -34,6 +34,12 @@ class ActivityParticipantsController < ApplicationController
       participant.accepted = false
       if participant.save
         InviteUserService.send_invitation(activity, invited_email, current_user)
+
+        # Send push notification if the invited user has a mobile account
+        if user && user.can_receive_push_notifications?
+          PushNotificationService.send_activity_invite(activity, user)
+        end
+
         results << { email: invited_email, status: "invited" }
       else
         results << { email: invited_email, error: participant.errors.full_messages.to_sentence }
@@ -69,6 +75,21 @@ class ActivityParticipantsController < ApplicationController
       user_id: user.id,
       content: "#{user.name} has joined the group 🎉"
     )
+
+    # Send push notification to the activity host when someone accepts
+    if activity.user.can_receive_push_notifications?
+      PushNotificationService.send_notification(
+        activity.user,
+        "#{user.name} joined your activity! 🎉",
+        "#{user.name} accepted your invitation to #{activity.activity_name}",
+        {
+          type: "participant_joined",
+          activityId: activity.id.to_s,
+          participantName: user.name,
+          participantId: user.id.to_s
+        }
+      )
+    end
 
     activity = Activity.includes(
       :user, :participants, :activity_participants, :responses,
@@ -142,6 +163,21 @@ class ActivityParticipantsController < ApplicationController
       user_id: current_user.id,
       content: "#{current_user.name} has left the group 😢"
     )
+
+    # Send push notification to the activity host when someone leaves
+    if activity.user.can_receive_push_notifications? && activity.user_id != current_user.id
+      PushNotificationService.send_notification(
+        activity.user,
+        "#{current_user.name} left your activity 😢",
+        "#{current_user.name} has left #{activity.activity_name}",
+        {
+          type: "participant_left",
+          activityId: activity.id.to_s,
+          participantName: current_user.name,
+          participantId: current_user.id.to_s
+        }
+      )
+    end
 
     render json: { message: "You have successfully left the activity." }, status: :ok
   rescue => e

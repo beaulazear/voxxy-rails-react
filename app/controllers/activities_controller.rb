@@ -58,8 +58,13 @@ class ActivitiesController < HtmlController
       activity.update!(activity_params.except(:finalized, :voting, :selected_pinned_id))
     end
 
-    ActivityFinalizationEmailService.send_finalization_emails(activity) if should_email_finalized
-    ActivityVotingEmailService.send_voting_emails(activity)             if should_email_voting
+    if should_email_finalized
+      ActivityFinalizationEmailService.send_finalization_emails(activity)
+      # Send push notifications to mobile users when activity is finalized
+      PushNotificationService.send_activity_update(activity, "finalized")
+    end
+
+    ActivityVotingEmailService.send_voting_emails(activity) if should_email_voting
 
     activity = Activity.includes(:user, :participants, :activity_participants, :responses)
                       .find(activity.id)
@@ -198,5 +203,10 @@ class ActivitiesController < HtmlController
     participant.save!
 
     InviteUserService.send_invitation(activity, invited_email, current_user)
+
+    # Send push notification if the invited user has a mobile account
+    if user && user.can_receive_push_notifications?
+      PushNotificationService.send_activity_invite(activity, user)
+    end
   end
 end
