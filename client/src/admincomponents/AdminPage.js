@@ -319,7 +319,7 @@ export default function AdminDashboard() {
 
             {adminUsers && adminUsers.admin_users && adminUsers.admin_users.length > 0 && (
               <>
-                <AnalyticsTitle>Admin Users</AnalyticsTitle>
+                <AnalyticsTitle style={{ marginTop: '3rem' }}>Admin Users</AnalyticsTitle>
                 <ActivityStatusGrid>
                   {adminUsers.admin_users.map((user, index) => (
                     <StatusCard key={index} color={colors.accent}>
