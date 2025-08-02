@@ -40,7 +40,7 @@ class EmailVerificationService < BaseEmailService
       content
     )
 
-    send_email(user.email, subject, email_html)
+    send_email(user.email, subject, email_html, {})
 
     Rails.logger.info "Verification email sent successfully to #{user.email}"
   rescue StandardError => e

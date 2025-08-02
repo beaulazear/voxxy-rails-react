@@ -38,7 +38,6 @@ class ActivitiesController < HtmlController
     activity = current_user.activities.find(params[:id])
 
     should_email_finalized = activity_params.key?(:finalized) && activity_params[:finalized]
-    should_email_voting    = activity_params.key?(:voting)   && activity_params[:voting]
 
     Activity.transaction do
       if activity_params.key?(:finalized)
@@ -63,8 +62,6 @@ class ActivitiesController < HtmlController
       # Send push notifications to mobile users when activity is finalized
       PushNotificationService.send_activity_update(activity, "finalized")
     end
-
-    ActivityVotingEmailService.send_voting_emails(activity) if should_email_voting
 
     activity = Activity.includes(:user, :participants, :activity_participants, :responses)
                       .find(activity.id)

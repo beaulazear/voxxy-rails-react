@@ -1,7 +1,4 @@
-require "sendgrid-ruby"
-include SendGrid
-
-class InviteUserService
+class InviteUserService < BaseEmailService
   def self.send_invitation(activity, invited_email, inviter)
     return unless activity && invited_email.present? && inviter
 
@@ -125,7 +122,7 @@ class InviteUserService
       </html>
     HTML
 
-    send_email(email, subject, content)
+    send_email(email, subject, content, {})
   end
 
   def self.send_existing_user_invite(user, activity, inviter, participant)
@@ -214,25 +211,7 @@ class InviteUserService
       </html>
     HTML
 
-    send_email(user.email, subject, content)
+    send_email(user.email, subject, content, {})
   end
 
-  def self.send_email(to_email, subject, content_html)
-    from = SendGrid::Email.new(email: "team@voxxyai.com", name: "Voxxy Team")
-    to = SendGrid::Email.new(email: to_email)
-    content = Content.new(type: "text/html", value: content_html)
-
-    mail = SendGrid::Mail.new
-    mail.from = from
-    mail.subject = subject
-    personalization = SendGrid::Personalization.new
-    personalization.add_to(to)
-    mail.add_personalization(personalization)
-    mail.add_content(content)
-
-    sg = SendGrid::API.new(api_key: ENV["VoxxyKeyAPI"])
-    response = sg.client.mail._("send").post(request_body: mail.to_json)
-
-    Rails.logger.info "Sent invitation email to #{to_email}: #{response.status_code}"
-  end
 end

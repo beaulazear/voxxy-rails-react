@@ -1,20 +1,23 @@
 require "sendgrid-ruby"
-include SendGrid
 
 class BaseEmailService
+  include SendGrid
   # Consistent sender information
   SENDER_EMAIL = "team@voxxyai.com"
   SENDER_NAME = "Voxxy"
 
-  # Standard email styling that's spam-friendly
+  # Voxxy brand email styling
   BASE_STYLES = {
-    body: "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;",
-    container: "background: #ffffff; border-radius: 8px; padding: 30px; border: 1px solid #e1e5e9;",
-    header: "text-align: center; margin-bottom: 30px;",
-    title: "color: #2d3748; font-size: 24px; font-weight: 600; margin: 0 0 16px 0;",
-    text: "color: #4a5568; font-size: 16px; line-height: 1.5; margin: 0 0 16px 0;",
-    button: "display: inline-block; padding: 12px 24px; background-color: #805ad5; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 16px; margin: 20px 0;",
-    footer: "color: #718096; font-size: 14px; text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;"
+    body: "margin: 0; padding: 0; font-family: 'Montserrat', Arial, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%); min-height: 100vh;",
+    container: "max-width: 600px; margin: 0 auto; padding: 40px 20px;",
+    inner_container: "background: rgba(255, 255, 255, 0.95); border-radius: 16px; padding: 40px 30px; text-align: center; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);",
+    header: "margin-bottom: 30px;",
+    logo: "margin-bottom: 30px; max-width: 100%; height: auto; width: 200px;",
+    title: "font-family: 'Montserrat', Arial, sans-serif; font-size: 28px; font-weight: 700; color: #2d3748; margin: 0 0 16px 0;",
+    subtitle: "font-family: 'Montserrat', Arial, sans-serif; font-size: 16px; color: #718096; margin: 0 0 20px 0; line-height: 1.5;",
+    text: "font-family: 'Montserrat', Arial, sans-serif; font-size: 16px; color: #4a5568; line-height: 1.5; margin: 0 0 16px 0; text-align: left;",
+    button: "display: inline-block; font-family: 'Montserrat', Arial, sans-serif; padding: 16px 32px; font-size: 16px; font-weight: 600; color: white; background-color: #9D60F8; text-decoration: none; border-radius: 8px; margin: 20px 0;",
+    footer: "font-family: 'Montserrat', Arial, sans-serif; font-size: 14px; color: #718096; margin: 30px 0 0 0; text-align: center;"
   }.freeze
 
   def self.send_email(to_email, subject, content_html, additional_headers = {})
@@ -32,13 +35,13 @@ class BaseEmailService
     mail.add_content(content)
 
     # Add spam-prevention headers
-    mail.add_header("X-Priority", "3")
-    mail.add_header("X-Mailer", "Voxxy Application")
-    mail.add_header("List-Unsubscribe", "<mailto:unsubscribe@voxxyai.com>")
+    mail.add_header(SendGrid::Header.new(key: "X-Priority", value: "3"))
+    mail.add_header(SendGrid::Header.new(key: "X-Mailer", value: "Voxxy Application"))
+    mail.add_header(SendGrid::Header.new(key: "List-Unsubscribe", value: "<mailto:unsubscribe@voxxyai.com>"))
 
     # Add custom headers
     additional_headers.each do |key, value|
-      mail.add_header(key, value)
+      mail.add_header(SendGrid::Header.new(key: key, value: value))
     end
 
     sg = SendGrid::API.new(api_key: ENV["VoxxyKeyAPI"])
@@ -65,32 +68,40 @@ class BaseEmailService
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1">
           <title>#{title}</title>
+          <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
         </head>
         <body style="#{BASE_STYLES[:body]}">
           <div style="#{BASE_STYLES[:container]}">
-            <div style="#{BASE_STYLES[:header]}">
-              <img src="https://res.cloudinary.com/dgtpgywhl/image/upload/v1746365141/Voxxy_Header_syvpzb.png"
-                   alt="Voxxy" width="120" style="max-width: 100%; height: auto;">
-            </div>
-      #{'      '}
-            <h1 style="#{BASE_STYLES[:title]}">#{title}</h1>
-      #{'      '}
-            <div>
-              #{content}
-            </div>
-      #{'      '}
-            #{button_text && button_url ?# {' '}
-              "<div style='text-align: center;'>
-                <a href='#{button_url}' style='#{BASE_STYLES[:button]}'>#{button_text}</a>
-              </div>" : ""
-            }
-      #{'      '}
-            <div style="#{BASE_STYLES[:footer]}">
-              <p>Best regards,<br>The Voxxy Team</p>
-              <p style="font-size: 12px; color: #a0aec0;">
-                If you didn't expect this email, you can safely ignore it.
-                <br><a href="mailto:unsubscribe@voxxyai.com" style="color: #a0aec0;">Unsubscribe</a>
-              </p>
+            <div style="#{BASE_STYLES[:inner_container]}">
+              <!-- Logo -->
+              <div style="#{BASE_STYLES[:header]}">
+                <img src="https://res.cloudinary.com/dgtpgywhl/image/upload/v1746365141/Voxxy_Header_syvpzb.png"
+                     alt="Voxxy" style="#{BASE_STYLES[:logo]}">
+              </div>
+      
+              <!-- Main Title -->
+              <h1 style="#{BASE_STYLES[:title]}">#{title}</h1>
+      
+              <!-- Content -->
+              <div>
+                #{content}
+              </div>
+      
+              <!-- Button -->
+              #{button_text && button_url ?
+                "<div style='text-align: center; margin: 30px 0;'>
+                  <a href='#{button_url}' style='#{BASE_STYLES[:button]}'>#{button_text}</a>
+                </div>" : ""
+              }
+      
+              <!-- Footer -->
+              <div style="#{BASE_STYLES[:footer]}">
+                <p style="margin: 0 0 10px 0;">See you on Voxxy! ✨</p>
+                <p style="font-size: 12px; color: #a0aec0; margin: 0;">
+                  If you didn't expect this email, you can safely ignore it.
+                  <br><a href="mailto:unsubscribe@voxxyai.com" style="color: #9D60F8; text-decoration: none;">Unsubscribe</a>
+                </p>
+              </div>
             </div>
           </div>
         </body>
