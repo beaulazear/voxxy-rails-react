@@ -5,7 +5,7 @@ class BaseEmailService
   # Consistent sender information
   SENDER_EMAIL = "team@voxxyai.com"
   SENDER_NAME = "Voxxy"
-  
+
   # Standard email styling that's spam-friendly
   BASE_STYLES = {
     body: "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;",
@@ -25,7 +25,7 @@ class BaseEmailService
     mail = SendGrid::Mail.new
     mail.from = from
     mail.subject = subject
-    
+
     personalization = SendGrid::Personalization.new
     personalization.add_to(to)
     mail.add_personalization(personalization)
@@ -35,7 +35,7 @@ class BaseEmailService
     mail.add_header("X-Priority", "3")
     mail.add_header("X-Mailer", "Voxxy Application")
     mail.add_header("List-Unsubscribe", "<mailto:unsubscribe@voxxyai.com>")
-    
+
     # Add custom headers
     additional_headers.each do |key, value|
       mail.add_header(key, value)
@@ -45,12 +45,12 @@ class BaseEmailService
     response = sg.client.mail._("send").post(request_body: mail.to_json)
 
     Rails.logger.info "Email sent to #{to_email}: #{response.status_code}"
-    
+
     if response.status_code.to_i != 202
       Rails.logger.error "SendGrid Error: #{response.body}"
       raise "SendGrid Error: #{response.body}"
     end
-    
+
     response
   rescue StandardError => e
     Rails.logger.error "Email sending failed: #{e.message}"
@@ -72,19 +72,19 @@ class BaseEmailService
               <img src="https://res.cloudinary.com/dgtpgywhl/image/upload/v1746365141/Voxxy_Header_syvpzb.png"
                    alt="Voxxy" width="120" style="max-width: 100%; height: auto;">
             </div>
-            
+      #{'      '}
             <h1 style="#{BASE_STYLES[:title]}">#{title}</h1>
-            
+      #{'      '}
             <div>
               #{content}
             </div>
-            
-            #{button_text && button_url ? 
+      #{'      '}
+            #{button_text && button_url ?# {' '}
               "<div style='text-align: center;'>
                 <a href='#{button_url}' style='#{BASE_STYLES[:button]}'>#{button_text}</a>
               </div>" : ""
             }
-            
+      #{'      '}
             <div style="#{BASE_STYLES[:footer]}">
               <p>Best regards,<br>The Voxxy Team</p>
               <p style="font-size: 12px; color: #a0aec0;">

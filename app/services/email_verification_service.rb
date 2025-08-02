@@ -10,26 +10,26 @@ class EmailVerificationService < BaseEmailService
     ).to_s + "#/verify"
 
     subject = "Verify your email - Welcome to Voxxy"
-    
+
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
         Hi #{user.name || "there"},
       </p>
-      
+
       <p style="#{BASE_STYLES[:text]}">
         Welcome to Voxxy! To get started, please verify your email address by clicking the button below:
       </p>
-      
+
       <div style="text-align: center; margin: 30px 0;">
         <a href="#{verification_link}" style="#{BASE_STYLES[:button]}">
           Verify Email Address
         </a>
       </div>
-      
+
       <p style="#{BASE_STYLES[:text]}">
         This link will expire in 24 hours for security reasons.
       </p>
-      
+
       <p style="#{BASE_STYLES[:text]}">
         If you didn't create a Voxxy account, you can safely ignore this email.
       </p>
@@ -41,7 +41,7 @@ class EmailVerificationService < BaseEmailService
     )
 
     send_email(user.email, subject, email_html)
-    
+
     Rails.logger.info "Verification email sent successfully to #{user.email}"
   rescue StandardError => e
     Rails.logger.error "Failed to send verification email: #{e.message}"
