@@ -67,7 +67,7 @@ class UserActivitiesController < ApplicationController
   private
 
   def set_pinned_activity
-    @pinned_activity = PinnedActivity.find(params[:pinned_activity_id])
+    @pinned_activity = PinnedActivity.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     render json: { error: "Pinned activity not found" }, status: :not_found
   end
