@@ -78,22 +78,22 @@ class BaseEmailService
                 <img src="https://res.cloudinary.com/dgtpgywhl/image/upload/v1746365141/Voxxy_Header_syvpzb.png"
                      alt="Voxxy" style="#{BASE_STYLES[:logo]}">
               </div>
-      
+
               <!-- Main Title -->
               <h1 style="#{BASE_STYLES[:title]}">#{title}</h1>
-      
+
               <!-- Content -->
               <div>
                 #{content}
               </div>
-      
+
               <!-- Button -->
               #{button_text && button_url ?
                 "<div style='text-align: center; margin: 30px 0;'>
                   <a href='#{button_url}' style='#{BASE_STYLES[:button]}'>#{button_text}</a>
                 </div>" : ""
               }
-      
+
               <!-- Footer -->
               <div style="#{BASE_STYLES[:footer]}">
                 <p style="margin: 0 0 10px 0;">See you on Voxxy! ✨</p>

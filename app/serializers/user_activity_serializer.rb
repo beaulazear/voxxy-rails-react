@@ -26,8 +26,8 @@ class UserActivitySerializer
       },
       activity: {
         id: user_activity.pinned_activity.activity.id,
-        title: user_activity.pinned_activity.activity.title,
-        date: user_activity.pinned_activity.activity.date,
+        title: user_activity.pinned_activity.activity.activity_name,
+        date: user_activity.pinned_activity.activity.date_day,
         activity_type: user_activity.pinned_activity.activity.activity_type,
         user: {
           id: user_activity.pinned_activity.activity.user.id,

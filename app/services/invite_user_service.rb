@@ -213,5 +213,4 @@ class InviteUserService < BaseEmailService
 
     send_email(user.email, subject, content, {})
   end
-
 end
