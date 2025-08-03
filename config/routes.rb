@@ -64,6 +64,7 @@ Rails.application.routes.draw do
   get "/admin/admin_users", to: "admin#admin_users"
   get "/admin/user_breakdown", to: "admin#user_breakdown"
   get "/admin/unconfirmed_users", to: "admin#unconfirmed_users"
+  get "/admin/flagged_restaurants", to: "admin#flagged_restaurants"
 
   post "/api/openai/restaurant_recommendations", to: "openai#restaurant_recommendations"
   post "/api/openai/bar_recommendations", to: "openai#bar_recommendations"

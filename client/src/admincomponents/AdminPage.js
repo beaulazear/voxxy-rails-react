@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Heading1, MutedText } from '../styles/Typography';
 import colors from '../styles/Colors';
-import { Users, Star, Mail, Bug, BarChart3, Activity, UserCheck, Shield } from 'lucide-react';
+import { Users, Star, Mail, Bug, BarChart3, Activity, UserCheck, Shield, Flag } from 'lucide-react';
 import Footer from '../components/Footer'
 
 const AdminHero = styled.section`
@@ -181,6 +181,7 @@ export default function AdminDashboard() {
     { key: 'feedbacks', label: 'Feedbacks', icon: Star },
     { key: 'contacts', label: 'Contacts', icon: Mail },
     { key: 'bugs', label: 'Bug Reports', icon: Bug },
+    { key: 'flagged_restaurants', label: 'Flagged Restaurants', icon: Flag },
   ];
 
   const [activeTab, setActiveTab] = useState('analytics');
@@ -191,6 +192,7 @@ export default function AdminDashboard() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [bugs, setBugs] = useState([]);
+  const [flaggedRestaurants, setFlaggedRestaurants] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [adminUsers, setAdminUsers] = useState(null);
 
@@ -206,14 +208,16 @@ export default function AdminDashboard() {
       fetch(`${API}/feedbacks`, { credentials: 'include' }).then(r => r.ok ? r.json() : Promise.reject(`Feedbacks: ${r.status}`)),
       fetch(`${API}/contacts`, { credentials: 'include' }).then(r => r.ok ? r.json() : Promise.reject(`Contacts: ${r.status}`)),
       fetch(`${API}/bug_reports`, { credentials: 'include' }).then(r => r.ok ? r.json() : Promise.reject(`Bugs: ${r.status}`)),
+      fetch(`${API}/admin/flagged_restaurants`, { credentials: 'include' }).then(r => r.ok ? r.json() : Promise.reject(`Flagged Restaurants: ${r.status}`)),
     ])
-      .then(([a, au, w, f, c, b]) => {
+      .then(([a, au, w, f, c, b, fr]) => {
         setAnalytics(a);
         setAdminUsers(au);
         setWaitlists(w);
         setFeedbacks(f);
         setContacts(c);
         setBugs(b);
+        setFlaggedRestaurants(fr.flagged_restaurants || []);
       })
       .catch(err => {
         console.error(err);
@@ -227,6 +231,7 @@ export default function AdminDashboard() {
     feedbacks,
     contacts,
     bugs,
+    flagged_restaurants: flaggedRestaurants,
   };
   let displayData = dataMap[activeTab] || [];
   if (activeTab === 'waitlists') {

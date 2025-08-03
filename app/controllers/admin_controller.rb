@@ -79,6 +79,40 @@ class AdminController < ApplicationController
     end
   end
 
+  def flagged_restaurants
+    begin
+      flagged_activities = UserActivity.flagged
+                                      .includes(pinned_activity: { activity: :user })
+                                      .includes(:user)
+                                      .order(updated_at: :desc)
+
+      flagged_data = flagged_activities.map do |user_activity|
+        {
+          id: user_activity.id,
+          restaurant_name: user_activity.title,
+          address: user_activity.address,
+          description: user_activity.description,
+          reason: user_activity.reason,
+          website: user_activity.website,
+          price_range: user_activity.price_range,
+          hours: user_activity.hours,
+          flagged_by: user_activity.user.name || user_activity.user.email,
+          flagged_at: user_activity.updated_at,
+          activity_host: user_activity.pinned_activity.activity.user.name || user_activity.pinned_activity.activity.user.email,
+          activity_id: user_activity.pinned_activity.activity.id,
+          pinned_activity_id: user_activity.pinned_activity.id
+        }
+      end
+
+      render json: {
+        total_flagged: flagged_activities.count,
+        flagged_restaurants: flagged_data
+      }
+    rescue => e
+      render json: { error: "Failed to fetch flagged restaurants: #{e.message}" }, status: :internal_server_error
+    end
+  end
+
   def user_breakdown
     # Get users with pagination
     page = params[:page].to_i > 0 ? params[:page].to_i : 1
