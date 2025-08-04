@@ -7,6 +7,9 @@ class PinnedActivitiesController < ApplicationController
     pinned_activity = activity.pinned_activities.build(pinned_activity_params)
 
     if pinned_activity.save
+      # Send push notification to activity participants about new venue suggestion
+      PushNotificationService.send_venue_suggestion_notification(pinned_activity)
+      
       # Enrich with Google Places data on creation
       enriched_pinned_activity = PinnedActivitySerializer.with_places_data(pinned_activity)
       render json: enriched_pinned_activity, status: :created

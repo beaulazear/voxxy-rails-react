@@ -39,7 +39,21 @@ class ActivitiesController < HtmlController
 
     should_email_finalized = activity_params.key?(:finalized) && activity_params[:finalized]
 
+    # Track changes for notifications (exclude system fields like finalized, voting, selected_pinned_id)
+    notification_params = activity_params.except(:finalized, :voting, :selected_pinned_id)
+    should_notify_changes = notification_params.keys.any? && !should_email_finalized
+
     Activity.transaction do
+      # Track changes before updating
+      changes_to_notify = {}
+      if should_notify_changes
+        notification_params.each do |key, new_value|
+          if activity.send(key) != new_value
+            changes_to_notify[key.to_s] = [activity.send(key), new_value]
+          end
+        end
+      end
+
       if activity_params.key?(:finalized)
         activity.finalized = activity_params[:finalized]
       end
@@ -55,6 +69,11 @@ class ActivitiesController < HtmlController
       end
 
       activity.update!(activity_params.except(:finalized, :voting, :selected_pinned_id))
+
+      # Send change notifications (only if not finalizing and there are actual changes)
+      if should_notify_changes && changes_to_notify.any?
+        PushNotificationService.send_activity_change_notification(activity, changes_to_notify)
+      end
     end
 
     if should_email_finalized

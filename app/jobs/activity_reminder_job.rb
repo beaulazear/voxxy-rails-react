@@ -88,8 +88,8 @@ class ActivityReminderJob < ApplicationJob
     participants = [ activity.user ] # Include the host
 
     # Add accepted participants
-    activity.participants.includes(:user).each do |participant|
-      participants << participant.user if participant.accepted?
+    activity.participants.each do |participant|
+      participants << participant
     end
 
     # Filter to only users who can receive push notifications

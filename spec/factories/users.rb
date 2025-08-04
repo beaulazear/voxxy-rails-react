@@ -28,5 +28,22 @@ FactoryBot.define do
       text_notifications { false }
       push_notifications { false }
     end
+
+    trait :with_push_token do
+      push_notifications { true }
+      push_token { "ExponentPushToken[#{SecureRandom.hex(20)}]" }
+      platform { "ios" }
+    end
+
+    trait :android_user do
+      push_notifications { true }
+      push_token { "ExponentPushToken[#{SecureRandom.hex(20)}]" }
+      platform { "android" }
+    end
+
+    trait :with_reset_token do
+      reset_password_token { SecureRandom.hex(10) }
+      reset_password_sent_at { 1.hour.ago }
+    end
   end
 end
