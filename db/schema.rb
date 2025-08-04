@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_29_191528) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_04_115356) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -212,7 +212,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_29_191528) do
     t.boolean "push_notifications", default: true, null: false
     t.string "push_token"
     t.string "platform"
+    t.string "neighborhood"
+    t.string "city"
+    t.string "state"
+    t.decimal "latitude", precision: 10, scale: 6
+    t.decimal "longitude", precision: 10, scale: 6
+    t.index ["city"], name: "index_users_on_city"
+    t.index ["latitude", "longitude"], name: "index_users_on_latitude_and_longitude"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["state"], name: "index_users_on_state"
   end
 
   create_table "votes", force: :cascade do |t|

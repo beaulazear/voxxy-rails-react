@@ -10,7 +10,13 @@ class BaseSerializer
       admin: user.admin,
       created_at: user.created_at,
       confirmed_at: user.confirmed_at,
-      profile_pic_url: user.profile_pic_url
+      profile_pic_url: user.profile_pic_url,
+      neighborhood: user.neighborhood,
+      city: user.city,
+      state: user.state,
+      full_location: user.full_location,
+      location_complete: user.location_complete?,
+      coordinates: user.coordinates
     }
   end
 

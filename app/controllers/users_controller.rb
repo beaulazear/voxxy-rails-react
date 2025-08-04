@@ -164,7 +164,8 @@ class UsersController < ApplicationController
   def user_params
     params.require(:user).permit(
       :name, :email, :password, :password_confirmation, :avatar, :preferences,
-      :text_notifications, :email_notifications, :push_notifications, :profile_pic
+      :text_notifications, :email_notifications, :push_notifications, :profile_pic,
+      :neighborhood, :city, :state, :latitude, :longitude
     )
   end
 

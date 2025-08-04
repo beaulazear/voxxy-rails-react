@@ -58,6 +58,25 @@ class User < ApplicationRecord
     push_notifications && push_token.present?
   end
 
+  def location_complete?
+    city.present? && state.present?
+  end
+
+  def full_location
+    return nil unless location_complete?
+    
+    parts = []
+    parts << neighborhood if neighborhood.present?
+    parts << city
+    parts << state
+    parts.join(", ")
+  end
+
+  def coordinates
+    return nil unless latitude.present? && longitude.present?
+    { lat: latitude, lng: longitude }
+  end
+
   private
 
   def generate_confirmation_token
