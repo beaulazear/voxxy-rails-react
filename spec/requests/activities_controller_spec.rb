@@ -66,7 +66,7 @@ RSpec.describe ActivitiesController, type: :request do
           group_size: '4-6 people',
           date_notes: 'This weekend',
           welcome_message: 'Looking forward to it!',
-          participants: ['friend@example.com', 'buddy@example.com']
+          participants: [ 'friend@example.com', 'buddy@example.com' ]
         }
       }
     end
@@ -80,7 +80,7 @@ RSpec.describe ActivitiesController, type: :request do
         }.to change(Activity, :count).by(1)
 
         expect(response).to have_http_status(:created)
-        
+
         activity = Activity.last
         expect(activity.activity_name).to eq('Pizza Night')
         expect(activity.user).to eq(user)
@@ -92,7 +92,7 @@ RSpec.describe ActivitiesController, type: :request do
 
         activity = Activity.last
         expect(activity.activity_participants.count).to eq(2)
-        
+
         emails = activity.activity_participants.pluck(:invited_email)
         expect(emails).to include('friend@example.com', 'buddy@example.com')
       end
@@ -101,7 +101,7 @@ RSpec.describe ActivitiesController, type: :request do
         post '/activities', params: valid_params, headers: auth_headers
 
         expect(response).to have_http_status(:created)
-        
+
         json_response = JSON.parse(response.body)
         expect(json_response).to include('activity_name', 'user', 'participants')
       end
@@ -122,7 +122,7 @@ RSpec.describe ActivitiesController, type: :request do
           }.not_to change(Activity, :count)
 
           expect(response).to have_http_status(:unprocessable_entity)
-          
+
           json_response = JSON.parse(response.body)
           expect(json_response).to have_key('errors')
         end
@@ -156,7 +156,7 @@ RSpec.describe ActivitiesController, type: :request do
         patch "/activities/#{activity.id}", params: update_params, headers: auth_headers
 
         expect(response).to have_http_status(:ok)
-        
+
         activity.reload
         expect(activity.activity_name).to eq('Updated Pizza Night')
         expect(activity.activity_location).to eq('New Location')
@@ -257,7 +257,7 @@ RSpec.describe ActivitiesController, type: :request do
           patch "/activities/#{activity.id}", params: invalid_params, headers: auth_headers
 
           expect(response).to have_http_status(:unprocessable_entity)
-          
+
           json_response = JSON.parse(response.body)
           expect(json_response).to have_key('errors')
         end
@@ -266,7 +266,7 @@ RSpec.describe ActivitiesController, type: :request do
 
     context 'when user does not own the activity' do
       let(:other_user) { create(:user) }
-      
+
       before { login_user(other_user) }
 
       it 'returns not found' do
@@ -291,7 +291,7 @@ RSpec.describe ActivitiesController, type: :request do
 
       it 'deletes the activity' do
         activity_id = activity.id
-        
+
         expect {
           delete "/activities/#{activity_id}", headers: auth_headers
         }.to change(Activity, :count).by(-1)
@@ -314,7 +314,7 @@ RSpec.describe ActivitiesController, type: :request do
 
     context 'when user does not own the activity' do
       let(:other_user) { create(:user) }
-      
+
       before { login_user(other_user) }
 
       it 'returns not found' do
@@ -335,7 +335,7 @@ RSpec.describe ActivitiesController, type: :request do
 
   describe 'activity workflow integration' do
     let(:participant) { create(:user, :with_push_token) }
-    
+
     before do
       login_user(user)
       activity.activity_participants.create!(
@@ -351,26 +351,26 @@ RSpec.describe ActivitiesController, type: :request do
       expect(activity.finalized).to be false
 
       # 2. Start collecting responses
-      patch "/activities/#{activity.id}", 
-            params: { activity: { collecting: true } }, 
+      patch "/activities/#{activity.id}",
+            params: { activity: { collecting: true } },
             headers: auth_headers
-      
+
       activity.reload
       expect(activity.collecting).to be true
 
       # 3. Start voting
-      patch "/activities/#{activity.id}", 
-            params: { activity: { voting: true } }, 
+      patch "/activities/#{activity.id}",
+            params: { activity: { voting: true } },
             headers: auth_headers
-      
+
       activity.reload
       expect(activity.voting).to be true
 
       # 4. Finalize activity
       allow(ActivityFinalizationEmailService).to receive(:send_finalization_emails)
-      
-      patch "/activities/#{activity.id}", 
-            params: { activity: { finalized: true } }, 
+
+      patch "/activities/#{activity.id}",
+            params: { activity: { finalized: true } },
             headers: auth_headers
 
       expect(response).to have_http_status(:ok)

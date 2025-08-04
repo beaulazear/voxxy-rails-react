@@ -10,7 +10,7 @@ RSpec.describe PushNotificationService, type: :service do
     stub_request(:post, "https://exp.host/--/api/v2/push/send")
       .to_return(
         status: 200,
-        body: { data: [{ status: "ok" }] }.to_json,
+        body: { data: [ { status: "ok" } ] }.to_json,
         headers: { 'Content-Type' => 'application/json' }
       )
   end
@@ -325,7 +325,7 @@ RSpec.describe PushNotificationService, type: :service do
 
   describe '.send_activity_change_notification' do
     let(:participant) { create(:user, :with_push_token) }
-    let(:changes) { { 'activity_name' => ['Old Name', 'New Name'], 'date_time' => ['old_time', 'new_time'] } }
+    let(:changes) { { 'activity_name' => [ 'Old Name', 'New Name' ], 'date_time' => [ 'old_time', 'new_time' ] } }
 
     before do
       activity.activity_participants.create!(
@@ -362,7 +362,7 @@ RSpec.describe PushNotificationService, type: :service do
               notification['title'] == "🎉 Activity Updated" &&
               notification['body'] == "#{host_name} updated #{activity.activity_name}: name changed, date/time updated" &&
               notification['data']['type'] == 'activity_changed' &&
-              notification['data']['changes'] == ['activity_name', 'date_time']
+              notification['data']['changes'] == [ 'activity_name', 'date_time' ]
             }
           }
         )
@@ -441,23 +441,23 @@ RSpec.describe PushNotificationService, type: :service do
 
   describe 'change message formatting' do
     it 'formats single change correctly' do
-      changes = { 'activity_name' => ['old', 'new'] }
+      changes = { 'activity_name' => [ 'old', 'new' ] }
       message = PushNotificationService.send(:format_activity_changes, changes)
       expect(message).to eq('name changed')
     end
 
     it 'formats multiple changes correctly' do
       changes = {
-        'activity_name' => ['old', 'new'],
-        'date_time' => ['old_time', 'new_time'],
-        'activity_location' => ['old_place', 'new_place']
+        'activity_name' => [ 'old', 'new' ],
+        'date_time' => [ 'old_time', 'new_time' ],
+        'activity_location' => [ 'old_place', 'new_place' ]
       }
       message = PushNotificationService.send(:format_activity_changes, changes)
       expect(message).to eq('name changed, date/time updated, location changed')
     end
 
     it 'returns default message for unrecognized changes' do
-      changes = { 'unknown_field' => ['old', 'new'] }
+      changes = { 'unknown_field' => [ 'old', 'new' ] }
       message = PushNotificationService.send(:format_activity_changes, changes)
       expect(message).to eq('details updated')
     end

@@ -49,7 +49,7 @@ class ActivitiesController < HtmlController
       if should_notify_changes
         notification_params.each do |key, new_value|
           if activity.send(key) != new_value
-            changes_to_notify[key.to_s] = [activity.send(key), new_value]
+            changes_to_notify[key.to_s] = [ activity.send(key), new_value ]
           end
         end
       end

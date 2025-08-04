@@ -49,7 +49,7 @@ RSpec.describe Comment, type: :model do
         activity: activity,
         content: 'This looks great!'
       )
-      
+
       expect(comment.activity).to eq(activity)
       expect(comment.pinned_activity).to be_nil
     end
@@ -61,7 +61,7 @@ RSpec.describe Comment, type: :model do
         activity: pinned_activity.activity,
         content: 'I love this place!'
       )
-      
+
       expect(comment.pinned_activity).to eq(pinned_activity)
       expect(comment.activity).to eq(pinned_activity.activity)
     end
@@ -83,7 +83,7 @@ RSpec.describe Comment, type: :model do
     end
 
     it 'rejects empty content' do
-      ['', '   ', nil].each do |empty_content|
+      [ '', '   ', nil ].each do |empty_content|
         comment.content = empty_content
         expect(comment).not_to be_valid
       end
@@ -101,7 +101,7 @@ RSpec.describe Comment, type: :model do
         activity: activity,
         content: 'Welcome everyone!'
       )
-      
+
       expect(comment).to be_valid
       expect(comment.user).to eq(host)
     end
@@ -119,7 +119,7 @@ RSpec.describe Comment, type: :model do
         activity: activity,
         content: 'Thanks for organizing!'
       )
-      
+
       expect(comment).to be_valid
       expect(comment.user).to eq(participant)
     end
@@ -135,7 +135,7 @@ RSpec.describe Comment, type: :model do
         activity: activity,
         content: 'First comment'
       )
-      
+
       # Travel in time to ensure different timestamps
       Timecop.travel(1.minute.from_now) do
         second_comment = Comment.create!(
@@ -143,7 +143,7 @@ RSpec.describe Comment, type: :model do
           activity: activity,
           content: 'Second comment'
         )
-        
+
         comments = activity.comments.order(:created_at)
         expect(comments.first).to eq(first_comment)
         expect(comments.last).to eq(second_comment)

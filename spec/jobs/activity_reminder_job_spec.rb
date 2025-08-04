@@ -24,7 +24,7 @@ RSpec.describe ActivityReminderJob, type: :job do
 
         expect(PushNotificationService).to have_received(:send_bulk_notifications) do |notifications|
           expect(notifications.length).to eq(2) # host + participant
-          
+
           notification = notifications.first
           expect(notification[:title]).to include('Starting Soon!')
           expect(notification[:body]).to include('starts in 1 hour')
@@ -105,7 +105,7 @@ RSpec.describe ActivityReminderJob, type: :job do
       expect(PushNotificationService).to have_received(:send_bulk_notifications) do |notifications|
         # Should only include host and participant with push tokens
         expect(notifications.length).to eq(2)
-        
+
         tokens = notifications.map { |n| n[:user].push_token }
         expect(tokens).to include(user_with_push.push_token, participant.push_token)
         expect(tokens).not_to include(nil)
@@ -176,7 +176,7 @@ RSpec.describe ActivityReminderJob, type: :job do
       expect(PushNotificationService).to have_received(:send_bulk_notifications) do |notifications|
         notification = notifications.first
         data = notification[:data]
-        
+
         expect(data).to include(
           type: 'activity_reminder',
           activityId: activity.id.to_s,
@@ -249,7 +249,7 @@ RSpec.describe ActivityReminderJob, type: :job do
       expect(PushNotificationService).to have_received(:send_bulk_notifications) do |notifications|
         # Should include host + 1 accepted participant, not the non-accepted one
         expect(notifications.length).to eq(2)
-        
+
         user_ids = notifications.map { |n| n[:user].id }
         expect(user_ids).to include(user_with_push.id, participant.id)
         expect(user_ids).not_to include(non_accepted_participant.id)

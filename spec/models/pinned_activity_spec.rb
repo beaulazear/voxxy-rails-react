@@ -39,7 +39,7 @@ RSpec.describe PinnedActivity, type: :model do
         description: 'Authentic wood-fired pizza in a cozy atmosphere',
         website: 'https://pizzapalace.com',
         reviews: { 'google' => 4.5, 'yelp' => 4.0 }.to_json,
-        photos: ['photo1.jpg', 'photo2.jpg'].to_json
+        photos: [ 'photo1.jpg', 'photo2.jpg' ].to_json
       )
 
       expect(venue.title).to eq('Pizza Palace')
@@ -140,7 +140,7 @@ RSpec.describe PinnedActivity, type: :model do
 
     it 'prevents duplicate votes from same user' do
       venue.votes.create!(user: user1, upvote: true)
-      
+
       duplicate_vote = venue.votes.build(user: user1, upvote: false)
       expect(duplicate_vote).not_to be_valid
     end
@@ -204,8 +204,8 @@ RSpec.describe PinnedActivity, type: :model do
     let(:activity) { create(:activity) }
 
     it 'accepts standard price range formats' do
-      price_ranges = ['$', '$$', '$$$', '$$$$', 'Free', 'Varies']
-      
+      price_ranges = [ '$', '$$', '$$$', '$$$$', 'Free', 'Varies' ]
+
       price_ranges.each do |range|
         venue = PinnedActivity.create!(
           activity: activity,
@@ -213,7 +213,7 @@ RSpec.describe PinnedActivity, type: :model do
           address: '123 Price St',
           price_range: range
         )
-        
+
         expect(venue.price_range).to eq(range)
       end
     end
@@ -226,20 +226,20 @@ RSpec.describe PinnedActivity, type: :model do
 
     it 'deletes associated votes when venue is deleted' do
       venue.votes.create!(user: user, upvote: true)
-      
+
       expect { venue.destroy! }.to change { Vote.count }.by(-1)
     end
 
     it 'deletes associated comments when venue is deleted' do
       venue.comments.create!(user: user, activity: activity, content: 'Test comment')
-      
+
       expect { venue.destroy! }.to change { Comment.count }.by(-1)
     end
 
     it 'is deleted when parent activity is deleted' do
       venue_id = venue.id
       activity.destroy!
-      
+
       expect(PinnedActivity.find_by(id: venue_id)).to be_nil
     end
   end
@@ -251,7 +251,7 @@ RSpec.describe PinnedActivity, type: :model do
 
     it 'creates venue with realistic data' do
       venue = create(:pinned_activity)
-      
+
       expect(venue.title).to be_present
       expect(venue.address).to be_present
       expect(venue.activity).to be_present

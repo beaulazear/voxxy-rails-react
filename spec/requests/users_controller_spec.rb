@@ -19,10 +19,10 @@ RSpec.describe UsersController, type: :request do
       }.to change(User, :count).by(1)
 
       expect(response).to have_http_status(:created)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response).to include('id', 'name', 'email')
-      
+
       user = User.last
       expect(user.name).to eq('John Doe')
       expect(user.email).to eq('john@example.com')
@@ -34,7 +34,7 @@ RSpec.describe UsersController, type: :request do
 
       json_response = JSON.parse(response.body)
       expect(json_response['token']).to be_present
-      
+
       # Verify token can be decoded
       decoded_token = JWT.decode(json_response['token'], Rails.application.credentials.secret_key_base).first
       expect(decoded_token['user_id']).to eq(User.last.id)
@@ -116,35 +116,35 @@ RSpec.describe UsersController, type: :request do
     context 'with valid credentials' do
       before { user } # Ensure user is created
       it 'returns user and token for mobile app' do
-        post '/login', params: { 
-          email: 'john@example.com', 
-          password: 'password123' 
+        post '/login', params: {
+          email: 'john@example.com',
+          password: 'password123'
         }, headers: { 'X-Mobile-App' => 'true' }
 
         expect(response).to have_http_status(:success)
-        
+
         json_response = JSON.parse(response.body)
         expect(json_response).to include('token')
         expect(json_response['email']).to eq('john@example.com')
       end
 
       it 'returns valid JWT token for mobile app' do
-        post '/login', params: { 
-          email: 'john@example.com', 
-          password: 'password123' 
+        post '/login', params: {
+          email: 'john@example.com',
+          password: 'password123'
         }, headers: { 'X-Mobile-App' => 'true' }
 
         json_response = JSON.parse(response.body)
         token = json_response['token']
-        
+
         decoded_token = JWT.decode(token, Rails.application.credentials.secret_key_base).first
         expect(decoded_token['user_id']).to eq(user.id)
       end
 
       it 'handles case-insensitive email' do
-        post '/login', params: { 
-          email: 'JOHN@EXAMPLE.COM', 
-          password: 'password123' 
+        post '/login', params: {
+          email: 'JOHN@EXAMPLE.COM',
+          password: 'password123'
         }
 
         expect(response).to have_http_status(:success)
@@ -153,9 +153,9 @@ RSpec.describe UsersController, type: :request do
 
     context 'with invalid credentials' do
       it 'returns error for wrong password' do
-        post '/login', params: { 
-          email: 'john@example.com', 
-          password: 'wrongpassword' 
+        post '/login', params: {
+          email: 'john@example.com',
+          password: 'wrongpassword'
         }
 
         expect(response).to have_http_status(:unauthorized)
@@ -164,9 +164,9 @@ RSpec.describe UsersController, type: :request do
       end
 
       it 'returns error for non-existent email' do
-        post '/login', params: { 
-          email: 'nonexistent@example.com', 
-          password: 'password123' 
+        post '/login', params: {
+          email: 'nonexistent@example.com',
+          password: 'password123'
         }
 
         expect(response).to have_http_status(:unauthorized)
@@ -198,7 +198,7 @@ RSpec.describe UsersController, type: :request do
         get '/me', headers: auth_headers
 
         expect(response).to have_http_status(:success)
-        
+
         json_response = JSON.parse(response.body)
         expect(json_response).to include(
           'id' => user.id,
@@ -214,7 +214,7 @@ RSpec.describe UsersController, type: :request do
         json_response = JSON.parse(response.body)
         expect(json_response).to include(
           'email_notifications',
-          'text_notifications', 
+          'text_notifications',
           'push_notifications'
         )
       end
@@ -257,7 +257,7 @@ RSpec.describe UsersController, type: :request do
         patch "/users/#{user.id}", params: update_params, headers: auth_headers
 
         expect(response).to have_http_status(:success)
-        
+
         user.reload
         expect(user.name).to eq('Updated Name')
         expect(user.preferences).to eq('vegetarian, no seafood')
@@ -324,7 +324,7 @@ RSpec.describe UsersController, type: :request do
 
         it 'returns errors for duplicate email' do
           create(:user, email: 'taken@example.com')
-          
+
           update_params = {
             user: { email: 'taken@example.com' }
           }
@@ -374,7 +374,7 @@ RSpec.describe UsersController, type: :request do
         post '/password_reset', params: { password_reset: { email: 'john@example.com' } }
 
         expect(response).to have_http_status(:ok)
-        
+
         user.reload
         expect(user.reset_password_token).to be_present
       end
@@ -407,7 +407,7 @@ RSpec.describe UsersController, type: :request do
         patch '/password_reset', params: reset_params
 
         expect(response).to have_http_status(:ok)
-        
+
         user.reload
         expect(user.authenticate('newpassword123')).to eq(user)
       end
@@ -460,7 +460,7 @@ RSpec.describe UsersController, type: :request do
         get '/verify', params: { token: unconfirmed_user.confirmation_token }
 
         expect(response).to have_http_status(:found) # 302 redirect
-        
+
         unconfirmed_user.reload
         expect(unconfirmed_user.confirmed_at).to be_present
       end
@@ -473,7 +473,7 @@ RSpec.describe UsersController, type: :request do
 
       it 'returns redirect for already confirmed user' do
         confirmed_user = create(:user, confirmed_at: Time.current)
-        
+
         get '/verify', params: { token: 'any-token' }
 
         expect(response).to have_http_status(:found) # 302 redirect to frontend
@@ -490,14 +490,14 @@ RSpec.describe UsersController, type: :request do
       get '/me', headers: auth_headers
 
       json_response = JSON.parse(response.body)
-      
+
       # Should include public fields
       expect(json_response).to include(
         'id', 'name', 'email', 'avatar', 'preferences',
         'email_notifications', 'text_notifications', 'push_notifications',
         'created_at'
       )
-      
+
       # Should not include sensitive fields
       sensitive_fields = [
         'password_digest', 'reset_password_token', 'reset_password_sent_at',

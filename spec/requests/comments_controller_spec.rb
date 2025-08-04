@@ -25,13 +25,13 @@ RSpec.describe CommentsController, type: :request do
 
       it 'creates comment on activity' do
         expect {
-          post "/activities/#{activity.id}/comments", 
-               params: valid_params, 
+          post "/activities/#{activity.id}/comments",
+               params: valid_params,
                headers: auth_headers
         }.to change(Comment, :count).by(1)
 
         expect(response).to have_http_status(:created)
-        
+
         comment = Comment.last
         expect(comment.content).to eq('This looks like a great activity!')
         expect(comment.user).to eq(user)
@@ -39,12 +39,12 @@ RSpec.describe CommentsController, type: :request do
       end
 
       it 'returns comment with user data' do
-        post "/activities/#{activity.id}/comments", 
-             params: valid_params, 
+        post "/activities/#{activity.id}/comments",
+             params: valid_params,
              headers: auth_headers
 
         expect(response).to have_http_status(:created)
-        
+
         json_response = JSON.parse(response.body)
         expect(json_response).to include(
           'content' => 'This looks like a great activity!',
@@ -53,8 +53,8 @@ RSpec.describe CommentsController, type: :request do
       end
 
       it 'sends push notification to other participants' do
-        post "/activities/#{activity.id}/comments", 
-             params: valid_params, 
+        post "/activities/#{activity.id}/comments",
+             params: valid_params,
              headers: auth_headers
 
         comment = Comment.last
@@ -73,12 +73,12 @@ RSpec.describe CommentsController, type: :request do
         end
 
         it 'creates comment linked to pinned activity' do
-          post "/activities/#{activity.id}/comments", 
-               params: venue_comment_params, 
+          post "/activities/#{activity.id}/comments",
+               params: venue_comment_params,
                headers: auth_headers
 
           expect(response).to have_http_status(:created)
-          
+
           comment = Comment.last
           expect(comment.pinned_activity).to eq(pinned_activity)
           expect(comment.activity).to eq(activity)
@@ -96,8 +96,8 @@ RSpec.describe CommentsController, type: :request do
 
         it 'returns validation errors' do
           expect {
-            post "/activities/#{activity.id}/comments", 
-                 params: invalid_params, 
+            post "/activities/#{activity.id}/comments",
+                 params: invalid_params,
                  headers: auth_headers
           }.not_to change(Comment, :count)
 
@@ -114,8 +114,8 @@ RSpec.describe CommentsController, type: :request do
         end
 
         it 'returns validation error' do
-          post "/activities/#{activity.id}/comments", 
-               params: missing_content_params, 
+          post "/activities/#{activity.id}/comments",
+               params: missing_content_params,
                headers: auth_headers
 
           expect(response).to have_http_status(:bad_request)
@@ -127,8 +127,8 @@ RSpec.describe CommentsController, type: :request do
       before { login_user(user) }
 
       it 'returns not found' do
-        post '/activities/999999/comments', 
-             params: valid_params, 
+        post '/activities/999999/comments',
+             params: valid_params,
              headers: auth_headers
 
         expect(response).to have_http_status(:not_found)
@@ -156,10 +156,10 @@ RSpec.describe CommentsController, type: :request do
         get "/activities/#{activity.id}/comments", headers: auth_headers
 
         expect(response).to have_http_status(:ok)
-        
+
         json_response = JSON.parse(response.body)
         expect(json_response.length).to eq(2)
-        
+
         contents = json_response.map { |c| c['content'] }
         expect(contents).to include('First comment', 'Second comment')
       end
@@ -169,7 +169,7 @@ RSpec.describe CommentsController, type: :request do
 
         json_response = JSON.parse(response.body)
         comment_json = json_response.first
-        
+
         expect(comment_json['user']).to include('id', 'name', 'avatar')
         expect(comment_json['user']).not_to include('email', 'password_digest')
       end
@@ -205,7 +205,7 @@ RSpec.describe CommentsController, type: :request do
         get "/pinned_activities/#{pinned_activity.id}/comments", headers: auth_headers
 
         expect(response).to have_http_status(:ok)
-        
+
         json_response = JSON.parse(response.body)
         expect(json_response.length).to eq(1)
         expect(json_response.first['id']).to eq(venue_comment.id)
@@ -246,8 +246,8 @@ RSpec.describe CommentsController, type: :request do
     end
 
     it 'triggers notification for all participants except commenter' do
-      post "/activities/#{activity.id}/comments", 
-           params: { comment: { content: 'Great activity!' } }, 
+      post "/activities/#{activity.id}/comments",
+           params: { comment: { content: 'Great activity!' } },
            headers: auth_headers
 
       expect(PushNotificationService).to have_received(:send_new_comment_notification) do |comment|
@@ -271,19 +271,19 @@ RSpec.describe CommentsController, type: :request do
       ]
 
       content_types.each do |content|
-        post "/activities/#{activity.id}/comments", 
-             params: { comment: { content: content } }, 
+        post "/activities/#{activity.id}/comments",
+             params: { comment: { content: content } },
              headers: auth_headers
 
-        expect(response).to have_http_status(:created), 
+        expect(response).to have_http_status(:created),
                "Content '#{content[0..20]}...' should be valid"
       end
     end
 
     it 'rejects empty or whitespace-only content' do
-      ['', '   ', "\n\n", "\t\t"].each do |invalid_content|
-        post "/activities/#{activity.id}/comments", 
-             params: { comment: { content: invalid_content } }, 
+      [ '', '   ', "\n\n", "\t\t" ].each do |invalid_content|
+        post "/activities/#{activity.id}/comments",
+             params: { comment: { content: invalid_content } },
              headers: auth_headers
 
         expect(response).to have_http_status(:unprocessable_entity),
@@ -298,7 +298,7 @@ RSpec.describe CommentsController, type: :request do
     it 'returns comments in creation order' do
       # Create comments with slight delays to ensure different timestamps
       first_comment = create(:comment, activity: activity, content: 'First')
-      
+
       travel 1.minute do
         second_comment = create(:comment, activity: activity, content: 'Second')
       end
@@ -307,7 +307,7 @@ RSpec.describe CommentsController, type: :request do
 
       json_response = JSON.parse(response.body)
       contents = json_response.map { |c| c['content'] }
-      
+
       # Comments should be ordered by creation time
       expect(contents.first).to eq('First')
       expect(contents.last).to eq('Second')
@@ -329,9 +329,9 @@ RSpec.describe CommentsController, type: :request do
 
     it 'allows activity owner to comment' do
       login_user(activity_owner)
-      
-      post "/activities/#{activity.id}/comments", 
-           params: { comment: { content: 'Host comment' } }, 
+
+      post "/activities/#{activity.id}/comments",
+           params: { comment: { content: 'Host comment' } },
            headers: auth_headers
 
       expect(response).to have_http_status(:created)
@@ -339,9 +339,9 @@ RSpec.describe CommentsController, type: :request do
 
     it 'allows participants to comment' do
       login_user(participant)
-      
-      post "/activities/#{activity.id}/comments", 
-           params: { comment: { content: 'Participant comment' } }, 
+
+      post "/activities/#{activity.id}/comments",
+           params: { comment: { content: 'Participant comment' } },
            headers: auth_headers
 
       expect(response).to have_http_status(:created)
@@ -349,9 +349,9 @@ RSpec.describe CommentsController, type: :request do
 
     it 'allows non-participants to comment (open discussion)' do
       login_user(non_participant)
-      
-      post "/activities/#{activity.id}/comments", 
-           params: { comment: { content: 'Non-participant comment' } }, 
+
+      post "/activities/#{activity.id}/comments",
+           params: { comment: { content: 'Non-participant comment' } },
            headers: auth_headers
 
       # Based on current implementation, non-participants can comment

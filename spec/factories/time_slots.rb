@@ -6,10 +6,10 @@ FactoryBot.define do
     recommendations { {} }
 
     trait :with_recommendations do
-      recommendations { 
+      recommendations {
         {
-          "restaurants" => ["Pizza Palace", "Burger Barn"],
-          "bars" => ["The Local Pub", "Craft Corner"]
+          "restaurants" => [ "Pizza Palace", "Burger Barn" ],
+          "bars" => [ "The Local Pub", "Craft Corner" ]
         }
       }
     end

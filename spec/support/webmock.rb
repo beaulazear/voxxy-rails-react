@@ -8,7 +8,7 @@ RSpec.configure do |config|
   config.before(:each) do
     # Stub common external services for each test
     stub_expo_push_notifications
-    stub_openai_requests  
+    stub_openai_requests
     stub_sendgrid_requests
   end
 end
@@ -17,7 +17,7 @@ def stub_expo_push_notifications
   stub_request(:post, "https://exp.host/--/api/v2/push/send")
     .to_return(
       status: 200,
-      body: { data: [{ status: "ok" }] }.to_json,
+      body: { data: [ { status: "ok" } ] }.to_json,
       headers: { 'Content-Type' => 'application/json' }
     )
 end
@@ -27,11 +27,11 @@ def stub_openai_requests
     .to_return(
       status: 200,
       body: {
-        choices: [{
+        choices: [ {
           message: {
             content: "Mocked OpenAI response for testing"
           }
-        }]
+        } ]
       }.to_json,
       headers: { 'Content-Type' => 'application/json' }
     )

@@ -28,7 +28,7 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
           group_size: '4-6 people',
           date_notes: 'This Friday evening',
           welcome_message: 'Looking forward to seeing everyone!',
-          participants: [participant1.email, participant2.email]
+          participants: [ participant1.email, participant2.email ]
         }
       }
 
@@ -56,7 +56,7 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
       participant1_invite.reload
       expect(participant1_invite.accepted).to be true
 
-      # Accept second participant  
+      # Accept second participant
       post '/activity_participants/accept', params: {
         email: participant2.email,
         activity_id: activity.id
@@ -64,8 +64,8 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
       expect(response).to have_http_status(:ok)
 
       # 3. Start collecting responses
-      patch "/activities/#{activity.id}", 
-            params: { activity: { collecting: true } }, 
+      patch "/activities/#{activity.id}",
+            params: { activity: { collecting: true } },
             headers: auth_headers
 
       activity.reload
@@ -73,7 +73,7 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
 
       # 4. Participants submit responses
       login_user(participant1)
-      
+
       response_params = {
         response: {
           notes: 'I prefer vegetarian options',
@@ -84,14 +84,14 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
         }
       }
 
-      post "/activities/#{activity.id}/responses", 
-           params: response_params, 
+      post "/activities/#{activity.id}/responses",
+           params: response_params,
            headers: auth_headers
       expect(response).to have_http_status(:created)
 
       # 5. Host suggests venues
       login_user(host)
-      
+
       venue_params = {
         pinned_activity: {
           title: 'Pizza Palace',
@@ -101,8 +101,8 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
         }
       }
 
-      post "/activities/#{activity.id}/pinned_activities", 
-           params: venue_params, 
+      post "/activities/#{activity.id}/pinned_activities",
+           params: venue_params,
            headers: auth_headers
       expect(response).to have_http_status(:created)
 
@@ -114,8 +114,8 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
         .with(pinned_activity)
 
       # 6. Start voting phase
-      patch "/activities/#{activity.id}", 
-            params: { activity: { voting: true } }, 
+      patch "/activities/#{activity.id}",
+            params: { activity: { voting: true } },
             headers: auth_headers
 
       activity.reload
@@ -123,9 +123,9 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
 
       # 7. Participants vote on venues
       login_user(participant1)
-      
-      post "/pinned_activities/#{pinned_activity.id}/votes", 
-           params: { vote: { upvote: true } }, 
+
+      post "/pinned_activities/#{pinned_activity.id}/votes",
+           params: { vote: { upvote: true } },
            headers: auth_headers
       expect(response).to have_http_status(:created)
 
@@ -136,8 +136,8 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
         }
       }
 
-      post "/activities/#{activity.id}/comments", 
-           params: comment_params, 
+      post "/activities/#{activity.id}/comments",
+           params: comment_params,
            headers: auth_headers
       expect(response).to have_http_status(:created)
 
@@ -146,7 +146,7 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
 
       # 9. Host selects venue and finalizes
       login_user(host)
-      
+
       finalize_params = {
         activity: {
           selected_pinned_id: pinned_activity.id,
@@ -156,8 +156,8 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
         }
       }
 
-      patch "/activities/#{activity.id}", 
-            params: finalize_params, 
+      patch "/activities/#{activity.id}",
+            params: finalize_params,
             headers: auth_headers
       expect(response).to have_http_status(:ok)
 
@@ -189,7 +189,7 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
         activity: {
           activity_name: 'Test Activity',
           activity_type: 'Restaurant',
-          participants: ['valid@example.com', 'invalid-email', '']
+          participants: [ 'valid@example.com', 'invalid-email', '' ]
         }
       }
 
@@ -237,12 +237,12 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
     it 'prevents non-owners from modifying activities' do
       login_user(other_user)
 
-      patch "/activities/#{activity.id}", 
-            params: { activity: { activity_name: 'Hacked Name' } }, 
+      patch "/activities/#{activity.id}",
+            params: { activity: { activity_name: 'Hacked Name' } },
             headers: auth_headers
 
       expect(response).to have_http_status(:not_found)
-      
+
       activity.reload
       expect(activity.activity_name).not_to eq('Hacked Name')
     end
@@ -257,8 +257,8 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
         }
       }
 
-      post "/activities/#{activity.id}/pinned_activities", 
-           params: venue_params, 
+      post "/activities/#{activity.id}/pinned_activities",
+           params: venue_params,
            headers: auth_headers
 
       expect(response).to have_http_status(:not_found)
@@ -276,14 +276,14 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
       login_user(participant1)
 
       # Comment
-      post "/activities/#{activity.id}/comments", 
-           params: { comment: { content: 'Great choice!' } }, 
+      post "/activities/#{activity.id}/comments",
+           params: { comment: { content: 'Great choice!' } },
            headers: auth_headers
       expect(response).to have_http_status(:created)
 
-      # Vote  
-      post "/pinned_activities/#{venue.id}/votes", 
-           params: { vote: { upvote: true } }, 
+      # Vote
+      post "/pinned_activities/#{venue.id}/votes",
+           params: { vote: { upvote: true } },
            headers: auth_headers
       expect(response).to have_http_status(:created)
     end
@@ -316,8 +316,8 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
       allow(PushNotificationService).to receive(:send_venue_suggestion_notification).and_call_original
 
       # Activity update should trigger notifications
-      patch "/activities/#{activity.id}", 
-            params: { activity: { activity_name: 'Updated Name' } }, 
+      patch "/activities/#{activity.id}",
+            params: { activity: { activity_name: 'Updated Name' } },
             headers: auth_headers
 
       expect(PushNotificationService).to have_received(:send_activity_change_notification)
@@ -330,26 +330,26 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
         }
       }
 
-      post "/activities/#{activity.id}/pinned_activities", 
-           params: venue_params, 
+      post "/activities/#{activity.id}/pinned_activities",
+           params: venue_params,
            headers: auth_headers
 
       expect(PushNotificationService).to have_received(:send_venue_suggestion_notification)
 
       # Comment should trigger notifications
       login_user(participant1)
-      
-      post "/activities/#{activity.id}/comments", 
-           params: { comment: { content: 'Looks good!' } }, 
+
+      post "/activities/#{activity.id}/comments",
+           params: { comment: { content: 'Looks good!' } },
            headers: auth_headers
 
       expect(PushNotificationService).to have_received(:send_new_comment_notification)
 
       # Finalization should trigger notifications
       login_user(host)
-      
-      patch "/activities/#{activity.id}", 
-            params: { activity: { finalized: true } }, 
+
+      patch "/activities/#{activity.id}",
+            params: { activity: { finalized: true } },
             headers: auth_headers
 
       expect(PushNotificationService).to have_received(:send_activity_update)
@@ -366,7 +366,7 @@ RSpec.describe 'Activity Workflow Integration', type: :request do
         activity: {
           activity_name: 'Concurrent Test',
           activity_type: 'Restaurant',
-          participants: [participant1.email]
+          participants: [ participant1.email ]
         }
       }, headers: auth_headers
 

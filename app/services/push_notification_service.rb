@@ -230,31 +230,31 @@ class PushNotificationService
 
     def format_activity_changes(changes)
       change_messages = []
-      
-      if changes.key?('activity_name')
+
+      if changes.key?("activity_name")
         change_messages << "name changed"
       end
-      
-      if changes.key?('date_time') || changes.key?('date_day')
+
+      if changes.key?("date_time") || changes.key?("date_day")
         change_messages << "date/time updated"
       end
-      
-      if changes.key?('activity_location')
+
+      if changes.key?("activity_location")
         change_messages << "location changed"
       end
-      
-      if changes.key?('group_size')
+
+      if changes.key?("group_size")
         change_messages << "group size updated"
       end
-      
-      if changes.key?('welcome_message')
+
+      if changes.key?("welcome_message")
         change_messages << "welcome message updated"
       end
 
-      if changes.key?('activity_type')
+      if changes.key?("activity_type")
         change_messages << "activity type changed"
       end
-      
+
       change_messages.any? ? change_messages.join(", ") : "details updated"
     end
 

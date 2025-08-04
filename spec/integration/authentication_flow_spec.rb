@@ -22,7 +22,7 @@ RSpec.describe 'Authentication Flow Integration', type: :request do
       }.to change(User, :count).by(1)
 
       expect(response).to have_http_status(:success)
-      
+
       user = User.last
       expect(user.confirmed_at).to be_nil
       expect(user.confirmation_token).to be_present
@@ -35,7 +35,7 @@ RSpec.describe 'Authentication Flow Integration', type: :request do
       get '/verify', params: { token: user.confirmation_token }
 
       expect(response).to have_http_status(:success)
-      
+
       user.reload
       expect(user.confirmed_at).to be_present
       expect(user.confirmation_token).to be_nil
@@ -47,7 +47,7 @@ RSpec.describe 'Authentication Flow Integration', type: :request do
       }
 
       expect(response).to have_http_status(:success)
-      
+
       login_response = JSON.parse(response.body)
       login_token = login_response['token']
       expect(login_token).to be_present
@@ -89,7 +89,7 @@ RSpec.describe 'Authentication Flow Integration', type: :request do
       post '/reset_password', params: reset_params
 
       expect(response).to have_http_status(:success)
-      
+
       user.reload
       expect(user.reset_password_token).to be_nil
       expect(user.reset_password_sent_at).to be_nil
@@ -101,7 +101,7 @@ RSpec.describe 'Authentication Flow Integration', type: :request do
       }
 
       expect(response).to have_http_status(:success)
-      
+
       # 4. Old password no longer works
       post '/login', params: {
         email: 'john@example.com',
@@ -116,7 +116,7 @@ RSpec.describe 'Authentication Flow Integration', type: :request do
 
       # Request reset
       post '/password_reset', params: { email: 'john@example.com' }
-      
+
       user.reload
       # Simulate expired token
       user.update!(reset_password_sent_at: 25.hours.ago)
@@ -131,7 +131,7 @@ RSpec.describe 'Authentication Flow Integration', type: :request do
       post '/reset_password', params: reset_params
 
       expect(response).to have_http_status(:unprocessable_entity)
-      
+
       # Password should not have changed
       expect(user.authenticate('oldpassword')).to eq(user)
     end
@@ -161,7 +161,7 @@ RSpec.describe 'Authentication Flow Integration', type: :request do
 
       # Re-login to get fresh token
       post '/login', params: {
-        email: user.email,  
+        email: user.email,
         password: 'password123'
       }
 
@@ -209,7 +209,7 @@ RSpec.describe 'Authentication Flow Integration', type: :request do
       token = login_response['token']
 
       get '/profile', headers: { 'Authorization' => "Bearer #{token}" }
-      
+
       profile_response = JSON.parse(response.body)
       expect(profile_response['push_notifications']).to be true
       expect(profile_response['push_token']).to eq('ExponentPushToken[mobile123]')
@@ -217,7 +217,7 @@ RSpec.describe 'Authentication Flow Integration', type: :request do
 
     it 'handles push token updates' do
       user = create(:user, :with_push_token)
-      
+
       post '/login', params: {
         email: user.email,
         password: 'password123'
@@ -233,12 +233,12 @@ RSpec.describe 'Authentication Flow Integration', type: :request do
         }
       }
 
-      patch '/profile', 
+      patch '/profile',
             params: update_params,
             headers: { 'Authorization' => "Bearer #{token}" }
 
       expect(response).to have_http_status(:success)
-      
+
       user.reload
       expect(user.push_token).to eq('ExponentPushToken[new_device_token]')
       expect(user.platform).to eq('android')
@@ -246,7 +246,7 @@ RSpec.describe 'Authentication Flow Integration', type: :request do
 
     it 'handles disabling push notifications' do
       user = create(:user, :with_push_token)
-      
+
       post '/login', params: {
         email: user.email,
         password: 'password123'
@@ -267,7 +267,7 @@ RSpec.describe 'Authentication Flow Integration', type: :request do
             headers: { 'Authorization' => "Bearer #{token}" }
 
       expect(response).to have_http_status(:success)
-      
+
       user.reload
       expect(user.push_notifications).to be false
       expect(user.push_token).to be_nil
@@ -332,7 +332,7 @@ RSpec.describe 'Authentication Flow Integration', type: :request do
 
       # Simulate multiple concurrent login attempts
       responses = []
-      
+
       3.times do
         post '/login', params: {
           email: user.email,
@@ -394,9 +394,9 @@ RSpec.describe 'Authentication Flow Integration', type: :request do
       token = JSON.parse(response.body)['token']
 
       # 2. Update profile
-      patch '/profile', 
-            params: { 
-              user: { 
+      patch '/profile',
+            params: {
+              user: {
                 preferences: 'vegetarian',
                 push_notifications: true,
                 push_token: 'test_token'
@@ -426,7 +426,7 @@ RSpec.describe 'Authentication Flow Integration', type: :request do
 
       # 5. Profile should reflect updated preferences
       get '/profile', headers: { 'Authorization' => "Bearer #{token}" }
-      
+
       profile = JSON.parse(response.body)
       expect(profile['preferences']).to eq('vegetarian')
       expect(profile['push_notifications']).to be true

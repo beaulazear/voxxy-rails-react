@@ -13,7 +13,7 @@ class CommentsController < ApplicationController
     if comment.save
       # Send push notification to activity participants (except the commenter)
       PushNotificationService.send_new_comment_notification(comment)
-      
+
       render json: comment.as_json(include: { user: { only: [ :id, :name, :email, :avatar ] } }), status: :created
     else
       render json: { error: "Failed to post comment." }, status: :unprocessable_entity
