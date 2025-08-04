@@ -90,10 +90,12 @@ Rails.application.routes.draw do
       constraints: { photo_reference: /[^\/]+/ },
       as: "photo"
 
-  # Places API proxy for secure photo access
+  # Places API proxy endpoints
   get "/api/places/photo/:photo_reference", to: "places#photo",
       constraints: { photo_reference: /[^\/]+/ },
       as: "places_photo"
+  get "/api/places/search", to: "places#search"
+  get "/api/places/details", to: "places#details"
 
   get "/test", to: "application#test"
 

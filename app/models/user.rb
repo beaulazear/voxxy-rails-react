@@ -64,7 +64,7 @@ class User < ApplicationRecord
 
   def full_location
     return nil unless location_complete?
-    
+
     parts = []
     parts << neighborhood if neighborhood.present?
     parts << city
