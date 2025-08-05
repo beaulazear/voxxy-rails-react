@@ -1,6 +1,6 @@
 # app/controllers/users_controller.rb
 class UsersController < ApplicationController
-  skip_before_action :authorized, only: [ :create, :verify, :resend_verification ]
+  skip_before_action :authorized, only: [ :create, :verify, :verify_code, :resend_verification ]
 
   def update_push_token
     current_user.update!(
@@ -109,7 +109,7 @@ class UsersController < ApplicationController
   end
 
   def verify
-    user = User.find_by(confirmation_token: params[:token])
+    user = User.find_by(confirmation_code: params[:token])
 
     if user&.verify!
       NewUserEmailService.new_user_email_service(user)
@@ -119,17 +119,42 @@ class UsersController < ApplicationController
     end
   end
 
+  def verify_code
+    code = params[:code]&.strip
+
+    if code.blank?
+      return render json: { error: "Verification code is required" }, status: :bad_request
+    end
+
+    user = User.find_by(confirmation_code: code)
+
+    if user.nil?
+      return render json: { error: "Invalid verification code" }, status: :unprocessable_entity
+    end
+
+    unless user.confirmation_code_valid?
+      return render json: { error: "Verification code has expired. Please request a new one." }, status: :unprocessable_entity
+    end
+
+    if user.verify!
+      NewUserEmailService.new_user_email_service(user)
+      render json: { message: "Email verified successfully!", user: UserSerializer.basic(user) }, status: :ok
+    else
+      render json: { error: "Failed to verify email" }, status: :unprocessable_entity
+    end
+  rescue StandardError => e
+    Rails.logger.error "Verification error: #{e.message}"
+    render json: { error: "An error occurred during verification" }, status: :internal_server_error
+  end
+
   def resend_verification
     user = User.find_by(email: params[:email])
 
     if user
       if user.confirmed_at.nil?
-        if user.update_columns(confirmation_token: SecureRandom.hex(10))
-          EmailVerificationService.send_verification_email(user)
-          render json: { message: "Verification email has been resent." }, status: :ok
-        else
-          render json: { error: "Failed to generate a new verification token." }, status: :unprocessable_entity
-        end
+        user.generate_new_confirmation_code!
+        EmailVerificationService.send_verification_email(user)
+        render json: { message: "Verification code has been resent." }, status: :ok
       else
         render json: { message: "Your email is already verified." }, status: :unprocessable_entity
       end
@@ -137,6 +162,7 @@ class UsersController < ApplicationController
       render json: { error: "User not found." }, status: :not_found
     end
   rescue StandardError => e
+    Rails.logger.error "Resend verification error: #{e.message}"
     render json: { error: "An error occurred: #{e.message}" }, status: :internal_server_error
   end
 

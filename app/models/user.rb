@@ -7,7 +7,7 @@ class User < ApplicationRecord
   has_many :votes, dependent: :destroy
   has_many :user_activities, dependent: :destroy
 
-  before_create :generate_confirmation_token
+  before_create :generate_confirmation_code
 
   validates :name, presence: true
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
@@ -33,7 +33,7 @@ class User < ApplicationRecord
   end
 
   def verify!
-    update_columns(confirmed_at: Time.current, confirmation_token: nil)
+    update_columns(confirmed_at: Time.current, confirmation_code: nil, confirmation_sent_at: nil)
   end
 
   def generate_password_reset_token
@@ -77,10 +77,25 @@ class User < ApplicationRecord
     { lat: latitude, lng: longitude }
   end
 
+  def confirmation_code_valid?
+    confirmation_sent_at && confirmation_sent_at > 24.hours.ago
+  end
+
+  def generate_new_confirmation_code!
+    self.confirmation_code = generate_6_digit_code
+    self.confirmation_sent_at = Time.current
+    save!(validate: false)
+  end
+
   private
 
-  def generate_confirmation_token
-    self.confirmation_token = SecureRandom.hex(10) unless self.confirmed_at
+  def generate_confirmation_code
+    self.confirmation_code = generate_6_digit_code unless self.confirmed_at
+    self.confirmation_sent_at = Time.current unless self.confirmed_at
+  end
+
+  def generate_6_digit_code
+    rand(100000..999999).to_s
   end
 
   def set_defaults_for_notifications

@@ -48,6 +48,7 @@ Rails.application.routes.draw do
   resources :bug_reports, only: [ :index, :show, :create ]
 
   get "/verify", to: "users#verify"
+  post "/verify_code", to: "users#verify_code"
   post "/resend_verification", to: "users#resend_verification"
 
   get "/invite_signup", to: "users#invite_signup_redirect"

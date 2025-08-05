@@ -10,7 +10,7 @@ class UserSerializer < BaseSerializer
       text_notifications: user.text_notifications,
       email_notifications: user.email_notifications,
       push_notifications: user.push_notifications,
-      confirmation_token: user.confirmation_token,
+      confirmation_code: user.confirmation_code,
       admin: user.admin
     )
   end

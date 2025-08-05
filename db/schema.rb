@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_04_115356) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_05_132244) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -200,7 +200,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_04_115356) do
     t.string "username"
     t.string "email"
     t.string "password_digest"
-    t.string "confirmation_token"
+    t.string "confirmation_code"
     t.datetime "confirmed_at"
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at", precision: nil
@@ -217,6 +217,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_04_115356) do
     t.string "state"
     t.decimal "latitude", precision: 10, scale: 6
     t.decimal "longitude", precision: 10, scale: 6
+    t.datetime "confirmation_sent_at"
     t.index ["city"], name: "index_users_on_city"
     t.index ["latitude", "longitude"], name: "index_users_on_latitude_and_longitude"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true

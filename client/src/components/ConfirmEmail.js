@@ -5,7 +5,7 @@ import { Modal } from "antd";
 import colors from "../styles/Colors";
 import { Heading1, MutedText } from "../styles/Typography";
 import { UserContext } from "../context/user";
-import { Mail } from "lucide-react";
+import { Mail, Shield } from "lucide-react";
 
 const PageContainer = styled.div`
   background: ${colors.background};
@@ -217,11 +217,67 @@ const TertiaryButton = styled.button`
   }
 `;
 
+const CodeInputContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 2rem 0;
+`;
+
+const CodeInput = styled.input`
+  width: 3rem;
+  height: 3rem;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: 2px solid rgba(157, 96, 248, 0.3);
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: ${colors.textPrimary};
+  transition: all 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: #cc31e8;
+    box-shadow: 0 0 0 3px rgba(204, 49, 232, 0.1);
+  }
+
+  &:invalid {
+    border-color: #ef4444;
+  }
+`;
+
+const ErrorMessage = styled.div`
+  color: #ef4444;
+  font-size: 0.875rem;
+  text-align: center;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 0.5rem;
+`;
+
+const SuccessMessage = styled.div`
+  color: #10b981;
+  font-size: 0.875rem;
+  text-align: center;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 0.5rem;
+`;
+
 const ConfirmEmail = () => {
   const { user, loading, setUser } = useContext(UserContext);
   const navigate = useNavigate();
-  const [isSending, setIsSending] = useState(true);
+  const [isSending, setIsSending] = useState(false);
   const [timer, setTimer] = useState(60);
+  const [code, setCode] = useState(['', '', '', '', '', '']);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
   useEffect(() => {
@@ -248,10 +304,69 @@ const ConfirmEmail = () => {
     return () => clearInterval(interval);
   }, [isSending]);
 
+  const handleCodeChange = (index, value) => {
+    if (value.length > 1) return; // Only allow single digits
+    if (!/^\d*$/.test(value)) return; // Only allow numbers
+    
+    const newCode = [...code];
+    newCode[index] = value;
+    setCode(newCode);
+    setError('');
+
+    // Auto-focus next input
+    if (value && index < 5) {
+      const nextInput = document.getElementById(`code-${index + 1}`);
+      if (nextInput) nextInput.focus();
+    }
+
+    // Auto-submit when all 6 digits are entered
+    if (newCode.every(digit => digit !== '') && newCode.join('').length === 6) {
+      handleVerifyCode(newCode.join(''));
+    }
+  };
+
+  const handleKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !code[index] && index > 0) {
+      const prevInput = document.getElementById(`code-${index - 1}`);
+      if (prevInput) prevInput.focus();
+    }
+  };
+
+  const handleVerifyCode = async (codeString) => {
+    setIsVerifying(true);
+    setError('');
+
+    try {
+      const response = await fetch(`${API_URL}/verify_code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ code: codeString }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccess('Email verified successfully!');
+        setUser({ ...user, confirmed_at: new Date().toISOString() });
+        setTimeout(() => navigate("/"), 1500);
+      } else {
+        setError(data.error || "Invalid verification code");
+        setCode(['', '', '', '', '', '']); // Clear code on error
+      }
+    } catch (err) {
+      setError("An error occurred. Please try again.");
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
   const handleResend = () => {
     if (isSending) return;
     setIsSending(true);
     setTimer(60);
+    setError('');
+    setSuccess('');
 
     fetch(`${API_URL}/resend_verification`, {
       method: "POST",
@@ -259,8 +374,14 @@ const ConfirmEmail = () => {
       body: JSON.stringify({ email: user.email }),
     })
       .then(res => res.json())
-      .then(data => alert(data.message || "Failed to resend verification email."))
-      .catch(() => alert("An error occurred. Please try again."));
+      .then(data => {
+        if (data.message) {
+          setSuccess(data.message);
+        } else {
+          setError("Failed to resend verification code.");
+        }
+      })
+      .catch(() => setError("An error occurred. Please try again."));
   };
 
   const handleLogout = () => {
@@ -286,17 +407,37 @@ const ConfirmEmail = () => {
     <PageContainer>
       <FormContainer>
         <IconWrapper>
-          <Mail size={32} color="white" />
+          <Shield size={32} color="white" />
         </IconWrapper>
-        <Title>Check your email</Title>
-        <Message>We've sent you a verification link to your email address.</Message>
-        <Message>Didn't receive the email?</Message>
+        <Title>Enter verification code</Title>
+        <Message>We've sent a 6-digit code to your email address.</Message>
+        <Message>Enter the code below to verify your account:</Message>
+
+        <CodeInputContainer>
+          {code.map((digit, index) => (
+            <CodeInput
+              key={index}
+              id={`code-${index}`}
+              type="text"
+              inputMode="numeric"
+              maxLength="1"
+              value={digit}
+              onChange={(e) => handleCodeChange(index, e.target.value)}
+              onKeyDown={(e) => handleKeyDown(index, e)}
+              disabled={isVerifying}
+              autoFocus={index === 0}
+            />
+          ))}
+        </CodeInputContainer>
+
+        {error && <ErrorMessage>{error}</ErrorMessage>}
+        {success && <SuccessMessage>{success}</SuccessMessage>}
 
         <ButtonGroup>
-          <PrimaryButton onClick={handleResend} disabled={isSending}>
-            {isSending ? `Wait ${timer}s` : "Resend verification"}
+          <PrimaryButton onClick={handleResend} disabled={isSending || isVerifying}>
+            {isSending ? `Wait ${timer}s` : "Resend code"}
           </PrimaryButton>
-          <TertiaryButton onClick={handleLogout}>
+          <TertiaryButton onClick={handleLogout} disabled={isVerifying}>
             Log out
           </TertiaryButton>
         </ButtonGroup>

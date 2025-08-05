@@ -1,9 +1,9 @@
 class PlacesController < ApplicationController
   skip_before_action :authorized, only: [ :photo, :search, :details ]
-  
-  require 'net/http'
-  require 'uri'
-  require 'json'
+
+  require "net/http"
+  require "uri"
+  require "json"
 
   # Proxy endpoint for Google Places photos to keep API key secure
   def photo
@@ -48,7 +48,7 @@ class PlacesController < ApplicationController
   # GET /places/search?query=Brooklyn
   def search
     query = params[:query]
-    
+
     if query.blank? || query.length < 2
       render json: { results: [] }, status: :ok
       return
@@ -59,16 +59,16 @@ class PlacesController < ApplicationController
       render json: { results: results }, status: :ok
     rescue StandardError => e
       Rails.logger.error "Google Places search error: #{e.message}"
-      render json: { error: 'Location search failed' }, status: :internal_server_error
+      render json: { error: "Location search failed" }, status: :internal_server_error
     end
   end
 
   # GET /places/details?place_id=ChIJ...
   def details
     place_id = params[:place_id]
-    
+
     if place_id.blank?
-      render json: { error: 'Place ID is required' }, status: :bad_request
+      render json: { error: "Place ID is required" }, status: :bad_request
       return
     end
 
@@ -77,21 +77,21 @@ class PlacesController < ApplicationController
       render json: { details: details }, status: :ok
     rescue StandardError => e
       Rails.logger.error "Google Places details error: #{e.message}"
-      render json: { error: 'Place details fetch failed' }, status: :internal_server_error
+      render json: { error: "Place details fetch failed" }, status: :internal_server_error
     end
   end
 
   private
 
-  def google_places_search(query, types = '(cities)')
-    api_key = ENV['PLACES_KEY']
+  def google_places_search(query, types = "(cities)")
+    api_key = ENV["PLACES_KEY"]
     return [] if api_key.blank?
 
-    uri = URI('https://maps.googleapis.com/maps/api/place/autocomplete/json')
+    uri = URI("https://maps.googleapis.com/maps/api/place/autocomplete/json")
     params = {
       input: query,
       types: types,
-      language: 'en',
+      language: "en",
       key: api_key
     }
     uri.query = URI.encode_www_form(params)
@@ -99,18 +99,18 @@ class PlacesController < ApplicationController
     Rails.logger.info "Places API search request: query=#{query}"
 
     response = Net::HTTP.get_response(uri)
-    
-    if response.code == '200'
+
+    if response.code == "200"
       data = JSON.parse(response.body)
-      
-      if data['status'] == 'OK'
+
+      if data["status"] == "OK"
         # Transform the results to match our mobile app expectations
-        data['predictions'].map do |prediction|
+        data["predictions"].map do |prediction|
           {
-            place_id: prediction['place_id'],
-            description: prediction['description'],
-            structured_formatting: prediction['structured_formatting'],
-            types: prediction['types']
+            place_id: prediction["place_id"],
+            description: prediction["description"],
+            structured_formatting: prediction["structured_formatting"],
+            types: prediction["types"]
           }
         end
       else
@@ -123,11 +123,11 @@ class PlacesController < ApplicationController
     end
   end
 
-  def google_places_details(place_id, fields = 'geometry,address_components,formatted_address')
-    api_key = ENV['PLACES_KEY']
+  def google_places_details(place_id, fields = "geometry,address_components,formatted_address")
+    api_key = ENV["PLACES_KEY"]
     return nil if api_key.blank?
 
-    uri = URI('https://maps.googleapis.com/maps/api/place/details/json')
+    uri = URI("https://maps.googleapis.com/maps/api/place/details/json")
     params = {
       place_id: place_id,
       fields: fields,
@@ -138,12 +138,12 @@ class PlacesController < ApplicationController
     Rails.logger.info "Places API details request: place_id=#{place_id}"
 
     response = Net::HTTP.get_response(uri)
-    
-    if response.code == '200'
+
+    if response.code == "200"
       data = JSON.parse(response.body)
-      
-      if data['status'] == 'OK'
-        data['result']
+
+      if data["status"] == "OK"
+        data["result"]
       else
         Rails.logger.error "Google Places Details API error: #{data['status']} - #{data['error_message']}"
         nil

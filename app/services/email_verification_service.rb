@@ -2,13 +2,6 @@ class EmailVerificationService < BaseEmailService
   def self.send_verification_email(user)
     Rails.logger.info "Sending verification email to: #{user.email}"
 
-    verification_link = URI::HTTP.build(
-      host: Rails.application.config.action_mailer.default_url_options[:host],
-      port: Rails.application.config.action_mailer.default_url_options[:port],
-      path: "/verify",
-      query: "token=#{user.confirmation_token}"
-    ).to_s + "#/verify"
-
     subject = "Verify your email - Welcome to Voxxy"
 
     content = <<~HTML
@@ -17,17 +10,28 @@ class EmailVerificationService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Welcome to Voxxy! To get started, please verify your email address by clicking the button below:
+        Welcome to Voxxy! To get started, please verify your email address by entering this code in the app:
       </p>
 
-      <div style="text-align: center; margin: 30px 0;">
-        <a href="#{verification_link}" style="#{BASE_STYLES[:button]}">
-          Verify Email Address
-        </a>
+      <div style="text-align: center; margin: 40px 0;">
+        <div style="
+          display: inline-block;
+          font-size: 32px;
+          font-weight: bold;
+          letter-spacing: 8px;
+          color: #cc31e8;
+          background: #f8f9fa;
+          padding: 20px 30px;
+          border-radius: 12px;
+          border: 2px solid #cc31e8;
+          font-family: 'Courier New', monospace;
+        ">
+          #{user.confirmation_code}
+        </div>
       </div>
 
       <p style="#{BASE_STYLES[:text]}">
-        This link will expire in 24 hours for security reasons.
+        This code will expire in 24 hours for security reasons.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
