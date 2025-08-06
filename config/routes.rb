@@ -82,10 +82,20 @@ Rails.application.routes.draw do
   get "/activities/:activity_id/respond/:token", to: "guest_responses#show"
   post "/activities/:activity_id/respond/:token", to: "guest_responses#create"
 
+  # Notification Routes
+  resources :notifications, only: [:index, :show, :create, :destroy] do
+    member do
+      put :mark_as_read, to: "notifications#mark_as_read"
+    end
+    collection do
+      put :mark_all_as_read, to: "notifications#mark_all_as_read"
+    end
+  end
+
   # Push Notification Routes
   post "/users/:id/update_push_token", to: "users#update_push_token"
   post "/test_notification", to: "notifications#test"
-  post "/send_test_to_self", to: "notifications#send_test_to_self"  # Add this new route
+  post "/send_test_to_self", to: "notifications#send_test_to_self"
 
   get "/photos/:photo_reference", to: "photos#show",
       constraints: { photo_reference: /[^\/]+/ },

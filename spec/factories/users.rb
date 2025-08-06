@@ -8,7 +8,8 @@ FactoryBot.define do
 
     trait :unconfirmed do
       confirmed_at { nil }
-      confirmation_token { SecureRandom.hex(10) }
+      confirmation_code { rand(100000..999999).to_s }
+      confirmation_sent_at { Time.current }
     end
 
     trait :admin do

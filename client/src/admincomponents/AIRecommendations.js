@@ -7,7 +7,7 @@ import GameNightPreferenceChat from "../gamenight/GameNightPreferenceChat"; // A
 import LoadingScreenUser from "./LoadingScreenUser.js";
 import mixpanel from "mixpanel-browser";
 import { UserContext } from "../context/user";
-import { Users, Share, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, X, ExternalLink, MapPin, DollarSign, Globe, Zap, Calendar, Star } from 'lucide-react';
+import { Users, Share, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, X, ExternalLink, MapPin, DollarSign, Globe, Zap, Calendar, Star, Heart, ChevronRight } from 'lucide-react';
 
 import {
   Container,
@@ -46,16 +46,6 @@ import {
   TimeOverlapItem,
   TimeText,
   AvailabilityBadge,
-  RecommendationsList,
-  ListItem,
-  SelectedBadge,
-  ContentWrapper,
-  ListTop,
-  ListName,
-  ListMeta,
-  ListBottom,
-  LikeButton,
-  VoteCount,
   DimOverlay,
   ModalOverlay,
   ModalContainer,
@@ -95,21 +85,6 @@ import {
 } from '../styles/ActivityStyles';
 
 // Helper functions
-const renderItemDetails = (selectedRec, isGameNightActivity) => (
-  <div style={{ textAlign: 'left' }}>
-    {isGameNightActivity ? (
-      <>
-        <div>{selectedRec.hours || "N/A"}</div>
-        <div>{selectedRec.address || "N/A"}</div>
-      </>
-    ) : (
-      <>
-        <div>{selectedRec.hours || "N/A"}</div>
-        <div>{selectedRec.address || "N/A"}</div>
-      </>
-    )}
-  </div>
-);
 
 const renderDetailGrid = (selectedRec, isGameNightActivity) => (
   <DetailGrid>
@@ -207,6 +182,321 @@ const analyzeAvailability = (responses) => {
 
   return { availabilityData, participantCount };
 };
+
+// Modern Card-Based Styles for Desktop
+const RecommendationsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  margin: 2rem 0;
+  
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const RecommendationCard = styled.div`
+  background: linear-gradient(135deg, #3A2D44 0%, #2C1E33 100%);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 400px;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  &:hover::before {
+    opacity: 1;
+  }
+`;
+
+const CardHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+`;
+
+const CardTitle = styled.h3`
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+  flex: 1;
+  line-height: 1.3;
+`;
+
+const CardBadge = styled.span`
+  background: rgba(212, 175, 55, 0.2);
+  color: #D4AF37;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-left: 12px;
+`;
+
+const CardMeta = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+`;
+
+const CardMetaItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  
+  svg {
+    color: #667eea;
+    flex-shrink: 0;
+  }
+`;
+
+const CardDescription = styled.p`
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  flex-grow: 1;
+`;
+
+const CardReason = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 16px;
+`;
+
+const CardReasonTitle = styled.h4`
+  color: #667eea;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const CardReasonText = styled.p`
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+`;
+
+const CardFooter = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const CardActions = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const CardActionButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &.like {
+    border-color: ${props => props.$liked ? '#28a745' : 'rgba(255, 255, 255, 0.2)'};
+    color: ${props => props.$liked ? '#28a745' : 'rgba(255, 255, 255, 0.6)'};
+    background: ${props => props.$liked ? 'rgba(40, 167, 69, 0.2)' : 'transparent'};
+    
+    &:hover {
+      border-color: #28a745;
+      color: #28a745;
+      background: rgba(40, 167, 69, 0.2);
+      transform: scale(1.1);
+    }
+  }
+  
+  &.flag {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.6);
+    
+    &:hover {
+      border-color: #ffc107;
+      color: #ffc107;
+      background: rgba(255, 193, 7, 0.2);
+      transform: scale(1.1);
+    }
+  }
+  
+  &.favorite {
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+`;
+
+const VoteDisplay = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  
+  svg {
+    color: #e74c3c;
+  }
+`;
+
+const ViewDetailsButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  color: #667eea;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(102, 126, 234, 0.2);
+    transform: translateY(-1px);
+  }
+`;
+
+const SelectedBadge = styled.div`
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #28a745;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+`;
+
+const ResultsSummary = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 2rem 0;
+`;
+
+const ResultsTitle = styled.h3`
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const ResultsList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const ResultItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateX(4px);
+  }
+`;
+
+const ResultItemName = styled.span`
+  color: #fff;
+  font-weight: 500;
+  flex: 1;
+`;
+
+const ResultItemBadge = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  
+  &.liked {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+  }
+  
+  &.favorite {
+    background: rgba(212, 175, 55, 0.2);
+    color: #D4AF37;
+  }
+`;
 
 const EnhancedPhaseIndicator = styled.div`
   display: flex;
@@ -411,9 +701,37 @@ export default function AIRecommendations({
   const [selectedRec, setSelectedRec] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showMoveToVotingModal, setShowMoveToVotingModal] = useState(false);
+  
+  // Add state management for recommendations tracking like mobile
+  const [likedRecommendations, setLikedRecommendations] = useState([]);
+  const [flaggedRecommendations, setFlaggedRecommendations] = useState([]);
+  const [favoriteRecommendations, setFavoriteRecommendations] = useState([]);
 
   const { id, responses, activity_location, date_notes, collecting, voting, finalized, selected_pinned_activity_id } = activity;
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+  
+  // Helper function to handle API calls with error handling
+  const safeApiCall = async (url, options = {}) => {
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        credentials: 'include',
+        ...options,
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('API call failed:', error);
+      throw error;
+    }
+  };
 
   // Determine activity type for dynamic text and API calls
   const activityType = activity.activity_type || 'Restaurant';
@@ -636,7 +954,7 @@ export default function AIRecommendations({
     setRefreshTrigger(f => !f);
   };
 
-  const handleLike = (pin) => {
+  const handleLike = async (pin) => {
     if (!user) return;
 
     if (process.env.NODE_ENV === "production") {
@@ -646,24 +964,123 @@ export default function AIRecommendations({
     const hasLiked = (pin.voters || []).some(v => v.id === user.id);
     const vote = hasLiked ? (pin.votes || []).find(v => v.user_id === user.id) : null;
 
-    if (hasLiked && vote) {
-      fetch(`${API_URL}/pinned_activities/${pin.id}/votes/${vote.id}`, {
-        method: "DELETE",
-        credentials: "include",
-      })
-        .then((r) => r.json())
-        .then((data) => {
-          if (data.success) updatePinnedActivityVotes(pin.id, data);
+    try {
+      let data;
+      if (hasLiked && vote) {
+        data = await safeApiCall(`${API_URL}/pinned_activities/${pin.id}/votes/${vote.id}`, {
+          method: "DELETE",
         });
-    } else if (!hasLiked) {
-      fetch(`${API_URL}/pinned_activities/${pin.id}/votes`, {
-        method: "POST",
-        credentials: "include",
-      })
-        .then((r) => r.json())
-        .then((data) => {
-          if (data.success) updatePinnedActivityVotes(pin.id, data);
+        // Remove from liked recommendations
+        setLikedRecommendations(prev => prev.filter(rec => rec.id !== pin.id));
+      } else if (!hasLiked) {
+        data = await safeApiCall(`${API_URL}/pinned_activities/${pin.id}/votes`, {
+          method: "POST",
         });
+        // Add to liked recommendations
+        setLikedRecommendations(prev => {
+          if (!prev.some(rec => rec.id === pin.id)) {
+            return [...prev, pin];
+          }
+          return prev;
+        });
+      }
+      
+      if (data.success) updatePinnedActivityVotes(pin.id, data);
+    } catch (error) {
+      setError('Failed to update vote. Please try again.');
+    }
+  };
+  
+  const handleFlag = async (pin) => {
+    if (!user) return;
+    
+    try {
+      await safeApiCall(`${API_URL}/pinned_activities/${pin.id}/toggle_flag`, {
+        method: 'POST',
+      });
+      
+      // Add to flagged recommendations
+      setFlaggedRecommendations(prev => {
+        if (!prev.some(rec => rec.id === pin.id)) {
+          return [...prev, pin];
+        }
+        return prev;
+      });
+      
+      // Remove from liked if it was liked
+      setLikedRecommendations(prev => prev.filter(rec => rec.id !== pin.id));
+      
+      alert('Recommendation flagged successfully.');
+      
+    } catch (error) {
+      console.error('Error flagging recommendation:', error);
+      setError('Failed to flag recommendation. Please try again.');
+    }
+  };
+  
+  const handleFavorite = async (pin) => {
+    if (!user) return;
+    
+    try {
+      await safeApiCall(`${API_URL}/pinned_activities/${pin.id}/toggle_favorite`, {
+        method: 'POST',
+      });
+      
+      const isFavorite = favoriteRecommendations.some(rec => rec.id === pin.id);
+      
+      if (isFavorite) {
+        // Remove from favorites
+        setFavoriteRecommendations(prev => prev.filter(rec => rec.id !== pin.id));
+      } else {
+        // Add to favorites and automatically like it
+        setFavoriteRecommendations(prev => {
+          if (!prev.some(rec => rec.id === pin.id)) {
+            return [...prev, { ...pin, isFavorite: true }];
+          }
+          return prev;
+        });
+        
+        // Automatically like when favoriting (like mobile)
+        const hasLiked = (pin.voters || []).some(v => v.id === user.id);
+        if (!hasLiked) {
+          handleLike(pin);
+        }
+      }
+      
+    } catch (error) {
+      console.error('Error favoriting recommendation:', error);
+      setError('Failed to favorite recommendation. Please try again.');
+    }
+  };
+  
+  const handleCompleteActivity = async () => {
+    if (favoriteRecommendations.length === 0) {
+      alert('Please mark at least one recommendation as a favorite before completing.');
+      return;
+    }
+    
+    const confirmComplete = window.confirm(
+      `Save ${favoriteRecommendations.length} favorite${favoriteRecommendations.length !== 1 ? 's' : ''} and mark this activity as completed?`
+    );
+    
+    if (!confirmComplete) return;
+    
+    try {
+      // Mark activity as completed
+      await safeApiCall(`${API_URL}/activities/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          completed: true,
+          voting: false
+        }),
+      });
+      
+      alert('Activity completed successfully! Your favorites have been saved.');
+      setRefreshTrigger(f => !f);
+      
+    } catch (error) {
+      console.error('Error completing activity:', error);
+      setError('Failed to complete activity. Please try again.');
     }
   };
 
@@ -701,10 +1118,9 @@ export default function AIRecommendations({
           <PhaseIndicatorContent>
             <PhaseIcon><HelpCircle size={24} /></PhaseIcon>
             <PhaseContent>
-              <PhaseTitle>Group Status</PhaseTitle>
+              <PhaseTitle>Collecting Preferences</PhaseTitle>
               <PhaseSubtitle>
-                {responses.length}/{totalParticipants} participants have submitted
-                {activity.allow_participant_time_selection && " preferences & availability"}
+                {responses.length}/{totalParticipants} submitted
               </PhaseSubtitle>
             </PhaseContent>
           </PhaseIndicatorContent>
@@ -712,7 +1128,7 @@ export default function AIRecommendations({
           {isOwner && (
             <PhaseActionButton onClick={() => setShowMoveToVotingModal(true)}>
               <Vote size={20} />
-              Move to Voting Phase
+              Generate Recommendations
             </PhaseActionButton>
           )}
         </EnhancedPhaseIndicator>
@@ -847,17 +1263,33 @@ export default function AIRecommendations({
           <PhaseIndicatorContent>
             <PhaseIcon><Vote size={24} /></PhaseIcon>
             <PhaseContent>
-              <PhaseTitle>Voting Phase</PhaseTitle>
-              <PhaseSubtitle>{participantsWithVotes.size}/{totalParticipants} participants have voted. After everyone has voted, your organizer can finalize the activity plans. ✨</PhaseSubtitle>
+              <PhaseTitle>Vote on Recommendations</PhaseTitle>
+              <PhaseSubtitle>
+                {favoriteRecommendations.length > 0 
+                  ? `${favoriteRecommendations.length} favorite${favoriteRecommendations.length !== 1 ? 's' : ''} selected` 
+                  : 'Like and favorite recommendations to complete'
+                }
+              </PhaseSubtitle>
             </PhaseContent>
           </PhaseIndicatorContent>
 
-          {isOwner && (
-            <PhaseActionButton onClick={onEdit}>
-              <Flag size={20} />
-              Finalize Activity
-            </PhaseActionButton>
-          )}
+          <div style={{ display: 'flex', gap: '12px' }}>
+            {user && favoriteRecommendations.length > 0 && (
+              <PhaseActionButton 
+                onClick={handleCompleteActivity}
+                style={{ background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)' }}
+              >
+                <CheckCircle size={20} />
+                Complete Activity
+              </PhaseActionButton>
+            )}
+            {isOwner && (
+              <PhaseActionButton onClick={onEdit}>
+                <Flag size={20} />
+                Finalize for Group
+              </PhaseActionButton>
+            )}
+          </div>
         </EnhancedPhaseIndicator>
 
         <ProgressBarContainer>
@@ -866,38 +1298,148 @@ export default function AIRecommendations({
 
         {error && <ErrorText>{error}</ErrorText>}
 
-        <RecommendationsList>
+        <RecommendationsGrid>
           {[...pinnedActivities]
             .sort((a, b) => (b.votes?.length || 0) - (a.votes?.length || 0))
             .map((p) => (
-              <ListItem key={p.id}>
-                <ContentWrapper onClick={() => openDetail(p)}>
-                  <ListTop>
-                    <ListName>{p.title}</ListName>
-                    <ListMeta>{p.price_range || "N/A"}</ListMeta>
-                  </ListTop>
-                  <ListBottom>
-                    {renderItemDetails(p, isGameNightActivity)}
-                    <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                      {user && (
-                        <LikeButton
-                          onClick={e => { e.stopPropagation(); handleLike(p); }}
+              <RecommendationCard key={p.id} onClick={() => openDetail(p)}>
+                <CardHeader>
+                  <CardTitle>{p.title}</CardTitle>
+                  <CardBadge>{p.price_range || "$"}</CardBadge>
+                </CardHeader>
+                
+                <CardMeta>
+                  {isGameNightActivity ? (
+                    <>
+                      <CardMetaItem>
+                        <Users size={16} />
+                        <span>Players: {p.address || "N/A"}</span>
+                      </CardMetaItem>
+                      <CardMetaItem>
+                        <Clock size={16} />
+                        <span>Play Time: {p.hours || "N/A"}</span>
+                      </CardMetaItem>
+                    </>
+                  ) : (
+                    <>
+                      <CardMetaItem>
+                        <Clock size={16} />
+                        <span>{p.hours || "Hours not available"}</span>
+                      </CardMetaItem>
+                      <CardMetaItem>
+                        <MapPin size={16} />
+                        <span>{p.address || "Address not available"}</span>
+                      </CardMetaItem>
+                    </>
+                  )}
+                </CardMeta>
+                
+                {p.description && (
+                  <CardDescription>{p.description}</CardDescription>
+                )}
+                
+                {p.reason && (
+                  <CardReason>
+                    <CardReasonTitle>
+                      <Zap size={14} />
+                      Why this choice?
+                    </CardReasonTitle>
+                    <CardReasonText>{p.reason}</CardReasonText>
+                  </CardReason>
+                )}
+                
+                <CardFooter>
+                  <ViewDetailsButton onClick={(e) => { e.stopPropagation(); openDetail(p); }}>
+                    View Details
+                    <ChevronRight size={14} />
+                  </ViewDetailsButton>
+                  
+                  <CardActions>
+                    {user && (
+                      <>
+                        <CardActionButton
+                          className="like"
+                          onClick={(e) => { e.stopPropagation(); handleLike(p); }}
                           $liked={(p.voters || []).some(v => v.id === user.id)}
                         >
-                          {(p.voters || []).some(v => v.id === user.id) ? "❤️" : "🤍"} {(p.votes || []).length}
-                        </LikeButton>
-                      )}
-                      {!user && (
-                        <VoteCount>
-                          ❤️ {(p.votes || []).length}
-                        </VoteCount>
-                      )}
-                    </div>
-                  </ListBottom>
-                </ContentWrapper>
-              </ListItem>
+                          <Heart size={18} fill={(p.voters || []).some(v => v.id === user.id) ? "currentColor" : "none"} />
+                        </CardActionButton>
+                        <CardActionButton
+                          className="favorite"
+                          onClick={(e) => { e.stopPropagation(); handleFavorite(p); }}
+                          $favorited={favoriteRecommendations.some(rec => rec.id === p.id)}
+                          style={{ 
+                            borderColor: favoriteRecommendations.some(rec => rec.id === p.id) ? '#D4AF37' : 'rgba(255, 255, 255, 0.2)',
+                            color: favoriteRecommendations.some(rec => rec.id === p.id) ? '#D4AF37' : 'rgba(255, 255, 255, 0.6)',
+                            background: favoriteRecommendations.some(rec => rec.id === p.id) ? 'rgba(212, 175, 55, 0.2)' : 'transparent'
+                          }}
+                        >
+                          <Star size={18} fill={favoriteRecommendations.some(rec => rec.id === p.id) ? "currentColor" : "none"} />
+                        </CardActionButton>
+                        <CardActionButton
+                          className="flag"
+                          onClick={(e) => { e.stopPropagation(); handleFlag(p); }}
+                        >
+                          <Flag size={18} />
+                        </CardActionButton>
+                      </>
+                    )}
+                  </CardActions>
+                  
+                  <VoteDisplay>
+                    <Heart size={14} />
+                    {(p.votes || []).length} votes
+                  </VoteDisplay>
+                </CardFooter>
+              </RecommendationCard>
             ))}
-        </RecommendationsList>
+        </RecommendationsGrid>
+        
+        {/* Show user's selections summary */}
+        {user && (likedRecommendations.length > 0 || favoriteRecommendations.length > 0) && (
+          <ResultsSummary>
+            <ResultsTitle>
+              <CheckCircle size={20} />
+              Your Selections
+            </ResultsTitle>
+            
+            {favoriteRecommendations.length > 0 && (
+              <div style={{ marginBottom: '16px' }}>
+                <h4 style={{ color: '#D4AF37', margin: '0 0 8px 0', fontSize: '0.95rem' }}>❤️ Favorites ({favoriteRecommendations.length})</h4>
+                <ResultsList>
+                  {favoriteRecommendations.map((rec) => (
+                    <ResultItem key={`fav-${rec.id}`} onClick={() => openDetail(rec)}>
+                      <ResultItemName>{rec.title}</ResultItemName>
+                      <ResultItemBadge className="favorite">
+                        <Star size={12} />
+                        Favorite
+                      </ResultItemBadge>
+                    </ResultItem>
+                  ))}
+                </ResultsList>
+              </div>
+            )}
+            
+            {likedRecommendations.filter(rec => !favoriteRecommendations.some(fav => fav.id === rec.id)).length > 0 && (
+              <div>
+                <h4 style={{ color: '#28a745', margin: '0 0 8px 0', fontSize: '0.95rem' }}>👍 Liked ({likedRecommendations.filter(rec => !favoriteRecommendations.some(fav => fav.id === rec.id)).length})</h4>
+                <ResultsList>
+                  {likedRecommendations
+                    .filter(rec => !favoriteRecommendations.some(fav => fav.id === rec.id))
+                    .map((rec) => (
+                    <ResultItem key={`liked-${rec.id}`} onClick={() => openDetail(rec)}>
+                      <ResultItemName>{rec.title}</ResultItemName>
+                      <ResultItemBadge className="liked">
+                        <Heart size={12} />
+                        Liked
+                      </ResultItemBadge>
+                    </ResultItem>
+                  ))}
+                </ResultsList>
+              </div>
+            )}
+          </ResultsSummary>
+        )}
 
         {showDetailModal && selectedRec && (
           <ModalOverlay onClick={closeDetail}>
@@ -1023,37 +1565,86 @@ export default function AIRecommendations({
 
         {error && <ErrorText>{error}</ErrorText>}
 
-        <RecommendationsList>
+        <RecommendationsGrid>
           {[...pinnedActivities]
             .sort((a, b) => (b.votes?.length || 0) - (a.votes?.length || 0))
             .map((p) => {
               const isSelected = p.id === selected_pinned_activity_id;
               return (
-                <ListItem key={p.id} $selected={isSelected}>
+                <RecommendationCard 
+                  key={p.id} 
+                  onClick={() => openDetail(p)}
+                  style={{ 
+                    border: isSelected ? '2px solid #28a745' : 'none',
+                    position: 'relative'
+                  }}
+                >
                   {isSelected && (
                     <SelectedBadge>
-                      <CheckCircle size={16} />
-                      <span>SELECTED</span>
+                      <CheckCircle size={14} />
+                      SELECTED
                     </SelectedBadge>
                   )}
-                  <ContentWrapper onClick={() => openDetail(p)}>
-                    <ListTop>
-                      <ListName>{p.title}</ListName>
-                      <ListMeta>{p.price_range || "N/A"}</ListMeta>
-                    </ListTop>
-                    <ListBottom>
-                      {renderItemDetails(p, isGameNightActivity)}
-                      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                        <VoteCount>
-                          ❤️ {(p.votes || []).length}
-                        </VoteCount>
-                      </div>
-                    </ListBottom>
-                  </ContentWrapper>
-                </ListItem>
+                  <CardHeader>
+                    <CardTitle>{p.title}</CardTitle>
+                    <CardBadge>{p.price_range || "$"}</CardBadge>
+                  </CardHeader>
+                  
+                  <CardMeta>
+                    {isGameNightActivity ? (
+                      <>
+                        <CardMetaItem>
+                          <Users size={16} />
+                          <span>Players: {p.address || "N/A"}</span>
+                        </CardMetaItem>
+                        <CardMetaItem>
+                          <Clock size={16} />
+                          <span>Play Time: {p.hours || "N/A"}</span>
+                        </CardMetaItem>
+                      </>
+                    ) : (
+                      <>
+                        <CardMetaItem>
+                          <Clock size={16} />
+                          <span>{p.hours || "Hours not available"}</span>
+                        </CardMetaItem>
+                        <CardMetaItem>
+                          <MapPin size={16} />
+                          <span>{p.address || "Address not available"}</span>
+                        </CardMetaItem>
+                      </>
+                    )}
+                  </CardMeta>
+                  
+                  {p.description && (
+                    <CardDescription>{p.description}</CardDescription>
+                  )}
+                  
+                  {p.reason && (
+                    <CardReason>
+                      <CardReasonTitle>
+                        <Zap size={14} />
+                        Why this choice?
+                      </CardReasonTitle>
+                      <CardReasonText>{p.reason}</CardReasonText>
+                    </CardReason>
+                  )}
+                  
+                  <CardFooter>
+                    <ViewDetailsButton onClick={(e) => { e.stopPropagation(); openDetail(p); }}>
+                      View Details
+                      <ChevronRight size={14} />
+                    </ViewDetailsButton>
+                    
+                    <VoteDisplay>
+                      <Heart size={14} />
+                      {(p.votes || []).length} votes
+                    </VoteDisplay>
+                  </CardFooter>
+                </RecommendationCard>
               );
             })}
-        </RecommendationsList>
+        </RecommendationsGrid>
 
         {showDetailModal && selectedRec && (
           <ModalOverlay onClick={closeDetail}>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_05_132244) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_06_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -117,6 +117,25 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_05_132244) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_feedbacks_on_email"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "title", null: false
+    t.text "body", null: false
+    t.string "notification_type", null: false
+    t.boolean "read", default: false, null: false
+    t.json "data"
+    t.bigint "activity_id"
+    t.bigint "triggering_user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["activity_id"], name: "index_notifications_on_activity_id"
+    t.index ["notification_type"], name: "index_notifications_on_notification_type"
+    t.index ["triggering_user_id"], name: "index_notifications_on_triggering_user_id"
+    t.index ["user_id", "created_at"], name: "index_notifications_on_user_id_and_created_at"
+    t.index ["user_id", "read"], name: "index_notifications_on_user_id_and_read"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
   create_table "pinned_activities", force: :cascade do |t|
@@ -250,6 +269,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_05_132244) do
   add_foreign_key "activity_participants", "users"
   add_foreign_key "comments", "pinned_activities"
   add_foreign_key "comments", "users"
+  add_foreign_key "notifications", "activities"
+  add_foreign_key "notifications", "users"
+  add_foreign_key "notifications", "users", column: "triggering_user_id"
   add_foreign_key "pinned_activities", "activities"
   add_foreign_key "responses", "activities"
   add_foreign_key "responses", "users", on_delete: :cascade

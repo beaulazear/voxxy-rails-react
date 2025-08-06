@@ -9,6 +9,8 @@ class Activity < ApplicationRecord
 
     after_update :schedule_reminders, if: :saved_change_to_finalized?
     after_update :reschedule_reminders, if: :saved_change_to_date_time?
+    after_update :send_activity_finalized_notifications, if: :saved_change_to_finalized?
+    after_update :send_activity_updated_notifications, if: :activity_updated?
 
     validates :activity_name, :activity_type, :date_notes, presence: true
     validate :date_day_must_be_in_future, if: -> { date_day.present? }
@@ -78,5 +80,58 @@ class Activity < ApplicationRecord
     if date_day < Date.today
         errors.add(:date_day, "must be a future date")
     end
+  end
+
+  # Notification methods
+  def send_activity_finalized_notifications
+    return unless finalized?
+
+    # Get all participants (host + accepted participants)
+    all_users = [user] + participants.to_a
+    selected_place = pinned_activities.find_by(selected: true)
+    
+    all_users.each do |participant|
+      title = "Activity Finalized! ✅"
+      body = if selected_place
+        "#{activity_name} has been finalized at #{selected_place.title}"
+      else
+        "#{activity_name} has been finalized with all the details"
+      end
+
+      Notification.create_and_send!(
+        user: participant,
+        title: title,
+        body: body,
+        notification_type: 'activity_finalized',
+        activity: self,
+        triggering_user: user,
+        data: { activityId: id, selectedPlaceId: selected_place&.id }
+      )
+    end
+  end
+
+  def send_activity_updated_notifications
+    # Only send if significant fields changed (not internal state changes)
+    return unless activity_name_changed? || activity_location_changed? || date_day_changed? || date_time_changed?
+
+    # Get all participants except the person making the change (assuming it's the host)
+    participants.each do |participant|
+      title = "Activity Updated 📝"
+      body = "#{user.name} updated details for '#{activity_name}'"
+
+      Notification.create_and_send!(
+        user: participant,
+        title: title,
+        body: body,
+        notification_type: 'activity_update',
+        activity: self,
+        triggering_user: user,
+        data: { activityId: id }
+      )
+    end
+  end
+
+  def activity_updated?
+    activity_name_changed? || activity_location_changed? || date_day_changed? || date_time_changed?
   end
 end
