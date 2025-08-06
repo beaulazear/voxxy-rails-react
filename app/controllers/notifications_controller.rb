@@ -1,5 +1,5 @@
 class NotificationsController < ApplicationController
-  before_action :authorized!
+  before_action :authorized
   before_action :set_notification, only: [:show, :update, :destroy]
 
   # GET /notifications
