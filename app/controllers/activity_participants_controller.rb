@@ -36,8 +36,8 @@ class ActivityParticipantsController < ApplicationController
         InviteUserService.send_invitation(activity, invited_email, current_user)
 
         # Send push notification if the invited user has a mobile account
-        if user && user.can_receive_push_notifications?
-          PushNotificationService.send_activity_invite(activity, user)
+        if user
+          Notification.send_activity_invite(activity, user)
         end
 
         results << { email: invited_email, status: "invited" }
@@ -71,25 +71,28 @@ class ActivityParticipantsController < ApplicationController
     ActivityAcceptanceEmailService.send_acceptance_email(participant)
 
     activity = participant.activity
-    activity.comments.create!(
+
+    # Create comment but skip automatic notifications since we're sending our own
+    comment = activity.comments.build(
       user_id: user.id,
       content: "#{user.name} has joined the group 🎉"
     )
+    comment.skip_notifications = true
+    comment.save!
 
     # Send push notification to the activity host when someone accepts
-    if activity.user.can_receive_push_notifications?
-      PushNotificationService.send_notification(
-        activity.user,
-        "#{user.name} joined your activity! 🎉",
-        "#{user.name} accepted your invitation to #{activity.activity_name}",
-        {
-          type: "participant_joined",
-          activityId: activity.id.to_s,
-          participantName: user.name,
-          participantId: user.id.to_s
-        }
-      )
-    end
+    Notification.create_and_send!(
+      user: activity.user,
+      title: "#{user.name} joined your activity! 🎉",
+      body: "#{user.name} accepted your invitation to #{activity.activity_name}",
+      notification_type: "participant_joined",
+      activity: activity,
+      triggering_user: user,
+      data: {
+        participantName: user.name,
+        participantId: user.id.to_s
+      }
+    )
 
     activity = Activity.includes(
       :user, :participants, :activity_participants, :responses,
@@ -159,20 +162,24 @@ class ActivityParticipantsController < ApplicationController
     Response.where(activity_id: activity.id, user_id: current_user.id).destroy_all
     participant.destroy!
 
-    activity.comments.create!(
+    # Create comment but skip automatic notifications since we're sending our own
+    comment = activity.comments.build(
       user_id: current_user.id,
       content: "#{current_user.name} has left the group 😢"
     )
+    comment.skip_notifications = true
+    comment.save!
 
     # Send push notification to the activity host when someone leaves
-    if activity.user.can_receive_push_notifications? && activity.user_id != current_user.id
-      PushNotificationService.send_notification(
-        activity.user,
-        "#{current_user.name} left your activity 😢",
-        "#{current_user.name} has left #{activity.activity_name}",
-        {
-          type: "participant_left",
-          activityId: activity.id.to_s,
+    if activity.user_id != current_user.id
+      Notification.create_and_send!(
+        user: activity.user,
+        title: "#{current_user.name} left your activity 😢",
+        body: "#{current_user.name} has left #{activity.activity_name}",
+        notification_type: "participant_left",
+        activity: activity,
+        triggering_user: current_user,
+        data: {
           participantName: current_user.name,
           participantId: current_user.id.to_s
         }

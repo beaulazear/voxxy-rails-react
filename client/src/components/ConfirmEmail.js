@@ -5,7 +5,7 @@ import { Modal } from "antd";
 import colors from "../styles/Colors";
 import { Heading1, MutedText } from "../styles/Typography";
 import { UserContext } from "../context/user";
-import { Mail, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
 
 const PageContainer = styled.div`
   background: ${colors.background};

@@ -18,6 +18,7 @@ class ActivityFinalizationEmailService < BaseEmailService
     pinned = activity.pinned_activities.find_by(selected: true)
 
     recipient_emails.each do |email|
+      next unless can_send_email_to_address?(email)
       Rails.logger.info " → Sending to: #{email}"
 
       content = <<~HTML

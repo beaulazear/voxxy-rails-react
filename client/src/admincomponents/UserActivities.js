@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { User, Users, Calendar, Clock, Plus, Mail, Coffee, MapPin, Star } from 'lucide-react';
 import { UserContext } from '../context/user';
 import { useNavigate } from 'react-router-dom';
-import YourCommunity from './YourCommunity';
+// Removed unused YourCommunity import
 import {
   // Main containers
   Container,
@@ -67,8 +67,6 @@ import {
   InviteContent,
   InviteHeader,
   InviteLabel,
-  FunMessage,
-  AddParticipantButton,
 
   // Completed components
   CompletedContainer,
@@ -76,12 +74,7 @@ import {
   CompletedMessage,
 
   // Other
-  NoActivitiesMessage,
-
-  // Keyframes (imported for use in components)
-  progressFill,
-  progressShine,
-  progressPulse
+  NoActivitiesMessage
 } from '../styles/UserActivities';
 
 const ACTIVITY_CONFIG = {

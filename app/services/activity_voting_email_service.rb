@@ -6,6 +6,8 @@ class ActivityVotingEmailService < BaseEmailService
     recipient_emails.reject! { |email| email == activity.user&.email }
 
     recipient_emails.each do |email|
+      next unless can_send_email_to_address?(email)
+
       user = User.find_by("lower(email) = ?", email)
       if user
         send_existing_user_vote(user, activity)

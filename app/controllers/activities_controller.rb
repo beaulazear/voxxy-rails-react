@@ -72,14 +72,14 @@ class ActivitiesController < HtmlController
 
       # Send change notifications (only if not finalizing and there are actual changes)
       if should_notify_changes && changes_to_notify.any?
-        PushNotificationService.send_activity_change_notification(activity, changes_to_notify)
+        Notification.send_activity_change(activity, changes_to_notify)
       end
     end
 
     if should_email_finalized
       ActivityFinalizationEmailService.send_finalization_emails(activity)
       # Send push notifications to mobile users when activity is finalized
-      PushNotificationService.send_activity_update(activity, "finalized")
+      Notification.send_activity_update(activity, "finalized")
     end
 
     activity = Activity.includes(:user, :participants, :activity_participants, :responses)
@@ -221,8 +221,8 @@ class ActivitiesController < HtmlController
     InviteUserService.send_invitation(activity, invited_email, current_user)
 
     # Send push notification if the invited user has a mobile account
-    if user && user.can_receive_push_notifications?
-      PushNotificationService.send_activity_invite(activity, user)
+    if user
+      Notification.send_activity_invite(activity, user)
     end
   end
 end

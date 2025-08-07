@@ -7,7 +7,7 @@ class User < ApplicationRecord
   has_many :votes, dependent: :destroy
   has_many :user_activities, dependent: :destroy
   has_many :notifications, dependent: :destroy
-  has_many :triggered_notifications, class_name: 'Notification', foreign_key: 'triggering_user_id', dependent: :nullify
+  has_many :triggered_notifications, class_name: "Notification", foreign_key: "triggering_user_id", dependent: :nullify
 
   before_create :generate_confirmation_code
 

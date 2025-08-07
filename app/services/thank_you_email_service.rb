@@ -8,6 +8,7 @@ class ThankYouEmailService < BaseEmailService
 
     activity.participants.each do |participant|
       next unless participant.email
+      next unless can_send_email_to_user?(participant)
 
       Rails.logger.info " → Sending to: #{participant.email}"
 

@@ -6,6 +6,19 @@ class BaseEmailService
   SENDER_EMAIL = "team@voxxyai.com"
   SENDER_NAME = "Voxxy"
 
+  # Check if user can receive emails
+  def self.can_send_email_to_user?(user)
+    return true unless user.respond_to?(:email_notifications) # If no preference field, allow
+    user.email_notifications
+  end
+
+  # Check if email address belongs to a user with email preferences
+  def self.can_send_email_to_address?(email_address)
+    user = User.find_by(email: email_address.to_s.strip.downcase)
+    return true unless user # If no user found, allow (new user invites, etc.)
+    can_send_email_to_user?(user)
+  end
+
   # Voxxy brand email styling
   BASE_STYLES = {
     body: "margin: 0; padding: 0; font-family: 'Montserrat', Arial, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%); min-height: 100vh;",

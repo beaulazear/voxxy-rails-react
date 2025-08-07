@@ -83,7 +83,7 @@ Rails.application.routes.draw do
   post "/activities/:activity_id/respond/:token", to: "guest_responses#create"
 
   # Notification Routes
-  resources :notifications, only: [:index, :show, :create, :destroy] do
+  resources :notifications, only: [ :index, :show, :create, :destroy ] do
     member do
       put :mark_as_read, to: "notifications#mark_as_read"
     end

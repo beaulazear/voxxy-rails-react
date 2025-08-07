@@ -1,5 +1,6 @@
 class EmailVerificationService < BaseEmailService
   def self.send_verification_email(user)
+    # Always send verification emails regardless of preferences (account security)
     Rails.logger.info "Sending verification email to: #{user.email}"
 
     subject = "Verify your email - Welcome to Voxxy"

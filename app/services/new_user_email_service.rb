@@ -1,5 +1,6 @@
 class NewUserEmailService < BaseEmailService
   def self.send_welcome_email(user)
+    return unless can_send_email_to_user?(user)
     Rails.logger.info "Sending welcome email to: #{user.email}"
 
     subject = "You're in. Let's Voxxy."

@@ -462,7 +462,7 @@ export default function RestaurantChat({ onClose }) {
   const [eventName, setEventName] = useState('');
   const [welcomeMessage, setWelcomeMessage] = useState('');
 
-  const [allowParticipantTimeSelection, setAllowParticipantTimeSelection] = useState(false);
+  const [allowParticipantTimeSelection] = useState(false);
 
   const headers = [
     {

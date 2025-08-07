@@ -1,6 +1,6 @@
 class NotificationsController < ApplicationController
   before_action :authorized
-  before_action :set_notification, only: [:show, :update, :destroy]
+  before_action :set_notification, only: [ :show, :update, :destroy ]
 
   # GET /notifications
   def index
@@ -8,7 +8,7 @@ class NotificationsController < ApplicationController
                                  .includes(:activity, :triggering_user)
                                  .recent
                                  .limit(50)
-    
+
     render json: @notifications.map { |notification|
       {
         id: notification.id,

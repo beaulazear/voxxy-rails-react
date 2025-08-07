@@ -62,7 +62,7 @@ export default function CocktailsChat({ onClose }) {
   const [eventName, setEventName] = useState('');
   const [welcomeMessage, setWelcomeMessage] = useState('');
 
-  const [allowParticipantTimeSelection, setAllowParticipantTimeSelection] = useState(false);
+  const [allowParticipantTimeSelection] = useState(false);
 
   const headers = [
     {

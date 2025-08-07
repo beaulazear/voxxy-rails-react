@@ -2,8 +2,9 @@ require "sendgrid-ruby"
 require "uri"
 include SendGrid
 
-class PasswordResetService
+class PasswordResetService < BaseEmailService
   def self.send_reset_email(user)
+    # Always send password reset emails regardless of email preferences (security-critical)
     Rails.logger.info "Attempting to send password reset email with API key: #{ENV['VoxxyKeyAPI']&.slice(0, 4)}..."
     Rails.logger.info "To: #{user.email}, From: team@voxxyai.com"
 

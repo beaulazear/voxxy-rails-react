@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import colors from "../styles/Colors";
 import { Heading1, MutedText } from '../styles/Typography';
-import { Shield, CheckCircle, AlertCircle, Lock } from 'lucide-react';
+import { CheckCircle, AlertCircle, Lock } from 'lucide-react';
 
 // ─── Animations ────────────────────────────────────────────────────
 const fadeIn = keyframes`
@@ -17,10 +17,7 @@ const fadeIn = keyframes`
   }
 `;
 
-const shimmer = keyframes`
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
-`;
+// Removed unused shimmer keyframes
 
 const float = keyframes`
   0%, 100% { transform: translateY(0px); }

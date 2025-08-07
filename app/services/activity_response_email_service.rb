@@ -1,6 +1,7 @@
 class ActivityResponseEmailService < BaseEmailService
   def self.send_response_email(response, activity)
     host = activity.user
+    return unless can_send_email_to_user?(host)
 
     # Handle both user and guest responses
     if response.is_guest_response?

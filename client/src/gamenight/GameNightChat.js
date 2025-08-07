@@ -53,7 +53,7 @@ function GameNightChat({ onClose }) {
 
     const [welcomeMessage, setWelcomeMessage] = useState('');
 
-    const [allowParticipantTimeSelection, setAllowParticipantTimeSelection] = useState(false);
+    const [allowParticipantTimeSelection] = useState(false);
 
     const headers = [
         {

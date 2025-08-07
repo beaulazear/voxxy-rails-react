@@ -104,24 +104,7 @@ const ModalContent = styled.div`
   padding: 40px;
 `;
 
-const PlaceholderText = styled.div`
-  text-align: center;
-  
-  h3 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #fff;
-    margin: 0 0 16px 0;
-  }
-  
-  p {
-    font-size: 14px;
-    color: #ccc;
-    line-height: 1.4;
-    font-style: italic;
-    margin: 0;
-  }
-`;
+// Removed unused PlaceholderText component
 
 // X Icon Component (simple SVG)
 const XIcon = () => (

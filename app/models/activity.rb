@@ -87,9 +87,9 @@ class Activity < ApplicationRecord
     return unless finalized?
 
     # Get all participants (host + accepted participants)
-    all_users = [user] + participants.to_a
+    all_users = [ user ] + participants.to_a
     selected_place = pinned_activities.find_by(selected: true)
-    
+
     all_users.each do |participant|
       title = "Activity Finalized! ✅"
       body = if selected_place
@@ -102,7 +102,7 @@ class Activity < ApplicationRecord
         user: participant,
         title: title,
         body: body,
-        notification_type: 'activity_finalized',
+        notification_type: "activity_finalized",
         activity: self,
         triggering_user: user,
         data: { activityId: id, selectedPlaceId: selected_place&.id }
@@ -123,7 +123,7 @@ class Activity < ApplicationRecord
         user: participant,
         title: title,
         body: body,
-        notification_type: 'activity_update',
+        notification_type: "activity_update",
         activity: self,
         triggering_user: user,
         data: { activityId: id }

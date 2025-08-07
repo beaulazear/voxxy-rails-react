@@ -27,7 +27,7 @@ class ActivityParticipant < ApplicationRecord
       user: user,
       title: title,
       body: body,
-      notification_type: 'activity_invite',
+      notification_type: "activity_invite",
       activity: activity,
       triggering_user: activity.user,
       data: { activityId: activity.id }

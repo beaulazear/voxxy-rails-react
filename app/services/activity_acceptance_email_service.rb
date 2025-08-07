@@ -5,6 +5,7 @@ class ActivityAcceptanceEmailService < BaseEmailService
     user     = participant.user
 
     return unless activity && host&.email && user&.name
+    return unless can_send_email_to_user?(host)
 
     Rails.logger.info "Sending acceptance email to host (#{host.email}) for Activity ##{activity.id}"
 
