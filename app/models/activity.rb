@@ -6,6 +6,7 @@ class Activity < ApplicationRecord
     has_many :pinned_activities, dependent: :destroy
     has_many :comments, dependent: :destroy
     has_many :time_slots, dependent: :destroy
+    has_many :notifications, dependent: :destroy
 
     after_update :schedule_reminders, if: :saved_change_to_finalized?
     after_update :reschedule_reminders, if: :saved_change_to_date_time?
