@@ -44,11 +44,11 @@ class PushNotificationService
 
     # Test method to send immediate reminder (kept for backward compatibility)
     def send_test_reminder(activity, user)
-      activity_config = get_activity_config(activity.activity_type)
+      emoji = ActivityConfig.emoji_for(activity.activity_type)
 
       send_notification(
         user,
-        "#{activity_config[:emoji]} Test Reminder!",
+        "#{emoji} Test Reminder!",
         "This is how reminders will look for #{activity.activity_name}",
         {
           type: "test_reminder",
@@ -60,16 +60,6 @@ class PushNotificationService
 
     private
 
-    def get_activity_config(activity_type)
-      configs = {
-        "Restaurant" => { emoji: "🍜", display: "Lets Eat!" },
-        "Meeting" => { emoji: "⏰", display: "Lets Meet!" },
-        "Game Night" => { emoji: "🎮", display: "Game Time!" },
-        "Cocktails" => { emoji: "🍸", display: "Lets Go Out!" }
-      }
-
-      configs[activity_type] || { emoji: "🎉", display: "Lets Meet!" }
-    end
 
     def send_to_expo(payloads)
       return if payloads.empty?

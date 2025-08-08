@@ -78,8 +78,7 @@ class ActivitiesController < HtmlController
 
     if should_email_finalized
       ActivityFinalizationEmailService.send_finalization_emails(activity)
-      # Send push notifications to mobile users when activity is finalized
-      Notification.send_activity_update(activity, "finalized")
+      # Push notifications are automatically sent by the Activity model callback
     end
 
     activity = Activity.includes(:user, :participants, :activity_participants, :responses)

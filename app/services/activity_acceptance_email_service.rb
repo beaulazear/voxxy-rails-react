@@ -15,12 +15,7 @@ class ActivityAcceptanceEmailService < BaseEmailService
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
-        You've got a new RSVP! 🙌
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        <strong>#{user.name}</strong> has accepted their invitation to:<br>
-        <strong>#{activity.emoji} #{activity.activity_name}</strong>
+        <strong>#{user.name}</strong> has joined your Voxxy activity!
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
@@ -29,7 +24,7 @@ class ActivityAcceptanceEmailService < BaseEmailService
     HTML
 
     email_html = build_simple_email_template(
-      "New RSVP Received!",
+      "#{user.name} joined your activity!",
       content,
       "View on Voxxy",
       homepage_url

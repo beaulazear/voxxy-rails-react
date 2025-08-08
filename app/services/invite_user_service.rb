@@ -26,14 +26,8 @@ class InviteUserService < BaseEmailService
   private
 
   def self.get_activity_type_info(activity_type)
-    activity_types = {
-      "Restaurant"  => { emoji: "\u{1F35C}", description: "Let's Eat! Schedule your next group meal together." },
-      "Cocktails"   => { emoji: "\u{1F378}", description: "Night Out! Plan your perfect night out with friends." },
-      "Meeting"     => { emoji: "\u{1F465}", description: "Let's Meet! Find a time that works for everyone." },
-      "Game Night"  => { emoji: "\u{1F3AE}", description: "Game Night! Set up a memorable game night." }
-    }
-
-    activity_types[activity_type] || { emoji: "\u{1F389}", description: "Join this activity!" }
+    config = ActivityConfig.get(activity_type)
+    { emoji: config[:emoji], description: config[:description] }
   end
 
   def self.send_new_user_invite(email, activity, inviter, participant)
@@ -66,13 +60,13 @@ class InviteUserService < BaseEmailService
       #{'        '}
               <!-- Subtitle -->
               <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 16px; color: #718096; margin: 0 0 20px 0; line-height: 1.5;">
-                <strong style="color: #2d3748;">#{inviter.name}</strong> wants you to join <strong style="color: #2d3748;">#{activity.activity_name}</strong> on Voxxy
+                <strong style="color: #2d3748;">#{inviter.name}</strong> needs your preferences for an activity!
               </p>
 
               <!-- Activity Type -->
               <div style="background-color: #f0f4ff; border-radius: 8px; padding: 15px; margin-bottom: 25px;">
                 <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 14px; color: #4c51bf; margin: 0; font-weight: 500;">
-                  #{activity_info[:emoji]} #{activity_info[:description]}
+                  #{activity_info[:emoji]} #{activity_info[:description].gsub(/^[^!]*!\s*/, '')}
                 </p>
               </div>
 
@@ -157,13 +151,13 @@ class InviteUserService < BaseEmailService
       #{'        '}
               <!-- Subtitle -->
               <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 16px; color: #718096; margin: 0 0 20px 0; line-height: 1.5;">
-                <strong style="color: #2d3748;">#{inviter.name}</strong> invited you to join <strong style="color: #2d3748;">#{activity.activity_name}</strong>
+                <strong style="color: #2d3748;">#{inviter.name}</strong> needs your preferences for an activity!
               </p>
 
               <!-- Activity Type -->
               <div style="background-color: #f0f4ff; border-radius: 8px; padding: 15px; margin-bottom: 25px;">
                 <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 14px; color: #4c51bf; margin: 0; font-weight: 500;">
-                  #{activity_info[:emoji]} #{activity_info[:description]}
+                  #{activity_info[:emoji]} #{activity_info[:description].gsub(/^[^!]*!\s*/, '')}
                 </p>
               </div>
 

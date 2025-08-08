@@ -50,12 +50,12 @@ class Notification < ApplicationRecord
     return unless invited_user.can_receive_push_notifications?
 
     host_name = activity.user.name.split(" ").first
-    activity_config = get_activity_config(activity.activity_type)
+    emoji = ActivityConfig.emoji_for(activity.activity_type)
 
     create_and_send!(
       user: invited_user,
-      title: "#{activity_config[:emoji]} New Activity Invite!",
-      body: "#{host_name} invited you to #{activity.activity_type&.downcase || 'an activity'}",
+      title: "#{host_name} needs your preferences! #{emoji}",
+      body: "Help them plan the perfect activity",
       notification_type: "activity_invite",
       activity: activity,
       triggering_user: activity.user,
@@ -69,15 +69,15 @@ class Notification < ApplicationRecord
   # Helper method for activity updates (finalized, reminder, etc.)
   def self.send_activity_update(activity, message_type = "update")
     participants = get_activity_participants(activity)
-    activity_config = get_activity_config(activity.activity_type)
+    emoji = ActivityConfig.emoji_for(activity.activity_type)
 
     title = case message_type
     when "finalized"
-      "#{activity_config[:emoji]} Activity Finalized!"
+      "#{emoji} Activity Finalized!"
     when "reminder"
-      "#{activity_config[:emoji]} Activity Reminder"
+      "#{emoji} Activity Reminder"
     else
-      "#{activity_config[:emoji]} Activity Update"
+      "#{emoji} Activity Update"
     end
 
     body = case message_type
@@ -111,14 +111,14 @@ class Notification < ApplicationRecord
     participants = get_activity_participants(activity).reject { |u| u.id == activity.user_id }
     return if participants.empty?
 
-    activity_config = get_activity_config(activity.activity_type)
+    emoji = ActivityConfig.emoji_for(activity.activity_type)
     host_name = activity.user.name.split(" ").first
     change_message = format_activity_changes(changes)
 
     participants.each do |participant|
       create_and_send!(
         user: participant,
-        title: "#{activity_config[:emoji]} Activity Updated",
+        title: "#{emoji} Activity Updated",
         body: "#{host_name} updated #{activity.activity_name}: #{change_message}",
         notification_type: "activity_changed",
         activity: activity,
@@ -146,17 +146,6 @@ class Notification < ApplicationRecord
     participants = [ activity.user ] # Include the host
     participants += activity.participants.to_a
     participants.uniq.select(&:can_receive_push_notifications?)
-  end
-
-  def self.get_activity_config(activity_type)
-    configs = {
-      "Restaurant" => { emoji: "🍜", display: "Lets Eat!" },
-      "Meeting" => { emoji: "⏰", display: "Lets Meet!" },
-      "Game Night" => { emoji: "🎮", display: "Game Time!" },
-      "Cocktails" => { emoji: "🍸", display: "Lets Go Out!" }
-    }
-
-    configs[activity_type] || { emoji: "🎉", display: "Lets Meet!" }
   end
 
   def self.format_activity_changes(changes)

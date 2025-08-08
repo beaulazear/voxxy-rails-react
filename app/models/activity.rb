@@ -94,7 +94,14 @@ class Activity < ApplicationRecord
     all_users.each do |participant|
       title = "Activity Finalized! ✅"
       body = if selected_place
-        "#{activity_name} has been finalized at #{selected_place.title}"
+        case activity_type
+        when "Game Night"
+          "#{activity_name} has been finalized! You'll be playing #{selected_place.title}"
+        when "Restaurant", "Cocktails"
+          "#{activity_name} has been finalized at #{selected_place.title}"
+        else
+          "#{activity_name} has been finalized with #{selected_place.title}"
+        end
       else
         "#{activity_name} has been finalized with all the details"
       end

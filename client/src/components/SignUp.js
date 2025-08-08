@@ -305,7 +305,7 @@ const SignUp = () => {
           avatar: data.avatar,
         });
 
-        navigate('/boards');
+        navigate('/confirm-email');
       } else {
         setErrors(data.errors || ['An error occurred. Please try again.']);
       }
