@@ -36,9 +36,18 @@ class Rack::Attack
     req.ip if req.path == "/login" && req.post?
   end
 
-  # Try Voxxy specific limiting (already has custom rate limiting, this is backup)
-  throttle("try_voxxy/ip", limit: 20, period: 1.hour) do |req|
-    if req.path.include?("try_voxxy")
+  # Try Voxxy specific limiting - increased to work with controller logic
+  # Controller handles per-session limiting, this is per-IP backup
+  throttle("try_voxxy/ip", limit: 10, period: 1.hour) do |req|
+    if req.path == "/try_voxxy_recommendations" && req.post?
+      next if admin_user?(req)
+      req.ip
+    end
+  end
+
+  # Separate limit for cached endpoint
+  throttle("try_voxxy_cached/ip", limit: 100, period: 1.hour) do |req|
+    if req.path == "/try_voxxy_cached" && req.get?
       next if admin_user?(req)
       req.ip
     end

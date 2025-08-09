@@ -97,27 +97,49 @@ class OpenaiController < ApplicationController
     session_token = request.headers["X-Session-Token"] || params[:session_token]
     Rails.logger.info("📝 Session token: #{session_token}")
 
-    if session_token.blank?
-      Rails.logger.warn("❌ Missing session token")
-      return render json: { error: "Missing session token" }, status: :unauthorized
+    # Validate session token format
+    if session_token.blank? || !valid_session_token?(session_token)
+      Rails.logger.warn("❌ Invalid or missing session token")
+      return render json: { error: "Invalid or missing session token" }, status: :unauthorized
     end
 
+    # Include session token in cache keys to prevent collisions
     rate_key  = "try_voxxy_rate:#{session_token}"
-    cache_key = "try_voxxy_last:#{session_token}"
+    cache_key = "try_voxxy_cache:#{session_token}:#{generate_request_hash(params)}"
     Rails.logger.info("🔑 Cache keys - rate: #{rate_key}, cache: #{cache_key}")
 
     begin
-      # Check rate limiting and cache
-      if Rails.cache.exist?(rate_key)
-        Rails.logger.info("⏰ Rate key exists, checking cache...")
-        if (last = Rails.cache.read(cache_key))
-          Rails.logger.info("✅ Found cached recommendations, returning #{last.length} items")
-          return render json: { recommendations: last }, status: :ok
+      # Use atomic operations to prevent race conditions
+      cached_recommendations = Rails.cache.read(cache_key)
+
+      if cached_recommendations.present?
+        Rails.logger.info("✅ Found cached recommendations, returning #{cached_recommendations.length} items")
+        return render json: { recommendations: cached_recommendations }, status: :ok
+      end
+
+      # Check rate limiting with atomic operation
+      rate_limit_time = Rails.cache.read(rate_key)
+
+      if rate_limit_time && Time.current < rate_limit_time
+        minutes_left = ((rate_limit_time - Time.current) / 60.0).ceil
+        Rails.logger.info("🚫 Rate limited, #{minutes_left} minutes left")
+
+        # Try to return last cached result for this session
+        last_cache_key = "try_voxxy_last:#{session_token}"
+        last_recommendations = Rails.cache.read(last_cache_key)
+
+        if last_recommendations.present?
+          Rails.logger.info("📦 Returning previous recommendations while rate limited")
+          return render json: {
+            recommendations: last_recommendations,
+            rate_limited: true,
+            retry_after: minutes_left * 60
+          }, status: :ok
         else
-          rate_time = Rails.cache.read(rate_key)
-          minutes_left = ((rate_time - Time.current) / 60.0).ceil
-          Rails.logger.info("🚫 Rate limited, #{minutes_left} minutes left")
-          return render json: { error: "Rate limit exceeded. Try again in #{minutes_left} minute(s)." }, status: :too_many_requests
+          return render json: {
+            error: "Rate limit exceeded. Try again in #{minutes_left} minute(s).",
+            retry_after: minutes_left * 60
+          }, status: :too_many_requests
         end
       end
 
@@ -144,35 +166,61 @@ class OpenaiController < ApplicationController
       Rails.logger.info("🤖 Calling OpenAI API...")
       recs = fetch_restaurant_recommendations_from_openai(user_responses, activity_location, date_notes, radius)
 
-      if recs
+      if recs && recs.is_a?(Array) && !recs.empty?
         Rails.logger.info("✅ Got #{recs.length} recommendations from OpenAI")
+
+        # Cache with both specific and last-used keys
         Rails.cache.write(cache_key, recs, expires_in: 1.hour)
+        Rails.cache.write("try_voxxy_last:#{session_token}", recs, expires_in: 1.hour)
+
         render json: { recommendations: recs }, status: :ok
       else
-        Rails.logger.error("❌ OpenAI returned nil recommendations")
-        render json: { error: "Failed to generate recommendations" }, status: :unprocessable_entity
+        Rails.logger.error("❌ OpenAI returned invalid recommendations: #{recs.inspect}")
+
+        # Clear rate limit on failure to allow retry
+        Rails.cache.delete(rate_key)
+
+        render json: {
+          error: "Failed to generate recommendations. Please try again.",
+          should_retry: true
+        }, status: :unprocessable_entity
       end
 
+    rescue JSON::ParserError => e
+      Rails.logger.error("💥 JSON Parse Error in try_voxxy: #{e.message}")
+      Rails.cache.delete(rate_key) # Allow retry on JSON errors
+      render json: {
+        error: "Failed to process recommendations. Please try again.",
+        should_retry: true
+      }, status: :unprocessable_entity
     rescue => e
       Rails.logger.error("💥 Exception in try_voxxy_recommendations: #{e.class.name}: #{e.message}")
       Rails.logger.error("📍 Backtrace: #{e.backtrace.first(5).join("\n")}")
-      render json: { error: "Internal server error: #{e.message}" }, status: :internal_server_error
+
+      # Don't clear rate limit for unexpected errors
+      render json: {
+        error: "An unexpected error occurred. Please try again later.",
+        should_retry: false
+      }, status: :internal_server_error
     end
   end
 
   def try_voxxy_cached
     session_token = request.headers["X-Session-Token"] || params[:session_token]
 
-    if session_token.blank?
-      return render json: { error: "Missing session token" }, status: :unauthorized
+    if session_token.blank? || !valid_session_token?(session_token)
+      return render json: { error: "Invalid or missing session token" }, status: :unauthorized
     end
 
     cache_key = "try_voxxy_last:#{session_token}"
-    if (cached = Rails.cache.read(cache_key))
-      render json: { recommendations: cached }, status: :ok
-    else
-      render json: { recommendations: [] }, status: :ok
-    end
+    cached = Rails.cache.read(cache_key)
+
+    Rails.logger.info("📦 try_voxxy_cached - token: #{session_token.first(10)}..., found: #{cached.present?}")
+
+    render json: {
+      recommendations: cached || [],
+      has_cached: cached.present?
+    }, status: :ok
   end
 
   private
@@ -449,6 +497,17 @@ class OpenaiController < ApplicationController
   def generate_cache_key(user_responses, activity_location, date_notes, type = "restaurant")
     hash_input = "#{type}-#{user_responses}-#{activity_location}-#{date_notes}"
     "recommendations_#{Digest::SHA256.hexdigest(hash_input)}"
+  end
+
+  def generate_request_hash(params)
+    hash_input = "#{params[:responses]}-#{params[:activity_location]}-#{params[:date_notes]}"
+    Digest::SHA256.hexdigest(hash_input)
+  end
+
+  def valid_session_token?(token)
+    return false if token.blank?
+    # Validate format: mobile-timestamp-random
+    token.match?(/^mobile-\d+-[a-z0-9]+$/)
   end
 
   def format_recommendation(rec)
