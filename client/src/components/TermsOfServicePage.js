@@ -108,7 +108,7 @@ export default function TermsOfServicePage() {
                                 <CardTitle>1. Agreement</CardTitle>
                             </CardHeader>
                             <CardDescription>
-                                <p>These Terms of Service are a binding contract between you and Voxxy Inc., a Delaware corporation. By using Voxxy, you agree to abide by these terms and our Privacy Policy.</p>
+                                <p>These Terms of Service are a binding contract between you and Voxxy AI, Inc., a Delaware corporation. By using Voxxy, you agree to abide by these terms and our Privacy Policy.</p>
                             </CardDescription>
                         </Card>
 
@@ -157,7 +157,7 @@ export default function TermsOfServicePage() {
                                 <CardTitle>5. Ownership & IP</CardTitle>
                             </CardHeader>
                             <CardDescription>
-                                <p>All content on Voxxy, including designs, code, logos, and copy, belongs to Voxxy Inc. You may not copy or reuse it without permission.</p>
+                                <p>All content on Voxxy, including designs, code, logos, and copy, belongs to Voxxy AI, Inc.. You may not copy or reuse it without permission.</p>
                             </CardDescription>
                         </Card>
 
@@ -223,7 +223,7 @@ export default function TermsOfServicePage() {
                                 <CardTitle>11. Indemnification</CardTitle>
                             </CardHeader>
                             <CardDescription>
-                                <p>You agree to defend, indemnify, and hold Voxxy Inc., its officers, directors, employees, and agents harmless from any claims, damages, or expenses (including attorney's fees) arising from:</p>
+                                <p>You agree to defend, indemnify, and hold Voxxy AI, Inc.., its officers, directors, employees, and agents harmless from any claims, damages, or expenses (including attorney's fees) arising from:</p>
                                 <ul>
                                     <li>Your violation of these Terms</li>
                                     <li>Your use of the service</li>
@@ -282,9 +282,9 @@ export default function TermsOfServicePage() {
                             </CardHeader>
                             <CardDescription>
                                 <p>Have questions? Contact us at:</p>
-                                <p>Voxxy Inc.<br />
-                                Email: <a href="mailto:team@voxxyai.com" style={{ color: '#9261E5' }}>team@voxxyai.com</a><br />
-                                Address: [Your Delaware registered agent address]</p>
+                                <p>Voxxy AI, Inc.<br />
+                                    Email: <a href="mailto:team@voxxyai.com" style={{ color: '#9261E5' }}>team@voxxyai.com</a><br />
+                                </p>
                             </CardDescription>
                         </Card>
                     </CardsContainer>

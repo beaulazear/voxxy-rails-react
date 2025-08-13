@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar, X } from 'lucide-react';
 import Footer from './Footer';
@@ -7,6 +7,17 @@ import colors from '../styles/Colors';
 import TryVoxxyChat from './TryVoxxyChat';
 import mixpanel from 'mixpanel-browser';
 import RestaurantMap from "../admincomponents/RestaurantMap";
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -28,63 +39,97 @@ const Container = styled.div`
 
 // Title
 const TitleSection = styled.div`
- padding: 0px; 
+ padding: 0px;
+ margin-bottom: 3rem;
+ animation: ${fadeIn} 0.8s ease-out;
  `;
 const Title = styled.h1`
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
   color: white;
-  @media (min-width: 640px) { font-size: 3.125rem; }
+  letter-spacing: -0.5px;
 `;
 const GradientText = styled.span`
-  background: linear-gradient(90deg, #B931D6 0%, #9051E1 100%);
+  background: linear-gradient(135deg, ${colors.gradient.start}, ${colors.hoverHighlight});
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 `;
 const Description = styled.p`
-  font-size: 1.125rem;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1rem, 2vw, 1.2rem);
   color: ${colors.textSecondary};
   max-width: 40rem;
   margin: 0 auto 2rem;
+  line-height: 1.6;
 `;
 
 // Card for planning
-const CardWrapper = styled.div` max-width: 28rem; margin: 0 auto 4rem; `;
+const CardWrapper = styled.div` 
+  max-width: 28rem; 
+  margin: 0 auto 4rem;
+  animation: ${fadeIn} 0.8s ease-out 0.2s both;
+`;
 const Card = styled.div`
   background-color: ${colors.cardBackground};
-  padding: 2rem;
-  border-radius: 1rem;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  padding: 2.5rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
   cursor: pointer;
-  transition: box-shadow 0.2s;
-  display: flex; flex-direction: column;
-  &:hover { box-shadow: 0 0 20px #592566; }
+  transition: all 0.3s ease;
+  display: flex; 
+  flex-direction: column;
+  border: 1px solid rgba(162, 89, 255, 0.1);
+  
+  &:hover { 
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(162, 89, 255, 0.3);
+    border-color: rgba(162, 89, 255, 0.3);
+  }
 `;
 const IconWrapper = styled.div`
-  background-color: rgba(157,96,248,0.1);
-  border-radius: 50%; width: 3rem; height: 3rem;
-  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, rgba(162, 89, 255, 0.1), rgba(233, 62, 255, 0.1));
+  border-radius: 50%; 
+  width: 4rem; 
+  height: 4rem;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
   margin: 0 auto 1.5rem;
 `;
 const CardTitle = styled.h2`
-  font-size: 1.5rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.75rem;
   font-weight: 600;
   color: ${colors.textPrimary};
   margin-bottom: 1rem;
 `;
 const CardText = styled.p`
+  font-family: 'Inter', sans-serif;
   color: ${colors.textSecondary};
   margin-bottom: 1.5rem;
+  line-height: 1.5;
 `;
 const StyledLink = styled(Link)`
-  display: flex; justify-content: center; align-items: center;
-  background-color: ${colors.primaryButton};
+  display: inline-flex; 
+  justify-content: center; 
+  align-items: center;
+  background: linear-gradient(135deg, ${colors.purple1}, ${colors.primaryButton});
   color: ${colors.textPrimary};
-  padding: 0.75rem; border-radius: 9999px;
-  text-decoration: none; font-weight: 600;
-  transition: background-color 0.2s;
-  &:hover { background-color: rgba(157,96,248,0.9); }
+  padding: 0.875rem 1.75rem; 
+  border-radius: 50px;
+  text-decoration: none; 
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(162, 89, 255, 0.2);
+  
+  &:hover { 
+    background: linear-gradient(135deg, ${colors.primaryButton}, ${colors.hoverHighlight});
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(162, 89, 255, 0.4);
+  }
 `;
 
 // Recommendations list
@@ -93,21 +138,33 @@ const RecommendationsList = styled.ul`
   padding: 0;
   max-width: 40rem;
   margin: 0 auto 4rem;
+  animation: ${fadeIn} 0.8s ease-out 0.3s both;
 `;
 const ListItem = styled.li`
   background: ${colors.cardBackground};
-  padding: 1rem;
+  padding: 1.25rem;
   margin-bottom: 1rem;
-  border-radius: 0.75rem;
-  display: flex; flex-direction: column;
+  border-radius: 1rem;
+  display: flex; 
+  flex-direction: column;
   cursor: pointer;
-  &:hover { background: rgba(157,96,248,0.1); }
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  
+  &:hover { 
+    background: ${colors.cardBackground};
+    border-color: rgba(162, 89, 255, 0.3);
+    transform: translateX(4px);
+    box-shadow: 0 4px 15px rgba(162, 89, 255, 0.2);
+  }
 `;
 const ListTop = styled.div`
   display: flex; justify-content: space-between; align-items: center;
 `;
 const ListName = styled.span`
+  font-family: 'Montserrat', sans-serif;
   font-weight: 600;
+  font-size: 1.1rem;
   color: ${colors.textPrimary};
 `;
 const ListMeta = styled.span`
@@ -123,18 +180,27 @@ const ListBottom = styled.div`
 
 // Modal for details and signup
 const Overlay = styled.div`
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.8);
-  display: flex; align-items: center; justify-content: center;
+  position: fixed; 
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(5px);
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
   z-index: 1000;
+  animation: ${fadeIn} 0.2s ease-out;
 `;
 const Modal = styled.div`
   background: ${colors.cardBackground};
-  padding: 2rem;
-  border-radius: 1rem;
-  width: 90%; max-width: 400px;
+  padding: 2.5rem;
+  border-radius: 1.5rem;
+  width: 90%; 
+  max-width: 400px;
   position: relative;
   color: white;
+  border: 1px solid rgba(162, 89, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  animation: ${fadeIn} 0.3s ease-out;
 `;
 const CloseButton = styled.button`
   position: absolute; top: 1rem; right: 1rem;
@@ -153,25 +219,40 @@ const Photo = styled.img`
   height: 80px; border-radius: 0.5rem;
 `;
 const DetailTitle = styled.h2`
-  margin-bottom: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
   color: ${colors.textPrimary};
 `;
 const DetailText = styled.p`
+  font-family: 'Inter', sans-serif;
   margin-bottom: 0.75rem;
   color: ${colors.textSecondary};
+  line-height: 1.5;
 `;
 const DetailLink = styled.a`
-  display: inline-block; margin-bottom: 0.75rem;
-  color: ${colors.primaryButton}; text-decoration: underline;
+  display: inline-block; 
+  margin-bottom: 0.75rem;
+  color: ${colors.gradient.start}; 
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: ${colors.hoverHighlight};
+    text-decoration: underline;
+  }
 `;
 // CTA Section
 const CTASection = styled.div`
   text-align: center;
   margin-bottom: 3rem;
+  animation: ${fadeIn} 0.8s ease-out 0.4s both;
 `;
 const CTAHeading = styled.h2`
-  font-size: 1.875rem;
-  font-weight: bold;
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: 600;
   color: ${colors.textPrimary};
   margin-bottom: 1.5rem;
 `;
@@ -188,16 +269,20 @@ const CTAButtons = styled.div`
 `;
 const CTAButton = styled(Link)`
   display: inline-block;
-  padding: 0.75rem 1.5rem;
-  border-radius: 9999px;
-  font-weight: 600;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
   text-decoration: none;
-  background-color: ${colors.primaryButton};
+  background: linear-gradient(135deg, ${colors.purple1}, ${colors.primaryButton});
   color: ${colors.textPrimary};
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(162, 89, 255, 0.2);
 
   &:hover {
-    background-color: rgba(157,96,248,0.9);
+    background: linear-gradient(135deg, ${colors.primaryButton}, ${colors.hoverHighlight});
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(162, 89, 255, 0.4);
   }
 `;
 

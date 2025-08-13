@@ -150,7 +150,7 @@ export default function Footer() {
 
         <BottomRow>
           <Copyright>
-            © 2025 Voxxy AI Inc. All Rights Reserved.
+            © 2025 Voxxy AI, Inc. All Rights Reserved.
           </Copyright>
         </BottomRow>
       </FooterInner>

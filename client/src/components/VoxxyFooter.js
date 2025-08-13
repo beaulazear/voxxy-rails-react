@@ -62,7 +62,7 @@ export default function Footer() {
       </FooterInner>
 
       <Bottom>
-        <Copyright>© 2025 Voxxy AI Inc. All Rights Reserved.</Copyright>
+        <Copyright>© 2025 Voxxy AI, Inc. All Rights Reserved.</Copyright>
       </Bottom>
     </FooterContainer>
   );

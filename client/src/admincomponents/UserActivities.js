@@ -1,5 +1,5 @@
-import React, { useState, useContext } from 'react';
-import { User, Users, Calendar, Clock, Plus, Mail, Coffee, MapPin, Star } from 'lucide-react';
+import React, { useState, useContext, useEffect } from 'react';
+import { User, Users, Calendar, Clock, Plus, Mail, Coffee, MapPin, Star, Grid3x3, List, Zap, Activity, Gamepad2, Wine, Utensils } from 'lucide-react';
 import { UserContext } from '../context/user';
 import { useNavigate } from 'react-router-dom';
 // Removed unused YourCommunity import
@@ -74,33 +74,48 @@ import {
   CompletedMessage,
 
   // Other
-  NoActivitiesMessage
+  NoActivitiesMessage,
+  
+  // Empty state components
+  EmptyStateContainer,
+  StartAdventureButton,
+  AdventureIconContainer,
+  AdventureButtonText,
+  AdventureButtonSubtext
 } from '../styles/UserActivities';
 
 const ACTIVITY_CONFIG = {
   'Restaurant': {
-    displayText: 'Lets Eat!',
+    displayText: 'Food',
     countdownText: 'Hope you and your crew savored every bite together! 🥂',
     countdownLabel: 'Meal Starts In',
-    emoji: '🍜'
+    emoji: '🍜',
+    icon: Utensils,
+    iconColor: '#FF6B6B'
   },
   'Meeting': {
     displayText: 'Lets Meet!',
     countdownText: 'Convos unlocked and plans locked in—high-five to your crew! 🙌',
     countdownLabel: 'Meeting Starts In',
-    emoji: '⏰'
+    emoji: '⏰',
+    icon: Users,
+    iconColor: '#B8A5C4'
   },
   'Game Night': {
-    displayText: 'Game Time!',
+    displayText: 'Game Night',
     countdownText: 'Dice rolled, friendships scored—your group leveled up the fun! 🏆',
     countdownLabel: 'Game Night Starts In',
-    emoji: '🎮'
+    emoji: '🎮',
+    icon: Gamepad2,
+    iconColor: '#A8E6CF'
   },
   'Cocktails': {
-    displayText: 'Lets Go Out!',
+    displayText: 'Drinks',
     countdownText: 'Cheers to wild laughs and brighter memories—what a crew! 🥂',
     countdownLabel: 'Your Outing Starts In',
-    emoji: '🍸'
+    emoji: '🍸',
+    icon: Wine,
+    iconColor: '#4ECDC4'
   }
 };
 
@@ -109,7 +124,9 @@ function getActivityDisplayInfo(activityType) {
     displayText: 'Lets Meet!',
     countdownText: 'Amazing memories were made—what a fantastic time! 🎉',
     countdownLabel: 'Activity Starts In',
-    emoji: '🎉'
+    emoji: '🎉',
+    icon: Activity,
+    iconColor: '#B8A5C4'
   };
 }
 
@@ -176,25 +193,42 @@ function ProgressDisplay({ activity }) {
   );
 }
 
+// Custom hook for countdown with real-time updates
+function useCountdown(targetTs) {
+  const [timeLeft, setTimeLeft] = useState(Math.max(targetTs - Date.now(), 0));
+  
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+    
+    const intervalId = setInterval(() => {
+      const remaining = Math.max(targetTs - Date.now(), 0);
+      setTimeLeft(remaining);
+      if (remaining === 0) clearInterval(intervalId);
+    }, 1000);
+    
+    return () => clearInterval(intervalId);
+  }, [targetTs, timeLeft]);
+
+  const days = Math.floor(timeLeft / (24 * 3600000));
+  const hours = Math.floor((timeLeft % (24 * 3600000)) / 3600000);
+  const minutes = Math.floor((timeLeft % 3600000) / 60000);
+  const seconds = Math.floor((timeLeft % 60000) / 1000);
+  
+  return { days, hours, minutes, seconds, isComplete: timeLeft === 0 };
+}
+
 function CountdownText({ targetTs, activityType }) {
   const displayInfo = getActivityDisplayInfo(activityType);
-  const now = Date.now();
-  const diff = targetTs - now;
+  const countdown = useCountdown(targetTs);
+  const pad = n => String(n).padStart(2, '0');
 
-  if (diff <= 0) {
+  if (countdown.isComplete) {
     return (
       <CountdownContainer>
-        <CountdownLabel>Activity Started!</CountdownLabel>
+        <CountdownLabel style={{ color: '#A8E6CF' }}>Started! 🎉</CountdownLabel>
       </CountdownContainer>
     );
   }
-
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-  const pad = n => String(n).padStart(2, '0');
 
   return (
     <CountdownContainer>
@@ -202,22 +236,22 @@ function CountdownText({ targetTs, activityType }) {
         {displayInfo.countdownLabel}
       </CountdownLabel>
       <CountdownGrid>
-        {days > 0 && (
+        {countdown.days > 0 && (
           <CountdownBlock>
-            <CountdownNumber>{days}</CountdownNumber>
-            <CountdownUnit>day{days !== 1 ? 's' : ''}</CountdownUnit>
+            <CountdownNumber>{countdown.days}</CountdownNumber>
+            <CountdownUnit>day{countdown.days !== 1 ? 's' : ''}</CountdownUnit>
           </CountdownBlock>
         )}
         <CountdownBlock>
-          <CountdownNumber>{pad(hours)}</CountdownNumber>
+          <CountdownNumber>{pad(countdown.hours)}</CountdownNumber>
           <CountdownUnit>hrs</CountdownUnit>
         </CountdownBlock>
         <CountdownBlock>
-          <CountdownNumber>{pad(minutes)}</CountdownNumber>
+          <CountdownNumber>{pad(countdown.minutes)}</CountdownNumber>
           <CountdownUnit>min</CountdownUnit>
         </CountdownBlock>
         <CountdownBlock>
-          <CountdownNumber>{pad(seconds)}</CountdownNumber>
+          <CountdownNumber>{pad(countdown.seconds)}</CountdownNumber>
           <CountdownUnit>sec</CountdownUnit>
         </CountdownBlock>
       </CountdownGrid>
@@ -288,7 +322,9 @@ function CreateCardComponent({ isInvitesEmpty = false, onClick }) {
 
 function UserActivities() {
   const { user } = useContext(UserContext);
-  const [filter, setFilter] = useState('In Progress');
+  const [filter, setFilter] = useState('Active');
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [showFavorites, setShowFavorites] = useState(false);
   const navigate = useNavigate();
 
   // Get activities from user context
@@ -308,22 +344,25 @@ function UserActivities() {
   const uniqueActivities = [...new Map(allActivities.map(a => [a.id, a])).values()];
 
   // Filter activities based on current filter
-  const inProgress = uniqueActivities.filter(a => !a.finalized && !a.completed);
-  const finalized = uniqueActivities.filter(a => a.finalized && !a.completed);
-  const past = uniqueActivities.filter(a => a.completed);
-  const invites = pendingInvites;
+  const activeActivities = uniqueActivities.filter(a => !a.completed);
+  const pastActivities = uniqueActivities.filter(a => a.completed);
+  // const favoriteActivities = uniqueActivities.filter(a => a.is_favorite); // TODO: Add favorites field to backend
+  
+  // Combine active filter with favorites if needed
+  let filteredActivities = [];
+  
+  if (filter === 'Active') {
+    filteredActivities = [...activeActivities, ...pendingInvites];
+  } else if (filter === 'Past') {
+    filteredActivities = pastActivities;
+  }
+  
+  // Apply favorites filter on top if enabled
+  if (showFavorites && filter !== 'Past') {
+    filteredActivities = filteredActivities.filter(a => a.is_favorite);
+  }
 
-  const filteredActivities = (() => {
-    const dataMap = {
-      'In Progress': inProgress,
-      'Finalized': finalized,
-      'Past': past,
-      'Invites': invites,
-    };
-    return dataMap[filter] || [];
-  })();
-
-  const isInvitesEmpty = filter === 'Invites' && filteredActivities.length === 0;
+  const isInvitesEmpty = pendingInvites.length === 0 && filter === 'Active' && filteredActivities.length === 0;
 
   // Navigation functions using React Router's navigate
   const handleNewActivity = () => {
@@ -366,46 +405,83 @@ function UserActivities() {
       </HeroContainer>
 
       <FilterRow>
-        <NewBoardButton onClick={handleNewActivity}>+ New</NewBoardButton>
+        <NewBoardButton onClick={handleNewActivity}>
+          <Plus width={16} height={16} style={{ marginRight: 4 }} />
+          New
+        </NewBoardButton>
+        
+        {/* View Mode Toggle */}
         <FilterButton
-          $active={filter === 'In Progress'}
-          onClick={() => setFilter('In Progress')}
+          onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+          style={{ padding: '8px 12px' }}
         >
-          In Progress {inProgress.length > 0 && <FilterBadge>{inProgress.length}</FilterBadge>}
+          {viewMode === 'grid' ? <Grid3x3 width={18} height={18} /> : <List width={18} height={18} />}
         </FilterButton>
+        
+        {/* Active/Past Toggle */}
         <FilterButton
-          $active={filter === 'Finalized'}
-          onClick={() => setFilter('Finalized')}
+          $active={filter === 'Active'}
+          onClick={() => {
+            setFilter('Active');
+            setShowFavorites(false); // Reset favorites when changing main filter
+          }}
         >
-          Finalized {finalized.length > 0 && <FilterBadge>{finalized.length}</FilterBadge>}
+          <Zap width={14} height={14} style={{ marginRight: 4 }} />
+          Active {activeActivities.length > 0 && <FilterBadge>{activeActivities.length}</FilterBadge>}
         </FilterButton>
+        
         <FilterButton
           $active={filter === 'Past'}
-          onClick={() => setFilter('Past')}
+          onClick={() => {
+            setFilter('Past');
+            setShowFavorites(false); // Reset favorites when changing main filter
+          }}
         >
-          Past {past.length > 0 && <FilterBadge>{past.length}</FilterBadge>}
+          Past {pastActivities.length > 0 && <FilterBadge>{pastActivities.length}</FilterBadge>}
         </FilterButton>
+        
+        {/* Favorites Toggle */}
         <FilterButton
-          $active={filter === 'Invites'}
-          onClick={() => setFilter('Invites')}
+          $active={showFavorites}
+          onClick={() => setShowFavorites(!showFavorites)}
         >
-          Invites {invites.length > 0 && <FilterBadge>{invites.length}</FilterBadge>}
+          <Star width={14} height={14} style={{ marginRight: 4 }} fill={showFavorites ? '#FFE66D' : 'none'} />
+          Favorites
         </FilterButton>
       </FilterRow>
 
       {/* Activities Section */}
       <CardsContainer>
         {!hasAnyActivities ? (
+          <EmptyStateContainer>
+            <StartAdventureButton onClick={handleNewActivity}>
+              <AdventureIconContainer>
+                <Zap width={32} height={32} color="#fff" />
+              </AdventureIconContainer>
+              <AdventureButtonText>Start New Adventure</AdventureButtonText>
+              <AdventureButtonSubtext>Plan something amazing with your friends</AdventureButtonSubtext>
+            </StartAdventureButton>
+          </EmptyStateContainer>
+        ) : filteredActivities.length === 0 && showFavorites ? (
           <NoActivitiesMessage>
-            <h3>Ready to start planning? ✨</h3>
-            <p>Create your first activity and start bringing people together!</p>
-            <NewBoardButton onClick={handleNewActivity}>Create Your First Activity</NewBoardButton>
+            <Star width={48} height={48} color="#FFE66D" style={{ marginBottom: '1rem' }} />
+            <h3>No favorites yet</h3>
+            <p>Star your favorite activities to see them here!</p>
+          </NoActivitiesMessage>
+        ) : filteredActivities.length === 0 ? (
+          <NoActivitiesMessage>
+            <h3>No activities here</h3>
+            <p>Start planning something new!</p>
+            <NewBoardButton onClick={handleNewActivity}>
+              <Plus width={16} height={16} style={{ marginRight: 4 }} />
+              New Activity
+            </NewBoardButton>
           </NoActivitiesMessage>
         ) : (
-          <ActivitiesGrid>
+          <ActivitiesGrid $viewMode={viewMode}>
             {filteredActivities.map((item) => {
               const firstName = item.user?.name?.split(' ')[0] || item.user?.email || '';
-              const isInvite = invites.some(invite => invite.id === item.id);
+              const isInvite = pendingInvites.some(invite => invite.id === item.id);
               const isInProgress = !item.finalized && !item.completed && !isInvite;
               const isFinalizedWithDateTime = item.finalized && item.date_day && item.date_time;
               const isCompleted = item.completed;

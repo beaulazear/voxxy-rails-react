@@ -117,7 +117,7 @@ export const FilterButton = styled.button`
   color: #fff;
   border: ${props => props.$active
     ? '2px solid rgba(207, 56, 221, 0.8)'
-    : 'none'};
+    : '1px solid rgba(255, 255, 255, 0.1)'};
   border-radius: 999px;
   font-weight: 600;
   cursor: pointer;
@@ -126,6 +126,10 @@ export const FilterButton = styled.button`
     ? '0 4px 16px rgba(207, 56, 221, 0.4)'
     : '0 2px 8px rgba(0, 0, 0, 0.1)'};
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
   
   @media (max-width: 768px) {
     padding: 0.5rem 1rem;
@@ -154,6 +158,9 @@ export const NewBoardButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 4px 16px rgba(207, 56, 221, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   
   @media (max-width: 768px) {
     padding: 0.5rem 1rem;
@@ -191,13 +198,15 @@ export const CardsContainer = styled.div`
 `;
 
 export const ActivitiesGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+  display: ${props => props.$viewMode === 'list' ? 'flex' : 'grid'};
+  flex-direction: ${props => props.$viewMode === 'list' ? 'column' : 'unset'};
+  grid-template-columns: ${props => props.$viewMode === 'list' ? 'unset' : 'repeat(auto-fill, minmax(280px, 1fr))'};
+  gap: ${props => props.$viewMode === 'list' ? '0.75rem' : '1.5rem'};
   padding: 1rem 0;
   
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
     padding: 0.75rem 1rem;
   }
@@ -1198,5 +1207,102 @@ export const NoActivitiesMessage = styled.div`
   p {
     margin-bottom: 2rem;
     line-height: 1.6;
+  }
+`;
+
+// Empty State Components
+export const EmptyStateContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 3rem 2rem;
+  animation: ${fadeIn} 0.6s ease-in-out;
+`;
+
+export const StartAdventureButton = styled.button`
+  background: linear-gradient(135deg, #8b5cf6, #d394f5, #cf38dd);
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 2rem 3rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 48px rgba(139, 92, 246, 0.4);
+    
+    &:before {
+      transform: translateX(100%);
+    }
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem 2.5rem;
+  }
+`;
+
+export const AdventureIconContainer = styled.div`
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  
+  @media (max-width: 768px) {
+    width: 60px;
+    height: 60px;
+  }
+`;
+
+export const AdventureButtonText = styled.span`
+  font-size: 1.8rem;
+  font-weight: 800;
+  font-family: 'Montserrat', sans-serif;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.5px;
+  
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+  }
+`;
+
+export const AdventureButtonSubtext = styled.span`
+  font-size: 1rem;
+  font-weight: 500;
+  opacity: 0.95;
+  font-family: 'Inter', sans-serif;
+  
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
   }
 `;

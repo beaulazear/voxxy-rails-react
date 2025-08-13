@@ -395,7 +395,7 @@ export default function Navbar() {
               ) : (
                 <>
                   <NavLinkItem to="/try-voxxy">Try Voxxy</NavLinkItem>
-                  <NavLinkItem to="/blogs">Blogs</NavLinkItem>
+                  <NavLinkItem to="/blogs">Voxxy Presents</NavLinkItem>
                   <OutlineButton to="/login" style={{ marginLeft: '16px' }}>
                     Log In
                   </OutlineButton>
@@ -446,7 +446,7 @@ export default function Navbar() {
                   Try Voxxy
                 </MobileNavLinkItem>
                 <MobileNavLinkItem to="/blogs" onClick={() => setShowMobileNav(false)}>
-                  Blogs
+                  Voxxy Presents
                 </MobileNavLinkItem>
                 <MobileNavLinkItem to="/login" onClick={() => setShowMobileNav(false)}>
                   Log In
