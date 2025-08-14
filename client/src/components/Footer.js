@@ -1,11 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import colors from '../styles/Colors';
 
 const FooterContainer = styled.footer`
-  background-color: white;
-  padding: 2rem 1rem; /* Reduced overall padding for a more compact feel */
+  background-color: ${colors.background};
+  padding: 2rem 1rem;
   margin-top: auto;
+  border-top: 1px solid ${colors.borderDark};
 `;
 
 const FooterInner = styled.div`
@@ -39,13 +41,15 @@ const BrandName = styled.h3`
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
-  color: #B931D6;
+  background: linear-gradient(to right, ${colors.gradient.start}, ${colors.gradient.end});
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 `;
 
 const BrandDescription = styled.p`
   font-size: 0.9rem;
   line-height: 1.4;
-  color: #0D0B1F;
+  color: ${colors.textMuted};
   margin: 0;
 `;
 
@@ -53,7 +57,9 @@ const ColumnHeading = styled.h4`
   font-size: 0.95rem;
   font-weight: 600;
   margin-bottom: 1.25rem;
-  color: #0D0B1F;
+  color: ${colors.textSecondary};
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 `;
 
 const LinkList = styled.ul`
@@ -67,25 +73,34 @@ const LinkList = styled.ul`
 
 const FooterLink = styled(Link)`
   display: inline-block;
-  color: #0D0B1F;
+  color: ${colors.textMuted};
   font-size: 0.95rem;
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
+  padding: 0.25rem 0;
+  border-bottom: 2px solid transparent;
 
   &:hover {
-    color: #9D60F8;
+    color: ${colors.secondaryButton};
+    border-bottom-color: ${colors.secondaryButton};
+  }
+  
+  &:focus {
+    outline: none;
+    border-radius: 4px;
+    box-shadow: 0 0 0 2px ${colors.focus}40;
   }
 `;
 
 const BottomRow = styled.div`
-  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  border-top: 1px solid ${colors.borderDark};
   padding-top: 1rem;
   text-align: center;
 `;
 
 const Copyright = styled.p`
   font-size: 0.75rem;
-  color: #0D0B1F;
+  color: ${colors.textMuted};
   margin: 0;
 `;
 
@@ -112,38 +127,22 @@ export default function Footer() {
           <div>
             <ColumnHeading>Support</ColumnHeading>
             <LinkList>
-              <li>
-                <Link to="/faq" style={{ textDecoration: 'none', color: '#0D0B1F' }}>
-                  Help Center
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" style={{ textDecoration: 'none', color: '#0D0B1F' }}>
-                  Contact Us
-                </Link>
-              </li>
+              <li><FooterLink to="/faq">Help Center</FooterLink></li>
+              <li><FooterLink to="/contact">Contact Us</FooterLink></li>
             </LinkList>
           </div>
           <div>
             <ColumnHeading>Company</ColumnHeading>
             <LinkList>
-              <li>
-                <Link to='/about-us' style={{ textDecoration: 'none', color: '#0D0B1F' }}>About Us</Link>
-              </li>
-              <li>
-                <Link to='/blogs' style={{ textDecoration: 'none', color: '#0D0B1F' }}>Blog</Link>
-              </li>
+              <li><FooterLink to='/about-us'>About Us</FooterLink></li>
+              <li><FooterLink as="a" href='https://www.voxxypresents.com/' target="_blank" rel="noopener noreferrer">Voxxy Presents</FooterLink></li>
             </LinkList>
           </div>
           <div>
             <ColumnHeading>Legal</ColumnHeading>
             <LinkList>
-              <li>
-                <Link to='/terms' style={{ textDecoration: 'none', color: '#0D0B1F' }}>Terms</Link>
-              </li>
-              <li>
-                <Link to='/privacy' style={{ textDecoration: 'none', color: '#0D0B1F' }}>Privacy</Link>
-              </li>
+              <li><FooterLink to='/terms'>Terms</FooterLink></li>
+              <li><FooterLink to='/privacy'>Privacy</FooterLink></li>
             </LinkList>
           </div>
         </TopRow>

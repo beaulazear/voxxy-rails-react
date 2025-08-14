@@ -20,10 +20,11 @@ const SectionInner = styled.div`
 
 const SmallHeading = styled.h3`
   font-size: 1.20rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 1rem;
-  color: ${colors.primaryButton};
-  opacity: 0.9;
+  color: ${colors.secondaryButton};
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 `;
 
 const Title = styled(Heading1)`
@@ -55,24 +56,46 @@ const Card = styled.div`
   flex-direction: column;
   align-items: flex-start;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  border: 1px solid ${colors.borderDark};
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
 
   &:hover {
-    box-shadow: 0 0 20px #592566, 0 0 40px #592566;
-    background-color: ${colors.cardBackground}; /* keep same background, or tweak if you like */
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    border-color: ${colors.primaryButton};
+    
+    // Add a top border accent for non-color indication
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(to right, ${colors.gradient.start}, ${colors.gradient.end});
+      border-radius: 1rem 1rem 0 0;
+    }
+  }
+  
+  &:focus-within {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
   }
 `;
 
 const IconWrapper = styled.div`
-  background-color: #CC31E8;
+  background-color: ${colors.primaryButton};
   color: white;
   border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
+  width: 3.5rem;
+  height: 3.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  border: 2px solid ${colors.borderLight};
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const CardTitle = styled.h4`
@@ -92,12 +115,36 @@ const CardText = styled.p`
 const LearnMoreLink = styled.div`
   font-size: 0.9rem;
   font-weight: 600;
-  color: #CC31E8;
+  color: ${colors.primaryButton};
   text-decoration: none;
   cursor: pointer;
-
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.2s ease;
+  padding: 0.25rem 0;
+  border-bottom: 2px solid transparent;
+  
   &:hover {
-    font-weight: 800;
+    color: ${colors.hoverHighlight};
+    border-bottom-color: ${colors.hoverHighlight};
+    gap: 0.5rem;
+  }
+  
+  &:focus {
+    outline: none;
+    border-radius: 4px;
+    box-shadow: 0 0 0 2px ${colors.focus};
+  }
+  
+  svg {
+    transition: transform 0.2s ease;
+    width: 14px;
+    height: 14px;
+  }
+  
+  &:hover svg {
+    transform: translateX(2px);
   }
 `;
 

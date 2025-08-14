@@ -25,6 +25,8 @@ class UsersController < ApplicationController
         render_web_response(user)
       end
     else
+      Rails.logger.error "User creation failed: #{user.errors.full_messages.join(', ')}"
+      Rails.logger.error "User params: #{user_params.inspect}"
       render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
     end
   end

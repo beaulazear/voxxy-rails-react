@@ -313,6 +313,9 @@ export default function TryVoxxy() {
   };
 
   useEffect(() => {
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
+    
     const token = getOrCreateSessionToken();
     fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/try_voxxy_cached?session_token=${token}`)
       .then(res => res.ok ? res.json() : Promise.reject())

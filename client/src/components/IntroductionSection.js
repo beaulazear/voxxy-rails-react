@@ -5,7 +5,7 @@ import { Heading1, MutedText } from '../styles/Typography';
 import colors from '../styles/Colors'; // make sure filename matches (lowercase 'colors.js')
 
 const HeroSection = styled.section`
-  background-color: ${colors.background};zz
+  background-color: ${colors.background};
   color: ${colors.textPrimary};
   text-align: center;
   padding: 3rem 1.5rem;
@@ -27,15 +27,15 @@ const Title = styled(Heading1)`
   color: ${colors.textPrimary}
 `;
 
-//THE Gradient for voxxy logos and headers.
+//THE Gradient for voxxy logos and headers
 const GradientText = styled.span`
   background: linear-gradient(to right,
-    hsl(291, 80%, 55%, 0.9),
-    hsl(262, 95%, 70%, 0.9),
-    hsl(267, 90%, 65%, 0.9));
+    ${colors.gradient.start},
+    ${colors.gradient.end});
 
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  font-weight: 800;
 `;
 
 const Subtitle = styled(MutedText)`
@@ -58,33 +58,66 @@ const PrimaryButton = styled(Link)`
   display: inline-block;
   background-color: ${colors.primaryButton};
   color: ${colors.textPrimary};
-  padding: 0.8rem 1.5rem;
+  padding: 0.9rem 1.8rem;
   border-radius: 9999px;
-  font-weight: 500;
+  font-weight: 600;
   font-family: 'Inter', sans-serif;
   text-decoration: none;
-  transition: background-color 0.2s ease;
-
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  position: relative;
+  
+  // Better hover state with transform
   &:hover {
     background-color: ${colors.hoverHighlight};
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+  }
+  
+  // Focus state for keyboard navigation
+  &:focus {
+    outline: none;
+    border-color: ${colors.focus};
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+  }
+  
+  // Active state
+  &:active {
+    transform: translateY(0);
   }
 `;
 
 const GradientButton = styled.a`
   display: inline-block;
-  background: none;
-  border: solid 1px;
+  background: transparent;
+  border: 2px solid ${colors.primaryButton};
   color: ${colors.primaryButton};
-  padding: 0.8rem 1.5rem;
+  padding: 0.9rem 1.8rem;
   border-radius: 9999px;
-  font-weight: 500;
+  font-weight: 600;
   font-family: 'Inter', sans-serif;
   text-decoration: none;
-  transition: opacity 0.2s ease;
-
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  
+  // Better hover with background fill
   &:hover {
-    box-shadow: 0 0 10px #592566, 0 0 20px #592566;
-    background-color: ${colors.cardBackground}; /* keep same background, or tweak if you like */
+    background-color: ${colors.primaryButton};
+    color: ${colors.textPrimary};
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+  }
+  
+  // Focus state for keyboard navigation
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.4);
+  }
+  
+  // Active state
+  &:active {
+    transform: translateY(0);
   }
 `;
 

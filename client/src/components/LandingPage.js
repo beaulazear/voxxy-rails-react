@@ -8,7 +8,7 @@ import Footer from "./Footer";
 import WaitlistForm from "./WaitlistForm";
 
 const ContentContainer = styled.div`
-  background-color: #251c2c; /* fixed background color without quotes */
+  background-color: ${({ theme }) => theme?.backgroundTwo || '#221D2E'};
   opacity: ${({ $isVisible }) => ($isVisible ? "1" : "0")};
   transition: opacity 0.7s ease-in-out;
   margin-top: 0;
@@ -57,7 +57,7 @@ const LandingPage = () => {
   }, [handleScroll]);
 
   return (
-    <div style={{ background: "#201925" }}>
+    <div style={{ background: "#1A1625" }}>
       <ContentContainer $isVisible={showContent}>
         <StaggeredContent id="introduction" className="staggered-section" $isVisible={visibleSections.includes("introduction")}>
           <IntroductionSection />

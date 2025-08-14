@@ -2,29 +2,37 @@
 
 const colors = {
     gradient: {
-      start: '#A259FF',
-      end: '#9f6afb',
+      start: '#7B5FFF',  // More blue-purple for better distinction
+      end: '#6B46C1',    // Deeper purple with better contrast
     },
   
-    background: '#201925',
-    backgroundTwo: '#251C2C',
-    cardBackground: '#2a1e30',
+    background: '#1A1625',      // Slightly darker for better contrast
+    backgroundTwo: '#221D2E',   // Adjusted for better readability
+    cardBackground: '#2D2640',  // Lighter card background for contrast
   
-    primaryButton: '#cc31e8',
-    secondaryButton: '#9f6afb',
-    mutedButton: '#7b298d',
-    hoverHighlight: '#E93EFF',
+    primaryButton: '#6B46C1',   // WCAG AA compliant purple
+    secondaryButton: '#8B5CF6', // Lighter purple with good contrast
+    mutedButton: '#6D6D7E',     // Neutral gray for better visibility
+    hoverHighlight: '#8B5CF6',  // Clear hover state
   
     textPrimary: '#FFFFFF',
-    textSecondary: '#F2F2F2',
-    textMuted: '#CCCCCC',
-    whiteAlt: '#d8d1dd',
+    textSecondary: '#F3F4F6',   // Slightly warmer white
+    textMuted: '#D1D5DB',       // Better contrast muted text
+    whiteAlt: '#E5E7EB',
   
-    destructive: '#f53d3d',
+    destructive: '#EF4444',     // More accessible red
+    success: '#10B981',         // Green for success states
+    warning: '#F59E0B',         // Amber for warnings
+    info: '#3B82F6',           // Blue for information
   
-    purple1: '#9f2fce',
-    purple2: '#422151',
-    purple3: '#44334d',
+    // Accessibility colors
+    focus: '#60A5FA',          // Clear blue focus indicator
+    borderLight: '#374151',    // Visible borders
+    borderDark: '#1F2937',
+  
+    purple1: '#7C3AED',
+    purple2: '#4C1D95',
+    purple3: '#5B21B6',
   
     primarySolid: '#ffffff',
   };

@@ -26,10 +26,11 @@ const SectionContainer = styled.div`
 
 const SmallHeading = styled.h3`
   font-size: 1.20rem;
-  font-weight: 600;
-  color: ${colors.primaryButton};
+  font-weight: 700;
+  color: ${colors.secondaryButton};
   margin-bottom: 1rem;
-  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 `;
 
 const Title = styled(Heading1)`
@@ -65,24 +66,37 @@ const Card = styled.div`
   padding: 1.5rem;
   display: flex;
   align-items: center;
-  transition: background-color 0.2s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  transition: all 0.3s ease;
+  border: 1px solid ${colors.borderDark};
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 
   &:hover {
-    box-shadow: 0 0 20px #592566, 0 0 40px #592566;
-    background-color: ${colors.cardBackground}; /* keep same background, or tweak if you like */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+    border-color: ${colors.primaryButton};
+  }
+  
+  &:focus-within {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
   }
 `;
 
 const IconWrapper = styled.div`
-  width: 3rem;
-  height: 3rem;
+  width: 3.5rem;
+  height: 3.5rem;
   border-radius: 50%;
-  background-color: rgba(157, 96, 248, 0.15);
+  background-color: ${colors.primaryButton};
   display: flex;
   align-items: center;
   justify-content: center;
   margin-right: 1.5rem;
+  border: 2px solid ${colors.borderLight};
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  svg {
+    color: ${colors.textPrimary};
+  }
 `;
 
 const TextContainer = styled.div`

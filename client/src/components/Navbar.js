@@ -232,9 +232,14 @@ const MobileMenuButton = styled.button`
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   
   &:hover {
-    background: rgba(157, 96, 248, 0.1);
-    color: ${colors.primaryButton};
+    background: rgba(139, 92, 246, 0.1);
+    color: ${colors.secondaryButton};
     transform: scale(1.05);
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px ${colors.focus};
   }
   
   @media (min-width: 768px) {
@@ -277,6 +282,18 @@ const MobileMenuCloseButton = styled.button`
   align-self: flex-end;
   background: none;
   border: none;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px ${colors.focus};
+  }
+  
+  &:hover {
+    background: rgba(139, 92, 246, 0.1);
+  }
   color: ${colors.textSecondary};
   cursor: pointer;
   padding: 8px;
@@ -395,7 +412,6 @@ export default function Navbar() {
               ) : (
                 <>
                   <NavLinkItem to="/try-voxxy">Try Voxxy</NavLinkItem>
-                  <NavLinkItem to="/blogs">Voxxy Presents</NavLinkItem>
                   <OutlineButton to="/login" style={{ marginLeft: '16px' }}>
                     Log In
                   </OutlineButton>
@@ -444,9 +460,6 @@ export default function Navbar() {
               <>
                 <MobileNavLinkItem to="/try-voxxy" onClick={() => setShowMobileNav(false)}>
                   Try Voxxy
-                </MobileNavLinkItem>
-                <MobileNavLinkItem to="/blogs" onClick={() => setShowMobileNav(false)}>
-                  Voxxy Presents
                 </MobileNavLinkItem>
                 <MobileNavLinkItem to="/login" onClick={() => setShowMobileNav(false)}>
                   Log In
