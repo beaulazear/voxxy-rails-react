@@ -3,31 +3,25 @@ import styled, { createGlobalStyle } from 'styled-components';
 import { Mail } from 'lucide-react';
 import { Heading1, MutedText } from '../styles/Typography';
 import mixpanel from 'mixpanel-browser';
-
-const colors = {
-  sectionBackground: '#251C2C',
-  cardBackground: '#2a1e30',
-  inputBackground: '#211825',
-  border: '#442f4f',
-  textPrimary: '#FFFFFF',
-  textMuted: '#dbd3de',
-  accent: '#cc31e8',
-  error: '#e55353',
-  success: '#FFFFFF',
-};
+import colors from '../styles/Colors';
 
 const SmallHeading = styled.h3`
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.20rem;
+  font-weight: 700;
+  color: ${colors.secondaryButton};
   margin-bottom: 1rem;
-  color: ${colors.accent};
-  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 `;
 
 const Title = styled(Heading1)`
-  font-size: clamp(1.8rem, 5vw, 2.25rem);
+  font-size: clamp(1.8rem, 5vw, 2.1rem);
   margin-bottom: 1rem;
   color: ${colors.textPrimary};
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 `;
 
 const Subtitle = styled(MutedText)`
@@ -47,12 +41,12 @@ const AutofillStyles = createGlobalStyle`
   textarea:-webkit-autofill:focus {
     -webkit-text-fill-color: ${colors.textPrimary} !important;
     transition: background-color 5000s ease-in-out 0s !important;
-    box-shadow: 0 0 0px 1000px ${colors.inputBackground} inset !important;
+    box-shadow: 0 0 0px 1000px ${colors.background} inset !important;
   }
 `;
 
 const FormWrapper = styled.section`
-  background-color: ${colors.sectionBackground};
+  background-color: ${colors.backgroundTwo};
   padding: 1rem .5rem 6rem;
   display: flex;
   justify-content: center;
@@ -63,23 +57,35 @@ const Card = styled.div`
   border-radius: 1rem;
   width: 100%;
   max-width: 500px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-  border: 1px solid ${colors.border};
-  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid ${colors.borderDark};
+  transition: all 0.3s ease;
   &:hover {
-    border-color: ${colors.accent};
-    box-shadow: 0 0 10px ${colors.accent}, 0 0 50px ${colors.accent};
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+    border-color: ${colors.primaryButton};
+  }
+  
+  &:focus-within {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
   }
 `;
 
 const InputRow = styled.div`
   display: flex;
   align-items: center;
-  background-color: ${colors.inputBackground};
-  border: 1px solid ${colors.border};
+  background-color: ${colors.background};
+  border: 1px solid ${colors.borderLight};
   border-radius: 0.75rem;
   padding: 0.75rem;
   gap: 0.75rem;
+  transition: all 0.2s ease;
+  
+  &:focus-within {
+    border-color: ${colors.primaryButton};
+    box-shadow: 0 0 0 2px rgba(107, 70, 193, 0.1);
+  }
 `;
 
 const StyledInput = styled.input`
@@ -96,32 +102,45 @@ const StyledInput = styled.input`
 
 const SubmitButton = styled.button`
   padding: 0.5rem 1rem;
-  background-color: ${colors.accent};
+  background: linear-gradient(135deg, ${colors.primaryButton}, ${colors.secondaryButton});
   color: ${colors.textPrimary};
   border: none;
   border-radius: 0.75rem;
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
   opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
-  &:hover {
-    background-color: ${({ disabled }) => (disabled ? colors.accent : '#7f3bdc')};
+  box-shadow: 0 2px 8px rgba(107, 70, 193, 0.3);
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(107, 70, 193, 0.4);
+    background: linear-gradient(135deg, ${colors.secondaryButton}, ${colors.hoverHighlight});
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
   }
 `;
 
 const MessageText = styled.p`
-  font-size: 1.1rem;
+  font-size: 1rem;
   line-height: 1.6;
   max-width: 750px;
   text-align: center;
   margin: 0.5rem auto 0.5rem;
   padding: 1rem;
-  color: ${({ $error }) => ($error ? colors.error : colors.success)};
+  color: ${({ $error }) => ($error ? colors.destructive : colors.success)};
+  border-radius: 0.5rem;
+  background-color: ${({ $error }) => ($error ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)')};
  `;
 
 const HeaderWrapper = styled.div`
-  padding: 2rem 1rem;
+  padding: 3rem 1rem 2rem;
+  text-align: center;
 `;
 
 export default function WaitlistForm() {
@@ -185,12 +204,12 @@ export default function WaitlistForm() {
   };
 
   return (
-    <div style={{ backgroundColor: colors.sectionBackground }}>
+    <div style={{ backgroundColor: colors.backgroundTwo }}>
       <AutofillStyles />
       <HeaderWrapper>
         <SmallHeading>Stay Connected</SmallHeading>
         <Title>
-          Get product updates from Voxxy <Mail color={colors.textMuted} size={20} />
+          Get product updates from Voxxy
         </Title>
         <Subtitle>
           Sign up to follow our journey and get early access to new features, updates, and launch perks, all in one place.

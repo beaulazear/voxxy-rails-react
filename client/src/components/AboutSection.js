@@ -95,7 +95,7 @@ const IconWrapper = styled.div`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   
   svg {
-    color: ${colors.textPrimary};
+    color: white;
   }
 `;
 
@@ -130,7 +130,7 @@ export default function AboutSection() {
         <CardsWrapper>
           <Card>
             <IconWrapper>
-              <Users size={20} color={colors.primaryButton} />
+              <Users size={20} />
             </IconWrapper>
             <TextContainer>
               <CardTitle>Group Decision Making</CardTitle>
@@ -142,7 +142,7 @@ export default function AboutSection() {
 
           <Card>
             <IconWrapper>
-              <CalendarClock size={20} color={colors.primaryButton} />
+              <CalendarClock size={20} />
             </IconWrapper>
             <TextContainer>
               <CardTitle>Smart Scheduling</CardTitle>
@@ -154,7 +154,7 @@ export default function AboutSection() {
 
           <Card>
             <IconWrapper>
-              <CircleDollarSign size={20} color={colors.primaryButton} />
+              <CircleDollarSign size={20} />
             </IconWrapper>
             <TextContainer>
               <CardTitle>Budget Tracking</CardTitle>
@@ -166,7 +166,7 @@ export default function AboutSection() {
 
           <Card>
             <IconWrapper>
-              <CheckSquare size={20} color={colors.primaryButton} />
+              <CheckSquare size={20} />
             </IconWrapper>
             <TextContainer>
               <CardTitle>Task Management</CardTitle>
@@ -178,7 +178,7 @@ export default function AboutSection() {
 
           <Card>
             <IconWrapper>
-              <MessageCircle size={20} color={colors.primaryButton} />
+              <MessageCircle size={20} />
             </IconWrapper>
             <TextContainer>
               <CardTitle>Integrated Messaging</CardTitle>
@@ -190,7 +190,7 @@ export default function AboutSection() {
 
           <Card>
             <IconWrapper>
-              <Zap size={20} color={colors.primaryButton} />
+              <Zap size={20} />
             </IconWrapper>
             <TextContainer>
               <CardTitle>AI Recommendations</CardTitle>

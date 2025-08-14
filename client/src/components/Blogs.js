@@ -79,31 +79,33 @@ const Subtitle = styled.div`
   }
 `;
 
-const ComingSoonBadge = styled.div`
-  display: inline-block;
+const InstagramBadge = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   font-family: 'Montserrat', sans-serif;
   font-weight: 400;
-  font-size: 1.1rem;
-  letter-spacing: 3px;
+  font-size: 1rem;
+  letter-spacing: 1px;
   text-transform: uppercase;
   margin-bottom: 2rem;
   color: ${colors.textMuted};
+  text-decoration: none;
   animation: ${fadeIn} 1s ease-out 0.3s both;
-  position: relative;
+  transition: all 0.3s ease;
   
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, ${colors.gradient.start}, transparent);
+  &:hover {
+    color: ${colors.textSecondary};
+    transform: translateY(-2px);
+  }
+  
+  svg {
+    width: 20px;
+    height: 20px;
   }
 `;
 
-const InstagramLink = styled.a`
+const MainCTALink = styled.a`
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
@@ -127,10 +129,11 @@ const InstagramLink = styled.a`
   }
 
   svg {
-    width: 28px;
-    height: 28px;
+    width: 20px;
+    height: 20px;
   }
 `;
+
 
 const FeatureList = styled.div`
   display: flex;
@@ -180,7 +183,12 @@ export default function Blogs() {
         <SectionInner>
           <Title>Voxxy Presents</Title>
           <Tagline>Where Events Come Alive</Tagline>
-          <ComingSoonBadge>Coming Soon</ComingSoonBadge>
+          <InstagramBadge href="https://www.instagram.com/voxxypresents" target="_blank" rel="noopener noreferrer">
+            View our Instagram
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.405a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/>
+            </svg>
+          </InstagramBadge>
           
           <FeatureList>
             <FeatureItem>
@@ -197,12 +205,13 @@ export default function Blogs() {
             </FeatureItem>
           </FeatureList>
 
-          <InstagramLink href="https://www.instagram.com/voxxypresents" target="_blank" rel="noopener noreferrer">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.405a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/>
+          <MainCTALink href="https://www.voxxypresents.com" target="_blank" rel="noopener noreferrer">
+            Visit Voxxy Presents Beta
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="7" y1="17" x2="17" y2="7"></line>
+              <polyline points="7 7 17 7 17 17"></polyline>
             </svg>
-            Follow @voxxypresents
-          </InstagramLink>
+          </MainCTALink>
         </SectionInner>
       </SectionContainer>
       <WaitlistForm />

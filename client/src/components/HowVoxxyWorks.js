@@ -59,23 +59,13 @@ const Card = styled.div`
   border: 1px solid ${colors.borderDark};
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   position: relative;
+  overflow: hidden;
 
   &:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
     border-color: ${colors.primaryButton};
-    
-    // Add a top border accent for non-color indication
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(to right, ${colors.gradient.start}, ${colors.gradient.end});
-      border-radius: 1rem 1rem 0 0;
-    }
+    border-top: 3px solid ${colors.gradient.start};
   }
   
   &:focus-within {

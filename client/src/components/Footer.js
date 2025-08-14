@@ -135,7 +135,7 @@ export default function Footer() {
             <ColumnHeading>Company</ColumnHeading>
             <LinkList>
               <li><FooterLink to='/about-us'>About Us</FooterLink></li>
-              <li><FooterLink as="a" href='https://www.voxxypresents.com/' target="_blank" rel="noopener noreferrer">Voxxy Presents</FooterLink></li>
+              <li><FooterLink to='/voxxy-presents'>Voxxy Presents</FooterLink></li>
             </LinkList>
           </div>
           <div>
