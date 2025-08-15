@@ -46,7 +46,7 @@ class PlacesController < ApplicationController
   end
 
   # GET /places/search?query=Brooklyn&types=geocode
-  # Valid types: 
+  # Valid types:
   #   - "geocode" for all geographic locations (includes neighborhoods)
   #   - "(cities)" for cities only
   #   - "(regions)" for administrative areas
