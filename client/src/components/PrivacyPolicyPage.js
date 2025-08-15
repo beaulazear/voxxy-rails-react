@@ -15,11 +15,16 @@ const Container = styled.div`
 `;
 
 const Title = styled.h1`
-  color: #9261E5;
-  font-size: 2.5rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 600;
   text-align: center;
   margin-bottom: 1rem;
-  font-weight: 700;
+  background: linear-gradient(135deg, ${colors.gradient.start}, ${colors.hoverHighlight});
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
 `;
 
 const SubTitle = styled.p`

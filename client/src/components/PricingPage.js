@@ -46,9 +46,15 @@ const SectionHeader = styled.div`
 // `;
 
 const Title = styled(Heading1)`
-  ${gradient}
-  font-size: clamp(2rem, 5vw, 3rem);
-  margin-bottom: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, ${colors.gradient.start}, ${colors.hoverHighlight});
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
 `;
 
 const Subtitle = styled(MutedText)`

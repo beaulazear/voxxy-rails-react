@@ -36,10 +36,12 @@ const HeaderContainer = styled.div`
 `;
 
 const Title = styled.h2`
-  font-size: clamp(2rem, 4vw, 2.8rem);
-  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 600;
   color: #fff;
   margin: 0 0 1rem 0;
+  letter-spacing: -0.5px;
 `;
 
 const Subtitle = styled.p`
