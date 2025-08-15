@@ -45,9 +45,15 @@ class PlacesController < ApplicationController
     end
   end
 
-  # GET /places/search?query=Brooklyn
+  # GET /places/search?query=Brooklyn&types=geocode
+  # Valid types: 
+  #   - "geocode" for all geographic locations (includes neighborhoods)
+  #   - "(cities)" for cities only
+  #   - "(regions)" for administrative areas
+  #   - "address" for precise addresses
   def search
     query = params[:query]
+    types = params[:types] || "(cities)"  # Default to cities if not specified
 
     if query.blank? || query.length < 2
       render json: { results: [] }, status: :ok
@@ -55,7 +61,7 @@ class PlacesController < ApplicationController
     end
 
     begin
-      results = google_places_search(query)
+      results = google_places_search(query, types)
       render json: { results: results }, status: :ok
     rescue StandardError => e
       Rails.logger.error "Google Places search error: #{e.message}"
@@ -96,7 +102,7 @@ class PlacesController < ApplicationController
     }
     uri.query = URI.encode_www_form(params)
 
-    Rails.logger.info "Places API search request: query=#{query}"
+    Rails.logger.info "Places API search request: query=#{query}, types=#{types}"
 
     response = Net::HTTP.get_response(uri)
 
