@@ -28,7 +28,6 @@ import GuestResponsePage from './components/GuestResponsePage.jsx';
 import ProtectedActivityRoute from './components/ProtectedActivityRoute.js';
 import TripDashboardPage from './admincomponents/TripDashboardPage.js';
 import ComingSoonPlaceholder from './components/ComingSoonPlaceholder.js';
-import RedirectToHeyVoxxy from './components/RedirectToHeyVoxxy.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -61,23 +60,12 @@ function App() {
     return <LoadingScreen />;
   }
 
-  // Check if we're on voxxyai.com or heyvoxxy.com
-  const isVoxxyAI = window.location.hostname === 'voxxyai.com' || window.location.hostname === 'www.voxxyai.com';
-  const isHeyVoxxy = window.location.hostname === 'heyvoxxy.com' || window.location.hostname === 'www.heyvoxxy.com';
-  
-  // Define auth and guest routes
-  const isAuthRoute = ['/login', '/signup', '/invite_signup', '/forgot-password', '/reset-password', '/verification'].includes(location.pathname);
-  const isGuestRoute = location.pathname.includes('/activities/') && location.pathname.includes('/respond/');
-  
-  // Redirect logic for non-admin users
-  if (isLoggedIn && isConfirmed && !isAdmin && !isAuthRoute && !isGuestRoute) {
-    // On voxxyai.com: redirect non-admin users to heyvoxxy.com
-    if (isVoxxyAI) {
-      return <RedirectToHeyVoxxy />;
-    }
-    // On heyvoxxy.com: allow non-admin users to use the app normally
-    // On other domains (like localhost): show coming soon placeholder
-    if (!isHeyVoxxy && !isVoxxyAI) {
+  // Show coming soon for non-admin users who are logged in and confirmed
+  if (isLoggedIn && isConfirmed && !isAdmin) {
+    const isAuthRoute = ['/login', '/signup', '/invite_signup', '/forgot-password', '/reset-password', '/verification'].includes(location.pathname);
+    const isGuestRoute = location.pathname.includes('/activities/') && location.pathname.includes('/respond/');
+    
+    if (!isAuthRoute && !isGuestRoute) {
       return <ComingSoonPlaceholder />;
     }
   }
@@ -90,11 +78,7 @@ function App() {
         <Route path="/" element={
           isLoggedIn && isAdmin ? <UserActivities /> : 
           !isLoggedIn ? <LandingPage /> : 
-          isConfirmed ? (
-            isVoxxyAI && !isAdmin ? <RedirectToHeyVoxxy /> : 
-            isHeyVoxxy ? <UserActivities /> : 
-            <ComingSoonPlaceholder />
-          ) : 
+          isConfirmed ? <ComingSoonPlaceholder /> : 
           <ConfirmEmail />
         } />
         <Route path="/signup" element={<SignUp />} />
