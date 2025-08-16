@@ -11,7 +11,7 @@ class ActivityAcceptanceEmailService < BaseEmailService
 
     subject = "#{user.name} has accepted their Voxxy invitation! 🎉"
 
-    homepage_url = "https://www.voxxyai.com/#/login"
+    homepage_url = "#{app_base_url}/#/login"
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">

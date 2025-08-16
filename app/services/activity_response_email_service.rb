@@ -19,7 +19,7 @@ class ActivityResponseEmailService < BaseEmailService
     Rails.logger.info "Sending response email to host (#{host.email}) for Activity ##{activity.id}"
 
     subject = "#{participant_name} submitted their Voxxy preferences! 📝"
-    homepage_url = "https://www.voxxyai.com"
+    homepage_url = app_base_url
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">

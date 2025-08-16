@@ -37,7 +37,8 @@ class ApplicationController < ActionController::API
 
   def frontend_host
     if Rails.env.production?
-      "https://www.voxxyai.com/"
+      primary_domain = ENV.fetch("PRIMARY_DOMAIN", "voxxyai.com")
+      "https://#{primary_domain}/"
     else
       "http://localhost:3000/"
     end

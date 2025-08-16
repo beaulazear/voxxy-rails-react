@@ -32,7 +32,7 @@ class InviteUserService < BaseEmailService
 
   def self.send_new_user_invite(email, activity, inviter, participant)
     # Note: New users don't have preferences yet, so we always send these invites
-    frontend_host = ENV.fetch("APP_BASE_URL", Rails.env.production? ? "https://voxxyai.com" : "http://localhost:3000")
+    frontend_host = app_base_url
 
     response_link = "#{frontend_host}#/activities/#{activity.id}/respond/#{participant.guest_response_token}"
     signup_link = "#{frontend_host}#/invite_signup?invited_email=#{email}&activity_id=#{activity.id}"
@@ -123,7 +123,7 @@ class InviteUserService < BaseEmailService
   def self.send_existing_user_invite(user, activity, inviter, participant)
     return unless can_send_email_to_user?(user)
 
-    frontend_host = ENV.fetch("APP_BASE_URL", Rails.env.production? ? "https://voxxyai.com" : "http://localhost:3000")
+    frontend_host = app_base_url
 
     response_link = "#{frontend_host}#/activities/#{activity.id}/respond/#{participant.guest_response_token}"
     login_link = "#{frontend_host}#/login?redirect=boards"

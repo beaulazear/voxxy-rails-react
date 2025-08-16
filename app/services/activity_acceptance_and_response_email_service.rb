@@ -9,7 +9,7 @@ class ActivityAcceptanceAndResponseEmailService < BaseEmailService
     Rails.logger.info "Sending acceptance + response email to host (#{host.email}) for Activity ##{activity.id}"
 
     subject = "#{user.name} joined and submitted their preferences! 🎉"
-    homepage_url = "https://www.voxxyai.com"
+    homepage_url = app_base_url
 
     # Determine activity type for better messaging
     activity_type_text = case activity.activity_type&.downcase

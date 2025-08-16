@@ -6,6 +6,16 @@ class BaseEmailService
   SENDER_EMAIL = "team@voxxyai.com"
   SENDER_NAME = "Voxxy"
 
+  # Get the application base URL dynamically from environment
+  def self.app_base_url
+    if Rails.env.production?
+      primary_domain = ENV.fetch("PRIMARY_DOMAIN", "voxxyai.com")
+      "https://#{primary_domain}"
+    else
+      "http://localhost:3000"
+    end
+  end
+
   # Check if user can receive emails
   def self.can_send_email_to_user?(user)
     return true unless user.respond_to?(:email_notifications) # If no preference field, allow

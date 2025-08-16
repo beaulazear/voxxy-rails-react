@@ -61,20 +61,25 @@ function App() {
     return <LoadingScreen />;
   }
 
-  // Check if we're on voxxyai.com
+  // Check if we're on voxxyai.com or heyvoxxy.com
   const isVoxxyAI = window.location.hostname === 'voxxyai.com' || window.location.hostname === 'www.voxxyai.com';
+  const isHeyVoxxy = window.location.hostname === 'heyvoxxy.com' || window.location.hostname === 'www.heyvoxxy.com';
   
-  // Show redirect screen for non-admin users on voxxyai.com (except for auth routes and guest responses)
+  // Define auth and guest routes
   const isAuthRoute = ['/login', '/signup', '/invite_signup', '/forgot-password', '/reset-password', '/verification'].includes(location.pathname);
   const isGuestRoute = location.pathname.includes('/activities/') && location.pathname.includes('/respond/');
   
-  if (isVoxxyAI && isLoggedIn && isConfirmed && !isAdmin && !isAuthRoute && !isGuestRoute) {
-    return <RedirectToHeyVoxxy />;
-  }
-  
-  // Show coming soon placeholder for non-admin users on other domains
-  if (!isVoxxyAI && isLoggedIn && isConfirmed && !isAdmin && !isAuthRoute && !isGuestRoute) {
-    return <ComingSoonPlaceholder />;
+  // Redirect logic for non-admin users
+  if (isLoggedIn && isConfirmed && !isAdmin && !isAuthRoute && !isGuestRoute) {
+    // On voxxyai.com: redirect non-admin users to heyvoxxy.com
+    if (isVoxxyAI) {
+      return <RedirectToHeyVoxxy />;
+    }
+    // On heyvoxxy.com: allow non-admin users to use the app normally
+    // On other domains (like localhost): show coming soon placeholder
+    if (!isHeyVoxxy && !isVoxxyAI) {
+      return <ComingSoonPlaceholder />;
+    }
   }
 
   return (
@@ -85,7 +90,11 @@ function App() {
         <Route path="/" element={
           isLoggedIn && isAdmin ? <UserActivities /> : 
           !isLoggedIn ? <LandingPage /> : 
-          isConfirmed ? (isVoxxyAI ? <RedirectToHeyVoxxy /> : <ComingSoonPlaceholder />) : 
+          isConfirmed ? (
+            isVoxxyAI && !isAdmin ? <RedirectToHeyVoxxy /> : 
+            isHeyVoxxy ? <UserActivities /> : 
+            <ComingSoonPlaceholder />
+          ) : 
           <ConfirmEmail />
         } />
         <Route path="/signup" element={<SignUp />} />

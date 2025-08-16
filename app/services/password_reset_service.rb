@@ -12,7 +12,7 @@ class PasswordResetService < BaseEmailService
     to = SendGrid::Email.new(email: user.email)
     subject = "🔑 Reset Your Password on Voxxy"
 
-    frontend_host = Rails.env.production? ? "https://www.voxxyai.com" : "http://localhost:3000"
+    frontend_host = app_base_url
     reset_link = "#{frontend_host}/#/reset-password?token=#{user.reset_password_token}"
 
     Rails.logger.info "Password Reset Link: #{reset_link}"
@@ -47,7 +47,7 @@ class PasswordResetService < BaseEmailService
             </div>
 
             <p style="color: #888; font-size: 12px; margin-top: 20px;">
-              Sent with 💜 from the Voxxy Team | <a href="https://www.voxxyai.com" style="color: #8e44ad; text-decoration: none;">voxxyai.com</a>
+              Sent with 💜 from the Voxxy Team | <a href="#{app_base_url}" style="color: #8e44ad; text-decoration: none;">#{app_base_url.gsub('https://', '').gsub('http://', '')}</a>
             </p>
 
           </body>
