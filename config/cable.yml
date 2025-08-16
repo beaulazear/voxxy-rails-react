@@ -9,5 +9,7 @@ production:
   url: <%= ENV.fetch("REDIS_URL") { "redis://localhost:6379/1" } %>
   channel_prefix: voxxy_rails_production
   allowed_request_origins:
+    - https://www.heyvoxxy.com
+    - https://heyvoxxy.com
     - https://www.voxxyai.com
-    - http://www.voxxyai.com
+    - https://voxxyai.com

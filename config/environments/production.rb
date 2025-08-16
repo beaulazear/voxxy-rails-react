@@ -41,10 +41,12 @@ Rails.application.configure do
 
   # Mount Action Cable outside main process or domain.
   # config.action_cable.mount_path = nil
-  config.action_cable.url = "wss://voxxy-rails-react.onrender.com/cable"
+  config.action_cable.url = "wss://hey-voxxy.onrender.com/cable"
   config.action_cable.allowed_request_origins = [
   "https://www.voxxyai.com",
-  "http://www.voxxyai.com"
+  "http://www.voxxyai.com",
+  "https://www.heyvoxxy.com",
+  "https://heyvoxxy.com"
 ]
 
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
@@ -90,16 +92,19 @@ Rails.application.configure do
   config.action_mailer.smtp_settings = {
     user_name: "apikey", # Use 'apikey' as the username
     password: ENV["VoxxyKeyAPI"], # Use your environment variable
-    domain: "voxxyai.com", # Your verified domain
+    domain: ENV.fetch("PRIMARY_DOMAIN", "voxxyai.com"), # Your verified domain
     address: "smtp.sendgrid.net",
     port: 587,
     authentication: :plain,
     enable_starttls_auto: true
   }
 
-  config.action_mailer.default_url_options = { host: "voxxyai.com", protocol: "https" }
+  # Dynamic domain configuration based on environment variable
+  primary_domain = ENV.fetch("PRIMARY_DOMAIN", "voxxyai.com")
+
+  config.action_mailer.default_url_options = { host: primary_domain, protocol: "https" }
   # Add this line for Active Storage URLs (replace with your domain)
-  Rails.application.routes.default_url_options = { host: "voxxyai.com" }
+  Rails.application.routes.default_url_options = { host: primary_domain }
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false

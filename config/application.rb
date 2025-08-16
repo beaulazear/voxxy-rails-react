@@ -23,7 +23,7 @@ module VoxxyRails
     allowed_origins = [
       "http://localhost:3000",
       "https://www.voxxyai.com",
-      "https://voxxy-rails-react-staging.onrender.com",
+      "https://hey-voxxy.onrender.com",
       "https://heyvoxxy.com",
       "https://www.heyvoxxy.com",
       "http://192.168.1.123:8081", # mobile dev origin
