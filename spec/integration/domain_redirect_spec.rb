@@ -18,15 +18,15 @@ RSpec.describe 'Domain-based access control', type: :request do
 
       it 'uses heyvoxxy.com in password reset emails' do
         regular_user.generate_password_token!
-        
+
         expect_any_instance_of(SendGrid::API).to receive_message_chain(:client, :mail, :_, :post) do |request|
           body = request.named_args[:request_body]
           parsed = JSON.parse(body)
           content = parsed['content'].first['value']
-          
+
           expect(content).to include('https://heyvoxxy.com/#/reset-password')
           expect(content).not_to include('voxxyai.com')
-          
+
           double(status_code: 202, body: 'OK')
         end
 
@@ -64,9 +64,9 @@ RSpec.describe 'Domain-based access control', type: :request do
 
   describe 'Email sender configuration' do
     it 'always uses team@voxxyai.com regardless of PRIMARY_DOMAIN' do
-      ['heyvoxxy.com', 'voxxyai.com', 'example.com'].each do |domain|
+      [ 'heyvoxxy.com', 'voxxyai.com', 'example.com' ].each do |domain|
         allow(ENV).to receive(:fetch).with('PRIMARY_DOMAIN', 'voxxyai.com').and_return(domain)
-        
+
         expect(BaseEmailService::SENDER_EMAIL).to eq('team@voxxyai.com')
         expect(BaseEmailService::SENDER_NAME).to eq('Voxxy')
       end

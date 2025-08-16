@@ -29,7 +29,7 @@ RSpec.describe 'Email Service URL Integration' do
 
       it 'ActivityResponseEmailService uses correct URL' do
         response = create(:activity_response, activity: activity, user: user)
-        
+
         expect(BaseEmailService).to receive(:send_email) do |to, subject, content, headers|
           expect(content).to include('https://heyvoxxy.com')
           expect(content).not_to include('voxxyai.com')
@@ -40,7 +40,7 @@ RSpec.describe 'Email Service URL Integration' do
 
       it 'PasswordResetService uses correct URL' do
         user.generate_password_token!
-        
+
         expect_any_instance_of(SendGrid::API).to receive_message_chain(:client, :mail, :_, :post) do |request|
           body = request.named_args[:request_body]
           expect(body).to include('https://heyvoxxy.com')
@@ -108,7 +108,7 @@ RSpec.describe 'Email Service URL Integration' do
     it 'all services use team@voxxyai.com regardless of PRIMARY_DOMAIN' do
       ClimateControl.modify PRIMARY_DOMAIN: 'heyvoxxy.com' do
         expect(BaseEmailService::SENDER_EMAIL).to eq('team@voxxyai.com')
-        
+
         # Test that emails are sent from team@voxxyai.com
         expect(BaseEmailService).to receive(:send_email) do |to, subject, content, headers|
           # The send_email method internally uses SENDER_EMAIL
