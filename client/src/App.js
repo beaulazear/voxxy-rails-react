@@ -28,6 +28,7 @@ import GuestResponsePage from './components/GuestResponsePage.jsx';
 import ProtectedActivityRoute from './components/ProtectedActivityRoute.js';
 import TripDashboardPage from './admincomponents/TripDashboardPage.js';
 import ComingSoonPlaceholder from './components/ComingSoonPlaceholder.js';
+import RedirectToHeyVoxxy from './components/RedirectToHeyVoxxy.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -60,11 +61,19 @@ function App() {
     return <LoadingScreen />;
   }
 
-  // Show coming soon placeholder for confirmed non-admin users (except for auth routes and guest responses)
+  // Check if we're on voxxyai.com
+  const isVoxxyAI = window.location.hostname === 'voxxyai.com' || window.location.hostname === 'www.voxxyai.com';
+  
+  // Show redirect screen for non-admin users on voxxyai.com (except for auth routes and guest responses)
   const isAuthRoute = ['/login', '/signup', '/invite_signup', '/forgot-password', '/reset-password', '/verification'].includes(location.pathname);
   const isGuestRoute = location.pathname.includes('/activities/') && location.pathname.includes('/respond/');
   
-  if (isLoggedIn && isConfirmed && !isAdmin && !isAuthRoute && !isGuestRoute) {
+  if (isVoxxyAI && isLoggedIn && isConfirmed && !isAdmin && !isAuthRoute && !isGuestRoute) {
+    return <RedirectToHeyVoxxy />;
+  }
+  
+  // Show coming soon placeholder for non-admin users on other domains
+  if (!isVoxxyAI && isLoggedIn && isConfirmed && !isAdmin && !isAuthRoute && !isGuestRoute) {
     return <ComingSoonPlaceholder />;
   }
 
@@ -73,7 +82,12 @@ function App() {
       {!shouldHideNavbar && <Navbar />}
 
       <Routes>
-        <Route path="/" element={isLoggedIn && isAdmin ? <UserActivities /> : !isLoggedIn ? <LandingPage /> : isConfirmed ? <ComingSoonPlaceholder /> : <ConfirmEmail />} />
+        <Route path="/" element={
+          isLoggedIn && isAdmin ? <UserActivities /> : 
+          !isLoggedIn ? <LandingPage /> : 
+          isConfirmed ? (isVoxxyAI ? <RedirectToHeyVoxxy /> : <ComingSoonPlaceholder />) : 
+          <ConfirmEmail />
+        } />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/invite_signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
