@@ -704,6 +704,7 @@ export default function AIRecommendations({
   
   // Add state management for recommendations tracking like mobile
   const [likedRecommendations, setLikedRecommendations] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [flaggedRecommendations, setFlaggedRecommendations] = useState([]);
   const [favoriteRecommendations, setFavoriteRecommendations] = useState([]);
 

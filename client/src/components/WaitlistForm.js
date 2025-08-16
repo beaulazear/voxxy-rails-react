@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
-import { Mail } from 'lucide-react';
 import { Heading1, MutedText } from '../styles/Typography';
 import mixpanel from 'mixpanel-browser';
 import colors from '../styles/Colors';

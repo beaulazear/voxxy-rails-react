@@ -16,15 +16,6 @@ const fadeIn = keyframes`
   }
 `;
 
-const pulse = keyframes`
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-`;
-
 const SectionContainer = styled.section`
   padding: 6rem 1rem;
   text-align: center;
@@ -62,21 +53,6 @@ const Tagline = styled.p`
   letter-spacing: 2px;
   text-transform: uppercase;
   animation: ${fadeIn} 1s ease-out 0.2s both;
-`;
-
-const Subtitle = styled.div`
-  font-family: 'Inter', sans-serif;
-  font-size: clamp(1rem, 2vw, 1.2rem);
-  max-width: 600px;
-  margin: 2rem auto 3rem auto;
-  line-height: 1.8;
-  color: ${colors.textSecondary};
-  animation: ${fadeIn} 1s ease-out 0.4s both;
-  
-  span {
-    display: block;
-    margin: 0.5rem 0;
-  }
 `;
 
 const InstagramBadge = styled.a`

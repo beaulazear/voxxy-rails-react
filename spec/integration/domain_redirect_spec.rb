@@ -17,7 +17,9 @@ RSpec.describe 'Domain-based access control', type: :request do
       end
 
       it 'uses heyvoxxy.com in password reset emails' do
-        regular_user.generate_password_token!
+        regular_user.reset_password_token = SecureRandom.urlsafe_base64
+        regular_user.reset_password_sent_at = Time.current
+        regular_user.save!
 
         expect_any_instance_of(SendGrid::API).to receive_message_chain(:client, :mail, :_, :post) do |request|
           body = request.named_args[:request_body]
@@ -36,6 +38,7 @@ RSpec.describe 'Domain-based access control', type: :request do
 
     context 'when set to voxxyai.com' do
       before do
+        allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
         allow(ENV).to receive(:fetch).with('PRIMARY_DOMAIN', 'voxxyai.com').and_return('voxxyai.com')
       end
 
