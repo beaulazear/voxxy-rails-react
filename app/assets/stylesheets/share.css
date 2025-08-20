@@ -1,152 +1,307 @@
-/* page background & centering */
+/* Dark Purple Mobile-Inspired Theme */
+/* Based on modalStyles.js from voxxy-mobile */
+
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
-    background-color: #f2f4f6;
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #1A1625 0%, #2D1B47 100%);
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #FFFFFF;
 }
 
+/* Main container */
 .share-page {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 0 1rem;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  min-height: 100vh;
 }
 
-/* header */
-.share-header {
-    text-align: center;
-    margin-bottom: 1.5rem;
+/* Cards with dark purple theme */
+.card {
+  background: #1A1625;
+  border-radius: 24px;
+  padding: 24px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(147, 51, 234, 0.2);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
 }
 
-.voxxy-logo {
-    max-width: 220px;
-    width: 100%;
-    height: auto;
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #9333EA, #7C3AED, #6B21A8);
 }
 
-/* activity card */
-.activity-card {
-    background: #fff;
-    border-radius: 1rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    overflow: hidden;
+/* Typography */
+h2 {
+  color: #FFFFFF;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* top bar */
-.activity-main {
-    background: #4f46e5;
-    color: #fff;
-    padding: 1.25rem 1.5rem;
-    text-align: center;
+p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 12px;
 }
 
+/* Activity title with gradient accent */
 .activity-title {
-    font-size: 1.75rem;
-    margin: 0 0 0.5rem;
-    line-height: 1.2;
+  font-size: 26px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #A855F7, #9333EA);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.activity-meta .badge {
-    display: inline-block;
-    margin: 0.25rem 0.25rem 0 0;
-    background: rgba(255, 255, 255, 0.25);
-    border-radius: 999px;
-    padding: 0.3rem 0.75rem;
-    font-size: 0.8125rem;
+/* Countdown section */
+.countdown-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 12px;
+  font-weight: 600;
 }
 
-/* details grid */
-.activity-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1.25rem;
-    padding: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
+#countdown {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 
-.activity-details h4 {
-    margin: 0 0 0.25rem;
-    font-weight: 600;
-    color: #374151;
+.cd-card {
+  background: rgba(147, 51, 234, 0.1);
+  border: 1px solid rgba(147, 51, 234, 0.3);
+  border-radius: 16px;
+  padding: 12px 16px;
+  text-align: center;
+  min-width: 70px;
 }
 
-.activity-details p {
-    margin: 0;
-    color: #4b5563;
-    line-height: 1.4;
+.cd-card strong {
+  display: block;
+  font-size: 24px;
+  color: #A855F7;
+  font-weight: 700;
+  margin-bottom: 4px;
 }
 
-/* time slots list */
-.time-slots ul {
-    list-style: none;
-    padding: 0;
-    margin: 0.25rem 0 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+.cd-card small {
+  display: block;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.time-slots li {
-    background: #f3f4f6;
-    padding: 0.4rem 0.75rem;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    color: #374151;
+/* Action buttons with gradient */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
 }
 
-/* participants */
-.participants-section {
-    padding: 1.5rem;
+.glass-button {
+  flex: 1;
+  min-width: 120px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  background: rgba(147, 51, 234, 0.1);
+  border: 1px solid rgba(147, 51, 234, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-block;
 }
 
-.participants-section h3 {
-    margin: 0 0 1rem;
-    font-size: 1.25rem;
-    color: #111827;
+.glass-button:hover {
+  background: rgba(147, 51, 234, 0.2);
+  border-color: rgba(147, 51, 234, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(147, 51, 234, 0.3);
 }
 
-.participants-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 1rem;
+.glass-button.primary {
+  background: linear-gradient(135deg, #9333EA, #7C3AED);
+  border: none;
+  color: #FFFFFF;
+  box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
 }
 
-.participants-list li {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    background: #f9fafb;
-    padding: 0.75rem;
-    border-radius: 0.5rem;
+.glass-button.primary:hover {
+  background: linear-gradient(135deg, #7C3AED, #6B21A8);
+  box-shadow: 0 6px 20px rgba(147, 51, 234, 0.5);
 }
 
-.participants-list .avatar {
-    flex-shrink: 0;
-    width: 36px;
-    height: 36px;
-    background: #d1d5db;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.875rem;
-    color: #374151;
+/* Restaurant/venue details */
+.rest-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 8px;
 }
 
-.participants-list .name {
-    font-weight: 500;
-    color: #111827;
+.rest-desc {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 12px;
 }
 
-@media (min-width: 1024px) {
-    .activity-main {
-        text-align: left;
-        padding: 2rem 2.5rem;
-    }
+.rest-address {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
 
-    .activity-title {
-        font-size: 2.25rem;
-    }
+.rest-price {
+  display: inline-block;
+  background: rgba(168, 85, 247, 0.2);
+  padding: 6px 12px;
+  border-radius: 12px;
+  color: #A855F7;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* Attendee pills */
+.attendee-pills {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  background: rgba(147, 51, 234, 0.1);
+  border: 1px solid rgba(147, 51, 234, 0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  display: inline-block;
+}
+
+.pill:first-child {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(147, 51, 234, 0.2));
+  border-color: rgba(168, 85, 247, 0.3);
+  color: #A855F7;
+}
+
+/* Success/Info banner */
+.info-banner {
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.info-banner-icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(168, 85, 247, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-banner-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  flex: 1;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .share-page {
+    padding: 1rem 0.75rem;
+  }
+  
+  .card {
+    border-radius: 20px;
+    padding: 20px;
+  }
+  
+  .activity-title {
+    font-size: 22px;
+  }
+  
+  .glass-button {
+    min-width: 100px;
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+}
+
+/* Animation for countdown */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.cd-card {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Toast notification style */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #9333EA, #7C3AED);
+  color: white;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(147, 51, 234, 0.4);
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.toast.show {
+  opacity: 1;
 }

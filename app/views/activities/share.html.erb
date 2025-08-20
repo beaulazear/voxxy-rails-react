@@ -1,25 +1,22 @@
 <!-- app/views/activities/share.html.erb -->
 <div class="share-page">
-
-    <!-- Final date & time -->
-    <% if @activity.date_day.present? && @activity.date_time.present? %>
-      <div class="card">
-        <h2>🗓 Final Date &amp; Time</h2>
-        <p>
-          <%= @activity.date_day.strftime("%A, %B %-d, %Y") %>
-          at
-          <%= @activity.date_time.strftime("%I:%M %p") %>
-        </p>
-      </div>
-    <% end %>
-  <!-- Main activity card -->
+  
+  <!-- Main activity card with gradient title -->
   <section class="card">
     <h2 class="activity-title">
       <%= @activity.emoji %> <%= @activity.activity_name %>
     </h2>
-
+    
     <% if @activity.date_day.present? && @activity.date_time.present? %>
-      <div class="countdown-label">⏲ Event starts in …</div>
+      <!-- Event date banner -->
+      <div class="info-banner">
+        <div class="info-banner-icon">🗓</div>
+        <div class="info-banner-text">
+          <%= @activity.date_day.strftime("%A, %B %-d, %Y") %> at <%= @activity.date_time.strftime("%I:%M %p") %>
+        </div>
+      </div>
+      
+      <div class="countdown-label">⏰ Event starts in</div>
       <div
         id="countdown"
         data-day="<%= @activity.date_day %>"
@@ -27,112 +24,141 @@
         data-minute="<%= @activity.date_time.min %>"
         data-second="<%= @activity.date_time.sec %>"
       ></div>
-
+      
       <!-- Action buttons -->
       <div class="action-buttons">
         <a
           href="<%= calendar_activity_path(@activity, format: :ics) %>"
-          class="glass-button"
+          class="glass-button primary"
           download="<%= @activity.activity_name.parameterize %>.ics"
         >
-          Calendar
+          📅 Add to Calendar
         </a>
         <a id="sharePlan" class="glass-button">
-          Share Link
+          🔗 Share
         </a>
       </div>
     <% end %>
   </section>
-
-    <!-- Final restaurant -->
-    <% if (pinned = @activity.pinned_activities.find_by(selected: true)) %>
-      <div class="card">
-        <h2>📍 Final Selection</h2>
-        <p class="rest-name"><%= pinned.title %></p>
-        <% if pinned.description.present? %>
-          <p class="rest-desc"><%= pinned.description %></p>
-        <% end %>
-        <p class="rest-address"><%= pinned.address %></p>
-        <p class="rest-price">Price: <%= pinned.price_range %></p>
-        <div class="action-buttons">
+  
+  <!-- Final restaurant/venue selection -->
+  <% if (pinned = @activity.pinned_activities.find_by(selected: true)) %>
+    <div class="card">
+      <h2>📍 Location Details</h2>
+      <p class="rest-name"><%= pinned.title %></p>
+      
+      <% if pinned.description.present? %>
+        <p class="rest-desc"><%= pinned.description %></p>
+      <% end %>
+      
+      <p class="rest-address">📌 <%= pinned.address %></p>
+      
+      <% if pinned.price_range.present? %>
+        <span class="rest-price"><%= pinned.price_range %></span>
+      <% end %>
+      
+      <div class="action-buttons">
         <% if pinned.website.present? %>
           <a href="<%= pinned.website %>" target="_blank" rel="noopener" class="glass-button">
-            Website
+            🌐 Website
           </a>
         <% end %>
         <% if pinned.address.present? %>
           <a
             href="https://maps.google.com?q=<%= CGI.escape(pinned.address) %>"
             target="_blank" rel="noopener"
-            class="glass-button"
+            class="glass-button primary"
           >
-            Map View
+            🗺️ Directions
           </a>
         <% end %>
-        </div>
       </div>
-    <% end %>
-
+    </div>
+  <% end %>
+  
   <!-- Organizer message -->
   <% if @activity.welcome_message.present? %>
     <div class="card">
-      <h2>🗣️ Message from Organizer</h2>
+      <h2>💬 Message from Organizer</h2>
       <p class="rest-desc"><%= @activity.welcome_message %></p>
     </div>
   <% end %>
-
+  
   <!-- Attendees -->
   <div class="card">
-    <h2>👥 Attendee List</h2>
+    <h2>👥 Who's Coming</h2>
     <ul class="attendee-pills">
-      <li class="pill">Organizer: <%= @activity.user.name %></li>
+      <li class="pill">👑 <%= @activity.user.name %> (Host)</li>
       <% @activity.participants.each do |p| %>
         <% first = p.name.split(" ").first %>
-        <li class="pill"><%= first %></li>
+        <li class="pill">✓ <%= first %></li>
       <% end %>
     </ul>
   </div>
 </div>
 
+<!-- Toast notification div -->
+<div id="toast" class="toast"></div>
+
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Countdown timer
     const el = document.getElementById('countdown');
-    if (!el) return;
-
-    const [year, month, day] = el.dataset.day.split('-').map(Number);
-    const hour   = parseInt(el.dataset.hour,   10);
-    const minute = parseInt(el.dataset.minute, 10);
-    const second = parseInt(el.dataset.second, 10);
-
-    const target = new Date(year, month - 1, day, hour, minute, second).getTime();
-
-    function updateCountdown() {
-      const diff = target - Date.now();
-      if (diff <= 0) {
-        el.innerHTML = '<div class="cd-card"><strong>00</strong><small>Started</small></div>';
-        clearInterval(timer);
-        return;
+    if (el) {
+      const [year, month, day] = el.dataset.day.split('-').map(Number);
+      const hour   = parseInt(el.dataset.hour,   10);
+      const minute = parseInt(el.dataset.minute, 10);
+      const second = parseInt(el.dataset.second, 10);
+      
+      const target = new Date(year, month - 1, day, hour, minute, second).getTime();
+      
+      function updateCountdown() {
+        const diff = target - Date.now();
+        if (diff <= 0) {
+          el.innerHTML = '<div class="cd-card"><strong>🎉</strong><small>Started!</small></div>';
+          clearInterval(timer);
+          return;
+        }
+        const days  = Math.floor(diff / (1000*60*60*24));
+        const hours = Math.floor((diff / (1000*60*60)) % 24);
+        const mins  = Math.floor((diff / (1000*60))     % 60);
+        const secs  = Math.floor((diff / 1000)          % 60);
+        const pad = n => String(n).padStart(2,'0');
+        
+        el.innerHTML =
+          `<span class="cd-card"><strong>${pad(days)}</strong><small>Days</small></span>` +
+          `<span class="cd-card"><strong>${pad(hours)}</strong><small>Hours</small></span>` +
+          `<span class="cd-card"><strong>${pad(mins)}</strong><small>Minutes</small></span>` +
+          `<span class="cd-card"><strong>${pad(secs)}</strong><small>Seconds</small></span>`;
       }
-      const days  = Math.floor(diff / (1000*60*60*24));
-      const hours = Math.floor((diff / (1000*60*60)) % 24);
-      const mins  = Math.floor((diff / (1000*60))     % 60);
-      const secs  = Math.floor((diff / 1000)          % 60);
-      const pad = n => String(n).padStart(2,'0');
-
-      el.innerHTML =
-        `<span class="cd-card"><strong>${pad(days)}</strong><small>Days</small></span>` +
-        `<span class="cd-card"><strong>${pad(hours)}</strong><small>Hours</small></span>` +
-        `<span class="cd-card"><strong>${pad(mins)}</strong><small>Minutes</small></span>` +
-        `<span class="cd-card"><strong>${pad(secs)}</strong><small>Seconds</small></span>`;
+      
+      updateCountdown();
+      const timer = setInterval(updateCountdown, 1000);
     }
-
-    updateCountdown();
-    const timer = setInterval(updateCountdown, 1000);
-  });
-
-  document.getElementById('sharePlan').addEventListener('click', function() {
-    navigator.clipboard.writeText(window.location.href)
-      .then(() => alert('Link copied to clipboard!'))
-      .catch(() => alert('Could not copy link'));
+    
+    // Share button with toast notification
+    const shareBtn = document.getElementById('sharePlan');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', function() {
+        navigator.clipboard.writeText(window.location.href)
+          .then(() => {
+            showToast('✅ Link copied to clipboard!');
+          })
+          .catch(() => {
+            showToast('❌ Could not copy link');
+          });
+      });
+    }
+    
+    // Toast notification function
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
   });
 </script>
