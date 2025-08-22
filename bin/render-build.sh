@@ -10,4 +10,7 @@ cp -a client/build/. public/
 # builds the back end code
 bundle install
 
+# Precompile assets for production
+bundle exec rails assets:precompile
+
 bundle exec rails db:migrate
