@@ -5,36 +5,20 @@
     <title><%= @activity.activity_name %> | Voxxy</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <%= stylesheet_link_tag 'share', media: 'all' %>
     <style>
-      body {
-      background-image: linear-gradient(
-        45deg,
-        rgba(204, 48, 232) 0%,
-        rgba(101, 26, 233, 0.76) 100%
-      );
-        margin: 0;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        color: #f0f0f5;
-        line-height: 1.6;
-      }
-      a {
-        color: #fff;
-        text-decoration: none;
-      }
-      a:hover {
-        color: #b46bd2;
-      }
-
+      /* Navbar specific styles */
       .navbar {
         position: sticky;
         top: 0;
         z-index: 100;
-        background: rgba(255, 255, 255, 0.4);
+        background: rgba(26, 22, 37, 0.95);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(147, 51, 234, 0.2);
       }
       .navbar-container {
-        max-width: 500px;
+        max-width: 420px;
         margin: 0 auto;
         display: flex;
         align-items: center;
@@ -43,177 +27,27 @@
       }
       .navbar-container .logo img {
         height: 40px;
+        filter: brightness(1.1);
       }
       .nav-links {
         display: flex;
-        gap: 1rem;
+        gap: 0.5rem;
       }
       .nav-link {
         font-weight: 600;
         padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        transition: background 0.2s;
+        border-radius: 8px;
+        background: rgba(147, 51, 234, 0.1);
+        border: 1px solid rgba(147, 51, 234, 0.2);
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 14px;
       }
       .nav-link:hover {
-        background: rgba(255, 255, 255, 0.2);
-      }
-
-      .share-page {
-        max-width: 500px;
-        margin: 1rem auto 2rem;
-        padding: 1rem;
-        border-radius: 1rem;
-      }
-
-      .card {
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-      }
-      .card h2 {
-        font-size: 1.3rem;
-        font-weight: 600;
-        margin-bottom: 0.75rem;
-        color: #ececec;
-      }
-
-      /* Activity title */
-      .activity-title {
-        font-size: 2.25rem;
-        text-align: center;
-        margin-bottom: 1rem;
-      }
-
-      /* Countdown */
-      .countdown-label {
-        text-align: center;
-        font-weight: 500;
-        color: #fff;
-        margin-bottom: 0.5rem;
-      }
-      #countdown {
-        display: flex;
-        justify-content: center;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-      }
-      .cd-card {
-        display: inline-flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
-        font-family: 'Digital-7 Mono', monospace;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        background: rgba(61, 33, 69, 0.2);
-        border: 1px solid rgba(255,255,255,0.1);
-      }
-      .cd-card strong {
-        font-size: 1.75rem;
-      }
-      .cd-card small {
-        font-size: 0.8rem;
-        color: #fff;
-      }
-
-      /* Buttons */
-      .action-buttons {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-        margin-top: 1rem;
-      }
-      .glass-button {
-        padding: 0.6rem 1.2rem;
-        border-radius: 8px;
-        border: 1px solid rgba(255,255,255,0.15);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        background: rgba(32, 25, 37, 0.4);
-        color: #fff;
-        font-weight: 600;
-        transition: background 0.2s;
-      }
-      .glass-button:hover {
-        background: rgba(32, 25, 37, 0.6);
-      }
-      .maps-button {
-        display: inline-block;
-        margin-top: 1rem;
-        padding: 0.6rem 1.2rem;
-        border-radius: 8px;
-        border: 1px solid #453050;
-        background: #201925;
-        color: #fff;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        transition: background 0.2s;
-      }
-      .maps-button-disabled {
-        background: #473752;
-        color: #fff;
-      }
-
-      /* Attendee pills */
-      .attendee-pills {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-      }
-      .attendee-pills .pill {
-        background: #9E69FB;
-        padding: 0.5rem 1rem;
-        border-radius: 999px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        color: #fff;
-      }
-
-      /* Restaurant details */
-      .rest-name {
-        font-size: 1.25rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        color: #fff;
-      }
-      .rest-desc {
-        font-size: 1rem;
-        font-style: italic;
-        margin-bottom: 0.5rem;
-        color: #ddd;
-      }
-      .rest-address {
-        font-size: 0.95rem;
-        color: #fff;
-        margin-bottom: 0.75rem;
-      }
-
-      /* Responsive tweaks */
-      @media (min-width: 640px) {
-        .activity-title {
-          font-size: 2.5rem;
-        }
-      }
-      @media (min-width: 1024px) {
-        .activity-title {
-          font-size: 3rem;
-        }
-      }
-      @media (max-width: 1024px) {
-        #countdown {
-          gap: 0.25rem;
-        }
-        .cd-card {
-          padding: 0.25rem 0.5rem;
-        }
+        background: rgba(147, 51, 234, 0.2);
+        border-color: rgba(147, 51, 234, 0.4);
+        transform: translateY(-1px);
       }
     </style>
   </head>
