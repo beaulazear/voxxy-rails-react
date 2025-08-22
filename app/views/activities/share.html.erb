@@ -8,14 +8,7 @@
     </h2>
     
     <% if @activity.date_day.present? && @activity.date_time.present? %>
-      <!-- Event date banner -->
-      <div class="info-banner">
-        <div class="info-banner-icon">🗓</div>
-        <div class="info-banner-text">
-          <%= @activity.date_day.strftime("%A, %B %-d, %Y") %> at <%= @activity.date_time.strftime("%I:%M %p") %>
-        </div>
-      </div>
-      
+      <!-- Countdown first -->
       <div class="countdown-label">⏰ Event starts in</div>
       <div
         id="countdown"
@@ -24,6 +17,14 @@
         data-minute="<%= @activity.date_time.min %>"
         data-second="<%= @activity.date_time.sec %>"
       ></div>
+      
+      <!-- Event date banner after countdown -->
+      <div class="info-banner">
+        <div class="info-banner-icon">🗓</div>
+        <div class="info-banner-text">
+          <%= @activity.date_day.strftime("%A, %B %-d, %Y") %> at <%= @activity.date_time.strftime("%I:%M %p") %>
+        </div>
+      </div>
       
       <!-- Action buttons -->
       <div class="action-buttons">
@@ -126,10 +127,13 @@
         const pad = n => String(n).padStart(2,'0');
         
         el.innerHTML =
-          `<span class="cd-card"><strong>${pad(days)}</strong><small>Days</small></span>` +
-          `<span class="cd-card"><strong>${pad(hours)}</strong><small>Hours</small></span>` +
-          `<span class="cd-card"><strong>${pad(mins)}</strong><small>Minutes</small></span>` +
-          `<span class="cd-card"><strong>${pad(secs)}</strong><small>Seconds</small></span>`;
+          `<span class="cd-card"><strong>${pad(days)}</strong><small>d</small></span>` +
+          `<span>:</span>` +
+          `<span class="cd-card"><strong>${pad(hours)}</strong><small>h</small></span>` +
+          `<span>:</span>` +
+          `<span class="cd-card"><strong>${pad(mins)}</strong><small>m</small></span>` +
+          `<span>:</span>` +
+          `<span class="cd-card"><strong>${pad(secs)}</strong><small>s</small></span>`;
       }
       
       updateCountdown();

@@ -1,228 +1,33 @@
 // Enhanced CuisineChat.js with availability selection
 import React, { useState, useRef, useContext, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { UserContext } from '../context/user';
 import mixpanel from 'mixpanel-browser';
 import { Utensils, MapPin, DollarSign, Heart, Plus, Calendar, Clock, Users } from 'lucide-react';
+import {
+  Overlay,
+  ModalContainer,
+  ProgressBarContainer,
+  ProgressBar,
+  StepLabel,
+  ModalHeader,
+  Title,
+  Subtitle,
+  StepContent,
+  Section,
+  OptionsGrid,
+  OptionCard,
+  OptionCardIcon,
+  OptionCardLabel,
+  Label,
+  Input,
+  Textarea,
+  ButtonRow,
+  Button,
+} from '../styles/FormStyles';
 
-const fadeIn = keyframes`
-  from { 
-    opacity: 0; 
-    transform: scale(0.95);
-  }
-  to { 
-    opacity: 1; 
-    transform: scale(1);
-  }
-`;
-
-const Overlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-  padding: 1rem;
-`;
-
-const ModalContainer = styled.div`
-  background: linear-gradient(135deg, #2a1e30 0%, #342540 100%);
-  padding: 0;
-  border-radius: 1.5rem;
-  width: 100%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-  color: #fff;
-  animation: ${fadeIn} 0.3s ease-out;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  flex-direction: column;
-`;
-
-const ProgressBarContainer = styled.div`
-  height: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  width: 100%;
-`;
-
-const ProgressBar = styled.div`
-  height: 4px;
-  background: linear-gradient(135deg, #cc31e8 0%, #9051e1 100%);
-  width: ${({ $percent }) => $percent}%;
-  transition: width 0.3s ease;
-`;
-
-const StepLabel = styled.div`
-  padding: 1rem 2rem 0.5rem;
-  font-size: 0.85rem;
-  color: #cc31e8;
-  text-align: center;
-  font-weight: 600;
-`;
-
-const ModalHeader = styled.div`
-  padding: 0 2rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-`;
-
-const Title = styled.h2`
-  color: #fff;
-  margin: 0 0 0.5rem;
-  font-size: 1.5rem;
-  font-weight: 600;
-  font-family: 'Montserrat', sans-serif;
-`;
-
-const Subtitle = styled.p`
-  color: #ccc;
-  margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.4;
-`;
-
-const StepContent = styled.div`
-  padding: 1.5rem 2rem;
-  flex: 1;
-  overflow-y: auto;
-  
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: #cc31e8;
-    border-radius: 2px;
-  }
-`;
-
-const Section = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 1rem;
-  padding: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 1.5rem;
-  
-  &:last-child {
-    margin-bottom: 0;
-  }
-`;
-
-const Label = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  font-weight: 600;
-  color: #fff;
-  font-size: 0.9rem;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 0.9rem;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-  transition: all 0.2s ease;
-  margin-bottom: 1rem;
-  
-  &:focus { 
-    border-color: #cc31e8; 
-    outline: none;
-    background: rgba(255, 255, 255, 0.08);
-  }
-  
-  &:-webkit-autofill { 
-    box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.05) inset !important; 
-    -webkit-text-fill-color: #fff !important; 
-  }
-  
-  &::-webkit-calendar-picker-indicator { 
-    filter: invert(1) brightness(2); 
-    cursor: pointer; 
-  }
-  
-  &::placeholder { 
-    color: #aaa; 
-  }
-`;
-
-const Textarea = styled.textarea`
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 0.9rem;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-  resize: vertical;
-  min-height: 120px;
-  font-family: inherit;
-  transition: all 0.2s ease;
-  
-  &:focus { 
-    border-color: #cc31e8; 
-    outline: none;
-    background: rgba(255, 255, 255, 0.08);
-  }
-  
-  &::placeholder { 
-    color: #aaa; 
-  }
-`;
-
-const RadioCardContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-`;
-
-const RadioCard = styled.div`
-  padding: 1rem 0.75rem;
-  text-align: center;
-  border-radius: 0.75rem;
-  background: ${({ selected }) => (selected ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)' : 'rgba(255, 255, 255, 0.05)')};
-  color: #fff;
-  border: ${({ selected }) => (selected ? 'none' : '2px solid rgba(255, 255, 255, 0.1)')};
-  cursor: pointer;
-  user-select: none;
-  font-size: 0.9rem;
-  font-weight: 600;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: ${({ selected }) => (selected ? 'linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%)' : 'rgba(255, 255, 255, 0.08)')};
-    transform: translateY(-2px);
-    box-shadow: ${({ selected }) => (selected ? '0 8px 20px rgba(204, 49, 232, 0.3)' : '0 4px 12px rgba(0, 0, 0, 0.2)')};
-    border-color: ${({ selected }) => (selected ? 'transparent' : '#cc31e8')};
-  }
-`;
-
-const IconWrapper = styled.div`
-  font-size: 1.4rem;
-  margin-bottom: 0.5rem;
-  line-height: 1;
-`;
+// Keep only the styled components that aren't in FormStyles
+// Using OptionsGrid and OptionCard from FormStyles instead of custom RadioCard
 
 const PillContainer = styled.div`
   display: flex;
@@ -273,54 +78,7 @@ const RemoveIcon = styled.span`
   }
 `;
 
-const ButtonRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 1.5rem 2rem 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  gap: 1rem;
-`;
-
-const Button = styled.button`
-  padding: 1rem 1.5rem;
-  border: none;
-  border-radius: 0.75rem;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  min-width: 100px;
-  
-  background: ${({ $primary }) =>
-    $primary
-      ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)'
-      : 'rgba(255, 255, 255, 0.05)'};
-  color: ${({ $primary }) => ($primary ? 'white' : '#cc31e8')};
-  border: ${({ $primary }) => ($primary ? 'none' : '2px solid rgba(204, 49, 232, 0.3)')};
-  
-  &:hover:not(:disabled) { 
-    transform: translateY(-2px);
-    box-shadow: ${({ $primary }) =>
-    $primary
-      ? '0 8px 20px rgba(204, 49, 232, 0.3)'
-      : '0 4px 12px rgba(0, 0, 0, 0.2)'};
-    background: ${({ $primary }) =>
-    $primary
-      ? 'linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%)'
-      : 'rgba(255, 255, 255, 0.08)'};
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-`;
+// ButtonRow and Button are imported from FormStyles
 
 const AddButton = styled.button`
   background: rgba(204, 49, 232, 0.1);
@@ -826,14 +584,14 @@ export default function CuisineChat({
                 <Utensils size={16} />
                 Choose Cuisines
               </Label>
-              <RadioCardContainer>
+              <OptionsGrid>
                 {cuisineOptions.map((cuisine) => (
-                  <RadioCard
+                  <OptionCard
                     key={cuisine}
-                    selected={selectedCuisines.includes(cuisine)}
+                    $selected={selectedCuisines.includes(cuisine)}
                     onClick={() => toggleCuisine(cuisine)}
                   >
-                    <IconWrapper>
+                    <OptionCardIcon>
                       {cuisine === 'Italian'
                         ? '🍝'
                         : cuisine === 'Mexican'
@@ -851,11 +609,11 @@ export default function CuisineChat({
                                     : cuisine === 'American'
                                       ? '🍔'
                                       : '🎲'}
-                    </IconWrapper>
-                    {cuisine}
-                  </RadioCard>
+                    </OptionCardIcon>
+                    <OptionCardLabel>{cuisine}</OptionCardLabel>
+                  </OptionCard>
                 ))}
-              </RadioCardContainer>
+              </OptionsGrid>
 
               <Label>
                 <Plus size={16} />
@@ -908,14 +666,14 @@ export default function CuisineChat({
                 <MapPin size={16} />
                 Select Atmospheres
               </Label>
-              <RadioCardContainer>
+              <OptionsGrid>
                 {atmosphereOptions.map((atm) => (
-                  <RadioCard
+                  <OptionCard
                     key={atm}
-                    selected={selectedAtmospheres.includes(atm)}
+                    $selected={selectedAtmospheres.includes(atm)}
                     onClick={() => toggleAtmosphereOption(atm)}
                   >
-                    <IconWrapper>
+                    <OptionCardIcon>
                       {atm === 'Casual'
                         ? '👕'
                         : atm === 'Trendy'
@@ -933,11 +691,11 @@ export default function CuisineChat({
                                     : atm === 'Waterfront'
                                       ? '🌊'
                                       : '🏛️'}
-                    </IconWrapper>
-                    {atm}
-                  </RadioCard>
+                    </OptionCardIcon>
+                    <OptionCardLabel>{atm}</OptionCardLabel>
+                  </OptionCard>
                 ))}
-              </RadioCardContainer>
+              </OptionsGrid>
 
               <Label>
                 <Plus size={16} />
@@ -990,18 +748,18 @@ export default function CuisineChat({
                 <DollarSign size={16} />
                 Budget
               </Label>
-              <RadioCardContainer>
+              <OptionsGrid>
                 {budgetOptions.map((opt) => (
-                  <RadioCard
+                  <OptionCard
                     key={opt.label}
-                    selected={selectedBudget === opt.label}
+                    $selected={selectedBudget === opt.label}
                     onClick={() => setSelectedBudget(opt.label)}
                   >
-                    <IconWrapper>{opt.icon}</IconWrapper>
-                    {opt.label}
-                  </RadioCard>
+                    <OptionCardIcon>{opt.icon}</OptionCardIcon>
+                    <OptionCardLabel>{opt.label}</OptionCardLabel>
+                  </OptionCard>
                 ))}
-              </RadioCardContainer>
+              </OptionsGrid>
             </Section>
           )}
 

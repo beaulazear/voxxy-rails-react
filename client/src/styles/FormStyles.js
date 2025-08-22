@@ -24,15 +24,15 @@ export const Overlay = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 999;
-  padding: 1rem;
+  padding: 20px;
 `;
 
 export const ModalContainer = styled.div`
-  background: linear-gradient(135deg, #2a1e30 0%, #342540 100%);
+  background: #2a1e30;
   padding: 0;
-  border-radius: 1.5rem;
+  border-radius: 24px;
   width: 100%;
-  max-width: 600px;
+  max-width: 500px;
   max-height: 90vh;
   overflow: hidden;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
@@ -44,60 +44,58 @@ export const ModalContainer = styled.div`
 `;
 
 export const ProgressBarContainer = styled.div`
-  height: 4px;
+  height: 6px;
   background: rgba(255, 255, 255, 0.1);
   width: 100%;
 `;
 
 export const ProgressBar = styled.div`
-  height: 4px;
-  background: linear-gradient(135deg, #cc31e8 0%, #9051e1 100%);
+  height: 6px;
+  background: #cc31e8;
+  border-radius: 3px;
   width: ${({ $percent }) => $percent}%;
   transition: width 0.3s ease;
 `;
 
 export const StepLabel = styled.div`
-  padding: 1rem 2rem 0.5rem;
-  font-size: 0.85rem;
+  padding: 20px 24px 10px;
+  font-size: 13px;
   color: #cc31e8;
-  text-align: left;
-  font-weight: 600;
+  text-align: center;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   
   @media (max-width: 768px) {
-    padding: 1rem 1.5rem 0.5rem;
+    padding: 16px 20px 8px;
   }
 `;
 
 export const ModalHeader = styled.div`
-  padding: 0 2rem 1rem;
+  padding: 24px;
+  padding-bottom: 20px;
   text-align: left;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
   
   @media (max-width: 768px) {
-    padding: 0 1.5rem 1rem;
+    padding: 20px;
+    padding-bottom: 16px;
   }
 `;
 
 export const Title = styled.h2`
   color: #fff;
-  margin: 0 0 0.5rem;
-  font-size: 1.5rem;
-  font-weight: 600;
+  margin: 0 0 8px;
+  font-size: 26px;
+  font-weight: 700;
   font-family: 'Montserrat', sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0.75rem;
+  line-height: 32px;
   text-align: left;
   
-  svg {
-    flex-shrink: 0;
-    width: 24px;
-    height: 24px;
-    
-    @media (max-width: 768px) {
-      width: 32px;
+  @media (max-width: 768px) {
+    font-size: 24px;
+    line-height: 30px;
       height: 32px;
     }
   }
@@ -111,18 +109,19 @@ export const Title = styled.h2`
 export const Subtitle = styled.p`
   color: #ccc;
   margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.4;
+  font-size: 16px;
+  line-height: 24px;
+  opacity: 0.9;
   text-align: left;
 `;
 
 export const StepContent = styled.div`
-  padding: 1.5rem 2rem;
+  padding: 16px 24px;
   flex: 1;
   overflow-y: auto;
   
   @media (max-width: 768px) {
-    padding: 1.5rem 1.5rem;
+    padding: 16px 20px;
   }
   
   &::-webkit-scrollbar {
@@ -142,10 +141,11 @@ export const StepContent = styled.div`
 
 export const Section = styled.div`
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 1rem;
-  padding: 1.5rem;
+  border-radius: 20px;
+  padding: 24px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 1.5rem;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   
   &:last-child {
     margin-bottom: 0;
@@ -176,39 +176,69 @@ export const SectionDescription = styled.p`
 `;
 
 export const OptionsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
   
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 12px;
   }
 `;
 
+export const OptionCardIcon = styled.div`
+  font-size: 36px;
+  margin-bottom: 10px;
+  line-height: 1;
+`;
+
+export const OptionCardLabel = styled.div`
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 4px;
+`;
+
+export const OptionCardDescription = styled.div`
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  opacity: 0.8;
+  line-height: 16px;
+`;
+
 export const OptionCard = styled.button`
+  flex: 0 0 calc(50% - 8px);
   background: ${({ $selected }) =>
     $selected
       ? 'linear-gradient(135deg, #cc31e8 0%, #9051e1 100%)'
       : 'rgba(255, 255, 255, 0.05)'};
   border: ${({ $selected }) =>
     $selected
-      ? 'none'
+      ? '2px solid transparent'
       : '2px solid rgba(255, 255, 255, 0.1)'};
   color: #fff;
-  padding: 1rem;
-  border-radius: 0.75rem;
+  padding: 28px 20px;
+  border-radius: 20px;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: center;
-  font-size: 0.85rem;
-  font-weight: 500;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: ${({ $selected }) =>
+    $selected
+      ? '0 8px 16px rgba(204, 49, 232, 0.4)'
+      : '0 3px 6px rgba(0, 0, 0, 0.15)'};
   
   @media (max-width: 768px) {
-    padding: 1.25rem;
-    font-size: 0.9rem;
-    text-align: left;
+    flex: 0 0 100%;
+    padding: 24px 20px;
+    min-height: 110px;
   }
   
   &:hover {
@@ -225,6 +255,11 @@ export const OptionCard = styled.button`
     $selected
       ? 'transparent'
       : '#cc31e8'};
+  }
+  
+  svg {
+    width: 36px;
+    height: 36px;
   }
 `;
 
@@ -287,14 +322,15 @@ export const Label = styled.label`
 
 export const Input = styled.input`
   width: 100%;
-  padding: 0.75rem;
-  font-size: 0.9rem;
+  padding: 18px;
+  font-size: 16px;
   border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.75rem;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.05);
   color: #fff;
   transition: all 0.2s ease;
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
+  min-height: 56px;
   
   &:focus { 
     border-color: #cc31e8; 
@@ -511,18 +547,19 @@ export const ButtonRow = styled.div`
 `;
 
 export const Button = styled.button`
-  padding: 1rem 1.5rem;
+  padding: 16px 24px;
   border: none;
-  border-radius: 0.75rem;
+  border-radius: 12px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 16px;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  min-width: 120px;
+  gap: 8px;
+  min-width: 100px;
+  flex: 1;
   
   background: ${({ $primary }) =>
     $primary

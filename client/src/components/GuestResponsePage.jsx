@@ -16,245 +16,426 @@ const fadeInNoTransform = keyframes`
 const FullScreenBackground = styled.div`
   min-height: 100vh;
   width: 100%;
-  background-image: linear-gradient(
-    to right,
-    #201925,
-    #251C2C,
-    #2a1e30,
-    #422151
-  ); 
+  background: linear-gradient(135deg, #1A1625 0%, #2D1B47 100%);
   animation: ${fadeInNoTransform} 0.8s ease-in-out;
 `;
 
+const Navbar = styled.nav`
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(26, 22, 37, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(147, 51, 234, 0.2);
+`;
+
+const NavbarContainer = styled.div`
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  
+  @media (max-width: 768px) {
+    max-width: 480px;
+  }
+  
+  @media (max-width: 480px) {
+    max-width: 420px;
+  }
+`;
+
+const Logo = styled.a`
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  
+  img {
+    height: 40px;
+    filter: brightness(1.1);
+  }
+`;
+
+const NavLinks = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const NavLink = styled.a`
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background: rgba(147, 51, 234, 0.1);
+  border: 1px solid rgba(147, 51, 234, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  
+  &:hover {
+    background: rgba(147, 51, 234, 0.2);
+    border-color: rgba(147, 51, 234, 0.4);
+    transform: translateY(-1px);
+  }
+`;
+
 const Container = styled.div`
-  max-width: 40rem;
+  max-width: 640px;
   margin: 0 auto;
   color: #fff;
-  padding: 50px 1rem 2rem;
+  padding: 3rem 2rem;
   min-height: 100vh;
   
   @media (max-width: 768px) {
-    padding: 50px 1rem 2rem;
+    max-width: 480px;
+    padding: 2rem 1rem;
+  }
+  
+  @media (max-width: 480px) {
+    max-width: 420px;
+    padding: 1rem 0.75rem;
   }
 `;
 
 const TopBar = styled.div`
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 24px;
 `;
 
 const Heading = styled.h1`
   font-family: 'Montserrat', sans-serif;
-  font-size: 2rem;
+  font-size: 32px;
+  font-weight: 700;
   margin: 0 0 0.5rem 0;
-  background: #fff;
-  -webkit-background-clip: text;
-  background-clip: text;
+  color: #FFFFFF;
+  text-align: center;
+  
+  @media (max-width: 768px) {
+    font-size: 28px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 26px;
+  }
 `;
 
 const Subheading = styled.p`
-  font-size: 1.1rem;
-  color: #ccc;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.6;
+  text-align: center;
+  
+  @media (max-width: 768px) {
+    font-size: 15px;
+  }
 `;
 
 const ActivityCard = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 2rem;
-  border-radius: 1rem;
-  margin-bottom: 2rem;
+  background: #1A1625;
+  border: 1px solid rgba(147, 51, 234, 0.2);
+  padding: 32px;
+  border-radius: 24px;
+  margin-bottom: 24px;
   text-align: left;
-  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #9333EA, #7C3AED, #6B21A8);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 24px;
+  }
 `;
 
-const ActivityName = styled.h2`
-  font-size: 1.5rem;
-  margin: 0 0 1rem 0;
-  color: #fff;
+const OrganizerTitle = styled.h3`
   font-family: 'Montserrat', sans-serif;
-  text-align: center;
-`;
-
-const WelcomeMessage = styled.div`
-  background: rgba(255, 193, 7, 0.1);
-  border-left: 4px solid #ffc107;
-  padding: 1rem;
-  margin: 1rem 0;
-  border-radius: 0 0.5rem 0.5rem 0;
-`;
-
-const WelcomeMessageFrom = styled.p`
-  color: #ffb74d;
-  font-size: 0.8rem;
-  margin: 0 0 0.5rem 0;
+  font-size: 20px;
   font-weight: 600;
-`;
-
-const WelcomeMessageText = styled.p`
-  color: #ffd54f;
-  font-size: 0.95rem;
-  margin: 0;
-  font-style: italic;
-  line-height: 1.5;
+  margin: 0 0 20px 0;
+  color: #FFFFFF;
+  text-align: center;
+  
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
 `;
 
 const ActivityDetails = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  color: #ccc;
-  font-size: 0.9rem;
-  margin-top: 1rem;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  margin-top: 16px;
 `;
 
 const ActivityDetail = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  font-size: 0.95rem;
+  gap: 8px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
 `;
 
 const PreferencesCard = styled.div`
-  background: linear-gradient(135deg, #9051e1 0%, #cc31e8 100%);
-  padding: 2rem;
-  border-radius: 1rem;
+  background: #1A1625;
+  border: 1px solid rgba(147, 51, 234, 0.2);
+  padding: 32px;
+  border-radius: 24px;
   text-align: center;
-  margin-bottom: 2rem;
-  box-shadow: 0 8px 32px rgba(204, 49, 232, 0.3);
+  margin-bottom: 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #9333EA, #7C3AED, #6B21A8);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 24px;
+  }
 `;
 
 const PreferencesIcon = styled.div`
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: #A855F7;
 `;
 
 const PreferencesTitle = styled.h3`
-  font-size: 1.5rem;
-  margin: 0 0 1rem 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 22px;
+  margin: 0 0 16px 0;
   font-weight: 600;
+  color: #FFFFFF;
+  
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
 `;
 
 const PreferencesText = styled.p`
-  margin: 0 0 1.5rem 0;
-  opacity: 0.9;
-  line-height: 1.5;
+  margin: 0 0 20px 0;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  font-size: 15px;
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
 `;
 
 const PreferencesButton = styled.button`
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
+  background: linear-gradient(135deg, #9333EA, #7C3AED);
+  color: #FFFFFF;
   border: none;
-  padding: 0.75rem 1.25rem;
-  border-radius: 0.5rem;
+  padding: 14px 20px;
+  border-radius: 12px;
   cursor: pointer;
-  font-weight: 500;
-  font-size: 0.9rem;
-  display: flex;
+  font-weight: 600;
+  font-size: 15px;
+  display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 8px;
   margin: 0 auto;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
   
   &:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, #7C3AED, #6B21A8);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(147, 51, 234, 0.5);
   }
 `;
 
 const SubmittedCard = styled.div`
-  background: rgba(40, 167, 69, 0.2);
+  background: #1A1625;
   border: 1px solid rgba(40, 167, 69, 0.3);
-  padding: 2rem;
-  border-radius: 1rem;
-  margin-bottom: 2rem;
+  padding: 32px;
+  border-radius: 24px;
+  margin-bottom: 24px;
   text-align: left;
-  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #28a745, #5cb85c);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 24px;
+  }
 `;
 
 const SubmittedTitle = styled.h3`
-  font-size: 1.3rem;
-  margin: 0 0 1rem 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
   color: #28a745;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 8px;
+  
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
 `;
 
 const SubmittedText = styled.p`
-  margin: 0 0 1.5rem 0;
-  color: #ccc;
+  margin: 0 0 20px 0;
+  color: rgba(255, 255, 255, 0.7);
   line-height: 1.6;
+  font-size: 15px;
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
 `;
 
 const ResubmitButton = styled.button`
-  background: transparent;
-  color: #28a745;
-  border: 1px solid rgba(40, 167, 69, 0.3);
-  padding: 0.6rem 1rem;
-  border-radius: 0.5rem;
+  background: rgba(147, 51, 234, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(147, 51, 234, 0.3);
+  padding: 12px 16px;
+  border-radius: 12px;
   cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 500;
-  display: flex;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 8px;
   margin: 0 auto;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   
   &:hover {
-    background: rgba(40, 167, 69, 0.1);
-    transform: translateY(-1px);
+    background: rgba(147, 51, 234, 0.2);
+    border-color: rgba(147, 51, 234, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(147, 51, 234, 0.3);
   }
 `;
 
 const ErrorCard = styled.div`
-  background: rgba(220, 53, 69, 0.2);
+  background: #1A1625;
   border: 1px solid rgba(220, 53, 69, 0.3);
-  padding: 2rem;
-  border-radius: 1rem;
-  margin-bottom: 2rem;
+  padding: 32px;
+  border-radius: 24px;
+  margin-bottom: 24px;
   text-align: left;
-  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #dc3545, #c82333);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 24px;
+  }
 `;
 
 const ErrorTitle = styled.h3`
-  font-size: 1.3rem;
-  margin: 0 0 1rem 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
   color: #dc3545;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 8px;
+  
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
 `;
 
 const ErrorText = styled.p`
-  margin: 0 0 1.5rem 0;
-  color: #ccc;
+  margin: 0 0 20px 0;
+  color: rgba(255, 255, 255, 0.7);
   line-height: 1.6;
+  font-size: 15px;
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
 `;
 
 const ActionButton = styled.button`
-  background: linear-gradient(135deg, #cc31e8 0%, #9051e1 100%);
-  color: #fff;
+  background: linear-gradient(135deg, #9333EA, #7C3AED);
+  color: #FFFFFF;
   border: none;
-  padding: 0.75rem 1.25rem;
-  border-radius: 0.5rem;
+  padding: 14px 20px;
+  border-radius: 12px;
   cursor: pointer;
-  font-weight: 500;
-  font-size: 0.9rem;
-  display: flex;
+  font-weight: 600;
+  font-size: 15px;
+  display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 8px;
   margin: 0 auto;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
   
   &:hover {
-    background: linear-gradient(135deg, #bb2fd0 0%, #8040d0 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(204, 49, 232, 0.3);
+    background: linear-gradient(135deg, #7C3AED, #6B21A8);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(147, 51, 234, 0.5);
   }
 `;
 
@@ -266,11 +447,11 @@ const DimOverlay = styled.div`
 `;
 
 const InfoText = styled.p`
-  color: #ccc;
+  color: rgba(255, 255, 255, 0.6);
   text-align: center;
-  font-size: 0.9rem;
-  margin-top: 2rem;
-  line-height: 1.5;
+  font-size: 14px;
+  margin-top: 20px;
+  line-height: 1.6;
 `;
 
 export default function GuestResponsePage() {
@@ -287,17 +468,51 @@ export default function GuestResponsePage() {
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
 
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+  
+  // Determine the app base URL based on environment
+  const getAppBaseUrl = () => {
+    if (window.location.hostname.includes('heyvoxxy.com')) {
+      return 'https://www.heyvoxxy.com';
+    } else if (window.location.hostname.includes('voxxyai.com')) {
+      return 'https://www.voxxyai.com';
+    }
+    return 'http://localhost:3000';
+  };
 
   const getActivityTypeInfo = (activityType) => {
     const activityTypes = {
-      'Restaurant': { emoji: '🍜', description: 'Schedule your next group meal together.' },
-      'Cocktails': { emoji: '🍸', description: 'Plan your perfect night out with friends.' },
-      'Game Night': { emoji: '🎮', description: 'Set up a memorable game night with friends.' },
-      'Meeting': { emoji: '⏰', description: 'Find a time that works for everyone.' },
-      'Night Out': { emoji: '🎉', description: 'Plan an exciting night out together.' }
+      'Restaurant': { 
+        emoji: '🍜', 
+        title: 'Restaurant',
+        description: 'Find the perfect spot that satisfies everyone\'s cravings & dietary needs!' 
+      },
+      'Cocktails': { 
+        emoji: '🍸', 
+        title: 'Cocktails',
+        description: 'Discover the ideal bar that matches your group\'s vibe & budget!' 
+      },
+      'Game Night': { 
+        emoji: '🎮', 
+        title: 'Game Night',
+        description: 'Find the perfect games for you & your group!' 
+      },
+      'Meeting': { 
+        emoji: '⏰', 
+        title: 'Meeting',
+        description: 'Find a time that works for everyone\'s schedule!' 
+      },
+      'Night Out': { 
+        emoji: '🎉', 
+        title: 'Night Out',
+        description: 'Plan the perfect night out that everyone will love!' 
+      }
     };
 
-    return activityTypes[activityType] || { emoji: '🎉', description: 'Join this activity!' };
+    return activityTypes[activityType] || { 
+      emoji: '🎉', 
+      title: 'Activity',
+      description: 'Join this group activity!' 
+    };
   };
 
   const fetchGuestData = useCallback(async () => {
@@ -396,9 +611,22 @@ export default function GuestResponsePage() {
     return <LoadingScreenUser autoDismiss={false} />;
   }
 
+  const appBaseUrl = getAppBaseUrl();
+
   if (error) {
     return (
       <FullScreenBackground>
+        <Navbar>
+          <NavbarContainer>
+            <Logo href={`${appBaseUrl}/`}>
+              <img src="/HEADER.svg" alt="Voxxy logo" />
+            </Logo>
+            <NavLinks>
+              <NavLink href={`${appBaseUrl}/#/login`}>Login</NavLink>
+              <NavLink href={`${appBaseUrl}/#/signup`}>Signup</NavLink>
+            </NavLinks>
+          </NavbarContainer>
+        </Navbar>
         <Container>
           <TopBar>
             <Heading>Oops!</Heading>
@@ -424,6 +652,17 @@ export default function GuestResponsePage() {
   if (!activity) {
     return (
       <FullScreenBackground>
+        <Navbar>
+          <NavbarContainer>
+            <Logo href={`${appBaseUrl}/`}>
+              <img src="/HEADER.svg" alt="Voxxy logo" />
+            </Logo>
+            <NavLinks>
+              <NavLink href={`${appBaseUrl}/#/login`}>Login</NavLink>
+              <NavLink href={`${appBaseUrl}/#/signup`}>Signup</NavLink>
+            </NavLinks>
+          </NavbarContainer>
+        </Navbar>
         <Container>
           <TopBar>
             <Heading>Activity Not Found</Heading>
@@ -438,10 +677,21 @@ export default function GuestResponsePage() {
 
   return (
     <FullScreenBackground>
+      <Navbar>
+        <NavbarContainer>
+          <Logo href={`${appBaseUrl}/`}>
+            <img src="/HEADER.svg" alt="Voxxy logo" />
+          </Logo>
+          <NavLinks>
+            <NavLink href={`${appBaseUrl}/#/login`}>Login</NavLink>
+            <NavLink href={`${appBaseUrl}/#/signup`}>Signup</NavLink>
+          </NavLinks>
+        </NavbarContainer>
+      </Navbar>
       <Container>
         <TopBar>
           <Heading>
-            {activityInfo.emoji} You're Invited!
+            {activityInfo.emoji} {activityInfo.title}
           </Heading>
           <Subheading>
             {activityInfo.description}
@@ -449,21 +699,11 @@ export default function GuestResponsePage() {
         </TopBar>
 
         <ActivityCard>
-          <ActivityName>{activity.activity_name}</ActivityName>
-
-          {activity.welcome_message && (
-            <WelcomeMessage>
-              <WelcomeMessageFrom>
-                Message from {activity.organizer_name || activity.created_by_name || 'the organizer'}:
-              </WelcomeMessageFrom>
-              <WelcomeMessageText>
-                "{activity.welcome_message}"
-              </WelcomeMessageText>
-            </WelcomeMessage>
-          )}
-
+          <OrganizerTitle>
+            {activity.user?.name || 'Your friend'} wants your input!
+          </OrganizerTitle>
           <ActivityDetails>
-            {activity.activity_location && (
+            {activity.activity_location && activity.activity_type !== 'Game Night' && (
               <ActivityDetail>
                 📍 {activity.activity_location}
               </ActivityDetail>
