@@ -98,7 +98,7 @@ export default function PrivacyPolicyPage() {
       <Section>
         <Container>
           <Title>Privacy Policy</Title>
-          <SubTitle>Effective Date: 4/23/2025 | Last Updated: 4/23/2025</SubTitle>
+          <SubTitle>Effective Date: 4/23/2025 | Last Updated: 8/23/2025</SubTitle>
           <IntroWrapper>
             <Bar />
             <IntroText>
@@ -116,8 +116,11 @@ export default function PrivacyPolicyPage() {
                 <ul>
                   <li><strong>Personal Info:</strong> Name, email address, and any optional profile details you provide.</li>
                   <li><strong>Guest Users:</strong> We may collect your email if you participate in polls or activity boards without registering.</li>
+                  <li><strong>Product Interaction Data:</strong> How you interact with app features, including activities created, votes cast, preferences selected, and navigation patterns within the app.</li>
                   <li><strong>Usage & Device Data:</strong> IP address, browser type, device type, operating system, pages visited, time spent, and actions taken in the app.</li>
                   <li><strong>Location Data:</strong> City-level and precise location (when enabled) to recommend events and activities.</li>
+                  <li><strong>Contacts:</strong> When you grant permission, we access your device contacts solely to help you find friends already using Voxxy. We do not store your full contact list.</li>
+                  <li><strong>Diagnostics:</strong> Crash logs and performance data to improve app stability and fix technical issues. This data is collected anonymously.</li>
                   <li><strong>Push Notifications:</strong> Push notification tokens for sending alerts and updates.</li>
                   <li><strong>Group Planning Preferences:</strong> Responses to Voxxy quizzes, polls, votes, and feedback tools.</li>
                   <li><strong>Activity Preferences:</strong> Event preferences used for AI recommendations.</li>
@@ -152,6 +155,7 @@ export default function PrivacyPolicyPage() {
                 <p>We only share your data with trusted third parties that help us operate, including:</p>
                 <ul>
                   <li>AWS (Hosting providers)</li>
+                  <li>Google Places API (Venue information and location services)</li>
                   <li>Mixpanel (Analytics tools)</li>
                   <li>SendGrid (Email tools)</li>
                   <li>OpenAI (AI-powered recommendations)</li>
@@ -240,8 +244,34 @@ export default function PrivacyPolicyPage() {
                 <ul>
                   <li><strong>Push Notifications:</strong> To send you activity updates and reminders (optional)</li>
                   <li><strong>Camera/Photos:</strong> To upload profile pictures (optional)</li>
+                  <li><strong>Contacts:</strong> To help you find friends already using Voxxy (optional)</li>
+                  <li><strong>Location:</strong> To provide venue recommendations near you (optional)</li>
                 </ul>
                 <p>You can manage these permissions in your device settings at any time.</p>
+              </CardDescription>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <Shield size={24} color="#9261E5" />
+                <CardTitle>Data Linking & Anonymity</CardTitle>
+              </CardHeader>
+              <CardDescription>
+                <p><strong>Data linked to your identity:</strong></p>
+                <ul>
+                  <li>Name and email address</li>
+                  <li>Profile photos</li>
+                  <li>Location history and activity locations</li>
+                  <li>Activities created and participated in</li>
+                  <li>Votes, preferences, and interactions</li>
+                  <li>Comments and messages</li>
+                </ul>
+                <p><strong>Data NOT linked to your identity:</strong></p>
+                <ul>
+                  <li>Contacts (used only for friend matching, not stored)</li>
+                  <li>Crash logs and diagnostic data (collected anonymously)</li>
+                </ul>
+                <p>We do not use any of your data for tracking across other companies' apps or websites.</p>
               </CardDescription>
             </Card>
 
