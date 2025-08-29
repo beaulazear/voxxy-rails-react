@@ -33,7 +33,7 @@ export const subtleGlow = keyframes`
 
 // Styled Components
 export const Container = styled.div`
-  background: linear-gradient(135deg, #201925, #2A1E33, #3C2A47);
+  background: linear-gradient(135deg, #1A1625 0%, #2D1B47 100%);
   min-height: 100vh;
   animation: ${fadeIn} 0.8s ease-in-out;
   padding: 3rem;
@@ -150,14 +150,14 @@ export const FilterButton = styled.button`
 export const NewBoardButton = styled.button`
   flex-shrink: 0;
   padding: 0.6rem 1.2rem;
-  background: linear-gradient(135deg, #cf38dd, #d394f5);
+  background: linear-gradient(135deg, #4ECDC4, #3FC7C4);
   color: #fff;
-  border: 2px solid rgba(207, 56, 221, 0.6);
+  border: 1px solid rgba(78, 205, 196, 0.3);
   border-radius: 999px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 16px rgba(207, 56, 221, 0.3);
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -168,10 +168,10 @@ export const NewBoardButton = styled.button`
   }
   
   &:hover {
-    background: linear-gradient(135deg, #bf2aca, #be7fdd);
-    border-color: rgba(207, 56, 221, 1);
-    box-shadow: 0 6px 20px rgba(207, 56, 221, 0.5);
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, #3FC7C4, #4ECDC4);
+    border-color: rgba(78, 205, 196, 0.5);
+    box-shadow: 0 6px 20px rgba(78, 205, 196, 0.5);
+    transform: translateY(-2px);
   }
 `;
 
@@ -221,19 +221,15 @@ export const ActivitiesGrid = styled.div`
 export const ActivityCard = styled.div`
   height: 380px;
   flex-shrink: 0;
-  background: linear-gradient(135deg, 
-    rgba(42, 30, 46, 0.95), 
-    rgba(64, 51, 71, 0.95),
-    rgba(207, 56, 221, 0.08)
-  );
+  background: #1A1625;
   border-radius: 24px;
   overflow: hidden;
   border: ${props => props.$isInvite
-    ? '2px solid rgba(211, 148, 245, 0.9)'
-    : '1px solid rgba(207, 56, 221, 0.5)'};
+    ? '2px solid rgba(251, 191, 36, 0.3)'
+    : '1px solid rgba(147, 51, 234, 0.2)'};
   box-shadow: ${props => props.$isInvite
-    ? '0 12px 24px rgba(211, 148, 245, 0.5), 0 0 25px rgba(211, 148, 245, 0.15)'
-    : '0 12px 20px rgba(0, 0, 0, 0.3), 0 0 18px rgba(207, 56, 221, 0.15)'};
+    ? '0 10px 30px rgba(251, 191, 36, 0.2)'
+    : '0 10px 40px rgba(0, 0, 0, 0.4)'};
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
@@ -270,11 +266,12 @@ export const ActivityCard = styled.div`
   &:hover {
     transform: translateY(-4px);
     border-color: ${props => props.$isInvite
-    ? 'rgba(185, 84, 236, 1)'
-    : 'rgba(207, 56, 221, 0.9)'};
+    ? 'rgba(251, 191, 36, 0.5)'
+    : 'rgba(147, 51, 234, 0.3)'};
     box-shadow: ${props => props.$isInvite
-    ? '0 16px 32px rgba(211, 148, 245, 0.7), 0 0 35px rgba(211, 148, 245, 0.25)'
-    : '0 16px 24px rgba(207, 56, 221, 0.5), 0 0 30px rgba(207, 56, 221, 0.2)'};
+    ? '0 12px 35px rgba(251, 191, 36, 0.3)'
+    : '0 12px 45px rgba(147, 51, 234, 0.3)'};
+    background: rgba(147, 51, 234, 0.05);
     
     &::before {
       background: linear-gradient(135deg, 
@@ -304,7 +301,7 @@ export const ImageContainer = styled.div`
   right: 0;
   bottom: 0;
   left: 0;
-  background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+  background: linear-gradient(135deg, #A855F7, #9333EA);
   background-size: cover;
   background-position: center;
   transition: transform 0.5s ease;
@@ -1305,4 +1302,141 @@ export const AdventureButtonSubtext = styled.span`
   @media (max-width: 768px) {
     font-size: 0.9rem;
   }
+`;
+
+// List View Styled Components
+export const ListViewContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0;
+`;
+
+export const ListItem = styled.div`
+  background: #1A1625;
+  border: 1px solid rgba(147, 51, 234, 0.2);
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: ${props => props.$isInvite 
+      ? 'linear-gradient(180deg, #FBBF24, #F59E0B)'
+      : props.$isActive && !props.$isFinalized
+      ? 'linear-gradient(180deg, #4ECDC4, #3FC7C4)'
+      : props.$isFinalized
+      ? 'linear-gradient(180deg, #A855F7, #9333EA)'
+      : props.$isCompleted
+      ? 'linear-gradient(180deg, #10B981, #059669)'
+      : 'linear-gradient(180deg, #A855F7, #9333EA)'};
+  }
+  
+  &:hover {
+    background: rgba(147, 51, 234, 0.05);
+    border-color: rgba(147, 51, 234, 0.3);
+    transform: translateX(4px);
+    box-shadow: 0 4px 20px rgba(147, 51, 234, 0.2);
+  }
+`;
+
+export const ListItemIcon = styled.div`
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: ${props => props.$gradient || 'linear-gradient(135deg, #A855F7, #9333EA)'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+`;
+
+export const ListItemContent = styled.div`
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+`;
+
+export const ListItemTitle = styled.h3`
+  font-size: 16px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+`;
+
+export const ListItemMeta = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  
+  span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+`;
+
+export const ListItemBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: ${props => props.$type === 'invite' 
+    ? 'rgba(251, 191, 36, 0.1)' 
+    : props.$type === 'active'
+    ? 'rgba(78, 205, 196, 0.1)'
+    : props.$type === 'finalized'
+    ? 'rgba(168, 85, 247, 0.1)'
+    : props.$type === 'completed'
+    ? 'rgba(16, 185, 129, 0.1)'
+    : 'rgba(168, 85, 247, 0.1)'};
+  border: 1px solid ${props => props.$type === 'invite'
+    ? 'rgba(251, 191, 36, 0.3)'
+    : props.$type === 'active'
+    ? 'rgba(78, 205, 196, 0.3)'
+    : props.$type === 'finalized'
+    ? 'rgba(168, 85, 247, 0.3)'
+    : props.$type === 'completed'
+    ? 'rgba(16, 185, 129, 0.3)'
+    : 'rgba(147, 51, 234, 0.2)'};
+  border-radius: 12px;
+  color: ${props => props.$type === 'invite'
+    ? '#FBBF24'
+    : props.$type === 'active'
+    ? '#4ECDC4'
+    : props.$type === 'finalized'
+    ? '#A855F7'
+    : props.$type === 'completed'
+    ? '#10B981'
+    : '#A855F7'};
+  font-weight: 600;
+  font-size: 12px;
+`;
+
+export const ListItemActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
 `;

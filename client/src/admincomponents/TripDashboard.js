@@ -4,7 +4,6 @@ import { UserContext } from '../context/user';
 import StartNewAdventure from './StartNewAdventure';
 import RestaurantChat from './RestaurantChat';
 import CocktailsChat from '../cocktails/CocktailsChat';
-import LetsMeetForm from '../letsmeet/LetsMeetForm';
 import GameNightChat from '../gamenight/GameNightChat';
 
 const fadeIn = keyframes`
@@ -21,7 +20,7 @@ const fadeIn = keyframes`
 export const PageContainer = styled.div`
   width: 100%;
   min-height: 100vh;
-  background-color: #201925;
+  background: linear-gradient(135deg, #1A1625 0%, #2D1B47 100%);
   animation: ${fadeIn} 0.8s ease-in-out;
   display: flex;
   flex-direction: column;
@@ -32,7 +31,7 @@ const LoadingContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #201925;
+  background: linear-gradient(135deg, #1A1625 0%, #2D1B47 100%);
   min-height: 100vh;
 `;
 
@@ -51,7 +50,7 @@ const ModalOverlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: #201925;
+  background: linear-gradient(135deg, #1A1625 0%, #2D1B47 100%);
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -133,14 +132,9 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
   }, []);
 
   const handleTripSelect = (tripName) => {
-    console.log(`🎯 Selected trip: ${tripName}`);
-
     switch (tripName) {
       case 'Lets Eat':
         setSelectedTrip('Restaurant');
-        break;
-      case 'Lets Meet':
-        setSelectedTrip('Meeting');
         break;
       case 'Night Out':
         setSelectedTrip('Night Out');
@@ -197,21 +191,6 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
           </ModalHeader>
           <ModalContent>
             <RestaurantChat onClose={handleFormClose} />
-          </ModalContent>
-        </ModalOverlay>
-      )}
-
-      {/* Lets Meet Modal */}
-      {selectedTrip === 'Meeting' && (
-        <ModalOverlay>
-          <ModalHeader>
-            <ModalTitle>Schedule a Meeting</ModalTitle>
-            <CloseButton onClick={() => handleFormClose()}>
-              <XIcon />
-            </CloseButton>
-          </ModalHeader>
-          <ModalContent>
-            <LetsMeetForm onClose={handleFormClose} />
           </ModalContent>
         </ModalOverlay>
       )}

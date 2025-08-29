@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 const Container = styled.div`
   flex: 1;
-  background-color: #201925;
+  background: linear-gradient(135deg, #1A1625 0%, #2D1B47 100%);
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -13,13 +13,13 @@ const Container = styled.div`
 const Header = styled.div`
   position: sticky;
   top: 0;
-  background-color: #201925;
+  background: linear-gradient(135deg, #1A1625 0%, #2D1B47 100%);
   z-index: 10;
   display: flex;
   align-items: center;
   padding: 40px 32px 32px 32px;
   gap: 24px;
-  border-bottom: 1px solid rgba(64, 51, 71, 0.2);
+  border-bottom: 1px solid rgba(147, 51, 234, 0.2);
   
   @media (max-width: 768px) {
     padding: 32px 24px 24px 24px;
@@ -31,8 +31,8 @@ const BackButton = styled.button`
   width: 48px;
   height: 48px;
   border-radius: 16px;
-  background-color: rgba(139, 92, 246, 0.9);
-  border: 1px solid #8b5cf6;
+  background-color: rgba(147, 51, 234, 0.9);
+  border: 1px solid #9333EA;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -41,7 +41,7 @@ const BackButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    background-color: rgba(139, 92, 246, 1);
+    background-color: rgba(147, 51, 234, 1);
     transform: translateY(-1px);
   }
 
@@ -84,7 +84,7 @@ const Title = styled.h1`
 `;
 
 const GradientText = styled.span`
-  background: linear-gradient(135deg, #B931D6, #e942f5);
+  background: linear-gradient(135deg, #9333EA, #7C3AED);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -160,7 +160,7 @@ const Grid = styled.div`
 `;
 
 const ActivityCard = styled.button`
-  background-color: #3a2a40;
+  background-color: #2A1F35;
   border-radius: 20px;
   padding: 36px 28px;
   display: flex;
@@ -174,21 +174,21 @@ const ActivityCard = styled.button`
   transition: all 0.3s ease;
   
   ${props => props.$active ? `
-    border-color: #B931D6;
+    border-color: #9333EA;
     opacity: 1;
-    box-shadow: 0 4px 8px rgba(185, 49, 214, 0.3);
+    box-shadow: 0 4px 8px rgba(147, 51, 234, 0.3);
     
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(185, 49, 214, 0.4);
-      background-color: #423249;
+      box-shadow: 0 8px 16px rgba(147, 51, 234, 0.4);
+      background-color: #3A2945;
     }
     
     &:active {
       transform: translateY(0);
     }
   ` : `
-    border-color: rgba(64, 51, 71, 0.3);
+    border-color: rgba(147, 51, 234, 0.2);
     opacity: 0.5;
     cursor: not-allowed;
   `}
@@ -343,10 +343,10 @@ export default function StartNewAdventure({ onTripSelect, onBack }) {
       description: 'Plan your perfect night out with friends.'
     },
     {
-      name: 'Lets Meet',
-      emoji: '⏰',
+      name: 'Surprise Me',
+      emoji: '🎲',
       active: true,
-      description: 'Find a time that works for everyone.'
+      description: 'Let us pick a random activity for you!'
     },
     {
       name: 'Game Night',
@@ -382,7 +382,14 @@ export default function StartNewAdventure({ onTripSelect, onBack }) {
 
   const handleSelection = (name, active) => {
     if (!active) return;
-    onTripSelect(name);
+    
+    if (name === 'Surprise Me') {
+      const randomActivities = ['Lets Eat', 'Night Out', 'Game Night'];
+      const randomChoice = randomActivities[Math.floor(Math.random() * randomActivities.length)];
+      onTripSelect(randomChoice);
+    } else {
+      onTripSelect(name);
+    }
   };
 
   const renderActivityCard = (adventure, index) => {

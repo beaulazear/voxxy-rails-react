@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { User, Users, Calendar, Clock, Plus, Mail, Coffee, MapPin, Star, Grid3x3, List, Zap, Activity, Gamepad2, Wine, Utensils } from 'lucide-react';
+import { User, Users, Calendar, Clock, Plus, Mail, Coffee, MapPin, Star, Grid3x3, List, Zap, Activity, Gamepad2, Wine, Utensils, ChevronRight, CheckCircle } from 'lucide-react';
 import { UserContext } from '../context/user';
 import { useNavigate } from 'react-router-dom';
 // Removed unused YourCommunity import
@@ -81,7 +81,17 @@ import {
   StartAdventureButton,
   AdventureIconContainer,
   AdventureButtonText,
-  AdventureButtonSubtext
+  AdventureButtonSubtext,
+  
+  // List view components
+  ListViewContainer,
+  ListItem,
+  ListItemIcon,
+  ListItemContent,
+  ListItemTitle,
+  ListItemMeta,
+  ListItemBadge,
+  ListItemActions
 } from '../styles/UserActivities';
 
 const ACTIVITY_CONFIG = {
@@ -91,7 +101,8 @@ const ACTIVITY_CONFIG = {
     countdownLabel: 'Meal Starts In',
     emoji: '🍜',
     icon: Utensils,
-    iconColor: '#FF6B6B'
+    iconColor: '#FF6B6B',
+    gradient: 'linear-gradient(135deg, #FF6B6B, #FF5252)'
   },
   'Meeting': {
     displayText: 'Lets Meet!',
@@ -99,7 +110,8 @@ const ACTIVITY_CONFIG = {
     countdownLabel: 'Meeting Starts In',
     emoji: '⏰',
     icon: Users,
-    iconColor: '#B8A5C4'
+    iconColor: '#B8A5C4',
+    gradient: 'linear-gradient(135deg, #B8A5C4, #9B86BD)'
   },
   'Game Night': {
     displayText: 'Game Night',
@@ -107,7 +119,8 @@ const ACTIVITY_CONFIG = {
     countdownLabel: 'Game Night Starts In',
     emoji: '🎮',
     icon: Gamepad2,
-    iconColor: '#A8E6CF'
+    iconColor: '#A8E6CF',
+    gradient: 'linear-gradient(135deg, #A8E6CF, #7FD1AE)'
   },
   'Cocktails': {
     displayText: 'Drinks',
@@ -115,7 +128,8 @@ const ACTIVITY_CONFIG = {
     countdownLabel: 'Your Outing Starts In',
     emoji: '🍸',
     icon: Wine,
-    iconColor: '#4ECDC4'
+    iconColor: '#4ECDC4',
+    gradient: 'linear-gradient(135deg, #4ECDC4, #44A3BC)'
   }
 };
 
@@ -126,7 +140,8 @@ function getActivityDisplayInfo(activityType) {
     countdownLabel: 'Activity Starts In',
     emoji: '🎉',
     icon: Activity,
-    iconColor: '#B8A5C4'
+    iconColor: '#B8A5C4',
+    gradient: 'linear-gradient(135deg, #A855F7, #9333EA)'
   };
 }
 
@@ -414,8 +429,9 @@ function UserActivities() {
         <FilterButton
           onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
           style={{ padding: '8px 12px' }}
+          title={viewMode === 'grid' ? 'Switch to List View' : 'Switch to Grid View'}
         >
-          {viewMode === 'grid' ? <Grid3x3 width={18} height={18} /> : <List width={18} height={18} />}
+          {viewMode === 'grid' ? <List width={18} height={18} /> : <Grid3x3 width={18} height={18} />}
         </FilterButton>
         
         {/* Active/Past Toggle */}
@@ -472,12 +488,90 @@ function UserActivities() {
           <NoActivitiesMessage>
             <h3>No activities here</h3>
             <p>Start planning something new!</p>
-            <NewBoardButton onClick={handleNewActivity}>
-              <Plus width={16} height={16} style={{ marginRight: 4 }} />
-              New Activity
-            </NewBoardButton>
           </NoActivitiesMessage>
+        ) : viewMode === 'list' ? (
+          // List View
+          <ListViewContainer>
+            {filteredActivities.map((item) => {
+              const firstName = item.user?.name?.split(' ')[0] || item.user?.email || '';
+              const isInvite = pendingInvites.some(invite => invite.id === item.id);
+              const isInProgress = !item.finalized && !item.completed && !isInvite;
+              const isFinalizedWithDateTime = item.finalized && item.date_day && item.date_time;
+              const isCompleted = item.completed;
+              const displayInfo = getActivityDisplayInfo(item.activity_type);
+              
+              // Determine badge type
+              let badgeType = 'default';
+              let badgeText = displayInfo.displayText;
+              
+              if (isInvite) {
+                badgeType = 'invite';
+                badgeText = 'New Invite';
+              } else if (isInProgress) {
+                badgeType = 'active';
+                badgeText = 'In Progress';
+              } else if (isFinalizedWithDateTime) {
+                badgeType = 'finalized';
+                badgeText = 'Finalized';
+              } else if (isCompleted) {
+                badgeType = 'completed';
+                badgeText = 'Completed';
+              }
+              
+              // Determine what title to show
+              const displayTitle = (isFinalizedWithDateTime || isCompleted) ? 
+                item.activity_name : 
+                displayInfo.displayText;
+
+              // Get gradient for icon based on activity type
+              const gradient = displayInfo.gradient || 'linear-gradient(135deg, #A855F7, #9333EA)';
+
+              return (
+                <ListItem
+                  key={item.id}
+                  $isInvite={isInvite}
+                  $isActive={isInProgress}
+                  $isFinalized={isFinalizedWithDateTime}
+                  $isCompleted={isCompleted}
+                  onClick={() => handleActivityClick(item.id)}
+                >
+                  <ListItemIcon $gradient={gradient}>
+                    {item.emoji || displayInfo.emoji}
+                  </ListItemIcon>
+                  
+                  <ListItemContent>
+                    <ListItemTitle>{displayTitle}</ListItemTitle>
+                    <ListItemMeta>
+                      <span>
+                        <Users size={12} />
+                        {firstName}
+                      </span>
+                      <span>
+                        <Calendar size={12} />
+                        {formatDate(item.date_day)}
+                      </span>
+                      <span>
+                        <Clock size={12} />
+                        {formatTime(item.date_time)}
+                      </span>
+                    </ListItemMeta>
+                  </ListItemContent>
+                  
+                  <ListItemActions>
+                    <ListItemBadge $type={badgeType}>
+                      {badgeType === 'invite' && <Mail size={12} />}
+                      {badgeType === 'active' && <Zap size={12} />}
+                      {badgeType === 'finalized' && <CheckCircle size={12} />}
+                      {badgeText}
+                    </ListItemBadge>
+                    <ChevronRight size={20} color="rgba(255,255,255,0.4)" />
+                  </ListItemActions>
+                </ListItem>
+              );
+            })}
+          </ListViewContainer>
         ) : (
+          // Grid View (Cards)
           <ActivitiesGrid $viewMode={viewMode}>
             {filteredActivities.map((item) => {
               const firstName = item.user?.name?.split(' ')[0] || item.user?.email || '';
