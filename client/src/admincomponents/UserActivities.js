@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { User, Users, Calendar, Clock, Plus, Mail, Coffee, MapPin, Star, Grid3x3, List, Zap, Activity, Gamepad2, Wine, Utensils, ChevronRight, CheckCircle } from 'lucide-react';
+import { User, Users, Calendar, Clock, Plus, Mail, Coffee, MapPin, Star, Grid3x3, List, Zap, Activity, Gamepad2, Wine, Utensils, ChevronRight, CheckCircle, DollarSign } from 'lucide-react';
 import { UserContext } from '../context/user';
 import { useNavigate } from 'react-router-dom';
 // Removed unused YourCommunity import
@@ -340,7 +340,11 @@ function UserActivities() {
   const [filter, setFilter] = useState('Active');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [showFavorites, setShowFavorites] = useState(false);
+  const [userFavorites, setUserFavorites] = useState([]);
+  const [loadingFavorites, setLoadingFavorites] = useState(false);
   const navigate = useNavigate();
+  
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
   // Get activities from user context
   const allActivities = [
@@ -358,10 +362,43 @@ function UserActivities() {
   // Remove duplicates using Map
   const uniqueActivities = [...new Map(allActivities.map(a => [a.id, a])).values()];
 
+  // Fetch favorites when filter changes to 'Favorites'
+  useEffect(() => {
+    const fetchUserFavorites = async () => {
+      if (!user) return;
+      
+      setLoadingFavorites(true);
+      try {
+        const response = await fetch(`${API_URL}/user_activities/favorited`, {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (response.ok) {
+          const favorites = await response.json();
+          setUserFavorites(favorites || []);
+        } else {
+          console.error('Failed to fetch favorites');
+          setUserFavorites([]);
+        }
+      } catch (error) {
+        console.error('Error fetching favorites:', error);
+        setUserFavorites([]);
+      } finally {
+        setLoadingFavorites(false);
+      }
+    };
+    
+    if (filter === 'Favorites' && user) {
+      fetchUserFavorites();
+    }
+  }, [filter, user, API_URL]);
+  
   // Filter activities based on current filter
   const activeActivities = uniqueActivities.filter(a => !a.completed);
   const pastActivities = uniqueActivities.filter(a => a.completed);
-  // const favoriteActivities = uniqueActivities.filter(a => a.is_favorite); // TODO: Add favorites field to backend
   
   // Combine active filter with favorites if needed
   let filteredActivities = [];
@@ -370,10 +407,12 @@ function UserActivities() {
     filteredActivities = [...activeActivities, ...pendingInvites];
   } else if (filter === 'Past') {
     filteredActivities = pastActivities;
+  } else if (filter === 'Favorites') {
+    filteredActivities = userFavorites;
   }
   
-  // Apply favorites filter on top if enabled
-  if (showFavorites && filter !== 'Past') {
+  // Apply favorites filter on top if enabled (deprecated - now using separate filter)
+  if (showFavorites && filter !== 'Past' && filter !== 'Favorites') {
     filteredActivities = filteredActivities.filter(a => a.is_favorite);
   }
 
@@ -395,6 +434,114 @@ function UserActivities() {
   const handleViewLinkClick = (e, activityId) => {
     e.stopPropagation(); // Prevent card click from firing
     navigate(`/activity/${activityId}`);
+  };
+  
+  // Render a favorite item in list view
+  const renderFavoriteListItem = (item) => {
+    
+    return (
+      <ListItem
+        key={item.id}
+        $isFavorite={true}
+        onClick={() => {
+          // For now, just show an alert with favorite details
+          // In future, could navigate to a detail view or the parent activity
+          alert(`${item.title}\n${item.address}\n${item.price_range || ''}\n\n${item.description || ''}`);
+        }}
+      >
+        <ListItemIcon $gradient="linear-gradient(135deg, #D4AF37, #FFE66D)">
+          <Star size={20} />
+        </ListItemIcon>
+        
+        <ListItemContent>
+          <ListItemTitle>{item.title || 'Favorite Recommendation'}</ListItemTitle>
+          <ListItemMeta>
+            {item.address && (
+              <span>
+                <MapPin size={12} />
+                {item.address.split(',')[0]}
+              </span>
+            )}
+            {item.price_range && (
+              <span>
+                <DollarSign size={12} />
+                {item.price_range}
+              </span>
+            )}
+            {item.created_at && (
+              <span>
+                Saved {new Date(item.created_at).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric'
+                })}
+              </span>
+            )}
+          </ListItemMeta>
+        </ListItemContent>
+        
+        <ListItemActions>
+          <ListItemBadge $type="favorite">
+            <Star size={14} fill="#D4AF37" color="#D4AF37" />
+            Favorite
+          </ListItemBadge>
+        </ListItemActions>
+      </ListItem>
+    );
+  };
+  
+  // Render a favorite card in grid view
+  const renderFavoriteCard = (item) => {
+    
+    return (
+      <ActivityCard
+        key={item.id}
+        $isFavorite={true}
+        onClick={() => {
+          // For now, just show an alert with favorite details
+          alert(`${item.title}\n${item.address}\n${item.price_range || ''}\n\n${item.description || ''}`);
+        }}
+      >
+        <ImageContainer $gradient="linear-gradient(135deg, #D4AF37, #FFE66D)">
+          <Star size={48} fill="#fff" color="#fff" />
+        </ImageContainer>
+        
+        <CardContent>
+          <TypeTag $isFavorite={true}>
+            <Star size={12} fill="#D4AF37" color="#D4AF37" />
+            Favorite
+          </TypeTag>
+          <CardTitle>{item.title || 'Favorite'}</CardTitle>
+          <MetaRow>
+            {item.address && (
+              <MetaItem>
+                <MapPin size={14} />
+                {item.address.split(',')[0]}
+              </MetaItem>
+            )}
+            {item.price_range && (
+              <MetaItem>
+                <DollarSign size={14} />
+                {item.price_range}
+              </MetaItem>
+            )}
+          </MetaRow>
+        </CardContent>
+        
+        <CardFooter>
+          <BottomRow>
+            <PartCount>
+              Saved {item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric'
+              }) : 'recently'}
+            </PartCount>
+            <ViewLink onClick={(e) => e.stopPropagation()}>
+              View <ChevronRight size={14} />
+            </ViewLink>
+          </BottomRow>
+        </CardFooter>
+      </ActivityCard>
+    );
   };
 
   // Show welcome message if user has no activities at all
@@ -456,13 +603,13 @@ function UserActivities() {
           Past {pastActivities.length > 0 && <FilterBadge>{pastActivities.length}</FilterBadge>}
         </FilterButton>
         
-        {/* Favorites Toggle */}
+        {/* Favorites Filter */}
         <FilterButton
-          $active={showFavorites}
-          onClick={() => setShowFavorites(!showFavorites)}
+          $active={filter === 'Favorites'}
+          onClick={() => setFilter('Favorites')}
         >
-          <Star width={14} height={14} style={{ marginRight: 4 }} fill={showFavorites ? '#FFE66D' : 'none'} />
-          Favorites
+          <Star width={14} height={14} style={{ marginRight: 4 }} fill={filter === 'Favorites' ? '#FFE66D' : 'none'} />
+          Favorites {userFavorites.length > 0 && <FilterBadge>{userFavorites.length}</FilterBadge>}
         </FilterButton>
       </FilterRow>
 
@@ -478,12 +625,19 @@ function UserActivities() {
               <AdventureButtonSubtext>Plan something amazing with your friends</AdventureButtonSubtext>
             </StartAdventureButton>
           </EmptyStateContainer>
-        ) : filteredActivities.length === 0 && showFavorites ? (
-          <NoActivitiesMessage>
-            <Star width={48} height={48} color="#FFE66D" style={{ marginBottom: '1rem' }} />
-            <h3>No favorites yet</h3>
-            <p>Star your favorite activities to see them here!</p>
-          </NoActivitiesMessage>
+        ) : filteredActivities.length === 0 && filter === 'Favorites' ? (
+          loadingFavorites ? (
+            <NoActivitiesMessage>
+              <h3>Loading favorites...</h3>
+              <p>Fetching your saved recommendations</p>
+            </NoActivitiesMessage>
+          ) : (
+            <NoActivitiesMessage>
+              <Star width={48} height={48} color="#FFE66D" style={{ marginBottom: '1rem' }} />
+              <h3>No favorites yet</h3>
+              <p>Save your favorite restaurant and bar recommendations to see them here!</p>
+            </NoActivitiesMessage>
+          )
         ) : filteredActivities.length === 0 ? (
           <NoActivitiesMessage>
             <h3>No activities here</h3>
@@ -493,6 +647,11 @@ function UserActivities() {
           // List View
           <ListViewContainer>
             {filteredActivities.map((item) => {
+              // Check if this is a favorite item
+              if (filter === 'Favorites') {
+                return renderFavoriteListItem(item);
+              }
+              
               const firstName = item.user?.name?.split(' ')[0] || item.user?.email || '';
               const isInvite = pendingInvites.some(invite => invite.id === item.id);
               const isInProgress = !item.finalized && !item.completed && !isInvite;
@@ -574,6 +733,11 @@ function UserActivities() {
           // Grid View (Cards)
           <ActivitiesGrid $viewMode={viewMode}>
             {filteredActivities.map((item) => {
+              // Check if this is a favorite item
+              if (filter === 'Favorites') {
+                return renderFavoriteCard(item);
+              }
+              
               const firstName = item.user?.name?.split(' ')[0] || item.user?.email || '';
               const isInvite = pendingInvites.some(invite => invite.id === item.id);
               const isInProgress = !item.finalized && !item.completed && !isInvite;

@@ -224,10 +224,14 @@ export const ActivityCard = styled.div`
   background: #1A1625;
   border-radius: 24px;
   overflow: hidden;
-  border: ${props => props.$isInvite
+  border: ${props => props.$isFavorite
+    ? '2px solid rgba(212, 175, 55, 0.5)'
+    : props.$isInvite
     ? '2px solid rgba(251, 191, 36, 0.3)'
     : '1px solid rgba(147, 51, 234, 0.2)'};
-  box-shadow: ${props => props.$isInvite
+  box-shadow: ${props => props.$isFavorite
+    ? '0 10px 30px rgba(212, 175, 55, 0.3)'
+    : props.$isInvite
     ? '0 10px 30px rgba(251, 191, 36, 0.2)'
     : '0 10px 40px rgba(0, 0, 0, 0.4)'};
   cursor: pointer;
@@ -723,13 +727,17 @@ export const TypeTag = styled.div`
   position: absolute;
   top: 12px;
   right: 12px;
-  background: ${props => props.$isInvite
+  background: ${props => props.$isFavorite
+    ? 'rgba(212, 175, 55, 0.98)'
+    : props.$isInvite
     ? 'rgba(211, 148, 245, 0.98)'
     : 'rgba(207, 56, 221, 0.98)'};
   padding: 8px 10px;
   border-radius: 18px;
   z-index: 10;
-  border: 2px solid ${props => props.$isInvite
+  border: 2px solid ${props => props.$isFavorite
+    ? 'rgba(255, 223, 0, 0.4)'
+    : props.$isInvite
     ? 'rgba(255, 255, 255, 0.4)'
     : 'rgba(255, 255, 255, 0.3)'};
   box-shadow: ${props => props.$isInvite
@@ -1314,7 +1322,9 @@ export const ListViewContainer = styled.div`
 
 export const ListItem = styled.div`
   background: #1A1625;
-  border: 1px solid rgba(147, 51, 234, 0.2);
+  border: 1px solid ${props => props.$isFavorite
+    ? 'rgba(212, 175, 55, 0.4)'
+    : 'rgba(147, 51, 234, 0.2)'};
   border-radius: 16px;
   padding: 16px 20px;
   display: flex;
@@ -1403,7 +1413,9 @@ export const ListItemBadge = styled.span`
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
-  background: ${props => props.$type === 'invite' 
+  background: ${props => props.$type === 'favorite'
+    ? 'rgba(212, 175, 55, 0.1)'
+    : props.$type === 'invite' 
     ? 'rgba(251, 191, 36, 0.1)' 
     : props.$type === 'active'
     ? 'rgba(78, 205, 196, 0.1)'
@@ -1412,7 +1424,9 @@ export const ListItemBadge = styled.span`
     : props.$type === 'completed'
     ? 'rgba(16, 185, 129, 0.1)'
     : 'rgba(168, 85, 247, 0.1)'};
-  border: 1px solid ${props => props.$type === 'invite'
+  border: 1px solid ${props => props.$type === 'favorite'
+    ? 'rgba(212, 175, 55, 0.3)'
+    : props.$type === 'invite'
     ? 'rgba(251, 191, 36, 0.3)'
     : props.$type === 'active'
     ? 'rgba(78, 205, 196, 0.3)'
@@ -1422,7 +1436,9 @@ export const ListItemBadge = styled.span`
     ? 'rgba(16, 185, 129, 0.3)'
     : 'rgba(147, 51, 234, 0.2)'};
   border-radius: 12px;
-  color: ${props => props.$type === 'invite'
+  color: ${props => props.$type === 'favorite'
+    ? '#D4AF37'
+    : props.$type === 'invite'
     ? '#FBBF24'
     : props.$type === 'active'
     ? '#4ECDC4'
@@ -1439,4 +1455,18 @@ export const ListItemActions = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
+`;
+
+// Styles for favorites
+export const FavoriteIndicator = styled.div`
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(212, 175, 55, 0.2);
+  border-radius: 8px;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  backdrop-filter: blur(10px);
 `;
