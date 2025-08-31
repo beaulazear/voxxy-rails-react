@@ -438,6 +438,10 @@ function UserActivities() {
   
   // Render a favorite item in list view
   const renderFavoriteListItem = (item) => {
+    const activityType = item.activity?.activity_type || 
+                        item.pinned_activity?.activity?.activity_type || 
+                        'Restaurant';
+    const displayInfo = getActivityDisplayInfo(activityType);
     
     return (
       <ListItem
@@ -448,42 +452,78 @@ function UserActivities() {
           // In future, could navigate to a detail view or the parent activity
           alert(`${item.title}\n${item.address}\n${item.price_range || ''}\n\n${item.description || ''}`);
         }}
+        style={{
+          background: 'linear-gradient(135deg, rgba(26, 22, 37, 0.95), rgba(26, 22, 37, 0.98))',
+          border: '1.5px solid rgba(212, 175, 55, 0.3)'
+        }}
       >
-        <ListItemIcon $gradient="linear-gradient(135deg, #D4AF37, #FFE66D)">
-          <Star size={20} />
+        <ListItemIcon 
+          $gradient="linear-gradient(135deg, #D4AF37, #FFE66D)"
+          style={{ 
+            width: '48px',
+            height: '48px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '24px'
+          }}
+        >
+          {displayInfo.emoji}
         </ListItemIcon>
         
-        <ListItemContent>
-          <ListItemTitle>{item.title || 'Favorite Recommendation'}</ListItemTitle>
-          <ListItemMeta>
+        <ListItemContent style={{ flex: 1 }}>
+          <ListItemTitle style={{ 
+            color: '#fff',
+            fontSize: '16px',
+            fontWeight: '600',
+            marginBottom: '6px'
+          }}>
+            {item.title || 'Favorite Recommendation'}
+          </ListItemTitle>
+          <ListItemMeta style={{ 
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '12px',
+            color: 'rgba(255, 255, 255, 0.7)',
+            fontSize: '13px'
+          }}>
             {item.address && (
-              <span>
-                <MapPin size={12} />
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <MapPin size={12} color="#D4AF37" />
                 {item.address.split(',')[0]}
               </span>
             )}
             {item.price_range && (
-              <span>
-                <DollarSign size={12} />
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <DollarSign size={12} color="#D4AF37" />
                 {item.price_range}
               </span>
             )}
-            {item.created_at && (
-              <span>
-                Saved {new Date(item.created_at).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric'
-                })}
+            {item.hours && (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Clock size={12} color="#D4AF37" />
+                {item.hours.split(',')[0]}
               </span>
             )}
           </ListItemMeta>
         </ListItemContent>
         
-        <ListItemActions>
-          <ListItemBadge $type="favorite">
-            <Star size={14} fill="#D4AF37" color="#D4AF37" />
-            Favorite
-          </ListItemBadge>
+        <ListItemActions style={{ 
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          gap: '8px'
+        }}>
+          <Star size={18} fill="#D4AF37" color="#D4AF37" />
+          <span style={{ 
+            fontSize: '11px',
+            color: 'rgba(212, 175, 55, 0.8)'
+          }}>
+            {item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric'
+            }) : 'Saved'}
+          </span>
         </ListItemActions>
       </ListItem>
     );
@@ -491,6 +531,10 @@ function UserActivities() {
   
   // Render a favorite card in grid view
   const renderFavoriteCard = (item) => {
+    const activityType = item.activity?.activity_type || 
+                        item.pinned_activity?.activity?.activity_type || 
+                        'Restaurant';
+    const displayInfo = getActivityDisplayInfo(activityType);
     
     return (
       <ActivityCard
@@ -500,46 +544,158 @@ function UserActivities() {
           // For now, just show an alert with favorite details
           alert(`${item.title}\n${item.address}\n${item.price_range || ''}\n\n${item.description || ''}`);
         }}
+        style={{ 
+          display: 'flex', 
+          flexDirection: 'column',
+          padding: 0,
+          overflow: 'hidden'
+        }}
       >
-        <ImageContainer $gradient="linear-gradient(135deg, #D4AF37, #FFE66D)">
-          <Star size={48} fill="#fff" color="#fff" />
-        </ImageContainer>
+        {/* Compact header with star */}
+        <div style={{ 
+          padding: '16px 20px',
+          background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(255, 230, 109, 0.1))',
+          borderBottom: '1px solid rgba(212, 175, 55, 0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '20px' }}>{displayInfo.emoji}</span>
+            <span style={{ 
+              color: '#D4AF37',
+              fontSize: '13px',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              {displayInfo.displayText}
+            </span>
+          </div>
+          <Star size={18} fill="#D4AF37" color="#D4AF37" />
+        </div>
         
-        <CardContent>
-          <TypeTag $isFavorite={true}>
-            <Star size={12} fill="#D4AF37" color="#D4AF37" />
-            Favorite
-          </TypeTag>
-          <CardTitle>{item.title || 'Favorite'}</CardTitle>
-          <MetaRow>
-            {item.address && (
-              <MetaItem>
-                <MapPin size={14} />
-                {item.address.split(',')[0]}
-              </MetaItem>
-            )}
-            {item.price_range && (
-              <MetaItem>
-                <DollarSign size={14} />
-                {item.price_range}
-              </MetaItem>
-            )}
-          </MetaRow>
-        </CardContent>
+        {/* Main content */}
+        <div style={{
+          flex: 1,
+          padding: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px'
+        }}>
+          <h3 style={{ 
+            fontSize: '18px',
+            fontWeight: '600',
+            color: '#fff',
+            margin: 0,
+            lineHeight: '1.3'
+          }}>
+            {item.title || 'Favorite Recommendation'}
+          </h3>
+          
+          {item.address && (
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px',
+              color: 'rgba(255, 255, 255, 0.8)',
+              fontSize: '14px'
+            }}>
+              <MapPin size={14} color="#D4AF37" />
+              <span>{item.address.split(',')[0]}</span>
+            </div>
+          )}
+          
+          {item.price_range && (
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px',
+              color: 'rgba(255, 255, 255, 0.8)',
+              fontSize: '14px'
+            }}>
+              <DollarSign size={14} color="#D4AF37" />
+              <span>{item.price_range}</span>
+            </div>
+          )}
+          
+          {item.hours && (
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px',
+              color: 'rgba(255, 255, 255, 0.7)',
+              fontSize: '13px'
+            }}>
+              <Clock size={14} color="#D4AF37" />
+              <span>{item.hours}</span>
+            </div>
+          )}
+          
+          {item.reason && (
+            <p style={{ 
+              fontSize: '13px',
+              color: 'rgba(255, 255, 255, 0.6)',
+              margin: '8px 0 0 0',
+              lineHeight: '1.5',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden'
+            }}>
+              {item.reason}
+            </p>
+          )}
+        </div>
         
-        <CardFooter>
-          <BottomRow>
-            <PartCount>
-              Saved {item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric'
-              }) : 'recently'}
-            </PartCount>
-            <ViewLink onClick={(e) => e.stopPropagation()}>
-              View <ChevronRight size={14} />
-            </ViewLink>
-          </BottomRow>
-        </CardFooter>
+        {/* Compact footer */}
+        <div style={{ 
+          padding: '12px 20px',
+          borderTop: '1px solid rgba(212, 175, 55, 0.15)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          background: 'rgba(212, 175, 55, 0.03)'
+        }}>
+          <span style={{ 
+            fontSize: '12px',
+            color: 'rgba(212, 175, 55, 0.8)'
+          }}>
+            Saved {item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric'
+            }) : 'recently'}
+          </span>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              alert('View details');
+            }}
+            style={{ 
+              background: 'transparent',
+              border: '1px solid rgba(212, 175, 55, 0.3)',
+              color: '#D4AF37',
+              padding: '4px 12px',
+              borderRadius: '12px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = 'rgba(212, 175, 55, 0.1)';
+              e.target.style.borderColor = 'rgba(212, 175, 55, 0.5)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = 'transparent';
+              e.target.style.borderColor = 'rgba(212, 175, 55, 0.3)';
+            }}
+          >
+            Details <ChevronRight size={12} />
+          </button>
+        </div>
       </ActivityCard>
     );
   };
