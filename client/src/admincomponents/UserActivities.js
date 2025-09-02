@@ -650,12 +650,13 @@ function UserActivities() {
         
         {/* Compact footer */}
         <div style={{ 
-          padding: '12px 20px',
+          padding: '16px 20px',
           borderTop: '1px solid rgba(212, 175, 55, 0.15)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          background: 'rgba(212, 175, 55, 0.03)'
+          background: 'rgba(212, 175, 55, 0.03)',
+          marginBottom: '4px'
         }}>
           <span style={{ 
             fontSize: '12px',
@@ -675,7 +676,7 @@ function UserActivities() {
               background: 'transparent',
               border: '1px solid rgba(212, 175, 55, 0.3)',
               color: '#D4AF37',
-              padding: '4px 12px',
+              padding: '6px 14px',
               borderRadius: '12px',
               fontSize: '12px',
               cursor: 'pointer',
