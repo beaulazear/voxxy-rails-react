@@ -175,10 +175,14 @@ const StatusCard = styled.div`
 `;
 
 // Moderation specific styles
+const ModerationSection = styled.section`
+  background-color: ${colors.cardBackground || colors.card};
+  padding: 2rem 1.5rem;
+`;
+
 const ModerationContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
 `;
 
 const ReportCard = styled.div`
@@ -580,9 +584,10 @@ export default function AdminDashboard() {
       )}
 
       {activeTab === 'moderation' && (
-        <ModerationContainer>
-          {moderationStats && (
-            <ModerationStats>
+        <ModerationSection>
+          <ModerationContainer>
+            {moderationStats && (
+              <ModerationStats>
               <StatusCard color="#3b82f6">
                 <div className="number">{moderationStats.total_reports || 0}</div>
                 <div className="label">Total Reports</div>
@@ -745,7 +750,8 @@ export default function AdminDashboard() {
               </ReportDetail>
             </ReportCard>
           ))}
-        </ModerationContainer>
+          </ModerationContainer>
+        </ModerationSection>
       )}
 
       {activeTab !== 'analytics' && activeTab !== 'moderation' && (
