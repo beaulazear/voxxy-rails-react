@@ -4,22 +4,32 @@ class ReportsController < ApplicationController
 
   # GET /reports (Admin only)
   def index
-    @reports = Report.includes(:reporter, :reportable, :reviewed_by)
-                     .recent
-                     .page(params[:page])
+    # Manual pagination setup
+    page = params[:page].to_i > 0 ? params[:page].to_i : 1
+    per_page = params[:per_page].to_i > 0 ? params[:per_page].to_i : 20
+
+    # Build query
+    reports_query = Report.includes(:reporter, :reportable, :reviewed_by).recent
 
     # Filter by status if provided
-    @reports = @reports.where(status: params[:status]) if params[:status].present?
+    reports_query = reports_query.where(status: params[:status]) if params[:status].present?
 
     # Filter overdue reports
-    @reports = @reports.overdue if params[:overdue] == "true"
+    reports_query = reports_query.overdue if params[:overdue] == "true"
+
+    # Get total count before pagination
+    total_count = reports_query.count
+
+    # Apply pagination
+    @reports = reports_query.offset((page - 1) * per_page).limit(per_page)
 
     render json: {
       reports: @reports.map { |r| report_json(r) },
       meta: {
-        total: @reports.total_count,
-        page: @reports.current_page,
-        per_page: @reports.limit_value,
+        total: total_count,
+        page: page,
+        per_page: per_page,
+        total_pages: (total_count.to_f / per_page).ceil,
         overdue_count: Report.overdue.count
       }
     }

@@ -30,13 +30,26 @@ class Admin::ModerationController < ApplicationController
 
   # GET /admin/moderation_actions
   def moderation_actions_index
-    @actions = ModerationAction.includes(:user, :moderator, :report)
-                               .recent
-                               .page(params[:page])
+    # Manual pagination setup
+    page = params[:page].to_i > 0 ? params[:page].to_i : 1
+    per_page = params[:per_page].to_i > 0 ? params[:per_page].to_i : 20
+
+    actions_query = ModerationAction.includes(:user, :moderator, :report).recent
+    
+    # Get total count before pagination
+    total_count = actions_query.count
+    
+    # Apply pagination
+    @actions = actions_query.offset((page - 1) * per_page).limit(per_page)
 
     render json: {
       actions: @actions.map { |a| action_json(a) },
-      meta: pagination_meta(@actions)
+      meta: {
+        total: total_count,
+        page: page,
+        per_page: per_page,
+        total_pages: (total_count.to_f / per_page).ceil
+      }
     }
   end
 
@@ -167,14 +180,6 @@ class Admin::ModerationController < ApplicationController
     }
   end
 
-  def pagination_meta(collection)
-    {
-      total: collection.total_count,
-      page: collection.current_page,
-      per_page: collection.limit_value,
-      total_pages: collection.total_pages
-    }
-  end
 
   def calculate_average_resolution_time
     resolved_reports = Report.resolved.where.not(reviewed_at: nil)
