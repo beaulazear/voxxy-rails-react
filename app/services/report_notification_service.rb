@@ -51,7 +51,7 @@ class ReportNotificationService < BaseEmailService
         </p>
       </div>
 
-      #{@report.description.present? ?#{' '}
+      #{@report.description.present? ?
         "<div style='background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 20px;'>
           <p style='#{BASE_STYLES[:text]}; margin: 0;'><strong>Additional Details:</strong></p>
           <p style='#{BASE_STYLES[:text]}; margin: 10px 0 0 0;'>#{@report.description}</p>
