@@ -177,7 +177,7 @@ const StatusCard = styled.div`
 // Moderation specific styles
 const ModerationSection = styled.section`
   background-color: ${colors.cardBackground || colors.card};
-  padding: 2rem 1.5rem;
+  padding: 1.5rem 1rem;
 `;
 
 const ModerationContainer = styled.div`
@@ -187,30 +187,38 @@ const ModerationContainer = styled.div`
 
 const ReportCard = styled.div`
   background-color: ${colors.card};
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  border-left: 4px solid ${props => 
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  border-left: 3px solid ${props => 
     props.$overdue ? '#ef4444' : 
     props.$status === 'resolved' ? '#22c55e' :
     props.$status === 'reviewing' ? '#f59e0b' :
     '#3b82f6'
   };
+  transition: all 0.2s ease;
+  
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
 `;
 
 const ReportHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: start;
-  margin-bottom: 1rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.75rem;
 `;
 
 const ReportInfo = styled.div`
   flex: 1;
   min-width: 200px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 `;
 
 const ReportActions = styled.div`
@@ -222,11 +230,13 @@ const ReportActions = styled.div`
 const StatusBadge = styled.span`
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  gap: 0.2rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
   background-color: ${props => 
     props.$status === 'pending' ? '#dbeafe' :
     props.$status === 'reviewing' ? '#fef3c7' :
@@ -247,25 +257,26 @@ const OverdueBadge = styled(StatusBadge)`
 `;
 
 const ActionButton = styled.button`
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 6px;
   border: none;
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.3rem;
   
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
   }
   
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
   }
 `;
 
@@ -300,29 +311,55 @@ const DismissButton = styled(ActionButton)`
 `;
 
 const ReportDetail = styled.div`
-  margin-top: 1rem;
-  padding-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
   border-top: 1px solid ${colors.cardBackground};
-  
+`;
+
+const DetailSection = styled.div`
   h4 {
     color: ${colors.textPrimary};
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
+    margin: 0 0 0.3rem 0;
+    font-size: 0.75rem;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
   }
   
   p {
     color: ${colors.textMuted};
-    margin: 0.25rem 0;
-    font-size: 0.9rem;
+    margin: 0.2rem 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    
+    strong {
+      color: ${colors.textPrimary};
+      font-weight: 600;
+    }
+  }
+`;
+
+const CompactInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  
+  span {
+    font-size: 0.8rem;
+    color: ${colors.textMuted};
   }
 `;
 
 const ModerationStats = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
 `;
 
 const LoadingSpinner = styled.div`
@@ -624,24 +661,29 @@ export default function AdminDashboard() {
             >
               <ReportHeader>
                 <ReportInfo>
-                  <h3 style={{ color: colors.textPrimary, margin: '0 0 0.5rem' }}>
-                    Report #{report.id}
+                  <h3 style={{ color: colors.textPrimary, margin: 0, fontSize: '1rem', fontWeight: '600' }}>
+                    #{report.id}
                   </h3>
-                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                    <StatusBadge $status={report.status}>
-                      {report.status === 'pending' && <Clock size={14} />}
-                      {report.status === 'reviewing' && <AlertCircle size={14} />}
-                      {report.status === 'resolved' && <CheckCircle size={14} />}
-                      {report.status === 'dismissed' && <XCircle size={14} />}
-                      {report.status}
-                    </StatusBadge>
-                    {report.overdue && (
-                      <OverdueBadge>
-                        <AlertTriangle size={14} />
-                        Overdue
-                      </OverdueBadge>
-                    )}
-                  </div>
+                  <StatusBadge $status={report.status}>
+                    {report.status === 'pending' && <Clock size={12} />}
+                    {report.status === 'reviewing' && <AlertCircle size={12} />}
+                    {report.status === 'resolved' && <CheckCircle size={12} />}
+                    {report.status === 'dismissed' && <XCircle size={12} />}
+                    {report.status}
+                  </StatusBadge>
+                  {report.overdue && (
+                    <OverdueBadge>
+                      <AlertTriangle size={12} />
+                      Overdue
+                    </OverdueBadge>
+                  )}
+                  <CompactInfo>
+                    <span>{report.reportable_type}</span>
+                    <span>•</span>
+                    <span>{report.reason}</span>
+                    <span>•</span>
+                    <span>{new Date(report.created_at).toLocaleDateString()}</span>
+                  </CompactInfo>
                 </ReportInfo>
                 
                 {report.status === 'pending' && (
@@ -650,7 +692,7 @@ export default function AdminDashboard() {
                       onClick={() => handleReportAction(report.id, 'review')}
                       disabled={processingReport === report.id}
                     >
-                      <AlertCircle size={16} />
+                      <AlertCircle size={14} />
                       Review
                     </ReviewButton>
                   </ReportActions>
@@ -666,7 +708,7 @@ export default function AdminDashboard() {
                       }}
                       disabled={processingReport === report.id}
                     >
-                      <XCircle size={16} />
+                      <XCircle size={14} />
                       Dismiss
                     </DismissButton>
                     <WarnButton
@@ -677,7 +719,7 @@ export default function AdminDashboard() {
                       }}
                       disabled={processingReport === report.id}
                     >
-                      <AlertTriangle size={16} />
+                      <AlertTriangle size={14} />
                       Warn
                     </WarnButton>
                     <SuspendButton
@@ -699,7 +741,7 @@ export default function AdminDashboard() {
                       }}
                       disabled={processingReport === report.id}
                     >
-                      <Ban size={16} />
+                      <Ban size={14} />
                       Ban
                     </BanButton>
                   </ReportActions>
@@ -707,46 +749,64 @@ export default function AdminDashboard() {
               </ReportHeader>
               
               <ReportDetail>
-                <h4>Report Details</h4>
-                <p><strong>Type:</strong> {report.reportable_type}</p>
-                <p><strong>Reason:</strong> {report.reason}</p>
-                {report.description && <p><strong>Description:</strong> {report.description}</p>}
-                <p><strong>Reported Content:</strong> {report.reported_content || 'N/A'}</p>
+                <DetailSection>
+                  <h4>Report Details</h4>
+                  {report.description && <p>{report.description}</p>}
+                  {report.reported_content && (
+                    <p style={{ 
+                      backgroundColor: colors.cardBackground, 
+                      padding: '0.5rem', 
+                      borderRadius: '4px',
+                      marginTop: '0.5rem',
+                      fontSize: '0.8rem',
+                      fontStyle: 'italic' 
+                    }}>
+                      "{report.reported_content}"
+                    </p>
+                  )}
+                </DetailSection>
                 
-                {report.reporter && (
-                  <>
-                    <h4 style={{ marginTop: '1rem' }}>Reporter</h4>
-                    <p>{report.reporter.name} (ID: {report.reporter.id})</p>
-                  </>
-                )}
-                
-                {report.reported_user && (
-                  <>
-                    <h4 style={{ marginTop: '1rem' }}>Reported User</h4>
+                <DetailSection>
+                  <h4>People Involved</h4>
+                  {report.reporter && (
+                    <p><strong>Reporter:</strong> {report.reporter.name}</p>
+                  )}
+                  {report.reported_user && (
                     <p>
-                      {report.reported_user.name} ({report.reported_user.email})
+                      <strong>Reported User:</strong> {report.reported_user.name}
                       {report.reported_user.warnings_count > 0 && (
-                        <span style={{ color: '#ef4444', marginLeft: '0.5rem' }}>
-                          ⚠️ {report.reported_user.warnings_count} previous warnings
+                        <span style={{ 
+                          display: 'inline-block',
+                          backgroundColor: '#fee2e2', 
+                          color: '#991b1b',
+                          padding: '0.1rem 0.4rem',
+                          borderRadius: '10px',
+                          marginLeft: '0.5rem',
+                          fontSize: '0.75rem',
+                          fontWeight: '600'
+                        }}>
+                          {report.reported_user.warnings_count} warnings
                         </span>
                       )}
                     </p>
-                  </>
-                )}
+                  )}
+                  {report.reported_user && (
+                    <p style={{ fontSize: '0.8rem' }}>{report.reported_user.email}</p>
+                  )}
+                </DetailSection>
                 
                 {report.resolution_action && (
-                  <>
-                    <h4 style={{ marginTop: '1rem' }}>Resolution</h4>
+                  <DetailSection>
+                    <h4>Resolution</h4>
                     <p><strong>Action:</strong> {report.resolution_action}</p>
-                    {report.resolution_notes && <p><strong>Notes:</strong> {report.resolution_notes}</p>}
-                    {report.reviewed_by && <p><strong>Reviewed by:</strong> {report.reviewed_by.name}</p>}
-                  </>
+                    {report.resolution_notes && <p>{report.resolution_notes}</p>}
+                    {report.reviewed_by && (
+                      <p style={{ fontSize: '0.8rem', marginTop: '0.3rem' }}>
+                        By {report.reviewed_by.name} • {new Date(report.reviewed_at).toLocaleDateString()}
+                      </p>
+                    )}
+                  </DetailSection>
                 )}
-                
-                <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: colors.textMuted }}>
-                  Created: {new Date(report.created_at).toLocaleString()}
-                  {report.reviewed_at && ` | Reviewed: ${new Date(report.reviewed_at).toLocaleString()}`}
-                </p>
               </ReportDetail>
             </ReportCard>
           ))}
