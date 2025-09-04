@@ -35,10 +35,10 @@ class Admin::ModerationController < ApplicationController
     per_page = params[:per_page].to_i > 0 ? params[:per_page].to_i : 20
 
     actions_query = ModerationAction.includes(:user, :moderator, :report).recent
-    
+
     # Get total count before pagination
     total_count = actions_query.count
-    
+
     # Apply pagination
     @actions = actions_query.offset((page - 1) * per_page).limit(per_page)
 

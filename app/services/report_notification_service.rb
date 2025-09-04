@@ -1,5 +1,4 @@
-class ReportNotificationService
-  include SendGrid
+class ReportNotificationService < BaseEmailService
   def initialize(report)
     @report = report
   end
@@ -9,7 +8,7 @@ class ReportNotificationService
     admin_users = User.where(admin: true)
 
     admin_users.each do |admin|
-      next unless admin.email_notifications
+      next unless self.class.can_send_email_to_user?(admin)
 
       send_email_to_admin(admin)
     end
@@ -21,105 +20,80 @@ class ReportNotificationService
   private
 
   def send_email_to_admin(admin)
-    mail_to = admin.email
+    Rails.logger.info "Sending report notification to admin: #{admin.email}"
 
-    mail_params = {
-      personalizations: [ {
-        to: [ { email: mail_to } ],
-        dynamic_template_data: {
-          admin_name: admin.name,
-          report_id: @report.id,
-          report_reason: Report::REASONS[@report.reason.to_sym] || @report.reason,
-          report_description: @report.description || "No additional details provided",
-          reporter_name: @report.reporter.name,
-          reportable_type: @report.reportable_type,
-          reported_content: truncate_content(@report.reported_content),
-          reported_user_name: @report.reported_user&.name || "N/A",
-          reported_user_email: @report.reported_user&.email || "N/A",
-          review_url: "#{Rails.application.config.frontend_url}/admin/reports/#{@report.id}",
-          created_at: @report.created_at.strftime("%B %d, %Y at %I:%M %p %Z"),
-          is_overdue: @report.overdue?,
-          subject: "🚨 New Content Report - 24hr Response Required"
-        }
-      } ],
-      from: { email: "noreply@voxxyai.com", name: "Voxxy Moderation" },
-      template_id: get_template_id
-    }
+    subject = "🚨 New Content Report ##{@report.id} - 24hr Response Required"
 
-    begin
-      sg = SendGrid::API.new(api_key: ENV["VoxxyKeyAPI"])
-      response = sg.client.mail._("send").post(request_body: mail_params.to_json)
+    # Build the review URL using app_base_url
+    review_url = "#{self.class.app_base_url}/#/admin/reports/#{@report.id}"
 
-      Rails.logger.info "Report notification sent to admin: #{admin.email}"
-    rescue => e
-      Rails.logger.error "Failed to send report notification to #{admin.email}: #{e.message}"
-    end
-  end
+    # Format the report reason
+    formatted_reason = Report::REASONS[@report.reason.to_sym] || @report.reason
 
-  def get_template_id
-    # You'll need to create this template in SendGrid
-    # For now, use a fallback to basic email
-    ENV["SENDGRID_REPORT_NOTIFICATION_TEMPLATE"] || send_basic_email
-  end
-
-  def send_basic_email
-    # Fallback to basic email if template doesn't exist
-    mail_params = {
-      personalizations: [ {
-        to: [ { email: "admin@voxxyai.com" } ],
-        subject: "🚨 New Content Report ##{@report.id} - Requires Review"
-      } ],
-      from: { email: "noreply@voxxyai.com", name: "Voxxy Moderation" },
-      content: [ {
-        type: "text/html",
-        value: basic_email_html
-      } ]
-    }
-
-    sg = SendGrid::API.new(api_key: ENV["VoxxyKeyAPI"])
-    sg.client.mail._("send").post(request_body: mail_params.to_json)
-  end
-
-  def basic_email_html
-    <<~HTML
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #FF6B6B;">⚠️ New Content Report Requires Review</h2>
-      #{'  '}
-        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <p><strong>Report ID:</strong> ##{@report.id}</p>
-          <p><strong>Reason:</strong> #{Report::REASONS[@report.reason.to_sym] || @report.reason}</p>
-          <p><strong>Reporter:</strong> #{@report.reporter.name}</p>
-          <p><strong>Reported Content Type:</strong> #{@report.reportable_type}</p>
-          <p><strong>Reported User:</strong> #{@report.reported_user&.name || 'N/A'}</p>
-          <p><strong>Submitted:</strong> #{@report.created_at.strftime("%B %d, %Y at %I:%M %p")}</p>
-        </div>
-      #{'  '}
-        #{@report.overdue? ? '<p style="color: #FF0000; font-weight: bold;">⏰ This report is OVERDUE for review!</p>' : ''}
-      #{'  '}
-        <div style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
-          <p style="margin: 0;"><strong>Description:</strong></p>
-          <p style="margin: 10px 0;">#{@report.description || 'No additional details provided'}</p>
-        </div>
-      #{'  '}
-        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
-          <p style="margin: 0;"><strong>Reported Content:</strong></p>
-          <p style="margin: 10px 0; font-style: italic;">#{truncate_content(@report.reported_content)}</p>
-        </div>
-      #{'  '}
-        <div style="margin: 30px 0;">
-          <a href="#{Rails.application.config.frontend_url}/admin/reports/#{@report.id}"#{' '}
-             style="background: #FF6B6B; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
-            Review Report
-          </a>
-        </div>
-      #{'  '}
-        <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-      #{'  '}
-        <p style="color: #666; font-size: 14px;">
-          <strong>Remember:</strong> All reports must be reviewed within 24 hours per our content moderation policy.
+    content = <<~HTML
+      <div style="background: #dc3545; color: white; padding: 10px; border-radius: 8px; margin-bottom: 20px;">
+        <p style="#{BASE_STYLES[:text]}; color: white; margin: 0;">
+          <strong>⏰ 24-HOUR RESPONSE REQUIRED</strong>
+          #{@report.overdue? ? '<br/><strong>⚠️ THIS REPORT IS OVERDUE!</strong>' : ''}
         </p>
       </div>
+
+      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <h3 style="#{BASE_STYLES[:title]}; font-size: 18px; margin-top: 0;">Report Details</h3>
+      #{'  '}
+        <p style="#{BASE_STYLES[:text]}">
+          <strong>Report ID:</strong> ##{@report.id}<br/>
+          <strong>Reason:</strong> #{formatted_reason}<br/>
+          <strong>Reporter:</strong> #{@report.reporter.name}<br/>
+          <strong>Content Type:</strong> #{@report.reportable_type}<br/>
+          <strong>Reported User:</strong> #{@report.reported_user&.name || 'N/A'}<br/>
+          <strong>Submitted:</strong> #{@report.created_at.strftime("%B %d, %Y at %I:%M %p")}
+        </p>
+      </div>
+
+      #{@report.description.present? ?#{' '}
+        "<div style='background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 20px;'>
+          <p style='#{BASE_STYLES[:text]}; margin: 0;'><strong>Additional Details:</strong></p>
+          <p style='#{BASE_STYLES[:text]}; margin: 10px 0 0 0;'>#{@report.description}</p>
+        </div>" : ""
+      }
+
+      #{@report.reported_content.present? ?
+        "<div style='background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;'>
+          <p style='#{BASE_STYLES[:text]}; margin: 0;'><strong>Reported Content:</strong></p>
+          <p style='#{BASE_STYLES[:text]}; margin: 10px 0 0 0; font-style: italic;'>
+            \"#{truncate_content(@report.reported_content)}\"
+          </p>
+        </div>" : ""
+      }
+
+      <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; border-left: 4px solid #0066cc; margin-bottom: 20px;">
+        <p style="#{BASE_STYLES[:text]}; margin: 0;">
+          <strong>Reported User Info:</strong><br/>
+          Name: #{@report.reported_user&.name || 'N/A'}<br/>
+          Email: #{@report.reported_user&.email || 'N/A'}<br/>
+          Warnings: #{@report.reported_user&.warnings_count || 0}/3<br/>
+          Status: #{@report.reported_user&.status || 'Active'}
+        </p>
+      </div>
+
+      <p style="#{BASE_STYLES[:text]}; color: #666;">
+        <strong>Remember:</strong> All reports must be reviewed within 24 hours per App Store content moderation policy.
+      </p>
     HTML
+
+    email_html = self.class.build_simple_email_template(
+      "New Report Requires Review",
+      content,
+      "Review Report",
+      review_url
+    )
+
+    self.class.send_email(admin.email, subject, email_html)
+
+    Rails.logger.info "Report notification sent successfully to #{admin.email}"
+  rescue StandardError => e
+    Rails.logger.error "Failed to send report notification to #{admin.email}: #{e.message}"
   end
 
   def truncate_content(content, length = 200)

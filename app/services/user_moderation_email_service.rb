@@ -1,7 +1,7 @@
 class UserModerationEmailService < BaseEmailService
   def self.send_moderation_email(user, action_type, report = nil)
     return unless can_send_email_to_user?(user)
-    
+
     case action_type
     when "warning", "warned"
       send_warning_email(user, report)
@@ -160,11 +160,11 @@ class UserModerationEmailService < BaseEmailService
       </div>
 
       <h3 style="#{BASE_STYLES[:title]}; font-size: 20px; margin-top: 30px;">Appeal Process</h3>
-      
+
       <p style="#{BASE_STYLES[:text]}">
         If you believe this ban was issued in error, you may submit an appeal by emailing team@voxxyai.com with:
       </p>
-      
+
       <ul style="#{BASE_STYLES[:text]}; padding-left: 20px;">
         <li style="margin-bottom: 8px;">Your account email</li>
         <li style="margin-bottom: 8px;">Explanation of why you believe the ban was in error</li>
