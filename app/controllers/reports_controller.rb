@@ -1,7 +1,6 @@
 class ReportsController < ApplicationController
-  before_action :authenticate_user!
   before_action :set_report, only: [ :show, :update ]
-  before_action :ensure_admin, only: [ :index, :show, :update, :review, :resolve, :dismiss ]
+  before_action :ensure_admin, only: [ :index, :show, :update, :review, :resolve, :dismiss, :stats ]
 
   # GET /reports (Admin only)
   def index
