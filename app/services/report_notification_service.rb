@@ -49,7 +49,7 @@ class ReportNotificationService
     begin
       sg = SendGrid::API.new(api_key: ENV["VoxxyKeyAPI"])
       response = sg.client.mail._("send").post(request_body: mail_params.to_json)
-      
+
       Rails.logger.info "Report notification sent to admin: #{admin.email}"
     rescue => e
       Rails.logger.error "Failed to send report notification to #{admin.email}: #{e.message}"

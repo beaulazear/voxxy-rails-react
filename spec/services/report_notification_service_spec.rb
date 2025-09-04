@@ -17,17 +17,17 @@ RSpec.describe ReportNotificationService do
         expect(service).to receive(:send_email_to_admin).with(admin1)
         expect(service).to receive(:send_email_to_admin).with(admin2)
         expect(service).not_to receive(:send_email_to_admin).with(admin_no_notifications)
-        
+
         service.send_admin_notification
       end
 
       it 'logs the report' do
         allow(service).to receive(:send_email_to_admin)
-        
+
         expect(Rails.logger).to receive(:info).with(
           "New report ##{report.id} submitted: harassment - Comment"
         )
-        
+
         service.send_admin_notification
       end
     end
@@ -55,10 +55,10 @@ RSpec.describe ReportNotificationService do
             is_overdue: false,
             subject: "🚨 New Content Report - 24hr Response Required"
           )
-          
+
           expect(params[:template_id]).to eq('template-123')
         end
-        
+
         service.send_admin_notification
       end
     end
@@ -72,24 +72,24 @@ RSpec.describe ReportNotificationService do
         allow(service).to receive(:send_email) do |params|
           expect(params[:content]).to be_present
           expect(params[:content].first[:type]).to eq('text/html')
-          
+
           html = params[:content].first[:value]
           expect(html).to include('New Content Report Requires Review')
           expect(html).to include("Report ID:</strong> ##{report.id}")
           expect(html).to include(report.reporter.name)
         end
-        
+
         service.send_admin_notification
       end
 
       it 'includes overdue warning for overdue reports' do
         allow(report).to receive(:overdue?).and_return(true)
-        
+
         allow(service).to receive(:send_email) do |params|
           html = params[:content].first[:value]
           expect(html).to include('This report is OVERDUE for review!')
         end
-        
+
         service.send_admin_notification
       end
     end
@@ -97,14 +97,14 @@ RSpec.describe ReportNotificationService do
     context 'when email fails' do
       it 'logs error and continues' do
         allow(service).to receive(:send_email).and_raise(StandardError.new("Email failed"))
-        
+
         expect(Rails.logger).to receive(:error).with(
           "Failed to send report notification to #{admin1.email}: Email failed"
         )
         expect(Rails.logger).to receive(:error).with(
           "Failed to send report notification to #{admin2.email}: Email failed"
         )
-        
+
         expect { service.send_admin_notification }.not_to raise_error
       end
     end
@@ -115,7 +115,7 @@ RSpec.describe ReportNotificationService do
       it 'truncates long content' do
         long_content = "a" * 250
         result = service.send(:truncate_content, long_content)
-        
+
         expect(result.length).to eq(203) # 200 chars + "..."
         expect(result).to end_with("...")
       end
@@ -123,7 +123,7 @@ RSpec.describe ReportNotificationService do
       it 'does not truncate short content' do
         short_content = "Short content"
         result = service.send(:truncate_content, short_content)
-        
+
         expect(result).to eq(short_content)
       end
 
@@ -135,7 +135,7 @@ RSpec.describe ReportNotificationService do
       it 'accepts custom length' do
         content = "a" * 100
         result = service.send(:truncate_content, content, 50)
-        
+
         expect(result.length).to eq(53) # 50 chars + "..."
       end
     end

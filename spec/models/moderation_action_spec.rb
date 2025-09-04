@@ -67,7 +67,7 @@ RSpec.describe ModerationAction, type: :model do
         service = instance_double(UserModerationEmailService)
         expect(UserModerationEmailService).to receive(:new).with(user, 'warned', nil).and_return(service)
         expect(service).to receive(:send_email)
-        
+
         create(:moderation_action, user: user, moderator: moderator, action_type: 'warned')
       end
     end
@@ -97,7 +97,7 @@ RSpec.describe ModerationAction, type: :model do
   describe '#active?' do
     context 'when expires_at is nil' do
       let(:action) { create(:moderation_action, expires_at: nil) }
-      
+
       it 'returns true' do
         expect(action.active?).to be true
       end
@@ -105,7 +105,7 @@ RSpec.describe ModerationAction, type: :model do
 
     context 'when expires_at is in the future' do
       let(:action) { create(:moderation_action, expires_at: 1.day.from_now) }
-      
+
       it 'returns true' do
         expect(action.active?).to be true
       end
@@ -113,7 +113,7 @@ RSpec.describe ModerationAction, type: :model do
 
     context 'when expires_at is in the past' do
       let(:action) { create(:moderation_action, expires_at: 1.day.ago) }
-      
+
       it 'returns false' do
         expect(action.active?).to be false
       end
@@ -123,7 +123,7 @@ RSpec.describe ModerationAction, type: :model do
   describe '#expired?' do
     context 'when expires_at is nil' do
       let(:action) { create(:moderation_action, expires_at: nil) }
-      
+
       it 'returns false' do
         expect(action.expired?).to be false
       end
@@ -131,7 +131,7 @@ RSpec.describe ModerationAction, type: :model do
 
     context 'when expires_at is in the future' do
       let(:action) { create(:moderation_action, expires_at: 1.day.from_now) }
-      
+
       it 'returns false' do
         expect(action.expired?).to be false
       end
@@ -139,7 +139,7 @@ RSpec.describe ModerationAction, type: :model do
 
     context 'when expires_at is in the past' do
       let(:action) { create(:moderation_action, expires_at: 1.day.ago) }
-      
+
       it 'returns true' do
         expect(action.expired?).to be true
       end
@@ -149,7 +149,7 @@ RSpec.describe ModerationAction, type: :model do
   describe '#expires_in' do
     context 'when expires_at is nil' do
       let(:action) { create(:moderation_action, expires_at: nil) }
-      
+
       it 'returns nil' do
         expect(action.expires_in).to be_nil
       end
@@ -158,7 +158,7 @@ RSpec.describe ModerationAction, type: :model do
     context 'when expires_at is set' do
       let(:expires_time) { 7.days.from_now }
       let(:action) { create(:moderation_action, expires_at: expires_time) }
-      
+
       it 'returns time remaining until expiration' do
         expect(action.expires_in).to be_within(1.second).of(expires_time - Time.current)
       end

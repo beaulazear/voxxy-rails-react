@@ -6,7 +6,7 @@ RSpec.describe "Reports", type: :request do
   let(:reporter) { create(:user) }
   let(:comment) { create(:comment, user: user) }
   let(:activity) { create(:activity, host: user) }
-  
+
   let(:valid_headers) { { "Authorization" => "Bearer #{generate_token(reporter)}" } }
   let(:admin_headers) { { "Authorization" => "Bearer #{generate_token(admin)}" } }
 
@@ -23,7 +23,7 @@ RSpec.describe "Reports", type: :request do
 
       it "returns list of reports" do
         get "/reports", headers: admin_headers
-        
+
         expect(response).to have_http_status(:success)
         json = JSON.parse(response.body)
         expect(json['reports'].length).to eq(4)
@@ -32,9 +32,9 @@ RSpec.describe "Reports", type: :request do
 
       it "filters by status" do
         create(:report, status: 'resolved')
-        
+
         get "/reports", params: { status: 'resolved' }, headers: admin_headers
-        
+
         expect(response).to have_http_status(:success)
         json = JSON.parse(response.body)
         expect(json['reports'].all? { |r| r['status'] == 'resolved' }).to be true
@@ -42,7 +42,7 @@ RSpec.describe "Reports", type: :request do
 
       it "filters overdue reports" do
         get "/reports", params: { overdue: 'true' }, headers: admin_headers
-        
+
         expect(response).to have_http_status(:success)
         json = JSON.parse(response.body)
         expect(json['reports'].all? { |r| r['overdue'] == true }).to be true
@@ -52,7 +52,7 @@ RSpec.describe "Reports", type: :request do
     context "as non-admin" do
       it "returns forbidden" do
         get "/reports", headers: valid_headers
-        
+
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -75,7 +75,7 @@ RSpec.describe "Reports", type: :request do
         expect {
           post "/reports", params: valid_params, headers: valid_headers
         }.to change(Report, :count).by(1)
-        
+
         expect(response).to have_http_status(:created)
         json = JSON.parse(response.body)
         expect(json['status']).to eq('success')
@@ -86,7 +86,7 @@ RSpec.describe "Reports", type: :request do
         service = instance_double(ReportNotificationService)
         expect(ReportNotificationService).to receive(:new).and_return(service)
         expect(service).to receive(:send_admin_notification)
-        
+
         post "/reports", params: valid_params, headers: valid_headers
       end
     end
@@ -99,9 +99,9 @@ RSpec.describe "Reports", type: :request do
             reportable_id: comment.id
           }
         }
-        
+
         post "/reports", params: invalid_params, headers: valid_headers
-        
+
         expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
         expect(json['status']).to eq('error')
@@ -110,9 +110,9 @@ RSpec.describe "Reports", type: :request do
 
       it "prevents duplicate reports from same user" do
         create(:report, reporter: reporter, reportable: comment)
-        
+
         post "/reports", params: valid_params, headers: valid_headers
-        
+
         expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
         expect(json['errors']).to include("Reporter has already reported this content")
@@ -122,7 +122,7 @@ RSpec.describe "Reports", type: :request do
     context "without authentication" do
       it "returns unauthorized" do
         post "/reports", params: valid_params
-        
+
         expect(response).to have_http_status(:unauthorized)
       end
     end
@@ -134,7 +134,7 @@ RSpec.describe "Reports", type: :request do
     context "as admin" do
       it "returns report details" do
         get "/reports/#{report.id}", headers: admin_headers
-        
+
         expect(response).to have_http_status(:success)
         json = JSON.parse(response.body)
         expect(json['id']).to eq(report.id)
@@ -145,7 +145,7 @@ RSpec.describe "Reports", type: :request do
     context "as non-admin" do
       it "returns forbidden" do
         get "/reports/#{report.id}", headers: valid_headers
-        
+
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -157,11 +157,11 @@ RSpec.describe "Reports", type: :request do
     context "as admin" do
       it "marks report as under review" do
         patch "/reports/#{report.id}/review", headers: admin_headers
-        
+
         expect(response).to have_http_status(:success)
         json = JSON.parse(response.body)
         expect(json['status']).to eq('success')
-        
+
         report.reload
         expect(report.status).to eq('reviewing')
         expect(report.reviewed_by).to eq(admin)
@@ -172,7 +172,7 @@ RSpec.describe "Reports", type: :request do
     context "as non-admin" do
       it "returns forbidden" do
         patch "/reports/#{report.id}/review", headers: valid_headers
-        
+
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -187,11 +187,11 @@ RSpec.describe "Reports", type: :request do
           resolution_action: 'content_deleted',
           resolution_notes: 'Content violates terms'
         }
-        
+
         patch "/reports/#{report.id}/resolve", params: params, headers: admin_headers
-        
+
         expect(response).to have_http_status(:success)
-        
+
         report.reload
         expect(report.status).to eq('resolved')
         expect(report.resolution_action).to eq('content_deleted')
@@ -203,11 +203,11 @@ RSpec.describe "Reports", type: :request do
           resolution_action: 'user_warned',
           resolution_notes: 'First offense'
         }
-        
+
         patch "/reports/#{report.id}/resolve", params: params, headers: admin_headers
-        
+
         expect(response).to have_http_status(:success)
-        
+
         report.reload
         expect(report.status).to eq('resolved')
         expect(report.resolution_action).to eq('user_warned')
@@ -218,11 +218,11 @@ RSpec.describe "Reports", type: :request do
           resolution_action: 'user_suspended',
           resolution_notes: 'Multiple violations'
         }
-        
+
         allow_any_instance_of(User).to receive(:suspend!)
-        
+
         patch "/reports/#{report.id}/resolve", params: params, headers: admin_headers
-        
+
         expect(response).to have_http_status(:success)
       end
 
@@ -231,11 +231,11 @@ RSpec.describe "Reports", type: :request do
           resolution_action: 'user_banned',
           resolution_notes: 'Severe violation'
         }
-        
+
         allow_any_instance_of(User).to receive(:ban!)
-        
+
         patch "/reports/#{report.id}/resolve", params: params, headers: admin_headers
-        
+
         expect(response).to have_http_status(:success)
       end
     end
@@ -243,7 +243,7 @@ RSpec.describe "Reports", type: :request do
     context "as non-admin" do
       it "returns forbidden" do
         patch "/reports/#{report.id}/resolve", headers: valid_headers
-        
+
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -255,11 +255,11 @@ RSpec.describe "Reports", type: :request do
     context "as admin" do
       it "dismisses the report" do
         params = { reason: 'Not a violation' }
-        
+
         patch "/reports/#{report.id}/dismiss", params: params, headers: admin_headers
-        
+
         expect(response).to have_http_status(:success)
-        
+
         report.reload
         expect(report.status).to eq('dismissed')
         expect(report.resolution_action).to eq('dismissed')
@@ -270,7 +270,7 @@ RSpec.describe "Reports", type: :request do
     context "as non-admin" do
       it "returns forbidden" do
         patch "/reports/#{report.id}/dismiss", headers: valid_headers
-        
+
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -287,10 +287,10 @@ RSpec.describe "Reports", type: :request do
     context "as admin" do
       it "returns moderation statistics" do
         get "/reports/stats", headers: admin_headers
-        
+
         expect(response).to have_http_status(:success)
         json = JSON.parse(response.body)
-        
+
         expect(json['total_reports']).to eq(5)
         expect(json['pending_reports']).to eq(3)
         expect(json['overdue_reports']).to eq(1)
@@ -302,7 +302,7 @@ RSpec.describe "Reports", type: :request do
     context "as non-admin" do
       it "returns forbidden" do
         get "/reports/stats", headers: valid_headers
-        
+
         expect(response).to have_http_status(:forbidden)
       end
     end

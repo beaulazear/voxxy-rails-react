@@ -353,7 +353,7 @@ RSpec.describe User, type: :model do
       context 'when user is not suspended' do
         it 'does not change status' do
           user.update(status: 'active')
-          
+
           user.check_suspension_expiry
 
           expect(user.status).to eq('active')

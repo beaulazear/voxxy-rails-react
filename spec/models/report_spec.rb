@@ -6,7 +6,7 @@ RSpec.describe Report, type: :model do
   let(:admin) { create(:user, admin: true) }
   let(:comment) { create(:comment, user: user) }
   let(:activity) { create(:activity, user: user) }
-  
+
   describe 'associations' do
     it { should belong_to(:reportable) }
     it { should belong_to(:reporter).class_name("User") }
@@ -23,7 +23,7 @@ RSpec.describe Report, type: :model do
       it 'prevents same user from reporting same content twice' do
         create(:report, reporter: reporter, reportable: comment, reason: 'spam')
         duplicate = build(:report, reporter: reporter, reportable: comment, reason: 'harassment')
-        
+
         expect(duplicate).not_to be_valid
         expect(duplicate.errors[:reporter_id]).to include("has already reported this content")
       end
@@ -31,7 +31,7 @@ RSpec.describe Report, type: :model do
       it 'allows different users to report same content' do
         create(:report, reporter: reporter, reportable: comment, reason: 'spam')
         another_report = build(:report, reporter: user, reportable: comment, reason: 'spam')
-        
+
         expect(another_report).to be_valid
       end
     end
@@ -87,7 +87,7 @@ RSpec.describe Report, type: :model do
       service = instance_double(ReportNotificationService)
       expect(ReportNotificationService).to receive(:new).and_return(service)
       expect(service).to receive(:send_admin_notification)
-      
+
       create(:report)
     end
   end
@@ -97,7 +97,7 @@ RSpec.describe Report, type: :model do
 
     it 'marks report as under review' do
       report.review!(admin)
-      
+
       expect(report.status).to eq('reviewing')
       expect(report.reviewed_by).to eq(admin)
       expect(report.reviewed_at).to be_present
@@ -110,9 +110,9 @@ RSpec.describe Report, type: :model do
     context 'with content_deleted action' do
       it 'resolves report and deletes content' do
         expect(report.reportable).to receive(:destroy!)
-        
+
         report.resolve!('content_deleted', 'Violates terms', admin)
-        
+
         expect(report.status).to eq('resolved')
         expect(report.resolution_action).to eq('content_deleted')
         expect(report.resolution_notes).to eq('Violates terms')
@@ -125,9 +125,9 @@ RSpec.describe Report, type: :model do
         # Expect two calls - one from report, one from moderation action
         expect(UserModerationEmailService).to receive(:new).twice.and_return(service)
         expect(service).to receive(:send_email).twice
-        
+
         report.resolve!('user_warned', 'First offense', admin)
-        
+
         expect(report.status).to eq('resolved')
         expect(report.resolution_action).to eq('user_warned')
       end
@@ -137,11 +137,11 @@ RSpec.describe Report, type: :model do
       it 'resolves report and suspends user' do
         report = create(:report, reportable: comment)
         user_to_suspend = report.reported_user
-        
+
         expect(user_to_suspend).to receive(:suspend!).with(7.days, "Content violation: #{report.reason}", anything)
-        
+
         report.resolve!('user_suspended', 'Repeated violations', admin)
-        
+
         expect(report.status).to eq('resolved')
       end
     end
@@ -150,11 +150,11 @@ RSpec.describe Report, type: :model do
       it 'resolves report and bans user' do
         report = create(:report, reportable: comment)
         user_to_ban = report.reported_user
-        
+
         expect(user_to_ban).to receive(:ban!).with("Content violation: #{report.reason}", anything)
-        
+
         report.resolve!('user_banned', 'Severe violation', admin)
-        
+
         expect(report.status).to eq('resolved')
       end
     end
@@ -165,7 +165,7 @@ RSpec.describe Report, type: :model do
 
     it 'dismisses the report' do
       report.dismiss!('Not a violation', admin)
-      
+
       expect(report.status).to eq('dismissed')
       expect(report.resolution_action).to eq('dismissed')
       expect(report.resolution_notes).to eq('Not a violation')
@@ -178,7 +178,7 @@ RSpec.describe Report, type: :model do
       overdue = create(:report, status: 'pending', created_at: 25.hours.ago)
       not_overdue = create(:report, status: 'pending', created_at: 23.hours.ago)
       resolved = create(:report, status: 'resolved', created_at: 25.hours.ago)
-      
+
       expect(overdue.overdue?).to be true
       expect(not_overdue.overdue?).to be false
       expect(resolved.overdue?).to be false
@@ -188,7 +188,7 @@ RSpec.describe Report, type: :model do
   describe '#reported_user' do
     context 'when reportable is a Comment' do
       let(:report) { create(:report, reportable: comment) }
-      
+
       it 'returns the comment author' do
         expect(report.reported_user).to eq(comment.user)
       end
@@ -196,7 +196,7 @@ RSpec.describe Report, type: :model do
 
     context 'when reportable is a User' do
       let(:report) { create(:report, reportable: user) }
-      
+
       it 'returns the reported user' do
         expect(report.reported_user).to eq(user)
       end
@@ -204,7 +204,7 @@ RSpec.describe Report, type: :model do
 
     context 'when reportable is an Activity' do
       let(:report) { create(:report, reportable: activity) }
-      
+
       it 'returns the activity host' do
         expect(report.reported_user).to eq(activity.user)
       end
@@ -215,7 +215,7 @@ RSpec.describe Report, type: :model do
     context 'when reportable is a Comment' do
       let(:comment) { create(:comment, content: 'Test comment content') }
       let(:report) { create(:report, reportable: comment) }
-      
+
       it 'returns comment content' do
         expect(report.reported_content).to eq('Test comment content')
       end
@@ -224,7 +224,7 @@ RSpec.describe Report, type: :model do
     context 'when reportable is an Activity' do
       let(:activity) { create(:activity, activity_name: 'Test Activity') }
       let(:report) { create(:report, reportable: activity) }
-      
+
       it 'returns activity name' do
         expect(report.reported_content).to eq('Test Activity')
       end
@@ -232,7 +232,7 @@ RSpec.describe Report, type: :model do
 
     context 'when reportable is other type' do
       let(:report) { create(:report, reportable: user) }
-      
+
       it 'returns N/A' do
         expect(report.reported_content).to eq('N/A')
       end
