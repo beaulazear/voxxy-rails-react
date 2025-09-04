@@ -44,6 +44,11 @@ end
 RSpec.configure do |config|
   # Include FactoryBot methods
   config.include FactoryBot::Syntax::Methods
+  
+  # Set up frontend URL for tests
+  config.before(:each) do
+    Rails.application.config.frontend_url = 'http://localhost:3001'
+  end
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_paths = [
     Rails.root.join('spec/fixtures')

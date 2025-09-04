@@ -3,6 +3,9 @@ class Comment < ApplicationRecord
   belongs_to :activity, optional: true
   belongs_to :pinned_activity, optional: true
 
+  # Polymorphic association for reports
+  has_many :reports, as: :reportable, dependent: :destroy
+
   validates :content, presence: true
 
   # Add attribute to skip notifications when needed

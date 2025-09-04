@@ -67,6 +67,36 @@ Rails.application.routes.draw do
   get "/admin/unconfirmed_users", to: "admin#unconfirmed_users"
   get "/admin/flagged_restaurants", to: "admin#flagged_restaurants"
 
+  # Content moderation routes
+  resources :reports, only: [ :index, :create, :show ] do
+    member do
+      patch :review
+      patch :resolve
+      patch :dismiss
+    end
+    collection do
+      get :stats
+    end
+  end
+
+  # Admin moderation dashboard
+  namespace :admin do
+    resources :moderation_actions, only: [ :index ]
+    resources :reports, only: [ :index ] do
+      collection do
+        get :overdue
+      end
+    end
+    resources :users, only: [] do
+      member do
+        post :suspend
+        post :unsuspend
+        post :ban
+        post :unban
+      end
+    end
+  end
+
   post "/api/openai/restaurant_recommendations", to: "openai#restaurant_recommendations"
   post "/api/openai/bar_recommendations", to: "openai#bar_recommendations"
   post "/api/openai/game_recommendations", to: "openai#game_recommendations"

@@ -32,17 +32,17 @@ RSpec.describe User, type: :model do
 
   describe 'callbacks' do
     describe 'before_create' do
-      it 'generates confirmation token for unconfirmed users' do
+      it 'generates confirmation code for unconfirmed users' do
         user = build(:user, confirmed_at: nil)
-        expect(user.confirmation_token).to be_nil
+        expect(user.confirmation_code).to be_nil
         user.save
-        expect(user.confirmation_token).to be_present
+        expect(user.confirmation_code).to be_present
       end
 
-      it 'does not generate confirmation token for confirmed users' do
+      it 'does not generate confirmation code for confirmed users' do
         user = build(:user, confirmed_at: Time.current)
         user.save
-        expect(user.confirmation_token).to be_nil
+        expect(user.confirmation_code).to be_nil
       end
     end
 
@@ -65,15 +65,15 @@ RSpec.describe User, type: :model do
 
   describe 'instance methods' do
     describe '#verify!' do
-      it 'confirms the user and clears confirmation token' do
+      it 'confirms the user and clears confirmation code' do
         user = create(:user, :unconfirmed)
         expect(user.confirmed_at).to be_nil
-        expect(user.confirmation_token).to be_present
+        expect(user.confirmation_code).to be_present
 
         user.verify!
 
         expect(user.confirmed_at).to be_present
-        expect(user.confirmation_token).to be_nil
+        expect(user.confirmation_code).to be_nil
       end
     end
 
@@ -150,6 +150,214 @@ RSpec.describe User, type: :model do
         user = create(:user)
         allow(user).to receive(:profile_pic_url).and_return('/some/url')
         expect(user.display_image_url).to eq('/some/url')
+      end
+    end
+  end
+
+  describe 'moderation methods' do
+    let(:user) { create(:user) }
+    let(:admin) { create(:user, admin: true) }
+
+    describe '#suspended?' do
+      it 'returns true when status is suspended' do
+        user.update(status: 'suspended')
+        expect(user.suspended?).to be true
+      end
+
+      it 'returns true when suspended_until is in the future' do
+        user.update(suspended_until: 1.day.from_now)
+        expect(user.suspended?).to be true
+      end
+
+      it 'returns false when not suspended' do
+        user.update(status: 'active', suspended_until: nil)
+        expect(user.suspended?).to be false
+      end
+
+      it 'returns false when suspension has expired' do
+        user.update(suspended_until: 1.day.ago)
+        expect(user.suspended?).to be false
+      end
+    end
+
+    describe '#banned?' do
+      it 'returns true when status is banned' do
+        user.update(status: 'banned')
+        expect(user.banned?).to be true
+      end
+
+      it 'returns true when banned_at is present' do
+        user.update(banned_at: Time.current)
+        expect(user.banned?).to be true
+      end
+
+      it 'returns false when not banned' do
+        user.update(status: 'active', banned_at: nil)
+        expect(user.banned?).to be false
+      end
+    end
+
+    describe '#can_login?' do
+      it 'returns true for active users' do
+        user.update(status: 'active')
+        expect(user.can_login?).to be true
+      end
+
+      it 'returns false for suspended users' do
+        user.update(status: 'suspended')
+        expect(user.can_login?).to be false
+      end
+
+      it 'returns false for banned users' do
+        user.update(status: 'banned')
+        expect(user.can_login?).to be false
+      end
+
+      it 'returns false for users with active suspension' do
+        user.update(suspended_until: 1.day.from_now)
+        expect(user.can_login?).to be false
+      end
+    end
+
+    describe '#suspend!' do
+      it 'suspends user for specified duration' do
+        suspension_end = 7.days.from_now
+        user.suspend!(7.days, 'Testing suspension', admin)
+
+        expect(user.status).to eq('suspended')
+        expect(user.suspended_until).to be_within(1.second).of(suspension_end)
+        expect(user.suspension_reason).to eq('Testing suspension')
+      end
+
+      it 'creates moderation action when moderator provided' do
+        expect {
+          user.suspend!(7.days, 'Testing', admin)
+        }.to change { ModerationAction.count }.by(1)
+
+        action = ModerationAction.last
+        expect(action.user).to eq(user)
+        expect(action.moderator).to eq(admin)
+        expect(action.action_type).to eq('suspended')
+      end
+
+      it 'does not create moderation action when no moderator' do
+        expect {
+          user.suspend!(7.days, 'Testing')
+        }.not_to change { ModerationAction.count }
+      end
+    end
+
+    describe '#unsuspend!' do
+      before do
+        user.update(
+          status: 'suspended',
+          suspended_until: 7.days.from_now,
+          suspension_reason: 'Test'
+        )
+      end
+
+      it 'removes suspension' do
+        user.unsuspend!(admin)
+
+        expect(user.status).to eq('active')
+        expect(user.suspended_until).to be_nil
+        expect(user.suspension_reason).to be_nil
+      end
+
+      it 'creates moderation action when moderator provided' do
+        expect {
+          user.unsuspend!(admin)
+        }.to change { ModerationAction.count }.by(1)
+
+        action = ModerationAction.last
+        expect(action.action_type).to eq('unbanned')
+      end
+    end
+
+    describe '#ban!' do
+      it 'permanently bans user' do
+        user.ban!('Severe violation', admin)
+
+        expect(user.status).to eq('banned')
+        expect(user.banned_at).to be_present
+        expect(user.ban_reason).to eq('Severe violation')
+      end
+
+      it 'creates moderation action when moderator provided' do
+        expect {
+          user.ban!('Testing', admin)
+        }.to change { ModerationAction.count }.by(1)
+
+        action = ModerationAction.last
+        expect(action.action_type).to eq('banned')
+        expect(action.reason).to eq('Testing')
+      end
+    end
+
+    describe '#unban!' do
+      before do
+        user.update(
+          status: 'banned',
+          banned_at: Time.current,
+          ban_reason: 'Test'
+        )
+      end
+
+      it 'removes ban' do
+        user.unban!(admin)
+
+        expect(user.status).to eq('active')
+        expect(user.banned_at).to be_nil
+        expect(user.ban_reason).to be_nil
+      end
+
+      it 'creates moderation action when moderator provided' do
+        expect {
+          user.unban!(admin)
+        }.to change { ModerationAction.count }.by(1)
+
+        action = ModerationAction.last
+        expect(action.action_type).to eq('unbanned')
+      end
+    end
+
+    describe '#check_suspension_expiry' do
+      context 'when suspension has expired' do
+        it 'automatically unsuspends user' do
+          user.update(
+            status: 'suspended',
+            suspended_until: 1.second.ago
+          )
+
+          user.check_suspension_expiry
+
+          expect(user.status).to eq('active')
+          expect(user.suspended_until).to be_nil
+        end
+      end
+
+      context 'when suspension is still active' do
+        it 'does not change status' do
+          user.update(
+            status: 'suspended',
+            suspended_until: 1.day.from_now
+          )
+
+          user.check_suspension_expiry
+
+          expect(user.status).to eq('suspended')
+          expect(user.suspended_until).to be_present
+        end
+      end
+
+      context 'when user is not suspended' do
+        it 'does not change status' do
+          user.update(status: 'active')
+          
+          user.check_suspension_expiry
+
+          expect(user.status).to eq('active')
+        end
       end
     end
   end

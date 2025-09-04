@@ -9,6 +9,13 @@ class User < ApplicationRecord
   has_many :notifications, dependent: :destroy
   has_many :triggered_notifications, class_name: "Notification", foreign_key: "triggering_user_id", dependent: :nullify
 
+  # Moderation associations
+  has_many :reports_as_reporter, class_name: "Report", foreign_key: "reporter_id", dependent: :destroy
+  has_many :reports_as_subject, -> { where(reportable_type: "User") },
+           class_name: "Report", foreign_key: "reportable_id", dependent: :destroy
+  has_many :moderation_actions, dependent: :destroy
+  has_many :administered_moderation_actions, class_name: "ModerationAction", foreign_key: "moderator_id", dependent: :nullify
+
   before_create :generate_confirmation_code
 
   validates :name, presence: true
@@ -87,6 +94,106 @@ class User < ApplicationRecord
     self.confirmation_code = generate_6_digit_code
     self.confirmation_sent_at = Time.current
     save!(validate: false)
+  end
+
+  # Moderation methods
+  def active?
+    status == "active"
+  end
+
+  def suspended?
+    status == "suspended" || (suspended_until.present? && suspended_until > Time.current)
+  end
+
+  def banned?
+    status == "banned" || banned_at.present?
+  end
+
+  def can_login?
+    active? && !suspended? && !banned?
+  end
+
+  def suspend!(duration, reason, moderator = nil)
+    transaction do
+      update!(
+        status: "suspended",
+        suspended_until: Time.current + duration,
+        suspension_reason: reason
+      )
+
+      if moderator
+        ModerationAction.log_action(
+          user: self,
+          moderator: moderator,
+          action: "suspended",
+          reason: reason,
+          expires_at: suspended_until
+        )
+      end
+    end
+  end
+
+  def unsuspend!(moderator = nil)
+    transaction do
+      update!(
+        status: "active",
+        suspended_until: nil,
+        suspension_reason: nil
+      )
+
+      if moderator
+        ModerationAction.log_action(
+          user: self,
+          moderator: moderator,
+          action: "unbanned",
+          reason: "Suspension lifted"
+        )
+      end
+    end
+  end
+
+  def ban!(reason, moderator = nil)
+    transaction do
+      update!(
+        status: "banned",
+        banned_at: Time.current,
+        ban_reason: reason
+      )
+
+      if moderator
+        ModerationAction.log_action(
+          user: self,
+          moderator: moderator,
+          action: "banned",
+          reason: reason
+        )
+      end
+    end
+  end
+
+  def unban!(moderator = nil)
+    transaction do
+      update!(
+        status: "active",
+        banned_at: nil,
+        ban_reason: nil
+      )
+
+      if moderator
+        ModerationAction.log_action(
+          user: self,
+          moderator: moderator,
+          action: "unbanned",
+          reason: "Ban lifted"
+        )
+      end
+    end
+  end
+
+  def check_suspension_expiry
+    if suspended? && suspended_until.present? && suspended_until <= Time.current
+      unsuspend!
+    end
   end
 
   private

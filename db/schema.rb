@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_06_130000) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_04_003956) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -119,6 +119,23 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_06_130000) do
     t.index ["email"], name: "index_feedbacks_on_email"
   end
 
+  create_table "moderation_actions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "moderator_id", null: false
+    t.bigint "report_id"
+    t.string "action_type", null: false
+    t.text "reason"
+    t.text "details"
+    t.datetime "expires_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["action_type"], name: "index_moderation_actions_on_action_type"
+    t.index ["created_at"], name: "index_moderation_actions_on_created_at"
+    t.index ["moderator_id"], name: "index_moderation_actions_on_moderator_id"
+    t.index ["report_id"], name: "index_moderation_actions_on_report_id"
+    t.index ["user_id"], name: "index_moderation_actions_on_user_id"
+  end
+
   create_table "notifications", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "title", null: false
@@ -154,6 +171,31 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_06_130000) do
     t.string "website"
     t.boolean "selected", default: false, null: false
     t.index ["activity_id"], name: "index_pinned_activities_on_activity_id"
+  end
+
+  create_table "reports", force: :cascade do |t|
+    t.string "reportable_type", null: false
+    t.bigint "reportable_id", null: false
+    t.string "reason", null: false
+    t.text "description"
+    t.bigint "reporter_id", null: false
+    t.bigint "activity_id"
+    t.string "status", default: "pending", null: false
+    t.datetime "reviewed_at"
+    t.bigint "reviewed_by_id"
+    t.string "resolution_action"
+    t.text "resolution_notes"
+    t.text "internal_notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["activity_id"], name: "index_reports_on_activity_id"
+    t.index ["created_at"], name: "index_reports_on_created_at"
+    t.index ["reason"], name: "index_reports_on_reason"
+    t.index ["reportable_type", "reportable_id"], name: "index_reports_on_reportable_type_and_reportable_id"
+    t.index ["reporter_id", "reportable_type", "reportable_id"], name: "index_reports_on_reporter_and_reportable", unique: true
+    t.index ["reporter_id"], name: "index_reports_on_reporter_id"
+    t.index ["reviewed_by_id"], name: "index_reports_on_reviewed_by_id"
+    t.index ["status"], name: "index_reports_on_status"
   end
 
   create_table "responses", force: :cascade do |t|
@@ -237,10 +279,20 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_06_130000) do
     t.decimal "latitude", precision: 10, scale: 6
     t.decimal "longitude", precision: 10, scale: 6
     t.datetime "confirmation_sent_at"
+    t.string "status", default: "active", null: false
+    t.datetime "suspended_until"
+    t.text "suspension_reason"
+    t.datetime "banned_at"
+    t.text "ban_reason"
+    t.integer "warnings_count", default: 0, null: false
+    t.integer "reports_count", default: 0, null: false
+    t.index ["banned_at"], name: "index_users_on_banned_at"
     t.index ["city"], name: "index_users_on_city"
     t.index ["latitude", "longitude"], name: "index_users_on_latitude_and_longitude"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["state"], name: "index_users_on_state"
+    t.index ["status"], name: "index_users_on_status"
+    t.index ["suspended_until"], name: "index_users_on_suspended_until"
   end
 
   create_table "votes", force: :cascade do |t|
@@ -269,10 +321,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_06_130000) do
   add_foreign_key "activity_participants", "users"
   add_foreign_key "comments", "pinned_activities"
   add_foreign_key "comments", "users"
+  add_foreign_key "moderation_actions", "reports"
+  add_foreign_key "moderation_actions", "users"
+  add_foreign_key "moderation_actions", "users", column: "moderator_id"
   add_foreign_key "notifications", "activities"
   add_foreign_key "notifications", "users"
   add_foreign_key "notifications", "users", column: "triggering_user_id"
   add_foreign_key "pinned_activities", "activities"
+  add_foreign_key "reports", "activities"
+  add_foreign_key "reports", "users", column: "reporter_id"
+  add_foreign_key "reports", "users", column: "reviewed_by_id"
   add_foreign_key "responses", "activities"
   add_foreign_key "responses", "users", on_delete: :cascade
   add_foreign_key "time_slot_votes", "time_slots"
