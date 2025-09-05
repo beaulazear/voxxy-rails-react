@@ -11,7 +11,13 @@ class UserSerializer < BaseSerializer
       email_notifications: user.email_notifications,
       push_notifications: user.push_notifications,
       confirmation_code: user.confirmation_code,
-      admin: user.admin
+      admin: user.admin,
+      # Policy acceptance status
+      terms_accepted: user.has_accepted_terms?,
+      privacy_policy_accepted: user.has_accepted_privacy_policy?,
+      community_guidelines_accepted: user.has_accepted_community_guidelines?,
+      all_policies_accepted: user.has_accepted_all_policies?,
+      needs_policy_acceptance: user.needs_to_accept_updated_policies?
     )
   end
 

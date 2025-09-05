@@ -137,10 +137,7 @@ class Report < ApplicationRecord
     user = reported_user
     return unless user
 
-    # Send warning email
-    UserModerationEmailService.new(user, "warned", self).send_email
-
-    # Log warning
+    # Create moderation action (this will increment count THEN send email via callbacks)
     user.moderation_actions.create!(
       action_type: "warned",
       reason: "Content violation: #{reason}",

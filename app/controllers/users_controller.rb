@@ -221,4 +221,50 @@ class UsersController < ApplicationController
     session[:user_id] = user.id
     render json: UserSerializer.full(user), status: :created
   end
+
+  def accept_policies
+    unless current_user
+      return render json: { error: "Not authorized" }, status: :unauthorized
+    end
+
+    accepted_terms = params[:accept_terms] || params[:terms_accepted]
+    accepted_privacy = params[:accept_privacy] || params[:privacy_accepted]
+    accepted_guidelines = params[:accept_guidelines] || params[:community_guidelines_accepted]
+
+    # Track what was accepted
+    updates = {}
+
+    if accepted_terms
+      current_user.accept_terms!(params[:terms_version] || User::CURRENT_TERMS_VERSION)
+      updates[:terms] = true
+    end
+
+    if accepted_privacy
+      current_user.accept_privacy_policy!(params[:privacy_version] || User::CURRENT_PRIVACY_VERSION)
+      updates[:privacy_policy] = true
+    end
+
+    if accepted_guidelines
+      current_user.accept_community_guidelines!(params[:guidelines_version] || User::CURRENT_GUIDELINES_VERSION)
+      updates[:community_guidelines] = true
+    end
+
+    if updates.any?
+      render json: {
+        message: "Policies accepted successfully",
+        accepted: updates,
+        user: {
+          terms_accepted: current_user.has_accepted_terms?,
+          privacy_policy_accepted: current_user.has_accepted_privacy_policy?,
+          community_guidelines_accepted: current_user.has_accepted_community_guidelines?,
+          all_policies_accepted: current_user.has_accepted_all_policies?
+        }
+      }, status: :ok
+    else
+      render json: { error: "No policies specified to accept" }, status: :bad_request
+    end
+  rescue => e
+    Rails.logger.error "Policy acceptance error: #{e.message}"
+    render json: { error: "Failed to accept policies" }, status: :internal_server_error
+  end
 end

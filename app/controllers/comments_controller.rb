@@ -22,7 +22,15 @@ class CommentsController < ApplicationController
     commentable = find_commentable
     return render json: { error: "Activity or Pinned Activity not found" }, status: :not_found unless commentable
 
-    render json: commentable.comments.includes(:user).as_json(
+    # Filter out comments from blocked users
+    comments = if current_user
+      blocked_user_ids = current_user.blocked_users.pluck(:id)
+      commentable.comments.where.not(user_id: blocked_user_ids).includes(:user)
+    else
+      commentable.comments.includes(:user)
+    end
+
+    render json: comments.as_json(
       include: { user: { only: [ :id, :name, :avatar ] } }
     )
   end

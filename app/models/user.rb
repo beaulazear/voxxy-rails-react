@@ -16,6 +16,12 @@ class User < ApplicationRecord
   has_many :moderation_actions, dependent: :destroy
   has_many :administered_moderation_actions, class_name: "ModerationAction", foreign_key: "moderator_id", dependent: :nullify
 
+  # Blocking associations
+  has_many :blocked_user_relationships, class_name: "BlockedUser", foreign_key: "blocker_id", dependent: :destroy
+  has_many :blocked_users, through: :blocked_user_relationships, source: :blocked
+  has_many :blocked_by_relationships, class_name: "BlockedUser", foreign_key: "blocked_id", dependent: :destroy
+  has_many :blocked_by_users, through: :blocked_by_relationships, source: :blocker
+
   before_create :generate_confirmation_code
 
   validates :name, presence: true
@@ -169,6 +175,86 @@ class User < ApplicationRecord
         )
       end
     end
+  end
+
+  # Blocking methods
+  def block!(user_to_block)
+    return false if id == user_to_block.id
+    blocked_user_relationships.create!(blocked: user_to_block)
+    true
+  rescue ActiveRecord::RecordInvalid
+    false
+  end
+
+  def unblock!(user_to_unblock)
+    blocked_user_relationships.find_by(blocked: user_to_unblock)&.destroy
+  end
+
+  def blocking?(user)
+    blocked_users.exists?(user.id)
+  end
+
+  def blocked_by?(user)
+    blocked_by_users.exists?(user.id)
+  end
+
+  # Terms and Privacy acceptance methods
+  CURRENT_TERMS_VERSION = "1.0.0"
+  CURRENT_PRIVACY_VERSION = "1.0.0"
+  CURRENT_GUIDELINES_VERSION = "1.0.0"
+
+  def accept_terms!(version = CURRENT_TERMS_VERSION)
+    update!(
+      terms_accepted_at: Time.current,
+      terms_version: version
+    )
+  end
+
+  def accept_privacy_policy!(version = CURRENT_PRIVACY_VERSION)
+    update!(
+      privacy_policy_accepted_at: Time.current,
+      privacy_policy_version: version
+    )
+  end
+
+  def accept_community_guidelines!(version = CURRENT_GUIDELINES_VERSION)
+    update!(
+      community_guidelines_accepted_at: Time.current,
+      community_guidelines_version: version
+    )
+  end
+
+  def accept_all_policies!(terms_version = CURRENT_TERMS_VERSION,
+                          privacy_version = CURRENT_PRIVACY_VERSION,
+                          guidelines_version = CURRENT_GUIDELINES_VERSION)
+    update!(
+      terms_accepted_at: Time.current,
+      terms_version: terms_version,
+      privacy_policy_accepted_at: Time.current,
+      privacy_policy_version: privacy_version,
+      community_guidelines_accepted_at: Time.current,
+      community_guidelines_version: guidelines_version
+    )
+  end
+
+  def has_accepted_terms?
+    terms_accepted_at.present? && terms_version == CURRENT_TERMS_VERSION
+  end
+
+  def has_accepted_privacy_policy?
+    privacy_policy_accepted_at.present? && privacy_policy_version == CURRENT_PRIVACY_VERSION
+  end
+
+  def has_accepted_community_guidelines?
+    community_guidelines_accepted_at.present? && community_guidelines_version == CURRENT_GUIDELINES_VERSION
+  end
+
+  def has_accepted_all_policies?
+    has_accepted_terms? && has_accepted_privacy_policy? && has_accepted_community_guidelines?
+  end
+
+  def needs_to_accept_updated_policies?
+    !has_accepted_all_policies?
   end
 
   def unban!(moderator = nil)

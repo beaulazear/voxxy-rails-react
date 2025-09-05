@@ -6,8 +6,13 @@ class UserActivitiesController < ApplicationController
   # GET /user_activities
   # Returns all user activities for the current user
   def index
+    # Get blocked user IDs
+    blocked_user_ids = current_user.blocked_users.pluck(:id)
+
+    # Filter out activities from blocked users
     user_activities = current_user.user_activities
                                   .includes(pinned_activity: { activity: :user })
+                                  .where.not(pinned_activities: { activities: { user_id: blocked_user_ids } })
 
     render json: UserActivitySerializer.collection(user_activities)
   end
@@ -15,9 +20,14 @@ class UserActivitiesController < ApplicationController
   # GET /user_activities/flagged
   # Returns only flagged activities
   def flagged
+    # Get blocked user IDs
+    blocked_user_ids = current_user.blocked_users.pluck(:id)
+
+    # Filter out activities from blocked users
     flagged_activities = current_user.user_activities
                                      .flagged
                                      .includes(pinned_activity: { activity: :user })
+                                     .where.not(pinned_activities: { activities: { user_id: blocked_user_ids } })
 
     render json: UserActivitySerializer.collection(flagged_activities)
   end
@@ -25,9 +35,14 @@ class UserActivitiesController < ApplicationController
   # GET /user_activities/favorited
   # Returns only favorited activities
   def favorited
+    # Get blocked user IDs
+    blocked_user_ids = current_user.blocked_users.pluck(:id)
+
+    # Filter out activities from blocked users
     favorited_activities = current_user.user_activities
                                        .favorited
                                        .includes(pinned_activity: { activity: :user })
+                                       .where.not(pinned_activities: { activities: { user_id: blocked_user_ids } })
 
     render json: UserActivitySerializer.collection(favorited_activities)
   end

@@ -56,6 +56,9 @@ class ModerationAction < ApplicationRecord
     # Log the action
     Rails.logger.info "Moderation action: #{moderator.name} #{action_type} #{user.name} - #{reason}"
 
+    # Reload user to get updated warnings_count
+    user.reload
+
     # Send email notification based on action type
     case action_type
     when "warned", "suspended", "banned"

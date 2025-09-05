@@ -61,6 +61,13 @@ Rails.application.routes.draw do
   delete "logout", to: "sessions#destroy"
   get "/me", to: "users#show"
   patch "/make_admin", to: "users#make_admin"
+  post "/accept_policies", to: "users#accept_policies"
+
+  # User blocking endpoints
+  post "/users/:id/block", to: "blocks#create"
+  delete "/users/:id/unblock", to: "blocks#destroy"
+  get "/users/blocked", to: "blocks#index"
+
   get "/admin/analytics", to: "admin#analytics"
   get "/admin/admin_users", to: "admin#admin_users"
   get "/admin/user_breakdown", to: "admin#user_breakdown"

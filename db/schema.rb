@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_04_003956) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_05_032613) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -76,6 +76,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_04_003956) do
     t.index ["activity_id"], name: "index_activity_participants_on_activity_id"
     t.index ["guest_response_token"], name: "index_activity_participants_on_guest_response_token", unique: true
     t.index ["user_id"], name: "index_activity_participants_on_user_id"
+  end
+
+  create_table "blocked_users", force: :cascade do |t|
+    t.bigint "blocker_id", null: false
+    t.bigint "blocked_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["blocked_id"], name: "index_blocked_users_on_blocked_id"
+    t.index ["blocker_id", "blocked_id"], name: "index_blocked_users_on_blocker_id_and_blocked_id", unique: true
+    t.index ["blocker_id"], name: "index_blocked_users_on_blocker_id"
   end
 
   create_table "bug_reports", force: :cascade do |t|
@@ -286,13 +296,22 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_04_003956) do
     t.text "ban_reason"
     t.integer "warnings_count", default: 0, null: false
     t.integer "reports_count", default: 0, null: false
+    t.datetime "terms_accepted_at"
+    t.string "terms_version"
+    t.datetime "privacy_policy_accepted_at"
+    t.string "privacy_policy_version"
+    t.datetime "community_guidelines_accepted_at"
+    t.string "community_guidelines_version"
     t.index ["banned_at"], name: "index_users_on_banned_at"
     t.index ["city"], name: "index_users_on_city"
+    t.index ["community_guidelines_accepted_at"], name: "index_users_on_community_guidelines_accepted_at"
     t.index ["latitude", "longitude"], name: "index_users_on_latitude_and_longitude"
+    t.index ["privacy_policy_accepted_at"], name: "index_users_on_privacy_policy_accepted_at"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["state"], name: "index_users_on_state"
     t.index ["status"], name: "index_users_on_status"
     t.index ["suspended_until"], name: "index_users_on_suspended_until"
+    t.index ["terms_accepted_at"], name: "index_users_on_terms_accepted_at"
   end
 
   create_table "votes", force: :cascade do |t|
@@ -319,6 +338,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_04_003956) do
   add_foreign_key "activities", "users"
   add_foreign_key "activity_participants", "activities"
   add_foreign_key "activity_participants", "users"
+  add_foreign_key "blocked_users", "users", column: "blocked_id"
+  add_foreign_key "blocked_users", "users", column: "blocker_id"
   add_foreign_key "comments", "pinned_activities"
   add_foreign_key "comments", "users"
   add_foreign_key "moderation_actions", "reports"
