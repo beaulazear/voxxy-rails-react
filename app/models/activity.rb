@@ -15,6 +15,9 @@ class Activity < ApplicationRecord
 
     validates :activity_name, :activity_type, :date_notes, presence: true
     validate :date_day_must_be_in_future, if: -> { date_day.present? }
+    validate :content_must_be_appropriate
+
+    before_validation :clean_content
 
   def availability_tally
     tally = Hash.new(0)
@@ -141,5 +144,29 @@ class Activity < ApplicationRecord
 
   def activity_updated?
     activity_name_changed? || activity_location_changed? || date_day_changed? || date_time_changed?
+  end
+
+  def clean_content
+    # Clean activity name and welcome message
+    self.activity_name = ContentFilterService.clean(activity_name) if activity_name.present?
+    self.welcome_message = ContentFilterService.clean(welcome_message) if welcome_message.present?
+    self.date_notes = ContentFilterService.clean(date_notes) if date_notes.present?
+  end
+
+  def content_must_be_appropriate
+    # Check activity name
+    if activity_name.present? && ContentFilterService.inappropriate?(activity_name)
+      errors.add(:activity_name, "contains inappropriate content")
+    end
+
+    # Check welcome message if present
+    if welcome_message.present? && ContentFilterService.inappropriate?(welcome_message)
+      errors.add(:welcome_message, "contains inappropriate content")
+    end
+
+    # Check date notes
+    if date_notes.present? && ContentFilterService.inappropriate?(date_notes)
+      errors.add(:date_notes, "contains inappropriate content")
+    end
   end
 end

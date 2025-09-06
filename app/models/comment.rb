@@ -7,13 +7,33 @@ class Comment < ApplicationRecord
   has_many :reports, as: :reportable, dependent: :destroy
 
   validates :content, presence: true
+  validate :content_must_be_appropriate
 
   # Add attribute to skip notifications when needed
   attr_accessor :skip_notifications
 
+  # Clean content before saving
+  before_validation :clean_content
   after_create :send_comment_notifications, unless: :skip_notifications
 
   private
+
+  def clean_content
+    return if content.nil?
+
+    # Clean the content of profanity (replace with asterisks)
+    self.content = ContentFilterService.clean(content)
+  end
+
+  def content_must_be_appropriate
+    return if content.nil?
+
+    errors_list = ContentFilterService.validation_errors(content)
+
+    if errors_list.any?
+      errors.add(:content, errors_list.join(", "))
+    end
+  end
 
   def send_comment_notifications
     return unless activity # Only send for activity comments
