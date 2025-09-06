@@ -16,7 +16,8 @@ class BlocksController < ApplicationController
         blocked_user: {
           id: user_to_block.id,
           name: user_to_block.name,
-          email: user_to_block.email
+          email: user_to_block.email,
+          profile_pic: user_to_block.profile_pic_url
         }
       }, status: :ok
     else
@@ -48,7 +49,7 @@ class BlocksController < ApplicationController
 
   # GET /users/blocked
   def index
-    blocked_users = current_user.blocked_users.select(:id, :name, :email, :avatar)
+    blocked_users = current_user.blocked_users
 
     render json: {
       blocked_users: blocked_users.map do |user|
@@ -56,7 +57,7 @@ class BlocksController < ApplicationController
           id: user.id,
           name: user.name,
           email: user.email,
-          avatar: user.avatar
+          profile_pic: user.profile_pic_url
         }
       end,
       total: blocked_users.count

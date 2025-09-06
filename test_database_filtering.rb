@@ -29,11 +29,11 @@ if test_comment.save
   puts "   Original: 'This shit is fucking amazing!'"
   puts "   In Database: '#{test_comment.reload.content}'"
   puts "   Profanity cleaned: #{test_comment.content.include?('***') ? '✅ YES' : '❌ NO'}"
-  
+
   # Verify it's actually in the database
   db_comment = Comment.find(test_comment.id)
   puts "   Verified from DB: '#{db_comment.content}'"
-  
+
   # Clean up
   test_comment.destroy
   puts "   Test comment cleaned up"
@@ -61,7 +61,7 @@ if test_activity.save
   puts "   Original welcome: 'Get your shit together and come!'"
   puts "   In Database: '#{test_activity.reload.welcome_message}'"
   puts "   Profanity cleaned: #{test_activity.activity_name.include?('**') ? '✅ YES' : '❌ NO'}"
-  
+
   # Clean up
   test_activity.destroy
   puts "   Test activity cleaned up"
