@@ -1,29 +1,21 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { UserContext } from '../context/user';
 import StartNewAdventure from './StartNewAdventure';
 import RestaurantChat from './RestaurantChat';
 import CocktailsChat from '../cocktails/CocktailsChat';
 import GameNightChat from '../gamenight/GameNightChat';
 
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
-
 export const PageContainer = styled.div`
   width: 100%;
   min-height: 100vh;
   background: linear-gradient(135deg, #1A1625 0%, #2D1B47 100%);
-  animation: ${fadeIn} 0.8s ease-in-out;
   display: flex;
   flex-direction: column;
+  
+  @media (max-width: 768px) {
+    animation: none;
+  }
 `;
 
 const LoadingContainer = styled.div`
@@ -54,6 +46,10 @@ const ModalOverlay = styled.div`
   z-index: 1000;
   display: flex;
   flex-direction: column;
+  
+  @media (max-width: 768px) {
+    will-change: auto;
+  }
 `;
 
 const ModalHeader = styled.div`
@@ -83,10 +79,17 @@ const CloseButton = styled.button`
   justify-content: center;
   cursor: pointer;
   color: #fff;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
 
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+  @media (hover: hover) {
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+  }
+  
+  &:active {
+    background-color: rgba(255, 255, 255, 0.15);
   }
 
   svg {
@@ -127,7 +130,7 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
 
   useEffect(() => {
     if (dashboardRef.current) {
-      dashboardRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      dashboardRef.current.scrollIntoView({ behavior: 'auto', block: 'start' });
     }
   }, []);
 
@@ -228,4 +231,4 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
   );
 }
 
-export default TripDashboard;
+export default React.memo(TripDashboard);

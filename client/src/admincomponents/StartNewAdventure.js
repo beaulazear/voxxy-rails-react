@@ -38,11 +38,18 @@ const BackButton = styled.button`
   justify-content: center;
   cursor: pointer;
   color: #fff;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
 
-  &:hover {
+  @media (hover: hover) {
+    &:hover {
+      background-color: rgba(147, 51, 234, 1);
+      transform: translateY(-1px);
+    }
+  }
+  
+  &:active {
     background-color: rgba(147, 51, 234, 1);
-    transform: translateY(-1px);
   }
 
   svg {
@@ -54,6 +61,7 @@ const BackButton = styled.button`
     width: 44px;
     height: 44px;
     border-radius: 14px;
+    transition: none;
     
     svg {
       width: 20px;
@@ -105,6 +113,7 @@ const Subtitle = styled.p`
 const ScrollContainer = styled.div`
   flex: 1;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   
   &::-webkit-scrollbar {
     width: 6px;
@@ -125,6 +134,14 @@ const ScrollContainer = styled.div`
   
   scrollbar-width: thin;
   scrollbar-color: rgba(139, 92, 246, 0.3) rgba(64, 51, 71, 0.1);
+  
+  @media (max-width: 768px) {
+    &::-webkit-scrollbar {
+      width: 0;
+      display: none;
+    }
+    scrollbar-width: none;
+  }
 `;
 
 const ScrollContent = styled.div`
@@ -171,21 +188,24 @@ const ActivityCard = styled.button`
   position: relative;
   border: 2px solid;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
   
   ${props => props.$active ? `
     border-color: #9333EA;
     opacity: 1;
-    box-shadow: 0 4px 8px rgba(147, 51, 234, 0.3);
     
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(147, 51, 234, 0.4);
-      background-color: #3A2945;
+    @media (hover: hover) {
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(147, 51, 234, 0.4);
+        background-color: #3A2945;
+      }
     }
     
     &:active {
       transform: translateY(0);
+      background-color: #3A2945;
     }
   ` : `
     border-color: rgba(147, 51, 234, 0.2);
@@ -197,6 +217,14 @@ const ActivityCard = styled.button`
     padding: 32px 24px;
     min-height: 180px;
     border-radius: 18px;
+    transition: none;
+    box-shadow: none;
+    
+    ${props => props.$active ? `
+      &:active {
+        background-color: #3A2945;
+      }
+    ` : ''}
   }
   
   @media (max-width: 480px) {
@@ -328,7 +356,7 @@ const ArrowLeftIcon = () => (
   </svg>
 );
 
-export default function StartNewAdventure({ onTripSelect, onBack }) {
+function StartNewAdventure({ onTripSelect, onBack }) {
   const adventures = [
     {
       name: 'Lets Eat',
@@ -441,3 +469,5 @@ export default function StartNewAdventure({ onTripSelect, onBack }) {
     </Container >
   );
 }
+
+export default React.memo(StartNewAdventure);

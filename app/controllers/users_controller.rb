@@ -187,41 +187,6 @@ class UsersController < ApplicationController
     end
   end
 
-  private
-
-  def user_params
-    params.require(:user).permit(
-      :name, :email, :password, :password_confirmation, :avatar, :preferences,
-      :text_notifications, :email_notifications, :push_notifications, :profile_pic,
-      :neighborhood, :city, :state, :latitude, :longitude
-    )
-  end
-
-  def handle_pending_invites(user)
-    pending_invites = ActivityParticipant.where(invited_email: user.email, accepted: false)
-    pending_invites.find_each do |invite|
-      invite.update!(user: user, accepted: true)
-      invite.activity.comments.create!(
-        user_id: user.id,
-        content: "#{user.name} has joined the chat 🎉"
-      )
-    end
-  end
-
-  def mobile_app_request?
-    request.headers["X-Mobile-App"] == "true"
-  end
-
-  def render_mobile_response(user)
-    token = JsonWebToken.encode(user_id: user.id)
-    render json: UserSerializer.basic(user).merge(token: token), status: :created
-  end
-
-  def render_web_response(user)
-    session[:user_id] = user.id
-    render json: UserSerializer.full(user), status: :created
-  end
-
   def accept_policies
     unless current_user
       return render json: { error: "Not authorized" }, status: :unauthorized
@@ -266,5 +231,40 @@ class UsersController < ApplicationController
   rescue => e
     Rails.logger.error "Policy acceptance error: #{e.message}"
     render json: { error: "Failed to accept policies" }, status: :internal_server_error
+  end
+
+  private
+
+  def user_params
+    params.require(:user).permit(
+      :name, :email, :password, :password_confirmation, :avatar, :preferences,
+      :text_notifications, :email_notifications, :push_notifications, :profile_pic,
+      :neighborhood, :city, :state, :latitude, :longitude
+    )
+  end
+
+  def handle_pending_invites(user)
+    pending_invites = ActivityParticipant.where(invited_email: user.email, accepted: false)
+    pending_invites.find_each do |invite|
+      invite.update!(user: user, accepted: true)
+      invite.activity.comments.create!(
+        user_id: user.id,
+        content: "#{user.name} has joined the chat 🎉"
+      )
+    end
+  end
+
+  def mobile_app_request?
+    request.headers["X-Mobile-App"] == "true"
+  end
+
+  def render_mobile_response(user)
+    token = JsonWebToken.encode(user_id: user.id)
+    render json: UserSerializer.basic(user).merge(token: token), status: :created
+  end
+
+  def render_web_response(user)
+    session[:user_id] = user.id
+    render json: UserSerializer.full(user), status: :created
   end
 end
