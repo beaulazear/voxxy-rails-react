@@ -134,33 +134,21 @@ const Subheading = styled.p`
 `;
 
 const ActivityCard = styled.div`
-  background: #1A1625;
-  border: 1px solid rgba(147, 51, 234, 0.2);
-  padding: 32px;
-  border-radius: 24px;
+  background: rgba(147, 51, 234, 0.05);
+  border: 1px solid rgba(147, 51, 234, 0.15);
+  padding: 24px;
+  border-radius: 16px;
   margin-bottom: 24px;
-  text-align: left;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #9333EA, #7C3AED, #6B21A8);
-  }
+  text-align: center;
+  backdrop-filter: blur(10px);
   
   @media (max-width: 768px) {
-    padding: 28px;
+    padding: 20px;
     margin-bottom: 20px;
   }
   
   @media (max-width: 480px) {
-    padding: 24px;
+    padding: 16px;
   }
 `;
 
@@ -177,21 +165,35 @@ const OrganizerTitle = styled.h3`
   }
 `;
 
-const ActivityDetails = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
-  margin-top: 16px;
-`;
-
 const ActivityDetail = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
   font-size: 14px;
   color: rgba(255, 255, 255, 0.6);
+`;
+
+const ProfilePicture = styled.img`
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 16px;
+  border: 3px solid rgba(147, 51, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.2);
+`;
+
+const ProfileInitial = styled.div`
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #9333EA, #7C3AED);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  border: 3px solid rgba(147, 51, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.2);
 `;
 
 const PreferencesCard = styled.div`
@@ -691,7 +693,7 @@ export default function GuestResponsePage() {
       <Container>
         <TopBar>
           <Heading>
-            {activityInfo.emoji} {activityInfo.title}
+            {activityInfo.emoji} Share Your {activity.activity_type === 'Restaurant' ? 'Food' : activity.activity_type === 'Cocktails' ? 'Bar' : activity.activity_type === 'Game Night' ? 'Game' : 'Schedule'} Preferences
           </Heading>
           <Subheading>
             {activityInfo.description}
@@ -699,24 +701,27 @@ export default function GuestResponsePage() {
         </TopBar>
 
         <ActivityCard>
+          {(activity.user?.profile_pic_url || activity.user?.avatar) ? (
+            <ProfilePicture 
+              src={activity.user.profile_pic_url || activity.user.avatar} 
+              alt={`${activity.user.name}'s profile`}
+            />
+          ) : (
+            <ProfileInitial>
+              {(activity.user?.name || 'Y').charAt(0).toUpperCase()}
+            </ProfileInitial>
+          )}
           <OrganizerTitle>
             {activity.user?.name || 'Your friend'} wants your input!
           </OrganizerTitle>
-          <ActivityDetails>
-            {activity.activity_location && activity.activity_type !== 'Game Night' && (
-              <ActivityDetail>
-                📍 {activity.activity_location}
-              </ActivityDetail>
-            )}
-            {activity.date_notes && (
-              <ActivityDetail>
-                📅 {activity.date_notes}
-              </ActivityDetail>
-            )}
-            <ActivityDetail>
-              👤 Responding as: {guestEmail}
-            </ActivityDetail>
-          </ActivityDetails>
+          <ActivityDetail style={{ 
+            textAlign: 'center', 
+            marginTop: '12px',
+            fontSize: '14px',
+            color: 'rgba(255, 255, 255, 0.5)'
+          }}>
+            Responding as: <span style={{ color: '#A855F7', fontWeight: '500' }}>{guestEmail}</span>
+          </ActivityDetail>
         </ActivityCard>
 
         {submissionSuccess && (
