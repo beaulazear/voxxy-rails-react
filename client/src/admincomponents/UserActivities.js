@@ -97,7 +97,7 @@ import {
 
 const ACTIVITY_CONFIG = {
   'Restaurant': {
-    displayText: 'Food',
+    displayText: 'Restaurant',
     countdownText: 'Hope you and your crew savored every bite together! 🥂',
     countdownLabel: 'Meal Starts In',
     emoji: '🍜',
@@ -124,7 +124,7 @@ const ACTIVITY_CONFIG = {
     gradient: 'linear-gradient(135deg, #A8E6CF, #7FD1AE)'
   },
   'Cocktails': {
-    displayText: 'Drinks',
+    displayText: 'Bar',
     countdownText: 'Cheers to wild laughs and brighter memories—what a crew! 🥂',
     countdownLabel: 'Your Outing Starts In',
     emoji: '🍸',

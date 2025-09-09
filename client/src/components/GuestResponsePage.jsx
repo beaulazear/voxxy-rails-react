@@ -701,16 +701,11 @@ export default function GuestResponsePage() {
         </TopBar>
 
         <ActivityCard>
-          {(activity.user?.profile_pic_url || activity.user?.avatar) ? (
-            <ProfilePicture 
-              src={activity.user.profile_pic_url || activity.user.avatar} 
-              alt={`${activity.user.name}'s profile`}
-            />
-          ) : (
-            <ProfileInitial>
-              {(activity.user?.name || 'Y').charAt(0).toUpperCase()}
-            </ProfileInitial>
-          )}
+          <ProfilePicture 
+            src={activity.user?.profile_pic_url || '/profile-placeholder.svg'} 
+            alt={`${activity.user?.name || 'Your friend'}'s profile`}
+            onError={(e) => { e.target.src = '/profile-placeholder.svg'; }}
+          />
           <OrganizerTitle>
             {activity.user?.name || 'Your friend'} wants your input!
           </OrganizerTitle>
