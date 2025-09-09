@@ -39,7 +39,7 @@ class InviteUserService < BaseEmailService
 
     activity_info = get_activity_type_info(activity.activity_type)
 
-    subject = "#{inviter.name} invited you to #{activity.activity_name}!"
+    subject = "Help #{inviter.name} pick a #{activity.activity_type == 'Restaurant' ? 'restaurant' : 'bar'}"
     content = <<~HTML
       <html>
         <head>
@@ -54,45 +54,28 @@ class InviteUserService < BaseEmailService
                    alt="Voxxy Logo" width="200" style="margin-bottom: 30px; max-width: 100%; height: auto;">
       #{'        '}
               <!-- Main Title -->
-              <h1 style="font-family: 'Montserrat', Arial, sans-serif; font-size: 28px; font-weight: 700; color: #2d3748; margin: 0 0 10px 0;">
-                You're invited! 🎉
+              <h1 style="font-family: 'Montserrat', Arial, sans-serif; font-size: 28px; font-weight: 700; color: #2d3748; margin: 0 0 20px 0;">
+                #{activity.activity_type == 'Restaurant' ? '🍜 Finding the perfect restaurant' : '🍸 Finding the perfect bar'}
               </h1>
       #{'        '}
-              <!-- Subtitle -->
-              <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 16px; color: #718096; margin: 0 0 20px 0; line-height: 1.5;">
-                <strong style="color: #2d3748;">#{inviter.name}</strong> needs your preferences for an activity!
+              <!-- Action Request -->
+              <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 16px; color: #4a5568; margin: 0 0 25px 0; line-height: 1.5;">
+                <strong style="color: #2d3748;">#{inviter.name}</strong> is collecting ideas for #{activity.activity_type == 'Restaurant' ? 'your next meal' : 'your next night out'}.
+                <br><span style="color: #2d3748; font-weight: 500;">Click below to start your quick survey.</span>
               </p>
 
-              <!-- Activity Type -->
-              <div style="background-color: #f0f4ff; border-radius: 8px; padding: 15px; margin-bottom: 25px;">
-                <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 14px; color: #4c51bf; margin: 0; font-weight: 500;">
-                  #{activity_info[:emoji]} #{activity_info[:description].gsub(/^[^!]*!\s*/, '')}
-                </p>
-              </div>
-
-              #{activity.welcome_message.present? ? "
-              <!-- Welcome Message -->
-              <div style=\"background-color: #fefcbf; border-left: 4px solid #f6e05e; padding: 20px; margin-bottom: 25px; text-align: left;\">
-                <p style=\"font-family: 'Montserrat', Arial, sans-serif; font-size: 13px; color: #b45309; margin: 0 0 8px 0; font-weight: 600;\">
-                  Message from #{inviter.name}:
-                </p>
-                <p style=\"font-family: 'Montserrat', Arial, sans-serif; font-size: 15px; color: #744210; margin: 0; line-height: 1.5; font-style: italic;\">
-                  &ldquo;#{activity.welcome_message}&rdquo;
-                </p>
-              </div>
-              " : ""}
 
               <!-- Main CTA Section -->
               <div style="background-color: #f7fafc; border: 2px solid #9D60F8; border-radius: 12px; padding: 30px; margin-bottom: 25px;">
                 <h2 style="font-family: 'Montserrat', Arial, sans-serif; font-size: 20px; font-weight: 700; color: #2d3748; margin: 0 0 12px 0;">
-                  Quick Response ⚡
+                  Action Required
                 </h2>
                 <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 14px; color: #4a5568; margin: 0 0 25px 0; line-height: 1.4;">
-                  No account needed - just click and share your preferences!
+                  Complete a 2-minute survey to share your preferences.
                 </p>
                 <a href="#{response_link}"
                    style="display: inline-block; font-family: 'Montserrat', Arial, sans-serif; padding: 16px 32px; font-size: 16px; font-weight: 600; color: white; background-color: #9D60F8; text-decoration: none; border-radius: 8px;">
-                  Submit My Preferences
+                  Start Survey
                 </a>
               </div>
 
@@ -108,8 +91,8 @@ class InviteUserService < BaseEmailService
               </div>
       #{'        '}
               <!-- Footer -->
-              <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 14px; color: #718096; margin: 30px 0 0 0;">
-                See you on Voxxy! ✨
+              <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 12px; color: #718096; margin: 30px 0 0 0;">
+                This is an automated notification from Voxxy
               </p>
             </div>
           </div>
@@ -117,7 +100,14 @@ class InviteUserService < BaseEmailService
       </html>
     HTML
 
-    send_email(email, subject, content, {})
+    # Add headers to mark as transactional email (not promotional)
+    headers = {
+      "X-Entity-Ref-ID" => "activity-#{activity.id}-#{participant.id}",
+      "X-SMTPAPI" => '{"category": ["transactional", "preference-request"]}',
+      "Importance" => "high",
+      "X-MSMail-Priority" => "High"
+    }
+    send_email(email, subject, content, headers)
   end
 
   def self.send_existing_user_invite(user, activity, inviter, participant)
@@ -130,7 +120,7 @@ class InviteUserService < BaseEmailService
 
     activity_info = get_activity_type_info(activity.activity_type)
 
-    subject = "#{inviter.name} invited you to #{activity.activity_name}!"
+    subject = "Help #{inviter.name} pick a #{activity.activity_type == 'Restaurant' ? 'restaurant' : 'bar'}"
     content = <<~HTML
       <html>
         <head>
@@ -145,45 +135,28 @@ class InviteUserService < BaseEmailService
                    alt="Voxxy Logo" width="200" style="margin-bottom: 30px; max-width: 100%; height: auto;">
       #{'        '}
               <!-- Main Title -->
-              <h1 style="font-family: 'Montserrat', Arial, sans-serif; font-size: 28px; font-weight: 700; color: #2d3748; margin: 0 0 10px 0;">
-                Hey #{user.name}! 🎉
+              <h1 style="font-family: 'Montserrat', Arial, sans-serif; font-size: 28px; font-weight: 700; color: #2d3748; margin: 0 0 20px 0;">
+                #{activity.activity_type == 'Restaurant' ? '🍜 Finding the perfect restaurant' : '🍸 Finding the perfect bar'}
               </h1>
       #{'        '}
-              <!-- Subtitle -->
-              <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 16px; color: #718096; margin: 0 0 20px 0; line-height: 1.5;">
-                <strong style="color: #2d3748;">#{inviter.name}</strong> needs your preferences for an activity!
+              <!-- Action Request -->
+              <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 16px; color: #4a5568; margin: 0 0 25px 0; line-height: 1.5;">
+                Hi #{user.name}! <strong style="color: #2d3748;">#{inviter.name}</strong> is collecting ideas for #{activity.activity_type == 'Restaurant' ? 'your next meal' : 'your next night out'}.
+                <br><span style="color: #2d3748; font-weight: 500;">Click below to start your quick survey.</span>
               </p>
 
-              <!-- Activity Type -->
-              <div style="background-color: #f0f4ff; border-radius: 8px; padding: 15px; margin-bottom: 25px;">
-                <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 14px; color: #4c51bf; margin: 0; font-weight: 500;">
-                  #{activity_info[:emoji]} #{activity_info[:description].gsub(/^[^!]*!\s*/, '')}
-                </p>
-              </div>
-
-              #{activity.welcome_message.present? ? "
-              <!-- Welcome Message -->
-              <div style=\"background-color: #fefcbf; border-left: 4px solid #f6e05e; padding: 20px; margin-bottom: 25px; text-align: left;\">
-                <p style=\"font-family: 'Montserrat', Arial, sans-serif; font-size: 13px; color: #b45309; margin: 0 0 8px 0; font-weight: 600;\">
-                  Message from #{inviter.name}:
-                </p>
-                <p style=\"font-family: 'Montserrat', Arial, sans-serif; font-size: 15px; color: #744210; margin: 0; line-height: 1.5; font-style: italic;\">
-                  &ldquo;#{activity.welcome_message}&rdquo;
-                </p>
-              </div>
-              " : ""}
 
               <!-- Main CTA Section -->
               <div style="background-color: #f7fafc; border: 2px solid #9D60F8; border-radius: 12px; padding: 30px; margin-bottom: 25px;">
                 <h2 style="font-family: 'Montserrat', Arial, sans-serif; font-size: 20px; font-weight: 700; color: #2d3748; margin: 0 0 12px 0;">
-                  Quick Response ⚡
+                  Action Required
                 </h2>
                 <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 14px; color: #4a5568; margin: 0 0 25px 0; line-height: 1.4;">
-                  Jump right in and share your preferences!
+                  Complete a 2-minute survey to share your preferences.
                 </p>
                 <a href="#{response_link}"
                    style="display: inline-block; font-family: 'Montserrat', Arial, sans-serif; padding: 16px 32px; font-size: 16px; font-weight: 600; color: white; background-color: #9D60F8; text-decoration: none; border-radius: 8px;">
-                  Submit My Preferences
+                  Start Survey
                 </a>
               </div>
 
@@ -199,8 +172,8 @@ class InviteUserService < BaseEmailService
               </div>
       #{'        '}
               <!-- Footer -->
-              <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 14px; color: #718096; margin: 30px 0 0 0;">
-                See you on Voxxy! ✨
+              <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 12px; color: #718096; margin: 30px 0 0 0;">
+                This is an automated notification from Voxxy
               </p>
             </div>
           </div>
@@ -208,6 +181,13 @@ class InviteUserService < BaseEmailService
       </html>
     HTML
 
-    send_email(user.email, subject, content, {})
+    # Add headers to mark as transactional email (not promotional)
+    headers = {
+      "X-Entity-Ref-ID" => "activity-#{activity.id}-#{participant.id}",
+      "X-SMTPAPI" => '{"category": ["transactional", "preference-request"]}',
+      "Importance" => "high",
+      "X-MSMail-Priority" => "High"
+    }
+    send_email(user.email, subject, content, headers)
   end
 end

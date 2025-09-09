@@ -1,7 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { User, Users, Calendar, Clock, Plus, Mail, Coffee, MapPin, Star, Grid3x3, List, Zap, Activity, Gamepad2, Wine, Utensils, ChevronRight, CheckCircle, DollarSign } from 'lucide-react';
+import { User, Users, Calendar, Clock, Plus, Mail, MapPin, Star, Grid3x3, List, Zap, Activity, Gamepad2, Wine, Utensils, ChevronRight, CheckCircle, DollarSign } from 'lucide-react';
 import { UserContext } from '../context/user';
 import { useNavigate } from 'react-router-dom';
+import CreateCardSimple from './CreateCardSimple';
 // Removed unused YourCommunity import
 import {
   // Main containers
@@ -271,67 +272,6 @@ function CountdownText({ targetTs, activityType }) {
         </CountdownBlock>
       </CountdownGrid>
     </CountdownContainer>
-  );
-}
-
-function CreateCardComponent({ isInvitesEmpty = false, onClick }) {
-  const title = isInvitesEmpty ? 'No Current Invites' : 'Create New Activity';
-  const subtitle = isInvitesEmpty ? 'Be the first to invite your friends!' : 'Start planning something amazing!';
-  const actionText = isInvitesEmpty ? 'Start planning now →' : 'Get started →';
-
-  return (
-    <CreateCard $isInvitesEmpty={isInvitesEmpty} onClick={onClick}>
-      {/* Background Image */}
-      <CreateImageContainer $isInvitesEmpty={isInvitesEmpty} />
-
-      <CreateTypeTag $isInvitesEmpty={isInvitesEmpty}>
-        <span>{isInvitesEmpty ? '💌 Invite' : '✨ Create'}</span>
-      </CreateTypeTag>
-
-      <CreateCardContent>
-        <CreateIconContainer $isInvitesEmpty={isInvitesEmpty}>
-          {isInvitesEmpty ? (
-            <Mail stroke="#d394f5" width={24} height={24} strokeWidth={2.5} />
-          ) : (
-            <Plus stroke="#4ECDC4" width={24} height={24} strokeWidth={2.5} />
-          )}
-        </CreateIconContainer>
-
-        <CreateTitle>{title}</CreateTitle>
-        <CreateSubtitle>{subtitle}</CreateSubtitle>
-
-        {!isInvitesEmpty && (
-          <CreateSuggestions>
-            <SuggestionIcon>
-              <Coffee stroke="#FF6B6B" width={14} height={14} strokeWidth={2} />
-            </SuggestionIcon>
-            <SuggestionIcon>
-              <Star stroke="#4ECDC4" width={14} height={14} strokeWidth={2} />
-            </SuggestionIcon>
-            <SuggestionIcon>
-              <MapPin stroke="#FFE66D" width={14} height={14} strokeWidth={2} />
-            </SuggestionIcon>
-            <SuggestionIcon>
-              <User stroke="#A8E6CF" width={14} height={14} strokeWidth={2} />
-            </SuggestionIcon>
-          </CreateSuggestions>
-        )}
-
-        {isInvitesEmpty && (
-          <InvitesEmptyIcon>💌</InvitesEmptyIcon>
-        )}
-
-        <CreateArrow $isInvitesEmpty={isInvitesEmpty}>
-          <span>{actionText}</span>
-        </CreateArrow>
-      </CreateCardContent>
-
-      <CreateCardFooter>
-        <CreateFooterText>
-          {isInvitesEmpty ? 'Tap to create your first activity' : 'Choose your adventure'}
-        </CreateFooterText>
-      </CreateCardFooter>
-    </CreateCard>
   );
 }
 
@@ -719,7 +659,7 @@ function UserActivities() {
       <HeroContainer>
         <HeroContent>
           <HeroTitle>Welcome back, {user.name || user.email}! 👋</HeroTitle>
-          <HeroSubtitle>What are you planning today?</HeroSubtitle>
+          <HeroSubtitle>Ready to discover your next favorite spot?</HeroSubtitle>
         </HeroContent>
       </HeroContainer>
 
@@ -779,7 +719,7 @@ function UserActivities() {
                 <Zap width={32} height={32} color="#fff" />
               </AdventureIconContainer>
               <AdventureButtonText>Start New Adventure</AdventureButtonText>
-              <AdventureButtonSubtext>Plan something amazing with your friends</AdventureButtonSubtext>
+              <AdventureButtonSubtext>Find the perfect restaurant or bar for your group</AdventureButtonSubtext>
             </StartAdventureButton>
           </EmptyStateContainer>
         ) : filteredActivities.length === 0 && filter === 'Favorites' ? (
@@ -975,7 +915,7 @@ function UserActivities() {
             })}
 
             {/* Always show create card at the end */}
-            <CreateCardComponent isInvitesEmpty={isInvitesEmpty} onClick={handleCreateCardClick} />
+            <CreateCardSimple isInvitesEmpty={isInvitesEmpty} onClick={handleCreateCardClick} />
           </ActivitiesGrid>
         )}
       </CardsContainer>

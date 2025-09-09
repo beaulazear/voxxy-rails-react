@@ -1,10 +1,10 @@
 # Shared configuration for activity types
 module ActivityConfig
   ACTIVITY_TYPES = {
-    "Restaurant" => { emoji: "🍜", display: "Lets Eat!", description: "Let's Eat! Schedule your next group meal together." },
+    "Restaurant" => { emoji: "🍜", display: "Lets Eat!", description: "Help us find the perfect restaurant for your group" },
     "Meeting" => { emoji: "⏰", display: "Lets Meet!", description: "Let's Meet! Find a time that works for everyone." },
     "Game Night" => { emoji: "🎮", display: "Game Time!", description: "Game Night! Set up a memorable game night." },
-    "Cocktails" => { emoji: "🍸", display: "Lets Go Out!", description: "Night Out! Plan your perfect night out with friends." }
+    "Cocktails" => { emoji: "🍸", display: "Lets Go Out!", description: "Help us find the perfect bar for your group" }
   }.freeze
 
   DEFAULT_CONFIG = { emoji: "🎉", display: "Lets Meet!", description: "Join this activity!" }.freeze

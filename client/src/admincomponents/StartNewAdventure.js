@@ -1,9 +1,32 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useState } from 'react';
+import styled, { keyframes, css } from 'styled-components';
+
+// Animations
+const bounceIn = keyframes`
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+`;
+
+const wiggle = keyframes`
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(3deg); }
+  50% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+  100% { transform: rotate(0deg); }
+`;
 
 const Container = styled.div`
   flex: 1;
-  background: linear-gradient(135deg, #1A1625 0%, #2D1B47 100%);
+  background: linear-gradient(135deg, #201925 0%, #2D1B47 100%);
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -11,15 +34,10 @@ const Container = styled.div`
 `;
 
 const Header = styled.div`
-  position: sticky;
-  top: 0;
-  background: linear-gradient(135deg, #1A1625 0%, #2D1B47 100%);
-  z-index: 10;
   display: flex;
   align-items: center;
   padding: 40px 32px 32px 32px;
   gap: 24px;
-  border-bottom: 1px solid rgba(147, 51, 234, 0.2);
   
   @media (max-width: 768px) {
     padding: 32px 24px 24px 24px;
@@ -31,25 +49,22 @@ const BackButton = styled.button`
   width: 48px;
   height: 48px;
   border-radius: 16px;
-  background-color: rgba(147, 51, 234, 0.9);
-  border: 1px solid #9333EA;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   color: #fff;
-  transition: background-color 0.15s ease;
-  -webkit-tap-highlight-color: transparent;
-
-  @media (hover: hover) {
-    &:hover {
-      background-color: rgba(147, 51, 234, 1);
-      transform: translateY(-1px);
-    }
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
   }
   
   &:active {
-    background-color: rgba(147, 51, 234, 1);
+    transform: translateY(0);
   }
 
   svg {
@@ -60,8 +75,6 @@ const BackButton = styled.button`
   @media (max-width: 768px) {
     width: 44px;
     height: 44px;
-    border-radius: 14px;
-    transition: none;
     
     svg {
       width: 20px;
@@ -70,283 +83,233 @@ const BackButton = styled.button`
   }
 `;
 
-const HeaderContent = styled.div`
+const TitleContainer = styled.div`
   flex: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  margin-right: 48px; // Balance the back button
+  
+  @media (max-width: 768px) {
+    margin-right: 44px;
+  }
 `;
 
 const Title = styled.h1`
-  font-size: 32px;
-  font-weight: 700;
+  font-size: 36px;
+  font-weight: 800;
   color: #fff;
-  text-align: center;
-  margin: 0 0 12px 0;
+  margin: 0;
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   
   @media (max-width: 768px) {
     font-size: 28px;
-    margin: 0 0 8px 0;
   }
 `;
 
-const GradientText = styled.span`
-  background: linear-gradient(135deg, #9333EA, #7C3AED);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+const Sparkles = styled.span`
+  font-size: 28px;
+  transform: rotate(15deg);
+  display: inline-block;
+  
+  @media (max-width: 768px) {
+    font-size: 24px;
+  }
 `;
 
 const Subtitle = styled.p`
-  font-size: 18px;
-  color: #ccc;
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.7);
   text-align: center;
-  line-height: 1.4;
-  margin: 0;
+  margin: 0 0 60px 0;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
   
   @media (max-width: 768px) {
-    font-size: 16px;
+    font-size: 18px;
+    margin-bottom: 40px;
   }
 `;
 
-const ScrollContainer = styled.div`
+const ButtonsContainer = styled.div`
   flex: 1;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: rgba(64, 51, 71, 0.1);
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: rgba(139, 92, 246, 0.3);
-    border-radius: 3px;
-  }
-  
-  &::-webkit-scrollbar-thumb:hover {
-    background: rgba(139, 92, 246, 0.5);
-  }
-  
-  scrollbar-width: thin;
-  scrollbar-color: rgba(139, 92, 246, 0.3) rgba(64, 51, 71, 0.1);
-  
-  @media (max-width: 768px) {
-    &::-webkit-scrollbar {
-      width: 0;
-      display: none;
-    }
-    scrollbar-width: none;
-  }
-`;
-
-const ScrollContent = styled.div`
-  padding: 40px 32px 48px 32px;
-  
-  @media (max-width: 768px) {
-    padding: 32px 24px 40px 24px;
-  }
-  
-  @media (max-width: 480px) {
-    padding: 24px 16px 32px 16px;
-  }
-`;
-
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  max-width: 800px;
-  margin: 0 auto;
-
-  @media (max-width: 768px) {
-    gap: 20px;
-  }
-  
-  @media (max-width: 480px) {
-    gap: 16px;
-  }
-  
-  @media (max-width: 380px) {
-    gap: 12px;
-  }
-`;
-
-const ActivityCard = styled.button`
-  background-color: #2A1F35;
-  border-radius: 20px;
-  padding: 36px 28px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  min-height: 200px;
-  position: relative;
-  border: 2px solid;
+  justify-content: center;
+  padding: 0 32px 60px 32px;
+  gap: 24px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+  
+  @media (max-width: 768px) {
+    padding: 0 24px 40px 24px;
+    gap: 20px;
+  }
+`;
+
+const OptionButton = styled.button`
+  width: 100%;
+  border-radius: 24px;
+  overflow: hidden;
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
-  -webkit-tap-highlight-color: transparent;
+  border: none;
+  padding: 0;
+  position: relative;
+  animation: ${bounceIn} 0.5s ease-out;
+  animation-delay: ${props => props.$delay || '0s'};
+  animation-fill-mode: backwards;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   
-  ${props => props.$active ? `
-    border-color: #9333EA;
-    opacity: 1;
-    
-    @media (hover: hover) {
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(147, 51, 234, 0.4);
-        background-color: #3A2945;
-      }
-    }
-    
-    &:active {
-      transform: translateY(0);
-      background-color: #3A2945;
-    }
-  ` : `
-    border-color: rgba(147, 51, 234, 0.2);
-    opacity: 0.5;
-    cursor: not-allowed;
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  }
+  
+  &:active {
+    transform: translateY(-2px);
+  }
+  
+  ${props => props.$selected && css`
+    animation: ${wiggle} 0.3s ease-in-out;
   `}
-
+  
   @media (max-width: 768px) {
-    padding: 32px 24px;
-    min-height: 180px;
-    border-radius: 18px;
-    transition: none;
-    box-shadow: none;
-    
-    ${props => props.$active ? `
-      &:active {
-        background-color: #3A2945;
-      }
-    ` : ''}
-  }
-  
-  @media (max-width: 480px) {
-    padding: 24px 16px;
-    min-height: 160px;
-    border-radius: 16px;
-  }
-  
-  @media (max-width: 380px) {
-    padding: 20px 12px;
-    min-height: 140px;
-    border-radius: 14px;
+    &:active {
+      transform: scale(0.98);
+    }
   }
 `;
 
-const Emoji = styled.div`
-  font-size: 56px;
-  line-height: 1.2;
-  margin-bottom: 16px;
-  text-align: center;
-
+const GradientButton = styled.div`
+  background: ${props => props.$gradient};
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  border: ${props => props.$selected ? '3px solid rgba(255, 255, 255, 0.4)' : '3px solid transparent'};
+  border-radius: 24px;
+  
   @media (max-width: 768px) {
-    font-size: 48px;
-    margin-bottom: 12px;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 40px;
-    margin-bottom: 10px;
-  }
-  
-  @media (max-width: 380px) {
-    font-size: 32px;
-    margin-bottom: 8px;
+    padding: 28px;
   }
 `;
 
-const ActivityName = styled.h3`
-  font-size: 18px;
-  font-weight: 600;
-  color: ${props => props.$active ? '#fff' : '#888'};
-  text-align: center;
-  margin: 0 0 12px 0;
+const IconCircle = styled.div`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  
+  @media (max-width: 768px) {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 16px;
+  }
+`;
+
+const ButtonIcon = styled.span`
+  font-size: 40px;
+  
+  @media (max-width: 768px) {
+    font-size: 36px;
+  }
+`;
+
+const ButtonTitle = styled.h2`
+  font-size: 32px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 8px 0;
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
-
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  
   @media (max-width: 768px) {
-    font-size: 16px;
-    margin: 0 0 10px 0;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 14px;
-    margin: 0 0 8px 0;
-  }
-  
-  @media (max-width: 380px) {
-    font-size: 13px;
-    margin: 0 0 6px 0;
+    font-size: 28px;
   }
 `;
 
-const Description = styled.p`
-  font-size: 14px;
-  color: ${props => props.$active ? '#ccc' : '#666'};
-  text-align: center;
-  line-height: 1.4;
+const ButtonDescription = styled.p`
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
-  flex-shrink: 1;
-
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+  
   @media (max-width: 768px) {
-    font-size: 13px;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 12px;
-    line-height: 1.3;
-  }
-  
-  @media (max-width: 380px) {
-    font-size: 11px;
-    line-height: 1.3;
+    font-size: 14px;
   }
 `;
 
-const ComingSoonBadge = styled.div`
+const SelectedBadge = styled.div`
   position: absolute;
-  top: 12px;
-  right: 12px;
-  background-color: rgba(255, 152, 0, 0.9);
-  padding: 6px 10px;
-  border-radius: 10px;
-  
-  span {
-    font-size: 10px;
-    font-weight: 600;
-    color: #fff;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
+  top: 16px;
+  right: 16px;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+`;
+
+const SelectedText = styled.span`
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+`;
+
+const ComingSoonSection = styled.div`
+  padding: 20px 32px 40px 32px;
   
   @media (max-width: 768px) {
-    top: 10px;
-    right: 10px;
-    padding: 4px 8px;
-    border-radius: 8px;
-    
-    span {
-      font-size: 9px;
-    }
+    padding: 20px 24px 32px 24px;
   }
-  
-  @media (max-width: 480px) {
-    top: 8px;
-    right: 8px;
-    padding: 3px 6px;
-    border-radius: 6px;
-    
-    span {
-      font-size: 8px;
-      letter-spacing: 0.3px;
-    }
-  }
+`;
+
+const ComingSoonTitle = styled.h3`
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: center;
+  margin: 0 0 16px 0;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+`;
+
+const ComingSoonGrid = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+`;
+
+const ComingSoonItem = styled.div`
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+`;
+
+const ComingSoonEmoji = styled.span`
+  font-size: 20px;
+`;
+
+const ComingSoonText = styled.span`
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
 `;
 
 // Arrow Left Icon Component
@@ -357,116 +320,107 @@ const ArrowLeftIcon = () => (
 );
 
 function StartNewAdventure({ onTripSelect, onBack }) {
-  const adventures = [
-    {
-      name: 'Lets Eat',
-      emoji: '🍜',
-      active: true,
-      description: 'Schedule your next group meal together.'
-    },
-    {
-      name: 'Night Out',
-      emoji: '🍸',
-      active: true,
-      description: 'Plan your perfect night out with friends.'
-    },
-    {
-      name: 'Surprise Me',
-      emoji: '🎲',
-      active: true,
-      description: 'Let us pick a random activity for you!'
-    },
-    {
-      name: 'Game Night',
-      emoji: '🎮',
-      active: true,
-      description: 'Set up a memorable game night.'
-    },
-    {
-      name: 'Find a Destination',
-      emoji: '🗺️',
-      active: false,
-      description: 'Discover new travel destinations.'
-    },
-    {
-      name: 'Movie Night',
-      emoji: '🎥',
-      active: false,
-      description: 'Plan your perfect movie night.'
-    },
-    {
-      name: 'Kids Play Date',
-      emoji: '👩‍👧‍👦',
-      active: false,
-      description: 'Coordinate a fun playdate for little ones.'
-    },
-    {
-      name: 'Family Reunion',
-      emoji: '👨‍👩‍👧‍👦',
-      active: false,
-      description: 'Plan a family gathering.'
-    },
-  ];
+  const [selected, setSelected] = useState(null);
 
-  const handleSelection = (name, active) => {
-    if (!active) return;
+  const handleSelection = (type) => {
+    setSelected(type);
     
-    if (name === 'Surprise Me') {
-      const randomActivities = ['Lets Eat', 'Night Out', 'Game Night'];
-      const randomChoice = randomActivities[Math.floor(Math.random() * randomActivities.length)];
-      onTripSelect(randomChoice);
-    } else {
-      onTripSelect(name);
-    }
-  };
-
-  const renderActivityCard = (adventure, index) => {
-    const { name, emoji, active, description } = adventure;
-
-    return (
-      <ActivityCard
-        key={name}
-        $active={active}
-        onClick={() => handleSelection(name, active)}
-        disabled={!active}
-      >
-        <Emoji>{emoji}</Emoji>
-        <ActivityName $active={active}>{name}</ActivityName>
-        <Description $active={active}>{description}</Description>
-        {!active && (
-          <ComingSoonBadge>
-            <span>Coming Soon</span>
-          </ComingSoonBadge>
-        )}
-      </ActivityCard>
-    );
+    // Navigate after animation
+    setTimeout(() => {
+      // Map to the existing trip types expected by TripDashboard
+      if (type === 'Restaurant') {
+        onTripSelect('Lets Eat');
+      } else if (type === 'Bar') {
+        onTripSelect('Night Out');
+      }
+    }, 400);
   };
 
   return (
     <Container>
-      {/* Fixed Header */}
+      {/* Header */}
       <Header>
         <BackButton onClick={onBack}>
           <ArrowLeftIcon />
         </BackButton>
-        <HeaderContent>
+        <TitleContainer>
           <Title>
-            New <GradientText>Voxxy</GradientText> Board
+            Pick Your Vibe
+            <Sparkles>✨</Sparkles>
           </Title>
-          <Subtitle>Choose an activity to start planning!</Subtitle>
-        </HeaderContent>
+        </TitleContainer>
       </Header>
 
-      <ScrollContainer>
-        <ScrollContent>
-          <Grid>
-            {adventures.map((adventure, index) =>
-              renderActivityCard(adventure, index)
+      <Subtitle>What sounds good tonight?</Subtitle>
+
+      {/* Two Big Buttons */}
+      <ButtonsContainer>
+        {/* Restaurant Button */}
+        <OptionButton
+          onClick={() => handleSelection('Restaurant')}
+          $selected={selected === 'Restaurant'}
+          $delay="0.1s"
+        >
+          <GradientButton
+            $gradient="linear-gradient(135deg, #FF6B6B, #FF8787)"
+            $selected={selected === 'Restaurant'}
+          >
+            <IconCircle>
+              <ButtonIcon>🍴</ButtonIcon>
+            </IconCircle>
+            <ButtonTitle>Restaurant</ButtonTitle>
+            <ButtonDescription>Great food awaits</ButtonDescription>
+            {selected === 'Restaurant' && (
+              <SelectedBadge>
+                <SelectedText>✓ Selected</SelectedText>
+              </SelectedBadge>
             )}
-          </Grid>
-        </ScrollContent>
-      </ScrollContainer>
-    </Container >
+          </GradientButton>
+        </OptionButton>
+
+        {/* Bar Button */}
+        <OptionButton
+          onClick={() => handleSelection('Bar')}
+          $selected={selected === 'Bar'}
+          $delay="0.2s"
+        >
+          <GradientButton
+            $gradient="linear-gradient(135deg, #4ECDC4, #6DD5CE)"
+            $selected={selected === 'Bar'}
+          >
+            <IconCircle>
+              <ButtonIcon>🍷</ButtonIcon>
+            </IconCircle>
+            <ButtonTitle>Bar</ButtonTitle>
+            <ButtonDescription>Cocktails, beer, and good vibes</ButtonDescription>
+            {selected === 'Bar' && (
+              <SelectedBadge>
+                <SelectedText>✓ Selected</SelectedText>
+              </SelectedBadge>
+            )}
+          </GradientButton>
+        </OptionButton>
+      </ButtonsContainer>
+
+      {/* Coming Soon Section */}
+      <ComingSoonSection>
+        <ComingSoonTitle>More Coming Soon</ComingSoonTitle>
+        <ComingSoonGrid>
+          <ComingSoonItem>
+            <ComingSoonEmoji>☕</ComingSoonEmoji>
+            <ComingSoonText>Coffee</ComingSoonText>
+          </ComingSoonItem>
+          <ComingSoonItem>
+            <ComingSoonEmoji>🥐</ComingSoonEmoji>
+            <ComingSoonText>Brunch</ComingSoonText>
+          </ComingSoonItem>
+          <ComingSoonItem>
+            <ComingSoonEmoji>🍰</ComingSoonEmoji>
+            <ComingSoonText>Dessert</ComingSoonText>
+          </ComingSoonItem>
+        </ComingSoonGrid>
+      </ComingSoonSection>
+    </Container>
   );
 }
 

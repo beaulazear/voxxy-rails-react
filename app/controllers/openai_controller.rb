@@ -28,7 +28,8 @@ class OpenaiController < ApplicationController
                 "#{generate_cache_key(user_responses, activity_location, date_notes, 'restaurant')}"
 
     recommendations = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
-      fetch_restaurant_recommendations_from_openai(user_responses, activity_location, date_notes, radius)
+      # Use hybrid approach by default
+      fetch_hybrid_restaurant_recommendations(user_responses, activity_location, date_notes, radius)
     end
 
     if recommendations.present?
@@ -55,7 +56,8 @@ class OpenaiController < ApplicationController
                 "#{generate_cache_key(user_responses, activity_location, date_notes, 'bar')}"
 
     recommendations = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
-      fetch_bar_recommendations_from_openai(user_responses, activity_location, date_notes, radius)
+      # Use hybrid approach by default
+      fetch_hybrid_bar_recommendations(user_responses, activity_location, date_notes, radius)
     end
 
     if recommendations.present?
@@ -163,8 +165,8 @@ class OpenaiController < ApplicationController
         return render json: { error: "Missing required parameters" }, status: :unprocessable_entity
       end
 
-      Rails.logger.info("🤖 Calling OpenAI API...")
-      recs = fetch_restaurant_recommendations_from_openai(user_responses, activity_location, date_notes, radius)
+      Rails.logger.info("🤖 Using hybrid approach (Google Places + OpenAI)...")
+      recs = fetch_hybrid_restaurant_recommendations(user_responses, activity_location, date_notes, radius)
 
       if recs && recs.is_a?(Array) && !recs.empty?
         Rails.logger.info("✅ Got #{recs.length} recommendations from OpenAI")
@@ -502,6 +504,337 @@ class OpenaiController < ApplicationController
   def generate_request_hash(params)
     hash_input = "#{params[:responses]}-#{params[:activity_location]}-#{params[:date_notes]}"
     Digest::SHA256.hexdigest(hash_input)
+  end
+
+  def fetch_hybrid_restaurant_recommendations(responses, activity_location, date_notes, radius)
+    Rails.logger.info("🔄 Starting hybrid recommendation approach...")
+
+    # Step 1: Get real venues from Google Places
+    radius_meters = (radius || 10) * 1609  # Convert miles to meters
+    venues = GooglePlacesService.nearby_search(activity_location, "restaurant", radius_meters, 3.5)
+
+    if venues.empty?
+      Rails.logger.warn("⚠️ No venues found from Google Places, falling back to original approach")
+      return fetch_restaurant_recommendations_from_openai(responses, activity_location, date_notes, radius)
+    end
+
+    Rails.logger.info("📍 Found #{venues.length} operational venues from Google Places")
+
+    # Step 2: Get additional details for top venues (limit to avoid too many API calls)
+    detailed_venues = venues.first(20).map do |venue|
+      details = GooglePlacesService.get_detailed_venue_info(venue[:place_id])
+      if details
+        {
+          name: details[:name],
+          address: details[:address],
+          rating: details[:rating],
+          price_level: GooglePlacesService.convert_price_level_to_string(details[:price_level]),
+          website: details[:website],
+          hours: details[:hours],
+          types: details[:types],
+          user_ratings_total: details[:user_ratings_total]
+        }
+      else
+        {
+          name: venue[:name],
+          address: venue[:address],
+          rating: venue[:rating],
+          price_level: GooglePlacesService.convert_price_level_to_string(venue[:price_level]),
+          website: nil,
+          hours: "Hours not available",
+          types: venue[:types],
+          user_ratings_total: venue[:user_ratings_total]
+        }
+      end
+    end
+
+    # Step 3: Send to OpenAI for personalization and ranking
+    personalized_recommendations = personalize_venues_with_openai(detailed_venues, responses, activity_location, date_notes)
+
+    if personalized_recommendations.nil? || personalized_recommendations.empty?
+      Rails.logger.warn("⚠️ OpenAI personalization failed, falling back to original approach")
+      return fetch_restaurant_recommendations_from_openai(responses, activity_location, date_notes, radius)
+    end
+
+    personalized_recommendations
+  end
+
+  def fetch_hybrid_bar_recommendations(responses, activity_location, date_notes, radius)
+    Rails.logger.info("🔄 Starting hybrid bar recommendation approach...")
+
+    # Step 1: Get real venues from Google Places
+    radius_meters = (radius || 10) * 1609  # Convert miles to meters
+    venues = GooglePlacesService.nearby_search(activity_location, "bar", radius_meters, 3.5)
+
+    if venues.empty?
+      Rails.logger.warn("⚠️ No bars found from Google Places, falling back to original approach")
+      return fetch_bar_recommendations_from_openai(responses, activity_location, date_notes, radius)
+    end
+
+    Rails.logger.info("📍 Found #{venues.length} operational bars from Google Places")
+
+    # Step 2: Get additional details for top venues
+    detailed_venues = venues.first(20).map do |venue|
+      details = GooglePlacesService.get_detailed_venue_info(venue[:place_id])
+      if details
+        {
+          name: details[:name],
+          address: details[:address],
+          rating: details[:rating],
+          price_level: GooglePlacesService.convert_price_level_to_string(details[:price_level]),
+          website: details[:website],
+          hours: details[:hours],
+          types: details[:types],
+          user_ratings_total: details[:user_ratings_total]
+        }
+      else
+        {
+          name: venue[:name],
+          address: venue[:address],
+          rating: venue[:rating],
+          price_level: GooglePlacesService.convert_price_level_to_string(venue[:price_level]),
+          website: nil,
+          hours: "Hours not available",
+          types: venue[:types],
+          user_ratings_total: venue[:user_ratings_total]
+        }
+      end
+    end
+
+    # Step 3: Send to OpenAI for personalization and ranking
+    personalized_recommendations = personalize_bars_with_openai(detailed_venues, responses, activity_location, date_notes)
+
+    if personalized_recommendations.nil? || personalized_recommendations.empty?
+      Rails.logger.warn("⚠️ OpenAI personalization failed, falling back to original approach")
+      return fetch_bar_recommendations_from_openai(responses, activity_location, date_notes, radius)
+    end
+
+    personalized_recommendations
+  end
+
+  def personalize_venues_with_openai(venues, responses, activity_location, date_notes)
+    Rails.logger.info("🤖 Personalizing #{venues.length} venues with OpenAI...")
+
+    api_key = ENV["OPENAI_API_KEY"]
+    if api_key.blank?
+      Rails.logger.error("❌ OPENAI_API_KEY environment variable is missing!")
+      return nil
+    end
+
+    client = OpenAI::Client.new(access_token: api_key)
+
+    notes_text = if responses.is_a?(Array)
+      responses
+        .map { |r| r.is_a?(Hash) ? r["notes"].to_s.strip : r.to_s.strip }
+        .reject(&:empty?)
+        .join("\n\n")
+    else
+      responses.to_s.strip
+    end
+
+    # Format venue list for OpenAI
+    venue_list = venues.map.with_index do |v, i|
+      "#{i + 1}. #{v[:name]} (#{v[:price_level] || '$'}, Rating: #{v[:rating] || 'N/A'}/5 from #{v[:user_ratings_total] || 0} reviews) - #{v[:address]}"
+    end.join("\n")
+
+    prompt = <<~PROMPT
+      You are an AI assistant that ranks and personalizes restaurant recommendations.
+
+      The user's preferences are:
+      #{notes_text}
+
+      Planning details:
+      - Location: #{activity_location}
+      - Date/Time: #{date_notes}
+
+      Here are REAL, OPERATIONAL restaurants from Google Places:
+      #{venue_list}
+
+      YOUR TASK:
+      1. Select the 5 BEST restaurants from this list that match the user's preferences
+      2. Rank them from best to worst match
+      3. Write personalized descriptions explaining why each matches their needs
+
+      IMPORTANT:
+      - You MUST only select from the restaurants listed above
+      - Use the EXACT names and addresses as provided
+      - Prioritize dietary restrictions/preferences first
+      - Consider price preferences second
+      - Factor in ratings and review counts
+      - Write warm, personalized reasons that directly reference their preferences
+
+      Return exactly 5 restaurants as valid JSON:
+
+      {
+        "restaurants": [
+          {
+            "name": "Exact Restaurant Name from list",
+            "price_range": "$ - $$$$",
+            "description": "Brief description of cuisine and atmosphere",
+            "reason": "Detailed explanation of why this specific restaurant matches their preferences, referencing their exact requirements and what makes this place special for them",
+            "hours": "Copy hours from venue data or 'Hours not available'",
+            "website": "Copy website from venue data or null",
+            "address": "Exact address from list"
+          }
+        ]
+      }
+    PROMPT
+
+    begin
+      response = client.chat(
+        parameters: {
+          model: "gpt-3.5-turbo",
+          messages: [
+            { role: "system", content: "You are an AI that ranks and personalizes restaurant recommendations. Output only valid JSON." },
+            { role: "user", content: prompt }
+          ],
+          temperature: 0.3
+        }
+      )
+
+      raw_json = response.dig("choices", 0, "message", "content")
+
+      if raw_json.blank?
+        Rails.logger.error("❌ OpenAI returned empty content")
+        return nil
+      end
+
+      parsed = JSON.parse(raw_json)
+      recommendations = parsed.fetch("restaurants", [])
+
+      # Enrich with actual venue data to ensure accuracy
+      recommendations.map do |rec|
+        venue = venues.find { |v| v[:name].downcase == rec["name"].downcase }
+        if venue
+          rec["hours"] = venue[:hours] || rec["hours"] || "Hours not available"
+          rec["website"] = venue[:website] || rec["website"]
+          rec["price_range"] = venue[:price_level] || rec["price_range"] || "$"
+        end
+        rec
+      end
+
+      Rails.logger.info("✅ Successfully personalized #{recommendations.length} recommendations")
+      recommendations
+    rescue JSON::ParserError => e
+      Rails.logger.error("❌ JSON Parse Error: #{e.message}")
+      nil
+    rescue => e
+      Rails.logger.error("💥 OpenAI Personalization Error: #{e.message}")
+      nil
+    end
+  end
+
+  def personalize_bars_with_openai(venues, responses, activity_location, date_notes)
+    Rails.logger.info("🍺 Personalizing #{venues.length} bars with OpenAI...")
+
+    api_key = ENV["OPENAI_API_KEY"]
+    if api_key.blank?
+      Rails.logger.error("❌ OPENAI_API_KEY environment variable is missing!")
+      return nil
+    end
+
+    client = OpenAI::Client.new(access_token: api_key)
+
+    notes_text = if responses.is_a?(Array)
+      responses
+        .map { |r| r.is_a?(Hash) ? r["notes"].to_s.strip : r.to_s.strip }
+        .reject(&:empty?)
+        .join("\n\n")
+    else
+      responses.to_s.strip
+    end
+
+    # Format venue list for OpenAI
+    venue_list = venues.map.with_index do |v, i|
+      "#{i + 1}. #{v[:name]} (#{v[:price_level] || '$'}, Rating: #{v[:rating] || 'N/A'}/5 from #{v[:user_ratings_total] || 0} reviews) - #{v[:address]}"
+    end.join("\n")
+
+    prompt = <<~PROMPT
+      You are an AI assistant that ranks and personalizes bar/lounge recommendations.
+
+      The user's preferences are:
+      #{notes_text}
+
+      Planning details:
+      - Location: #{activity_location}
+      - Date/Time: #{date_notes}
+
+      Here are REAL, OPERATIONAL bars/lounges from Google Places:
+      #{venue_list}
+
+      YOUR TASK:
+      1. Select the 5 BEST bars from this list that match the user's preferences
+      2. Rank them from best to worst match
+      3. Write personalized descriptions explaining why each matches their needs
+
+      IMPORTANT:
+      - You MUST only select from the bars listed above
+      - Use the EXACT names and addresses as provided
+      - Prioritize drink preferences (cocktails, beer, wine, non-alcoholic) first
+      - Consider atmosphere preferences (dive bar, rooftop, live music, quiet)
+      - Factor in ratings and review counts
+      - Consider timing - late night preferences need bars with later hours
+      - Write warm, personalized reasons that directly reference their preferences
+
+      Return exactly 5 bars as valid JSON (use "restaurants" key for compatibility):
+
+      {
+        "restaurants": [
+          {
+            "name": "Exact Bar Name from list",
+            "price_range": "$ - $$$$",
+            "description": "Brief description of drink specialties and atmosphere",
+            "reason": "Detailed explanation of why this specific bar matches their preferences, referencing their exact requirements, drink preferences, atmosphere needs, and what makes this place special for them",
+            "hours": "Copy hours from venue data or 'Hours not available'",
+            "website": "Copy website from venue data or null",
+            "address": "Exact address from list"
+          }
+        ]
+      }
+    PROMPT
+
+    begin
+      response = client.chat(
+        parameters: {
+          model: "gpt-3.5-turbo",
+          messages: [
+            { role: "system", content: "You are an AI that ranks and personalizes bar recommendations. Output only valid JSON." },
+            { role: "user", content: prompt }
+          ],
+          temperature: 0.3
+        }
+      )
+
+      raw_json = response.dig("choices", 0, "message", "content")
+
+      if raw_json.blank?
+        Rails.logger.error("❌ OpenAI returned empty content")
+        return nil
+      end
+
+      parsed = JSON.parse(raw_json)
+      recommendations = parsed.fetch("restaurants", [])
+
+      # Enrich with actual venue data to ensure accuracy
+      recommendations.map do |rec|
+        venue = venues.find { |v| v[:name].downcase == rec["name"].downcase }
+        if venue
+          rec["hours"] = venue[:hours] || rec["hours"] || "Hours not available"
+          rec["website"] = venue[:website] || rec["website"]
+          rec["price_range"] = venue[:price_level] || rec["price_range"] || "$"
+        end
+        rec
+      end
+
+      Rails.logger.info("✅ Successfully personalized #{recommendations.length} bar recommendations")
+      recommendations
+    rescue JSON::ParserError => e
+      Rails.logger.error("❌ JSON Parse Error: #{e.message}")
+      nil
+    rescue => e
+      Rails.logger.error("💥 OpenAI Bar Personalization Error: #{e.message}")
+      nil
+    end
   end
 
   def valid_session_token?(token)
