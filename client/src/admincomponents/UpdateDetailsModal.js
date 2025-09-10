@@ -176,6 +176,12 @@ const Input = styled.input`
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.02);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 
@@ -200,6 +206,12 @@ const Textarea = styled.textarea`
   
   &::placeholder { 
     color: #aaa; 
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.02);
   }
 `;
 
@@ -281,16 +293,63 @@ export default function UpdateDetailsModal({ activity, onClose, onUpdate }) {
     );
     const [errors, setErrors] = useState([]);
 
+    // Helper function to determine what fields to show/enable based on activity type and status
+    const getEditableFields = () => {
+        const activityType = activity.activity_type;
+        // Only allow location editing during collecting phase (not voting, finalized, or completed)
+        const canEditLocation = !activity.voting && !activity.finalized && !activity.completed;
+
+        switch (activityType) {
+            case 'Restaurant':
+            case 'Cocktails':
+            case 'Bar':
+                return {
+                    name: true,
+                    location: canEditLocation,
+                    dateTime: false, // Don't show date/time for restaurant/bar (handled by finalization)
+                    welcomeMessage: true
+                };
+            case 'Meeting':
+                return {
+                    name: true,
+                    location: false, // Meetings don't edit location here
+                    dateTime: false, // Time slots are handled in finalization
+                    welcomeMessage: true
+                };
+            case 'Game Night':
+                return {
+                    name: true,
+                    location: false, // Game Night location set by host
+                    dateTime: true,
+                    welcomeMessage: true
+                };
+            default:
+                return {
+                    name: true,
+                    location: false,
+                    dateTime: true,
+                    welcomeMessage: true
+                };
+        }
+    };
+
+    const editableFields = getEditableFields();
     const canSave = () => Boolean(name.trim());
 
     const handleSubmit = async () => {
         const payload = {
             activity_name: name,
-            activity_location: location,
-            date_day: dateDay || null,
-            date_time: dateTime && dateDay ? `${dateDay}T${dateTime}:00` : null,
             welcome_message: welcomeMessage,
         };
+
+        // Only include fields that are editable
+        if (editableFields.location) {
+            payload.activity_location = location;
+        }
+        if (editableFields.dateTime) {
+            payload.date_day = dateDay || null;
+            payload.date_time = dateTime && dateDay ? `${dateDay}T${dateTime}:00` : null;
+        }
         try {
             const res = await fetch(
                 `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/activities/${activity.id}`,
@@ -343,51 +402,53 @@ export default function UpdateDetailsModal({ activity, onClose, onUpdate }) {
                         />
                     </Section>
 
-                    {activity.activity_type !== 'Meeting' && (
-                        <>
-                            <Section>
-                                <Label htmlFor="location">
-                                    <MapPin size={16} />
-                                    Location
-                                </Label>
-                                <Input
-                                    id="location"
-                                    placeholder="Location"
-                                    value={location}
-                                    onChange={e => setLocation(e.target.value)}
-                                />
-                            </Section>
+                    {editableFields.location && (
+                        <Section>
+                            <Label htmlFor="location">
+                                <MapPin size={16} />
+                                Location
+                                {!editableFields.location && ' (Locked during voting)'}
+                            </Label>
+                            <Input
+                                id="location"
+                                placeholder="Location"
+                                value={location}
+                                onChange={e => setLocation(e.target.value)}
+                                disabled={!editableFields.location}
+                            />
+                        </Section>
+                    )}
 
-                            <Section>
-                                <DateTimeGrid>
-                                    <FormGroup>
-                                        <Label htmlFor="dateDay">
-                                            <Calendar size={16} />
-                                            Date
-                                        </Label>
-                                        <Input
-                                            id="dateDay"
-                                            type="date"
-                                            value={dateDay}
-                                            onChange={e => setDateDay(e.target.value)}
-                                        />
-                                    </FormGroup>
+                    {editableFields.dateTime && (
+                        <Section>
+                            <DateTimeGrid>
+                                <FormGroup>
+                                    <Label htmlFor="dateDay">
+                                        <Calendar size={16} />
+                                        Date
+                                    </Label>
+                                    <Input
+                                        id="dateDay"
+                                        type="date"
+                                        value={dateDay}
+                                        onChange={e => setDateDay(e.target.value)}
+                                    />
+                                </FormGroup>
 
-                                    <FormGroup>
-                                        <Label htmlFor="dateTime">
-                                            <Clock size={16} />
-                                            Time
-                                        </Label>
-                                        <Input
-                                            id="dateTime"
-                                            type="time"
-                                            value={dateTime}
-                                            onChange={e => setDateTime(e.target.value)}
-                                        />
-                                    </FormGroup>
-                                </DateTimeGrid>
-                            </Section>
-                        </>
+                                <FormGroup>
+                                    <Label htmlFor="dateTime">
+                                        <Clock size={16} />
+                                        Time
+                                    </Label>
+                                    <Input
+                                        id="dateTime"
+                                        type="time"
+                                        value={dateTime}
+                                        onChange={e => setDateTime(e.target.value)}
+                                    />
+                                </FormGroup>
+                            </DateTimeGrid>
+                        </Section>
                     )}
 
                     <Section>

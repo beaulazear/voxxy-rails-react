@@ -11,7 +11,8 @@ import {
   ChevronRight,
   ChevronLeft,
   Check,
-  Utensils
+  Utensils,
+  CheckCircle
 } from 'lucide-react';
 import colors from '../styles/Colors';
 
@@ -509,6 +510,61 @@ const LoadingText = styled.div`
   font-size: 16px;
   margin-top: 24px;
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+  text-align: center;
+  max-width: 300px;
+`;
+
+const ErrorContainer = styled.div`
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 20px 32px;
+  
+  @media (max-width: 768px) {
+    margin: 16px 24px;
+  }
+`;
+
+const ErrorText = styled.p`
+  color: #FCA5A5;
+  font-size: 14px;
+  margin: 0 0 12px 0;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+`;
+
+const RetryButton = styled.button`
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #FCA5A5;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(239, 68, 68, 0.3);
+  }
+`;
+
+const SuccessIcon = styled.div`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  
+  svg {
+    width: 40px;
+    height: 40px;
+    color: #4ADE80;
+  }
 `;
 
 
@@ -519,6 +575,8 @@ export default function UnifiedActivityChat({ onClose, onSubmit }) {
   const [totalSteps] = useState(3);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('Creating your plan...');
+  const [submissionError, setSubmissionError] = useState(null);
+  const [showSuccess, setShowSuccess] = useState(false);
   
   // Step 1: Activity Type
   const [selectedActivity, setSelectedActivity] = useState('');
@@ -751,7 +809,15 @@ export default function UnifiedActivityChat({ onClose, onSubmit }) {
   // Submit
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    setSubmissionError(null);
     setLoadingMessage('Creating your perfect plan...');
+    
+    // Add timeout message after 5 seconds
+    const timeoutMessage = setTimeout(() => {
+      if (isSubmitting) {
+        setLoadingMessage('Still working on it... This may take up to 30 seconds for the best recommendations...');
+      }
+    }, 5000);
     
     // Prepare data
     const activityData = {
@@ -767,15 +833,26 @@ export default function UnifiedActivityChat({ onClose, onSubmit }) {
     
     try {
       // Call parent submit handler
-      await onSubmit(activityData);
+      const result = await onSubmit(activityData);
       
-      // Success animation
-      setLoadingMessage('Plan created!');
-      setTimeout(() => {
-        onClose();
-      }, 1500);
+      clearTimeout(timeoutMessage);
+      
+      if (result && result.success) {
+        // Show success animation
+        setShowSuccess(true);
+        setLoadingMessage('Plan created successfully!');
+        
+        // Wait a moment then close
+        setTimeout(() => {
+          onClose(result.activityId);
+        }, 1500);
+      } else {
+        throw new Error(result?.error || 'Failed to create activity');
+      }
     } catch (error) {
+      clearTimeout(timeoutMessage);
       console.error('Error submitting:', error);
+      setSubmissionError(error.message || 'Something went wrong. Please try again.');
       setIsSubmitting(false);
     }
   };
@@ -831,10 +908,32 @@ export default function UnifiedActivityChat({ onClose, onSubmit }) {
         </ButtonContainer>
       </Footer>
       
-      {isSubmitting && (
+      {/* Error Message */}
+      {submissionError && !isSubmitting && (
+        <ErrorContainer>
+          <ErrorText>{submissionError}</ErrorText>
+          <RetryButton onClick={handleSubmit}>
+            Try Again
+          </RetryButton>
+        </ErrorContainer>
+      )}
+      
+      {/* Loading/Success Overlay */}
+      {(isSubmitting || showSuccess) && (
         <LoadingOverlay>
-          <LoadingSpinner />
-          <LoadingText>{loadingMessage}</LoadingText>
+          {showSuccess ? (
+            <>
+              <SuccessIcon>
+                <CheckCircle />
+              </SuccessIcon>
+              <LoadingText>Plan created successfully!</LoadingText>
+            </>
+          ) : (
+            <>
+              <LoadingSpinner />
+              <LoadingText>{loadingMessage}</LoadingText>
+            </>
+          )}
         </LoadingOverlay>
       )}
     </Container>

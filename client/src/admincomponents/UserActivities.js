@@ -6,6 +6,8 @@ import styled from 'styled-components';
 import CreateCardSimple from './CreateCardSimple';
 import UnifiedActivityChat from './UnifiedActivityChat';
 import SmallTriangle from '../assets/SmallTriangle.png';
+import { safeApiCallWithRetry, handleApiError } from '../utils/safeApiCall';
+import { logger } from '../utils/logger';
 import {
   // Main containers
   Container,
@@ -433,6 +435,8 @@ function UserActivities() {
   
   const handleActivityCreated = async (activityData) => {
     try {
+      logger.info('Creating activity with data:', activityData);
+      
       // Prepare the payload based on activity type
       const payload = {
         activity_type: activityData.type,
@@ -445,17 +449,20 @@ function UserActivities() {
         responses: JSON.stringify(activityData.responses)
       };
       
-      // Create the activity via API
-      const res = await fetch(`${API_URL}/activities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ activity: payload }),
-      });
+      // Create the activity via API with retry logic
+      const data = await safeApiCallWithRetry(
+        `${API_URL}/activities`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ activity: payload }),
+        },
+        3, // max retries
+        30000 // 30 second timeout
+      );
       
-      if (!res.ok) throw new Error('Failed to create activity');
-      
-      const data = await res.json();
+      logger.info('Activity created successfully:', data);
       
       // Update user context with new activity
       setUser((prev) => ({
@@ -472,9 +479,17 @@ function UserActivities() {
       // Navigate to the new activity
       navigate(`/activity/${data.id}`);
       
+      // Return success to UnifiedActivityChat
+      return { success: true, activityId: data.id };
+      
     } catch (error) {
-      console.error('Error creating activity:', error);
-      alert('Failed to create activity. Please try again.');
+      logger.error('Error creating activity:', error);
+      
+      // Get user-friendly error message
+      const errorMessage = handleApiError(error, 'Unable to create your plan. Please try again.');
+      
+      // Return error to UnifiedActivityChat (don't close modal)
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -1052,10 +1067,10 @@ function UserActivities() {
 }
 
 function UserActivitiesDemo() {
-  const { user } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
   return (
-    <UserContext.Provider value={{ user: user }}>
+    <UserContext.Provider value={{ user, setUser }}>
       <UserActivities />
     </UserContext.Provider>
   );
