@@ -945,8 +945,8 @@ class OpenaiController < ApplicationController
     # If radius was explicitly provided, use it
     return provided_radius if provided_radius.present?
 
-    # Default to 3 miles for all urban areas (our primary market)
-    # This is appropriate for dense cities where users expect nearby options
-    3
+    # Default to 1.5 miles for all urban areas (our primary market)
+    # This keeps results hyperlocal to the specified neighborhood
+    1.5
   end
 end
