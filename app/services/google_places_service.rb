@@ -103,11 +103,11 @@ class GooglePlacesService
     "#{base_url}/photos/#{photo_reference}?max_width=#{max_width}"
   end
 
-  def self.nearby_search(location, type, radius_meters = 16093, min_rating = 3.5)
-    cache_key = "nearby_#{location}_#{type}_#{radius_meters}_#{min_rating}"
+  def self.nearby_search(location, type, radius_meters = 16093, min_rating = 3.5, keyword = nil)
+    cache_key = "nearby_#{location}_#{type}_#{radius_meters}_#{min_rating}_#{keyword}"
 
     place_cache[cache_key] ||= begin
-      Rails.logger.info "🔍 Google Places Nearby Search: #{type} near #{location} within #{radius_meters}m"
+      Rails.logger.info "🔍 Google Places Nearby Search: #{type} near #{location} within #{radius_meters}m" + (keyword ? " with keyword: #{keyword}" : "")
 
       # First, geocode the location to get coordinates
       geocode_url = "https://maps.googleapis.com/maps/api/geocode/json?" \
@@ -128,8 +128,11 @@ class GooglePlacesService
 
       # Now search for nearby places
       nearby_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" \
-                   "location=#{lat},#{lng}&radius=#{radius_meters}&type=#{type}" \
-                   "&key=#{api_key}"
+                   "location=#{lat},#{lng}&radius=#{radius_meters}&type=#{type}"
+      
+      # Add keyword parameter if provided
+      nearby_url += "&keyword=#{CGI.escape(keyword)}" if keyword.present?
+      nearby_url += "&key=#{api_key}"
 
       all_venues = []
       next_page_token = nil

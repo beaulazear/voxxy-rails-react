@@ -509,9 +509,20 @@ class OpenaiController < ApplicationController
   def fetch_hybrid_restaurant_recommendations(responses, activity_location, date_notes, radius)
     Rails.logger.info("🔄 Starting hybrid recommendation approach...")
 
+    # Extract cuisine preferences from user responses
+    cuisine_keywords = extract_cuisine_keywords(responses)
+    Rails.logger.info("🍽️ Extracted cuisine keywords: #{cuisine_keywords}")
+
+    # Determine smart radius based on location type
+    smart_radius = determine_smart_radius(activity_location, radius)
+    Rails.logger.info("📍 Using smart radius: #{smart_radius} miles for #{activity_location}")
+
     # Step 1: Get real venues from Google Places
-    radius_meters = (radius || 10) * 1609  # Convert miles to meters
-    venues = GooglePlacesService.nearby_search(activity_location, "restaurant", radius_meters, 3.5)
+    radius_meters = smart_radius * 1609  # Convert miles to meters
+
+    # Search with cuisine keyword if available
+    search_keyword = cuisine_keywords.present? ? "#{cuisine_keywords.first} restaurant" : nil
+    venues = GooglePlacesService.nearby_search(activity_location, "restaurant", radius_meters, 3.5, search_keyword)
 
     if venues.empty?
       Rails.logger.warn("⚠️ No venues found from Google Places, falling back to original approach")
@@ -562,9 +573,20 @@ class OpenaiController < ApplicationController
   def fetch_hybrid_bar_recommendations(responses, activity_location, date_notes, radius)
     Rails.logger.info("🔄 Starting hybrid bar recommendation approach...")
 
+    # Extract bar/drink preferences from user responses
+    bar_keywords = extract_bar_keywords(responses)
+    Rails.logger.info("🍺 Extracted bar keywords: #{bar_keywords}")
+
+    # Determine smart radius based on location type
+    smart_radius = determine_smart_radius(activity_location, radius)
+    Rails.logger.info("📍 Using smart radius: #{smart_radius} miles for #{activity_location}")
+
     # Step 1: Get real venues from Google Places
-    radius_meters = (radius || 10) * 1609  # Convert miles to meters
-    venues = GooglePlacesService.nearby_search(activity_location, "bar", radius_meters, 3.5)
+    radius_meters = smart_radius * 1609  # Convert miles to meters
+
+    # Search with bar keyword if available
+    search_keyword = bar_keywords.present? ? "#{bar_keywords.first} bar" : nil
+    venues = GooglePlacesService.nearby_search(activity_location, "bar", radius_meters, 3.5, search_keyword)
 
     if venues.empty?
       Rails.logger.warn("⚠️ No bars found from Google Places, falling back to original approach")
@@ -853,5 +875,78 @@ class OpenaiController < ApplicationController
       address: rec.address,
       website: rec.website
     }
+  end
+
+  def extract_cuisine_keywords(responses)
+    # Convert responses to text
+    text = if responses.is_a?(Array)
+      responses.map { |r| r.is_a?(Hash) ? r["notes"].to_s.downcase : r.to_s.downcase }.join(" ")
+    else
+      responses.to_s.downcase
+    end
+
+    # Common cuisine types to look for
+    cuisines = [
+      "mexican", "italian", "chinese", "japanese", "sushi", "thai", "indian", "korean", "vietnamese",
+      "french", "spanish", "greek", "mediterranean", "middle eastern", "lebanese", "turkish",
+      "american", "burger", "pizza", "bbq", "barbecue", "steakhouse", "seafood",
+      "vegan", "vegetarian", "kosher", "halal", "gluten-free", "healthy",
+      "ethiopian", "african", "caribbean", "cuban", "peruvian", "brazilian",
+      "ramen", "tacos", "dim sum", "tapas", "brunch", "breakfast"
+    ]
+
+    # Find matching cuisines in the text
+    found_cuisines = cuisines.select { |cuisine| text.include?(cuisine) }
+
+    # Also check for specific food items that indicate cuisine
+    if text.include?("taco") || text.include?("burrito") || text.include?("quesadilla")
+      found_cuisines << "mexican" unless found_cuisines.include?("mexican")
+    end
+    if text.include?("pasta") || text.include?("risotto") || text.include?("tiramisu")
+      found_cuisines << "italian" unless found_cuisines.include?("italian")
+    end
+    if text.include?("sushi") || text.include?("ramen") || text.include?("tempura")
+      found_cuisines << "japanese" unless found_cuisines.include?("japanese")
+    end
+
+    found_cuisines.uniq
+  end
+
+  def extract_bar_keywords(responses)
+    # Convert responses to text
+    text = if responses.is_a?(Array)
+      responses.map { |r| r.is_a?(Hash) ? r["notes"].to_s.downcase : r.to_s.downcase }.join(" ")
+    else
+      responses.to_s.downcase
+    end
+
+    # Bar/drink types to look for
+    bar_types = [
+      "cocktail", "craft cocktail", "whiskey", "wine", "beer", "craft beer", "brewery",
+      "speakeasy", "dive bar", "sports bar", "rooftop", "lounge", "pub", "tiki",
+      "karaoke", "live music", "jazz", "dance", "club", "nightclub"
+    ]
+
+    # Find matching bar types
+    found_types = bar_types.select { |type| text.include?(type) }
+
+    # Add specific modifiers
+    if text.include?("margarita") || text.include?("tequila")
+      found_types << "cocktail" unless found_types.include?("cocktail")
+    end
+    if text.include?("ipa") || text.include?("lager") || text.include?("stout")
+      found_types << "craft beer" unless found_types.include?("craft beer")
+    end
+
+    found_types.uniq
+  end
+
+  def determine_smart_radius(location, provided_radius)
+    # If radius was explicitly provided, use it
+    return provided_radius if provided_radius.present?
+
+    # Default to 3 miles for all urban areas (our primary market)
+    # This is appropriate for dense cities where users expect nearby options
+    3
   end
 end
