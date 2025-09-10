@@ -12,9 +12,11 @@ import {
   ChevronLeft,
   Check,
   Utensils,
-  CheckCircle
+  CheckCircle,
+  Navigation
 } from 'lucide-react';
 import colors from '../styles/Colors';
+import SearchLocationModal from './SearchLocationModal';
 
 // Animations
 const fadeIn = keyframes`
@@ -585,6 +587,9 @@ export default function UnifiedActivityChat({ onClose, onSubmit }) {
   const [location, setLocation] = useState('');
   const [currentLocationUsed, setCurrentLocationUsed] = useState(false);
   const [customLocation, setCustomLocation] = useState('');
+  const [showLocationSearch, setShowLocationSearch] = useState(false);
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [coords, setCoords] = useState(null);
   
   // Step 3: Time
   const [selectedTimeOfDay, setSelectedTimeOfDay] = useState('');
@@ -628,20 +633,45 @@ export default function UnifiedActivityChat({ onClose, onSubmit }) {
   
   // Get current location
   const getCurrentLocation = () => {
-    setCurrentLocationUsed(true);
-    setLocation('Using current location');
-    setCustomLocation('');
+    if (navigator.geolocation) {
+      setCurrentLocationUsed(true);
+      setCustomLocation(''); // Clear custom location
+      setLocation(''); // Clear location initially
+      setCoords(null); // Clear coords initially to show loading state
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude.toFixed(6);
+          const lng = position.coords.longitude.toFixed(6);
+          setLocation(`${lat}, ${lng}`);
+          setCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          alert('Unable to get your current location. Please search for a location instead.');
+          setCurrentLocationUsed(false);
+          setLocation('');
+        }
+      );
+    } else {
+      alert('Geolocation is not supported by your browser. Please search for a location instead.');
+    }
   };
   
   // Use custom location
   const useCustomLocation = () => {
     setCurrentLocationUsed(false);
-    // In a real app, this would open a location search modal
-    const userInput = prompt('Enter your location:');
-    if (userInput) {
-      setCustomLocation(userInput);
-      setLocation(userInput);
-    }
+    setCoords(null); // Clear GPS coordinates when switching to custom location
+    setShowLocationModal(true); // Open the location search modal
+  };
+  
+  // Handle location selection from search modal
+  const handleLocationSelect = (selectedLocation, selectedCoords) => {
+    setLocation(selectedLocation);
+    setCustomLocation(selectedLocation);
+    setCoords(selectedCoords);
+    setCurrentLocationUsed(false);
+    setShowLocationSearch(false);
   };
   
   // Get step content
@@ -722,7 +752,7 @@ export default function UnifiedActivityChat({ onClose, onSubmit }) {
                 <LocationContent>
                   <LocationTitle>Current Location</LocationTitle>
                   <LocationDesc $active={currentLocationUsed}>
-                    {currentLocationUsed ? 'Using GPS location' : 'Use your GPS location'}
+                    {currentLocationUsed ? (coords ? `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` : 'Getting location...') : 'Use your GPS location'}
                   </LocationDesc>
                 </LocationContent>
               </LocationOption>
@@ -936,6 +966,14 @@ export default function UnifiedActivityChat({ onClose, onSubmit }) {
           )}
         </LoadingOverlay>
       )}
+      
+      {/* Location Search Modal */}
+      <SearchLocationModal
+        visible={showLocationModal}
+        onClose={() => setShowLocationModal(false)}
+        onLocationSelect={handleLocationSelect}
+        currentLocation={location}
+      />
     </Container>
   );
 }

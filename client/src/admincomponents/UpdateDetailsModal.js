@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { Edit3, MapPin, Calendar, Clock, MessageSquare, X, Save } from 'lucide-react';
+import { Edit3, MapPin, Calendar, Clock, MessageSquare, X, Save, Search } from 'lucide-react';
+import SearchLocationModal from './SearchLocationModal';
 
 const fadeIn = keyframes`
   from { 
@@ -215,6 +216,37 @@ const Textarea = styled.textarea`
   }
 `;
 
+const LocationButton = styled.button`
+  width: 100%;
+  padding: 0.875rem 1rem;
+  font-size: 0.95rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  text-align: left;
+  
+  &:hover:not(:disabled) {
+    border-color: #cc31e8;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.02);
+  }
+  
+  svg {
+    flex-shrink: 0;
+  }
+`;
+
 const DateTimeGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -284,6 +316,7 @@ const Button = styled.button`
 export default function UpdateDetailsModal({ activity, onClose, onUpdate }) {
     const [name, setName] = useState(activity.activity_name);
     const [location, setLocation] = useState(activity.activity_location || '');
+    const [showLocationModal, setShowLocationModal] = useState(false);
     const [dateDay, setDateDay] = useState(activity.date_day || '');
     const [dateTime, setDateTime] = useState(
         activity.date_time ? activity.date_time.slice(11, 16) : ''
@@ -335,6 +368,11 @@ export default function UpdateDetailsModal({ activity, onClose, onUpdate }) {
 
     const editableFields = getEditableFields();
     const canSave = () => Boolean(name.trim());
+
+    const handleLocationSelect = (locationString, coordinates) => {
+        setLocation(locationString);
+        setShowLocationModal(false);
+    };
 
     const handleSubmit = async () => {
         const payload = {
@@ -409,13 +447,14 @@ export default function UpdateDetailsModal({ activity, onClose, onUpdate }) {
                                 Location
                                 {!editableFields.location && ' (Locked during voting)'}
                             </Label>
-                            <Input
-                                id="location"
-                                placeholder="Location"
-                                value={location}
-                                onChange={e => setLocation(e.target.value)}
+                            <LocationButton
+                                type="button"
+                                onClick={() => setShowLocationModal(true)}
                                 disabled={!editableFields.location}
-                            />
+                            >
+                                <Search size={16} />
+                                {location || 'Search for location...'}
+                            </LocationButton>
                         </Section>
                     )}
 
@@ -480,6 +519,14 @@ export default function UpdateDetailsModal({ activity, onClose, onUpdate }) {
                     </Button>
                 </ButtonRow>
             </ModalContainer>
+            
+            {/* Location Search Modal */}
+            <SearchLocationModal
+                visible={showLocationModal}
+                onClose={() => setShowLocationModal(false)}
+                onLocationSelect={handleLocationSelect}
+                currentLocation={location}
+            />
         </Overlay>
     );
 }
