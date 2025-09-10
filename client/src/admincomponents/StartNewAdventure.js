@@ -266,52 +266,6 @@ const SelectedText = styled.span`
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
 `;
 
-const ComingSoonSection = styled.div`
-  padding: 20px 32px 40px 32px;
-  
-  @media (max-width: 768px) {
-    padding: 20px 24px 32px 24px;
-  }
-`;
-
-const ComingSoonTitle = styled.h3`
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.4);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  text-align: center;
-  margin: 0 0 16px 0;
-  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
-`;
-
-const ComingSoonGrid = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
-`;
-
-const ComingSoonItem = styled.div`
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-`;
-
-const ComingSoonEmoji = styled.span`
-  font-size: 20px;
-`;
-
-const ComingSoonText = styled.span`
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.5);
-  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
-`;
-
 // Arrow Left Icon Component
 const ArrowLeftIcon = () => (
   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -362,7 +316,7 @@ function StartNewAdventure({ onTripSelect, onBack }) {
           $delay="0.1s"
         >
           <GradientButton
-            $gradient="linear-gradient(135deg, #FF6B6B, #FF8787)"
+            $gradient="linear-gradient(135deg, #6B46C1, #8B5CF6)"
             $selected={selected === 'Restaurant'}
           >
             <IconCircle>
@@ -385,7 +339,7 @@ function StartNewAdventure({ onTripSelect, onBack }) {
           $delay="0.2s"
         >
           <GradientButton
-            $gradient="linear-gradient(135deg, #4ECDC4, #6DD5CE)"
+            $gradient="linear-gradient(135deg, #7C3AED, #A78BFA)"
             $selected={selected === 'Bar'}
           >
             <IconCircle>
@@ -402,24 +356,6 @@ function StartNewAdventure({ onTripSelect, onBack }) {
         </OptionButton>
       </ButtonsContainer>
 
-      {/* Coming Soon Section */}
-      <ComingSoonSection>
-        <ComingSoonTitle>More Coming Soon</ComingSoonTitle>
-        <ComingSoonGrid>
-          <ComingSoonItem>
-            <ComingSoonEmoji>☕</ComingSoonEmoji>
-            <ComingSoonText>Coffee</ComingSoonText>
-          </ComingSoonItem>
-          <ComingSoonItem>
-            <ComingSoonEmoji>🥐</ComingSoonEmoji>
-            <ComingSoonText>Brunch</ComingSoonText>
-          </ComingSoonItem>
-          <ComingSoonItem>
-            <ComingSoonEmoji>🍰</ComingSoonEmoji>
-            <ComingSoonText>Dessert</ComingSoonText>
-          </ComingSoonItem>
-        </ComingSoonGrid>
-      </ComingSoonSection>
     </Container>
   );
 }

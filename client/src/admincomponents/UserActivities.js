@@ -1,9 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { User, Users, Calendar, Clock, Plus, Mail, MapPin, Star, Grid3x3, List, Zap, Activity, Gamepad2, Wine, Utensils, ChevronRight, CheckCircle, DollarSign } from 'lucide-react';
+import { Users, Calendar, Clock, Plus, Mail, MapPin, Star, Grid3x3, List, Zap, Activity, Gamepad2, Wine, Utensils, ChevronRight, CheckCircle, DollarSign, X } from 'lucide-react';
 import { UserContext } from '../context/user';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import CreateCardSimple from './CreateCardSimple';
-// Removed unused YourCommunity import
+import UnifiedActivityChat from './UnifiedActivityChat';
+import SmallTriangle from '../assets/SmallTriangle.png';
 import {
   // Main containers
   Container,
@@ -30,20 +32,6 @@ import {
   ViewLink,
   PartCount,
 
-  // Create cards
-  CreateCard,
-  CreateImageContainer,
-  CreateTypeTag,
-  CreateCardContent,
-  CreateIconContainer,
-  CreateTitle,
-  CreateSubtitle,
-  CreateSuggestions,
-  SuggestionIcon,
-  CreateArrow,
-  CreateCardFooter,
-  CreateFooterText,
-  InvitesEmptyIcon,
 
   // Tags
   HostTag,
@@ -94,6 +82,77 @@ import {
   ListItemBadge,
   ListItemActions
 } from '../styles/UserActivities';
+
+// Modal styles
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1A1625 0%, #2D1B47 100%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid rgba(64, 51, 71, 0.3);
+`;
+
+const ModalTitleContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const ModalLogo = styled.img`
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+`;
+
+const ModalTitle = styled.h2`
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 0;
+`;
+
+const CloseButton = styled.button`
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+`;
+
+const ModalContent = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+`;
 
 const ACTIVITY_CONFIG = {
   'Restaurant': {
@@ -276,12 +335,13 @@ function CountdownText({ targetTs, activityType }) {
 }
 
 function UserActivities() {
-  const { user } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const [filter, setFilter] = useState('Active');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [showFavorites, setShowFavorites] = useState(false);
   const [userFavorites, setUserFavorites] = useState([]);
   const [loadingFavorites, setLoadingFavorites] = useState(false);
+  const [showActivityChat, setShowActivityChat] = useState(false);
   const navigate = useNavigate();
   
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -360,7 +420,7 @@ function UserActivities() {
 
   // Navigation functions using React Router's navigate
   const handleNewActivity = () => {
-    navigate('/create-trip');
+    setShowActivityChat(true);
   };
 
   const handleActivityClick = (activityId) => {
@@ -368,7 +428,54 @@ function UserActivities() {
   };
 
   const handleCreateCardClick = () => {
-    navigate('/create-trip');
+    setShowActivityChat(true);
+  };
+  
+  const handleActivityCreated = async (activityData) => {
+    try {
+      // Prepare the payload based on activity type
+      const payload = {
+        activity_type: activityData.type,
+        emoji: activityData.type === 'Restaurant' ? '🍜' : '🍸',
+        activity_location: activityData.location,
+        radius: 5, // Default radius
+        date_notes: activityData.timeOfDay,
+        activity_name: `${activityData.type} Outing`,
+        collecting: true,
+        responses: JSON.stringify(activityData.responses)
+      };
+      
+      // Create the activity via API
+      const res = await fetch(`${API_URL}/activities`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ activity: payload }),
+      });
+      
+      if (!res.ok) throw new Error('Failed to create activity');
+      
+      const data = await res.json();
+      
+      // Update user context with new activity
+      setUser((prev) => ({
+        ...prev,
+        activities: [
+          ...(prev.activities || []),
+          { ...data, user: prev, responses: [] },
+        ],
+      }));
+      
+      // Close the modal
+      setShowActivityChat(false);
+      
+      // Navigate to the new activity
+      navigate(`/activity/${data.id}`);
+      
+    } catch (error) {
+      console.error('Error creating activity:', error);
+      alert('Failed to create activity. Please try again.');
+    }
   };
 
   const handleViewLinkClick = (e, activityId) => {
@@ -919,6 +1026,27 @@ function UserActivities() {
           </ActivitiesGrid>
         )}
       </CardsContainer>
+      
+      {/* Unified Activity Chat Modal */}
+      {showActivityChat && (
+        <ModalOverlay>
+          <ModalHeader>
+            <ModalTitleContainer>
+              <ModalLogo src={SmallTriangle} alt="Voxxy" />
+              <ModalTitle>Create Your Plan</ModalTitle>
+            </ModalTitleContainer>
+            <CloseButton onClick={() => setShowActivityChat(false)}>
+              <X />
+            </CloseButton>
+          </ModalHeader>
+          <ModalContent>
+            <UnifiedActivityChat 
+              onClose={() => setShowActivityChat(false)}
+              onSubmit={handleActivityCreated}
+            />
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </Container>
   );
 }

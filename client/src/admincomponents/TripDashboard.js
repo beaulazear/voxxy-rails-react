@@ -2,8 +2,7 @@ import React, { useState, useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { UserContext } from '../context/user';
 import StartNewAdventure from './StartNewAdventure';
-import RestaurantChat from './RestaurantChat';
-import CocktailsChat from '../cocktails/CocktailsChat';
+import UnifiedActivityChat from './UnifiedActivityChat';
 import GameNightChat from '../gamenight/GameNightChat';
 
 export const PageContainer = styled.div`
@@ -101,9 +100,8 @@ const CloseButton = styled.button`
 const ModalContent = styled.div`
   flex: 1;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40px;
+  flex-direction: column;
+  overflow: hidden;
 `;
 
 // Removed unused PlaceholderText component
@@ -137,10 +135,10 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
   const handleTripSelect = (tripName) => {
     switch (tripName) {
       case 'Lets Eat':
-        setSelectedTrip('Restaurant');
+        setSelectedTrip('Unified');
         break;
       case 'Night Out':
-        setSelectedTrip('Night Out');
+        setSelectedTrip('Unified');
         break;
       case 'Game Night':
         setSelectedTrip('Game Night');
@@ -183,32 +181,25 @@ function TripDashboard({ setShowActivities, setSelectedActivityId }) {
         onBack={handleBack}
       />
 
-      {/* Restaurant Chat Modal */}
-      {selectedTrip === 'Restaurant' && (
+      {/* Unified Activity Chat Modal */}
+      {selectedTrip === 'Unified' && (
         <ModalOverlay>
           <ModalHeader>
-            <ModalTitle>Plan Your Meal</ModalTitle>
+            <ModalTitle>Create Your Plan</ModalTitle>
             <CloseButton onClick={() => handleFormClose()}>
               <XIcon />
             </CloseButton>
           </ModalHeader>
           <ModalContent>
-            <RestaurantChat onClose={handleFormClose} />
-          </ModalContent>
-        </ModalOverlay>
-      )}
-
-      {/* Cocktails Chat Modal */}
-      {selectedTrip === 'Night Out' && (
-        <ModalOverlay>
-          <ModalHeader>
-            <ModalTitle>Plan Your Night Out</ModalTitle>
-            <CloseButton onClick={() => handleFormClose()}>
-              <XIcon />
-            </CloseButton>
-          </ModalHeader>
-          <ModalContent>
-            <CocktailsChat onClose={handleFormClose} />
+            <UnifiedActivityChat 
+              onClose={handleFormClose}
+              onSubmit={async (data) => {
+                // Handle submission here
+                console.log('Activity data:', data);
+                // You can integrate with your existing API here
+                handleFormClose();
+              }}
+            />
           </ModalContent>
         </ModalOverlay>
       )}
