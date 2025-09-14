@@ -621,7 +621,6 @@ class OpenaiController < ApplicationController
   end
 
   def personalize_venues_with_openai(venues, responses, activity_location, date_notes)
-
     api_key = ENV["OPENAI_API_KEY"]
     if api_key.blank?
       Rails.logger.error("OPENAI_API_KEY environment variable is missing!") if Rails.env.development?
@@ -731,7 +730,6 @@ class OpenaiController < ApplicationController
   end
 
   def personalize_bars_with_openai(venues, responses, activity_location, date_notes)
-
     api_key = ENV["OPENAI_API_KEY"]
     if api_key.blank?
       Rails.logger.error("OPENAI_API_KEY environment variable is missing!") if Rails.env.development?

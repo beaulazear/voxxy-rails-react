@@ -121,7 +121,7 @@ class GooglePlacesService
       # Now search for nearby places
       nearby_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" \
                    "location=#{lat},#{lng}&radius=#{radius_meters}&type=#{type}"
-      
+
       # Add keyword parameter if provided
       nearby_url += "&keyword=#{CGI.escape(keyword)}" if keyword.present?
       nearby_url += "&key=#{api_key}"

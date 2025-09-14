@@ -98,8 +98,8 @@ class NotificationsController < ApplicationController
         data: { type: "self_test", timestamp: Time.current.to_i }
       )
 
-      render json: { 
-        success: true, 
+      render json: {
+        success: true,
         message: "Test notification sent!"
       }
     else

@@ -81,7 +81,7 @@ class Rack::Attack
   blocklist("block bad actors") do |req|
     # Skip blocking for localhost/development
     next false if req.ip == "::1" || req.ip == "127.0.0.1"
-    
+
     # Block requests with suspicious user agents
     req.user_agent&.match?(/curl|wget|scanner|bot/i) && !whitelisted_bot?(req.user_agent)
   end
