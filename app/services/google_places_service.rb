@@ -18,8 +18,6 @@ class GooglePlacesService
     cache_key = "find_place_#{query}"
 
     place_cache[cache_key] ||= begin
-      Rails.logger.info "🔍 Google Places API: Finding place for '#{name}' at '#{address}'"
-
       find_place_url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?" \
                       "input=#{query}&inputtype=textquery&fields=place_id&key=#{api_key}"
 
@@ -32,7 +30,7 @@ class GooglePlacesService
         nil
       end
     rescue => e
-      Rails.logger.error "❌ Google Places Find Place failed for #{name}: #{e.message}"
+      Rails.logger.error "Google Places Find Place failed for #{name}: #{e.message}" if Rails.env.development?
       nil
     end
   end
@@ -42,8 +40,6 @@ class GooglePlacesService
 
     # Memoize place details per place_id
     place_cache[place_id] ||= begin
-      Rails.logger.info "📸 Google Places API: Fetching details for place #{place_id}"
-
       fields_param = fields.join(",")
       details_url = "https://maps.googleapis.com/maps/api/place/details/json?" \
                    "place_id=#{place_id}&fields=#{fields_param}&key=#{api_key}"
@@ -72,7 +68,7 @@ class GooglePlacesService
         { photos: [], reviews: [] }
       end
     rescue => e
-      Rails.logger.error "❌ Google Places Details failed for #{place_id}: #{e.message}"
+      Rails.logger.error "Google Places Details failed for #{place_id}: #{e.message}" if Rails.env.development?
       { photos: [], reviews: [] }
     end
   end
@@ -107,8 +103,6 @@ class GooglePlacesService
     cache_key = "nearby_#{location}_#{type}_#{radius_meters}_#{min_rating}_#{keyword}"
 
     place_cache[cache_key] ||= begin
-      Rails.logger.info "🔍 Google Places Nearby Search: #{type} near #{location} within #{radius_meters}m" + (keyword ? " with keyword: #{keyword}" : "")
-
       # First, geocode the location to get coordinates
       geocode_url = "https://maps.googleapis.com/maps/api/geocode/json?" \
                     "address=#{CGI.escape(location)}&key=#{api_key}"
@@ -117,14 +111,12 @@ class GooglePlacesService
       geocode_data = JSON.parse(geocode_response.body)
 
       if geocode_data["results"].empty?
-        Rails.logger.error "❌ Could not geocode location: #{location}"
+        Rails.logger.error "Could not geocode location: #{location}" if Rails.env.development?
         return []
       end
 
       lat = geocode_data["results"][0]["geometry"]["location"]["lat"]
       lng = geocode_data["results"][0]["geometry"]["location"]["lng"]
-
-      Rails.logger.info "📍 Geocoded #{location} to: #{lat}, #{lng}"
 
       # Now search for nearby places
       nearby_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" \
@@ -172,7 +164,7 @@ class GooglePlacesService
 
           break unless next_page_token
         else
-          Rails.logger.warn "⚠️ Nearby search returned status: #{data["status"]}"
+          Rails.logger.warn "Nearby search returned status: #{data["status"]}" if Rails.env.development?
           break
         end
       end
@@ -186,10 +178,9 @@ class GooglePlacesService
         is_operational && has_good_rating && has_enough_reviews
       end
 
-      Rails.logger.info "✅ Found #{all_venues.length} venues, filtered to #{filtered_venues.length} operational venues"
       filtered_venues
     rescue => e
-      Rails.logger.error "❌ Google Places Nearby Search failed: #{e.message}"
+      Rails.logger.error "Google Places Nearby Search failed: #{e.message}" if Rails.env.development?
       []
     end
   end
@@ -200,8 +191,6 @@ class GooglePlacesService
     cache_key = "detailed_#{place_id}"
 
     place_cache[cache_key] ||= begin
-      Rails.logger.info "📍 Fetching detailed info for place: #{place_id}"
-
       fields = "place_id,name,formatted_address,formatted_phone_number,opening_hours,website," \
                "rating,user_ratings_total,price_level,business_status,types,reviews,photos"
 
@@ -232,7 +221,7 @@ class GooglePlacesService
         nil
       end
     rescue => e
-      Rails.logger.error "❌ Failed to get venue details for #{place_id}: #{e.message}"
+      Rails.logger.error "Failed to get venue details for #{place_id}: #{e.message}" if Rails.env.development?
       nil
     end
   end

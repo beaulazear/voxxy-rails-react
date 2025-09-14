@@ -84,11 +84,11 @@ class NotificationsController < ApplicationController
     render json: { success: false, message: e.message }, status: :unprocessable_entity
   end
 
-  # Legacy test methods (keep for compatibility)
+  # Test notification method
   def send_test_to_self
     if current_user.can_receive_push_notifications?
-      title = params[:title] || "Test to #{current_user.name}! 🚀"
-      body = params[:body] || "This notification was sent directly to you!"
+      title = params[:title] || "Test Notification 🔔"
+      body = params[:body] || "Push notifications are working!"
 
       Notification.create_and_send!(
         user: current_user,
@@ -98,12 +98,15 @@ class NotificationsController < ApplicationController
         data: { type: "self_test", timestamp: Time.current.to_i }
       )
 
-      render json: { success: true, message: "Test notification sent to yourself!" }
+      render json: { 
+        success: true, 
+        message: "Test notification sent!"
+      }
     else
       render json: {
         success: false,
-        message: "Cannot send notifications. Check your notification settings and push token."
-      }
+        message: "Cannot send notifications. Please enable push notifications in your settings."
+      }, status: :unprocessable_entity
     end
   end
 

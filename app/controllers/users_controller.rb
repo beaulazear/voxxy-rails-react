@@ -12,6 +12,18 @@ class UsersController < ApplicationController
     render json: { error: e.message }, status: 422
   end
 
+  def push_token_status
+    render json: {
+      user_id: current_user.id,
+      has_push_token: current_user.push_token.present?,
+      token_prefix: current_user.push_token&.first(10),
+      push_notifications_enabled: current_user.push_notifications,
+      can_receive_notifications: current_user.can_receive_push_notifications?,
+      platform: current_user.platform,
+      updated_at: current_user.updated_at
+    }
+  end
+
   def create
     user = User.new(user_params)
 

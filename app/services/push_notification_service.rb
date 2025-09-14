@@ -80,12 +80,12 @@ class PushNotificationService
 
         if response.code == "200"
           handle_expo_response(result, payloads)
-          Rails.logger.info "✅ Sent #{payloads.count} push notifications successfully"
+          Rails.logger.debug "Sent #{payloads.count} push notifications" if Rails.env.development?
         else
-          Rails.logger.error "❌ Expo push notification failed: #{response.code} - #{response.body}"
+          Rails.logger.error "Push notification failed: #{response.code}"
         end
       rescue => e
-        Rails.logger.error "❌ Error sending push notification: #{e.message}"
+        Rails.logger.error "Error sending push notification: #{e.message}"
       end
     end
 

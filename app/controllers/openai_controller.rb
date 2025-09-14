@@ -11,15 +11,29 @@ class OpenaiController < ApplicationController
     :try_voxxy_cached
   ]
 
+  # Ensure API keys are configured
+  before_action :ensure_api_keys_configured
+
+  # Cache configuration
+  CACHE_DURATION = Rails.env.production? ? 2.hours : 1.hour
+  RATE_LIMIT_DURATION = Rails.env.production? ? 1.hour : 30.minutes
+  MAX_CACHE_SIZE = 1000 # Maximum number of cached recommendations
+
   def restaurant_recommendations
     user_responses     = params[:responses]
     activity_location  = params[:activity_location]
     date_notes         = params[:date_notes]
     activity_id        = params[:activity_id]
-    radius             = params[:radius]
+    radius             = params[:radius]&.to_f || 1.5
 
-    if user_responses.blank?
-      render json: { error: "No responses provided" }, status: :unprocessable_entity and return
+    # Validate required parameters
+    if user_responses.blank? || activity_location.blank?
+      render json: { error: "Missing required parameters: responses and activity_location" }, status: :unprocessable_entity and return
+    end
+
+    # Validate radius
+    if radius < 0.5 || radius > 50
+      render json: { error: "Invalid radius. Must be between 0.5 and 50 miles" }, status: :unprocessable_entity and return
     end
 
     user_id  = current_user.id
@@ -27,7 +41,7 @@ class OpenaiController < ApplicationController
                 "activity_#{activity_id}_" \
                 "#{generate_cache_key(user_responses, activity_location, date_notes, 'restaurant')}"
 
-    recommendations = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+    recommendations = Rails.cache.fetch(cache_key, expires_in: CACHE_DURATION) do
       # Use hybrid approach by default
       fetch_hybrid_restaurant_recommendations(user_responses, activity_location, date_notes, radius)
     end
@@ -44,10 +58,16 @@ class OpenaiController < ApplicationController
     activity_location  = params[:activity_location]
     date_notes         = params[:date_notes]
     activity_id        = params[:activity_id]
-    radius             = params[:radius]
+    radius             = params[:radius]&.to_f || 1.5
 
-    if user_responses.blank?
-      render json: { error: "No responses provided" }, status: :unprocessable_entity and return
+    # Validate required parameters
+    if user_responses.blank? || activity_location.blank?
+      render json: { error: "Missing required parameters: responses and activity_location" }, status: :unprocessable_entity and return
+    end
+
+    # Validate radius
+    if radius < 0.5 || radius > 50
+      render json: { error: "Invalid radius. Must be between 0.5 and 50 miles" }, status: :unprocessable_entity and return
     end
 
     user_id  = current_user.id
@@ -55,7 +75,7 @@ class OpenaiController < ApplicationController
                 "activity_#{activity_id}_" \
                 "#{generate_cache_key(user_responses, activity_location, date_notes, 'bar')}"
 
-    recommendations = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+    recommendations = Rails.cache.fetch(cache_key, expires_in: CACHE_DURATION) do
       # Use hybrid approach by default
       fetch_hybrid_bar_recommendations(user_responses, activity_location, date_notes, radius)
     end
@@ -73,6 +93,7 @@ class OpenaiController < ApplicationController
     date_notes         = params[:date_notes]
     activity_id        = params[:activity_id]
 
+    # Validate required parameters
     if user_responses.blank?
       render json: { error: "No responses provided" }, status: :unprocessable_entity and return
     end
@@ -82,7 +103,7 @@ class OpenaiController < ApplicationController
                 "activity_#{activity_id}_" \
                 "#{generate_cache_key(user_responses, activity_location, date_notes, 'game')}"
 
-    recommendations = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+    recommendations = Rails.cache.fetch(cache_key, expires_in: CACHE_DURATION) do
       fetch_game_recommendations_from_openai(user_responses, activity_location, date_notes)
     end
 
@@ -94,28 +115,22 @@ class OpenaiController < ApplicationController
   end
 
   def try_voxxy_recommendations
-    Rails.logger.info("🔍 try_voxxy_recommendations called")
-
     session_token = request.headers["X-Session-Token"] || params[:session_token]
-    Rails.logger.info("📝 Session token: #{session_token}")
 
     # Validate session token format
     if session_token.blank? || !valid_session_token?(session_token)
-      Rails.logger.warn("❌ Invalid or missing session token")
       return render json: { error: "Invalid or missing session token" }, status: :unauthorized
     end
 
     # Include session token in cache keys to prevent collisions
     rate_key  = "try_voxxy_rate:#{session_token}"
     cache_key = "try_voxxy_cache:#{session_token}:#{generate_request_hash(params)}"
-    Rails.logger.info("🔑 Cache keys - rate: #{rate_key}, cache: #{cache_key}")
 
     begin
       # Use atomic operations to prevent race conditions
       cached_recommendations = Rails.cache.read(cache_key)
 
       if cached_recommendations.present?
-        Rails.logger.info("✅ Found cached recommendations, returning #{cached_recommendations.length} items")
         return render json: { recommendations: cached_recommendations }, status: :ok
       end
 
@@ -124,14 +139,12 @@ class OpenaiController < ApplicationController
 
       if rate_limit_time && Time.current < rate_limit_time
         minutes_left = ((rate_limit_time - Time.current) / 60.0).ceil
-        Rails.logger.info("🚫 Rate limited, #{minutes_left} minutes left")
 
         # Try to return last cached result for this session
         last_cache_key = "try_voxxy_last:#{session_token}"
         last_recommendations = Rails.cache.read(last_cache_key)
 
         if last_recommendations.present?
-          Rails.logger.info("📦 Returning previous recommendations while rate limited")
           return render json: {
             recommendations: last_recommendations,
             rate_limited: true,
@@ -145,40 +158,33 @@ class OpenaiController < ApplicationController
         end
       end
 
-      Rails.logger.info("⏳ Setting rate limit for 1 hour")
-      Rails.cache.write(rate_key, Time.current + 1.hour, expires_in: 1.hour)
+      Rails.cache.write(rate_key, Time.current + RATE_LIMIT_DURATION, expires_in: RATE_LIMIT_DURATION)
 
-      # Log incoming parameters
+      # Get and validate parameters
       user_responses    = params[:responses]
       activity_location = params[:activity_location]
       date_notes        = params[:date_notes]
-      radius = 10
-
-      Rails.logger.info("📋 Parameters:")
-      Rails.logger.info("  - responses: #{user_responses&.truncate(100)}")
-      Rails.logger.info("  - activity_location: #{activity_location}")
-      Rails.logger.info("  - date_notes: #{date_notes}")
-      Rails.logger.info("  - radius: #{radius}")
+      radius = params[:radius]&.to_f || 10
 
       if user_responses.blank? || activity_location.blank? || date_notes.blank?
-        Rails.logger.warn("❌ Missing required parameters")
-        return render json: { error: "Missing required parameters" }, status: :unprocessable_entity
+        return render json: { error: "Missing required parameters: responses, activity_location, and date_notes" }, status: :unprocessable_entity
       end
 
-      Rails.logger.info("🤖 Using hybrid approach (Google Places + OpenAI)...")
+      # Validate radius
+      if radius < 0.5 || radius > 50
+        return render json: { error: "Invalid radius. Must be between 0.5 and 50 miles" }, status: :unprocessable_entity
+      end
+
       recs = fetch_hybrid_restaurant_recommendations(user_responses, activity_location, date_notes, radius)
 
       if recs && recs.is_a?(Array) && !recs.empty?
-        Rails.logger.info("✅ Got #{recs.length} recommendations from OpenAI")
 
         # Cache with both specific and last-used keys
-        Rails.cache.write(cache_key, recs, expires_in: 1.hour)
-        Rails.cache.write("try_voxxy_last:#{session_token}", recs, expires_in: 1.hour)
+        Rails.cache.write(cache_key, recs, expires_in: CACHE_DURATION)
+        Rails.cache.write("try_voxxy_last:#{session_token}", recs, expires_in: CACHE_DURATION)
 
         render json: { recommendations: recs }, status: :ok
       else
-        Rails.logger.error("❌ OpenAI returned invalid recommendations: #{recs.inspect}")
-
         # Clear rate limit on failure to allow retry
         Rails.cache.delete(rate_key)
 
@@ -189,15 +195,13 @@ class OpenaiController < ApplicationController
       end
 
     rescue JSON::ParserError => e
-      Rails.logger.error("💥 JSON Parse Error in try_voxxy: #{e.message}")
       Rails.cache.delete(rate_key) # Allow retry on JSON errors
       render json: {
         error: "Failed to process recommendations. Please try again.",
         should_retry: true
       }, status: :unprocessable_entity
     rescue => e
-      Rails.logger.error("💥 Exception in try_voxxy_recommendations: #{e.class.name}: #{e.message}")
-      Rails.logger.error("📍 Backtrace: #{e.backtrace.first(5).join("\n")}")
+      Rails.logger.error("Exception in try_voxxy_recommendations: #{e.class.name}: #{e.message}") if Rails.env.development?
 
       # Don't clear rate limit for unexpected errors
       render json: {
@@ -217,8 +221,6 @@ class OpenaiController < ApplicationController
     cache_key = "try_voxxy_last:#{session_token}"
     cached = Rails.cache.read(cache_key)
 
-    Rails.logger.info("📦 try_voxxy_cached - token: #{session_token.first(10)}..., found: #{cached.present?}")
-
     render json: {
       recommendations: cached || [],
       has_cached: cached.present?
@@ -227,16 +229,33 @@ class OpenaiController < ApplicationController
 
   private
 
-  def fetch_restaurant_recommendations_from_openai(responses, activity_location, date_notes, radius)
-    Rails.logger.info("🤖 Starting OpenAI API call...")
+  def ensure_api_keys_configured
+    if ENV["OPENAI_API_KEY"].blank?
+      render json: {
+        error: "Service temporarily unavailable. OpenAI API key not configured.",
+        should_retry: false
+      }, status: :service_unavailable
+      return false
+    end
 
+    if ENV["PLACES_KEY"].blank?
+      render json: {
+        error: "Service temporarily unavailable. Google Places API key not configured.",
+        should_retry: false
+      }, status: :service_unavailable
+      return false
+    end
+
+    true
+  end
+
+  def fetch_restaurant_recommendations_from_openai(responses, activity_location, date_notes, radius)
     # Check for API key
     api_key = ENV["OPENAI_API_KEY"]
     if api_key.blank?
-      Rails.logger.error("❌ OPENAI_API_KEY environment variable is missing!")
+      Rails.logger.error("OPENAI_API_KEY environment variable is missing!") if Rails.env.development?
       return nil
     end
-    Rails.logger.info("✅ OpenAI API key present (#{api_key.length} chars)")
 
     begin
       client = OpenAI::Client.new(access_token: api_key)
@@ -250,9 +269,8 @@ class OpenaiController < ApplicationController
         responses.to_s.strip
       end
 
-      Rails.logger.info("📝 Processed notes_text: #{notes_text.truncate(200)}")
     rescue => e
-      Rails.logger.error("💥 Error initializing OpenAI client: #{e.message}")
+      Rails.logger.error("Error initializing OpenAI client: #{e.message}") if Rails.env.development?
       return nil
     end
 
@@ -284,7 +302,7 @@ class OpenaiController < ApplicationController
             "name":        "Restaurant Name",
             "price_range": "$ - $$$$",
             "description": "Short description (cuisine + atmosphere).",
-            "reason":      "Provide a comprehensive explanation covering: (1) How this restaurant specifically addresses their dietary needs/restrictions mentioned in their preferences, (2) Why this choice aligns with their stated budget or ambiance preferences, (3) What makes this restaurant special or unique compared to more obvious choices, (4) How it fits perfectly within the #{radius}-mile radius of #{activity_location}, and (5) What specific dishes, features, or qualities make this an ideal match for their exact preferences. Be detailed and connect directly to what they wrote.",
+            "reason":      "Provide 3-6 keyword tags (comma-separated) that capture why this matches their preferences. Include dietary matches (e.g., 'Vegan', 'Gluten-Free'), budget level (e.g., 'Budget-Friendly', 'Upscale'), atmosphere (e.g., 'Trendy', 'Romantic', 'Casual'), cuisine type (e.g., 'Italian', 'Mexican'), and any special features (e.g., 'Rooftop', 'Live Music', 'Late Night'). Format as: 'Vegan, Budget-Friendly, Trendy, Italian'",
             "hours":       "Hours of operation (e.g., Mon-Fri: 9 AM - 10 PM, Sat-Sun: 8 AM - 11 PM)",
             "website":     "Valid website link or null if unknown",
             "address":     "Full address or 'Not available'"
@@ -294,8 +312,6 @@ class OpenaiController < ApplicationController
     PROMPT
 
     begin
-      Rails.logger.info("🌐 Making OpenAI API request...")
-
       response = client.chat(
         parameters: {
           model:       "gpt-3.5-turbo",
@@ -307,30 +323,24 @@ class OpenaiController < ApplicationController
         }
       )
 
-      Rails.logger.info("📥 OpenAI API response received")
       raw_json = response.dig("choices", 0, "message", "content")
 
       if raw_json.blank?
-        Rails.logger.error("❌ OpenAI returned empty content")
+        Rails.logger.error("OpenAI returned empty content") if Rails.env.development?
         return nil
       end
-
-      Rails.logger.info("📄 Raw JSON response: #{raw_json.truncate(300)}")
 
       begin
         parsed = JSON.parse(raw_json)
         recommendations = parsed.fetch("restaurants", [])
-        Rails.logger.info("✅ Successfully parsed #{recommendations.length} recommendations")
         recommendations
       rescue JSON::ParserError => e
-        Rails.logger.error("❌ JSON Parse Error: #{e.message}")
-        Rails.logger.error("📄 Raw JSON that failed to parse: #{raw_json}")
+        Rails.logger.error("JSON Parse Error: #{e.message}") if Rails.env.development?
         nil
       end
 
     rescue => e
-      Rails.logger.error("💥 OpenAI API Error: #{e.class.name}: #{e.message}")
-      Rails.logger.error("📍 Backtrace: #{e.backtrace.first(3).join("\n")}")
+      Rails.logger.error("OpenAI API Error: #{e.class.name}: #{e.message}") if Rails.env.development?
       nil
     end
   end
@@ -376,7 +386,7 @@ class OpenaiController < ApplicationController
             "name":        "Bar/Lounge Name",
             "price_range": "$ - $$$$",
             "description": "Short description (drink specialties + atmosphere).",
-            "reason":      "Provide a comprehensive explanation covering: (1) How this bar specifically addresses their drink preferences and special needs mentioned in their preferences, (2) Why this choice aligns with their stated budget or atmosphere preferences, (3) What makes this bar special or unique compared to more obvious choices, (4) How it fits perfectly within the #{radius}-mile radius of #{activity_location}, and (5) What specific drinks, features, happy hour deals, or atmosphere qualities make this an ideal match for their exact preferences. Be detailed and connect directly to what they wrote.",
+            "reason":      "Provide 3-6 keyword tags (comma-separated) that capture why this matches their preferences. Include drink specialties (e.g., 'Craft Cocktails', 'Wine Bar', 'Beer Selection'), budget level (e.g., 'Budget-Friendly', 'Upscale'), atmosphere (e.g., 'Dive Bar', 'Rooftop', 'Speakeasy', 'Live Music'), and any special features (e.g., 'Happy Hour', 'Late Night', 'Patio'). Format as: 'Craft Cocktails, Upscale, Rooftop, Late Night'",
             "hours":       "Hours of operation (e.g., Mon-Thu: 5 PM - 1 AM, Fri-Sat: 5 PM - 2 AM)",
             "website":     "Valid website link or null if unknown",
             "address":     "Full address or 'Not available'"
@@ -420,9 +430,6 @@ class OpenaiController < ApplicationController
       responses.to_s.strip
     end
 
-    Rails.logger.info("Game recommendations - notes_text length: #{notes_text.length}")
-    Rails.logger.info("Game recommendations - activity_location: #{activity_location}")
-    Rails.logger.info("Game recommendations - date_notes: #{date_notes}")
 
     prompt = <<~PROMPT
       You are an AI assistant that provides game recommendations for a game night based on:
@@ -452,7 +459,7 @@ class OpenaiController < ApplicationController
             "name": "Game Title",
             "price_range": "Easy",
             "description": "Brief description of the game type and mechanics.",
-            "reason": "Why this game matches their preferences, considering their player count, game types, complexity level, and specific preferences mentioned.",
+            "reason": "3-6 keyword tags (comma-separated) like: '2-4 Players, Strategy, Easy to Learn, Family-Friendly'",
             "hours": "30-45 minutes",
             "website": "https://boardgamegeek.com/boardgame/example or null",
             "address": "2-4 players"
@@ -463,7 +470,6 @@ class OpenaiController < ApplicationController
       CRITICAL: Use "restaurants" as the JSON key, NOT "games".
     PROMPT
 
-    Rails.logger.info("Game recommendations - Making OpenAI API call")
 
     begin
       response = client.chat(
@@ -479,19 +485,15 @@ class OpenaiController < ApplicationController
       )
 
       raw_json = response.dig("choices", 0, "message", "content")
-      Rails.logger.info("Game recommendations - OpenAI response length: #{raw_json&.length}")
-      Rails.logger.info("Game recommendations - Raw JSON: #{raw_json&.first(500)}...")
 
       parsed = JSON.parse(raw_json)
       recommendations = parsed.fetch("restaurants", [])
-      Rails.logger.info("Game recommendations - Successfully parsed #{recommendations.length} recommendations")
       recommendations
     rescue JSON::ParserError => e
-      Rails.logger.error("Game recommendations - JSON Parse Error: #{e.message}")
-      Rails.logger.error("Game recommendations - Raw response: #{raw_json}")
+      Rails.logger.error("Game recommendations - JSON Parse Error: #{e.message}") if Rails.env.development?
       nil
     rescue => e
-      Rails.logger.error("Game recommendations - OpenAI API Error: #{e.message}")
+      Rails.logger.error("Game recommendations - OpenAI API Error: #{e.message}") if Rails.env.development?
       nil
     end
   end
@@ -507,15 +509,11 @@ class OpenaiController < ApplicationController
   end
 
   def fetch_hybrid_restaurant_recommendations(responses, activity_location, date_notes, radius)
-    Rails.logger.info("🔄 Starting hybrid recommendation approach...")
-
     # Extract cuisine preferences from user responses
     cuisine_keywords = extract_cuisine_keywords(responses)
-    Rails.logger.info("🍽️ Extracted cuisine keywords: #{cuisine_keywords}")
 
     # Determine smart radius based on location type
     smart_radius = determine_smart_radius(activity_location, radius)
-    Rails.logger.info("📍 Using smart radius: #{smart_radius} miles for #{activity_location}")
 
     # Step 1: Get real venues from Google Places
     radius_meters = smart_radius * 1609  # Convert miles to meters
@@ -525,11 +523,8 @@ class OpenaiController < ApplicationController
     venues = GooglePlacesService.nearby_search(activity_location, "restaurant", radius_meters, 3.5, search_keyword)
 
     if venues.empty?
-      Rails.logger.warn("⚠️ No venues found from Google Places, falling back to original approach")
       return fetch_restaurant_recommendations_from_openai(responses, activity_location, date_notes, radius)
     end
-
-    Rails.logger.info("📍 Found #{venues.length} operational venues from Google Places")
 
     # Step 2: Get additional details for top venues (limit to avoid too many API calls)
     detailed_venues = venues.first(20).map do |venue|
@@ -563,7 +558,6 @@ class OpenaiController < ApplicationController
     personalized_recommendations = personalize_venues_with_openai(detailed_venues, responses, activity_location, date_notes)
 
     if personalized_recommendations.nil? || personalized_recommendations.empty?
-      Rails.logger.warn("⚠️ OpenAI personalization failed, falling back to original approach")
       return fetch_restaurant_recommendations_from_openai(responses, activity_location, date_notes, radius)
     end
 
@@ -571,15 +565,11 @@ class OpenaiController < ApplicationController
   end
 
   def fetch_hybrid_bar_recommendations(responses, activity_location, date_notes, radius)
-    Rails.logger.info("🔄 Starting hybrid bar recommendation approach...")
-
     # Extract bar/drink preferences from user responses
     bar_keywords = extract_bar_keywords(responses)
-    Rails.logger.info("🍺 Extracted bar keywords: #{bar_keywords}")
 
     # Determine smart radius based on location type
     smart_radius = determine_smart_radius(activity_location, radius)
-    Rails.logger.info("📍 Using smart radius: #{smart_radius} miles for #{activity_location}")
 
     # Step 1: Get real venues from Google Places
     radius_meters = smart_radius * 1609  # Convert miles to meters
@@ -589,11 +579,8 @@ class OpenaiController < ApplicationController
     venues = GooglePlacesService.nearby_search(activity_location, "bar", radius_meters, 3.5, search_keyword)
 
     if venues.empty?
-      Rails.logger.warn("⚠️ No bars found from Google Places, falling back to original approach")
       return fetch_bar_recommendations_from_openai(responses, activity_location, date_notes, radius)
     end
-
-    Rails.logger.info("📍 Found #{venues.length} operational bars from Google Places")
 
     # Step 2: Get additional details for top venues
     detailed_venues = venues.first(20).map do |venue|
@@ -627,7 +614,6 @@ class OpenaiController < ApplicationController
     personalized_recommendations = personalize_bars_with_openai(detailed_venues, responses, activity_location, date_notes)
 
     if personalized_recommendations.nil? || personalized_recommendations.empty?
-      Rails.logger.warn("⚠️ OpenAI personalization failed, falling back to original approach")
       return fetch_bar_recommendations_from_openai(responses, activity_location, date_notes, radius)
     end
 
@@ -635,11 +621,10 @@ class OpenaiController < ApplicationController
   end
 
   def personalize_venues_with_openai(venues, responses, activity_location, date_notes)
-    Rails.logger.info("🤖 Personalizing #{venues.length} venues with OpenAI...")
 
     api_key = ENV["OPENAI_API_KEY"]
     if api_key.blank?
-      Rails.logger.error("❌ OPENAI_API_KEY environment variable is missing!")
+      Rails.logger.error("OPENAI_API_KEY environment variable is missing!") if Rails.env.development?
       return nil
     end
 
@@ -675,7 +660,7 @@ class OpenaiController < ApplicationController
       YOUR TASK:
       1. Select the 5 BEST restaurants from this list that match the user's preferences
       2. Rank them from best to worst match
-      3. Write personalized descriptions explaining why each matches their needs
+      3. Generate keyword tags that explain the match
 
       IMPORTANT:
       - You MUST only select from the restaurants listed above
@@ -683,7 +668,7 @@ class OpenaiController < ApplicationController
       - Prioritize dietary restrictions/preferences first
       - Consider price preferences second
       - Factor in ratings and review counts
-      - Write warm, personalized reasons that directly reference their preferences
+      - Generate concise keyword tags that capture why each venue matches
 
       Return exactly 5 restaurants as valid JSON:
 
@@ -693,7 +678,7 @@ class OpenaiController < ApplicationController
             "name": "Exact Restaurant Name from list",
             "price_range": "$ - $$$$",
             "description": "Brief description of cuisine and atmosphere",
-            "reason": "Detailed explanation of why this specific restaurant matches their preferences, referencing their exact requirements and what makes this place special for them",
+            "reason": "3-6 keyword tags (comma-separated) like: 'Vegan, Budget-Friendly, Trendy, Italian, Outdoor Seating'",
             "hours": "Copy hours from venue data or 'Hours not available'",
             "website": "Copy website from venue data or null",
             "address": "Exact address from list"
@@ -717,7 +702,7 @@ class OpenaiController < ApplicationController
       raw_json = response.dig("choices", 0, "message", "content")
 
       if raw_json.blank?
-        Rails.logger.error("❌ OpenAI returned empty content")
+        Rails.logger.error("OpenAI returned empty content") if Rails.env.development?
         return nil
       end
 
@@ -735,23 +720,21 @@ class OpenaiController < ApplicationController
         rec
       end
 
-      Rails.logger.info("✅ Successfully personalized #{recommendations.length} recommendations")
       recommendations
     rescue JSON::ParserError => e
-      Rails.logger.error("❌ JSON Parse Error: #{e.message}")
+      Rails.logger.error("JSON Parse Error: #{e.message}") if Rails.env.development?
       nil
     rescue => e
-      Rails.logger.error("💥 OpenAI Personalization Error: #{e.message}")
+      Rails.logger.error("OpenAI Personalization Error: #{e.message}") if Rails.env.development?
       nil
     end
   end
 
   def personalize_bars_with_openai(venues, responses, activity_location, date_notes)
-    Rails.logger.info("🍺 Personalizing #{venues.length} bars with OpenAI...")
 
     api_key = ENV["OPENAI_API_KEY"]
     if api_key.blank?
-      Rails.logger.error("❌ OPENAI_API_KEY environment variable is missing!")
+      Rails.logger.error("OPENAI_API_KEY environment variable is missing!") if Rails.env.development?
       return nil
     end
 
@@ -787,7 +770,7 @@ class OpenaiController < ApplicationController
       YOUR TASK:
       1. Select the 5 BEST bars from this list that match the user's preferences
       2. Rank them from best to worst match
-      3. Write personalized descriptions explaining why each matches their needs
+      3. Generate keyword tags that explain the match
 
       IMPORTANT:
       - You MUST only select from the bars listed above
@@ -796,7 +779,7 @@ class OpenaiController < ApplicationController
       - Consider atmosphere preferences (dive bar, rooftop, live music, quiet)
       - Factor in ratings and review counts
       - Consider timing - late night preferences need bars with later hours
-      - Write warm, personalized reasons that directly reference their preferences
+      - Generate concise keyword tags that capture why each venue matches
 
       Return exactly 5 bars as valid JSON (use "restaurants" key for compatibility):
 
@@ -806,7 +789,7 @@ class OpenaiController < ApplicationController
             "name": "Exact Bar Name from list",
             "price_range": "$ - $$$$",
             "description": "Brief description of drink specialties and atmosphere",
-            "reason": "Detailed explanation of why this specific bar matches their preferences, referencing their exact requirements, drink preferences, atmosphere needs, and what makes this place special for them",
+            "reason": "3-6 keyword tags (comma-separated) like: 'Craft Cocktails, Upscale, Rooftop, Late Night'",
             "hours": "Copy hours from venue data or 'Hours not available'",
             "website": "Copy website from venue data or null",
             "address": "Exact address from list"
@@ -830,7 +813,7 @@ class OpenaiController < ApplicationController
       raw_json = response.dig("choices", 0, "message", "content")
 
       if raw_json.blank?
-        Rails.logger.error("❌ OpenAI returned empty content")
+        Rails.logger.error("OpenAI returned empty content") if Rails.env.development?
         return nil
       end
 
@@ -848,13 +831,12 @@ class OpenaiController < ApplicationController
         rec
       end
 
-      Rails.logger.info("✅ Successfully personalized #{recommendations.length} bar recommendations")
       recommendations
     rescue JSON::ParserError => e
-      Rails.logger.error("❌ JSON Parse Error: #{e.message}")
+      Rails.logger.error("JSON Parse Error: #{e.message}") if Rails.env.development?
       nil
     rescue => e
-      Rails.logger.error("💥 OpenAI Bar Personalization Error: #{e.message}")
+      Rails.logger.error("OpenAI Bar Personalization Error: #{e.message}") if Rails.env.development?
       nil
     end
   end

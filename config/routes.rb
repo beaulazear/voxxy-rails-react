@@ -131,6 +131,7 @@ Rails.application.routes.draw do
 
   # Push Notification Routes
   post "/users/:id/update_push_token", to: "users#update_push_token"
+  get "/users/:id/push_token_status", to: "users#push_token_status"
   post "/test_notification", to: "notifications#test"
   post "/send_test_to_self", to: "notifications#send_test_to_self"
 

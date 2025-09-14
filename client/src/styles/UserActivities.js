@@ -1318,6 +1318,11 @@ export const ListViewContainer = styled.div`
   flex-direction: column;
   gap: 12px;
   padding: 0;
+  
+  @media (max-width: 768px) {
+    gap: 10px;
+    padding: 0 1rem;
+  }
 `;
 
 export const ListItem = styled.div`
@@ -1334,6 +1339,17 @@ export const ListItem = styled.div`
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  
+  @media (max-width: 768px) {
+    padding: 14px 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 12px 14px;
+    align-items: flex-start;
+  }
   
   &::before {
     content: '';
@@ -1358,6 +1374,10 @@ export const ListItem = styled.div`
     border-color: rgba(147, 51, 234, 0.3);
     transform: translateX(4px);
     box-shadow: 0 4px 20px rgba(147, 51, 234, 0.2);
+    
+    @media (max-width: 768px) {
+      transform: translateX(2px);
+    }
   }
 `;
 
@@ -1372,6 +1392,19 @@ export const ListItemIcon = styled.div`
   flex-shrink: 0;
   font-size: 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  
+  @media (max-width: 768px) {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+  
+  @media (max-width: 480px) {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    border-radius: 10px;
+  }
 `;
 
 export const ListItemContent = styled.div`
@@ -1381,6 +1414,17 @@ export const ListItemContent = styled.div`
   flex-direction: column;
   gap: 4px;
   align-items: flex-start;
+  
+  @media (max-width: 768px) {
+    gap: 6px;
+    flex: 1 1 calc(100% - 60px);
+  }
+  
+  @media (max-width: 480px) {
+    flex: 1 1 100%;
+    order: 2;
+    margin-top: 4px;
+  }
 `;
 
 export const ListItemTitle = styled.h3`
@@ -1392,6 +1436,20 @@ export const ListItemTitle = styled.h3`
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: left;
+  max-width: 100%;
+  
+  @media (max-width: 768px) {
+    font-size: 15px;
+    white-space: normal;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 14px;
+  }
 `;
 
 export const ListItemMeta = styled.div`
@@ -1400,11 +1458,27 @@ export const ListItemMeta = styled.div`
   gap: 16px;
   font-size: 13px;
   color: rgba(255, 255, 255, 0.6);
+  flex-wrap: wrap;
+  
+  @media (max-width: 768px) {
+    gap: 12px;
+    font-size: 12px;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 10px;
+    font-size: 11px;
+  }
   
   span {
     display: flex;
     align-items: center;
     gap: 4px;
+    white-space: nowrap;
+    
+    svg {
+      flex-shrink: 0;
+    }
   }
 `;
 
@@ -1449,12 +1523,48 @@ export const ListItemBadge = styled.span`
     : '#A855F7'};
   font-weight: 600;
   font-size: 12px;
+  white-space: nowrap;
+  
+  @media (max-width: 768px) {
+    padding: 3px 8px;
+    font-size: 11px;
+    border-radius: 10px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 2px 6px;
+    font-size: 10px;
+    border-radius: 8px;
+    
+    svg {
+      width: 10px;
+      height: 10px;
+    }
+  }
 `;
 
 export const ListItemActions = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
+  
+  @media (max-width: 768px) {
+    gap: 8px;
+    margin-left: auto;
+  }
+  
+  @media (max-width: 480px) {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    gap: 6px;
+    
+    /* Hide chevron on very small screens */
+    > svg:last-child {
+      display: none;
+    }
+  }
 `;
 
 // Styles for favorites
