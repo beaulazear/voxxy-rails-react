@@ -144,7 +144,9 @@ class GooglePlacesService
             {
               place_id: place["place_id"],
               name: place["name"],
-              address: place["vicinity"] || place["formatted_address"],
+              # Prefer formatted_address over vicinity to get full address
+              # vicinity often only contains "City, State" which causes the bug
+              address: place["formatted_address"] || place["vicinity"] || "Address not available",
               rating: place["rating"],
               user_ratings_total: place["user_ratings_total"],
               price_level: place["price_level"],

@@ -287,12 +287,13 @@ class OpenaiController < ApplicationController
       IMPORTANT:
       1. **PRIORITIZE dietary preferences** (e.g., allergies, vegan, gluten-free) above all else.#{'  '}
         If they say "Vegan please!" or "No shellfish," those conditions must drive your picks.
-      2. Next, honor budget constraints ("Prefer upscale," etc.).
-      3. Then consider ambiance ("Rooftop," "Cozy," etc.)—but only after dietary & budget are satisfied.
-      4. Only include restaurants located *within* #{radius} mile#{ radius == 1 ? "" : "s" } of "#{activity_location}".#{'  '}
+      2. If MULTIPLE cuisines are listed (e.g., "Italian, Japanese, Mexican"), provide VARIETY across ALL mentioned cuisines - don't just pick 5 from one cuisine type.
+      3. Next, honor budget constraints ("Prefer upscale," etc.).
+      4. Then consider ambiance ("Rooftop," "Cozy," etc.)—but only after dietary & budget are satisfied.
+      5. Only include restaurants located *within* #{radius} mile#{ radius == 1 ? "" : "s" } of "#{activity_location}".#{'  '}
         Do NOT list any restaurant that you know (or strongly suspect) is outside that boundary.
-      5. Keep the tone warm and human — avoid calling people "users" or referencing individual budgets.
-      6. Avoid large chains or obvious tourist spots—seek out hole-in-the-wall or buzz-worthy places.
+      6. Keep the tone warm and human — avoid calling people "users" or referencing individual budgets.
+      7. Avoid large chains or obvious tourist spots—seek out hole-in-the-wall or buzz-worthy places.
 
       Return exactly **5** restaurants that match these criteria. Output must be valid JSON (no extra commentary, no markdown fences) in this structure:
 
@@ -518,21 +519,22 @@ class OpenaiController < ApplicationController
     # Step 1: Get real venues from Google Places
     radius_meters = smart_radius * 1609  # Convert miles to meters
 
-    # Search with cuisine keyword if available
-    search_keyword = cuisine_keywords.present? ? "#{cuisine_keywords.first} restaurant" : nil
-    venues = GooglePlacesService.nearby_search(activity_location, "restaurant", radius_meters, 3.5, search_keyword)
+    # Don't filter by cuisine in Google Places - let OpenAI handle ALL preferences
+    # This ensures we get diverse results that match ALL selected cuisines
+    venues = GooglePlacesService.nearby_search(activity_location, "restaurant", radius_meters, 3.5, nil)
 
     if venues.empty?
       return fetch_restaurant_recommendations_from_openai(responses, activity_location, date_notes, radius)
     end
 
     # Step 2: Get additional details for top venues (limit to avoid too many API calls)
-    detailed_venues = venues.first(20).map do |venue|
+    # Increase to 30 venues to ensure diversity for multi-cuisine preferences
+    detailed_venues = venues.first(30).map do |venue|
       details = GooglePlacesService.get_detailed_venue_info(venue[:place_id])
       if details
         {
           name: details[:name],
-          address: details[:address],
+          address: details[:address],  # This will always be formatted_address from details API
           rating: details[:rating],
           price_level: GooglePlacesService.convert_price_level_to_string(details[:price_level]),
           website: details[:website],
@@ -541,9 +543,12 @@ class OpenaiController < ApplicationController
           user_ratings_total: details[:user_ratings_total]
         }
       else
+        # Fallback: If details API fails, still try to get full address
+        # Never use vicinity alone as it only contains "City, State"
+        fallback_details = GooglePlacesService.get_detailed_venue_info(venue[:place_id]) rescue nil
         {
           name: venue[:name],
-          address: venue[:address],
+          address: fallback_details&.dig(:address) || venue[:address] || "Address not available",
           rating: venue[:rating],
           price_level: GooglePlacesService.convert_price_level_to_string(venue[:price_level]),
           website: nil,
@@ -574,21 +579,21 @@ class OpenaiController < ApplicationController
     # Step 1: Get real venues from Google Places
     radius_meters = smart_radius * 1609  # Convert miles to meters
 
-    # Search with bar keyword if available
-    search_keyword = bar_keywords.present? ? "#{bar_keywords.first} bar" : nil
-    venues = GooglePlacesService.nearby_search(activity_location, "bar", radius_meters, 3.5, search_keyword)
+    # Don't filter by specific bar type - let OpenAI handle ALL preferences
+    venues = GooglePlacesService.nearby_search(activity_location, "bar", radius_meters, 3.5, nil)
 
     if venues.empty?
       return fetch_bar_recommendations_from_openai(responses, activity_location, date_notes, radius)
     end
 
     # Step 2: Get additional details for top venues
-    detailed_venues = venues.first(20).map do |venue|
+    # Increase to 30 venues to ensure diversity
+    detailed_venues = venues.first(30).map do |venue|
       details = GooglePlacesService.get_detailed_venue_info(venue[:place_id])
       if details
         {
           name: details[:name],
-          address: details[:address],
+          address: details[:address],  # This will always be formatted_address from details API
           rating: details[:rating],
           price_level: GooglePlacesService.convert_price_level_to_string(details[:price_level]),
           website: details[:website],
@@ -597,9 +602,11 @@ class OpenaiController < ApplicationController
           user_ratings_total: details[:user_ratings_total]
         }
       else
+        # Fallback: If details API fails, still try to get full address
+        fallback_details = GooglePlacesService.get_detailed_venue_info(venue[:place_id]) rescue nil
         {
           name: venue[:name],
-          address: venue[:address],
+          address: fallback_details&.dig(:address) || venue[:address] || "Address not available",
           rating: venue[:rating],
           price_level: GooglePlacesService.convert_price_level_to_string(venue[:price_level]),
           website: nil,
@@ -658,13 +665,16 @@ class OpenaiController < ApplicationController
 
       YOUR TASK:
       1. Select the 5 BEST restaurants from this list that match the user's preferences
-      2. Rank them from best to worst match
-      3. Generate keyword tags that explain the match
+      2. IMPORTANT: If multiple cuisines are mentioned (e.g., "French, American, Thai"), ensure your 5 selections include variety across ALL mentioned cuisines, not just one
+      3. Rank them by how well they match ALL stated preferences
+      4. Generate keyword tags that explain the match
 
-      IMPORTANT:
+      CRITICAL REQUIREMENTS:
       - You MUST only select from the restaurants listed above
       - Use the EXACT names and addresses as provided
+      - If user selected multiple cuisines, provide variety (don't pick 5 of the same cuisine)
       - Prioritize dietary restrictions/preferences first
+      - Consider ALL cuisine preferences equally (not just the first one mentioned)
       - Consider price preferences second
       - Factor in ratings and review counts
       - Generate concise keyword tags that capture why each venue matches
