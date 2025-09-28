@@ -11,6 +11,7 @@ cp -a client/build/. public/
 bundle install
 
 # Precompile assets for production
-bundle exec rails assets:precompile
+# Skip loading the environment to avoid REDIS_URL dependency during build
+bundle exec rails assets:precompile RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1
 
 bundle exec rails db:migrate
