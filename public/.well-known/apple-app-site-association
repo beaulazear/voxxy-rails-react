@@ -1,0 +1,14 @@
+{
+  "webcredentials": {
+    "apps": ["FX99WPY6FG.com.beaulazear.voxxymobile"]
+  },
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "FX99WPY6FG.com.beaulazear.voxxymobile",
+        "paths": ["*"]
+      }
+    ]
+  }
+}
