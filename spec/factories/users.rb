@@ -46,5 +46,12 @@ FactoryBot.define do
       reset_password_token { SecureRandom.hex(10) }
       reset_password_sent_at { 1.hour.ago }
     end
+
+    # Helper method to generate JWT token for testing
+    after(:build) do |user|
+      user.define_singleton_method :authentication_token do
+        JsonWebToken.encode(user_id: user.id)
+      end
+    end
   end
 end

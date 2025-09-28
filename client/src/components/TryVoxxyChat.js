@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { X } from 'lucide-react';
 import LoadingScreenUser from '../admincomponents/LoadingScreenUser';
-import mixpanel from 'mixpanel-browser';
 
 const Overlay = styled.div`
   position: fixed;
@@ -331,7 +330,18 @@ function TryVoxxyChat({ onClose, onChatComplete }) {
     const token = getOrCreateSessionToken();
 
     if (process.env.NODE_ENV === 'production') {
-      mixpanel.track('Try Voxxy Chat Complete');
+      fetch('/analytics/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: JSON.stringify({
+          event: 'Try Voxxy Chat Complete',
+          properties: {}
+        }),
+        credentials: 'include'
+      }).catch(err => console.error('Analytics tracking failed:', err));
     }
 
     try {

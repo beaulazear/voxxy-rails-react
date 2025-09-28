@@ -1,7 +1,6 @@
 // CocktailsChat.js
 import React, { useState, useContext } from 'react';
 import { UserContext } from '../context/user';
-import mixpanel from 'mixpanel-browser';
 import { MapPin, Users, Calendar, Clock, MessageSquare, Edit3 } from 'lucide-react';
 
 import {
@@ -213,7 +212,18 @@ export default function CocktailsChat({ onClose }) {
       if (!res.ok) throw new Error('Save failed');
       const data = await res.json();
 
-      mixpanel.track('Cocktails Chat Completed', { user: user.id });
+      fetch('/analytics/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: JSON.stringify({
+          event: 'Cocktails Chat Completed',
+          properties: { user: user.id }
+        }),
+        credentials: 'include'
+      }).catch(err => console.error('Analytics tracking failed:', err));
 
       setUser((prev) => ({
         ...prev,

@@ -1,7 +1,6 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { UserContext } from '../context/user';
-import mixpanel from 'mixpanel-browser';
 import { Gamepad2, Calendar, Send, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
     Overlay,
@@ -173,13 +172,24 @@ ${gamePreferences ? `Game Preferences: ${gamePreferences}` : ''}
 ${ownedGames ? `Games I Could Bring: ${ownedGames}` : ''}`.trim();
 
         if (process.env.NODE_ENV === 'production' && !guestMode) {
-            mixpanel.track('Game Night Preferences Submitted', {
-                user: user.id,
-                activityId: activityId,
-                gameTypes: gameTypes,
-                vibe: vibe,
-                skillLevel: skillLevel
-            });
+            fetch('/analytics/track', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: JSON.stringify({
+                    event: 'Game Night Preferences Submitted',
+                    properties: {
+                        user: user.id,
+                        activityId: activityId,
+                        gameTypes: gameTypes,
+                        vibe: vibe,
+                        skillLevel: skillLevel
+                    }
+                }),
+                credentials: 'include'
+            }).catch(err => console.error('Analytics tracking failed:', err));
         }
 
         try {

@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  namespace :analytics do
+    post :track
+    post :identify
+    post :page_view
+  end
   resources :responses, only: [ :index, :create, :destroy ]
   resources :users, only: [ :create, :destroy, :update ]
   resources :activities, only: [ :create, :destroy, :update, :index, :show ] do

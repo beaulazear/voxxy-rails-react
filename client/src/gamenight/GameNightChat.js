@@ -1,6 +1,5 @@
 import React, { useState, useContext } from 'react';
 import { UserContext } from '../context/user';
-import mixpanel from 'mixpanel-browser';
 import { Users, Calendar, Clock, MessageSquare, Edit3, Home } from 'lucide-react';
 import {
     Overlay,
@@ -171,9 +170,19 @@ function GameNightChat({ onClose }) {
             if (!res.ok) throw new Error('Save failed');
             const data = await res.json();
 
-            if (process.env.NODE_ENV === 'production') {
-                mixpanel.track('Game Night Chat Completed', { user: user.id });
-            }
+            // Track game night chat completion
+            fetch('/analytics/track', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: JSON.stringify({
+                    event: 'Game Night Chat Completed',
+                    properties: { user: user.id }
+                }),
+                credentials: 'include'
+            }).catch(err => console.error('Analytics tracking failed:', err));
 
             setUser((prev) => ({
                 ...prev,

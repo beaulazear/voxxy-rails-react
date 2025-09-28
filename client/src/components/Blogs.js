@@ -3,7 +3,6 @@ import WaitlistForm from "./WaitlistForm";
 import Footer from "./Footer";
 import styled, { keyframes } from "styled-components";
 import colors from "../styles/Colors";
-import mixpanel from 'mixpanel-browser';
 
 const fadeIn = keyframes`
   from {
@@ -148,7 +147,15 @@ export default function Blogs() {
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     if (process.env.NODE_ENV === 'production') {
-      mixpanel.track('Voxxy Presents Page Loaded');
+      fetch('/analytics/page_view', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: JSON.stringify({ page: 'Voxxy Presents Page' }),
+        credentials: 'include'
+      }).catch(err => console.error('Analytics tracking failed:', err));
     }
     
   }, []);

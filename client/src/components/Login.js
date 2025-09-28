@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { UserContext } from '../context/user';
 import styled from 'styled-components';
-import mixpanel from 'mixpanel-browser';
 import colors from "../styles/Colors";
 import { Heading1, MutedText } from '../styles/Typography';
 import { Sparkles } from 'lucide-react';
@@ -292,19 +291,15 @@ const Login = () => {
 
       setUser(data);
 
-      if (process.env.NODE_ENV === 'production') {
-        mixpanel.identify(data.id);
-        mixpanel.people.set({
-          '$name': data.name,
-          '$email': data.email,
-          '$created': data.created_at,
-          'confirmed_at': data.confirmed_at,
-        });
-        mixpanel.track('User Logged In', {
-          user_id: data.id,
-          email: data.email,
-        });
-      }
+      // Track user login in backend
+      fetch('/analytics/identify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ track_login: true }),
+        credentials: 'include'
+      }).catch(err => console.error('Analytics tracking failed:', err));
 
       const qs = location.search;
 

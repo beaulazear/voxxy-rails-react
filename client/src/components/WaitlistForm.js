@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Heading1, MutedText } from '../styles/Typography';
-import mixpanel from 'mixpanel-browser';
 import colors from '../styles/Colors';
 
 const SmallHeading = styled.h3`
@@ -188,7 +187,18 @@ export default function WaitlistForm() {
       }
 
       if (process.env.NODE_ENV === 'production') {
-        mixpanel.track('Waitlist Form Submitted');
+        fetch('/analytics/track', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+          },
+          body: JSON.stringify({
+            event: 'Waitlist Form Submitted',
+            properties: {}
+          }),
+          credentials: 'include'
+        }).catch(err => console.error('Analytics tracking failed:', err));
       }
 
       setEmail('');

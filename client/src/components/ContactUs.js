@@ -3,7 +3,6 @@ import styled, { createGlobalStyle, css, keyframes } from 'styled-components';
 import { Mail, Star, Bug } from 'lucide-react';
 import { Heading1, MutedText } from '../styles/Typography';
 import Footer from './Footer';
-import mixpanel from 'mixpanel-browser';
 import colors from '../styles/Colors';
 
 const AutofillStyles = createGlobalStyle`
@@ -502,7 +501,15 @@ export default function ContactUs() {
         setShowContent(true);
 
         if (process.env.NODE_ENV === 'production') {
-            mixpanel.track('Contact Us Page Loaded');
+            fetch('/analytics/page_view', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: JSON.stringify({ page: 'Contact Us Page' }),
+                credentials: 'include'
+            }).catch(err => console.error('Analytics tracking failed:', err));
         }
     }, []);
 

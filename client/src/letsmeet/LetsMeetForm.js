@@ -2,7 +2,6 @@
 import React, { useState, useContext } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { UserContext } from '../context/user';
-import mixpanel from 'mixpanel-browser';
 import { Calendar, MessageSquare, Edit3, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 const fadeIn = keyframes`
@@ -632,7 +631,18 @@ export default function LetsMeetFormModal({ onClose }) {
       });
       if (!res.ok) throw new Error('Failed to save');
       const data = await res.json();
-      mixpanel.track('Lets Meet Form Completed', { user: user.id });
+      fetch('/analytics/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: JSON.stringify({
+          event: 'Lets Meet Form Completed',
+          properties: { user: user.id }
+        }),
+        credentials: 'include'
+      }).catch(err => console.error('Analytics tracking failed:', err));
       setUser(prev => ({
         ...prev,
         activities: [...(prev.activities || []), { ...data, user: prev, responses: [] }]

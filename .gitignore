@@ -33,3 +33,16 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+# Test outputs
+rspec_*.json
+test_results.json
+test_output.txt
+
+# Test scripts
+test_*.sh
+
+# OS files
+.DS_Store
+*~
+*.bak

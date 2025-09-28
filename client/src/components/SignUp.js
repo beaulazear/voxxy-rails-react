@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import colors from "../styles/Colors";
 import { Heading1, MutedText } from '../styles/Typography';
 import { Sparkles } from 'lucide-react';
-import mixpanel from 'mixpanel-browser';
 
 const SectionContainer = styled.section`
   min-width: 350px;
@@ -261,9 +260,16 @@ const SignUp = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    if (process.env.NODE_ENV === 'production') {
-      mixpanel.track('Signup Page Loaded');
-    }
+    // Track signup page load
+    fetch('/analytics/page_view', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+      },
+      body: JSON.stringify({ page: 'Signup' }),
+      credentials: 'include'
+    }).catch(err => console.error('Analytics tracking failed:', err));
   }, []);
 
   const handleSubmit = async (e) => {
@@ -292,11 +298,19 @@ const SignUp = () => {
       const data = await response.json();
 
       if (response.ok) {
-        if (process.env.NODE_ENV === 'production') {
-          mixpanel.track('Signup form completed, account created', {
-            userId: data.id,
-          });
-        }
+        // Track signup completion
+        fetch('/analytics/track', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+          },
+          body: JSON.stringify({
+            event: 'Signup form completed, account created',
+            properties: { userId: data.id }
+          }),
+          credentials: 'include'
+        }).catch(err => console.error('Analytics tracking failed:', err));
 
         setUser({
           id: data.id,

@@ -3,7 +3,6 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { format, parse, parseISO } from "date-fns";
 import styled, { keyframes } from "styled-components";
-import mixpanel from "mixpanel-browser";
 import { UserContext } from "../context/user";
 import { Calendar, Clock, X, CheckCircle2, Users } from 'lucide-react';
 
@@ -421,7 +420,18 @@ export default function LetsMeetScheduler({
     const handleSubmit = async () => {
         // Only track for logged-in users
         if (!guestMode && process.env.NODE_ENV === "production" && user?.name) {
-            mixpanel.track("Voxxy Chat 2 Completed", { name: user.name });
+            fetch('/analytics/track', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: JSON.stringify({
+                    event: 'Voxxy Chat 2 Completed',
+                    properties: { name: user.name }
+                }),
+                credentials: 'include'
+            }).catch(err => console.error('Analytics tracking failed:', err));
         }
 
         const availability = slotsByDate;

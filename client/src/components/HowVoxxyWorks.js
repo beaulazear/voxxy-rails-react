@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { Calendar, UtensilsCrossed, Users, Star, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import mixpanel from 'mixpanel-browser';
 import colors from '../styles/Colors'; // ✅ centralized color palette
 import { Heading1, MutedText } from '../styles/Typography'; // ✅ optional if you want to use Heading components
 
@@ -143,9 +142,20 @@ export default function PerfectForAnyGroupActivity() {
 
   const handleTrackAndNavigate = (featureName) => {
     if (process.env.NODE_ENV === 'production') {
-      mixpanel.track('Feature Link Clicked', {
-        feature: featureName,
-      });
+      fetch('/analytics/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: JSON.stringify({
+          event: 'Feature Link Clicked',
+          properties: {
+            feature: featureName
+          }
+        }),
+        credentials: 'include'
+      }).catch(err => console.error('Analytics tracking failed:', err));
     }
     const slug = featureName.toLowerCase().replace(/\s+/g, '-');
     navigate(`/learn-more#${slug}`);

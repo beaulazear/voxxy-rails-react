@@ -5,7 +5,6 @@ import CuisineChat from "./CuisineChat";
 import BarChat from "../cocktails//BarChat";
 import GameNightPreferenceChat from "../gamenight/GameNightPreferenceChat"; // Add this import
 import LoadingScreenUser from "./LoadingScreenUser.js";
-import mixpanel from "mixpanel-browser";
 import { UserContext } from "../context/user";
 import { Users, Share, HelpCircle, CheckCircle, Clock, Vote, BookHeart, Flag, X, ExternalLink, MapPin, DollarSign, Globe, Zap, Calendar, Star, Heart, ChevronRight } from 'lucide-react';
 
@@ -807,7 +806,18 @@ export default function AIRecommendations({
       let trackingEvent = "Chat with Voxxy Clicked";
       if (isCocktailsActivity) trackingEvent = "Bar Chat with Voxxy Clicked";
       if (isGameNightActivity) trackingEvent = "Game Night Chat with Voxxy Clicked";
-      mixpanel.track(trackingEvent, { activity: id });
+      fetch('/analytics/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: JSON.stringify({
+          event: trackingEvent,
+          properties: { activity: id }
+        }),
+        credentials: 'include'
+      }).catch(err => console.error('Analytics tracking failed:', err));
     }
     setShowChat(true);
   };
@@ -959,7 +969,18 @@ export default function AIRecommendations({
     if (!user) return;
 
     if (process.env.NODE_ENV === "production") {
-      mixpanel.track("Pinned Activity Voted On", { user: user.id });
+      fetch('/analytics/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: JSON.stringify({
+          event: 'Pinned Activity Voted On',
+          properties: { user: user.id }
+        }),
+        credentials: 'include'
+      }).catch(err => console.error('Analytics tracking failed:', err));
     }
     
     const hasLiked = (pin.voters || []).some(v => v.id === user.id);

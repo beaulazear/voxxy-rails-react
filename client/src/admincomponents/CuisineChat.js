@@ -2,7 +2,6 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { UserContext } from '../context/user';
-import mixpanel from 'mixpanel-browser';
 import { Utensils, MapPin, DollarSign, Heart, Plus, Calendar, Clock, Users } from 'lucide-react';
 import {
   Overlay,
@@ -411,9 +410,20 @@ export default function CuisineChat({
     ].join('\n\n');
 
     if (process.env.NODE_ENV === 'production' && !guestMode) {
-      mixpanel.track('Voxxy Chat Custom Completed', {
-        name: user.name,
-      });
+      fetch('/analytics/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: JSON.stringify({
+          event: 'Voxxy Chat Custom Completed',
+          properties: {
+            name: user.name,
+          }
+        }),
+        credentials: 'include'
+      }).catch(err => console.error('Analytics tracking failed:', err));
     }
 
     try {

@@ -11,7 +11,6 @@ import { Users, Plus, CalendarDays, Clock, HelpCircle, X, Eye, CheckCircle, XCir
 import { message, Popconfirm } from "antd";
 import Woman from "../assets/Woman.jpg";
 import MultiSelectCommunity from "./MultiSelectCommunity.js";
-import mixpanel from "mixpanel-browser";
 import UpdateDetailsModal from "./UpdateDetailsModal.js";
 import FinalPlansModal from './FinalPlansModal.js';
 import SmallTriangle from "../assets/SmallTriangle.png";
@@ -247,7 +246,18 @@ const ActivityHeader = ({ activity, votes = [], isOwner, onLeave, onBack, onDele
     emails.forEach((email) => {
       onInvite(email);
       if (process.env.NODE_ENV === "production") {
-        mixpanel.track("Participant Invited", { user: user.id, email });
+        fetch('/analytics/track', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+          },
+          body: JSON.stringify({
+            event: 'Participant Invited',
+            properties: { user: user.id, email }
+          }),
+          credentials: 'include'
+        }).catch(err => console.error('Analytics tracking failed:', err));
       }
     });
 

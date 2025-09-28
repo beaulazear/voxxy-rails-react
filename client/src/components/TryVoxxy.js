@@ -5,7 +5,6 @@ import { ArrowRight, Calendar, X } from 'lucide-react';
 import Footer from './Footer';
 import colors from '../styles/Colors';
 import TryVoxxyChat from './TryVoxxyChat';
-import mixpanel from 'mixpanel-browser';
 import RestaurantMap from "../admincomponents/RestaurantMap";
 
 const fadeIn = keyframes`
@@ -326,7 +325,18 @@ export default function TryVoxxy() {
 
   const openChat = () => {
     if (process.env.NODE_ENV === 'production') {
-      mixpanel.track('Try Voxxy Clicked');
+      fetch('/analytics/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: JSON.stringify({
+          event: 'Try Voxxy Clicked',
+          properties: {}
+        }),
+        credentials: 'include'
+      }).catch(err => console.error('Analytics tracking failed:', err));
     }
     setChatOpen(true);
   }
