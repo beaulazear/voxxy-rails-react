@@ -5,7 +5,7 @@ require "cgi"
 
 class GooglePlacesService
   def self.api_key
-    @api_key ||= ENV["PLACES_KEY"]
+    @api_key ||= ENV.fetch("PLACES_KEY")
   end
 
   # Class-level cache for place details (shared across requests)

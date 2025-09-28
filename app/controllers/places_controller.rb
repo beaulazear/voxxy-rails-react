@@ -22,7 +22,7 @@ class PlacesController < ApplicationController
     end
 
     # Check if Google Places API key is configured
-    api_key = ENV["PLACES_KEY"]
+    api_key = ENV.fetch("PLACES_KEY")
     if api_key.blank?
       Rails.logger.error "Google Places API key not configured"
       return render json: { error: "Service temporarily unavailable" }, status: :service_unavailable
@@ -90,7 +90,7 @@ class PlacesController < ApplicationController
   private
 
   def google_places_search(query, types = "(cities)")
-    api_key = ENV["PLACES_KEY"]
+    api_key = ENV.fetch("PLACES_KEY")
     return [] if api_key.blank?
 
     uri = URI("https://maps.googleapis.com/maps/api/place/autocomplete/json")
@@ -130,7 +130,7 @@ class PlacesController < ApplicationController
   end
 
   def google_places_details(place_id, fields = "geometry,address_components,formatted_address")
-    api_key = ENV["PLACES_KEY"]
+    api_key = ENV.fetch("PLACES_KEY")
     return nil if api_key.blank?
 
     uri = URI("https://maps.googleapis.com/maps/api/place/details/json")

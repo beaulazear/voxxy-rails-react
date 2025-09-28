@@ -230,7 +230,9 @@ class OpenaiController < ApplicationController
   private
 
   def ensure_api_keys_configured
-    if ENV["OPENAI_API_KEY"].blank?
+    begin
+      ENV.fetch("OPENAI_API_KEY")
+    rescue KeyError
       render json: {
         error: "Service temporarily unavailable. OpenAI API key not configured.",
         should_retry: false
@@ -238,7 +240,9 @@ class OpenaiController < ApplicationController
       return false
     end
 
-    if ENV["PLACES_KEY"].blank?
+    begin
+      ENV.fetch("PLACES_KEY")
+    rescue KeyError
       render json: {
         error: "Service temporarily unavailable. Google Places API key not configured.",
         should_retry: false
@@ -251,7 +255,7 @@ class OpenaiController < ApplicationController
 
   def fetch_restaurant_recommendations_from_openai(responses, activity_location, date_notes, radius)
     # Check for API key
-    api_key = ENV["OPENAI_API_KEY"]
+    api_key = ENV.fetch("OPENAI_API_KEY")
     if api_key.blank?
       Rails.logger.error("OPENAI_API_KEY environment variable is missing!") if Rails.env.development?
       return nil
@@ -347,7 +351,7 @@ class OpenaiController < ApplicationController
   end
 
   def fetch_bar_recommendations_from_openai(responses, activity_location, date_notes, radius)
-    client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
+    client = OpenAI::Client.new(access_token: ENV.fetch("OPENAI_API_KEY"))
 
     notes_text = if responses.is_a?(Array)
       responses
@@ -420,7 +424,7 @@ class OpenaiController < ApplicationController
   end
 
   def fetch_game_recommendations_from_openai(responses, activity_location, date_notes)
-    client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
+    client = OpenAI::Client.new(access_token: ENV.fetch("OPENAI_API_KEY"))
 
     notes_text = if responses.is_a?(Array)
       responses
@@ -628,7 +632,7 @@ class OpenaiController < ApplicationController
   end
 
   def personalize_venues_with_openai(venues, responses, activity_location, date_notes)
-    api_key = ENV["OPENAI_API_KEY"]
+    api_key = ENV.fetch("OPENAI_API_KEY")
     if api_key.blank?
       Rails.logger.error("OPENAI_API_KEY environment variable is missing!") if Rails.env.development?
       return nil
@@ -740,7 +744,7 @@ class OpenaiController < ApplicationController
   end
 
   def personalize_bars_with_openai(venues, responses, activity_location, date_notes)
-    api_key = ENV["OPENAI_API_KEY"]
+    api_key = ENV.fetch("OPENAI_API_KEY")
     if api_key.blank?
       Rails.logger.error("OPENAI_API_KEY environment variable is missing!") if Rails.env.development?
       return nil

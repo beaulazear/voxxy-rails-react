@@ -77,7 +77,7 @@ Rails.application.configure do
   # want to log everything, set the level to "debug".
   config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
 
-  config.cache_store = :redis_cache_store, { url: ENV["REDIS_URL"] }
+  config.cache_store = :redis_cache_store, { url: ENV.fetch("REDIS_URL") }
 
   # Use a real queuing backend for Active Job (and separate queues per environment).
   # config.active_job.queue_adapter = :resque
@@ -91,7 +91,7 @@ Rails.application.configure do
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
     user_name: "apikey", # Use 'apikey' as the username
-    password: ENV["VoxxyKeyAPI"], # Use your environment variable
+    password: ENV.fetch("VoxxyKeyAPI"), # Use your environment variable
     domain: ENV.fetch("PRIMARY_DOMAIN", "voxxyai.com"), # Your verified domain
     address: "smtp.sendgrid.net",
     port: 587,

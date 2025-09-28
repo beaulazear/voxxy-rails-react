@@ -5,7 +5,7 @@ include SendGrid
 class PasswordResetService < BaseEmailService
   def self.send_reset_email(user)
     # Always send password reset emails regardless of email preferences (security-critical)
-    Rails.logger.info "Attempting to send password reset email with API key: #{ENV['VoxxyKeyAPI']&.slice(0, 4)}..."
+    Rails.logger.info "Attempting to send password reset email with API key: #{ENV.fetch('VoxxyKeyAPI')&.slice(0, 4)}..."
     Rails.logger.info "To: #{user.email}, From: team@voxxyai.com"
 
     from = SendGrid::Email.new(email: "team@voxxyai.com", name: "Voxxy Team")
@@ -63,7 +63,7 @@ class PasswordResetService < BaseEmailService
     mail.add_personalization(personalization)
     mail.add_content(content)
 
-    sg = SendGrid::API.new(api_key: ENV["VoxxyKeyAPI"])
+    sg = SendGrid::API.new(api_key: ENV.fetch("VoxxyKeyAPI"))
     response = sg.client.mail._("send").post(request_body: mail.to_json)
 
     Rails.logger.info "✅ Sent password reset email to #{user.email}: #{response.status_code}"

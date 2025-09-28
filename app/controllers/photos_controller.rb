@@ -35,7 +35,7 @@ class PhotosController < ApplicationController
     begin
       # Make request to Google Places API with our server-side key
       google_url = "https://maps.googleapis.com/maps/api/place/photo?" \
-                  "maxwidth=#{max_width}&photo_reference=#{photo_reference}&key=#{ENV['PLACES_KEY']}"
+                  "maxwidth=#{max_width}&photo_reference=#{photo_reference}&key=#{ENV.fetch('PLACES_KEY')}"
 
       uri = URI(google_url)
 

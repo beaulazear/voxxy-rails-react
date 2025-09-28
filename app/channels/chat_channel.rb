@@ -18,7 +18,7 @@ class ChatChannel < ApplicationCable::Channel
 
   def chat_with_gpt(message)
     # Use your GPT API key securely
-    api_key = ENV["OPENAI_API_KEY"]
+    api_key = ENV.fetch("OPENAI_API_KEY")
     response = HTTParty.post(
       "https://api.openai.com/v1/chat/completions",
       headers: {

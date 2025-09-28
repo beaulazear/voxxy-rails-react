@@ -157,7 +157,7 @@ class TimeSlotsController < ApplicationController
   end
 
   def fetch_time_slot_recommendations_from_openai(responses, activity_location, date_notes)
-    client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
+    client = OpenAI::Client.new(access_token: ENV.fetch("OPENAI_API_KEY"))
 
     # Process availability data for AI
     availability_summary = process_availability_for_ai(responses)

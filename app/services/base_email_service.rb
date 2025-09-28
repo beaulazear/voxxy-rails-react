@@ -67,7 +67,7 @@ class BaseEmailService
       mail.add_header(SendGrid::Header.new(key: key, value: value))
     end
 
-    sg = SendGrid::API.new(api_key: ENV["VoxxyKeyAPI"])
+    sg = SendGrid::API.new(api_key: ENV.fetch("VoxxyKeyAPI"))
     response = sg.client.mail._("send").post(request_body: mail.to_json)
 
     Rails.logger.info "Email sent to #{to_email}: #{response.status_code}"

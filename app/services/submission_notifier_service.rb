@@ -7,7 +7,7 @@ class SubmissionNotifierService
   TO_EMAIL   = SendGrid::Email.new(email: "team@voxxyai.com")
 
   def self.notify(type, submission)
-    sg = SendGrid::API.new(api_key: ENV["VoxxyKeyAPI"])
+    sg = SendGrid::API.new(api_key: ENV.fetch("VoxxyKeyAPI"))
 
     subject = "New #{type.to_s.humanize} Submission Received"
     body_html = build_html_body(type.to_s.humanize, submission)

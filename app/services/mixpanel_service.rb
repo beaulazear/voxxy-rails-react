@@ -3,7 +3,7 @@ require "mixpanel-ruby"
 class MixpanelService
   def initialize
     @tracker = if Rails.env.production?
-      token = ENV['MIXPANEL_TOKEN']
+      token = ENV["MIXPANEL_TOKEN"]
       if token.present?
         Mixpanel::Tracker.new(token)
       else
