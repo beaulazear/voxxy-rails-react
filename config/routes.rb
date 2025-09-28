@@ -153,6 +153,13 @@ Rails.application.routes.draw do
 
   get "/test", to: "application#test"
 
+  # Development-only routes for testing
+  if Rails.env.development?
+    namespace :development do
+      delete "/reset_policies", to: "development#reset_policies"
+    end
+  end
+
   get "up" => "rails/health#show", as: :rails_health_check
 
   mount ActionCable.server => "/cable"
