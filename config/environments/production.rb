@@ -82,7 +82,8 @@ Rails.application.configure do
     config.cache_store = :redis_cache_store, { url: ENV["REDIS_URL"] }
   else
     config.cache_store = :memory_store
-    Rails.logger.warn "REDIS_URL not set, using memory store for caching (not recommended for production)"
+    # Logger isn't available during asset precompilation, so we'll just use puts
+    puts "WARNING: REDIS_URL not set, using memory store for caching (not recommended for production)"
   end
 
   # Use a real queuing backend for Active Job (and separate queues per environment).
