@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_05_032613) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_02_134127) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -302,6 +302,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_05_032613) do
     t.string "privacy_policy_version"
     t.datetime "community_guidelines_accepted_at"
     t.string "community_guidelines_version"
+    t.string "favorite_food"
     t.index ["banned_at"], name: "index_users_on_banned_at"
     t.index ["city"], name: "index_users_on_city"
     t.index ["community_guidelines_accepted_at"], name: "index_users_on_community_guidelines_accepted_at"
