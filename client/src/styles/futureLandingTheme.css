@@ -1,0 +1,509 @@
+/* Voxxy Futurist Landing Theme Proposal
+   --------------------------------------------------
+   Inspired by neon gradients + glass surfaces in the latest mobile visuals.
+   Use as a design sandbox while final copy and imagery are in flight.
+*/
+
+:root {
+  /* Core palette */
+  --color-space-900: #090314;
+  --color-space-850: #120925;
+  --color-space-800: #191032;
+  --color-space-700: #221845;
+
+  --color-plasma-500: #b14dff;
+  --color-plasma-400: #cb67ff;
+  --color-plasma-300: #e585ff;
+
+  --color-fuchsia-500: #f136cd;
+  --color-fuchsia-400: #ff57d0;
+  --color-cyan-400: #4ed6ff;
+  --color-cyan-300: #6fe9ff;
+
+  --color-lilac-200: #d4c5ff;
+  --color-lilac-100: #efeafd;
+
+  --color-slate-200: #bfc2d6;
+  --color-slate-100: #e0e5f7;
+
+  --color-success-400: #47f9c0;
+  --color-warning-400: #ffc76b;
+  --color-danger-400: #ff6b9b;
+
+  --color-text-primary: rgba(255, 255, 255, 0.95);
+  --color-text-secondary: rgba(214, 219, 255, 0.72);
+  --color-text-muted: rgba(214, 219, 255, 0.55);
+
+  /* Gradients */
+  --gradient-orbit: linear-gradient(135deg, #3f00ff 0%, #ff4fd8 45%, #ff9a3c 100%);
+  --gradient-aurora: radial-gradient(circle at 18% 18%, rgba(111, 82, 255, 0.5), transparent 55%),
+                     radial-gradient(circle at 80% 30%, rgba(255, 77, 214, 0.35), transparent 60%),
+                     radial-gradient(circle at 50% 80%, rgba(76, 235, 255, 0.35), transparent 60%);
+  --gradient-glass: linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(135, 104, 255, 0.12));
+  --gradient-panel: linear-gradient(140deg, rgba(24, 15, 43, 0.88), rgba(52, 27, 83, 0.8));
+
+  /* Shadows & blurs */
+  --shadow-soft: 0 18px 45px rgba(18, 8, 38, 0.45);
+  --shadow-glow: 0 0 25px rgba(184, 92, 255, 0.55);
+  --shadow-card: 0 24px 60px rgba(10, 4, 26, 0.55);
+  --blur-background: blur(24px);
+
+  /* Typography */
+  --font-display: 'Montserrat', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Inter', 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+  --letter-ultra-wide: 0.22em;
+}
+
+body.voxxy-future {
+  background: var(--color-space-900);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  min-height: 100vh;
+}
+
+/* Star-field utility (use as ::before overlay at page or section level) */
+.voxxy-starfield {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.voxxy-starfield::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 20px 20px, rgba(255, 255, 255, 0.32) 0, transparent 60%),
+    radial-gradient(1px 1px at 60px 80px, rgba(255, 255, 255, 0.16) 0, transparent 60%),
+    radial-gradient(1px 1px at 140px 40px, rgba(255, 255, 255, 0.22) 0, transparent 60%),
+    radial-gradient(1px 1px at 220px 160px, rgba(255, 255, 255, 0.14) 0, transparent 60%);
+  background-size: 240px 240px;
+  opacity: 0.55;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Aurora gradient background panels */
+.voxxy-aurora {
+  background: var(--color-space-900);
+  position: relative;
+}
+
+.voxxy-aurora::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-aurora);
+  filter: blur(80px);
+  opacity: 0.85;
+  z-index: -2;
+}
+
+/* Glass surfaces */
+.voxxy-surface {
+  background: var(--gradient-glass);
+  border: 1px solid rgba(200, 180, 255, 0.2);
+  border-radius: 24px;
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  color: var(--color-text-primary);
+}
+
+.voxxy-surface--compact {
+  padding: 1.5rem;
+}
+
+.voxxy-surface--spacious {
+  padding: clamp(2rem, 4vw, 3rem);
+}
+
+/* Typography system */
+.voxxy-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: var(--letter-ultra-wide);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.voxxy-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--color-text-primary);
+}
+
+.voxxy-title--xxl {
+  font-size: clamp(2.75rem, 8vw, 4.5rem);
+}
+
+.voxxy-title--xl {
+  font-size: clamp(2rem, 6vw, 3.25rem);
+}
+
+.voxxy-title--glow {
+  text-shadow: 0 5px 45px rgba(121, 71, 255, 0.45);
+}
+
+.voxxy-subtitle {
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  max-width: 60ch;
+}
+
+/* Buttons */
+.voxxy-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.95rem 1.75rem;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background-position 0.4s ease;
+}
+
+.voxxy-btn--primary {
+  background-image: linear-gradient(120deg, #6a36ff 0%, #ff36d5 52%, #ff9d3f 100%);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-glow);
+}
+
+.voxxy-btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(146, 77, 255, 0.55);
+}
+
+.voxxy-btn--primary:active {
+  transform: translateY(0);
+}
+
+.voxxy-btn--outline {
+  background: transparent;
+  border: 1px solid rgba(203, 103, 255, 0.6);
+  color: var(--color-plasma-300);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+}
+
+.voxxy-btn--outline:hover {
+  background: rgba(203, 103, 255, 0.12);
+  box-shadow: 0 8px 24px rgba(86, 51, 139, 0.45);
+}
+
+.voxxy-btn--chip {
+  padding: 0.5rem 1.2rem;
+  font-size: 0.9rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(200, 180, 255, 0.16);
+  color: var(--color-text-secondary);
+}
+
+.voxxy-btn--chip-active {
+  background: linear-gradient(135deg, rgba(255, 82, 203, 0.25), rgba(110, 83, 255, 0.4));
+  color: var(--color-text-primary);
+  box-shadow: 0 0 0 1px rgba(219, 156, 255, 0.38);
+}
+
+/* Pill navigation and segmented controls */
+.voxxy-pill-nav {
+  display: inline-flex;
+  padding: 0.35rem;
+  gap: 0.35rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(180, 160, 255, 0.18);
+  backdrop-filter: blur(16px);
+}
+
+.voxxy-pill-nav button {
+  border-radius: 999px;
+  padding: 0.55rem 1.35rem;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.voxxy-pill-nav button.is-active {
+  background: linear-gradient(120deg, rgba(110, 83, 255, 0.85), rgba(255, 87, 208, 0.75));
+  color: var(--color-text-primary);
+  box-shadow: 0 10px 25px rgba(146, 77, 255, 0.35);
+}
+
+/* Card grid */
+.voxxy-card-grid {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.voxxy-card {
+  padding: clamp(1.75rem, 3vw, 2.5rem);
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(155deg, rgba(26, 18, 55, 0.92), rgba(46, 24, 77, 0.86));
+  border: 1px solid rgba(208, 180, 255, 0.18);
+  box-shadow: var(--shadow-card);
+}
+
+.voxxy-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% -10%, rgba(255, 87, 208, 0.28), transparent 65%);
+  opacity: 0.75;
+}
+
+.voxxy-card__icon {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 1.25rem;
+  background: linear-gradient(135deg, rgba(146, 77, 255, 0.9), rgba(255, 87, 208, 0.75));
+  box-shadow: 0 10px 35px rgba(146, 77, 255, 0.4);
+}
+
+.voxxy-card__title {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.65rem;
+}
+
+.voxxy-card__body {
+  position: relative;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+.voxxy-section {
+  padding: clamp(4rem, 8vw, 6rem) 1.5rem;
+  position: relative;
+}
+
+.voxxy-section--alt {
+  background: linear-gradient(160deg, rgba(16, 10, 32, 0.85), rgba(26, 16, 45, 0.9));
+}
+
+.voxxy-stack {
+  display: grid;
+  gap: clamp(1.25rem, 3vw, 2rem);
+}
+
+.voxxy-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.voxxy-list--bullet li {
+  position: relative;
+  padding-left: 1.5rem;
+  font-size: 0.98rem;
+  color: var(--color-text-secondary);
+}
+
+.voxxy-list--bullet li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.45rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(146, 77, 255, 0.8), rgba(255, 87, 208, 0.7));
+  box-shadow: 0 0 14px rgba(146, 77, 255, 0.45);
+}
+
+.voxxy-badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  letter-spacing: var(--letter-ultra-wide);
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+  padding: 0.5rem 1.1rem;
+  border: 1px solid rgba(200, 180, 255, 0.18);
+}
+
+/* Hero CTA banner */
+.voxxy-cta-banner {
+  position: relative;
+  padding: clamp(2.5rem, 6vw, 4rem) clamp(1.5rem, 4vw, 3rem);
+  border-radius: 36px;
+  background: linear-gradient(135deg, rgba(21, 5, 42, 0.95), rgba(59, 13, 88, 0.9));
+  box-shadow: 0 30px 65px rgba(12, 3, 30, 0.55);
+  overflow: hidden;
+}
+
+.voxxy-cta-banner::before,
+.voxxy-cta-banner::after {
+  content: '';
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.75;
+  z-index: -1;
+}
+
+.voxxy-cta-banner::before {
+  top: -120px;
+  left: -60px;
+  background: rgba(102, 70, 255, 0.7);
+}
+
+.voxxy-cta-banner::after {
+  bottom: -160px;
+  right: -80px;
+  background: rgba(255, 88, 208, 0.65);
+}
+
+/* Floating icon badges used in screenshots */
+.voxxy-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-text-primary);
+  background: linear-gradient(120deg, rgba(102, 70, 255, 0.65), rgba(255, 88, 208, 0.65));
+  box-shadow: 0 8px 28px rgba(146, 77, 255, 0.35);
+}
+
+/* Form shells (waitlist, enterprise contact, etc.) */
+.voxxy-form-shell {
+  display: grid;
+  gap: 1.35rem;
+  padding: clamp(1.8rem, 4vw, 2.5rem);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  border: 1px solid rgba(210, 180, 255, 0.16);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(18px);
+}
+
+.voxxy-input {
+  width: 100%;
+  padding: 0.95rem 1.1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(203, 184, 255, 0.25);
+  background: rgba(13, 8, 28, 0.65);
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.voxxy-input:focus {
+  outline: none;
+  border-color: rgba(110, 83, 255, 0.75);
+  box-shadow: 0 0 0 3px rgba(110, 83, 255, 0.25);
+}
+
+.voxxy-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* CTA footer used in mobile mocks */
+.voxxy-bottom-cta {
+  position: sticky;
+  bottom: 1.5rem;
+  margin-inline: auto;
+  width: min(420px, calc(100% - 2rem));
+  background: linear-gradient(135deg, rgba(102, 70, 255, 0.95), rgba(255, 88, 208, 0.95));
+  color: var(--color-text-primary);
+  border-radius: 999px;
+  text-align: center;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 20px 35px rgba(146, 77, 255, 0.45);
+}
+
+/* Utility classes */
+.voxxy-text-gradient {
+  background: linear-gradient(120deg, #b14dff 0%, #ff6fe0 55%, #73f5ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.voxxy-divider {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(210, 186, 255, 0.35) 40%, rgba(210, 186, 255, 0.35) 60%, transparent 100%);
+}
+
+.voxxy-icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(146, 77, 255, 0.85), rgba(255, 87, 208, 0.7));
+  box-shadow: 0 12px 30px rgba(146, 77, 255, 0.35);
+  color: var(--color-text-primary);
+}
+
+.voxxy-image-placeholder {
+  position: relative;
+  width: 100%;
+  min-height: 240px;
+  border-radius: 24px;
+  border: 1px dashed rgba(210, 186, 255, 0.35);
+  background: linear-gradient(145deg, rgba(26, 18, 55, 0.85), rgba(44, 26, 77, 0.85));
+  box-shadow: inset 0 0 24px rgba(110, 83, 255, 0.1);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.voxxy-image-placeholder::after {
+  content: attr(data-label);
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .voxxy-title--xxl {
+    font-size: clamp(2.3rem, 9vw, 3.1rem);
+  }
+
+  .voxxy-card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+
+  .voxxy-surface--spacious {
+    padding: clamp(1.75rem, 5vw, 2.25rem);
+  }
+}
