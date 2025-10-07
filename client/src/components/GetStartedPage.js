@@ -59,6 +59,7 @@ const Placeholder = styled.div`
 
 const GetStartedPage = () => {
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     trackPageView('Get Started Page');
   }, []);
 

@@ -5,8 +5,8 @@ import { trackEvent, trackPageView } from '../utils/analytics';
 import Footer from './Footer';
 import homeimage1 from '../assets/homeimage1.svg';
 import mobileScreenshots1 from '../assets/mobile_screenshots1.svg';
-import mobileScreenshots2 from '../assets/mobile_screenshots2.svg';
-import voxxypresents1 from '../assets/voxxypresents1.png';
+import six from '../assets/6.svg';
+import homeimage2 from '../assets/5.svg';
 
 const Page = styled.main`
   background: var(--color-space-900);
@@ -204,6 +204,7 @@ const Placeholder = styled.div`
 const Image = styled.img`
   width: 100%;
   height: auto;
+  max-height: clamp(575px, 75vh, 865px);
   border-radius: 32px;
   object-fit: contain;
 `;
@@ -315,7 +316,7 @@ const FlowsSection = ({ onMobileCta, onPresentsCta }) => (
         <Image src={mobileScreenshots1} alt="Voxxy Mobile app screenshots" />
       </Split>
       <Split>
-        <Image src={voxxypresents1} alt="Voxxy Presents workspace preview" />
+        <Image src={six} alt="Voxxy Presents workspace preview" />
         <BodyCopy className="voxxy-surface voxxy-surface--spacious">
           <Eyebrow>Voxxy Presents</Eyebrow>
           <Subheading className="voxxy-title">Built for community builders.</Subheading>
@@ -379,7 +380,7 @@ const CommunitySection = ({ onCtaClick }) => (
           </Paragraph>
           <SecondaryButton to="/community" onClick={onCtaClick}>Meet Our Communities</SecondaryButton>
         </BodyCopy>
-        <Image src={mobileScreenshots2} alt="Community highlights and testimonials" />
+        <Image src={homeimage2} alt="Community highlights and testimonials" />
       </Split>
     </SectionInner>
   </Section>
@@ -400,6 +401,7 @@ const FinalCTA = ({ onPrimaryClick, onSecondaryClick }) => (
 
 const LandingPage = () => {
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     trackPageView('Landing Page');
   }, []);
 

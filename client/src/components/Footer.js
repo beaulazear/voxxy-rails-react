@@ -129,7 +129,6 @@ export default function Footer() {
             <ColumnHeading>Company</ColumnHeading>
             <LinkList>
               <li><FooterLink to="/about">About</FooterLink></li>
-              <li><FooterLink to="/community">Community</FooterLink></li>
               <li><FooterLink to="/contact">Contact</FooterLink></li>
             </LinkList>
           </div>

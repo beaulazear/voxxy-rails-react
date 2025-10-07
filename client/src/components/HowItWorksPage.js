@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { trackEvent, trackPageView } from '../utils/analytics';
 import Footer from './Footer';
+import mobileScreenshots1 from '../assets/mobile_screenshots1.svg';
+import six from '../assets/6.svg';
 
 const Page = styled.main`
   background: var(--color-space-900);
@@ -15,6 +17,7 @@ const Container = styled.div`
   margin: 0 auto;
   display: grid;
   gap: clamp(2.5rem, 6vw, 4rem);
+  padding-bottom: clamp(3rem, 8vw, 5rem);
 `;
 
 const Hero = styled.section`
@@ -100,17 +103,12 @@ const StageCopy = styled.p`
   color: var(--color-text-secondary);
 `;
 
-const Placeholder = styled.div`
-  min-height: clamp(260px, 32vw, 360px);
+const Image = styled.img`
+  width: 100%;
+  height: auto;
+  max-height: clamp(575px, 75vh, 865px);
   border-radius: 32px;
-  border: 1px dashed rgba(210, 186, 255, 0.35);
-  display: grid;
-  place-items: center;
-  color: var(--color-text-muted);
-  font-family: var(--font-display);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  background: linear-gradient(140deg, rgba(24, 15, 43, 0.8), rgba(52, 27, 83, 0.75));
+  object-fit: contain;
 `;
 
 const ActionLink = styled(Link)`
@@ -130,8 +128,21 @@ const ActionLink = styled(Link)`
   }
 `;
 
+const mobileStages = [
+  'Share a vibe and get suggestions tuned to everyone in the chat.',
+  'Tap through quick polls to land on a time, place, or idea.',
+  'Lock in the plan with smart scheduling and reminders.',
+];
+
+const presentsStages = [
+  'Build reusable agendas and save templates for every gathering.',
+  'Track RSVPs, budgets, and vendor details with lightweight dashboards.',
+  'Publish a public club page and keep members looped in with updates.',
+];
+
 const HowItWorksPage = () => {
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     trackPageView('How It Works Page');
   }, []);
 
@@ -151,7 +162,7 @@ const HowItWorksPage = () => {
             <Subheading>Discover, decide, and go.</Subheading>
             <Paragraph>Designed for friends and teams that want spontaneity without the spam. Voxxy Mobile accelerates decision-making so the group can focus on the experience.</Paragraph>
             <StageList>
-              {['Share a vibe and get suggestions tuned to everyone in the chat.', 'Tap through quick polls to land on a time, place, or idea.', 'Lock in the plan with smart scheduling and reminders.'].map((copy, index) => (
+              {mobileStages.map((copy, index) => (
                 <StageItem key={index}>
                   <StageIndex>{index + 1}</StageIndex>
                   <StageCopy>{copy}</StageCopy>
@@ -162,17 +173,17 @@ const HowItWorksPage = () => {
               Try Voxxy Mobile
             </ActionLink>
           </CopyStack>
-          <Placeholder data-label="mobile flow visual" />
+          <Image src={mobileScreenshots1} alt="Voxxy Mobile flow visual" />
         </Split>
 
         <Split>
-          <Placeholder data-label="organizer workspace" />
+          <Image src={six} alt="Voxxy Presents organizer workspace" />
           <CopyStack>
             <Eyebrow>Voxxy Presents</Eyebrow>
             <Subheading>Plan, manage, and grow.</Subheading>
             <Paragraph>Hosts and organizers run recurring events, track members, and communicate from one place. Voxxy Presents adds structure without slowing down momentum.</Paragraph>
             <StageList>
-              {['Build reusable agendas and save templates for every gathering.', 'Track RSVPs, budgets, and vendor details with lightweight dashboards.', 'Publish a public club page and keep members looped in with updates.'].map((copy, index) => (
+              {presentsStages.map((copy, index) => (
                 <StageItem key={index}>
                   <StageIndex>{index + 1}</StageIndex>
                   <StageCopy>{copy}</StageCopy>

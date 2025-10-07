@@ -93,6 +93,7 @@ const CTAButton = styled(Link)`
 
 const CommunityPage = () => {
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     trackPageView('Community Page');
   }, []);
 

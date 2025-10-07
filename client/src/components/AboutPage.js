@@ -14,6 +14,7 @@ const Container = styled.div`
   margin: 0 auto;
   display: grid;
   gap: clamp(2.5rem, 6vw, 4rem);
+  padding-bottom: clamp(3rem, 8vw, 5rem);
 `;
 
 const Heading = styled.h1`
@@ -35,12 +36,6 @@ const Paragraph = styled.p`
   color: var(--color-text-secondary);
 `;
 
-const CardGrid = styled.div`
-  display: grid;
-  gap: clamp(1.75rem, 4vw, 2.25rem);
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-`;
-
 const Card = styled.article`
   padding: clamp(1.8rem, 3vw, 2.3rem);
   border-radius: 26px;
@@ -51,21 +46,25 @@ const Card = styled.article`
   gap: 1rem;
 `;
 
-const Placeholder = styled.div`
-  min-height: clamp(220px, 25vw, 300px);
-  border-radius: 24px;
-  border: 1px dashed rgba(210, 186, 255, 0.35);
-  display: grid;
-  place-items: center;
-  color: var(--color-text-muted);
+const CardHeading = styled.h3`
   font-family: var(--font-display);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  background: linear-gradient(140deg, rgba(24, 15, 43, 0.8), rgba(52, 27, 83, 0.75));
+  font-size: clamp(1.3rem, 3vw, 1.6rem);
+  margin: 0;
+`;
+
+const EmailLink = styled.a`
+  color: var(--color-plasma-300);
+  text-decoration: underline;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--color-plasma-200);
+  }
 `;
 
 const AboutPage = () => {
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     trackPageView('About Page');
   }, []);
 
@@ -96,19 +95,14 @@ const AboutPage = () => {
         <section className="voxxy-stack">
           <Subheading>The team</Subheading>
           <Paragraph>
-            We’re a distributed crew of designers, engineers, and community builders. We believe software should amplify human warmth. If that resonates, let’s talk.
+            We're a distributed crew of designers, engineers, and community builders. We believe software should amplify human warmth. If that resonates, let's talk.
           </Paragraph>
-          <CardGrid>
-            <Card>
-              <Placeholder data-label="team portrait" />
-            </Card>
-            <Card>
-              <h3 style={{ margin: 0 }}>Work with us</h3>
-              <Paragraph>
-                Interested in collaborating, partnering, or investing? Reach out at <a href="mailto:courtneygreer@heyvoxxy.com" onClick={handleEmailClick}>courtneygreer@heyvoxxy.com</a>.
-              </Paragraph>
-            </Card>
-          </CardGrid>
+          <Card>
+            <CardHeading>Work with us</CardHeading>
+            <Paragraph>
+              Interested in collaborating, partnering, or investing? Reach out at <EmailLink href="mailto:courtneygreer@heyvoxxy.com" onClick={handleEmailClick}>courtneygreer@heyvoxxy.com</EmailLink>.
+            </Paragraph>
+          </Card>
         </section>
       </Container>
       <Footer />

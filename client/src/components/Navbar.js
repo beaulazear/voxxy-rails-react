@@ -316,7 +316,6 @@ export default function Navbar() {
 
   const navLinks = [
     { to: '/how-it-works', label: 'How It Works' },
-    { to: '/community', label: 'Community' },
     { to: '/about', label: 'About' },
     { to: '/contact', label: 'Contact' },
     { to: '/legal', label: 'Legal' },

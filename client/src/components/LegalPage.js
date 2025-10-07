@@ -58,6 +58,7 @@ const Button = styled(Link)`
 
 const LegalPage = () => {
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     trackPageView('Legal Page');
   }, []);
 
