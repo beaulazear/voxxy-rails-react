@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import { trackEvent, trackPageView } from '../utils/analytics';
 import Footer from './Footer';
+import homeimage1 from '../assets/homeimage1.svg';
+import mobileScreenshots1 from '../assets/mobile_screenshots1.svg';
+import mobileScreenshots2 from '../assets/mobile_screenshots2.svg';
+import voxxypresents1 from '../assets/voxxypresents1.png';
 
 const Page = styled.main`
   background: var(--color-space-900);
@@ -48,6 +52,7 @@ const Eyebrow = styled.span`
   text-transform: uppercase;
   letter-spacing: var(--letter-ultra-wide);
   color: var(--color-text-muted);
+    margin: auto;
 `;
 
 const Title = styled.h1`
@@ -84,6 +89,7 @@ const Paragraph = styled.p`
 const BodyCopy = styled.div`
   display: grid;
   gap: clamp(1.2rem, 3vw, 1.8rem);
+  text-align: center;
 `;
 
 const ButtonRow = styled.div`
@@ -195,6 +201,13 @@ const Placeholder = styled.div`
   background: linear-gradient(140deg, rgba(24, 15, 43, 0.8), rgba(52, 27, 83, 0.75));
 `;
 
+const Image = styled.img`
+  width: 100%;
+  height: auto;
+  border-radius: 32px;
+  object-fit: contain;
+`;
+
 const List = styled.ul`
   list-style: none;
   margin: 0;
@@ -251,7 +264,7 @@ const Hero = ({ onPrimaryClick, onSecondaryClick }) => (
             <SecondaryButton to="/get-started#presents" onClick={onSecondaryClick}>Explore Voxxy Presents</SecondaryButton>
           </ButtonRow>
         </BodyCopy>
-        <Placeholder data-label="insert hero imagery" aria-label="Hero image placeholder" />
+        <Image src={homeimage1} alt="Voxxy hero illustration" />
       </Split>
     </SectionInner>
   </Section>
@@ -299,10 +312,10 @@ const FlowsSection = ({ onMobileCta, onPresentsCta }) => (
           </List>
           <PrimaryButton to="/get-started#mobile" onClick={onMobileCta}>Get the App</PrimaryButton>
         </BodyCopy>
-        <Placeholder data-label="voxxy mobile screens" aria-label="Voxxy Mobile app screenshots" />
+        <Image src={mobileScreenshots1} alt="Voxxy Mobile app screenshots" />
       </Split>
       <Split>
-        <Placeholder data-label="voxxy presents workspace" aria-label="Voxxy Presents workspace preview" />
+        <Image src={voxxypresents1} alt="Voxxy Presents workspace preview" />
         <BodyCopy className="voxxy-surface voxxy-surface--spacious">
           <Eyebrow>Voxxy Presents</Eyebrow>
           <Subheading className="voxxy-title">Built for community builders.</Subheading>
@@ -366,7 +379,7 @@ const CommunitySection = ({ onCtaClick }) => (
           </Paragraph>
           <SecondaryButton to="/community" onClick={onCtaClick}>Meet Our Communities</SecondaryButton>
         </BodyCopy>
-        <Placeholder data-label="community highlight" aria-label="Community highlights and testimonials" />
+        <Image src={mobileScreenshots2} alt="Community highlights and testimonials" />
       </Split>
     </SectionInner>
   </Section>

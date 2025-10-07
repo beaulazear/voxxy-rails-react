@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import styled, { createGlobalStyle, css, keyframes } from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import { Mail, Star, Bug } from 'lucide-react';
-import { Heading1, MutedText } from '../styles/Typography';
 import Footer from './Footer';
 import colors from '../styles/Colors';
+import { trackEvent, trackPageView } from '../utils/analytics';
 
 const AutofillStyles = createGlobalStyle`
   input:-webkit-autofill,
@@ -13,746 +13,436 @@ const AutofillStyles = createGlobalStyle`
   textarea:-webkit-autofill:hover,
   textarea:-webkit-autofill:focus {
     -webkit-text-fill-color: ${colors.textPrimary} !important;
-    transition: background-color 5000s ease-in-out 0s !important;
+    transition: background-color 9999s ease-in-out 0s !important;
     box-shadow: 0 0 0px 1000px ${colors.background} inset !important;
   }
 `;
 
-const ContentContainer = styled.div`
-  background-color: ${colors.backgroundTwo};
-  opacity: ${({ $isVisible }) => ($isVisible ? "1" : "0")};
-  transition: opacity 0.7s ease-in-out;
-  min-height: 100vh;
-  overflow-x: hidden;
+const Page = styled.main`
+  background: var(--color-space-900);
+  color: var(--color-text-primary);
+  padding: clamp(4rem, 8vw, 6.5rem) 1.5rem 0;
 `;
 
-const StaggeredContent = styled.div`
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-
-  ${({ $isVisible }) =>
-    $isVisible &&
-    css`
-      opacity: 1;
-      transform: translateY(0);
-    `}
+const Container = styled.div`
+  max-width: 960px;
+  margin: 0 auto;
+  display: grid;
+  gap: clamp(2.5rem, 6vw, 4rem);
 `;
 
-const HeaderSection = styled.div`
-  padding-top: 150px;
-  padding-bottom: 3rem;
-  padding-left: 0;
-  padding-right: 0;
-  
-  @media (max-width: 768px) {
-    padding-top: 120px;
-    padding-bottom: 2.5rem;
-  }
-  
-  @media (max-width: 480px) {
-    padding-top: 100px;
-    padding-bottom: 2rem;
-  }
-`;
-
-const GradientText = styled.span`
-  background: linear-gradient(to right,
-    ${colors.gradient.start},
-    ${colors.gradient.end});
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 800;
-`;
-
-const Title = styled(Heading1)`
-  font-size: clamp(2rem, 5vw, 3.75rem);
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 1.5rem;
-  color: ${colors.textPrimary};
+const Hero = styled.section`
+  display: grid;
+  gap: 1.2rem;
   text-align: center;
-  padding: 0 1rem;
-  
-  @media (max-width: 480px) {
-    font-size: 1.875rem;
-  }
 `;
 
-const Subtitle = styled(MutedText)`
-  font-size: clamp(1rem, 2vw, 1.125rem);
-  color: ${colors.textMuted};
-  max-width: 700px;
-  margin: 0 auto 2rem auto;
-  line-height: 1.6;
-  padding: 0 1.5rem;
-  text-align: center;
-  
-  @media (max-width: 480px) {
-    font-size: 0.95rem;
-    margin-bottom: 1.5rem;
-  }
+const Title = styled.h1`
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5.5vw, 3.4rem);
+  margin: 0;
 `;
 
-const TabContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-  padding: 0 1rem;
+const Subtitle = styled.p`
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  margin: 0 auto;
+  max-width: 60ch;
+`;
+
+const TabsRow = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 auto;
   flex-wrap: wrap;
-  
-  @media (max-width: 480px) {
-    gap: 0.35rem;
-    margin-bottom: 1.5rem;
-  }
+  justify-content: center;
 `;
 
-const Tab = styled.button`
-  background: ${({ $active }) => ($active ? colors.primaryButton : 'transparent')};
-  border: 2px solid ${({ $active }) => ($active ? colors.primaryButton : colors.borderLight)};
-  border-radius: 9999px;
-  color: ${({ $active }) => ($active ? colors.textPrimary : colors.textMuted)};
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
+const TabButton = styled.button`
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.2s ease;
-  
-  @media (max-width: 480px) {
-    padding: 0.6rem 1rem;
-    font-size: 0.875rem;
-    gap: 0.35rem;
-    
-    svg {
-      width: 18px;
-      height: 18px;
-    }
-  }
+  padding: 0.65rem 1.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(203, 184, 255, 0.35);
+  background: ${({ $active }) => ($active ? 'linear-gradient(120deg, rgba(110, 83, 255, 0.9), rgba(255, 87, 208, 0.75))' : 'rgba(255, 255, 255, 0.04)')};
+  color: ${({ $active }) => ($active ? 'var(--color-text-primary)' : 'var(--color-text-secondary)')};
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    background-color: ${({ $active }) => ($active ? colors.hoverHighlight : colors.primaryButton)};
-    color: ${colors.textPrimary};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
-    border-color: ${colors.primaryButton};
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
-  }
-
-  &:active {
-    transform: translateY(0);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(146, 77, 255, 0.35);
   }
 `;
 
-const FormWrapper = styled.section`
-  background-color: ${colors.backgroundTwo};
-  padding: 2rem 1rem 4rem;
-  display: flex;
-  justify-content: center;
-  
-  @media (max-width: 768px) {
-    padding: 1.5rem 1rem 3rem;
-  }
-  
-  @media (max-width: 480px) {
-    padding: 1rem 0.5rem 2rem;
-  }
+const FormSection = styled.section`
+  display: grid;
+  justify-items: center;
+  padding-bottom: clamp(3rem, 6vw, 4rem);
+`;
+
+const FormCard = styled.form`
+  width: min(560px, 100%);
+  background: linear-gradient(155deg, rgba(26, 18, 55, 0.92), rgba(44, 26, 77, 0.88));
+  border: 1px solid rgba(210, 186, 255, 0.2);
+  border-radius: 28px;
+  padding: clamp(2rem, 4vw, 2.6rem);
+  box-shadow: var(--shadow-card);
+  display: grid;
+  gap: 1.4rem;
 `;
 
 const FormTitle = styled.h2`
-  font-size: clamp(1.25rem, 3.5vw, 2.5rem);
-  font-weight: 600;
-  margin: 0 auto 1.5rem;
-  color: ${colors.textPrimary};
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3.5vw, 2.1rem);
+  margin: 0;
   text-align: center;
-  padding: 0 1rem;
-  
-  @media (max-width: 480px) {
-    font-size: 1.125rem;
-    margin-bottom: 1rem;
-  }
 `;
 
-const Card = styled.div`
-  background-color: ${colors.cardBackground};
-  border-radius: 1rem;
-  padding: 2rem;
-  width: 100%;
-  max-width: 500px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  border: 1px solid ${colors.borderDark};
-  transition: all 0.3s ease;
-  
-  @media (max-width: 768px) {
-    padding: 1.75rem;
-    max-width: calc(100% - 2rem);
-    margin: 0 1rem;
-  }
-  
-  @media (max-width: 480px) {
-    padding: 1.25rem;
-    border-radius: 0.75rem;
-    max-width: calc(100% - 1rem);
-    margin: 0 0.5rem;
-  }
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
-    border-color: ${colors.primaryButton};
-  }
-  
-  &:focus-within {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
-  }
-`;
-
-const Field = styled.div`
-  margin-bottom: 1.5rem;
-  
-  @media (max-width: 480px) {
-    margin-bottom: 1.25rem;
-  }
+const InputGroup = styled.div`
+  display: grid;
+  gap: 0.45rem;
 `;
 
 const Label = styled.label`
-  display: block;
-  color: ${colors.textPrimary};
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  text-align: left;
-  
-  @media (max-width: 480px) {
-    font-size: 0.85rem;
-  }
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
 `;
 
-const InputWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  background-color: ${colors.background};
-  border: 1px solid ${colors.borderLight};
-  border-radius: 0.75rem;
-  padding: 0.75rem;
-  transition: all 0.2s ease;
-  box-sizing: border-box;
+const Input = styled.input`
   width: 100%;
-  
-  &:focus-within {
-    border-color: ${colors.primaryButton};
-    box-shadow: 0 0 0 2px rgba(107, 70, 193, 0.1);
-  }
-  
-  @media (max-width: 480px) {
-    padding: 0.6rem;
-  }
-`;
-
-const StyledInput = styled.input`
-  background: transparent;
-  border: none;
-  flex: 1;
-  color: ${colors.textPrimary};
+  padding: 0.85rem 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(203, 184, 255, 0.2);
+  background: rgba(13, 8, 28, 0.65);
+  color: var(--color-text-primary);
   font-size: 1rem;
-  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
 
-  &::placeholder {
-    color: ${colors.textMuted};
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 16px; /* Prevents zoom on iOS */
-  }
-`;
-
-const StyledTextarea = styled.textarea`
-  background: ${colors.background};
-  border: 1px solid ${colors.borderLight};
-  border-radius: 0.75rem;
-  padding: 0.75rem;
-  color: ${colors.textPrimary};
-  font-size: 1rem;
-  width: 100%;
-  min-height: 120px;
-  resize: vertical;
-  outline: none;
-  transition: all 0.2s ease;
-  box-sizing: border-box;
-
-  &::placeholder {
-    color: ${colors.textMuted};
-  }
-  
   &:focus {
-    border-color: ${colors.primaryButton};
-    box-shadow: 0 0 0 2px rgba(107, 70, 193, 0.1);
+    outline: none;
+    border-color: rgba(110, 83, 255, 0.75);
+    box-shadow: 0 0 0 3px rgba(110, 83, 255, 0.2);
   }
-  
-  @media (max-width: 480px) {
-    font-size: 16px; /* Prevents zoom on iOS */
-    min-height: 100px;
-    padding: 0.6rem;
+`;
+
+const TextArea = styled.textarea`
+  width: 100%;
+  min-height: 140px;
+  padding: 0.85rem 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(203, 184, 255, 0.2);
+  background: rgba(13, 8, 28, 0.65);
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  resize: vertical;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: rgba(110, 83, 255, 0.75);
+    box-shadow: 0 0 0 3px rgba(110, 83, 255, 0.2);
   }
 `;
 
 const SubmitButton = styled.button`
   width: 100%;
-  padding: 0.9rem 1.8rem;
-  background: linear-gradient(135deg, ${colors.primaryButton}, ${colors.secondaryButton});
-  color: ${colors.textPrimary};
-  border: none;
-  border-radius: 9999px;
-  font-size: 1rem;
+  padding: 0.95rem 1.4rem;
+  border-radius: 999px;
+  font-family: var(--font-display);
   font-weight: 600;
+  border: none;
+  color: var(--color-text-primary);
+  background-image: linear-gradient(120deg, #6a36ff 0%, #ff36d5 52%, #ff9d3f 100%);
+  box-shadow: 0 12px 35px rgba(146, 77, 255, 0.35);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
   opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
-  box-shadow: 0 2px 8px rgba(107, 70, 193, 0.3);
-  
-  @media (max-width: 480px) {
-    padding: 0.75rem 1.5rem;
-    font-size: 0.95rem;
-  }
-  
+
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(107, 70, 193, 0.4);
-    background: linear-gradient(135deg, ${colors.secondaryButton}, ${colors.hoverHighlight});
-  }
-  
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
-  }
-  
-  &:active:not(:disabled) {
-    transform: translateY(0);
+    box-shadow: 0 18px 40px rgba(146, 77, 255, 0.45);
   }
 `;
 
-const SuccessMessage = styled.div`
-  padding: 1rem;
-  background-color: rgba(16, 185, 129, 0.1);
-  border: 1px solid ${colors.success};
-  border-radius: 0.75rem;
-  color: ${colors.success};
+const StatusBanner = styled.div`
+  padding: 0.75rem 1rem;
+  border-radius: 18px;
+  font-size: 0.95rem;
+  line-height: 1.5;
   text-align: center;
-  margin-top: 1rem;
-  animation: fadeIn 0.3s ease;
-  
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  ${({ $variant }) =>
+    $variant === 'success'
+      ? `background: rgba(71, 249, 192, 0.12); color: var(--color-text-primary); border: 1px solid rgba(71, 249, 192, 0.4);`
+      : `background: rgba(255, 107, 155, 0.12); color: var(--color-text-primary); border: 1px solid rgba(255, 107, 155, 0.4);`}
 `;
 
-const ErrorMessage = styled.div`
-  padding: 1rem;
-  background-color: rgba(239, 68, 68, 0.1);
-  border: 1px solid ${colors.destructive};
-  border-radius: 0.75rem;
-  color: ${colors.destructive};
-  text-align: center;
-  margin-top: 1rem;
-  animation: fadeIn 0.3s ease;
-  
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-`;
-
-const pulseAnimation = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
-`;
-
-const StarRatingContainer = styled.div`
+const RatingRow = styled.div`
   display: flex;
-  gap: 0.5rem;
   align-items: center;
-  padding: 0.75rem;
-  background-color: ${colors.background};
-  border: 1px solid ${colors.borderLight};
-  border-radius: 0.75rem;
-  transition: all 0.2s ease;
+  gap: 0.5rem;
   flex-wrap: wrap;
+`;
+
+const RatingButton = styled.button`
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  
-  &:focus-within {
-    border-color: ${colors.primaryButton};
-    box-shadow: 0 0 0 2px rgba(107, 70, 193, 0.1);
-  }
-  
-  @media (max-width: 480px) {
-    gap: 0.25rem;
-    padding: 0.5rem;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  border: ${({ $active }) => ($active ? '1px solid rgba(255, 193, 7, 0.7)' : '1px solid rgba(203, 184, 255, 0.2)')};
+  background: ${({ $active }) => ($active ? 'rgba(255, 193, 7, 0.12)' : 'rgba(13, 8, 28, 0.65)')};
+  color: ${({ $active }) => ($active ? '#ffc107' : 'var(--color-text-secondary)')};
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px rgba(255, 193, 7, 0.2);
   }
 `;
 
-const StarButton = styled.button`
+const SecondaryLink = styled.button`
   background: none;
   border: none;
+  color: var(--color-plasma-300);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
   cursor: pointer;
-  padding: 0.25rem;
-  transition: all 0.2s ease;
-  color: ${({ $filled }) => ($filled ? '#FFC107' : colors.borderLight)};
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  
-  &:hover {
-    transform: scale(1.2);
-    filter: drop-shadow(0 0 8px rgba(255, 193, 7, 0.6));
-  }
-  
-  &:active {
-    animation: ${pulseAnimation} 0.3s ease;
-  }
-  
-  svg {
-    width: 28px;
-    height: 28px;
-    fill: ${({ $filled }) => ($filled ? '#FFC107' : 'none')};
-    stroke: ${({ $filled }) => ($filled ? '#FFC107' : colors.borderLight)};
-    stroke-width: 2;
-    transition: all 0.2s ease;
-  }
-  
-  &:focus {
-    outline: none;
-    filter: drop-shadow(0 0 12px rgba(255, 193, 7, 0.8));
-  }
-  
-  @media (max-width: 480px) {
-    padding: 0.35rem;
-    
-    svg {
-      width: 32px;
-      height: 32px;
-    }
-    
-    &:hover {
-      transform: scale(1.1);
-    }
-  }
+  text-decoration: underline;
+  justify-self: center;
 `;
 
-const RatingText = styled.span`
-  margin-left: 1rem;
-  color: ${colors.textMuted};
-  font-size: 0.875rem;
-  font-weight: 500;
-  
-  @media (max-width: 480px) {
-    margin-left: 0.5rem;
-    font-size: 0.8rem;
-    width: 100%;
-    text-align: center;
-    margin-top: 0.5rem;
-  }
-`;
+const tabs = [
+  { key: 'feedback', label: 'Feedback', icon: Star },
+  { key: 'contact', label: 'Contact', icon: Mail },
+  { key: 'bug', label: 'Report a bug', icon: Bug },
+];
 
-export default function ContactUs() {
-    const tabs = [
-        { key: 'feedback', label: 'Feedback', icon: Star },
-        { key: 'contact', label: 'Contact', icon: Mail },
-        { key: 'bug', label: 'Bugs', icon: Bug },
-    ];
-    const [active, setActive] = useState('feedback');
-    const [showContent, setShowContent] = useState(false);
-    const [submissionStatus, setSubmissionStatus] = useState({ type: null, message: '' });
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [hoveredStar, setHoveredStar] = useState(0);
+const formTitles = {
+  feedback: 'Share your feedback',
+  contact: 'Send us a message',
+  bug: 'Report a bug',
+};
 
-    // Shared fields
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
+const ContactUs = () => {
+  const [active, setActive] = useState('feedback');
+  const [showContent, setShowContent] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState({ type: null, message: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hoveredStar, setHoveredStar] = useState(0);
 
-    // Feedback
-    const [rating, setRating] = useState(5);
-    const [message, setMessage] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [rating, setRating] = useState(5);
+  const [message, setMessage] = useState('');
+  const [subject, setSubject] = useState('');
+  const [contactMsg, setContactMsg] = useState('');
+  const [bugDesc, setBugDesc] = useState('');
+  const [steps, setSteps] = useState('');
 
-    // Contact
-    const [subject, setSubject] = useState('');
-    const [contactMsg, setContactMsg] = useState('');
+  useEffect(() => {
+    trackPageView('Contact Page');
+  }, []);
 
-    // Bug
-    const [bugDesc, setBugDesc] = useState('');
-    const [steps, setSteps] = useState('');
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    setShowContent(true);
+  }, []);
 
-    const formTitles = {
-        feedback: 'Leave Your Feedback',
-        contact: 'Send Us a Message',
-        bug: 'Report a Bug',
-    };
+  const handleTabChange = (key) => {
+    setActive(key);
+    trackEvent('Contact Form Tab Selected', { tab: key });
+  };
 
-    useEffect(() => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        setShowContent(true);
+  const resetFields = () => {
+    setName('');
+    setEmail('');
+    setRating(5);
+    setMessage('');
+    setSubject('');
+    setContactMsg('');
+    setBugDesc('');
+    setSteps('');
+  };
 
-        if (process.env.NODE_ENV === 'production') {
-            fetch('/analytics/page_view', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                },
-                body: JSON.stringify({ page: 'Contact Us Page' }),
-                credentials: 'include'
-            }).catch(err => console.error('Analytics tracking failed:', err));
-        }
-    }, []);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmissionStatus({ type: null, message: '' });
 
-    const resetFields = () => {
-        setName(''); setEmail('');
-        setRating(5); setMessage('');
-        setSubject(''); setContactMsg('');
-        setBugDesc(''); setSteps('');
-    };
+    let url = '';
+    let body = {};
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        setSubmissionStatus({ type: null, message: '' });
-        
-        let url = '';
-        let body = {};
+    if (active === 'feedback') {
+      url = '/feedbacks';
+      body = { feedback: { name, email, rating, message } };
+    } else if (active === 'contact') {
+      url = '/contacts';
+      body = { contact: { name, email, subject, message: contactMsg } };
+    } else {
+      url = '/bug_reports';
+      body = { bug_report: { name, email, bug_description: bugDesc, steps_to_reproduce: steps } };
+    }
 
-        if (active === 'feedback') {
-            url = '/feedbacks';
-            body = { feedback: { name, email, rating, message } };
-        } else if (active === 'contact') {
-            url = '/contacts';
-            body = { contact: { name, email, subject, message: contactMsg } };
-        } else {
-            url = '/bug_reports';
-            body = { bug_report: { name, email, bug_description: bugDesc, steps_to_reproduce: steps } };
-        }
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}${url}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(body),
+      });
 
-        try {
-            const res = await fetch(
-                `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}${url}`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify(body),
-                }
-            );
-            if (!res.ok) throw new Error('Network response was not ok');
-            
-            setSubmissionStatus({ 
-                type: 'success', 
-                message: 'Thank you! Your submission has been received. We\'ll get back to you soon.' 
-            });
-            resetFields();
-            
-            setTimeout(() => {
-                setSubmissionStatus({ type: null, message: '' });
-            }, 5000);
-        } catch (err) {
-            console.error(err);
-            setSubmissionStatus({ 
-                type: 'error', 
-                message: 'Oops! Something went wrong. Please try again later.' 
-            });
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+      if (!res.ok) throw new Error('Network response was not ok');
 
-    const canSubmit = () => {
-        if (!name || !email) return false;
-        if (active === 'feedback') return message.trim() !== '';
-        if (active === 'contact') return subject.trim() && contactMsg.trim();
-        if (active === 'bug') return bugDesc.trim();
-        return false;
-    };
+      setSubmissionStatus({ type: 'success', message: 'Thank you! Your submission has been received. We will get back to you soon.' });
+      trackEvent('Contact Form Submitted', { form: active, email });
+      resetFields();
+      setTimeout(() => setSubmissionStatus({ type: null, message: '' }), 5000);
+    } catch (err) {
+      setSubmissionStatus({ type: 'error', message: 'Something went wrong. Please try again later.' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-    const getRatingText = (value) => {
-        const texts = {
-            1: 'Poor',
-            2: 'Fair',
-            3: 'Good',
-            4: 'Great',
-            5: 'Excellent!'
-        };
-        return texts[value] || '';
-    };
+  const canSubmit = () => {
+    if (!name || !email) return false;
+    if (active === 'feedback') return message.trim() !== '';
+    if (active === 'contact') return subject.trim() && contactMsg.trim();
+    if (active === 'bug') return bugDesc.trim();
+    return false;
+  };
 
-    return (
-        <>
-            <AutofillStyles />
-            <div style={{ backgroundColor: colors.background, minHeight: '100vh' }}>
-                <ContentContainer $isVisible={showContent}>
-                    <StaggeredContent $isVisible={showContent}>
-                        <HeaderSection>
-                            <Title>
-                                Get in <GradientText>Touch</GradientText>
-                            </Title>
-                            <Subtitle>
-                                We're here to help! Choose how you'd like to reach us and we'll get back to you as soon as possible.
-                            </Subtitle>
-                            <TabContainer>
-                                {tabs.map(({ key, label, icon: Icon }) => (
-                                    <Tab
-                                        key={key}
-                                        $active={active === key}
-                                        onClick={() => setActive(key)}
-                                    >
-                                        <Icon size={20} /> {label}
-                                    </Tab>
-                                ))}
-                            </TabContainer>
-                        </HeaderSection>
-                    </StaggeredContent>
-                    <StaggeredContent $isVisible={showContent} style={{ transitionDelay: '0.2s' }}>
-                        <FormWrapper>
-                            <Card>
-                                <FormTitle>{formTitles[active]}</FormTitle>
-                                <form onSubmit={handleSubmit}>
-                        <Field>
-                            <Label htmlFor="name">Name</Label>
-                            <InputWrapper>
-                                <StyledInput
-                                    id="name"
-                                    type="text"
-                                    placeholder="Your Name"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    required
-                                />
-                            </InputWrapper>
-                        </Field>
+  return (
+    <>
+      <AutofillStyles />
+      <Page>
+        <Container>
+          <Hero>
+            <Title>Get in touch</Title>
+            <Subtitle>We are here to help. Pick the path that matches what you need and we will respond shortly.</Subtitle>
+            <TabsRow>
+              {tabs.map(({ key, label, icon: Icon }) => (
+                <TabButton key={key} $active={active === key} onClick={() => handleTabChange(key)}>                  <Icon size={18} /> {label}
+                </TabButton>
+              ))}
+            </TabsRow>
+          </Hero>
 
-                        <Field>
-                            <Label htmlFor="email">Email</Label>
-                            <InputWrapper>
-                                <StyledInput
-                                    id="email"
-                                    type="email"
-                                    placeholder="your@email.com"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                />
-                            </InputWrapper>
-                        </Field>
+          {showContent && (
+            <FormSection>
+              <FormCard onSubmit={handleSubmit}>
+                <FormTitle>{formTitles[active]}</FormTitle>
 
-                        {active === 'feedback' && (
-                            <>
-                                <Field>
-                                    <Label>How would you rate your experience?</Label>
-                                    <StarRatingContainer>
-                                        {[1, 2, 3, 4, 5].map((value) => (
-                                            <StarButton
-                                                key={value}
-                                                type="button"
-                                                $filled={value <= (hoveredStar || rating)}
-                                                onClick={() => setRating(value)}
-                                                onMouseEnter={() => setHoveredStar(value)}
-                                                onMouseLeave={() => setHoveredStar(0)}
-                                                aria-label={`Rate ${value} stars`}
-                                            >
-                                                <Star />
-                                            </StarButton>
-                                        ))}
-                                        <RatingText>
-                                            {getRatingText(hoveredStar || rating)}
-                                        </RatingText>
-                                    </StarRatingContainer>
-                                </Field>
-                                <Field>
-                                    <Label htmlFor="feedback-message">Message</Label>
-                                    <StyledTextarea
-                                        id="feedback-message"
-                                        placeholder="Tell us more about your experience..."
-                                        value={message}
-                                        onChange={(e) => setMessage(e.target.value)}
-                                        required
-                                    />
-                                </Field>
-                            </>
-                        )}
+                <InputGroup>
+                  <Label htmlFor="name">Name</Label>
+                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" required />
+                </InputGroup>
 
-                        {active === 'contact' && (
-                            <>
-                                <Field>
-                                    <Label htmlFor="subject">Subject</Label>
-                                    <InputWrapper>
-                                        <StyledInput
-                                            id="subject"
-                                            type="text"
-                                            placeholder="Subject"
-                                            value={subject}
-                                            onChange={(e) => setSubject(e.target.value)}
-                                            required
-                                        />
-                                    </InputWrapper>
-                                </Field>
-                                <Field>
-                                    <Label htmlFor="contact-message">Message</Label>
-                                    <StyledTextarea
-                                        id="contact-message"
-                                        placeholder="Your message..."
-                                        value={contactMsg}
-                                        onChange={(e) => setContactMsg(e.target.value)}
-                                        required
-                                    />
-                                </Field>
-                            </>
-                        )}
+                <InputGroup>
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your@email.com" required />
+                </InputGroup>
 
-                        {active === 'bug' && (
-                            <>
-                                <Field>
-                                    <Label htmlFor="bug-desc">Bug Description</Label>
-                                    <StyledTextarea
-                                        id="bug-desc"
-                                        placeholder="Describe the bug..."
-                                        value={bugDesc}
-                                        onChange={(e) => setBugDesc(e.target.value)}
-                                        required
-                                    />
-                                </Field>
-                                <Field>
-                                    <Label htmlFor="steps">Steps to Reproduce (optional)</Label>
-                                    <StyledTextarea
-                                        id="steps"
-                                        placeholder="Steps to reproduce the bug..."
-                                        value={steps}
-                                        onChange={(e) => setSteps(e.target.value)}
-                                    />
-                                </Field>
-                            </>
-                        )}
+                {active === 'feedback' && (
+                  <InputGroup>
+                    <Label>How was your experience?</Label>
+                    <RatingRow>
+                      {[1, 2, 3, 4, 5].map((value) => (
+                        <RatingButton
+                          key={value}
+                          type="button"
+                          $active={value <= (hoveredStar || rating)}
+                          onClick={() => { setRating(value); trackEvent('Feedback Rating Selected', { value }); }}
+                          onMouseEnter={() => setHoveredStar(value)}
+                          onMouseLeave={() => setHoveredStar(0)}
+                          aria-label={`Rate ${value} stars`}
+                        >
+                          ★
+                        </RatingButton>
+                      ))}
+                    </RatingRow>
+                    <TextArea
+                      id="feedback-message"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder="Share what is working or what we can improve."
+                      required
+                    />
+                  </InputGroup>
+                )}
 
-                                <SubmitButton type="submit" disabled={!canSubmit() || isSubmitting}>
-                                    {isSubmitting ? 'Sending...' : 'Submit'}
-                                </SubmitButton>
-                                {submissionStatus.type === 'success' && (
-                                    <SuccessMessage>{submissionStatus.message}</SuccessMessage>
-                                )}
-                                {submissionStatus.type === 'error' && (
-                                    <ErrorMessage>{submissionStatus.message}</ErrorMessage>
-                                )}
-                            </form>
-                        </Card>
-                    </FormWrapper>
-                </StaggeredContent>
-                <Footer />
-            </ContentContainer>
-        </div>
-        </>
-    );
-}
+                {active === 'contact' && (
+                  <>
+                    <InputGroup>
+                      <Label htmlFor="subject">Subject</Label>
+                      <Input id="subject" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="How can we help?" required />
+                    </InputGroup>
+                    <InputGroup>
+                      <Label htmlFor="contact-message">Message</Label>
+                      <TextArea
+                        id="contact-message"
+                        value={contactMsg}
+                        onChange={(e) => setContactMsg(e.target.value)}
+                        placeholder="Tell us about your question or request."
+                        required
+                      />
+                    </InputGroup>
+                  </>
+                )}
+
+                {active === 'bug' && (
+                  <>
+                    <InputGroup>
+                      <Label htmlFor="bug-desc">What went wrong?</Label>
+                      <TextArea
+                        id="bug-desc"
+                        value={bugDesc}
+                        onChange={(e) => setBugDesc(e.target.value)}
+                        placeholder="Describe the issue you ran into."
+                        required
+                      />
+                    </InputGroup>
+                    <InputGroup>
+                      <Label htmlFor="steps">Steps to reproduce (optional)</Label>
+                      <TextArea
+                        id="steps"
+                        value={steps}
+                        onChange={(e) => setSteps(e.target.value)}
+                        placeholder="Share any steps that help us recreate it."
+                      />
+                    </InputGroup>
+                  </>
+                )}
+
+                {submissionStatus.type && (
+                  <StatusBanner $variant={submissionStatus.type}>{submissionStatus.message}</StatusBanner>
+                )}
+
+                <SubmitButton type="submit" disabled={!canSubmit() || isSubmitting}>
+                  {isSubmitting ? 'Sending…' : 'Submit'}
+                </SubmitButton>
+
+                {active !== 'feedback' && (
+                  <SecondaryLink type="button" onClick={() => setActive('feedback')}>Switch to feedback form</SecondaryLink>
+                )}
+              </FormCard>
+            </FormSection>
+          )}
+        </Container>
+      </Page>
+      <Footer />
+    </>
+  );
+};
+
+export default ContactUs;

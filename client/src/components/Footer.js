@@ -5,7 +5,7 @@ import colors from '../styles/Colors';
 
 const FooterContainer = styled.footer`
   background-color: ${colors.background};
-  padding: 2rem 1rem;
+  padding: clamp(3rem, 6vw, 4rem) 1.5rem;
   margin-top: auto;
   border-top: 1px solid ${colors.borderDark};
 `;
@@ -27,14 +27,14 @@ const TopRow = styled.div`
 
 const BrandColumn = styled.div`
   grid-column: span 2;
-  min-width: 200px;
+  min-width: 220px;
   padding-left: 1rem;
   padding-right: 2rem;
   text-align: left;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
 `;
 
 const BrandName = styled.h3`
@@ -47,10 +47,11 @@ const BrandName = styled.h3`
 `;
 
 const BrandDescription = styled.p`
-  font-size: 0.9rem;
-  line-height: 1.4;
+  font-size: 0.95rem;
+  line-height: 1.6;
   color: ${colors.textMuted};
   margin: 0;
+  max-width: 420px;
 `;
 
 const ColumnHeading = styled.h4`
@@ -112,44 +113,39 @@ export default function Footer() {
           <BrandColumn>
             <BrandName>Voxxy</BrandName>
             <BrandDescription>
-              Making group planning as fun as the events themselves. Powered by AI to help friends plan better and spend more time together.
+              Voxxy is a social planning platform that helps people turn ideas into connection and groups into community.
             </BrandDescription>
           </BrandColumn>
 
           <div>
             <ColumnHeading>Product</ColumnHeading>
             <LinkList>
-              <li><FooterLink to="/faq">How it works</FooterLink></li>
-              <li><FooterLink to="/pricing">Pricing</FooterLink></li>
+              <li><FooterLink to="/how-it-works">How It Works</FooterLink></li>
+              <li><FooterLink to="/get-started">Get Started</FooterLink></li>
             </LinkList>
           </div>
 
           <div>
-            <ColumnHeading>Support</ColumnHeading>
-            <LinkList>
-              <li><FooterLink to="/faq">Help Center</FooterLink></li>
-              <li><FooterLink to="/contact">Contact Us</FooterLink></li>
-            </LinkList>
-          </div>
-          <div>
             <ColumnHeading>Company</ColumnHeading>
             <LinkList>
-              <li><FooterLink to='/about-us'>About Us</FooterLink></li>
-              <li><FooterLink to='/voxxy-presents'>Voxxy Presents</FooterLink></li>
+              <li><FooterLink to="/about">About</FooterLink></li>
+              <li><FooterLink to="/community">Community</FooterLink></li>
+              <li><FooterLink to="/contact">Contact</FooterLink></li>
             </LinkList>
           </div>
           <div>
             <ColumnHeading>Legal</ColumnHeading>
             <LinkList>
-              <li><FooterLink to='/terms'>Terms</FooterLink></li>
-              <li><FooterLink to='/privacy'>Privacy</FooterLink></li>
+              <li><FooterLink to='/legal'>Legal Center</FooterLink></li>
+              <li><FooterLink to='/terms'>Terms of Service</FooterLink></li>
+              <li><FooterLink to='/privacy'>Privacy Policy</FooterLink></li>
             </LinkList>
           </div>
         </TopRow>
 
         <BottomRow>
           <Copyright>
-            © 2025 Voxxy AI, Inc. All Rights Reserved.
+            © 2025 Voxxy, Inc. All rights reserved.
           </Copyright>
         </BottomRow>
       </FooterInner>

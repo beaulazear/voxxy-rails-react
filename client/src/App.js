@@ -28,6 +28,11 @@ import GuestResponsePage from './components/GuestResponsePage.jsx';
 import ProtectedActivityRoute from './components/ProtectedActivityRoute.js';
 import TripDashboardPage from './admincomponents/TripDashboardPage.js';
 import ComingSoonPlaceholder from './components/ComingSoonPlaceholder.js';
+import HowItWorksPage from './components/HowItWorksPage.js';
+import AboutPage from './components/AboutPage.js';
+import CommunityPage from './components/CommunityPage.js';
+import GetStartedPage from './components/GetStartedPage.js';
+import LegalPage from './components/LegalPage.js';
 
 function App() {
   const { user, loading } = useContext(UserContext);
@@ -87,6 +92,11 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/verification" element={<Verification />} />
+        <Route path="/how-it-works" element={<HowItWorksPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/community" element={<CommunityPage />} />
+        <Route path="/get-started" element={<GetStartedPage />} />
+        <Route path="/legal" element={<LegalPage />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/try-voxxy" element={<TryVoxxy />} />
         <Route path='/learn-more' element={<LearnMorePage />} />

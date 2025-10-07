@@ -4,7 +4,7 @@ import styled, { keyframes } from 'styled-components';
 import { Menu, ArrowLeft, X } from 'lucide-react';
 import { UserContext } from '../context/user';
 import colors from '../styles/Colors';
-import HEADER from '../assets/HEADER.svg'; // Scalable Voxxy Header SVG
+import { trackEvent } from '../utils/analytics';
 // import GAYHEADER from '../assets/GAYHEADER.svg'; // Scalable Voxxy Header SVG
 // import AnimatedPrideHeader from './AnimatedPrideHeader';
 
@@ -52,7 +52,7 @@ const fadeIn = keyframes`
 
 const StyledNav = styled.nav`
   width: 100%;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid transparent;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   position: fixed;
@@ -60,16 +60,8 @@ const StyledNav = styled.nav`
   z-index: 50;
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   animation: ${slideDown} 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
-  background: ${({ $scrolled }) =>
-    $scrolled
-      ? `linear-gradient(135deg, rgba(32, 25, 37, 0.95) 0%, rgba(45, 35, 55, 0.95) 100%)`
-      : `linear-gradient(135deg, rgba(32, 25, 37, 0.8) 0%, rgba(45, 35, 55, 0.8) 100%)`
-  };
-  box-shadow: ${({ $scrolled }) =>
-    $scrolled
-      ? `0 10px 40px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)`
-      : `0 4px 20px rgba(0, 0, 0, 0.1)`
-  };
+  background: ${({ $scrolled }) => ($scrolled ? 'linear-gradient(180deg, rgba(9, 3, 20, 0.85) 0%, rgba(9, 3, 20, 0) 100%)' : 'transparent')};
+  box-shadow: ${({ $scrolled }) => ($scrolled ? '0 12px 30px rgba(9, 3, 20, 0.35)' : 'none')};
 `;
 
 const NavContainer = styled.div`
@@ -85,6 +77,8 @@ const NavInner = styled.div`
   justify-content: space-between;
 `;
 
+const LOGO_SRC = `${process.env.PUBLIC_URL}/HEADER.svg`;
+
 const LogoLink = styled(Link)`
   display: flex;
   align-items: center;
@@ -99,7 +93,7 @@ const LogoLink = styled(Link)`
 const LogoImage = styled.img`
   height: 36px;
   width: auto;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0)) drop-shadow(0 0 12px rgba(123, 58, 236, 0.45));
   @media (max-width: 480px) {
     height: 30px;
   }
@@ -176,43 +170,6 @@ const SolidButton = styled(Link)`
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(157, 96, 248, 0.4);
-    
-    &::before {
-      opacity: 1;
-    }
-  }
-`;
-
-const OutlineButton = styled(Link)`
-  padding: 8px 20px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  text-decoration: none;
-  border: 1.5px solid ${colors.primarySolid};
-  border-radius: 12px;
-  color: ${colors.primarySolid};
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-  background: transparent;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(157, 96, 248, 0.1) 0%, rgba(157, 96, 248, 0.05) 100%);
-    opacity: 0;
-    transition: opacity 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-  }
-  
-  &:hover {
-    transform: translateY(-1px);
-    border-color: ${colors.primaryButton};
-    color: ${colors.primaryButton};
-    box-shadow: 0 4px 15px rgba(157, 96, 248, 0.2);
     
     &::before {
       opacity: 1;
@@ -325,6 +282,28 @@ const MobileNavLinkItem = styled(Link)`
   }
 `;
 
+
+const MobileNavButton = styled.button`
+  padding: 12px 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: ${colors.textSecondary};
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  text-align: left;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  cursor: pointer;
+
+  &:hover {
+    color: ${colors.primaryButton};
+    background: rgba(157, 96, 248, 0.1);
+    border-color: rgba(157, 96, 248, 0.2);
+    transform: translateX(4px);
+  }
+`;
+
+
 export default function Navbar() {
   const { user, setUser } = useContext(UserContext);
   const location = useLocation();
@@ -334,6 +313,14 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const isAdmin = user && user.admin;
+
+  const navLinks = [
+    { to: '/how-it-works', label: 'How It Works' },
+    { to: '/community', label: 'Community' },
+    { to: '/about', label: 'About' },
+    { to: '/contact', label: 'Contact' },
+    { to: '/legal', label: 'Legal' },
+  ];
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -354,10 +341,19 @@ export default function Navbar() {
     };
   }, [showMobileNav]);
 
+  const handleNavClick = (label) => {
+    trackEvent('Nav Link Clicked', { label });
+  };
+
+  const handleCtaClick = (label) => {
+    trackEvent('CTA Clicked', { label, location: 'Navbar' });
+  };
+
   const handleLogout = () => {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
     const confirmation = window.confirm('Are you sure you want to log out?');
     if (confirmation) {
+      trackEvent('CTA Clicked', { label: 'Log Out', location: 'Navbar' });
       fetch(`${API_URL}/logout`, {
         method: 'DELETE',
         credentials: 'include',
@@ -385,38 +381,36 @@ export default function Navbar() {
                   <ArrowLeft size={20} />
                 </MobileMenuButton>
               ) : null}
-              <LogoLink to="/dashboard">
+              <LogoLink to="/">
                 {/* <AnimatedPrideHeader
                   regularSrc={HEADER}
                   prideSrc={GAYHEADER}
                   alt="Voxxy Logo"
                   animationType="cycle"
                 /> */}
-                <LogoImage src={HEADER} />
+                <LogoImage src={LOGO_SRC} alt="Voxxy logo" />
               </LogoLink>
             </div>
 
             <DesktopNav>
+              {navLinks.map((item) => (
+                <NavLinkItem key={item.to} to={item.to} onClick={() => handleNavClick(item.label)}>
+                  {item.label}
+                </NavLinkItem>
+              ))}
               {isAdmin && (
-                <NavLinkItem to="/voxxyad">Admin</NavLinkItem>
+                <NavLinkItem to="/admin/dashboard" onClick={() => handleNavClick('Dashboard')}>
+                  Dashboard
+                </NavLinkItem>
               )}
               {user ? (
-                <>
-                  <NavLinkItem to="/dashboard">Dashboard</NavLinkItem>
-                  <NavLinkItem to="/faq">Help Center</NavLinkItem>
-                  <NavLinkItem to="/profile">Profile</NavLinkItem>
-                  <SolidButton onClick={handleLogout} style={{ marginLeft: '16px' }}>
-                    Log Out
-                  </SolidButton>
-                </>
+                <SolidButton as="button" onClick={handleLogout} style={{ marginLeft: '16px' }}>
+                  Log Out
+                </SolidButton>
               ) : (
                 <>
-                  <NavLinkItem to="/try-voxxy">Try Voxxy</NavLinkItem>
-                  <OutlineButton to="/login" style={{ marginLeft: '16px' }}>
-                    Log In
-                  </OutlineButton>
-                  <SolidButton to="/signup" style={{ marginLeft: '8px' }}>
-                    Sign Up
+                  <SolidButton to="/get-started" style={{ marginLeft: '8px' }} onClick={() => handleCtaClick('Get Started')}>
+                    Get Started
                   </SolidButton>
                 </>
               )}
@@ -436,36 +430,50 @@ export default function Navbar() {
             <MobileMenuCloseButton onClick={() => setShowMobileNav(false)}>
               <X size={24} />
             </MobileMenuCloseButton>
+            {navLinks.map((item) => (
+              <MobileNavLinkItem
+                key={item.to}
+                to={item.to}
+                onClick={() => {
+                  setShowMobileNav(false);
+                  handleNavClick(item.label);
+                }}
+              >
+                {item.label}
+              </MobileNavLinkItem>
+            ))}
             {isAdmin && (
-              <MobileNavLinkItem to="/voxxyad" onClick={() => setShowMobileNav(false)}>
-                Admin
+              <MobileNavLinkItem
+                to="/admin/dashboard"
+                onClick={() => {
+                  setShowMobileNav(false);
+                  handleNavClick('Dashboard');
+                }}
+              >
+                Dashboard
               </MobileNavLinkItem>
             )}
             {user ? (
-              <>
-                <MobileNavLinkItem to="/dashboard" onClick={() => setShowMobileNav(false)}>
-                  Dashboard
-                </MobileNavLinkItem>
-                <MobileNavLinkItem to="/faq" onClick={() => setShowMobileNav(false)}>
-                  Help Center
-                </MobileNavLinkItem>
-                <MobileNavLinkItem to="/profile" onClick={() => setShowMobileNav(false)}>
-                  Profile
-                </MobileNavLinkItem>
-                <MobileNavLinkItem to="/logout" onClick={handleLogout}>
-                  Log Out
-                </MobileNavLinkItem>
-              </>
+              <MobileNavButton onClick={handleLogout}>Log Out</MobileNavButton>
             ) : (
               <>
-                <MobileNavLinkItem to="/try-voxxy" onClick={() => setShowMobileNav(false)}>
-                  Try Voxxy
-                </MobileNavLinkItem>
-                <MobileNavLinkItem to="/login" onClick={() => setShowMobileNav(false)}>
+                <MobileNavLinkItem
+                  to="/login"
+                  onClick={() => {
+                    setShowMobileNav(false);
+                    handleCtaClick('Log In');
+                  }}
+                >
                   Log In
                 </MobileNavLinkItem>
-                <MobileNavLinkItem to="/signup" onClick={() => setShowMobileNav(false)}>
-                  Sign Up
+                <MobileNavLinkItem
+                  to="/get-started"
+                  onClick={() => {
+                    setShowMobileNav(false);
+                    handleCtaClick('Get Started');
+                  }}
+                >
+                  Get Started
                 </MobileNavLinkItem>
               </>
             )}
