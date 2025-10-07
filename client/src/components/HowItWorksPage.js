@@ -9,7 +9,7 @@ import six from '../assets/6.svg';
 const Page = styled.main`
   background: var(--color-space-900);
   color: var(--color-text-primary);
-  padding: clamp(4rem, 8vw, 6.5rem) 1.5rem;
+  padding: clamp(4rem, 8vw, 6.5rem) 1.5rem 0;
 `;
 
 const Container = styled.div`
@@ -17,7 +17,7 @@ const Container = styled.div`
   margin: 0 auto;
   display: grid;
   gap: clamp(2.5rem, 6vw, 4rem);
-  padding-bottom: clamp(3rem, 8vw, 5rem);
+  padding-bottom: clamp(3rem, 6vw, 4rem);
 `;
 
 const Hero = styled.section`
@@ -149,7 +149,8 @@ const HowItWorksPage = () => {
   const handleCta = (label) => () => trackEvent('CTA Clicked', { label, location: 'How It Works' });
 
   return (
-    <Page>
+    <>
+      <Page>
       <Container>
         <Hero>
           <Heading>How Voxxy works</Heading>
@@ -196,8 +197,9 @@ const HowItWorksPage = () => {
           </CopyStack>
         </Split>
       </Container>
+      </Page>
       <Footer />
-    </Page>
+    </>
   );
 };
 

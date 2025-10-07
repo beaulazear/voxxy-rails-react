@@ -7,7 +7,7 @@ import { trackEvent, trackPageView } from '../utils/analytics';
 const Page = styled.main`
   background: var(--color-space-900);
   color: var(--color-text-primary);
-  padding: clamp(4rem, 8vw, 6.5rem) 1.5rem;
+  padding: clamp(4rem, 8vw, 6.5rem) 1.5rem 0;
 `;
 
 const Container = styled.div`
@@ -100,7 +100,8 @@ const CommunityPage = () => {
   const handleCta = () => trackEvent('CTA Clicked', { label: 'Start your club on Voxxy', location: 'Community Page' });
 
   return (
-    <Page>
+    <>
+      <Page>
       <Container>
         <section className="voxxy-stack">
           <Heading>Communities that gather with Voxxy</Heading>
@@ -141,8 +142,9 @@ const CommunityPage = () => {
           </CTAButton>
         </section>
       </Container>
+      </Page>
       <Footer />
-    </Page>
+    </>
   );
 };
 

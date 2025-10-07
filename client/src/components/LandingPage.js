@@ -11,7 +11,6 @@ import homeimage2 from '../assets/5.svg';
 const Page = styled.main`
   background: var(--color-space-900);
   color: var(--color-text-primary);
-  min-height: 100vh;
 `;
 
 const Section = styled.section`
@@ -97,6 +96,7 @@ const ButtonRow = styled.div`
   flex-wrap: wrap;
   gap: 0.9rem;
   align-items: center;
+  margin: auto;
 
   ${({ $centered }) =>
     $centered &&
@@ -158,32 +158,37 @@ const FeatureCard = styled.article`
   border: 1px solid rgba(208, 186, 255, 0.22);
   box-shadow: var(--shadow-card);
   display: grid;
-  gap: 0.75rem;
+  gap: 1rem;
+  align-content: start;
 `;
 
 const FeatureTitle = styled.h3`
   font-family: var(--font-display);
-  font-size: 1.1rem;
+  font-size: clamp(1.15rem, 2.5vw, 1.35rem);
+  font-weight: 600;
+  line-height: 1.3;
   margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  color: var(--color-text-primary);
 `;
 
 const NewBadge = styled.span`
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
   background: linear-gradient(120deg, #6a36ff 0%, #ff36d5 100%);
   color: var(--color-text-primary);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  box-shadow: 0 4px 12px rgba(106, 54, 255, 0.3);
 `;
 
 const FeatureText = styled.p`
-  font-size: 0.98rem;
-  line-height: 1.6;
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+  line-height: 1.65;
   color: var(--color-text-secondary);
   margin: 0;
 `;
@@ -277,7 +282,7 @@ const WhySection = ({ onCtaClick }) => (
       <Split>
         <BodyCopy>
           <Eyebrow>Connection takes effort. We make it easier.</Eyebrow>
-          <Heading>Social coordination shouldn’t be the barrier to intentional community.</Heading>
+          <Heading>Social coordination shouldn’t be a barrier.</Heading>
         </BodyCopy>
         <BodyCopy>
           <Paragraph>
@@ -355,10 +360,8 @@ const FeaturesSection = ({ onCtaClick }) => (
           ['Vendor Coordination', 'Manage your partners and bookings seamlessly, from venues to vendors to volunteers.', true],
         ].map(([title, description, isNew]) => (
           <FeatureCard key={title}>
-            <FeatureTitle>
-              {title}
-              {isNew && <NewBadge>New</NewBadge>}
-            </FeatureTitle>
+            {isNew && <NewBadge>New</NewBadge>}
+            <FeatureTitle>{title}</FeatureTitle>
             <FeatureText>{description}</FeatureText>
           </FeatureCard>
         ))}
@@ -410,21 +413,23 @@ const LandingPage = () => {
   };
 
   return (
-    <Page>
-      <Hero onPrimaryClick={handleCtaClick('Try Voxxy Mobile', 'Hero')} onSecondaryClick={handleCtaClick('Explore Voxxy Presents', 'Hero')} />
-      <WhySection onCtaClick={handleCtaClick('See How It Works', 'Why Voxxy')} />
-      <FlowsSection
-        onMobileCta={handleCtaClick('Get the App', 'Choose Your Flow')}
-        onPresentsCta={handleCtaClick('Join Voxxy Presents', 'Choose Your Flow')}
-      />
-      <FeaturesSection onCtaClick={handleCtaClick('Start Planning', 'Features')} />
-      <CommunitySection onCtaClick={handleCtaClick('Meet Our Communities', 'Community')} />
-      <FinalCTA
-        onPrimaryClick={handleCtaClick('Try Voxxy Mobile', 'Final CTA')}
-        onSecondaryClick={handleCtaClick('Join Voxxy Presents', 'Final CTA')}
-      />
+    <>
+      <Page>
+        <Hero onPrimaryClick={handleCtaClick('Try Voxxy Mobile', 'Hero')} onSecondaryClick={handleCtaClick('Explore Voxxy Presents', 'Hero')} />
+        <WhySection onCtaClick={handleCtaClick('See How It Works', 'Why Voxxy')} />
+        <FlowsSection
+          onMobileCta={handleCtaClick('Get the App', 'Choose Your Flow')}
+          onPresentsCta={handleCtaClick('Join Voxxy Presents', 'Choose Your Flow')}
+        />
+        <FeaturesSection onCtaClick={handleCtaClick('Start Planning', 'Features')} />
+        <CommunitySection onCtaClick={handleCtaClick('Meet Our Communities', 'Community')} />
+        <FinalCTA
+          onPrimaryClick={handleCtaClick('Try Voxxy Mobile', 'Final CTA')}
+          onSecondaryClick={handleCtaClick('Join Voxxy Presents', 'Final CTA')}
+        />
+      </Page>
       <Footer />
-    </Page>
+    </>
   );
 };
 

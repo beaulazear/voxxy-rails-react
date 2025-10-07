@@ -6,7 +6,7 @@ import { trackEvent, trackPageView } from '../utils/analytics';
 const Page = styled.main`
   background: var(--color-space-900);
   color: var(--color-text-primary);
-  padding: clamp(4rem, 8vw, 6.5rem) 1.5rem;
+  padding: clamp(4rem, 8vw, 6.5rem) 1.5rem 0;
 `;
 
 const Container = styled.div`
@@ -14,6 +14,7 @@ const Container = styled.div`
   margin: 0 auto;
   display: grid;
   gap: clamp(2.5rem, 6vw, 4rem);
+  padding-bottom: clamp(3rem, 6vw, 4rem);
 `;
 
 const Heading = styled.h1`
@@ -66,39 +67,41 @@ const GetStartedPage = () => {
   const handleCardViewed = (label) => trackEvent('Get Started Option Viewed', { label });
 
   return (
-    <Page>
-      <Container>
-        <section className="voxxy-stack">
-          <Heading>Choose your Voxxy experience</Heading>
+    <>
+      <Page>
+        <Container>
+          <section className="voxxy-stack">
+            <Heading>Choose your Voxxy experience</Heading>
+            <Paragraph>
+              Download Voxxy Mobile for instant group planning or upgrade to Voxxy Presents to power your community events with professional tooling.
+            </Paragraph>
+          </section>
+
+          <CardGrid>
+            <Card id="mobile" onMouseEnter={() => handleCardViewed('Voxxy Mobile')}>
+              <h2 className="voxxy-title">Voxxy Mobile</h2>
+              <Paragraph>
+                Download the app and start planning with friends. Personalised recommendations, quick polls, and smart scheduling wherever you gather.
+              </Paragraph>
+              <Placeholder data-label="app store badges" />
+            </Card>
+
+            <Card id="presents" onMouseEnter={() => handleCardViewed('Voxxy Presents')}>
+              <h2 className="voxxy-title">Voxxy Presents</h2>
+              <Paragraph>
+                Create your organizer account $15/month during beta. Build recurring events, manage member lists, and grow your community with ease.
+              </Paragraph>
+              <Placeholder data-label="organizer dashboard" />
+            </Card>
+          </CardGrid>
+
           <Paragraph>
-            Download Voxxy Mobile for instant group planning or upgrade to Voxxy Presents to power your community events with professional tooling.
+            Questions? Email Courtney at <a href="mailto:team@heyvoxxy.com" onClick={() => trackEvent('CTA Clicked', { label: 'Email Courtney', location: 'Get Started Page' })}>team@heyvoxxy.com</a>.
           </Paragraph>
-        </section>
-
-        <CardGrid>
-          <Card id="mobile" onMouseEnter={() => handleCardViewed('Voxxy Mobile')}>
-            <h2 className="voxxy-title">Voxxy Mobile</h2>
-            <Paragraph>
-              Download the app and start planning with friends. Personalised recommendations, quick polls, and smart scheduling wherever you gather.
-            </Paragraph>
-            <Placeholder data-label="app store badges" />
-          </Card>
-
-          <Card id="presents" onMouseEnter={() => handleCardViewed('Voxxy Presents')}>
-            <h2 className="voxxy-title">Voxxy Presents</h2>
-            <Paragraph>
-              Create your organizer account $15/month during beta. Build recurring events, manage member lists, and grow your community with ease.
-            </Paragraph>
-            <Placeholder data-label="organizer dashboard" />
-          </Card>
-        </CardGrid>
-
-        <Paragraph>
-          Questions? Email Courtney at <a href="mailto:team@heyvoxxy.com" onClick={() => trackEvent('CTA Clicked', { label: 'Email Courtney', location: 'Get Started Page' })}>team@heyvoxxy.com</a>.
-        </Paragraph>
-      </Container>
+        </Container>
+      </Page>
       <Footer />
-    </Page>
+    </>
   );
 };
 

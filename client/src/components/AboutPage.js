@@ -6,7 +6,7 @@ import { trackEvent, trackPageView } from '../utils/analytics';
 const Page = styled.main`
   background: var(--color-space-900);
   color: var(--color-text-primary);
-  padding: clamp(4rem, 8vw, 6.5rem) 1.5rem;
+  padding: clamp(4rem, 8vw, 6.5rem) 1.5rem 0;
 `;
 
 const Container = styled.div`
@@ -14,7 +14,7 @@ const Container = styled.div`
   margin: 0 auto;
   display: grid;
   gap: clamp(2.5rem, 6vw, 4rem);
-  padding-bottom: clamp(3rem, 8vw, 5rem);
+  padding-bottom: clamp(3rem, 6vw, 4rem);
 `;
 
 const Heading = styled.h1`
@@ -73,7 +73,8 @@ const AboutPage = () => {
   };
 
   return (
-    <Page>
+    <>
+      <Page>
       <Container>
         <section className="voxxy-stack">
           <Heading>To make connection effortless and communities sustainable.</Heading>
@@ -105,8 +106,9 @@ const AboutPage = () => {
           </Card>
         </section>
       </Container>
+      </Page>
       <Footer />
-    </Page>
+    </>
   );
 };
 

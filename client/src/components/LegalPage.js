@@ -7,7 +7,7 @@ import { trackEvent, trackPageView } from '../utils/analytics';
 const Page = styled.main`
   background: var(--color-space-900);
   color: var(--color-text-primary);
-  padding: clamp(4rem, 8vw, 6.5rem) 1.5rem;
+  padding: clamp(4rem, 8vw, 6.5rem) 1.5rem 0;
 `;
 
 const Container = styled.div`
@@ -15,6 +15,7 @@ const Container = styled.div`
   margin: 0 auto;
   display: grid;
   gap: clamp(2.5rem, 6vw, 4rem);
+  padding-bottom: clamp(3rem, 6vw, 4rem);
 `;
 
 const Heading = styled.h1`
@@ -65,37 +66,39 @@ const LegalPage = () => {
   const handleClick = (label) => () => trackEvent('CTA Clicked', { label, location: 'Legal Page' });
 
   return (
-    <Page>
-      <Container>
-        <section className="voxxy-stack">
-          <Heading>Legal & Trust Center</Heading>
-          <Paragraph>
-            We take privacy, safety, and transparency seriously. Review our policies below they define how we operate and protect the communities that rely on Voxxy.
-          </Paragraph>
-        </section>
+    <>
+      <Page>
+        <Container>
+          <section className="voxxy-stack">
+            <Heading>Legal & Trust Center</Heading>
+            <Paragraph>
+              We take privacy, safety, and transparency seriously. Review our policies below they define how we operate and protect the communities that rely on Voxxy.
+            </Paragraph>
+          </section>
 
-        <DocumentCard>
-          <h2 className="voxxy-title">Terms of Service</h2>
-          <Paragraph>
-            Understand the rules of engagement for using Voxxy across mobile and organizer experiences.
-          </Paragraph>
-          <Button to="/terms" onClick={handleClick('View Terms')}>
-            View Terms
-          </Button>
-        </DocumentCard>
+          <DocumentCard>
+            <h2 className="voxxy-title">Terms of Service</h2>
+            <Paragraph>
+              Understand the rules of engagement for using Voxxy across mobile and organizer experiences.
+            </Paragraph>
+            <Button to="/terms" onClick={handleClick('View Terms')}>
+              View Terms
+            </Button>
+          </DocumentCard>
 
-        <DocumentCard>
-          <h2 className="voxxy-title">Privacy Policy</h2>
-          <Paragraph>
-            Learn how we collect, use, and safeguard personal data for hosts and attendees alike.
-          </Paragraph>
-          <Button to="/privacy" onClick={handleClick('View Privacy Policy')}>
-            View Privacy Policy
-          </Button>
-        </DocumentCard>
-      </Container>
+          <DocumentCard>
+            <h2 className="voxxy-title">Privacy Policy</h2>
+            <Paragraph>
+              Learn how we collect, use, and safeguard personal data for hosts and attendees alike.
+            </Paragraph>
+            <Button to="/privacy" onClick={handleClick('View Privacy Policy')}>
+              View Privacy Policy
+            </Button>
+          </DocumentCard>
+        </Container>
+      </Page>
       <Footer />
-    </Page>
+    </>
   );
 };
 
