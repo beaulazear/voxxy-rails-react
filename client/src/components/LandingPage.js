@@ -47,8 +47,17 @@ const Page = styled.main`
 `;
 
 const Section = styled.section`
-  padding: clamp(4rem, 8vw, 6.5rem) 1.5rem;
+  padding: 4rem 1.5rem;
   position: relative;
+
+  @media (min-width: 768px) {
+    padding: 5rem 1.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 6rem 1.5rem;
+  }
+
   ${({ $variant }) =>
     $variant === 'alt'
       ? css`
@@ -62,8 +71,12 @@ const Section = styled.section`
       min-height: 100vh;
       display: flex;
       align-items: center;
-      padding-top: 0;
-      padding-bottom: 0;
+      padding: 1.5rem 1.5rem;
+
+      @media (min-width: 768px) {
+        padding-top: 0;
+        padding-bottom: 0;
+      }
     `}
 
   opacity: ${({ $isVisible }) => ($isVisible ? 1 : 0)};
@@ -75,17 +88,34 @@ const SectionInner = styled.div`
   max-width: 1120px;
   margin: 0 auto;
   display: grid;
-  gap: clamp(2.5rem, 6vw, 4rem);
+  gap: 2.5rem;
+
+  @media (min-width: 768px) {
+    gap: 3rem;
+  }
+
+  @media (min-width: 1024px) {
+    gap: 4rem;
+  }
 `;
 
 const Split = styled.div`
   display: grid;
-  gap: clamp(2rem, 5vw, 3.5rem);
+  gap: 1rem;
   align-items: center;
   scroll-margin-top: 80px;
 
+  @media (min-width: 480px) {
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    gap: 2.5rem;
+  }
+
   @media (min-width: 960px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3rem;
   }
 
   ${({ $reverseOnMobile }) =>
@@ -117,51 +147,113 @@ const Eyebrow = styled.span`
 
 const Title = styled.h1`
   font-family: var(--font-display);
-  font-size: clamp(2.7rem, 7vw, 4.8rem);
-  line-height: 1.05;
+  font-size: 2rem;
+  line-height: 1.1;
   margin: 0;
   text-wrap: balance;
+  padding-top: 0.5rem;
 
-  @media (max-width: 768px) {
-    padding-top: 3rem;
+  @media (min-width: 480px) {
+    font-size: 2.5rem;
+    padding-top: 0.75rem;
+  }
+
+  @media (min-width: 768px) {
+    font-size: 3.5rem;
+    line-height: 1.05;
+    padding-top: 0;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 4.5rem;
   }
 `;
 
 const Heading = styled.h2`
   font-family: var(--font-display);
-  font-size: clamp(2rem, 6vw, 3.25rem);
+  font-size: 2rem;
   line-height: 1.1;
   margin: 0;
   text-wrap: balance;
+
+  @media (min-width: 768px) {
+    font-size: 2.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 3rem;
+  }
 `;
 
 const Subheading = styled.h3`
   font-family: var(--font-display);
-  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-size: 1.5rem;
   line-height: 1.2;
   margin: 0;
   text-wrap: balance;
+
+  @media (min-width: 768px) {
+    font-size: 1.75rem;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 2rem;
+  }
 `;
 
 const Paragraph = styled.p`
-  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
-  line-height: 1.65;
+  font-size: 0.95rem;
+  line-height: 1.5;
   color: var(--color-text-secondary);
   max-width: 60ch;
+
+  @media (min-width: 480px) {
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+
+  @media (min-width: 768px) {
+    font-size: 1.15rem;
+    line-height: 1.65;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 1.25rem;
+  }
 `;
 
 const BodyCopy = styled.div`
   display: grid;
-  gap: clamp(1.2rem, 3vw, 1.8rem);
+  gap: 0.75rem;
   text-align: center;
+
+  @media (min-width: 480px) {
+    gap: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    gap: 1.8rem;
+  }
 `;
 
 const ButtonRow = styled.div`
   display: inline-flex;
   flex-wrap: wrap;
-  gap: 0.9rem;
+  gap: 0.5rem;
   align-items: center;
   margin: auto;
+
+  @media (min-width: 480px) {
+    gap: 0.75rem;
+  }
+
+  @media (min-width: 768px) {
+    gap: 0.9rem;
+  }
 
   ${({ $centered }) =>
     $centered &&
@@ -174,12 +266,22 @@ const buttonStyles = css`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.95rem 1.9rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 999px;
   font-family: var(--font-display);
   font-weight: 600;
+  font-size: 0.9rem;
   text-decoration: none;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  @media (min-width: 480px) {
+    padding: 0.85rem 1.7rem;
+    font-size: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    padding: 0.95rem 1.9rem;
+  }
 `;
 
 const PrimaryButtonExternal = styled.a`
@@ -249,9 +351,27 @@ const SecondaryButtonScroll = styled.button`
 const Image = styled.img`
   width: 100%;
   height: auto;
-  max-height: clamp(575px, 75vh, 865px);
-  border-radius: 32px;
+  max-width: 280px;
+  max-height: 250px;
+  border-radius: 24px;
   object-fit: contain;
+  margin: 0 auto;
+
+  @media (min-width: 480px) {
+    max-width: 350px;
+    max-height: 320px;
+  }
+
+  @media (min-width: 768px) {
+    max-width: 450px;
+    max-height: 400px;
+    border-radius: 32px;
+  }
+
+  @media (min-width: 960px) {
+    max-width: 600px;
+    max-height: 600px;
+  }
 `;
 
 const List = styled.ul`
@@ -287,13 +407,23 @@ const CTAContainer = styled.div`
   max-width: 960px;
   margin: 0 auto;
   border-radius: 40px;
-  padding: clamp(2.8rem, 6vw, 4.5rem);
+  padding: 2.8rem;
   background: linear-gradient(135deg, rgba(21, 5, 42, 0.95), rgba(59, 13, 88, 0.92));
   box-shadow: 0 35px 60px rgba(10, 3, 25, 0.55);
   display: grid;
-  gap: clamp(1.4rem, 3vw, 2rem);
+  gap: 1.4rem;
   justify-items: center;
   text-align: center;
+
+  @media (min-width: 768px) {
+    padding: 3.5rem;
+    gap: 1.7rem;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 4.5rem;
+    gap: 2rem;
+  }
 `;
 
 const Hero = ({ onPrimaryClick, onSecondaryClick }) => {
