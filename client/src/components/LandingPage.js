@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import { trackEvent, trackPageView } from '../utils/analytics';
@@ -8,10 +8,42 @@ import mobileScreenshots1 from '../assets/mobile_screenshots1.svg';
 import six from '../assets/6.svg';
 import homeimage2 from '../assets/5.svg';
 
+// Custom hook for scroll reveal animations
+const useScrollReveal = () => {
+  const ref = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const currentRef = ref.current;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+      }
+    );
+
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, []);
+
+  return [ref, isVisible];
+};
+
 const Page = styled.main`
   background: var(--color-space-900);
   color: var(--color-text-primary);
-  padding-top: clamp(3rem, 6vw, 4rem);
 `;
 
 const Section = styled.section`
@@ -23,6 +55,20 @@ const Section = styled.section`
           background: linear-gradient(160deg, rgba(16, 10, 32, 0.92), rgba(27, 18, 47, 0.88));
         `
       : null}
+
+  ${({ $isHero }) =>
+    $isHero &&
+    css`
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding-top: 0;
+      padding-bottom: 0;
+    `}
+
+  opacity: ${({ $isVisible }) => ($isVisible ? 1 : 0)};
+  transform: translateY(${({ $isVisible }) => ($isVisible ? '0' : '40px')});
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 `;
 
 const SectionInner = styled.div`
@@ -256,11 +302,10 @@ const Hero = ({ onPrimaryClick, onSecondaryClick }) => {
   };
 
   return (
-    <Section className="voxxy-aurora">
+    <Section className="voxxy-aurora" $isVisible={true} $isHero={true}>
       <SectionInner>
         <Split>
           <BodyCopy>
-            <Eyebrow>Built for intentional gatherings</Eyebrow>
             <Title className="voxxy-title--glow">Turn plans into community.</Title>
             <Paragraph>
               Voxxy is the social planning platform that helps friends, clubs, and organizers build connection through effortless coordination.
@@ -281,79 +326,91 @@ const Hero = ({ onPrimaryClick, onSecondaryClick }) => {
   );
 };
 
-const WhySection = ({ onCtaClick }) => (
-  <Section>
-    <SectionInner>
-      <Split $reverseOnMobile>
-        <Image src={homeimage2} alt="Voxxy platform illustration" />
-        <BodyCopy>
-          <Eyebrow>Connection takes effort. We make it easier.</Eyebrow>
-          <Heading>Social coordination should not be a barrier.</Heading>
-          <Paragraph>
-            Voxxy removes the friction from group planning — we built the infrastructure people need to turn ideas into lasting connections and coordination into celebration.
-          </Paragraph>
-          <SecondaryButton to="/how-it-works" onClick={onCtaClick}>See how it works</SecondaryButton>
-        </BodyCopy>
-      </Split>
-    </SectionInner>
-  </Section>
-);
+const WhySection = ({ onCtaClick }) => {
+  const [ref, isVisible] = useScrollReveal();
 
-const FlowsSection = ({ onMobileCta, onPresentsCta }) => (
-  <Section $variant="alt">
-    <SectionInner>
-      <Eyebrow>Choose your flow</Eyebrow>
-      <Heading>Voxxy adapts to how you gather.</Heading>
-      <Split id="voxxy-mobile">
-        <BodyCopy className="voxxy-surface voxxy-surface--spacious">
-          <Eyebrow>Voxxy Mobile</Eyebrow>
-          <Subheading className="voxxy-title">Plan together, faster.</Subheading>
-          <Paragraph>
-            For friends, roommates, and coworkers — Voxxy helps you decide what to do and where to go without the chaos. It learns what you like, suggests options that fit everyone's preferences, and helps your group decide quickly so you can get back to enjoying your time together.
-          </Paragraph>
-          <List>
-            <ListItem>Personalized group recommendations</ListItem>
-            <ListItem>Quick polls and shared picks</ListItem>
-            <ListItem>Smart scheduling that actually works</ListItem>
-            <ListItem>Favorites saved for future plans</ListItem>
-          </List>
-          <PrimaryButtonExternal href="https://apps.apple.com/us/app/voxxy/id6746337878" target="_blank" rel="noopener noreferrer" onClick={onMobileCta}>Get the App</PrimaryButtonExternal>
-        </BodyCopy>
-        <Image src={mobileScreenshots1} alt="Voxxy Mobile app screenshots" />
-      </Split>
-      <Split id="voxxy-presents" $reverseOnMobile>
-        <Image src={six} alt="Voxxy Presents workspace preview" />
-        <BodyCopy className="voxxy-surface voxxy-surface--spacious">
-          <Eyebrow>Voxxy Presents</Eyebrow>
-          <Subheading className="voxxy-title">Built for community builders.</Subheading>
-          <Paragraph>
-            For clubs, hosts, and organizers — Voxxy Presents provides the tools to plan recurring events and grow your community sustainably. From monthly meetups to membership-based programs, you can manage events, track attendance, and keep members engaged all in one place.
-          </Paragraph>
-          <List>
-            <ListItem>Reusable event templates & scheduling</ListItem>
-            <ListItem>Budget & vendor tracking</ListItem>
-            <ListItem>Member communication tools</ListItem>
-            <ListItem>Public club page for promotion and RSVPs</ListItem>
-          </List>
-          <SecondaryButtonExternal href="https://www.voxxypresents.com/" target="_blank" rel="noopener noreferrer" onClick={onPresentsCta}>Join Voxxy Presents</SecondaryButtonExternal>
-        </BodyCopy>
-      </Split>
-    </SectionInner>
-  </Section>
-);
+  return (
+    <Section ref={ref} $isVisible={isVisible}>
+      <SectionInner>
+        <Split $reverseOnMobile>
+          <Image src={homeimage2} alt="Voxxy platform illustration" />
+          <BodyCopy>
+            <Eyebrow>Connection takes effort. We make it easier.</Eyebrow>
+            <Heading>Social coordination should not be a barrier.</Heading>
+            <Paragraph>
+              Voxxy removes the friction from group planning — we built the infrastructure people need to turn ideas into lasting connections and coordination into celebration.
+            </Paragraph>
+            <SecondaryButton to="/how-it-works" onClick={onCtaClick}>See how it works</SecondaryButton>
+          </BodyCopy>
+        </Split>
+      </SectionInner>
+    </Section>
+  );
+};
 
-const FinalCTA = ({ onPrimaryClick, onSecondaryClick }) => (
-  <Section>
-    <CTAContainer>
-      <Heading>Ready to build your community?</Heading>
-      <Paragraph>Voxxy helps people plan, host, and grow all in one place.</Paragraph>
-      <ButtonRow $centered>
-        <PrimaryButtonExternal href="https://apps.apple.com/us/app/voxxy/id6746337878" target="_blank" rel="noopener noreferrer" onClick={onPrimaryClick}>Try Voxxy Mobile</PrimaryButtonExternal>
-        <SecondaryButtonExternal href="https://www.voxxypresents.com/" target="_blank" rel="noopener noreferrer" onClick={onSecondaryClick}>Join Voxxy Presents</SecondaryButtonExternal>
-      </ButtonRow>
-    </CTAContainer>
-  </Section>
-);
+const FlowsSection = ({ onMobileCta, onPresentsCta }) => {
+  const [ref, isVisible] = useScrollReveal();
+
+  return (
+    <Section ref={ref} $isVisible={isVisible} $variant="alt">
+      <SectionInner>
+        <Eyebrow>Choose your flow</Eyebrow>
+        <Heading>Voxxy adapts to how you gather.</Heading>
+        <Split id="voxxy-mobile">
+          <BodyCopy className="voxxy-surface voxxy-surface--spacious">
+            <Eyebrow>Voxxy Mobile</Eyebrow>
+            <Subheading className="voxxy-title">Plan together, faster.</Subheading>
+            <Paragraph>
+              For friends, roommates, and coworkers — Voxxy helps you decide what to do and where to go without the chaos. It learns what you like, suggests options that fit everyone's preferences, and helps your group decide quickly so you can get back to enjoying your time together.
+            </Paragraph>
+            <List>
+              <ListItem>Personalized group recommendations</ListItem>
+              <ListItem>Quick polls and shared picks</ListItem>
+              <ListItem>Smart scheduling that actually works</ListItem>
+              <ListItem>Favorites saved for future plans</ListItem>
+            </List>
+            <PrimaryButtonExternal href="https://apps.apple.com/us/app/voxxy/id6746337878" target="_blank" rel="noopener noreferrer" onClick={onMobileCta}>Get the App</PrimaryButtonExternal>
+          </BodyCopy>
+          <Image src={mobileScreenshots1} alt="Voxxy Mobile app screenshots" />
+        </Split>
+        <Split id="voxxy-presents" $reverseOnMobile>
+          <Image src={six} alt="Voxxy Presents workspace preview" />
+          <BodyCopy className="voxxy-surface voxxy-surface--spacious">
+            <Eyebrow>Voxxy Presents</Eyebrow>
+            <Subheading className="voxxy-title">Built for community builders.</Subheading>
+            <Paragraph>
+              For clubs, hosts, and organizers — Voxxy Presents provides the tools to plan recurring events and grow your community sustainably. From monthly meetups to membership-based programs, you can manage events, track attendance, and keep members engaged all in one place.
+            </Paragraph>
+            <List>
+              <ListItem>Reusable event templates & scheduling</ListItem>
+              <ListItem>Budget & vendor tracking</ListItem>
+              <ListItem>Member communication tools</ListItem>
+              <ListItem>Public club page for promotion and RSVPs</ListItem>
+            </List>
+            <SecondaryButtonExternal href="https://www.voxxypresents.com/" target="_blank" rel="noopener noreferrer" onClick={onPresentsCta}>Join Voxxy Presents</SecondaryButtonExternal>
+          </BodyCopy>
+        </Split>
+      </SectionInner>
+    </Section>
+  );
+};
+
+const FinalCTA = ({ onPrimaryClick, onSecondaryClick }) => {
+  const [ref, isVisible] = useScrollReveal();
+
+  return (
+    <Section ref={ref} $isVisible={isVisible}>
+      <CTAContainer>
+        <Heading>Ready to build your community?</Heading>
+        <Paragraph>Voxxy helps people plan, host, and grow all in one place.</Paragraph>
+        <ButtonRow $centered>
+          <PrimaryButtonExternal href="https://apps.apple.com/us/app/voxxy/id6746337878" target="_blank" rel="noopener noreferrer" onClick={onPrimaryClick}>Try Voxxy Mobile</PrimaryButtonExternal>
+          <SecondaryButtonExternal href="https://www.voxxypresents.com/" target="_blank" rel="noopener noreferrer" onClick={onSecondaryClick}>Join Voxxy Presents</SecondaryButtonExternal>
+        </ButtonRow>
+      </CTAContainer>
+    </Section>
+  );
+};
 
 const LandingPage = () => {
   useEffect(() => {

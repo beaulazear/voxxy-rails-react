@@ -36,9 +36,9 @@
 
   /* Gradients */
   --gradient-orbit: linear-gradient(135deg, #3f00ff 0%, #ff4fd8 45%, #ff9a3c 100%);
-  --gradient-aurora: radial-gradient(circle at 18% 18%, rgba(111, 82, 255, 0.5), transparent 55%),
-                     radial-gradient(circle at 80% 30%, rgba(255, 77, 214, 0.35), transparent 60%),
-                     radial-gradient(circle at 50% 80%, rgba(76, 235, 255, 0.35), transparent 60%);
+  --gradient-aurora: radial-gradient(circle at 18% 18%, rgba(144, 81, 225, 0.8), transparent 55%),
+                     radial-gradient(circle at 80% 30%, rgba(204, 49, 232, 0.6), transparent 60%),
+                     radial-gradient(circle at 50% 80%, rgba(185, 49, 214, 0.6), transparent 60%);
   --gradient-glass: linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(135, 104, 255, 0.12));
   --gradient-panel: linear-gradient(140deg, rgba(24, 15, 43, 0.88), rgba(52, 27, 83, 0.8));
 
@@ -96,7 +96,7 @@ body.voxxy-future {
   inset: 0;
   background: var(--gradient-aurora);
   filter: blur(80px);
-  opacity: 0.85;
+  opacity: 1;
   z-index: -2;
 }
 

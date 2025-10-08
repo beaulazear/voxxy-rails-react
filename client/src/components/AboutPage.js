@@ -110,14 +110,14 @@ const AboutPage = () => {
           <Split>
             <FounderImage
               src={founderImage}
-              alt="Beau Lazear and Courtney Greer"
+              alt="Courtney Greer and Beau Lazear"
               loading="lazy"
               decoding="async"
             />
             <FounderInfo>
               <Subheading>Meet the founders</Subheading>
               <Paragraph>
-                <strong>Beau Lazear</strong> and <strong>Courtney Greer</strong> are building Voxxy to bridge the gap between spontaneous hangouts and sustainable community.
+                <strong>Courtney Greer</strong> and <strong>Beau Lazear</strong> are building Voxxy to bridge the gap between spontaneous hangouts and sustainable community.
               </Paragraph>
               <Paragraph>
                 We believe software should amplify human warmth, not replace it.
@@ -128,7 +128,7 @@ const AboutPage = () => {
           <Card>
             <CardHeading>Let's work together</CardHeading>
             <Paragraph>
-              Interested in collaborating, partnering, or investing? Reach out at <EmailLink href="mailto:courtneygreer@heyvoxxy.com" onClick={handleEmailClick}>courtneygreer@heyvoxxy.com</EmailLink> or <EmailLink href="mailto:beaulazear@voxxyai.com" onClick={handleEmailClick}>beaulazear@voxxyai.com</EmailLink>
+              Interested in collaborating, partnering, or investing? Reach out at <EmailLink href="mailto:courtneygreer@heyvoxxy.com" onClick={handleEmailClick}>courtneygreer@heyvoxxy.com</EmailLink> or <EmailLink href="mailto:beaulazear@heyvoxxy.com" onClick={handleEmailClick}>beaulazear@heyvoxxy.com</EmailLink>
             </Paragraph>
           </Card>
         </Container>

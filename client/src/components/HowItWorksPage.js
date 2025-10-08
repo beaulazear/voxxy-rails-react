@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { trackEvent, trackPageView } from '../utils/analytics';
 import Footer from './Footer';
 import mobileScreenshots1 from '../assets/mobile_screenshots1.svg';
@@ -44,6 +44,19 @@ const Split = styled.section`
   @media (min-width: 920px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  ${({ $reverseOnMobile }) =>
+    $reverseOnMobile &&
+    css`
+      @media (max-width: 919px) {
+        > *:first-child {
+          order: 2;
+        }
+        > *:last-child {
+          order: 1;
+        }
+      }
+    `}
 `;
 
 const CopyStack = styled.div`
@@ -178,7 +191,7 @@ const HowItWorksPage = () => {
           <Image src={mobileScreenshots1} alt="Voxxy Mobile flow visual" />
         </Split>
 
-        <Split>
+        <Split $reverseOnMobile>
           <Image src={six} alt="Voxxy Presents organizer workspace" />
           <CopyStack>
             <Eyebrow>Voxxy Presents</Eyebrow>
