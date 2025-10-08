@@ -11,6 +11,7 @@ import homeimage2 from '../assets/5.svg';
 const Page = styled.main`
   background: var(--color-space-900);
   color: var(--color-text-primary);
+  padding-top: clamp(4.5rem, 8vw, 6rem);
 `;
 
 const Section = styled.section`
@@ -105,7 +106,7 @@ const ButtonRow = styled.div`
     `}
 `;
 
-const PrimaryButton = styled(Link)`
+const buttonStyles = css`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -113,11 +114,29 @@ const PrimaryButton = styled(Link)`
   border-radius: 999px;
   font-family: var(--font-display);
   font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+`;
+
+const PrimaryButton = styled(Link)`
+  ${buttonStyles}
   border: none;
   color: var(--color-text-primary);
   background-image: linear-gradient(120deg, #6a36ff 0%, #ff36d5 52%, #ff9d3f 100%);
   box-shadow: 0 12px 35px rgba(146, 77, 255, 0.35);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px rgba(146, 77, 255, 0.45);
+  }
+`;
+
+const PrimaryButtonExternal = styled.a`
+  ${buttonStyles}
+  border: none;
+  color: var(--color-text-primary);
+  background-image: linear-gradient(120deg, #6a36ff 0%, #ff36d5 52%, #ff9d3f 100%);
+  box-shadow: 0 12px 35px rgba(146, 77, 255, 0.35);
 
   &:hover {
     transform: translateY(-2px);
@@ -126,17 +145,22 @@ const PrimaryButton = styled(Link)`
 `;
 
 const SecondaryButton = styled(Link)`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.95rem 1.9rem;
-  border-radius: 999px;
-  font-family: var(--font-display);
-  font-weight: 600;
+  ${buttonStyles}
   border: 1px solid rgba(203, 184, 255, 0.4);
   color: var(--color-plasma-300);
   background: rgba(255, 255, 255, 0.03);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 30px rgba(86, 51, 139, 0.35);
+  }
+`;
+
+const SecondaryButtonExternal = styled.a`
+  ${buttonStyles}
+  border: 1px solid rgba(203, 184, 255, 0.4);
+  color: var(--color-plasma-300);
+  background: rgba(255, 255, 255, 0.03);
 
   &:hover {
     transform: translateY(-1px);
@@ -191,19 +215,6 @@ const FeatureText = styled.p`
   line-height: 1.65;
   color: var(--color-text-secondary);
   margin: 0;
-`;
-
-const Placeholder = styled.div`
-  min-height: clamp(260px, 32vw, 360px);
-  border-radius: 32px;
-  border: 1px dashed rgba(210, 186, 255, 0.35);
-  display: grid;
-  place-items: center;
-  color: var(--color-text-muted);
-  font-family: var(--font-display);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  background: linear-gradient(140deg, rgba(24, 15, 43, 0.8), rgba(52, 27, 83, 0.75));
 `;
 
 const Image = styled.img`
@@ -265,9 +276,9 @@ const Hero = ({ onPrimaryClick, onSecondaryClick }) => (
           <Paragraph>
             Voxxy is the social planning platform that helps friends, clubs, and organizers build connection through effortless coordination.
           </Paragraph>
-          <ButtonRow>
-            <PrimaryButton to="/get-started#mobile" onClick={onPrimaryClick}>Try Voxxy Mobile</PrimaryButton>
-            <SecondaryButton to="/get-started#presents" onClick={onSecondaryClick}>Explore Voxxy Presents</SecondaryButton>
+          <ButtonRow $centered>
+            <PrimaryButtonExternal href="https://apps.apple.com/us/app/voxxy/id6746337878" target="_blank" rel="noopener noreferrer" onClick={onPrimaryClick}>Try Voxxy Mobile</PrimaryButtonExternal>
+            <SecondaryButtonExternal href="https://www.voxxypresents.com/" target="_blank" rel="noopener noreferrer" onClick={onSecondaryClick}>Explore Voxxy Presents</SecondaryButtonExternal>
           </ButtonRow>
         </BodyCopy>
         <Image src={homeimage1} alt="Voxxy hero illustration" />
@@ -286,10 +297,7 @@ const WhySection = ({ onCtaClick }) => (
         </BodyCopy>
         <BodyCopy>
           <Paragraph>
-            When people want to try new experiences together, they get stuck in endless group chats about where to go and when to meet. Community builders face exhausting logistics that drain the joy from bringing people together.
-          </Paragraph>
-          <Paragraph>
-            Voxxy removes that friction. We built the infrastructure people need to turn ideas into lasting connections — coordination into celebration.
+            When people want to try new experiences together, they get stuck in endless group chats about where to go and when to meet. Community builders face exhausting logistics that drain the joy from bringing people together. Voxxy removes that friction — we built the infrastructure people need to turn ideas into lasting connections and coordination into celebration.
           </Paragraph>
           <SecondaryButton to="/how-it-works" onClick={onCtaClick}>See how it works</SecondaryButton>
         </BodyCopy>
@@ -316,7 +324,7 @@ const FlowsSection = ({ onMobileCta, onPresentsCta }) => (
             <ListItem>Smart scheduling that actually works</ListItem>
             <ListItem>Favorites saved for future plans</ListItem>
           </List>
-          <PrimaryButton to="/get-started#mobile" onClick={onMobileCta}>Get the App</PrimaryButton>
+          <PrimaryButtonExternal href="https://apps.apple.com/us/app/voxxy/id6746337878" target="_blank" rel="noopener noreferrer" onClick={onMobileCta}>Get the App</PrimaryButtonExternal>
         </BodyCopy>
         <Image src={mobileScreenshots1} alt="Voxxy Mobile app screenshots" />
       </Split>
@@ -334,7 +342,7 @@ const FlowsSection = ({ onMobileCta, onPresentsCta }) => (
             <ListItem>Member communication tools</ListItem>
             <ListItem>Public club page for promotion and RSVPs</ListItem>
           </List>
-          <SecondaryButton to="/get-started#presents" onClick={onPresentsCta}>Join Voxxy Presents</SecondaryButton>
+          <SecondaryButtonExternal href="https://www.voxxypresents.com/" target="_blank" rel="noopener noreferrer" onClick={onPresentsCta}>Join Voxxy Presents</SecondaryButtonExternal>
         </BodyCopy>
       </Split>
     </SectionInner>
@@ -395,8 +403,8 @@ const FinalCTA = ({ onPrimaryClick, onSecondaryClick }) => (
       <Heading>Ready to build your community?</Heading>
       <Paragraph>Voxxy helps people plan, host, and grow all in one place.</Paragraph>
       <ButtonRow $centered>
-        <PrimaryButton to="/get-started#mobile" onClick={onPrimaryClick}>Try Voxxy Mobile</PrimaryButton>
-        <SecondaryButton to="/get-started#presents" onClick={onSecondaryClick}>Join Voxxy Presents</SecondaryButton>
+        <PrimaryButtonExternal href="https://apps.apple.com/us/app/voxxy/id6746337878" target="_blank" rel="noopener noreferrer" onClick={onPrimaryClick}>Try Voxxy Mobile</PrimaryButtonExternal>
+        <SecondaryButtonExternal href="https://www.voxxypresents.com/" target="_blank" rel="noopener noreferrer" onClick={onSecondaryClick}>Join Voxxy Presents</SecondaryButtonExternal>
       </ButtonRow>
     </CTAContainer>
   </Section>

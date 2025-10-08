@@ -2,11 +2,13 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import Footer from './Footer';
 import { trackEvent, trackPageView } from '../utils/analytics';
+import mobileImage from '../assets/SmallTriangle.png';
+import presentsImage from '../assets/6.svg';
 
 const Page = styled.main`
   background: var(--color-space-900);
   color: var(--color-text-primary);
-  padding: clamp(4rem, 8vw, 6.5rem) 1.5rem 0;
+  padding: clamp(5.5rem, 10vw, 8rem) 1.5rem 0;
 `;
 
 const Container = styled.div`
@@ -35,7 +37,7 @@ const CardGrid = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 `;
 
-const Card = styled.article`
+const Card = styled.a`
   padding: clamp(1.9rem, 3.2vw, 2.4rem);
   border-radius: 26px;
   background: var(--gradient-panel);
@@ -43,19 +45,23 @@ const Card = styled.article`
   box-shadow: var(--shadow-card);
   display: grid;
   gap: 1.1rem;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 50px rgba(146, 77, 255, 0.4);
+    border-color: rgba(210, 186, 255, 0.4);
+  }
 `;
 
-const Placeholder = styled.div`
-  min-height: clamp(180px, 24vw, 260px);
+const CardImage = styled.img`
+  width: 100%;
+  height: auto;
   border-radius: 22px;
-  border: 1px dashed rgba(210, 186, 255, 0.35);
-  display: grid;
-  place-items: center;
-  color: var(--color-text-muted);
-  font-family: var(--font-display);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  background: linear-gradient(140deg, rgba(24, 15, 43, 0.8), rgba(52, 27, 83, 0.75));
+  object-fit: cover;
 `;
 
 const GetStartedPage = () => {
@@ -78,20 +84,34 @@ const GetStartedPage = () => {
           </section>
 
           <CardGrid>
-            <Card id="mobile" onMouseEnter={() => handleCardViewed('Voxxy Mobile')}>
+            <Card
+              id="mobile"
+              href="https://apps.apple.com/us/app/voxxy/id6746337878"
+              target="_blank"
+              rel="noopener noreferrer"
+              onMouseEnter={() => handleCardViewed('Voxxy Mobile')}
+              onClick={() => trackEvent('CTA Clicked', { label: 'Voxxy Mobile Card', location: 'Get Started Page' })}
+            >
               <h2 className="voxxy-title">Voxxy Mobile</h2>
               <Paragraph>
                 Download the app and start planning with friends. Personalised recommendations, quick polls, and smart scheduling wherever you gather.
               </Paragraph>
-              <Placeholder data-label="app store badges" />
+              <CardImage src={mobileImage} alt="Voxxy Mobile app" />
             </Card>
 
-            <Card id="presents" onMouseEnter={() => handleCardViewed('Voxxy Presents')}>
+            <Card
+              id="presents"
+              href="https://www.voxxypresents.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              onMouseEnter={() => handleCardViewed('Voxxy Presents')}
+              onClick={() => trackEvent('CTA Clicked', { label: 'Voxxy Presents Card', location: 'Get Started Page' })}
+            >
               <h2 className="voxxy-title">Voxxy Presents</h2>
               <Paragraph>
                 Create your organizer account $15/month during beta. Build recurring events, manage member lists, and grow your community with ease.
               </Paragraph>
-              <Placeholder data-label="organizer dashboard" />
+              <CardImage src={presentsImage} alt="Voxxy Presents dashboard" />
             </Card>
           </CardGrid>
 

@@ -7,7 +7,7 @@ import { trackEvent, trackPageView } from '../utils/analytics';
 const Page = styled.main`
   background: var(--color-space-900);
   color: var(--color-text-primary);
-  padding: clamp(4rem, 8vw, 6.5rem) 1.5rem 0;
+  padding: clamp(5.5rem, 10vw, 8rem) 1.5rem 0;
 `;
 
 const Container = styled.div`

@@ -9,7 +9,7 @@ import six from '../assets/6.svg';
 const Page = styled.main`
   background: var(--color-space-900);
   color: var(--color-text-primary);
-  padding: clamp(4rem, 8vw, 6.5rem) 1.5rem 0;
+  padding: clamp(5.5rem, 10vw, 8rem) 1.5rem 0;
 `;
 
 const Container = styled.div`
@@ -55,6 +55,7 @@ const CopyStack = styled.div`
   border-radius: 26px;
   padding: clamp(1.9rem, 3.2vw, 2.4rem);
   box-shadow: var(--shadow-card);
+  text-align: left;
 `;
 
 const Eyebrow = styled.span`

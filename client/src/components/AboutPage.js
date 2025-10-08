@@ -2,11 +2,12 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import Footer from './Footer';
 import { trackEvent, trackPageView } from '../utils/analytics';
+import founderImage from '../assets/courtandbeau.png';
 
 const Page = styled.main`
   background: var(--color-space-900);
   color: var(--color-text-primary);
-  padding: clamp(4rem, 8vw, 6.5rem) 1.5rem 0;
+  padding: clamp(5.5rem, 10vw, 8rem) 1.5rem 0;
 `;
 
 const Container = styled.div`
@@ -62,6 +63,29 @@ const EmailLink = styled.a`
   }
 `;
 
+const Split = styled.section`
+  display: grid;
+  gap: clamp(2rem, 5vw, 3.5rem);
+  align-items: center;
+
+  @media (min-width: 920px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+`;
+
+const FounderImage = styled.img`
+  width: 100%;
+  height: auto;
+  border-radius: 32px;
+  object-fit: cover;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+`;
+
+const FounderInfo = styled.div`
+  display: grid;
+  gap: 1rem;
+`;
+
 const AboutPage = () => {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -75,37 +99,34 @@ const AboutPage = () => {
   return (
     <>
       <Page>
-      <Container>
-        <section className="voxxy-stack">
-          <Heading>To make connection effortless and communities sustainable.</Heading>
-          <Paragraph>
-            Voxxy began as a way to fix messy group chats. What we discovered was bigger people don’t just want plans, they want belonging. We’re building the operating system for gatherings so that hosts and attendees can focus on what matters: time together.
-          </Paragraph>
-        </section>
-
-        <section className="voxxy-stack">
-          <Subheading>Our story</Subheading>
-          <Paragraph>
-            We started as friends trying to keep our own hangouts alive. Along the way, we met organizers who needed better tools to maintain the communities they cared about. Voxxy is the bridge between spontaneous fun and sustainable connection.
-          </Paragraph>
-          <Paragraph>
-            Every feature we build is designed to reduce the friction between great ideas and unforgettable moments across cities, time zones, and communities of every size.
-          </Paragraph>
-        </section>
-
-        <section className="voxxy-stack">
-          <Subheading>The team</Subheading>
-          <Paragraph>
-            We're a distributed crew of designers, engineers, and community builders. We believe software should amplify human warmth. If that resonates, let's talk.
-          </Paragraph>
-          <Card>
-            <CardHeading>Work with us</CardHeading>
+        <Container>
+          <section className="voxxy-stack">
+            <Heading>Making connection effortless</Heading>
             <Paragraph>
-              Interested in collaborating, partnering, or investing? Reach out at <EmailLink href="mailto:courtneygreer@heyvoxxy.com" onClick={handleEmailClick}>courtneygreer@heyvoxxy.com</EmailLink>.
+              Voxxy started as a way to fix messy group chats. We're building the operating system for gatherings so hosts and attendees can focus on what matters: time together.
+            </Paragraph>
+          </section>
+
+          <Split>
+            <FounderImage src={founderImage} alt="Beau Lazear and Courtney Greer" />
+            <FounderInfo>
+              <Subheading>Meet the founders</Subheading>
+              <Paragraph>
+                <strong>Beau Lazear</strong> and <strong>Courtney Greer</strong> are building Voxxy to bridge the gap between spontaneous hangouts and sustainable community.
+              </Paragraph>
+              <Paragraph>
+                We believe software should amplify human warmth, not replace it.
+              </Paragraph>
+            </FounderInfo>
+          </Split>
+
+          <Card>
+            <CardHeading>Let's work together</CardHeading>
+            <Paragraph>
+              Interested in collaborating, partnering, or investing? Reach out at <EmailLink href="mailto:courtneygreer@heyvoxxy.com" onClick={handleEmailClick}>courtneygreer@heyvoxxy.com</EmailLink> or <EmailLink href="mailto:beaulazear@voxxyai.com" onClick={handleEmailClick}>beaulazear@voxxyai.com</EmailLink>
             </Paragraph>
           </Card>
-        </section>
-      </Container>
+        </Container>
       </Page>
       <Footer />
     </>
