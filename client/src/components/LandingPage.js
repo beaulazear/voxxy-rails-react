@@ -121,6 +121,10 @@ const Title = styled.h1`
   line-height: 1.05;
   margin: 0;
   text-wrap: balance;
+
+  @media (max-width: 768px) {
+    padding-top: 3rem;
+  }
 `;
 
 const Heading = styled.h2`
