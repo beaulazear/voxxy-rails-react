@@ -455,26 +455,15 @@ export default function Navbar() {
             {user ? (
               <MobileNavButton onClick={handleLogout}>Log Out</MobileNavButton>
             ) : (
-              <>
-                <MobileNavLinkItem
-                  to="/login"
-                  onClick={() => {
-                    setShowMobileNav(false);
-                    handleCtaClick('Log In');
-                  }}
-                >
-                  Log In
-                </MobileNavLinkItem>
-                <MobileNavLinkItem
-                  to="/get-started"
-                  onClick={() => {
-                    setShowMobileNav(false);
-                    handleCtaClick('Get Started');
-                  }}
-                >
-                  Get Started
-                </MobileNavLinkItem>
-              </>
+              <MobileNavLinkItem
+                to="/get-started"
+                onClick={() => {
+                  setShowMobileNav(false);
+                  handleCtaClick('Get Started');
+                }}
+              >
+                Get Started
+              </MobileNavLinkItem>
             )}
           </MobileMenuOverlay>
         </>

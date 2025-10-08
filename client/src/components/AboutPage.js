@@ -108,7 +108,12 @@ const AboutPage = () => {
           </section>
 
           <Split>
-            <FounderImage src={founderImage} alt="Beau Lazear and Courtney Greer" />
+            <FounderImage
+              src={founderImage}
+              alt="Beau Lazear and Courtney Greer"
+              loading="lazy"
+              decoding="async"
+            />
             <FounderInfo>
               <Subheading>Meet the founders</Subheading>
               <Paragraph>

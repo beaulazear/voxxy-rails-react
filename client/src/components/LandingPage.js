@@ -11,7 +11,7 @@ import homeimage2 from '../assets/5.svg';
 const Page = styled.main`
   background: var(--color-space-900);
   color: var(--color-text-primary);
-  padding-top: clamp(4.5rem, 8vw, 6rem);
+  padding-top: clamp(3rem, 6vw, 4rem);
 `;
 
 const Section = styled.section`
@@ -36,10 +36,24 @@ const Split = styled.div`
   display: grid;
   gap: clamp(2rem, 5vw, 3.5rem);
   align-items: center;
+  scroll-margin-top: 80px;
 
   @media (min-width: 960px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  ${({ $reverseOnMobile }) =>
+    $reverseOnMobile &&
+    css`
+      @media (max-width: 959px) {
+        > *:first-child {
+          order: 2;
+        }
+        > *:last-child {
+          order: 1;
+        }
+      }
+    `}
 `;
 
 const Eyebrow = styled.span`
@@ -118,19 +132,6 @@ const buttonStyles = css`
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 `;
 
-const PrimaryButton = styled(Link)`
-  ${buttonStyles}
-  border: none;
-  color: var(--color-text-primary);
-  background-image: linear-gradient(120deg, #6a36ff 0%, #ff36d5 52%, #ff9d3f 100%);
-  box-shadow: 0 12px 35px rgba(146, 77, 255, 0.35);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 18px 40px rgba(146, 77, 255, 0.45);
-  }
-`;
-
 const PrimaryButtonExternal = styled.a`
   ${buttonStyles}
   border: none;
@@ -168,53 +169,31 @@ const SecondaryButtonExternal = styled.a`
   }
 `;
 
-const FeatureGrid = styled.div`
-  display: grid;
-  gap: clamp(1.5rem, 3.5vw, 2.25rem);
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-`;
-
-const FeatureCard = styled.article`
-  position: relative;
-  padding: clamp(1.8rem, 3.2vw, 2.4rem);
-  border-radius: 26px;
-  background: var(--gradient-panel);
-  border: 1px solid rgba(208, 186, 255, 0.22);
-  box-shadow: var(--shadow-card);
-  display: grid;
-  gap: 1rem;
-  align-content: start;
-`;
-
-const FeatureTitle = styled.h3`
-  font-family: var(--font-display);
-  font-size: clamp(1.15rem, 2.5vw, 1.35rem);
-  font-weight: 600;
-  line-height: 1.3;
-  margin: 0;
+const PrimaryButtonScroll = styled.button`
+  ${buttonStyles}
+  border: none;
   color: var(--color-text-primary);
+  background-image: linear-gradient(120deg, #6a36ff 0%, #ff36d5 52%, #ff9d3f 100%);
+  box-shadow: 0 12px 35px rgba(146, 77, 255, 0.35);
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px rgba(146, 77, 255, 0.45);
+  }
 `;
 
-const NewBadge = styled.span`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  font-size: 0.65rem;
-  font-weight: 700;
-  padding: 0.3rem 0.6rem;
-  border-radius: 6px;
-  background: linear-gradient(120deg, #6a36ff 0%, #ff36d5 100%);
-  color: var(--color-text-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  box-shadow: 0 4px 12px rgba(106, 54, 255, 0.3);
-`;
+const SecondaryButtonScroll = styled.button`
+  ${buttonStyles}
+  border: 1px solid rgba(203, 184, 255, 0.4);
+  color: var(--color-plasma-300);
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
 
-const FeatureText = styled.p`
-  font-size: clamp(0.95rem, 2vw, 1.05rem);
-  line-height: 1.65;
-  color: var(--color-text-secondary);
-  margin: 0;
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 30px rgba(86, 51, 139, 0.35);
+  }
 `;
 
 const Image = styled.img`
@@ -231,6 +210,7 @@ const List = styled.ul`
   padding: 0;
   display: grid;
   gap: 0.75rem;
+  text-align: left;
 `;
 
 const ListItem = styled.li`
@@ -266,38 +246,51 @@ const CTAContainer = styled.div`
   text-align: center;
 `;
 
-const Hero = ({ onPrimaryClick, onSecondaryClick }) => (
-  <Section className="voxxy-aurora">
-    <SectionInner>
-      <Split>
-        <BodyCopy>
-          <Eyebrow>Built for intentional gatherings</Eyebrow>
-          <Title className="voxxy-title--glow">Turn plans into community.</Title>
-          <Paragraph>
-            Voxxy is the social planning platform that helps friends, clubs, and organizers build connection through effortless coordination.
-          </Paragraph>
-          <ButtonRow $centered>
-            <PrimaryButtonExternal href="https://apps.apple.com/us/app/voxxy/id6746337878" target="_blank" rel="noopener noreferrer" onClick={onPrimaryClick}>Try Voxxy Mobile</PrimaryButtonExternal>
-            <SecondaryButtonExternal href="https://www.voxxypresents.com/" target="_blank" rel="noopener noreferrer" onClick={onSecondaryClick}>Explore Voxxy Presents</SecondaryButtonExternal>
-          </ButtonRow>
-        </BodyCopy>
-        <Image src={homeimage1} alt="Voxxy hero illustration" />
-      </Split>
-    </SectionInner>
-  </Section>
-);
+const Hero = ({ onPrimaryClick, onSecondaryClick }) => {
+  const scrollToSection = (sectionId, callback) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    if (callback) callback();
+  };
+
+  return (
+    <Section className="voxxy-aurora">
+      <SectionInner>
+        <Split>
+          <BodyCopy>
+            <Eyebrow>Built for intentional gatherings</Eyebrow>
+            <Title className="voxxy-title--glow">Turn plans into community.</Title>
+            <Paragraph>
+              Voxxy is the social planning platform that helps friends, clubs, and organizers build connection through effortless coordination.
+            </Paragraph>
+            <ButtonRow $centered>
+              <PrimaryButtonScroll onClick={() => scrollToSection('voxxy-mobile', onPrimaryClick)}>
+                Try Voxxy Mobile
+              </PrimaryButtonScroll>
+              <SecondaryButtonScroll onClick={() => scrollToSection('voxxy-presents', onSecondaryClick)}>
+                Explore Voxxy Presents
+              </SecondaryButtonScroll>
+            </ButtonRow>
+          </BodyCopy>
+          <Image src={homeimage1} alt="Voxxy hero illustration" />
+        </Split>
+      </SectionInner>
+    </Section>
+  );
+};
 
 const WhySection = ({ onCtaClick }) => (
   <Section>
     <SectionInner>
-      <Split>
+      <Split $reverseOnMobile>
+        <Image src={homeimage2} alt="Voxxy platform illustration" />
         <BodyCopy>
           <Eyebrow>Connection takes effort. We make it easier.</Eyebrow>
-          <Heading>Social coordination shouldn’t be a barrier.</Heading>
-        </BodyCopy>
-        <BodyCopy>
+          <Heading>Social coordination should not be a barrier.</Heading>
           <Paragraph>
-            When people want to try new experiences together, they get stuck in endless group chats about where to go and when to meet. Community builders face exhausting logistics that drain the joy from bringing people together. Voxxy removes that friction — we built the infrastructure people need to turn ideas into lasting connections and coordination into celebration.
+            Voxxy removes the friction from group planning — we built the infrastructure people need to turn ideas into lasting connections and coordination into celebration.
           </Paragraph>
           <SecondaryButton to="/how-it-works" onClick={onCtaClick}>See how it works</SecondaryButton>
         </BodyCopy>
@@ -311,7 +304,7 @@ const FlowsSection = ({ onMobileCta, onPresentsCta }) => (
     <SectionInner>
       <Eyebrow>Choose your flow</Eyebrow>
       <Heading>Voxxy adapts to how you gather.</Heading>
-      <Split>
+      <Split id="voxxy-mobile">
         <BodyCopy className="voxxy-surface voxxy-surface--spacious">
           <Eyebrow>Voxxy Mobile</Eyebrow>
           <Subheading className="voxxy-title">Plan together, faster.</Subheading>
@@ -328,7 +321,7 @@ const FlowsSection = ({ onMobileCta, onPresentsCta }) => (
         </BodyCopy>
         <Image src={mobileScreenshots1} alt="Voxxy Mobile app screenshots" />
       </Split>
-      <Split>
+      <Split id="voxxy-presents" $reverseOnMobile>
         <Image src={six} alt="Voxxy Presents workspace preview" />
         <BodyCopy className="voxxy-surface voxxy-surface--spacious">
           <Eyebrow>Voxxy Presents</Eyebrow>
@@ -344,54 +337,6 @@ const FlowsSection = ({ onMobileCta, onPresentsCta }) => (
           </List>
           <SecondaryButtonExternal href="https://www.voxxypresents.com/" target="_blank" rel="noopener noreferrer" onClick={onPresentsCta}>Join Voxxy Presents</SecondaryButtonExternal>
         </BodyCopy>
-      </Split>
-    </SectionInner>
-  </Section>
-);
-
-const FeaturesSection = ({ onCtaClick }) => (
-  <Section>
-    <SectionInner>
-      <BodyCopy>
-        <Eyebrow>Infrastructure for modern gatherings.</Eyebrow>
-        <Heading>Everything you need to bring people together.</Heading>
-      </BodyCopy>
-      <FeatureGrid>
-        {[
-          ['Group Planning Boards', 'Collect ideas, polls, and links all in one shared space.', false],
-          ['Smart Scheduling', 'Find a time that works for everyone without endless texts or DMs.', false],
-          ['Member Tracking', 'Know who is coming, who is new, and who is staying engaged.', false],
-          ['Budget Tools', 'Easily split costs, manage recurring dues, and keep finances transparent.', false],
-          ['Communication Hub', 'Keep updates, chats, and event details organized in one place.', false],
-          ['Club Pages', 'Showcase your community with a public hub for upcoming events and memberships.', false],
-          ['Analytics & Insights', 'Track attendance, growth, and engagement to understand what is working.', true],
-          ['Vendor Coordination', 'Manage your partners and bookings seamlessly, from venues to vendors to volunteers.', true],
-        ].map(([title, description, isNew]) => (
-          <FeatureCard key={title}>
-            {isNew && <NewBadge>New</NewBadge>}
-            <FeatureTitle>{title}</FeatureTitle>
-            <FeatureText>{description}</FeatureText>
-          </FeatureCard>
-        ))}
-      </FeatureGrid>
-      <PrimaryButton to="/get-started" onClick={onCtaClick}>Start Planning</PrimaryButton>
-    </SectionInner>
-  </Section>
-);
-
-const CommunitySection = ({ onCtaClick }) => (
-  <Section $variant="alt">
-    <SectionInner>
-      <Split>
-        <BodyCopy>
-          <Eyebrow>Where connection becomes culture.</Eyebrow>
-          <Heading>Voxxy powers real communities online and offline.</Heading>
-          <Paragraph>
-            From book clubs to volunteer groups, from dinner clubs to social collectives — Voxxy helps people create recurring magic. Whether you're gathering five friends or a hundred members, our platform gives you the tools to make it easy, fun, and sustainable.
-          </Paragraph>
-          <SecondaryButton to="/community" onClick={onCtaClick}>Meet Our Communities</SecondaryButton>
-        </BodyCopy>
-        <Image src={homeimage2} alt="Community highlights and testimonials" />
       </Split>
     </SectionInner>
   </Section>
@@ -424,13 +369,11 @@ const LandingPage = () => {
     <>
       <Page>
         <Hero onPrimaryClick={handleCtaClick('Try Voxxy Mobile', 'Hero')} onSecondaryClick={handleCtaClick('Explore Voxxy Presents', 'Hero')} />
-        <WhySection onCtaClick={handleCtaClick('See How It Works', 'Why Voxxy')} />
         <FlowsSection
           onMobileCta={handleCtaClick('Get the App', 'Choose Your Flow')}
           onPresentsCta={handleCtaClick('Join Voxxy Presents', 'Choose Your Flow')}
         />
-        <FeaturesSection onCtaClick={handleCtaClick('Start Planning', 'Features')} />
-        <CommunitySection onCtaClick={handleCtaClick('Meet Our Communities', 'Community')} />
+        <WhySection onCtaClick={handleCtaClick('See How It Works', 'Why Voxxy')} />
         <FinalCTA
           onPrimaryClick={handleCtaClick('Try Voxxy Mobile', 'Final CTA')}
           onSecondaryClick={handleCtaClick('Join Voxxy Presents', 'Final CTA')}

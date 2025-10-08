@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
 import { trackEvent, trackPageView } from '../utils/analytics';
 import Footer from './Footer';
 import mobileScreenshots1 from '../assets/mobile_screenshots1.svg';
@@ -112,12 +111,13 @@ const Image = styled.img`
   object-fit: contain;
 `;
 
-const ActionLink = styled(Link)`
+const ActionLink = styled.a`
   justify-self: start;
   padding: 0.85rem 1.7rem;
   border-radius: 999px;
   font-family: var(--font-display);
   font-weight: 600;
+  text-decoration: none;
   border: 1px solid rgba(203, 184, 255, 0.4);
   color: var(--color-plasma-300);
   background: rgba(255, 255, 255, 0.03);
@@ -171,7 +171,7 @@ const HowItWorksPage = () => {
                 </StageItem>
               ))}
             </StageList>
-            <ActionLink to="/get-started#mobile" onClick={handleCta('Try Voxxy Mobile')}>
+            <ActionLink href="https://apps.apple.com/us/app/voxxy/id6746337878" target="_blank" rel="noopener noreferrer" onClick={handleCta('Try Voxxy Mobile')}>
               Try Voxxy Mobile
             </ActionLink>
           </CopyStack>
@@ -192,7 +192,7 @@ const HowItWorksPage = () => {
                 </StageItem>
               ))}
             </StageList>
-            <ActionLink to="/get-started#presents" onClick={handleCta('Join Voxxy Presents')}>
+            <ActionLink href="https://www.voxxypresents.com/" target="_blank" rel="noopener noreferrer" onClick={handleCta('Join Voxxy Presents')}>
               Join Voxxy Presents
             </ActionLink>
           </CopyStack>
