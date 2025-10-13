@@ -3,7 +3,7 @@ class ActivitySerializer < BaseSerializer
     :id, :activity_name, :allow_participant_time_selection, :collecting,
     :voting, :finalized, :activity_type, :activity_location, :group_size,
     :date_notes, :created_at, :active, :emoji, :date_day, :date_time,
-    :welcome_message, :completed, :radius
+    :welcome_message, :completed, :radius, :is_solo
   ].freeze
 
   def self.basic(activity)
