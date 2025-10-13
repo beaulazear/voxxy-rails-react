@@ -195,7 +195,7 @@ class ActivitiesController < HtmlController
       :activity_name, :collecting, :voting, :activity_type, :finalized,
       :selected_pinned_id, :activity_location, :group_size, :radius,
       :date_notes, :active, :emoji, :date_day, :date_time, :welcome_message,
-      :allow_participant_time_selection, :completed, participants: []
+      :allow_participant_time_selection, :completed, :is_solo, participants: []
     )
   end
 

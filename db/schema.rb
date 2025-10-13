@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_10_02_134127) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_13_181038) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -62,6 +62,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_02_134127) do
     t.boolean "collecting", default: false
     t.boolean "voting", default: false
     t.boolean "allow_participant_time_selection", default: false
+    t.boolean "is_solo", default: false, null: false
     t.index ["user_id"], name: "index_activities_on_user_id"
   end
 
