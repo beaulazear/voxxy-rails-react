@@ -164,7 +164,7 @@ class OpenaiController < ApplicationController
       user_responses    = params[:responses]
       activity_location = params[:activity_location]
       date_notes        = params[:date_notes]
-      radius = params[:radius]&.to_f || 10
+      radius = params[:radius]&.to_f || 0.5
 
       if user_responses.blank? || activity_location.blank? || date_notes.blank?
         return render json: { error: "Missing required parameters: responses, activity_location, and date_notes" }, status: :unprocessable_entity
@@ -939,8 +939,15 @@ class OpenaiController < ApplicationController
     # If radius was explicitly provided, use it
     return provided_radius if provided_radius.present?
 
-    # Default to 0.5 miles for all urban areas (our primary market)
-    # This keeps results hyperlocal to the specified neighborhood
+    # Check if location is GPS coordinates (lat, lng format)
+    # Format: "40.123456, -74.123456"
+    if location.match?(/^-?\d+\.\d+,\s*-?\d+\.\d+$/)
+      # GPS coordinates: use 1 mile radius to account for edge-of-neighborhood locations
+      return 1.0
+    end
+
+    # Named location (neighborhood/city): use tighter 0.5 mile radius
+    # Named locations are already centered in dense areas
     0.5
   end
 end

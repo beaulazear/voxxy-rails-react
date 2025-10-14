@@ -442,7 +442,7 @@ function UserActivities() {
         activity_type: activityData.type,
         emoji: activityData.type === 'Restaurant' ? '🍜' : '🍸',
         activity_location: activityData.location,
-        radius: 5, // Default radius
+        radius: 0.5, // Default radius for urban environments
         date_notes: activityData.timeOfDay,
         activity_name: `${activityData.type} Outing`,
         collecting: true,

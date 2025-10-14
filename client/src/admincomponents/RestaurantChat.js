@@ -168,7 +168,7 @@ const Input = styled.input`
   }
 `;
 
-const Range = styled.input.attrs({ type: 'range', min: 1, max: 50 })`
+const Range = styled.input.attrs({ type: 'range', min: 0.5, max: 50, step: 0.5 })`
   width: 100%;
   margin: 0.5rem 0 1rem;
   height: 6px;
@@ -449,7 +449,7 @@ export default function RestaurantChat({ onClose }) {
   const [coords, setCoords] = useState(null);
   const [isLocating, setIsLocating] = useState(false);
   const [currentLocationUsed, setCurrentLocationUsed] = useState(false);
-  const [radius, setRadius] = useState(10);
+  const [radius, setRadius] = useState(0.5);
 
   const [groupSize, setGroupSize] = useState('');
 

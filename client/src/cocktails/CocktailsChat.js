@@ -49,7 +49,7 @@ export default function CocktailsChat({ onClose }) {
   const [coords, setCoords] = useState(null);
   const [isLocating, setIsLocating] = useState(false);
   const [currentLocationUsed, setCurrentLocationUsed] = useState(false);
-  const [radius, setRadius] = useState(10);
+  const [radius, setRadius] = useState(0.5);
 
   const [groupSize, setGroupSize] = useState('');
 

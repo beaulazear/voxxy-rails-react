@@ -359,7 +359,7 @@ export const Input = styled.input`
   }
 `;
 
-export const Range = styled.input.attrs({ type: 'range', min: 1, max: 50 })`
+export const Range = styled.input.attrs({ type: 'range', min: 0.5, max: 50, step: 0.5 })`
   width: 100%;
   margin: 0.5rem 0 1rem;
   height: 6px;
