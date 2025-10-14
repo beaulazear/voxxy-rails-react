@@ -24,7 +24,7 @@ class OpenaiController < ApplicationController
     activity_location  = params[:activity_location]
     date_notes         = params[:date_notes]
     activity_id        = params[:activity_id]
-    radius             = params[:radius]&.to_f || 1.5
+    radius             = params[:radius]&.to_f || 0.5
 
     # Validate required parameters
     if user_responses.blank? || activity_location.blank?
@@ -58,7 +58,7 @@ class OpenaiController < ApplicationController
     activity_location  = params[:activity_location]
     date_notes         = params[:date_notes]
     activity_id        = params[:activity_id]
-    radius             = params[:radius]&.to_f || 1.5
+    radius             = params[:radius]&.to_f || 0.5
 
     # Validate required parameters
     if user_responses.blank? || activity_location.blank?
@@ -283,7 +283,7 @@ class OpenaiController < ApplicationController
         • user dietary & other preferences
         • a central location (#{activity_location})
         • a date (#{date_notes})
-        • and a strict radius of #{radius} mile#{ radius == 1 ? "" : "s" }.
+        • and a VERY STRICT radius of ONLY #{radius} mile#{ radius == 1 ? "" : "s" } (walking distance).
 
       The user's preferences (exactly as they typed them) are:
       #{notes_text}
@@ -294,8 +294,8 @@ class OpenaiController < ApplicationController
       2. If MULTIPLE cuisines are listed (e.g., "Italian, Japanese, Mexican"), provide VARIETY across ALL mentioned cuisines - don't just pick 5 from one cuisine type.
       3. Next, honor budget constraints ("Prefer upscale," etc.).
       4. Then consider ambiance ("Rooftop," "Cozy," etc.)—but only after dietary & budget are satisfied.
-      5. Only include restaurants located *within* #{radius} mile#{ radius == 1 ? "" : "s" } of "#{activity_location}".#{'  '}
-        Do NOT list any restaurant that you know (or strongly suspect) is outside that boundary.
+      5. **CRITICAL**: Only include restaurants located *within #{radius} mile#{ radius == 1 ? "" : "s" }* (roughly #{(radius * 10).round} minute walk) of "#{activity_location}".#{'  '}
+        This is WALKING DISTANCE ONLY. Do NOT list any restaurant that is more than #{radius} mile#{ radius == 1 ? "" : "s" } away.
       6. Keep the tone warm and human — avoid calling people "users" or referencing individual budgets.
       7. Avoid large chains or obvious tourist spots—seek out hole-in-the-wall or buzz-worthy places.
 
@@ -367,7 +367,7 @@ class OpenaiController < ApplicationController
         • user drink preferences & atmosphere needs
         • a central location (#{activity_location})
         • a date/time (#{date_notes})
-        • and a strict radius of #{radius} mile#{ radius == 1 ? "" : "s" }.
+        • and a VERY STRICT radius of ONLY #{radius} mile#{ radius == 1 ? "" : "s" } (walking distance).
 
       The user's preferences (exactly as they typed them) are:
       #{notes_text}
@@ -378,8 +378,8 @@ class OpenaiController < ApplicationController
       2. Next, honor budget constraints ("budget-friendly," "prefer upscale," etc.).
       3. Then consider atmosphere preferences ("dive bar," "rooftop," "live music," "quiet conversation," etc.).
       4. Consider timing - for late night activities, prioritize bars with later hours.
-      5. Only include bars/lounges located *within* #{radius} mile#{ radius == 1 ? "" : "s" } of "#{activity_location}".#{'  '}
-        Do NOT list any establishment that you know (or strongly suspect) is outside that boundary.
+      5. **CRITICAL**: Only include bars/lounges located *within #{radius} mile#{ radius == 1 ? "" : "s" }* (roughly #{(radius * 10).round} minute walk) of "#{activity_location}".#{'  '}
+        This is WALKING DISTANCE ONLY. Do NOT list any establishment that is more than #{radius} mile#{ radius == 1 ? "" : "s" } away.
       6. Keep the tone warm and human — avoid calling people "users" or referencing individual budgets.
       7. Avoid large chains or obvious tourist spots—seek out local gems, craft cocktail lounges, or unique nightlife spots.
 
@@ -939,8 +939,8 @@ class OpenaiController < ApplicationController
     # If radius was explicitly provided, use it
     return provided_radius if provided_radius.present?
 
-    # Default to 1.5 miles for all urban areas (our primary market)
+    # Default to 0.5 miles for all urban areas (our primary market)
     # This keeps results hyperlocal to the specified neighborhood
-    1.5
+    0.5
   end
 end
