@@ -523,11 +523,16 @@ class OpenaiController < ApplicationController
     # Step 1: Get real venues from Google Places
     radius_meters = smart_radius * 1609  # Convert miles to meters
 
+    Rails.logger.info "[RECOMMENDATIONS] Location: #{activity_location}, Smart Radius: #{smart_radius} miles (#{radius_meters}m)"
+
     # Don't filter by cuisine in Google Places - let OpenAI handle ALL preferences
     # This ensures we get diverse results that match ALL selected cuisines
     venues = GooglePlacesService.nearby_search(activity_location, "restaurant", radius_meters, 3.5, nil)
 
+    Rails.logger.info "[RECOMMENDATIONS] Google Places returned #{venues.size} venues"
+
     if venues.empty?
+      Rails.logger.warn "[RECOMMENDATIONS] No venues from Google Places - falling back to OpenAI only"
       return fetch_restaurant_recommendations_from_openai(responses, activity_location, date_notes, radius)
     end
 
@@ -583,10 +588,15 @@ class OpenaiController < ApplicationController
     # Step 1: Get real venues from Google Places
     radius_meters = smart_radius * 1609  # Convert miles to meters
 
+    Rails.logger.info "[RECOMMENDATIONS] Location: #{activity_location}, Smart Radius: #{smart_radius} miles (#{radius_meters}m)"
+
     # Don't filter by specific bar type - let OpenAI handle ALL preferences
     venues = GooglePlacesService.nearby_search(activity_location, "bar", radius_meters, 3.5, nil)
 
+    Rails.logger.info "[RECOMMENDATIONS] Google Places returned #{venues.size} venues"
+
     if venues.empty?
+      Rails.logger.warn "[RECOMMENDATIONS] No venues from Google Places - falling back to OpenAI only"
       return fetch_bar_recommendations_from_openai(responses, activity_location, date_notes, radius)
     end
 
