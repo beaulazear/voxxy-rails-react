@@ -103,20 +103,30 @@ class GooglePlacesService
     cache_key = "nearby_#{location}_#{type}_#{radius_meters}_#{min_rating}_#{keyword}"
 
     place_cache[cache_key] ||= begin
-      # First, geocode the location to get coordinates
-      geocode_url = "https://maps.googleapis.com/maps/api/geocode/json?" \
-                    "address=#{CGI.escape(location)}&key=#{api_key}"
+      # Check if location is already coordinates (lat, lng format)
+      if location.match?(/^-?\d+\.\d+,\s*-?\d+\.\d+$/)
+        # Location is already coordinates, parse them directly
+        coords = location.split(",").map(&:strip)
+        lat = coords[0].to_f
+        lng = coords[1].to_f
+        Rails.logger.info "Using GPS coordinates directly: #{lat}, #{lng}" if Rails.env.development?
+      else
+        # Location is a place name, geocode it
+        geocode_url = "https://maps.googleapis.com/maps/api/geocode/json?" \
+                      "address=#{CGI.escape(location)}&key=#{api_key}"
 
-      geocode_response = Net::HTTP.get_response(URI(geocode_url))
-      geocode_data = JSON.parse(geocode_response.body)
+        geocode_response = Net::HTTP.get_response(URI(geocode_url))
+        geocode_data = JSON.parse(geocode_response.body)
 
-      if geocode_data["results"].empty?
-        Rails.logger.error "Could not geocode location: #{location}" if Rails.env.development?
-        return []
+        if geocode_data["results"].empty?
+          Rails.logger.error "Could not geocode location: #{location}" if Rails.env.development?
+          return []
+        end
+
+        lat = geocode_data["results"][0]["geometry"]["location"]["lat"]
+        lng = geocode_data["results"][0]["geometry"]["location"]["lng"]
+        Rails.logger.info "Geocoded '#{location}' to: #{lat}, #{lng}" if Rails.env.development?
       end
-
-      lat = geocode_data["results"][0]["geometry"]["location"]["lat"]
-      lng = geocode_data["results"][0]["geometry"]["location"]["lng"]
 
       # Now search for nearby places
       nearby_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" \
@@ -125,6 +135,8 @@ class GooglePlacesService
       # Add keyword parameter if provided
       nearby_url += "&keyword=#{CGI.escape(keyword)}" if keyword.present?
       nearby_url += "&key=#{api_key}"
+
+      Rails.logger.info "Google Places API: Searching for #{type} within #{radius_meters}m (#{(radius_meters / 1609.0).round(2)} miles) of #{lat},#{lng}" if Rails.env.development?
 
       all_venues = []
       next_page_token = nil
