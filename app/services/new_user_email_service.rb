@@ -11,25 +11,15 @@ class NewUserEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        You just unlocked early access to Voxxy — welcome to the beta crew! 🎉
+        Welcome to Voxxy! We're excited to have you here. 🎉
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Right now, you can try our two core tools:
-      </p>
-
-      <ul style="#{BASE_STYLES[:text]}; padding-left: 20px;">
-        <li style="margin-bottom: 8px;"><strong>Let's Eat</strong> — smart dining suggestions</li>
-        <li style="margin-bottom: 8px;"><strong>Let's Meet</strong> — find a time that actually works for everyone</li>
-      </ul>
-
-      <p style="#{BASE_STYLES[:text]}">
-        This is a live product, which means things are changing fast — and your feedback helps shape what comes next.#{' '}
-        Found a bug? Got a feature idea? Just reply to this email or submit through the feedback button in the app.
+        Voxxy helps you find the perfect spot for food and drinks with friends — no more endless group chats trying to pick a place.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        We're so excited to build this with you.
+        Have feedback or questions? Just reply to this email — we'd love to hear from you.
       </p>
 
       <p style="#{BASE_STYLES[:text]}; margin-top: 30px;">
