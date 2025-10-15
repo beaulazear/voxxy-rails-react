@@ -238,6 +238,10 @@ const BodyCopy = styled.div`
   @media (min-width: 1024px) {
     gap: 1.8rem;
   }
+
+  &.voxxy-surface {
+    text-align: left;
+  }
 `;
 
 const ButtonRow = styled.div`
@@ -493,15 +497,15 @@ const FlowsSection = ({ onMobileCta, onPresentsCta }) => {
         <Split id="voxxy-mobile">
           <BodyCopy className="voxxy-surface voxxy-surface--spacious">
             <Eyebrow>Voxxy Mobile</Eyebrow>
-            <Subheading className="voxxy-title">Plan together, faster.</Subheading>
+            <Subheading className="voxxy-title">Find the perfect spot, together.</Subheading>
             <Paragraph>
-              For friends, roommates, and coworkers — Voxxy helps you decide what to do and where to go without the chaos. It learns what you like, suggests options that fit everyone's preferences, and helps your group decide quickly so you can get back to enjoying your time together.
+              For friends, roommates, and coworkers — Voxxy helps you find restaurants and bars that work for everyone. Share your preferences, get venue suggestions tailored to your group, and vote to finalize plans. Over time, Voxxy learns from your favorites and profile to deliver smarter recommendations.
             </Paragraph>
             <List>
-              <ListItem>Personalized group recommendations</ListItem>
-              <ListItem>Quick polls and shared picks</ListItem>
-              <ListItem>Smart scheduling that actually works</ListItem>
-              <ListItem>Favorites saved for future plans</ListItem>
+              <ListItem>Personalized restaurant and bar recommendations</ListItem>
+              <ListItem>Group voting on curated venue options</ListItem>
+              <ListItem>Solo and group planning with smart scheduling</ListItem>
+              <ListItem>Adaptive learning from your favorites and preferences</ListItem>
             </List>
             <PrimaryButtonExternal href="https://apps.apple.com/us/app/voxxy/id6746337878" target="_blank" rel="noopener noreferrer" onClick={onMobileCta}>Get the App</PrimaryButtonExternal>
           </BodyCopy>

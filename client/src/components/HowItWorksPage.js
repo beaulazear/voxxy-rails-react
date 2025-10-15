@@ -143,9 +143,9 @@ const ActionLink = styled.a`
 `;
 
 const mobileStages = [
-  'Share a vibe and get suggestions tuned to everyone in the chat.',
-  'Tap through quick polls to land on a time, place, or idea.',
-  'Lock in the plan with smart scheduling and reminders.',
+  'Create a restaurant or bar activity, invite friends, and select a time that works.',
+  'Everyone submits their preferences—or use saved profile settings for instant recommendations.',
+  'Vote on venue suggestions that match your group, then finalize and track your plans.',
 ];
 
 const presentsStages = [
@@ -174,8 +174,8 @@ const HowItWorksPage = () => {
         <Split>
           <CopyStack>
             <Eyebrow>Voxxy Mobile</Eyebrow>
-            <Subheading>Discover, decide, and go.</Subheading>
-            <Paragraph>Designed for friends and teams that want spontaneity without the spam. Voxxy Mobile accelerates decision-making so the group can focus on the experience.</Paragraph>
+            <Subheading>Skip the back-and-forth.</Subheading>
+            <Paragraph>Designed for friends and groups who want to stop debating where to eat or grab drinks. Voxxy recommends venues based on everyone's tastes, then lets you vote and finalize in minutes. As you save favorites and update your profile, recommendations get smarter over time.</Paragraph>
             <StageList>
               {mobileStages.map((copy, index) => (
                 <StageItem key={index}>
