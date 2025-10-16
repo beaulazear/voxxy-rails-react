@@ -27,8 +27,8 @@ class OpenaiController < ApplicationController
     radius             = params[:radius]&.to_f || 0.5
 
     # Validate required parameters
-    if user_responses.blank? || activity_location.blank?
-      render json: { error: "Missing required parameters: responses and activity_location" }, status: :unprocessable_entity and return
+    if activity_location.blank?
+      render json: { error: "Missing required parameter: activity_location" }, status: :unprocessable_entity and return
     end
 
     # Validate radius
@@ -36,14 +36,22 @@ class OpenaiController < ApplicationController
       render json: { error: "Invalid radius. Must be between 0.5 and 50 miles" }, status: :unprocessable_entity and return
     end
 
+    # Build complete input by combining explicit responses + profile preferences
+    combined_responses = build_combined_responses(activity_id, user_responses)
+
+    # If no responses at all (explicit or from profiles), return error
+    if combined_responses.blank?
+      render json: { error: "No preferences available. Please submit responses or add profile preferences." }, status: :unprocessable_entity and return
+    end
+
     user_id  = current_user.id
     cache_key = "user_#{user_id}_" \
                 "activity_#{activity_id}_" \
-                "#{generate_cache_key(user_responses, activity_location, date_notes, 'restaurant')}"
+                "#{generate_cache_key(combined_responses, activity_location, date_notes, 'restaurant')}"
 
     recommendations = Rails.cache.fetch(cache_key, expires_in: CACHE_DURATION) do
       # Use hybrid approach by default
-      fetch_hybrid_restaurant_recommendations(user_responses, activity_location, date_notes, radius)
+      fetch_hybrid_restaurant_recommendations(combined_responses, activity_location, date_notes, radius)
     end
 
     if recommendations.present?
@@ -61,8 +69,8 @@ class OpenaiController < ApplicationController
     radius             = params[:radius]&.to_f || 0.5
 
     # Validate required parameters
-    if user_responses.blank? || activity_location.blank?
-      render json: { error: "Missing required parameters: responses and activity_location" }, status: :unprocessable_entity and return
+    if activity_location.blank?
+      render json: { error: "Missing required parameter: activity_location" }, status: :unprocessable_entity and return
     end
 
     # Validate radius
@@ -70,14 +78,22 @@ class OpenaiController < ApplicationController
       render json: { error: "Invalid radius. Must be between 0.5 and 50 miles" }, status: :unprocessable_entity and return
     end
 
+    # Build complete input by combining explicit responses + profile preferences
+    combined_responses = build_combined_responses(activity_id, user_responses)
+
+    # If no responses at all (explicit or from profiles), return error
+    if combined_responses.blank?
+      render json: { error: "No preferences available. Please submit responses or add profile preferences." }, status: :unprocessable_entity and return
+    end
+
     user_id  = current_user.id
     cache_key = "user_#{user_id}_" \
                 "activity_#{activity_id}_" \
-                "#{generate_cache_key(user_responses, activity_location, date_notes, 'bar')}"
+                "#{generate_cache_key(combined_responses, activity_location, date_notes, 'bar')}"
 
     recommendations = Rails.cache.fetch(cache_key, expires_in: CACHE_DURATION) do
       # Use hybrid approach by default
-      fetch_hybrid_bar_recommendations(user_responses, activity_location, date_notes, radius)
+      fetch_hybrid_bar_recommendations(combined_responses, activity_location, date_notes, radius)
     end
 
     if recommendations.present?
@@ -93,18 +109,21 @@ class OpenaiController < ApplicationController
     date_notes         = params[:date_notes]
     activity_id        = params[:activity_id]
 
-    # Validate required parameters
-    if user_responses.blank?
-      render json: { error: "No responses provided" }, status: :unprocessable_entity and return
+    # Build complete input by combining explicit responses + profile preferences
+    combined_responses = build_combined_responses(activity_id, user_responses)
+
+    # If no responses at all (explicit or from profiles), return error
+    if combined_responses.blank?
+      render json: { error: "No preferences available. Please submit responses or add profile preferences." }, status: :unprocessable_entity and return
     end
 
     user_id  = current_user.id
     cache_key = "user_#{user_id}_" \
                 "activity_#{activity_id}_" \
-                "#{generate_cache_key(user_responses, activity_location, date_notes, 'game')}"
+                "#{generate_cache_key(combined_responses, activity_location, date_notes, 'game')}"
 
     recommendations = Rails.cache.fetch(cache_key, expires_in: CACHE_DURATION) do
-      fetch_game_recommendations_from_openai(user_responses, activity_location, date_notes)
+      fetch_game_recommendations_from_openai(combined_responses, activity_location, date_notes)
     end
 
     if recommendations.present?
@@ -228,6 +247,58 @@ class OpenaiController < ApplicationController
   end
 
   private
+
+  def build_combined_responses(activity_id, explicit_responses)
+    return explicit_responses if activity_id.blank?
+
+    begin
+      activity = Activity.find(activity_id)
+    rescue ActiveRecord::RecordNotFound
+      # If activity not found, just use explicit responses
+      return explicit_responses
+    end
+
+    # Get all participants (host + accepted participants)
+    all_participants = [ activity.user ] + activity.participants.to_a
+
+    # Get user IDs who have submitted explicit responses
+    response_user_ids = activity.responses.pluck(:user_id).compact
+
+    # Build complete input
+    all_inputs = []
+
+    # Add explicit responses if present
+    all_inputs << explicit_responses if explicit_responses.present?
+
+    # For users without responses, check profile preferences
+    all_participants.each do |participant|
+      next if response_user_ids.include?(participant.id) # Skip if they have explicit response
+
+      # Check if they have profile preferences
+      profile_input = build_profile_input(participant)
+      all_inputs << profile_input if profile_input.present?
+    end
+
+    # Return combined input
+    return nil if all_inputs.empty?
+    all_inputs.join("\n\n")
+  end
+
+  def build_profile_input(user)
+    parts = []
+
+    # Add favorite food if present
+    parts << "Favorite food: #{user.favorite_food}" if user.favorite_food.present?
+
+    # Add general preferences if present
+    parts << "Preferences: #{user.preferences}" if user.preferences.present?
+
+    # Return nil if no profile data
+    return nil if parts.empty?
+
+    # Format: "Name's profile: favorite_food, preferences"
+    "#{user.name}'s profile: #{parts.join(', ')}"
+  end
 
   def ensure_api_keys_configured
     begin

@@ -116,7 +116,7 @@ const GetStartedPage = () => {
           </CardGrid>
 
           <Paragraph>
-            Questions? Email Courtney at <a href="mailto:team@heyvoxxy.com" onClick={() => trackEvent('CTA Clicked', { label: 'Email Courtney', location: 'Get Started Page' })}>team@heyvoxxy.com</a>.
+            Questions? Email us at <a href="mailto:team@voxxyai.com" onClick={() => trackEvent('CTA Clicked', { label: 'Email Team', location: 'Get Started Page' })}>team@voxxyai.com</a>.
           </Paragraph>
         </Container>
       </Page>

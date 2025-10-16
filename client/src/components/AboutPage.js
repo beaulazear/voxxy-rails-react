@@ -128,7 +128,7 @@ const AboutPage = () => {
           <Card>
             <CardHeading>Let's work together</CardHeading>
             <Paragraph>
-              Interested in collaborating, partnering, or investing? Reach out at <EmailLink href="mailto:courtneygreer@heyvoxxy.com" onClick={handleEmailClick}>courtneygreer@heyvoxxy.com</EmailLink> or <EmailLink href="mailto:beaulazear@heyvoxxy.com" onClick={handleEmailClick}>beaulazear@heyvoxxy.com</EmailLink>
+              Interested in collaborating, partnering, or investing? Reach out at <EmailLink href="mailto:team@voxxyai.com" onClick={handleEmailClick}>team@voxxyai.com</EmailLink>
             </Paragraph>
           </Card>
         </Container>

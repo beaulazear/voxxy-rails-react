@@ -20,6 +20,14 @@ class BaseSerializer
     }
   end
 
+  def self.user_with_preferences(user)
+    return nil unless user
+    user_basic(user).merge(
+      preferences: user.preferences,
+      favorite_food: user.favorite_food
+    )
+  end
+
   def self.user_minimal(user)
     return nil unless user
     {

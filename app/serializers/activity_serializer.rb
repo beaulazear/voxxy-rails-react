@@ -12,16 +12,16 @@ class ActivitySerializer < BaseSerializer
 
   def self.created(activity)
     basic(activity).merge(
-      user: user_basic(activity.user),
-      participants: activity.participants.map { |p| user_basic(p) },
+      user: user_with_preferences(activity.user),
+      participants: activity.participants.map { |p| user_with_preferences(p) },
       activity_participants: ActivityParticipantSerializer.basic_list(activity.activity_participants)
     )
   end
 
   def self.updated(activity)
     basic(activity).merge(
-      user: user_basic(activity.user),
-      participants: activity.participants.map { |p| user_basic(p) },
+      user: user_with_preferences(activity.user),
+      participants: activity.participants.map { |p| user_with_preferences(p) },
       activity_participants: ActivityParticipantSerializer.basic_list(activity.activity_participants),
       responses: ResponseSerializer.for_activity(activity.responses)
     )
@@ -29,8 +29,8 @@ class ActivitySerializer < BaseSerializer
 
   def self.list_item(activity)
     basic(activity).merge(
-      user: user_basic(activity.user),
-      participants: activity.participants.map { |p| user_basic(p) },
+      user: user_with_preferences(activity.user),
+      participants: activity.participants.map { |p| user_with_preferences(p) },
       responses: ResponseSerializer.for_activity(activity.responses),
       activity_participants: ActivityParticipantSerializer.basic_list(activity.activity_participants)
     )
@@ -38,8 +38,8 @@ class ActivitySerializer < BaseSerializer
 
   def self.owned_activity(activity)
     basic(activity).merge(
-      user: user_basic(activity.user),
-      participants: activity.participants.map { |p| user_basic(p) },
+      user: user_with_preferences(activity.user),
+      participants: activity.participants.map { |p| user_with_preferences(p) },
       comments: activity.comments.map { |c| CommentSerializer.basic(c) },
       pinned_activities: activity.pinned_activities.map { |pa| PinnedActivitySerializer.full(pa) },
       responses: ResponseSerializer.for_activity(activity.responses),
@@ -54,8 +54,8 @@ class ActivitySerializer < BaseSerializer
       accepted: activity_participant.accepted,
       invited_email: activity_participant.invited_email,
       activity: basic(activity).merge(
-        user: user_basic(activity.user),
-        participants: activity.participants.map { |p| user_basic(p) },
+        user: user_with_preferences(activity.user),
+        participants: activity.participants.map { |p| user_with_preferences(p) },
         comments: activity.comments.map { |c| CommentSerializer.basic(c) },
         pinned_activities: activity.pinned_activities.map { |pa| PinnedActivitySerializer.full(pa) },
         responses: ResponseSerializer.for_activity(activity.responses)
@@ -65,8 +65,8 @@ class ActivitySerializer < BaseSerializer
 
   def self.participant_view(activity)
     basic(activity).merge(
-      user: user_basic(activity.user),
-      participants: activity.participants.map { |p| user_basic(p) },
+      user: user_with_preferences(activity.user),
+      participants: activity.participants.map { |p| user_with_preferences(p) },
       comments: activity.comments.map { |c| CommentSerializer.basic(c) },
       pinned_activities: activity.pinned_activities.map { |pa| PinnedActivitySerializer.full(pa) },
       responses: ResponseSerializer.for_activity(activity.responses),
