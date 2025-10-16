@@ -378,6 +378,28 @@ const Image = styled.img`
   }
 `;
 
+const MobileScreenshotImage = styled.img`
+  width: 100%;
+  height: auto;
+  max-width: 450px;
+  border-radius: 24px;
+  object-fit: contain;
+  margin: 0 auto;
+
+  @media (min-width: 480px) {
+    max-width: 500px;
+  }
+
+  @media (min-width: 768px) {
+    max-width: 550px;
+    border-radius: 32px;
+  }
+
+  @media (min-width: 960px) {
+    max-width: 600px;
+  }
+`;
+
 const List = styled.ul`
   list-style: none;
   margin: 0;
@@ -509,7 +531,7 @@ const FlowsSection = ({ onMobileCta, onPresentsCta }) => {
             </List>
             <PrimaryButtonExternal href="https://apps.apple.com/us/app/voxxy/id6746337878" target="_blank" rel="noopener noreferrer" onClick={onMobileCta}>Get the App</PrimaryButtonExternal>
           </BodyCopy>
-          <Image src={mobileScreenshots1} alt="Voxxy Mobile app screenshots" />
+          <MobileScreenshotImage src={mobileScreenshots1} alt="Voxxy Mobile app screenshots" />
         </Split>
         <Split id="voxxy-presents" $reverseOnMobile>
           <Image src={six} alt="Voxxy Presents workspace preview" />
