@@ -109,25 +109,39 @@ class ActivitiesController < HtmlController
   end
 
   def show
-    # This seems to duplicate UserController#show functionality
-    # Consider if this is needed or if clients should use /me instead
     unless current_user
       return render json: { error: "Not authorized" }, status: :unauthorized
     end
 
-    # Reuse the same dashboard logic from UserController
-    user = User.includes(
-      activities: [
-        :user, :participants, :activity_participants, :responses,
-        { comments: :user },
-        { pinned_activities: [ :votes, { comments: :user }, :voters ] }
-      ]
-    ).find(current_user.id)
+    # Find the specific activity with all associations
+    activity = Activity.includes(
+      :user, :participants, :activity_participants, :responses,
+      { comments: :user },
+      { pinned_activities: [ :votes, { comments: :user }, :voters ] }
+    ).find_by(id: params[:id])
 
-    if user
-      render json: UserSerializer.dashboard(user)
+    unless activity
+      return render json: { error: "Activity not found" }, status: :not_found
+    end
+
+    # Check authorization - owner or participant
+    is_owner = activity.user_id == current_user.id
+    is_participant = activity.participants.exists?(id: current_user.id) ||
+                     activity.activity_participants.exists?(invited_email: current_user.email)
+
+    unless is_owner || is_participant
+      return render json: { error: "Not authorized" }, status: :unauthorized
+    end
+
+    # Return the activity using the appropriate serializer
+    # Use .as_json to get a plain hash that can be modified
+    if is_owner
+      render json: ActivitySerializer.owned_activity(activity).as_json
     else
-      render json: { error: "Not authorized" }, status: :unauthorized
+      activity_participant = activity.activity_participants.find_by(
+        "user_id = ? OR invited_email = ?", current_user.id, current_user.email
+      )
+      render json: ActivitySerializer.participant_activity(activity_participant).as_json
     end
   end
 
