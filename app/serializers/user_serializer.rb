@@ -26,7 +26,13 @@ class UserSerializer < BaseSerializer
     full(user).merge(
       activities: user.activities.map { |a| ActivitySerializer.owned_activity(a) },
       participant_activities: ActivityParticipant
-        .includes(activity: [ :user, :participants, :comments, :pinned_activities ])
+        .includes(
+          activity: [
+            :user, :participants, :responses, :activity_participants,
+            { comments: :user },
+            { pinned_activities: [ :votes, { comments: :user }, :voters ] }
+          ]
+        )
         .where("user_id = ? OR invited_email = ?", user.id, user.email)
         .map { |ap| ActivitySerializer.participant_activity(ap) }
     )

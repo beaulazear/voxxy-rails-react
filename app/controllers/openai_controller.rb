@@ -261,22 +261,42 @@ class OpenaiController < ApplicationController
     # Get all participants (host + accepted participants)
     all_participants = [ activity.user ] + activity.participants.to_a
 
-    # Get user IDs who have submitted explicit responses
-    response_user_ids = activity.responses.pluck(:user_id).compact
-
     # Build complete input
     all_inputs = []
 
     # Add explicit responses if present
     all_inputs << explicit_responses if explicit_responses.present?
 
-    # For users without responses, check profile preferences
-    all_participants.each do |participant|
-      next if response_user_ids.include?(participant.id) # Skip if they have explicit response
+    # If explicit responses were provided, we already have the latest data
+    # So we don't need to check the database for those users
+    if explicit_responses.present?
+      # For users without explicit responses in this request, check DB responses and profile preferences
+      all_participants.each do |participant|
+        # For solo activities, if explicit response was provided, skip DB lookup
+        next if activity.is_solo && explicit_responses.present?
 
-      # Check if they have profile preferences
-      profile_input = build_profile_input(participant)
-      all_inputs << profile_input if profile_input.present?
+        # Check if they have a response in the database
+        db_response = activity.responses.find_by(user_id: participant.id)
+        if db_response&.notes.present?
+          all_inputs << db_response.notes
+        else
+          # No DB response, check profile preferences
+          profile_input = build_profile_input(participant)
+          all_inputs << profile_input if profile_input.present?
+        end
+      end
+    else
+      # No explicit responses provided, use DB responses and fall back to profiles
+      all_participants.each do |participant|
+        db_response = activity.responses.find_by(user_id: participant.id)
+        if db_response&.notes.present?
+          all_inputs << db_response.notes
+        else
+          # No DB response, check profile preferences
+          profile_input = build_profile_input(participant)
+          all_inputs << profile_input if profile_input.present?
+        end
+      end
     end
 
     # Return combined input

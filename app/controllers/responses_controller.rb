@@ -29,6 +29,7 @@ class ResponsesController < ApplicationController
       )
     end
 
+    comment = nil
     if activity.user_id != current_user.id
       ActivityResponseEmailService.send_response_email(response, activity)
       comment = activity.comments.create!(
@@ -39,7 +40,7 @@ class ResponsesController < ApplicationController
 
     render json: {
       response: response,
-      comment: comment.as_json(
+      comment: comment&.as_json(
         include: {
           user: { only: [ :id, :name, :email, :avatar ] }
         }
