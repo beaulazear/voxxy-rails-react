@@ -627,10 +627,33 @@ class OpenaiController < ApplicationController
       return fetch_restaurant_recommendations_from_openai(responses, activity_location, date_notes, radius)
     end
 
-    # Step 2: Get additional details for top venues (limit to avoid too many API calls)
+    # Step 2: Get additional details for top venues using PARALLEL requests
     # Increase to 30 venues to ensure diversity for multi-cuisine preferences
-    detailed_venues = venues.first(30).map do |venue|
-      details = GooglePlacesService.get_detailed_venue_info(venue[:place_id])
+    top_venues = venues.first(30)
+
+    Rails.logger.info "[RECOMMENDATIONS] Fetching details for #{top_venues.size} venues in parallel..."
+    start_time = Time.current
+
+    # Create a thread pool with 10 concurrent threads (safe limit for external API calls)
+    executor = Concurrent::FixedThreadPool.new(10)
+
+    # Create a promise for each venue detail fetch
+    promises = top_venues.map do |venue|
+      Concurrent::Promise.execute(executor: executor) do
+        begin
+          GooglePlacesService.get_detailed_venue_info(venue[:place_id])
+        rescue => e
+          Rails.logger.error "[RECOMMENDATIONS] Error fetching details for #{venue[:name]}: #{e.message}" if Rails.env.development?
+          nil
+        end
+      end
+    end
+
+    # Wait for all promises to complete and build detailed venues array
+    detailed_venues = promises.map.with_index do |promise, idx|
+      venue = top_venues[idx]
+      details = promise.value  # This blocks until the promise completes
+
       if details
         {
           name: details[:name],
@@ -643,12 +666,10 @@ class OpenaiController < ApplicationController
           user_ratings_total: details[:user_ratings_total]
         }
       else
-        # Fallback: If details API fails, still try to get full address
-        # Never use vicinity alone as it only contains "City, State"
-        fallback_details = GooglePlacesService.get_detailed_venue_info(venue[:place_id]) rescue nil
+        # Fallback: Use basic venue data if details API fails
         {
           name: venue[:name],
-          address: fallback_details&.dig(:address) || venue[:address] || "Address not available",
+          address: venue[:address] || "Address not available",
           rating: venue[:rating],
           price_level: GooglePlacesService.convert_price_level_to_string(venue[:price_level]),
           website: nil,
@@ -658,6 +679,13 @@ class OpenaiController < ApplicationController
         }
       end
     end
+
+    # Shutdown the executor
+    executor.shutdown
+    executor.wait_for_termination(30)  # Wait up to 30 seconds for any remaining tasks
+
+    elapsed_time = (Time.current - start_time).round(2)
+    Rails.logger.info "[RECOMMENDATIONS] Fetched #{detailed_venues.size} venue details in #{elapsed_time}s (parallel)"
 
     # Step 3: Send to OpenAI for personalization and ranking
     personalized_recommendations = personalize_venues_with_openai(detailed_venues, responses, activity_location, date_notes)
@@ -691,10 +719,33 @@ class OpenaiController < ApplicationController
       return fetch_bar_recommendations_from_openai(responses, activity_location, date_notes, radius)
     end
 
-    # Step 2: Get additional details for top venues
+    # Step 2: Get additional details for top venues using PARALLEL requests
     # Increase to 30 venues to ensure diversity
-    detailed_venues = venues.first(30).map do |venue|
-      details = GooglePlacesService.get_detailed_venue_info(venue[:place_id])
+    top_venues = venues.first(30)
+
+    Rails.logger.info "[RECOMMENDATIONS] Fetching details for #{top_venues.size} bar venues in parallel..."
+    start_time = Time.current
+
+    # Create a thread pool with 10 concurrent threads (safe limit for external API calls)
+    executor = Concurrent::FixedThreadPool.new(10)
+
+    # Create a promise for each venue detail fetch
+    promises = top_venues.map do |venue|
+      Concurrent::Promise.execute(executor: executor) do
+        begin
+          GooglePlacesService.get_detailed_venue_info(venue[:place_id])
+        rescue => e
+          Rails.logger.error "[RECOMMENDATIONS] Error fetching bar details for #{venue[:name]}: #{e.message}" if Rails.env.development?
+          nil
+        end
+      end
+    end
+
+    # Wait for all promises to complete and build detailed venues array
+    detailed_venues = promises.map.with_index do |promise, idx|
+      venue = top_venues[idx]
+      details = promise.value  # This blocks until the promise completes
+
       if details
         {
           name: details[:name],
@@ -707,11 +758,10 @@ class OpenaiController < ApplicationController
           user_ratings_total: details[:user_ratings_total]
         }
       else
-        # Fallback: If details API fails, still try to get full address
-        fallback_details = GooglePlacesService.get_detailed_venue_info(venue[:place_id]) rescue nil
+        # Fallback: Use basic venue data if details API fails
         {
           name: venue[:name],
-          address: fallback_details&.dig(:address) || venue[:address] || "Address not available",
+          address: venue[:address] || "Address not available",
           rating: venue[:rating],
           price_level: GooglePlacesService.convert_price_level_to_string(venue[:price_level]),
           website: nil,
@@ -721,6 +771,13 @@ class OpenaiController < ApplicationController
         }
       end
     end
+
+    # Shutdown the executor
+    executor.shutdown
+    executor.wait_for_termination(30)  # Wait up to 30 seconds for any remaining tasks
+
+    elapsed_time = (Time.current - start_time).round(2)
+    Rails.logger.info "[RECOMMENDATIONS] Fetched #{detailed_venues.size} bar venue details in #{elapsed_time}s (parallel)"
 
     # Step 3: Send to OpenAI for personalization and ranking
     personalized_recommendations = personalize_bars_with_openai(detailed_venues, responses, activity_location, date_notes)

@@ -411,6 +411,7 @@ DEPENDENCIES
   bootsnap
   brakeman
   capybara
+  concurrent-ruby (~> 1.2)
   database_cleaner-active_record (~> 2.1)
   debug
   dotenv-rails
