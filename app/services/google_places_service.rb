@@ -142,7 +142,9 @@ class GooglePlacesService
       next_page_token = nil
 
       # Google Places returns max 20 results per page, up to 60 total
-      3.times do |page|
+      # Optimization: Only fetch 2 pages (40 venues) instead of 3 to reduce time
+      # We only need 30 venues, so 40 gives us buffer while saving 2 seconds
+      2.times do |page|
         url = next_page_token ? "#{nearby_url}&pagetoken=#{next_page_token}" : nearby_url
 
         # Wait a bit between page requests (Google requires this for pagination)
@@ -176,7 +178,8 @@ class GooglePlacesService
           all_venues.concat(venues)
           next_page_token = data["next_page_token"]
 
-          break unless next_page_token
+          # Early exit if we have enough venues (optimization)
+          break if all_venues.size >= 40 || !next_page_token
         else
           Rails.logger.warn "Nearby search returned status: #{data["status"]}" if Rails.env.development?
           break

@@ -688,11 +688,20 @@ class OpenaiController < ApplicationController
     Rails.logger.info "[RECOMMENDATIONS] Fetched #{detailed_venues.size} venue details in #{elapsed_time}s (parallel)"
 
     # Step 3: Send to OpenAI for personalization and ranking
+    Rails.logger.info "[RECOMMENDATIONS] Starting OpenAI personalization..."
+    openai_start = Time.current
+
     personalized_recommendations = personalize_venues_with_openai(detailed_venues, responses, activity_location, date_notes)
+
+    openai_elapsed = (Time.current - openai_start).round(2)
+    Rails.logger.info "[RECOMMENDATIONS] OpenAI personalization completed in #{openai_elapsed}s"
 
     if personalized_recommendations.nil? || personalized_recommendations.empty?
       return fetch_restaurant_recommendations_from_openai(responses, activity_location, date_notes, radius)
     end
+
+    total_elapsed = (Time.current - start_time).round(2)
+    Rails.logger.info "[RECOMMENDATIONS] Total time: #{total_elapsed}s (Google: #{elapsed_time}s, OpenAI: #{openai_elapsed}s)"
 
     personalized_recommendations
   end
@@ -807,52 +816,36 @@ class OpenaiController < ApplicationController
       responses.to_s.strip
     end
 
-    # Format venue list for OpenAI
+    # Format venue list for OpenAI - use compact format to reduce tokens
     venue_list = venues.map.with_index do |v, i|
-      "#{i + 1}. #{v[:name]} (#{v[:price_level] || '$'}, Rating: #{v[:rating] || 'N/A'}/5 from #{v[:user_ratings_total] || 0} reviews) - #{v[:address]}"
+      "#{i + 1}. #{v[:name]} - #{v[:price_level] || '$'} - #{v[:rating] || 'N/A'}/5 (#{v[:user_ratings_total] || 0} reviews)"
     end.join("\n")
 
     prompt = <<~PROMPT
-      You are an AI assistant that ranks and personalizes restaurant recommendations.
+      Rank and select the top 5 restaurants from this list based on user preferences.
 
-      The user's preferences are:
-      #{notes_text}
+      User preferences: #{notes_text}
 
-      Planning details:
-      - Location: #{activity_location}
-      - Date/Time: #{date_notes}
-
-      Here are REAL, OPERATIONAL restaurants from Google Places:
+      Restaurants:
       #{venue_list}
 
-      YOUR TASK:
-      1. Select the 5 BEST restaurants from this list that match the user's preferences
-      2. IMPORTANT: If multiple cuisines are mentioned (e.g., "French, American, Thai"), ensure your 5 selections include variety across ALL mentioned cuisines, not just one
-      3. Rank them by how well they match ALL stated preferences
-      4. Generate keyword tags that explain the match
+      RULES:
+      1. Select ONLY from the numbered list above
+      2. Match multiple cuisines if mentioned (variety, not 5 of same type)
+      3. Prioritize: dietary needs > budget > ratings
+      4. Return ONLY valid JSON, no other text
 
-      CRITICAL REQUIREMENTS:
-      - You MUST only select from the restaurants listed above
-      - Use the EXACT names and addresses as provided
-      - If user selected multiple cuisines, provide variety (don't pick 5 of the same cuisine)
-      - Prioritize dietary restrictions/preferences first
-      - Consider ALL cuisine preferences equally (not just the first one mentioned)
-      - Consider price preferences second
-      - Factor in ratings and review counts
-      - Generate concise keyword tags that capture why each venue matches
-
-      Return exactly 5 restaurants as valid JSON:
-
+      Return exactly 5 as JSON:
       {
         "restaurants": [
           {
-            "name": "Exact Restaurant Name from list",
-            "price_range": "$ - $$$$",
-            "description": "Brief description of cuisine and atmosphere",
-            "reason": "3-6 keyword tags (comma-separated) like: 'Vegan, Budget-Friendly, Trendy, Italian, Outdoor Seating'",
-            "hours": "Copy hours from venue data or 'Hours not available'",
-            "website": "Copy website from venue data or null",
-            "address": "Exact address from list"
+            "name": "Exact name from list",
+            "price_range": "$-$$$$",
+            "description": "Brief cuisine/vibe (max 10 words)",
+            "reason": "3-6 keyword tags, comma-separated",
+            "hours": "Copy from data or 'Hours not available'",
+            "website": "Copy from data or null",
+            "address": "Full address"
           }
         ]
       }
@@ -863,10 +856,11 @@ class OpenaiController < ApplicationController
         parameters: {
           model: "gpt-3.5-turbo",
           messages: [
-            { role: "system", content: "You are an AI that ranks and personalizes restaurant recommendations. Output only valid JSON." },
+            { role: "system", content: "You rank restaurants. Output only JSON." },
             { role: "user", content: prompt }
           ],
-          temperature: 0.3
+          temperature: 0.3,
+          max_tokens: 1500  # Limit response size for faster generation
         }
       )
 
