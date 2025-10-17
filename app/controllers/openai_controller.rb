@@ -816,9 +816,10 @@ class OpenaiController < ApplicationController
       responses.to_s.strip
     end
 
-    # Format venue list for OpenAI - use compact format to reduce tokens
+    # Format venue list for OpenAI
+    # Include name for matching, but we'll inject real data after
     venue_list = venues.map.with_index do |v, i|
-      "#{i + 1}. #{v[:name]} - #{v[:price_level] || '$'} - #{v[:rating] || 'N/A'}/5 (#{v[:user_ratings_total] || 0} reviews)"
+      "#{i + 1}. #{v[:name]} (#{v[:price_level] || '$'}, #{v[:rating] || 'N/A'}/5)"
     end.join("\n")
 
     prompt = <<~PROMPT
@@ -830,22 +831,18 @@ class OpenaiController < ApplicationController
       #{venue_list}
 
       RULES:
-      1. Select ONLY from the numbered list above
+      1. Select ONLY from the numbered list above by exact name
       2. Match multiple cuisines if mentioned (variety, not 5 of same type)
       3. Prioritize: dietary needs > budget > ratings
       4. Return ONLY valid JSON, no other text
 
-      Return exactly 5 as JSON:
+      Return exactly 5 as JSON (address/hours/website will be added automatically):
       {
         "restaurants": [
           {
             "name": "Exact name from list",
-            "price_range": "$-$$$$",
             "description": "Brief cuisine/vibe (max 10 words)",
-            "reason": "3-6 keyword tags, comma-separated",
-            "hours": "Copy from data or 'Hours not available'",
-            "website": "Copy from data or null",
-            "address": "Full address"
+            "reason": "3-6 keyword tags, comma-separated"
           }
         ]
       }
@@ -874,13 +871,24 @@ class OpenaiController < ApplicationController
       parsed = JSON.parse(raw_json)
       recommendations = parsed.fetch("restaurants", [])
 
-      # Enrich with actual venue data to ensure accuracy
+      # CRITICAL: Inject 100% real venue data from Google Places
+      # This ensures accurate addresses, hours, websites - no AI hallucination
       recommendations.map do |rec|
         venue = venues.find { |v| v[:name].downcase == rec["name"].downcase }
         if venue
-          rec["hours"] = venue[:hours] || rec["hours"] || "Hours not available"
-          rec["website"] = venue[:website] || rec["website"]
-          rec["price_range"] = venue[:price_level] || rec["price_range"] || "$"
+          # Inject ALL real data from Google Places
+          rec["address"] = venue[:address] || "Address not available"
+          rec["hours"] = venue[:hours] || "Hours not available"
+          rec["website"] = venue[:website]
+          rec["price_range"] = venue[:price_level] || "$"
+          rec["rating"] = venue[:rating]
+          rec["user_ratings_total"] = venue[:user_ratings_total]
+
+          # Keep OpenAI's description and reason (these are opinion/matching, not facts)
+        else
+          # If we can't find the venue, log warning
+          Rails.logger.warn "[RECOMMENDATIONS] OpenAI returned venue not in list: #{rec['name']}"
+          rec["address"] = "ERROR: Venue not found"
         end
         rec
       end
@@ -914,49 +922,31 @@ class OpenaiController < ApplicationController
     end
 
     # Format venue list for OpenAI
+    # Include name for matching, but we'll inject real data after
     venue_list = venues.map.with_index do |v, i|
-      "#{i + 1}. #{v[:name]} (#{v[:price_level] || '$'}, Rating: #{v[:rating] || 'N/A'}/5 from #{v[:user_ratings_total] || 0} reviews) - #{v[:address]}"
+      "#{i + 1}. #{v[:name]} (#{v[:price_level] || '$'}, #{v[:rating] || 'N/A'}/5)"
     end.join("\n")
 
     prompt = <<~PROMPT
-      You are an AI assistant that ranks and personalizes bar/lounge recommendations.
+      Rank and select the top 5 bars from this list based on user preferences.
 
-      The user's preferences are:
-      #{notes_text}
+      User preferences: #{notes_text}
 
-      Planning details:
-      - Location: #{activity_location}
-      - Date/Time: #{date_notes}
-
-      Here are REAL, OPERATIONAL bars/lounges from Google Places:
+      Bars:
       #{venue_list}
 
-      YOUR TASK:
-      1. Select the 5 BEST bars from this list that match the user's preferences
-      2. Rank them from best to worst match
-      3. Generate keyword tags that explain the match
+      RULES:
+      1. Select ONLY from the numbered list above by exact name
+      2. Prioritize drink preferences (cocktails, beer, wine) and atmosphere
+      3. Return ONLY valid JSON, no other text
 
-      IMPORTANT:
-      - You MUST only select from the bars listed above
-      - Use the EXACT names and addresses as provided
-      - Prioritize drink preferences (cocktails, beer, wine, non-alcoholic) first
-      - Consider atmosphere preferences (dive bar, rooftop, live music, quiet)
-      - Factor in ratings and review counts
-      - Consider timing - late night preferences need bars with later hours
-      - Generate concise keyword tags that capture why each venue matches
-
-      Return exactly 5 bars as valid JSON (use "restaurants" key for compatibility):
-
+      Return exactly 5 as JSON (address/hours/website will be added automatically):
       {
         "restaurants": [
           {
-            "name": "Exact Bar Name from list",
-            "price_range": "$ - $$$$",
-            "description": "Brief description of drink specialties and atmosphere",
-            "reason": "3-6 keyword tags (comma-separated) like: 'Craft Cocktails, Upscale, Rooftop, Late Night'",
-            "hours": "Copy hours from venue data or 'Hours not available'",
-            "website": "Copy website from venue data or null",
-            "address": "Exact address from list"
+            "name": "Exact name from list",
+            "description": "Brief drink specialties/vibe (max 10 words)",
+            "reason": "3-6 keyword tags, comma-separated"
           }
         ]
       }
@@ -967,10 +957,11 @@ class OpenaiController < ApplicationController
         parameters: {
           model: "gpt-3.5-turbo",
           messages: [
-            { role: "system", content: "You are an AI that ranks and personalizes bar recommendations. Output only valid JSON." },
+            { role: "system", content: "You rank bars. Output only JSON." },
             { role: "user", content: prompt }
           ],
-          temperature: 0.3
+          temperature: 0.3,
+          max_tokens: 1500
         }
       )
 
@@ -984,13 +975,24 @@ class OpenaiController < ApplicationController
       parsed = JSON.parse(raw_json)
       recommendations = parsed.fetch("restaurants", [])
 
-      # Enrich with actual venue data to ensure accuracy
+      # CRITICAL: Inject 100% real venue data from Google Places
+      # This ensures accurate addresses, hours, websites - no AI hallucination
       recommendations.map do |rec|
         venue = venues.find { |v| v[:name].downcase == rec["name"].downcase }
         if venue
-          rec["hours"] = venue[:hours] || rec["hours"] || "Hours not available"
-          rec["website"] = venue[:website] || rec["website"]
-          rec["price_range"] = venue[:price_level] || rec["price_range"] || "$"
+          # Inject ALL real data from Google Places
+          rec["address"] = venue[:address] || "Address not available"
+          rec["hours"] = venue[:hours] || "Hours not available"
+          rec["website"] = venue[:website]
+          rec["price_range"] = venue[:price_level] || "$"
+          rec["rating"] = venue[:rating]
+          rec["user_ratings_total"] = venue[:user_ratings_total]
+
+          # Keep OpenAI's description and reason (these are opinion/matching, not facts)
+        else
+          # If we can't find the venue, log warning
+          Rails.logger.warn "[RECOMMENDATIONS] OpenAI returned bar venue not in list: #{rec['name']}"
+          rec["address"] = "ERROR: Venue not found"
         end
         rec
       end
