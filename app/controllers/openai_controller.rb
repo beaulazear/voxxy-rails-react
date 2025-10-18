@@ -628,8 +628,8 @@ class OpenaiController < ApplicationController
     end
 
     # Step 2: Get additional details for top venues using PARALLEL requests
-    # Increase to 30 venues to ensure diversity for multi-cuisine preferences
-    top_venues = venues.first(30)
+    # 20 venues provides 4x buffer (we return 5) while reducing API calls
+    top_venues = venues.first(20)
 
     Rails.logger.info "[RECOMMENDATIONS] Fetching details for #{top_venues.size} venues in parallel..."
     start_time = Time.current
@@ -729,8 +729,8 @@ class OpenaiController < ApplicationController
     end
 
     # Step 2: Get additional details for top venues using PARALLEL requests
-    # Increase to 30 venues to ensure diversity
-    top_venues = venues.first(30)
+    # 20 venues provides 4x buffer (we return 5) while reducing API calls
+    top_venues = venues.first(20)
 
     Rails.logger.info "[RECOMMENDATIONS] Fetching details for #{top_venues.size} bar venues in parallel..."
     start_time = Time.current
@@ -851,7 +851,7 @@ class OpenaiController < ApplicationController
     begin
       response = client.chat(
         parameters: {
-          model: "gpt-3.5-turbo",
+          model: "gpt-4o-mini",  # Faster and cheaper than gpt-3.5-turbo for structured outputs
           messages: [
             { role: "system", content: "You rank restaurants. Output only JSON." },
             { role: "user", content: prompt }
@@ -955,7 +955,7 @@ class OpenaiController < ApplicationController
     begin
       response = client.chat(
         parameters: {
-          model: "gpt-3.5-turbo",
+          model: "gpt-4o-mini",  # Faster and cheaper than gpt-3.5-turbo for structured outputs
           messages: [
             { role: "system", content: "You rank bars. Output only JSON." },
             { role: "user", content: prompt }
