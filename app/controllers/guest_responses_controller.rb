@@ -65,20 +65,7 @@ class GuestResponsesController < ApplicationController
       end
     end
 
-    begin
-      if existing_user && @participant.accepted
-        if defined?(ActivityAcceptanceAndResponseEmailService)
-          ActivityAcceptanceAndResponseEmailService.send_acceptance_and_response_email(@participant, @response)
-        end
-      else
-        if defined?(ActivityResponseEmailService)
-          @response.reload
-          ActivityResponseEmailService.send_response_email(@response, @activity)
-        end
-      end
-    rescue => e
-      Rails.logger.error "Failed to send email (but response was saved): #{e.message}"
-    end
+    # Email sending removed - using push notifications only
 
     begin
       if existing_user && @participant.accepted

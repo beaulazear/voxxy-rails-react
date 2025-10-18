@@ -76,10 +76,7 @@ class ActivitiesController < HtmlController
       end
     end
 
-    if should_email_finalized
-      ActivityFinalizationEmailService.send_finalization_emails(activity)
-      # Push notifications are automatically sent by the Activity model callback
-    end
+    # Push notifications are automatically sent by the Activity model callback when finalized
 
     activity = Activity.includes(:user, :participants, :activity_participants, :responses)
                       .find(activity.id)
@@ -149,8 +146,7 @@ class ActivitiesController < HtmlController
     activity = Activity.find_by(id: params[:id])
     return render json: { error: "Activity not found" }, status: :not_found unless activity
 
-    ThankYouEmailService.send_thank_you_email(activity)
-    render json: { message: "Thank-you emails sent!" }, status: :ok
+    render json: { message: "Thank-you feature disabled" }, status: :ok
   rescue => e
     render json: { error: e.message }, status: :unprocessable_entity
   end
@@ -160,8 +156,6 @@ class ActivitiesController < HtmlController
     return render(json: { error: "Activity not found" }, status: :not_found) unless activity
 
     if activity.update(completed: true)
-      ActivityCompletionEmailService.send_completion_emails(activity)
-
       activity = Activity.includes(:user, :participants, :activity_participants, :responses)
                         .find(activity.id)
       render json: ActivitySerializer.updated(activity), status: :ok
@@ -231,9 +225,10 @@ class ActivitiesController < HtmlController
     participant.accepted = false
     participant.save!
 
+    # Always send invitation email (contains guest response link)
     InviteUserService.send_invitation(activity, invited_email, current_user)
 
-    # Send push notification if the invited user has a mobile account
+    # Also send push notification if the invited user has a mobile account
     if user
       Notification.send_activity_invite(activity, user)
     end

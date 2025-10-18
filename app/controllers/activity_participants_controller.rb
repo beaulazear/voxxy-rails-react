@@ -33,9 +33,10 @@ class ActivityParticipantsController < ApplicationController
       participant.user_id = user.id if user
       participant.accepted = false
       if participant.save
+        # Always send invitation email (contains guest response link)
         InviteUserService.send_invitation(activity, invited_email, current_user)
 
-        # Send push notification if the invited user has a mobile account
+        # Also send push notification if the invited user has a mobile account
         if user
           Notification.send_activity_invite(activity, user)
         end
@@ -68,7 +69,6 @@ class ActivityParticipantsController < ApplicationController
     end
 
     participant.update!(user_id: user.id, accepted: true)
-    ActivityAcceptanceEmailService.send_acceptance_email(participant)
 
     activity = participant.activity
 
