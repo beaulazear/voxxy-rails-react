@@ -163,4 +163,7 @@ Rails.application.routes.draw do
 
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+
+  # Share routes
+  get "share/favorite/:id", to: "share#favorite", as: :share_favorite
 end

@@ -1,0 +1,176 @@
+<!-- app/views/share/favorite.html.erb -->
+<div class="share-page">
+
+  <!-- Main restaurant card -->
+  <section class="card">
+    <h2 class="activity-title">
+      ✨ Check out this gem!
+    </h2>
+
+    <% if @name.present? %>
+      <p class="rest-name"><%= @name %></p>
+    <% end %>
+
+    <% if @address.present? %>
+      <div class="info-banner">
+        <div class="info-banner-icon">📍</div>
+        <div class="info-banner-text">
+          <%= @address %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Action buttons -->
+    <div class="action-buttons">
+      <% if @latitude.present? && @longitude.present? %>
+        <a
+          href="https://maps.apple.com/?ll=<%= @latitude %>,<%= @longitude %>&q=<%= CGI.escape(@name) %>"
+          target="_blank"
+          rel="noopener"
+          class="glass-button primary"
+        >
+          🗺️ Get Directions
+        </a>
+      <% elsif @address.present? %>
+        <a
+          href="https://maps.apple.com/?address=<%= CGI.escape(@address) %>"
+          target="_blank"
+          rel="noopener"
+          class="glass-button primary"
+        >
+          🗺️ Get Directions
+        </a>
+      <% end %>
+
+      <a id="shareFavorite" class="glass-button">
+        🔗 Share
+      </a>
+    </div>
+  </section>
+
+  <!-- Additional details if favorite exists in database -->
+  <% if @favorite %>
+    <div class="card">
+      <h2>💬 About this place</h2>
+      <% if @favorite.description.present? %>
+        <p class="rest-desc"><%= @favorite.description %></p>
+      <% end %>
+
+      <% if @favorite.reason.present? %>
+        <p class="rest-desc"><em>"<%= @favorite.reason %>"</em></p>
+      <% end %>
+
+      <% if @favorite.price_range.present? %>
+        <div style="margin-top: 12px;">
+          <span class="rest-price"><%= @favorite.price_range %></span>
+        </div>
+      <% end %>
+
+      <% if @favorite.hours.present? %>
+        <div style="margin-top: 12px;">
+          <p class="rest-desc"><strong>Hours:</strong> <%= @favorite.hours %></p>
+        </div>
+      <% end %>
+
+      <% if @favorite.website.present? %>
+        <div class="action-buttons">
+          <a href="<%= @favorite.website %>" target="_blank" rel="noopener" class="glass-button">
+            🌐 Visit Website
+          </a>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Call to action -->
+  <div class="card">
+    <h2>💜 Shared from Voxxy</h2>
+    <p class="rest-desc">
+      Your social discovery app for finding and sharing amazing places with friends.
+    </p>
+
+    <div class="action-buttons">
+      <a href="https://www.heyvoxxy.com" target="_blank" rel="noopener" class="glass-button primary">
+        Learn About Voxxy
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification div -->
+<div id="toast" class="toast"></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Try to open app immediately on mobile
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      const deepLink = 'voxxy://share/favorite/<%= @favorite_id %>?name=<%= CGI.escape(@name.to_s) %>&address=<%= CGI.escape(@address.to_s) %>&lat=<%= @latitude %>&lng=<%= @longitude %>';
+
+      // Attempt to open the app
+      window.location = deepLink;
+
+      // Fallback to App Store/Play Store after timeout
+      setTimeout(() => {
+        if (document.hidden) return; // App opened successfully
+
+        // Show app store links (update with your actual app store URLs)
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (isIOS) {
+          // Uncomment and add your App Store URL when ready
+          // window.location = 'https://apps.apple.com/app/your-app-id';
+        } else {
+          // Uncomment and add your Play Store URL when ready
+          // window.location = 'https://play.google.com/store/apps/details?id=your.package.name';
+        }
+      }, 2000);
+    }
+
+    // Share button with toast notification
+    const shareBtn = document.getElementById('shareFavorite');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', function() {
+        if (navigator.share) {
+          // Use Web Share API if available
+          navigator.share({
+            title: '<%= @name %>',
+            text: 'Check out <%= @name %> on Voxxy!',
+            url: window.location.href
+          })
+          .then(() => {
+            showToast('✅ Shared successfully!');
+          })
+          .catch((error) => {
+            if (error.name !== 'AbortError') {
+              // Fallback to clipboard
+              copyToClipboard();
+            }
+          });
+        } else {
+          // Fallback to clipboard
+          copyToClipboard();
+        }
+      });
+    }
+
+    function copyToClipboard() {
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => {
+          showToast('✅ Link copied to clipboard!');
+        })
+        .catch(() => {
+          showToast('❌ Could not copy link');
+        });
+    }
+
+    // Toast notification function
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+  });
+</script>

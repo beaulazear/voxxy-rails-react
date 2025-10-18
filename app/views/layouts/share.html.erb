@@ -2,9 +2,24 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= @activity.activity_name %> | Voxxy</title>
+    <title><%= @activity&.activity_name || @name || "Voxxy" %> | Voxxy</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= request.original_url %>">
+    <meta property="og:title" content="<%= @activity&.activity_name || @name || "Check this out on Voxxy" %>">
+    <meta property="og:description" content="<%= @activity&.welcome_message || @address || "Shared from Voxxy, your social discovery app" %>">
+    <meta property="og:image" content="<%= request.base_url %>/icon.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="<%= request.original_url %>">
+    <meta property="twitter:title" content="<%= @activity&.activity_name || @name || "Check this out on Voxxy" %>">
+    <meta property="twitter:description" content="<%= @activity&.welcome_message || @address || "Shared from Voxxy" %>">
+    <meta property="twitter:image" content="<%= request.base_url %>/icon.png">
+
     <%= stylesheet_link_tag 'share', media: 'all' %>
     <style>
       /* Navbar specific styles */
