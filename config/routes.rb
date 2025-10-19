@@ -150,6 +150,7 @@ Rails.application.routes.draw do
       as: "places_photo"
   get "/api/places/search", to: "places#search"
   get "/api/places/details", to: "places#details"
+  get "/api/places/reverse_geocode", to: "places#reverse_geocode"
 
   get "/test", to: "application#test"
 

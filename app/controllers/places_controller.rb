@@ -1,5 +1,5 @@
 class PlacesController < ApplicationController
-  skip_before_action :authorized, only: [ :photo, :search, :details ]
+  skip_before_action :authorized, only: [ :photo, :search, :details, :reverse_geocode ]
 
   require "net/http"
   require "uri"
@@ -87,6 +87,25 @@ class PlacesController < ApplicationController
     end
   end
 
+  # GET /places/reverse_geocode?lat=40.123&lng=-73.456
+  def reverse_geocode
+    lat = params[:lat]
+    lng = params[:lng]
+
+    if lat.blank? || lng.blank?
+      render json: { error: "Latitude and longitude are required" }, status: :bad_request
+      return
+    end
+
+    begin
+      results = google_reverse_geocode(lat, lng)
+      render json: { results: results }, status: :ok
+    rescue StandardError => e
+      Rails.logger.error "Google Reverse Geocode error: #{e.message}"
+      render json: { error: "Reverse geocoding failed" }, status: :internal_server_error
+    end
+  end
+
   private
 
   def google_places_search(query, types = "(cities)")
@@ -157,6 +176,52 @@ class PlacesController < ApplicationController
     else
       Rails.logger.error "Google Places Details HTTP error: #{response.code} - #{response.body}"
       nil
+    end
+  end
+
+  def google_reverse_geocode(lat, lng)
+    api_key = ENV.fetch("PLACES_KEY")
+    return [] if api_key.blank?
+
+    uri = URI("https://maps.googleapis.com/maps/api/geocode/json")
+    params = {
+      latlng: "#{lat},#{lng}",
+      result_type: "neighborhood|sublocality|locality|administrative_area_level_3",
+      key: api_key
+    }
+    uri.query = URI.encode_www_form(params)
+
+    Rails.logger.info "Reverse Geocode request: lat=#{lat}, lng=#{lng}"
+
+    response = Net::HTTP.get_response(uri)
+
+    if response.code == "200"
+      data = JSON.parse(response.body)
+
+      if data["status"] == "OK"
+        # Sort results to prioritize neighborhoods over cities
+        sorted_results = data["results"].sort_by do |result|
+          types = result["types"] || []
+          if types.include?("neighborhood")
+            0
+          elsif types.include?("sublocality") || types.include?("sublocality_level_1")
+            1
+          elsif types.include?("locality")
+            2
+          else
+            3
+          end
+        end
+
+        Rails.logger.info "Reverse geocode returned #{sorted_results.length} results"
+        sorted_results
+      else
+        Rails.logger.error "Google Geocode API error: #{data['status']} - #{data['error_message']}"
+        []
+      end
+    else
+      Rails.logger.error "Google Geocode HTTP error: #{response.code} - #{response.body}"
+      []
     end
   end
 end
