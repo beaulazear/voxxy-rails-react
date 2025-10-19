@@ -116,7 +116,7 @@ class InviteUserService < BaseEmailService
     frontend_host = app_base_url
 
     response_link = "#{frontend_host}#/activities/#{activity.id}/respond/#{participant.guest_response_token}"
-    accept_with_preferences_link = "#{frontend_host}#/activities/#{activity.id}/respond/#{participant.guest_response_token}/accept_with_preferences"
+    accept_with_preferences_link = "#{frontend_host}#/activities/#{activity.id}/respond/#{participant.guest_response_token}?use_profile_preferences=true"
     login_link = "#{frontend_host}#/login?redirect=boards"
 
     activity_info = get_activity_type_info(activity.activity_type)

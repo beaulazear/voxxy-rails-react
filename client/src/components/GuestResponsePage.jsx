@@ -6,7 +6,7 @@ import BarChat from "../cocktails/BarChat";
 import GameNightPreferenceChat from "../gamenight/GameNightPreferenceChat";
 import LetsMeetScheduler from "../letsmeet/LetsMeetScheduler";
 import LoadingScreenUser from "../admincomponents/LoadingScreenUser.js";
-import { HelpCircle, CheckCircle, BookHeart, AlertCircle, ArrowRight, Calendar, MessageSquare, User } from 'lucide-react';
+import { HelpCircle, CheckCircle, BookHeart, AlertCircle, ArrowRight, Calendar, MessageSquare, User, Smartphone } from 'lucide-react';
 
 const fadeInNoTransform = keyframes`
   from { opacity: 0; }
@@ -63,21 +63,26 @@ const NavLinks = styled.div`
   gap: 0.5rem;
 `;
 
-const NavLink = styled.a`
+const GetAppButton = styled.a`
   font-weight: 600;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 1.25rem;
   border-radius: 8px;
-  background: rgba(147, 51, 234, 0.1);
-  border: 1px solid rgba(147, 51, 234, 0.2);
-  color: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(135deg, #9333EA, #7C3AED);
+  border: 1px solid rgba(147, 51, 234, 0.4);
+  color: rgba(255, 255, 255, 0.95);
   text-decoration: none;
   transition: all 0.3s ease;
   font-size: 14px;
-  
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(147, 51, 234, 0.3);
+
   &:hover {
-    background: rgba(147, 51, 234, 0.2);
-    border-color: rgba(147, 51, 234, 0.4);
+    background: linear-gradient(135deg, #7C3AED, #6B21A8);
+    border-color: rgba(147, 51, 234, 0.6);
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(147, 51, 234, 0.4);
   }
 `;
 
@@ -464,10 +469,12 @@ export default function GuestResponsePage() {
   const [guestEmail, setGuestEmail] = useState(null);
   const [existingResponse, setExistingResponse] = useState(null);
   const [isExistingUser, setIsExistingUser] = useState(false);
+  const [hasSavedPreferences, setHasSavedPreferences] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showChat, setShowChat] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
+  const [usedProfilePreferences, setUsedProfilePreferences] = useState(false);
 
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
   
@@ -535,6 +542,7 @@ export default function GuestResponsePage() {
       setGuestEmail(data.participant_email);
       setExistingResponse(data.existing_response);
       setIsExistingUser(data.is_existing_user || false);
+      setHasSavedPreferences(data.has_saved_preferences || false);
     } catch (err) {
       console.error("Error fetching guest data:", err);
       setError("Unable to connect to the server. Please check your internet connection.");
@@ -546,6 +554,47 @@ export default function GuestResponsePage() {
   useEffect(() => {
     fetchGuestData();
   }, [fetchGuestData]);
+
+  // Check if user clicked "Accept & Use My Preferences" button from email
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const useProfilePreferences = urlParams.get('use_profile_preferences') === 'true';
+
+    if (useProfilePreferences && activity && isExistingUser && hasSavedPreferences && !usedProfilePreferences) {
+      handleAcceptWithProfilePreferences();
+    }
+  }, [activity, isExistingUser, hasSavedPreferences, usedProfilePreferences]);
+
+  const handleAcceptWithProfilePreferences = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_URL}/activities/${activityId}/respond/${token}/accept_with_preferences`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to accept invitation with preferences');
+        return;
+      }
+
+      const data = await response.json();
+      setUsedProfilePreferences(true);
+      setSubmissionSuccess(true);
+      setExistingResponse(data.response);
+
+      // Remove the query parameter from URL
+      window.history.replaceState({}, '', `${window.location.pathname}${window.location.hash.split('?')[0]}`);
+    } catch (err) {
+      console.error("Error accepting with profile preferences:", err);
+      setError("Unable to accept invitation. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleStartChat = () => {
     setShowChat(true);
@@ -601,14 +650,6 @@ export default function GuestResponsePage() {
     }
   };
 
-  const handleCreateAccountOrLogin = () => {
-    if (isExistingUser) {
-      navigate(`/login?invited_email=${encodeURIComponent(guestEmail)}&activity_id=${activityId}`);
-    } else {
-      navigate(`/signup?invited_email=${encodeURIComponent(guestEmail)}&activity_id=${activityId}`);
-    }
-  };
-
   if (loading) {
     return <LoadingScreenUser autoDismiss={false} />;
   }
@@ -624,8 +665,10 @@ export default function GuestResponsePage() {
               <img src="/HEADER.svg" alt="Voxxy logo" />
             </Logo>
             <NavLinks>
-              <NavLink href={`${appBaseUrl}/#/login`}>Login</NavLink>
-              <NavLink href={`${appBaseUrl}/#/signup`}>Signup</NavLink>
+              <GetAppButton href="https://apps.apple.com/us/app/voxxy/id6746337878" target="_blank" rel="noopener noreferrer">
+                <Smartphone size={16} />
+                Get the App
+              </GetAppButton>
             </NavLinks>
           </NavbarContainer>
         </Navbar>
@@ -660,8 +703,10 @@ export default function GuestResponsePage() {
               <img src="/HEADER.svg" alt="Voxxy logo" />
             </Logo>
             <NavLinks>
-              <NavLink href={`${appBaseUrl}/#/login`}>Login</NavLink>
-              <NavLink href={`${appBaseUrl}/#/signup`}>Signup</NavLink>
+              <GetAppButton href="https://apps.apple.com/us/app/voxxy/id6746337878" target="_blank" rel="noopener noreferrer">
+                <Smartphone size={16} />
+                Get the App
+              </GetAppButton>
             </NavLinks>
           </NavbarContainer>
         </Navbar>
@@ -685,8 +730,10 @@ export default function GuestResponsePage() {
             <img src="/HEADER.svg" alt="Voxxy logo" />
           </Logo>
           <NavLinks>
-            <NavLink href={`${appBaseUrl}/#/login`}>Login</NavLink>
-            <NavLink href={`${appBaseUrl}/#/signup`}>Signup</NavLink>
+            <GetAppButton href="https://apps.apple.com/us/app/voxxy/id6746337878" target="_blank" rel="noopener noreferrer">
+              <Smartphone size={16} />
+              Get the App
+            </GetAppButton>
           </NavLinks>
         </NavbarContainer>
       </Navbar>
@@ -723,10 +770,18 @@ export default function GuestResponsePage() {
           <SubmittedCard>
             <SubmittedTitle>
               <CheckCircle size={24} />
-              Response Submitted Successfully! 🎉
+              {usedProfilePreferences ? 'Invitation Accepted! 🎉' : 'Response Submitted Successfully! 🎉'}
             </SubmittedTitle>
             <SubmittedText>
-              Thank you for submitting your {activity?.activity_type === 'Meeting' ? 'availability' : 'preferences'}! {isExistingUser && 'You have also accepted the invitation to this activity. '}The organizer will gather everyone's responses and send you the final {activity?.activity_type === 'Meeting' ? 'meeting details' : 'plans'} soon.
+              {usedProfilePreferences ? (
+                <>
+                  Thank you for accepting the invitation! We've automatically used your saved profile preferences for this activity. The organizer will gather everyone's responses and send you the final {activity?.activity_type === 'Meeting' ? 'meeting details' : 'plans'} soon.
+                </>
+              ) : (
+                <>
+                  Thank you for submitting your {activity?.activity_type === 'Meeting' ? 'availability' : 'preferences'}! {isExistingUser && 'You have also accepted the invitation to this activity. '}The organizer will gather everyone's responses and send you the final {activity?.activity_type === 'Meeting' ? 'meeting details' : 'plans'} soon.
+                </>
+              )}
             </SubmittedText>
           </SubmittedCard>
         )}
@@ -792,24 +847,18 @@ export default function GuestResponsePage() {
         ) : null}
 
         <InfoText>
-          {isExistingUser ? (
-            <>
-              Already have an account with this email?
-              <br />
-              <ActionButton onClick={handleCreateAccountOrLogin} style={{ marginTop: '1rem' }}>
-                <User size={16} />
-                Log In
-              </ActionButton>
-            </>
-          ) : (
-            <>
-              Want to create an account to manage all your activities?
-              <br />
-              <ActionButton onClick={handleCreateAccountOrLogin} style={{ marginTop: '1rem' }}>
-                Create Free Account
-              </ActionButton>
-            </>
-          )}
+          Want to manage all your activities in one place?
+          <br />
+          <ActionButton
+            as="a"
+            href="https://apps.apple.com/us/app/voxxy/id6746337878"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ marginTop: '1rem' }}
+          >
+            <Smartphone size={16} />
+            Download Voxxy App
+          </ActionButton>
         </InfoText>
 
         {showChat && (
