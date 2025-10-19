@@ -116,9 +116,11 @@ class InviteUserService < BaseEmailService
     frontend_host = app_base_url
 
     response_link = "#{frontend_host}#/activities/#{activity.id}/respond/#{participant.guest_response_token}"
+    accept_with_preferences_link = "#{frontend_host}#/activities/#{activity.id}/respond/#{participant.guest_response_token}/accept_with_preferences"
     login_link = "#{frontend_host}#/login?redirect=boards"
 
     activity_info = get_activity_type_info(activity.activity_type)
+    has_saved_preferences = user.has_saved_preferences?
 
     subject = "Help #{inviter.name} pick a #{activity.activity_type == 'Restaurant' ? 'restaurant' : 'bar'}"
     content = <<~HTML
@@ -151,19 +153,33 @@ class InviteUserService < BaseEmailService
                 <h2 style="font-family: 'Montserrat', Arial, sans-serif; font-size: 20px; font-weight: 700; color: #2d3748; margin: 0 0 12px 0;">
                   Action Required
                 </h2>
-                <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 14px; color: #4a5568; margin: 0 0 25px 0; line-height: 1.4;">
-                  Complete a 2-minute survey to share your preferences.
-                </p>
-                <a href="#{response_link}"
-                   style="display: inline-block; font-family: 'Montserrat', Arial, sans-serif; padding: 16px 32px; font-size: 16px; font-weight: 600; color: white; background-color: #9D60F8; text-decoration: none; border-radius: 8px;">
-                  Start Survey
-                </a>
+                #{has_saved_preferences ?
+                  "<p style='font-family: \"Montserrat\", Arial, sans-serif; font-size: 14px; color: #4a5568; margin: 0 0 25px 0; line-height: 1.4;'>
+                    Accept the invitation using your saved preferences, or take the survey to customize your response.
+                  </p>
+                  <a href='#{accept_with_preferences_link}'
+                     style='display: inline-block; font-family: \"Montserrat\", Arial, sans-serif; padding: 16px 32px; font-size: 16px; font-weight: 600; color: white; background-color: #9D60F8; text-decoration: none; border-radius: 8px; margin-bottom: 15px;'>
+                    Accept & Use My Preferences
+                  </a>
+                  <br>
+                  <a href='#{response_link}'
+                     style='display: inline-block; font-family: \"Montserrat\", Arial, sans-serif; padding: 12px 24px; font-size: 14px; font-weight: 500; color: #9D60F8; background-color: transparent; border: 1.5px solid #9D60F8; text-decoration: none; border-radius: 6px;'>
+                    Take Survey Instead
+                  </a>" :
+                  "<p style='font-family: \"Montserrat\", Arial, sans-serif; font-size: 14px; color: #4a5568; margin: 0 0 25px 0; line-height: 1.4;'>
+                    Accept the invitation and complete a 2-minute survey to share your preferences.
+                  </p>
+                  <a href='#{response_link}'
+                     style='display: inline-block; font-family: \"Montserrat\", Arial, sans-serif; padding: 16px 32px; font-size: 16px; font-weight: 600; color: white; background-color: #9D60F8; text-decoration: none; border-radius: 8px;'>
+                    Accept & Respond
+                  </a>"
+                }
               </div>
 
               <!-- Secondary option -->
               <div style="padding-top: 25px; border-top: 1px solid #e2e8f0;">
                 <p style="font-family: 'Montserrat', Arial, sans-serif; font-size: 13px; color: #a0aec0; margin: 0 0 18px 0;">
-                  Or access your full dashboard
+                  Or view all your activities
                 </p>
                 <a href="#{login_link}"
                    style="display: inline-block; font-family: 'Montserrat', Arial, sans-serif; padding: 12px 24px; font-size: 14px; font-weight: 500; color: #9D60F8; background-color: transparent; border: 1.5px solid #9D60F8; text-decoration: none; border-radius: 6px;">

@@ -123,6 +123,7 @@ Rails.application.routes.draw do
 
   get "/activities/:activity_id/respond/:token", to: "guest_responses#show"
   post "/activities/:activity_id/respond/:token", to: "guest_responses#create"
+  post "/activities/:activity_id/respond/:token/accept_with_preferences", to: "guest_responses#accept_with_profile_preferences"
 
   # Notification Routes
   resources :notifications, only: [ :index, :show, :create, :destroy ] do

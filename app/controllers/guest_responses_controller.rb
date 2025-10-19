@@ -25,7 +25,8 @@ class GuestResponsesController < ApplicationController
       existing_response: @response,
       participant_email: @participant.invited_email,
       participant_name: existing_user&.name,
-      is_existing_user: is_existing_user
+      is_existing_user: is_existing_user,
+      has_saved_preferences: existing_user&.has_saved_preferences? || false
     }
   end
 
@@ -104,6 +105,50 @@ class GuestResponsesController < ApplicationController
   rescue => e
     Rails.logger.error "Guest response creation failed: #{e.message}"
     render json: { error: "Unable to save response. Please try again." }, status: :internal_server_error
+  end
+
+  def accept_with_profile_preferences
+    existing_user = User.find_by(email: @participant.invited_email)
+
+    unless existing_user
+      return render json: { error: "User not found." }, status: :not_found
+    end
+
+    unless existing_user.has_saved_preferences?
+      return render json: { error: "No saved preferences found." }, status: :unprocessable_entity
+    end
+
+    # Generate notes from user's profile preferences
+    preference_notes = existing_user.generate_preference_notes
+
+    # Create response with profile preferences
+    @response = @activity.responses.create!(
+      activity: @activity,
+      email: @participant.invited_email,
+      user_id: existing_user.id,
+      notes: preference_notes,
+      availability: {}
+    )
+
+    # Accept invitation
+    @participant.update!(user_id: existing_user.id, accepted: true)
+
+    # Create comment
+    comment = @activity.comments.create!(
+      user_id: existing_user.id,
+      content: "#{existing_user.name} has joined using their profile preferences! 🎉"
+    )
+
+    render json: {
+      response: @response,
+      comment: comment,
+      message: "Successfully joined using your profile preferences!"
+    }, status: :created
+
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
+  rescue => e
+    render json: { error: e.message }, status: :internal_server_error
   end
 
   private

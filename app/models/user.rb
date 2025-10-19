@@ -257,6 +257,19 @@ class User < ApplicationRecord
     !has_accepted_all_policies?
   end
 
+  # Check if user has saved preferences/favorites
+  def has_saved_preferences?
+    preferences.present? || favorite_food.present?
+  end
+
+  # Generate notes from user's saved preferences
+  def generate_preference_notes
+    notes = []
+    notes << "Favorite food: #{favorite_food}" if favorite_food.present?
+    notes << preferences if preferences.present?
+    notes.join("\n")
+  end
+
   def unban!(moderator = nil)
     transaction do
       update!(
