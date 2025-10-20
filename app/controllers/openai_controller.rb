@@ -17,7 +17,6 @@ class OpenaiController < ApplicationController
   # Cache configuration
   CACHE_DURATION = Rails.env.production? ? 2.hours : 1.hour
   RATE_LIMIT_DURATION = Rails.env.production? ? 1.hour : 30.minutes
-  MAX_CACHE_SIZE = 1000 # Maximum number of cached recommendations
 
   def restaurant_recommendations
     user_responses     = params[:responses]
@@ -390,7 +389,7 @@ class OpenaiController < ApplicationController
       6. Keep the tone warm and human — avoid calling people "users" or referencing individual budgets.
       7. Avoid large chains or obvious tourist spots—seek out hole-in-the-wall or buzz-worthy places.
 
-      Return exactly **5** restaurants that match these criteria. Output must be valid JSON (no extra commentary, no markdown fences) in this structure:
+      Return exactly **10** restaurants that match these criteria. Output must be valid JSON (no extra commentary, no markdown fences) in this structure:
 
       {
         "restaurants": [
@@ -474,7 +473,7 @@ class OpenaiController < ApplicationController
       6. Keep the tone warm and human — avoid calling people "users" or referencing individual budgets.
       7. Avoid large chains or obvious tourist spots—seek out local gems, craft cocktail lounges, or unique nightlife spots.
 
-      Return exactly **5** bars/lounges that match these criteria. Output must be valid JSON (no extra commentary, no markdown fences) in this structure:
+      Return exactly **10** bars/lounges that match these criteria. Output must be valid JSON (no extra commentary, no markdown fences) in this structure:
 
       {
         "restaurants": [
@@ -547,7 +546,7 @@ class OpenaiController < ApplicationController
       8. For video games, consider the consoles/platforms they have available.
       9. For board/card games, prioritize games that are easy to learn but engaging.
 
-      Return exactly 5 games that match these criteria. Output must be valid JSON with the key "restaurants" (for compatibility):
+      Return exactly 10 games that match these criteria. Output must be valid JSON with the key "restaurants" (for compatibility):
 
       {
         "restaurants": [
@@ -605,9 +604,6 @@ class OpenaiController < ApplicationController
   end
 
   def fetch_hybrid_restaurant_recommendations(responses, activity_location, date_notes, radius)
-    # Extract cuisine preferences from user responses
-    cuisine_keywords = extract_cuisine_keywords(responses)
-
     # Determine smart radius based on location type
     smart_radius = determine_smart_radius(activity_location, radius)
 
@@ -628,7 +624,7 @@ class OpenaiController < ApplicationController
     end
 
     # Step 2: Get additional details for top venues using PARALLEL requests
-    # 20 venues provides 4x buffer (we return 5) while reducing API calls
+    # 20 venues provides 2x buffer (we return 10) while reducing API calls
     top_venues = venues.first(20)
 
     Rails.logger.info "[RECOMMENDATIONS] Fetching details for #{top_venues.size} venues in parallel..."
@@ -707,9 +703,6 @@ class OpenaiController < ApplicationController
   end
 
   def fetch_hybrid_bar_recommendations(responses, activity_location, date_notes, radius)
-    # Extract bar/drink preferences from user responses
-    bar_keywords = extract_bar_keywords(responses)
-
     # Determine smart radius based on location type
     smart_radius = determine_smart_radius(activity_location, radius)
 
@@ -729,7 +722,7 @@ class OpenaiController < ApplicationController
     end
 
     # Step 2: Get additional details for top venues using PARALLEL requests
-    # 20 venues provides 4x buffer (we return 5) while reducing API calls
+    # 20 venues provides 2x buffer (we return 10) while reducing API calls
     top_venues = venues.first(20)
 
     Rails.logger.info "[RECOMMENDATIONS] Fetching details for #{top_venues.size} bar venues in parallel..."
@@ -823,7 +816,7 @@ class OpenaiController < ApplicationController
     end.join("\n")
 
     prompt = <<~PROMPT
-      Rank and select the top 5 restaurants from this list based on user preferences.
+      Rank and select the top 10 restaurants from this list based on user preferences.
 
       User preferences: #{notes_text}
 
@@ -832,11 +825,11 @@ class OpenaiController < ApplicationController
 
       RULES:
       1. Select ONLY from the numbered list above by exact name
-      2. Match multiple cuisines if mentioned (variety, not 5 of same type)
+      2. Match multiple cuisines if mentioned (variety, not 10 of same type)
       3. Prioritize: dietary needs > budget > ratings
       4. Return ONLY valid JSON, no other text
 
-      Return exactly 5 as JSON (address/hours/website will be added automatically):
+      Return exactly 10 as JSON (address/hours/website will be added automatically):
       {
         "restaurants": [
           {
@@ -857,7 +850,7 @@ class OpenaiController < ApplicationController
             { role: "user", content: prompt }
           ],
           temperature: 0.3,
-          max_tokens: 1500  # Limit response size for faster generation
+          max_tokens: 3000  # Increased for 10 recommendations
         }
       )
 
@@ -928,7 +921,7 @@ class OpenaiController < ApplicationController
     end.join("\n")
 
     prompt = <<~PROMPT
-      Rank and select the top 5 bars from this list based on user preferences.
+      Rank and select the top 10 bars from this list based on user preferences.
 
       User preferences: #{notes_text}
 
@@ -940,7 +933,7 @@ class OpenaiController < ApplicationController
       2. Prioritize drink preferences (cocktails, beer, wine) and atmosphere
       3. Return ONLY valid JSON, no other text
 
-      Return exactly 5 as JSON (address/hours/website will be added automatically):
+      Return exactly 10 as JSON (address/hours/website will be added automatically):
       {
         "restaurants": [
           {
@@ -961,7 +954,7 @@ class OpenaiController < ApplicationController
             { role: "user", content: prompt }
           ],
           temperature: 0.3,
-          max_tokens: 1500
+          max_tokens: 3000  # Increased for 10 recommendations
         }
       )
 
@@ -1011,18 +1004,6 @@ class OpenaiController < ApplicationController
     return false if token.blank?
     # Validate format: mobile-timestamp-random
     token.match?(/^mobile-\d+-[a-z0-9]+$/)
-  end
-
-  def format_recommendation(rec)
-    {
-      name: rec.name,
-      description: rec.description,
-      hours: rec.hours,
-      reason: rec.reason,
-      price_range: rec.price_range,
-      address: rec.address,
-      website: rec.website
-    }
   end
 
   def extract_cuisine_keywords(responses)

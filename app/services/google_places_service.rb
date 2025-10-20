@@ -8,16 +8,14 @@ class GooglePlacesService
     @api_key ||= ENV.fetch("PLACES_KEY")
   end
 
-  # Class-level cache for place details (shared across requests)
-  def self.place_cache
-    @place_cache ||= {}
-  end
+  # Cache TTL for Google Places data
+  CACHE_DURATION = 2.hours
 
   def self.find_place_by_name_and_address(name, address)
     query = CGI.escape("#{name} #{address}")
-    cache_key = "find_place_#{query}"
+    cache_key = "google_places:find_place:#{query}"
 
-    place_cache[cache_key] ||= begin
+    Rails.cache.fetch(cache_key, expires_in: CACHE_DURATION) do
       find_place_url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?" \
                       "input=#{query}&inputtype=textquery&fields=place_id&key=#{api_key}"
 
@@ -38,9 +36,10 @@ class GooglePlacesService
   def self.get_place_details(place_id, fields = [ "photos", "reviews" ])
     return nil unless place_id
 
-    # Memoize place details per place_id
-    place_cache[place_id] ||= begin
-      fields_param = fields.join(",")
+    fields_param = fields.join(",")
+    cache_key = "google_places:details:#{place_id}:#{fields_param}"
+
+    Rails.cache.fetch(cache_key, expires_in: CACHE_DURATION) do
       details_url = "https://maps.googleapis.com/maps/api/place/details/json?" \
                    "place_id=#{place_id}&fields=#{fields_param}&key=#{api_key}"
 
@@ -100,9 +99,9 @@ class GooglePlacesService
   end
 
   def self.nearby_search(location, type, radius_meters = 16093, min_rating = 3.5, keyword = nil)
-    cache_key = "nearby_#{location}_#{type}_#{radius_meters}_#{min_rating}_#{keyword}"
+    cache_key = "google_places:nearby:#{location}:#{type}:#{radius_meters}:#{min_rating}:#{keyword}"
 
-    place_cache[cache_key] ||= begin
+    Rails.cache.fetch(cache_key, expires_in: CACHE_DURATION) do
       # Check if location is already coordinates (lat, lng format)
       if location.match?(/^-?\d+\.\d+,\s*-?\d+\.\d+$/)
         # Location is already coordinates, parse them directly
@@ -143,7 +142,7 @@ class GooglePlacesService
 
       # Google Places returns max 20 results per page, up to 60 total
       # Optimization: Only fetch 2 pages (40 venues) instead of 3 to reduce time
-      # We only need 30 venues, so 40 gives us buffer while saving 2 seconds
+      # We only need 20 venues, so 40 gives us 2x buffer while saving 2 seconds
       2.times do |page|
         url = next_page_token ? "#{nearby_url}&pagetoken=#{next_page_token}" : nearby_url
 
@@ -205,9 +204,9 @@ class GooglePlacesService
   def self.get_detailed_venue_info(place_id)
     return nil unless place_id
 
-    cache_key = "detailed_#{place_id}"
+    cache_key = "google_places:detailed:#{place_id}"
 
-    place_cache[cache_key] ||= begin
+    Rails.cache.fetch(cache_key, expires_in: CACHE_DURATION) do
       fields = "place_id,name,formatted_address,formatted_phone_number,opening_hours,website," \
                "rating,user_ratings_total,price_level,business_status,types,reviews,photos"
 
