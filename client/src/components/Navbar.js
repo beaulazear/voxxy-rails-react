@@ -149,13 +149,13 @@ const SolidButton = styled(Link)`
   text-decoration: none;
   border-radius: 12px;
   background: linear-gradient(135deg, ${colors.primaryButton} 0%, #b865f7 100%);
-  color: ${colors.textPrimary};
+  color: #ffffff;
   position: relative;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   box-shadow: 0 4px 15px rgba(157, 96, 248, 0.3);
-  
-  &::before {
+
+  &::after {
     content: '';
     position: absolute;
     top: 0;
@@ -165,13 +165,15 @@ const SolidButton = styled(Link)`
     background: linear-gradient(135deg, ${colors.hoverHighlight} 0%, #c975f8 100%);
     opacity: 0;
     transition: opacity 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    z-index: -1;
   }
-  
+
   &:hover {
+    color: #ffffff;
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(157, 96, 248, 0.4);
-    
-    &::before {
+
+    &::after {
       opacity: 1;
     }
   }

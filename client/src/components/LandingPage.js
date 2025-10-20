@@ -291,11 +291,12 @@ const buttonStyles = css`
 const PrimaryButtonExternal = styled.a`
   ${buttonStyles}
   border: none;
-  color: var(--color-text-primary);
+  color: #ffffff;
   background-image: linear-gradient(120deg, #6a36ff 0%, #ff36d5 52%, #ff9d3f 100%);
   box-shadow: 0 12px 35px rgba(146, 77, 255, 0.35);
 
   &:hover {
+    color: #ffffff;
     transform: translateY(-2px);
     box-shadow: 0 18px 40px rgba(146, 77, 255, 0.45);
   }
@@ -328,12 +329,13 @@ const SecondaryButtonExternal = styled.a`
 const PrimaryButtonScroll = styled.button`
   ${buttonStyles}
   border: none;
-  color: var(--color-text-primary);
+  color: #ffffff;
   background-image: linear-gradient(120deg, #6a36ff 0%, #ff36d5 52%, #ff9d3f 100%);
   box-shadow: 0 12px 35px rgba(146, 77, 255, 0.35);
   cursor: pointer;
 
   &:hover {
+    color: #ffffff;
     transform: translateY(-2px);
     box-shadow: 0 18px 40px rgba(146, 77, 255, 0.45);
   }
