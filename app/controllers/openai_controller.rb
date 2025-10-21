@@ -53,10 +53,10 @@ class OpenaiController < ApplicationController
       fetch_hybrid_restaurant_recommendations(combined_responses, activity_location, date_notes, radius)
     end
 
-    if recommendations.present?
-      render json: { recommendations: recommendations }, status: :ok
-    else
+    if recommendations.nil?
       render json: { error: "Failed to generate recommendations" }, status: :unprocessable_entity
+    else
+      render json: { recommendations: recommendations }, status: :ok
     end
   end
 
@@ -95,10 +95,10 @@ class OpenaiController < ApplicationController
       fetch_hybrid_bar_recommendations(combined_responses, activity_location, date_notes, radius)
     end
 
-    if recommendations.present?
-      render json: { recommendations: recommendations }, status: :ok
-    else
+    if recommendations.nil?
       render json: { error: "Failed to generate recommendations" }, status: :unprocessable_entity
+    else
+      render json: { recommendations: recommendations }, status: :ok
     end
   end
 
@@ -320,6 +320,7 @@ class OpenaiController < ApplicationController
   end
 
   def ensure_api_keys_configured
+    # Check for OpenAI API key (still needed for game recommendations and time slots)
     begin
       ENV.fetch("OPENAI_API_KEY")
     rescue KeyError
@@ -330,6 +331,7 @@ class OpenaiController < ApplicationController
       return false
     end
 
+    # Check for Google Places API key (needed for restaurant/bar recommendations)
     begin
       ENV.fetch("PLACES_KEY")
     rescue KeyError
@@ -343,175 +345,6 @@ class OpenaiController < ApplicationController
     true
   end
 
-  def fetch_restaurant_recommendations_from_openai(responses, activity_location, date_notes, radius)
-    # Check for API key
-    api_key = ENV.fetch("OPENAI_API_KEY")
-    if api_key.blank?
-      Rails.logger.error("OPENAI_API_KEY environment variable is missing!") if Rails.env.development?
-      return nil
-    end
-
-    begin
-      client = OpenAI::Client.new(access_token: api_key)
-
-      notes_text = if responses.is_a?(Array)
-        responses
-          .map { |r| r.is_a?(Hash) ? r["notes"].to_s.strip : r.to_s.strip }
-          .reject(&:empty?)
-          .join("\n\n")
-      else
-        responses.to_s.strip
-      end
-
-    rescue => e
-      Rails.logger.error("Error initializing OpenAI client: #{e.message}") if Rails.env.development?
-      return nil
-    end
-
-    prompt = <<~PROMPT
-      You are an AI assistant that provides restaurant recommendations based on:
-        • user dietary & other preferences
-        • a central location (#{activity_location})
-        • a date (#{date_notes})
-        • and a VERY STRICT radius of ONLY #{radius} mile#{ radius == 1 ? "" : "s" } (walking distance).
-
-      The user's preferences (exactly as they typed them) are:
-      #{notes_text}
-
-      IMPORTANT:
-      1. **PRIORITIZE dietary preferences** (e.g., allergies, vegan, gluten-free) above all else.#{'  '}
-        If they say "Vegan please!" or "No shellfish," those conditions must drive your picks.
-      2. If MULTIPLE cuisines are listed (e.g., "Italian, Japanese, Mexican"), provide VARIETY across ALL mentioned cuisines - don't just pick 5 from one cuisine type.
-      3. Next, honor budget constraints ("Prefer upscale," etc.).
-      4. Then consider ambiance ("Rooftop," "Cozy," etc.)—but only after dietary & budget are satisfied.
-      5. **CRITICAL**: Only include restaurants located *within #{radius} mile#{ radius == 1 ? "" : "s" }* (roughly #{(radius * 10).round} minute walk) of "#{activity_location}".#{'  '}
-        This is WALKING DISTANCE ONLY. Do NOT list any restaurant that is more than #{radius} mile#{ radius == 1 ? "" : "s" } away.
-      6. Keep the tone warm and human — avoid calling people "users" or referencing individual budgets.
-      7. Avoid large chains or obvious tourist spots—seek out hole-in-the-wall or buzz-worthy places.
-
-      Return exactly **10** restaurants that match these criteria. Output must be valid JSON (no extra commentary, no markdown fences) in this structure:
-
-      {
-        "restaurants": [
-          {
-            "name":        "Restaurant Name",
-            "price_range": "$ - $$$$",
-            "description": "Short description (cuisine + atmosphere).",
-            "reason":      "Provide 3-6 keyword tags (comma-separated) that capture why this matches their preferences. Include dietary matches (e.g., 'Vegan', 'Gluten-Free'), budget level (e.g., 'Budget-Friendly', 'Upscale'), atmosphere (e.g., 'Trendy', 'Romantic', 'Casual'), cuisine type (e.g., 'Italian', 'Mexican'), and any special features (e.g., 'Rooftop', 'Live Music', 'Late Night'). Format as: 'Vegan, Budget-Friendly, Trendy, Italian'",
-            "hours":       "Hours of operation (e.g., Mon-Fri: 9 AM - 10 PM, Sat-Sun: 8 AM - 11 PM)",
-            "website":     "Valid website link or null if unknown",
-            "address":     "Full address or 'Not available'"
-          }
-        ]
-      }
-    PROMPT
-
-    begin
-      response = client.chat(
-        parameters: {
-          model:       "gpt-3.5-turbo",
-          messages: [
-            { role: "system", content: "You are an AI assistant that outputs strictly valid JSON." },
-            { role: "user",   content: prompt }
-          ],
-          temperature: 0.0
-        }
-      )
-
-      raw_json = response.dig("choices", 0, "message", "content")
-
-      if raw_json.blank?
-        Rails.logger.error("OpenAI returned empty content") if Rails.env.development?
-        return nil
-      end
-
-      begin
-        parsed = JSON.parse(raw_json)
-        recommendations = parsed.fetch("restaurants", [])
-        recommendations
-      rescue JSON::ParserError => e
-        Rails.logger.error("JSON Parse Error: #{e.message}") if Rails.env.development?
-        nil
-      end
-
-    rescue => e
-      Rails.logger.error("OpenAI API Error: #{e.class.name}: #{e.message}") if Rails.env.development?
-      nil
-    end
-  end
-
-  def fetch_bar_recommendations_from_openai(responses, activity_location, date_notes, radius)
-    client = OpenAI::Client.new(access_token: ENV.fetch("OPENAI_API_KEY"))
-
-    notes_text = if responses.is_a?(Array)
-      responses
-        .map { |r| r.is_a?(Hash) ? r["notes"].to_s.strip : r.to_s.strip }
-        .reject(&:empty?)
-        .join("\n\n")
-    else
-      responses.to_s.strip
-    end
-
-    prompt = <<~PROMPT
-      You are an AI assistant that provides bar and nightlife recommendations based on:
-        • user drink preferences & atmosphere needs
-        • a central location (#{activity_location})
-        • a date/time (#{date_notes})
-        • and a VERY STRICT radius of ONLY #{radius} mile#{ radius == 1 ? "" : "s" } (walking distance).
-
-      The user's preferences (exactly as they typed them) are:
-      #{notes_text}
-
-      IMPORTANT:
-      1. **PRIORITIZE drink preferences** (e.g., cocktails, beer, wine, non-alcoholic options) above all else.#{'  '}
-        If they say "craft cocktails only" or "need non-alcoholic options," those must drive your picks.
-      2. Next, honor budget constraints ("budget-friendly," "prefer upscale," etc.).
-      3. Then consider atmosphere preferences ("dive bar," "rooftop," "live music," "quiet conversation," etc.).
-      4. Consider timing - for late night activities, prioritize bars with later hours.
-      5. **CRITICAL**: Only include bars/lounges located *within #{radius} mile#{ radius == 1 ? "" : "s" }* (roughly #{(radius * 10).round} minute walk) of "#{activity_location}".#{'  '}
-        This is WALKING DISTANCE ONLY. Do NOT list any establishment that is more than #{radius} mile#{ radius == 1 ? "" : "s" } away.
-      6. Keep the tone warm and human — avoid calling people "users" or referencing individual budgets.
-      7. Avoid large chains or obvious tourist spots—seek out local gems, craft cocktail lounges, or unique nightlife spots.
-
-      Return exactly **10** bars/lounges that match these criteria. Output must be valid JSON (no extra commentary, no markdown fences) in this structure:
-
-      {
-        "restaurants": [
-          {
-            "name":        "Bar/Lounge Name",
-            "price_range": "$ - $$$$",
-            "description": "Short description (drink specialties + atmosphere).",
-            "reason":      "Provide 3-6 keyword tags (comma-separated) that capture why this matches their preferences. Include drink specialties (e.g., 'Craft Cocktails', 'Wine Bar', 'Beer Selection'), budget level (e.g., 'Budget-Friendly', 'Upscale'), atmosphere (e.g., 'Dive Bar', 'Rooftop', 'Speakeasy', 'Live Music'), and any special features (e.g., 'Happy Hour', 'Late Night', 'Patio'). Format as: 'Craft Cocktails, Upscale, Rooftop, Late Night'",
-            "hours":       "Hours of operation (e.g., Mon-Thu: 5 PM - 1 AM, Fri-Sat: 5 PM - 2 AM)",
-            "website":     "Valid website link or null if unknown",
-            "address":     "Full address or 'Not available'"
-          }
-        ]
-      }
-    PROMPT
-
-    response = client.chat(
-      parameters: {
-        model:       "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: "You are an AI assistant that outputs strictly valid JSON." },
-          { role: "user",   content: prompt }
-        ],
-        temperature: 0.0
-      }
-    )
-
-    raw_json = response.dig("choices", 0, "message", "content")
-
-    begin
-      parsed = JSON.parse(raw_json)
-      recommendations = parsed.fetch("restaurants", [])  # Keep same key for frontend compatibility
-      # Remove the enrichment since it now happens in PinnedActivity creation
-      recommendations
-    rescue JSON::ParserError
-      nil
-    end
-  end
 
   def fetch_game_recommendations_from_openai(responses, activity_location, date_notes)
     client = OpenAI::Client.new(access_token: ENV.fetch("OPENAI_API_KEY"))
@@ -612,15 +445,14 @@ class OpenaiController < ApplicationController
 
     Rails.logger.info "[RECOMMENDATIONS] Location: #{activity_location}, Smart Radius: #{smart_radius} miles (#{radius_meters}m)"
 
-    # Don't filter by cuisine in Google Places - let OpenAI handle ALL preferences
-    # This ensures we get diverse results that match ALL selected cuisines
+    # Don't filter by cuisine in Google Places - get diverse results
     venues = GooglePlacesService.nearby_search(activity_location, "restaurant", radius_meters, 3.5, nil)
 
     Rails.logger.info "[RECOMMENDATIONS] Google Places returned #{venues.size} venues"
 
     if venues.empty?
-      Rails.logger.warn "[RECOMMENDATIONS] No venues from Google Places - falling back to OpenAI only"
-      return fetch_restaurant_recommendations_from_openai(responses, activity_location, date_notes, radius)
+      Rails.logger.warn "[RECOMMENDATIONS] No venues from Google Places"
+      return []
     end
 
     # Step 2: Get additional details for top venues using PARALLEL requests
@@ -683,23 +515,19 @@ class OpenaiController < ApplicationController
     elapsed_time = (Time.current - start_time).round(2)
     Rails.logger.info "[RECOMMENDATIONS] Fetched #{detailed_venues.size} venue details in #{elapsed_time}s (parallel)"
 
-    # Step 3: Send to OpenAI for personalization and ranking
-    Rails.logger.info "[RECOMMENDATIONS] Starting OpenAI personalization..."
-    openai_start = Time.current
+    # Step 3: Use local ranking service to personalize and rank venues
+    Rails.logger.info "[RECOMMENDATIONS] Starting local ranking..."
+    ranking_start = Time.current
 
-    personalized_recommendations = personalize_venues_with_openai(detailed_venues, responses, activity_location, date_notes)
+    ranked_recommendations = VenueRankingService.rank_venues(detailed_venues, responses, top_n: 10)
 
-    openai_elapsed = (Time.current - openai_start).round(2)
-    Rails.logger.info "[RECOMMENDATIONS] OpenAI personalization completed in #{openai_elapsed}s"
-
-    if personalized_recommendations.nil? || personalized_recommendations.empty?
-      return fetch_restaurant_recommendations_from_openai(responses, activity_location, date_notes, radius)
-    end
+    ranking_elapsed = (Time.current - ranking_start).round(2)
+    Rails.logger.info "[RECOMMENDATIONS] Local ranking completed in #{ranking_elapsed}s"
 
     total_elapsed = (Time.current - start_time).round(2)
-    Rails.logger.info "[RECOMMENDATIONS] Total time: #{total_elapsed}s (Google: #{elapsed_time}s, OpenAI: #{openai_elapsed}s)"
+    Rails.logger.info "[RECOMMENDATIONS] Total time: #{total_elapsed}s (Google: #{elapsed_time}s, Local Ranking: #{ranking_elapsed}s)"
 
-    personalized_recommendations
+    ranked_recommendations
   end
 
   def fetch_hybrid_bar_recommendations(responses, activity_location, date_notes, radius)
@@ -711,14 +539,14 @@ class OpenaiController < ApplicationController
 
     Rails.logger.info "[RECOMMENDATIONS] Location: #{activity_location}, Smart Radius: #{smart_radius} miles (#{radius_meters}m)"
 
-    # Don't filter by specific bar type - let OpenAI handle ALL preferences
+    # Don't filter by specific bar type - get diverse results
     venues = GooglePlacesService.nearby_search(activity_location, "bar", radius_meters, 3.5, nil)
 
     Rails.logger.info "[RECOMMENDATIONS] Google Places returned #{venues.size} venues"
 
     if venues.empty?
-      Rails.logger.warn "[RECOMMENDATIONS] No venues from Google Places - falling back to OpenAI only"
-      return fetch_bar_recommendations_from_openai(responses, activity_location, date_notes, radius)
+      Rails.logger.warn "[RECOMMENDATIONS] No venues from Google Places"
+      return []
     end
 
     # Step 2: Get additional details for top venues using PARALLEL requests
@@ -781,224 +609,21 @@ class OpenaiController < ApplicationController
     elapsed_time = (Time.current - start_time).round(2)
     Rails.logger.info "[RECOMMENDATIONS] Fetched #{detailed_venues.size} bar venue details in #{elapsed_time}s (parallel)"
 
-    # Step 3: Send to OpenAI for personalization and ranking
-    personalized_recommendations = personalize_bars_with_openai(detailed_venues, responses, activity_location, date_notes)
+    # Step 3: Use local ranking service to personalize and rank venues
+    Rails.logger.info "[RECOMMENDATIONS] Starting local ranking..."
+    ranking_start = Time.current
 
-    if personalized_recommendations.nil? || personalized_recommendations.empty?
-      return fetch_bar_recommendations_from_openai(responses, activity_location, date_notes, radius)
-    end
+    ranked_recommendations = VenueRankingService.rank_venues(detailed_venues, responses, top_n: 10)
 
-    personalized_recommendations
+    ranking_elapsed = (Time.current - ranking_start).round(2)
+    Rails.logger.info "[RECOMMENDATIONS] Local ranking completed in #{ranking_elapsed}s"
+
+    total_elapsed = (Time.current - start_time).round(2)
+    Rails.logger.info "[RECOMMENDATIONS] Total time: #{total_elapsed}s (Google: #{elapsed_time}s, Local Ranking: #{ranking_elapsed}s)"
+
+    ranked_recommendations
   end
 
-  def personalize_venues_with_openai(venues, responses, activity_location, date_notes)
-    api_key = ENV.fetch("OPENAI_API_KEY")
-    if api_key.blank?
-      Rails.logger.error("OPENAI_API_KEY environment variable is missing!") if Rails.env.development?
-      return nil
-    end
-
-    client = OpenAI::Client.new(access_token: api_key)
-
-    notes_text = if responses.is_a?(Array)
-      responses
-        .map { |r| r.is_a?(Hash) ? r["notes"].to_s.strip : r.to_s.strip }
-        .reject(&:empty?)
-        .join("\n\n")
-    else
-      responses.to_s.strip
-    end
-
-    # Format venue list for OpenAI
-    # Include name for matching, but we'll inject real data after
-    venue_list = venues.map.with_index do |v, i|
-      "#{i + 1}. #{v[:name]} (#{v[:price_level] || '$'}, #{v[:rating] || 'N/A'}/5)"
-    end.join("\n")
-
-    prompt = <<~PROMPT
-      Rank and select the top 10 restaurants from this list based on user preferences.
-
-      User preferences: #{notes_text}
-
-      Restaurants:
-      #{venue_list}
-
-      RULES:
-      1. Select ONLY from the numbered list above by exact name
-      2. Match multiple cuisines if mentioned (variety, not 10 of same type)
-      3. Prioritize: dietary needs > budget > ratings
-      4. Return ONLY valid JSON, no other text
-
-      Return exactly 10 as JSON (address/hours/website will be added automatically):
-      {
-        "restaurants": [
-          {
-            "name": "Exact name from list",
-            "description": "Brief cuisine/vibe (max 10 words)",
-            "reason": "3-6 keyword tags, comma-separated"
-          }
-        ]
-      }
-    PROMPT
-
-    begin
-      response = client.chat(
-        parameters: {
-          model: "gpt-4o-mini",  # Faster and cheaper than gpt-3.5-turbo for structured outputs
-          messages: [
-            { role: "system", content: "You rank restaurants. Output only JSON." },
-            { role: "user", content: prompt }
-          ],
-          temperature: 0.3,
-          max_tokens: 3000  # Increased for 10 recommendations
-        }
-      )
-
-      raw_json = response.dig("choices", 0, "message", "content")
-
-      if raw_json.blank?
-        Rails.logger.error("OpenAI returned empty content") if Rails.env.development?
-        return nil
-      end
-
-      parsed = JSON.parse(raw_json)
-      recommendations = parsed.fetch("restaurants", [])
-
-      # CRITICAL: Inject 100% real venue data from Google Places
-      # This ensures accurate addresses, hours, websites - no AI hallucination
-      recommendations.map do |rec|
-        venue = venues.find { |v| v[:name].downcase == rec["name"].downcase }
-        if venue
-          # Inject ALL real data from Google Places
-          rec["address"] = venue[:address] || "Address not available"
-          rec["hours"] = venue[:hours] || "Hours not available"
-          rec["website"] = venue[:website]
-          rec["price_range"] = venue[:price_level] || "$"
-          rec["rating"] = venue[:rating]
-          rec["user_ratings_total"] = venue[:user_ratings_total]
-
-          # Keep OpenAI's description and reason (these are opinion/matching, not facts)
-        else
-          # If we can't find the venue, log warning
-          Rails.logger.warn "[RECOMMENDATIONS] OpenAI returned venue not in list: #{rec['name']}"
-          rec["address"] = "ERROR: Venue not found"
-        end
-        rec
-      end
-
-      recommendations
-    rescue JSON::ParserError => e
-      Rails.logger.error("JSON Parse Error: #{e.message}") if Rails.env.development?
-      nil
-    rescue => e
-      Rails.logger.error("OpenAI Personalization Error: #{e.message}") if Rails.env.development?
-      nil
-    end
-  end
-
-  def personalize_bars_with_openai(venues, responses, activity_location, date_notes)
-    api_key = ENV.fetch("OPENAI_API_KEY")
-    if api_key.blank?
-      Rails.logger.error("OPENAI_API_KEY environment variable is missing!") if Rails.env.development?
-      return nil
-    end
-
-    client = OpenAI::Client.new(access_token: api_key)
-
-    notes_text = if responses.is_a?(Array)
-      responses
-        .map { |r| r.is_a?(Hash) ? r["notes"].to_s.strip : r.to_s.strip }
-        .reject(&:empty?)
-        .join("\n\n")
-    else
-      responses.to_s.strip
-    end
-
-    # Format venue list for OpenAI
-    # Include name for matching, but we'll inject real data after
-    venue_list = venues.map.with_index do |v, i|
-      "#{i + 1}. #{v[:name]} (#{v[:price_level] || '$'}, #{v[:rating] || 'N/A'}/5)"
-    end.join("\n")
-
-    prompt = <<~PROMPT
-      Rank and select the top 10 bars from this list based on user preferences.
-
-      User preferences: #{notes_text}
-
-      Bars:
-      #{venue_list}
-
-      RULES:
-      1. Select ONLY from the numbered list above by exact name
-      2. Prioritize drink preferences (cocktails, beer, wine) and atmosphere
-      3. Return ONLY valid JSON, no other text
-
-      Return exactly 10 as JSON (address/hours/website will be added automatically):
-      {
-        "restaurants": [
-          {
-            "name": "Exact name from list",
-            "description": "Brief drink specialties/vibe (max 10 words)",
-            "reason": "3-6 keyword tags, comma-separated"
-          }
-        ]
-      }
-    PROMPT
-
-    begin
-      response = client.chat(
-        parameters: {
-          model: "gpt-4o-mini",  # Faster and cheaper than gpt-3.5-turbo for structured outputs
-          messages: [
-            { role: "system", content: "You rank bars. Output only JSON." },
-            { role: "user", content: prompt }
-          ],
-          temperature: 0.3,
-          max_tokens: 3000  # Increased for 10 recommendations
-        }
-      )
-
-      raw_json = response.dig("choices", 0, "message", "content")
-
-      if raw_json.blank?
-        Rails.logger.error("OpenAI returned empty content") if Rails.env.development?
-        return nil
-      end
-
-      parsed = JSON.parse(raw_json)
-      recommendations = parsed.fetch("restaurants", [])
-
-      # CRITICAL: Inject 100% real venue data from Google Places
-      # This ensures accurate addresses, hours, websites - no AI hallucination
-      recommendations.map do |rec|
-        venue = venues.find { |v| v[:name].downcase == rec["name"].downcase }
-        if venue
-          # Inject ALL real data from Google Places
-          rec["address"] = venue[:address] || "Address not available"
-          rec["hours"] = venue[:hours] || "Hours not available"
-          rec["website"] = venue[:website]
-          rec["price_range"] = venue[:price_level] || "$"
-          rec["rating"] = venue[:rating]
-          rec["user_ratings_total"] = venue[:user_ratings_total]
-
-          # Keep OpenAI's description and reason (these are opinion/matching, not facts)
-        else
-          # If we can't find the venue, log warning
-          Rails.logger.warn "[RECOMMENDATIONS] OpenAI returned bar venue not in list: #{rec['name']}"
-          rec["address"] = "ERROR: Venue not found"
-        end
-        rec
-      end
-
-      recommendations
-    rescue JSON::ParserError => e
-      Rails.logger.error("JSON Parse Error: #{e.message}") if Rails.env.development?
-      nil
-    rescue => e
-      Rails.logger.error("OpenAI Bar Personalization Error: #{e.message}") if Rails.env.development?
-      nil
-    end
-  end
 
   def valid_session_token?(token)
     return false if token.blank?
@@ -1006,69 +631,6 @@ class OpenaiController < ApplicationController
     token.match?(/^mobile-\d+-[a-z0-9]+$/)
   end
 
-  def extract_cuisine_keywords(responses)
-    # Convert responses to text
-    text = if responses.is_a?(Array)
-      responses.map { |r| r.is_a?(Hash) ? r["notes"].to_s.downcase : r.to_s.downcase }.join(" ")
-    else
-      responses.to_s.downcase
-    end
-
-    # Common cuisine types to look for
-    cuisines = [
-      "mexican", "italian", "chinese", "japanese", "sushi", "thai", "indian", "korean", "vietnamese",
-      "french", "spanish", "greek", "mediterranean", "middle eastern", "lebanese", "turkish",
-      "american", "burger", "pizza", "bbq", "barbecue", "steakhouse", "seafood",
-      "vegan", "vegetarian", "kosher", "halal", "gluten-free", "healthy",
-      "ethiopian", "african", "caribbean", "cuban", "peruvian", "brazilian",
-      "ramen", "tacos", "dim sum", "tapas", "brunch", "breakfast"
-    ]
-
-    # Find matching cuisines in the text
-    found_cuisines = cuisines.select { |cuisine| text.include?(cuisine) }
-
-    # Also check for specific food items that indicate cuisine
-    if text.include?("taco") || text.include?("burrito") || text.include?("quesadilla")
-      found_cuisines << "mexican" unless found_cuisines.include?("mexican")
-    end
-    if text.include?("pasta") || text.include?("risotto") || text.include?("tiramisu")
-      found_cuisines << "italian" unless found_cuisines.include?("italian")
-    end
-    if text.include?("sushi") || text.include?("ramen") || text.include?("tempura")
-      found_cuisines << "japanese" unless found_cuisines.include?("japanese")
-    end
-
-    found_cuisines.uniq
-  end
-
-  def extract_bar_keywords(responses)
-    # Convert responses to text
-    text = if responses.is_a?(Array)
-      responses.map { |r| r.is_a?(Hash) ? r["notes"].to_s.downcase : r.to_s.downcase }.join(" ")
-    else
-      responses.to_s.downcase
-    end
-
-    # Bar/drink types to look for
-    bar_types = [
-      "cocktail", "craft cocktail", "whiskey", "wine", "beer", "craft beer", "brewery",
-      "speakeasy", "dive bar", "sports bar", "rooftop", "lounge", "pub", "tiki",
-      "karaoke", "live music", "jazz", "dance", "club", "nightclub"
-    ]
-
-    # Find matching bar types
-    found_types = bar_types.select { |type| text.include?(type) }
-
-    # Add specific modifiers
-    if text.include?("margarita") || text.include?("tequila")
-      found_types << "cocktail" unless found_types.include?("cocktail")
-    end
-    if text.include?("ipa") || text.include?("lager") || text.include?("stout")
-      found_types << "craft beer" unless found_types.include?("craft beer")
-    end
-
-    found_types.uniq
-  end
 
   def determine_smart_radius(location, provided_radius)
     # If radius was explicitly provided, use it
