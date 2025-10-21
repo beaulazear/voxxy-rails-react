@@ -270,6 +270,45 @@ class User < ApplicationRecord
     notes.join("\n")
   end
 
+  # Get all unique users this user has done activities with (community members)
+  def community_member_ids
+    # Activities created by this user - get all participants
+    hosted_activity_participant_ids = Activity
+      .where(user_id: id)
+      .joins(:activity_participants)
+      .where(activity_participants: { accepted: true })
+      .where.not(activity_participants: { user_id: [ nil, id ] })
+      .pluck("activity_participants.user_id")
+
+    # Activities where this user participated - get host + other participants
+    participated_activity_ids = activity_participants
+      .where(accepted: true)
+      .pluck(:activity_id)
+
+    if participated_activity_ids.any?
+      # Get other participants from activities this user joined
+      participated_other_participants = ActivityParticipant
+        .where(activity_id: participated_activity_ids, accepted: true)
+        .where.not(user_id: [ nil, id ])
+        .pluck(:user_id)
+
+      # Get hosts of activities this user joined
+      participated_hosts = Activity
+        .where(id: participated_activity_ids)
+        .where.not(user_id: id)
+        .pluck(:user_id)
+
+      # Combine all and remove duplicates
+      all_member_ids = (hosted_activity_participant_ids + participated_other_participants + participated_hosts).uniq
+    else
+      all_member_ids = hosted_activity_participant_ids.uniq
+    end
+
+    # Exclude blocked users
+    blocked_user_ids = blocked_users.pluck(:id)
+    all_member_ids - blocked_user_ids
+  end
+
   def unban!(moderator = nil)
     transaction do
       update!(

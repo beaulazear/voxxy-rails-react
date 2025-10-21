@@ -208,7 +208,7 @@ class GooglePlacesService
 
     Rails.cache.fetch(cache_key, expires_in: CACHE_DURATION) do
       fields = "place_id,name,formatted_address,formatted_phone_number,opening_hours,website," \
-               "rating,user_ratings_total,price_level,business_status,types,reviews,photos"
+               "rating,user_ratings_total,price_level,business_status,types,reviews,photos,geometry"
 
       details_url = "https://maps.googleapis.com/maps/api/place/details/json?" \
                     "place_id=#{place_id}&fields=#{fields}&key=#{api_key}"
@@ -231,7 +231,9 @@ class GooglePlacesService
           types: result["types"],
           hours: format_opening_hours(result["opening_hours"]),
           reviews: result["reviews"] || [],
-          photos: (result["photos"] || []).first(3)
+          photos: (result["photos"] || []).first(3),
+          latitude: result.dig("geometry", "location", "lat"),
+          longitude: result.dig("geometry", "location", "lng")
         }
       else
         nil

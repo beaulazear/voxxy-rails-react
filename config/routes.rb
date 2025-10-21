@@ -45,6 +45,7 @@ Rails.application.routes.draw do
     collection do
       get :flagged
       get :favorited
+      get :community_feed
     end
   end
   resources :waitlists, only: [ :index, :show, :create, :update, :destroy ]

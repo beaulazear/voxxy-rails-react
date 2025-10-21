@@ -47,6 +47,61 @@ class UserActivitiesController < ApplicationController
     render json: UserActivitySerializer.collection(favorited_activities)
   end
 
+  # GET /user_activities/community_feed
+  # Returns recent favorites from community members
+  # Optional params:
+  #   - with_coordinates: true/false (filter to only include items with lat/lng)
+  def community_feed
+    # Get community members
+    community_member_ids = current_user.community_member_ids
+
+    # Return empty if no community
+    if community_member_ids.empty?
+      render json: []
+      return
+    end
+
+    # Get recent favorites from community (last 30 days, limit 50)
+    @community_favorites = UserActivity
+      .where(user_id: community_member_ids, favorited: true)
+      .where("user_activities.created_at > ?", 30.days.ago)
+      .includes(:user)
+
+    # Optional filter: only include items with coordinates
+    if params[:with_coordinates] == "true"
+      @community_favorites = @community_favorites
+        .where.not(latitude: nil)
+        .where.not(longitude: nil)
+    end
+
+    @community_favorites = @community_favorites
+      .order(created_at: :desc)
+      .limit(50)
+
+    render json: @community_favorites.map { |fav|
+      {
+        id: fav.id,
+        user: {
+          id: fav.user.id,
+          name: fav.user.name,
+          avatar: fav.user.avatar,
+          profile_image: fav.user.profile_pic_url,
+          profile_pic_url: fav.user.profile_pic_url
+        },
+        favorite: {
+          id: fav.id,
+          title: fav.title,
+          address: fav.address,
+          latitude: fav.latitude,
+          longitude: fav.longitude,
+          price_range: fav.price_range,
+          description: fav.description
+        },
+        created_at: fav.created_at
+      }
+    }
+  end
+
   # POST /pinned_activities/:pinned_activity_id/toggle_flag
   # Toggles the flag status for a pinned activity
   def toggle_flag

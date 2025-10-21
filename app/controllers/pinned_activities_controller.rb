@@ -50,7 +50,7 @@ class PinnedActivitiesController < ApplicationController
   def pinned_activity_params
     params.require(:pinned_activity).permit(
       :title, :hours, :price_range, :selected, :address,
-      :description, :reason, :website
+      :description, :reason, :website, :latitude, :longitude
       # Remove photos and reviews from params - we'll fetch them automatically
     )
   end

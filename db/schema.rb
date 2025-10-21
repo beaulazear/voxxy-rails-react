@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_10_13_181038) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_21_213850) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -74,8 +74,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_13_181038) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "guest_response_token"
+    t.index ["activity_id", "accepted"], name: "index_activity_participants_on_activity_and_accepted"
     t.index ["activity_id"], name: "index_activity_participants_on_activity_id"
     t.index ["guest_response_token"], name: "index_activity_participants_on_guest_response_token", unique: true
+    t.index ["user_id", "accepted"], name: "index_activity_participants_on_user_and_accepted"
     t.index ["user_id"], name: "index_activity_participants_on_user_id"
   end
 
@@ -181,6 +183,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_13_181038) do
     t.text "reason"
     t.string "website"
     t.boolean "selected", default: false, null: false
+    t.decimal "latitude", precision: 10, scale: 6
+    t.decimal "longitude", precision: 10, scale: 6
     t.index ["activity_id"], name: "index_pinned_activities_on_activity_id"
   end
 
@@ -260,7 +264,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_13_181038) do
     t.boolean "favorited", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "latitude", precision: 10, scale: 6
+    t.decimal "longitude", precision: 10, scale: 6
     t.index ["pinned_activity_id"], name: "index_user_activities_on_pinned_activity_id"
+    t.index ["user_id", "favorited", "created_at"], name: "index_user_activities_on_community_feed"
     t.index ["user_id", "pinned_activity_id"], name: "index_user_activities_on_user_and_pinned_activity", unique: true
     t.index ["user_id"], name: "index_user_activities_on_user_id"
   end

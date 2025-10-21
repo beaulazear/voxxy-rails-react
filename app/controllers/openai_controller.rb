@@ -491,7 +491,9 @@ class OpenaiController < ApplicationController
           website: details[:website],
           hours: details[:hours],
           types: details[:types],
-          user_ratings_total: details[:user_ratings_total]
+          user_ratings_total: details[:user_ratings_total],
+          latitude: details[:latitude],
+          longitude: details[:longitude]
         }
       else
         # Fallback: Use basic venue data if details API fails
@@ -503,7 +505,9 @@ class OpenaiController < ApplicationController
           website: nil,
           hours: "Hours not available",
           types: venue[:types],
-          user_ratings_total: venue[:user_ratings_total]
+          user_ratings_total: venue[:user_ratings_total],
+          latitude: venue[:location]&.dig(:lat),
+          longitude: venue[:location]&.dig(:lng)
         }
       end
     end
@@ -585,7 +589,9 @@ class OpenaiController < ApplicationController
           website: details[:website],
           hours: details[:hours],
           types: details[:types],
-          user_ratings_total: details[:user_ratings_total]
+          user_ratings_total: details[:user_ratings_total],
+          latitude: details[:latitude],
+          longitude: details[:longitude]
         }
       else
         # Fallback: Use basic venue data if details API fails
@@ -597,7 +603,9 @@ class OpenaiController < ApplicationController
           website: nil,
           hours: "Hours not available",
           types: venue[:types],
-          user_ratings_total: venue[:user_ratings_total]
+          user_ratings_total: venue[:user_ratings_total],
+          latitude: venue[:location]&.dig(:lat),
+          longitude: venue[:location]&.dig(:lng)
         }
       end
     end

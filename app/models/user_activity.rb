@@ -67,6 +67,9 @@ class UserActivity < ApplicationRecord
     self.website = pinned_activity.website
     self.reviews = pinned_activity.reviews || []
     self.photos = pinned_activity.photos || []
+    # Copy latitude/longitude
+    self.latitude = pinned_activity.latitude
+    self.longitude = pinned_activity.longitude
   end
 
   # Update data from pinned_activity (useful for keeping data in sync)

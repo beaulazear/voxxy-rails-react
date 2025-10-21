@@ -194,7 +194,9 @@ class VenueRankingService
       rating: venue[:rating],
       user_ratings_total: venue[:user_ratings_total],
       description: generate_description(venue),
-      reason: generate_reason_tags(venue)
+      reason: generate_reason_tags(venue),
+      latitude: venue[:latitude],
+      longitude: venue[:longitude]
     }
   end
 
