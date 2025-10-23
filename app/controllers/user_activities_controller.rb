@@ -95,7 +95,18 @@ class UserActivitiesController < ApplicationController
           latitude: fav.latitude,
           longitude: fav.longitude,
           price_range: fav.price_range,
-          description: fav.description
+          description: fav.description,
+          photos: fav.photos,
+          reviews: fav.reviews,
+          hours: fav.hours,
+          reason: fav.reason,
+          website: fav.website,
+          phone: fav.phone,
+          rating: fav.rating,
+          category: fav.category,
+          activity_type: fav.activity_type,
+          name: fav.name,
+          activity_name: fav.activity_name
         },
         created_at: fav.created_at
       }
