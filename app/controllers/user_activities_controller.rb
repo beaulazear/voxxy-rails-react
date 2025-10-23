@@ -61,10 +61,10 @@ class UserActivitiesController < ApplicationController
       return
     end
 
-    # Get recent favorites from community (last 30 days, limit 50)
+    # Get recent favorites from community (last year, limit 50)
     @community_favorites = UserActivity
       .where(user_id: community_member_ids, favorited: true)
-      .where("user_activities.created_at > ?", 30.days.ago)
+      .where("user_activities.created_at > ?", 1.year.ago)
       .includes(:user, pinned_activity: :activity)
 
     # Optional filter: only include items with coordinates
