@@ -154,6 +154,14 @@ RSpec.describe UserActivity, type: :model do
       end
       let(:user_activity) { create(:user_activity, user: user, pinned_activity: pinned_activity_with_data) }
 
+      before do
+        # Stub GooglePlacesService to avoid external API calls
+        allow(GooglePlacesService).to receive(:enrich_place_data).and_return({
+          photos: [],
+          reviews: []
+        })
+      end
+
       it 'copies all fields from pinned_activity' do
         # Clear the data first
         user_activity.update!(
@@ -183,6 +191,14 @@ RSpec.describe UserActivity, type: :model do
       end
       let(:user_activity) { create(:user_activity, user: user, pinned_activity: pinned_activity_with_data, title: "Old Name") }
 
+      before do
+        # Stub GooglePlacesService to avoid external API calls
+        allow(GooglePlacesService).to receive(:enrich_place_data).and_return({
+          photos: [],
+          reviews: []
+        })
+      end
+
       it 'updates and saves data from pinned_activity' do
         pinned_activity_with_data.update!(title: "New Restaurant Name")
         user_activity.sync_with_pinned_activity!
@@ -194,6 +210,14 @@ RSpec.describe UserActivity, type: :model do
 
   describe 'class methods' do
     describe '.find_or_create_for_user_and_pinned_activity' do
+      before do
+        # Stub GooglePlacesService to avoid external API calls
+        allow(GooglePlacesService).to receive(:enrich_place_data).and_return({
+          photos: [],
+          reviews: []
+        })
+      end
+
       it 'creates a new user_activity if none exists' do
         expect {
           UserActivity.find_or_create_for_user_and_pinned_activity(user, pinned_activity)
