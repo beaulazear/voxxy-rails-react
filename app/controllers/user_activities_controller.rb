@@ -65,7 +65,7 @@ class UserActivitiesController < ApplicationController
     @community_favorites = UserActivity
       .where(user_id: community_member_ids, favorited: true)
       .where("user_activities.created_at > ?", 30.days.ago)
-      .includes(:user)
+      .includes(:user, pinned_activity: :activity)
 
     # Optional filter: only include items with coordinates
     if params[:with_coordinates] == "true"
@@ -79,6 +79,9 @@ class UserActivitiesController < ApplicationController
       .limit(50)
 
     render json: @community_favorites.map { |fav|
+      # Get the pinned_activity to access activity_type
+      pinned_activity = fav.pinned_activity
+
       {
         id: fav.id,
         user: {
@@ -101,12 +104,7 @@ class UserActivitiesController < ApplicationController
           hours: fav.hours,
           reason: fav.reason,
           website: fav.website,
-          phone: fav.phone,
-          rating: fav.rating,
-          category: fav.category,
-          activity_type: fav.activity_type,
-          name: fav.name,
-          activity_name: fav.activity_name
+          activity_type: pinned_activity&.activity&.activity_type
         },
         created_at: fav.created_at
       }
