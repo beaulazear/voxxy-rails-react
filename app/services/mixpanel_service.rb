@@ -17,13 +17,18 @@ class MixpanelService
   end
 
   def track(event_name, properties = {})
-    return unless @tracker
+    unless @tracker
+      Rails.logger.debug "Mixpanel tracking skipped (tracker not initialized): event='#{event_name}'"
+      return
+    end
 
     user_id = properties.delete(:user_id) || properties.delete(:user) || "anonymous"
 
+    Rails.logger.debug "📊 Mixpanel.track: user=#{user_id}, event='#{event_name}', properties=#{properties.inspect}"
     @tracker.track(user_id.to_s, event_name, properties)
+    Rails.logger.debug "✅ Mixpanel event tracked successfully: #{event_name}"
   rescue => e
-    Rails.logger.error "Mixpanel tracking error: #{e.message}"
+    Rails.logger.error "❌ Mixpanel tracking error: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
   end
 
   def identify(user_id, properties = {})
