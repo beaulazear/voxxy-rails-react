@@ -3,7 +3,8 @@ class AnalyticsController < ApplicationController
 
   def track
     event_name = params[:event]
-    properties = params[:properties] || {}
+    # Convert ActionController::Parameters to hash to avoid "unpermitted parameters" error
+    properties = (params[:properties] || {}).to_unsafe_h
 
     Rails.logger.info "📊 Analytics track: event='#{event_name}', properties=#{properties.inspect}, user=#{current_user&.id || 'anonymous'}"
 
@@ -54,7 +55,8 @@ class AnalyticsController < ApplicationController
 
   def page_view
     page_name = params[:page]
-    properties = params[:properties] || {}
+    # Convert ActionController::Parameters to hash to avoid "unpermitted parameters" error
+    properties = (params[:properties] || {}).to_unsafe_h
 
     if current_user
       properties[:user_id] = current_user.id
