@@ -23,7 +23,8 @@ class ActivitySerializer < BaseSerializer
       user: user_with_preferences(activity.user),
       participants: activity.participants.map { |p| user_with_preferences(p) },
       activity_participants: ActivityParticipantSerializer.basic_list(activity.activity_participants),
-      responses: ResponseSerializer.for_activity(activity.responses)
+      responses: ResponseSerializer.for_activity(activity.responses),
+      comments: activity.comments.map { |c| CommentSerializer.basic(c) }
     )
   end
 

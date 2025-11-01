@@ -43,6 +43,12 @@ class ActivitiesController < HtmlController
     notification_params = activity_params.except(:finalized, :voting, :selected_pinned_id)
     should_notify_changes = notification_params.keys.any? && !should_email_finalized
 
+    # Track state transitions for auto-comments
+    is_generating_recommendations = activity_params.key?(:voting) &&
+                                    activity_params[:voting] == true &&
+                                    activity_params[:collecting] == false
+    is_finalizing = activity_params.key?(:finalized) && activity_params[:finalized] == true
+
     Activity.transaction do
       # Track changes before updating
       changes_to_notify = {}
@@ -74,11 +80,31 @@ class ActivitiesController < HtmlController
       if should_notify_changes && changes_to_notify.any?
         Notification.send_activity_change(activity, changes_to_notify)
       end
+
+      # Auto-comment for recommendations generated (group activities only)
+      if is_generating_recommendations && !activity.is_solo
+        comment = activity.comments.build(
+          user_id: current_user.id,
+          content: "#{current_user.name} has generated new recommendations for your group! ✨"
+        )
+        comment.skip_notifications = true
+        comment.save!
+      end
+
+      # Auto-comment for activity finalized (group activities only)
+      if is_finalizing && !activity.is_solo
+        comment = activity.comments.build(
+          user_id: current_user.id,
+          content: "#{current_user.name} has finalized your group's plan! 🎉"
+        )
+        comment.skip_notifications = true
+        comment.save!
+      end
     end
 
     # Push notifications are automatically sent by the Activity model callback when finalized
 
-    activity = Activity.includes(:user, :participants, :activity_participants, :responses)
+    activity = Activity.includes(:user, :participants, :activity_participants, :responses, { comments: :user })
                       .find(activity.id)
 
     render json: ActivitySerializer.updated(activity), status: :ok
