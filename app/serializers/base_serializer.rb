@@ -24,7 +24,8 @@ class BaseSerializer
     return nil unless user
     user_basic(user).merge(
       preferences: user.preferences,
-      favorite_food: user.favorite_food
+      favorite_food: user.favorite_food,
+      bar_preferences: user.bar_preferences
     )
   end
 

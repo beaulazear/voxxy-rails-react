@@ -8,6 +8,7 @@ class UserSerializer < BaseSerializer
     basic(user).merge(
       preferences: user.preferences,
       favorite_food: user.favorite_food,
+      bar_preferences: user.bar_preferences,
       text_notifications: user.text_notifications,
       email_notifications: user.email_notifications,
       push_notifications: user.push_notifications,

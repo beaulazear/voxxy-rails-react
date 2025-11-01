@@ -309,13 +309,16 @@ class OpenaiController < ApplicationController
     # Add favorite food if present
     parts << "Favorite food: #{user.favorite_food}" if user.favorite_food.present?
 
+    # Add bar preferences if present
+    parts << "Bar preferences: #{user.bar_preferences}" if user.bar_preferences.present?
+
     # Add general preferences if present
     parts << "Preferences: #{user.preferences}" if user.preferences.present?
 
     # Return nil if no profile data
     return nil if parts.empty?
 
-    # Format: "Name's profile: favorite_food, preferences"
+    # Format: "Name's profile: favorite_food, bar_preferences, preferences"
     "#{user.name}'s profile: #{parts.join(', ')}"
   end
 

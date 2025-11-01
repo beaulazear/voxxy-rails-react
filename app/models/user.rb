@@ -259,13 +259,14 @@ class User < ApplicationRecord
 
   # Check if user has saved preferences/favorites
   def has_saved_preferences?
-    preferences.present? || favorite_food.present?
+    preferences.present? || favorite_food.present? || bar_preferences.present?
   end
 
   # Generate notes from user's saved preferences
   def generate_preference_notes
     notes = []
     notes << "Favorite food: #{favorite_food}" if favorite_food.present?
+    notes << "Bar preferences: #{bar_preferences}" if bar_preferences.present?
     notes << preferences if preferences.present?
     notes.join("\n")
   end
