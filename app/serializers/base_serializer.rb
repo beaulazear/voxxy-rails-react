@@ -24,12 +24,7 @@ class BaseSerializer
     return nil unless user
     user_basic(user).merge(
       preferences: user.preferences,
-      favorite_food: user.favorite_food,
-      dairy_free: user.dairy_free,
-      gluten_free: user.gluten_free,
-      vegan: user.vegan,
-      vegetarian: user.vegetarian,
-      kosher: user.kosher
+      favorite_food: user.favorite_food
     )
   end
 
