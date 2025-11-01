@@ -170,16 +170,26 @@ const clearFavoriteFood = async (userId) => {
 
 ## Where Preferences Are Used
 
-### 1. **AI Recommendations**
-User preferences are included in AI prompts when generating:
-- Restaurant recommendations
-- Bar/venue suggestions
-- Activity recommendations
+### 1. **AI Recommendations** ✨ SMART FILTERING
 
-The AI receives preferences in this format:
-```
-"John's profile: Favorite food: Italian, Bar preferences: Craft beer bars, Preferences: Love outdoor activities"
-```
+User preferences are **intelligently filtered** based on recommendation type:
+
+**Restaurant Recommendations:**
+- Uses: `favorite_food` + `preferences`
+- Example format: `"John's profile: Favorite food: Italian, Preferences: Love outdoor seating"`
+- Endpoint: `POST /openai/restaurant_recommendations`
+
+**Bar Recommendations:**
+- Uses: `bar_preferences` + `preferences`
+- Example format: `"John's profile: Bar preferences: Craft beer bars, Preferences: Prefer quiet atmosphere"`
+- Endpoint: `POST /openai/bar_recommendations`
+
+**Game/Activity Recommendations:**
+- Uses: `preferences` only
+- Example format: `"John's profile: Preferences: Love board games with small groups"`
+- Endpoint: `POST /openai/game_recommendations`
+
+This ensures the AI only receives relevant context for each recommendation type, improving recommendation quality and reducing noise.
 
 ### 2. **User Profile Display**
 All three preference fields are returned in the full user serialization:
@@ -316,4 +326,9 @@ If you encounter any issues or have questions about these fields, please contact
 - Serializers:
   - `app/serializers/user_serializer.rb`
   - `app/serializers/base_serializer.rb:23-30`
-- AI Integration: `app/controllers/openai_controller.rb:306-323`
+- AI Integration:
+  - Smart filtering logic: `app/controllers/openai_controller.rb:306-334` (`build_profile_input`)
+  - Combined responses builder: `app/controllers/openai_controller.rb:250-304` (`build_combined_responses`)
+  - Restaurant endpoint: `app/controllers/openai_controller.rb:21-61`
+  - Bar endpoint: `app/controllers/openai_controller.rb:63-103`
+  - Game endpoint: `app/controllers/openai_controller.rb:105-137`

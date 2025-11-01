@@ -36,7 +36,8 @@ class OpenaiController < ApplicationController
     end
 
     # Build complete input by combining explicit responses + profile preferences
-    combined_responses = build_combined_responses(activity_id, user_responses)
+    # Only include restaurant-specific preferences (favorite_food)
+    combined_responses = build_combined_responses(activity_id, user_responses, "restaurant")
 
     # If no responses at all (explicit or from profiles), return error
     if combined_responses.blank?
@@ -78,7 +79,8 @@ class OpenaiController < ApplicationController
     end
 
     # Build complete input by combining explicit responses + profile preferences
-    combined_responses = build_combined_responses(activity_id, user_responses)
+    # Only include bar-specific preferences (bar_preferences)
+    combined_responses = build_combined_responses(activity_id, user_responses, "bar")
 
     # If no responses at all (explicit or from profiles), return error
     if combined_responses.blank?
@@ -109,7 +111,8 @@ class OpenaiController < ApplicationController
     activity_id        = params[:activity_id]
 
     # Build complete input by combining explicit responses + profile preferences
-    combined_responses = build_combined_responses(activity_id, user_responses)
+    # Only include general preferences (no food or bar preferences)
+    combined_responses = build_combined_responses(activity_id, user_responses, "game")
 
     # If no responses at all (explicit or from profiles), return error
     if combined_responses.blank?
@@ -247,7 +250,7 @@ class OpenaiController < ApplicationController
 
   private
 
-  def build_combined_responses(activity_id, explicit_responses)
+  def build_combined_responses(activity_id, explicit_responses, venue_type = nil)
     return explicit_responses if activity_id.blank?
 
     begin
@@ -279,8 +282,8 @@ class OpenaiController < ApplicationController
         if db_response&.notes.present?
           all_inputs << db_response.notes
         else
-          # No DB response, check profile preferences
-          profile_input = build_profile_input(participant)
+          # No DB response, check profile preferences (filtered by venue type)
+          profile_input = build_profile_input(participant, venue_type)
           all_inputs << profile_input if profile_input.present?
         end
       end
@@ -291,8 +294,8 @@ class OpenaiController < ApplicationController
         if db_response&.notes.present?
           all_inputs << db_response.notes
         else
-          # No DB response, check profile preferences
-          profile_input = build_profile_input(participant)
+          # No DB response, check profile preferences (filtered by venue type)
+          profile_input = build_profile_input(participant, venue_type)
           all_inputs << profile_input if profile_input.present?
         end
       end
@@ -303,22 +306,33 @@ class OpenaiController < ApplicationController
     all_inputs.join("\n\n")
   end
 
-  def build_profile_input(user)
+  def build_profile_input(user, venue_type = nil)
     parts = []
 
-    # Add favorite food if present
-    parts << "Favorite food: #{user.favorite_food}" if user.favorite_food.present?
-
-    # Add bar preferences if present
-    parts << "Bar preferences: #{user.bar_preferences}" if user.bar_preferences.present?
-
-    # Add general preferences if present
-    parts << "Preferences: #{user.preferences}" if user.preferences.present?
+    # Add venue-specific preferences based on type
+    case venue_type
+    when "restaurant"
+      # Restaurant recommendations: only use favorite_food and general preferences
+      parts << "Favorite food: #{user.favorite_food}" if user.favorite_food.present?
+      parts << "Preferences: #{user.preferences}" if user.preferences.present?
+    when "bar"
+      # Bar recommendations: only use bar_preferences and general preferences
+      parts << "Bar preferences: #{user.bar_preferences}" if user.bar_preferences.present?
+      parts << "Preferences: #{user.preferences}" if user.preferences.present?
+    when "game"
+      # Game recommendations: only use general preferences
+      parts << "Preferences: #{user.preferences}" if user.preferences.present?
+    else
+      # Default: include all preferences (for backward compatibility)
+      parts << "Favorite food: #{user.favorite_food}" if user.favorite_food.present?
+      parts << "Bar preferences: #{user.bar_preferences}" if user.bar_preferences.present?
+      parts << "Preferences: #{user.preferences}" if user.preferences.present?
+    end
 
     # Return nil if no profile data
     return nil if parts.empty?
 
-    # Format: "Name's profile: favorite_food, bar_preferences, preferences"
+    # Format: "Name's profile: relevant_preferences"
     "#{user.name}'s profile: #{parts.join(', ')}"
   end
 
