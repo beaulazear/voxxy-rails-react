@@ -14,7 +14,8 @@ class ActivitySerializer < BaseSerializer
     basic(activity).merge(
       user: user_with_preferences(activity.user),
       participants: activity.participants.map { |p| user_with_preferences(p) },
-      activity_participants: ActivityParticipantSerializer.basic_list(activity.activity_participants)
+      activity_participants: ActivityParticipantSerializer.basic_list(activity.activity_participants),
+      comments: activity.comments.map { |c| CommentSerializer.basic(c) }
     )
   end
 

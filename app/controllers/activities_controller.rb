@@ -22,10 +22,21 @@ class ActivitiesController < HtmlController
     activity = current_user.activities.build(activity_params.except(:participants))
 
     if activity.save
+      # Create first comment for activity creation (group activities only)
+      unless activity.is_solo
+        formatted_date = activity.created_at.strftime("%B %d, %Y at %I:%M %p")
+        comment = activity.comments.build(
+          user_id: current_user.id,
+          content: "#{current_user.name} created this activity on #{formatted_date} 🎊"
+        )
+        comment.skip_notifications = true
+        comment.save!
+      end
+
       invite_emails = activity_params[:participants] || []
       invite_emails.each { |email| invite_participant(email, activity) }
 
-      activity = Activity.includes(:user, :participants, :activity_participants)
+      activity = Activity.includes(:user, :participants, :activity_participants, { comments: :user })
                         .find(activity.id)
 
       render json: ActivitySerializer.created(activity), status: :created
@@ -79,6 +90,21 @@ class ActivitiesController < HtmlController
       # Send change notifications (only if not finalizing and there are actual changes)
       if should_notify_changes && changes_to_notify.any?
         Notification.send_activity_change(activity, changes_to_notify)
+
+        # Create auto-comments for specific field updates (group activities only)
+        unless activity.is_solo
+          changes_to_notify.each do |field, (old_value, new_value)|
+            comment_text = generate_update_comment(field, old_value, new_value, current_user.name)
+            if comment_text
+              comment = activity.comments.build(
+                user_id: current_user.id,
+                content: comment_text
+              )
+              comment.skip_notifications = true
+              comment.save!
+            end
+          end
+        end
       end
 
       # Auto-comment for recommendations generated (group activities only)
@@ -89,6 +115,27 @@ class ActivitiesController < HtmlController
         )
         comment.skip_notifications = true
         comment.save!
+
+        # Send push notification to all participants (except the host who generated them)
+        participants_to_notify = activity.participants.reject { |p| p.id == current_user.id }
+        host_name = current_user.name.split(" ").first
+        emoji = ActivityConfig.emoji_for(activity.activity_type)
+
+        participants_to_notify.each do |participant|
+          Notification.create_and_send!(
+            user: participant,
+            title: "New Recommendations Ready! ✨",
+            body: "#{host_name} generated recommendations for #{activity.activity_name}",
+            notification_type: "activity_update",
+            activity: activity,
+            triggering_user: current_user,
+            data: {
+              hostName: host_name,
+              activityType: activity.activity_type,
+              updateType: "recommendations_generated"
+            }
+          )
+        end
       end
 
       # Auto-comment for activity finalized (group activities only)
@@ -231,6 +278,52 @@ class ActivitiesController < HtmlController
       :date_notes, :active, :emoji, :date_day, :date_time, :welcome_message,
       :allow_participant_time_selection, :completed, :is_solo, participants: []
     )
+  end
+
+  def generate_update_comment(field, old_value, new_value, user_name)
+    case field
+    when "activity_name"
+      "#{user_name} updated the activity name to: \"#{new_value}\" 📝"
+    when "welcome_message"
+      if old_value.blank? && new_value.present?
+        "#{user_name} added a welcome message 💬"
+      elsif old_value.present? && new_value.blank?
+        "#{user_name} removed the welcome message"
+      else
+        "#{user_name} updated the welcome message 💬"
+      end
+    when "date_day"
+      if new_value.present?
+        formatted_date = Date.parse(new_value.to_s).strftime("%B %d, %Y")
+        "#{user_name} updated the date to #{formatted_date} 📅"
+      else
+        "#{user_name} removed the date"
+      end
+    when "date_time"
+      if new_value.present?
+        formatted_time = Time.parse(new_value.to_s).strftime("%I:%M %p")
+        "#{user_name} updated the time to #{formatted_time} 🕐"
+      else
+        "#{user_name} removed the time"
+      end
+    when "activity_location"
+      if new_value.present?
+        "#{user_name} updated the location to: #{new_value} 📍"
+      else
+        "#{user_name} removed the location"
+      end
+    when "activity_type"
+      emoji = ActivityConfig.emoji_for(new_value) rescue ""
+      "#{user_name} changed the activity type to: #{new_value} #{emoji}"
+    when "group_size"
+      "#{user_name} updated the group size to #{new_value} people 👥"
+    else
+      # Don't create comments for other fields
+      nil
+    end
+  rescue => e
+    Rails.logger.error "Error generating update comment: #{e.message}"
+    nil
   end
 
   def invite_participant(raw_email, activity)
