@@ -1,4 +1,99 @@
 class VenueRankingService
+  # Map user-friendly cuisine keywords to Google Places types
+  # This ensures frontend keywords align with backend matching
+  CUISINE_TYPE_MAPPING = {
+    # Asian Cuisines
+    "chinese" => [ "chinese_restaurant" ],
+    "japanese" => [ "japanese_restaurant", "sushi_restaurant", "ramen_restaurant" ],
+    "sushi" => [ "sushi_restaurant", "japanese_restaurant" ],
+    "ramen" => [ "ramen_restaurant", "japanese_restaurant" ],
+    "thai" => [ "thai_restaurant" ],
+    "indian" => [ "indian_restaurant" ],
+    "korean" => [ "korean_restaurant" ],
+    "vietnamese" => [ "vietnamese_restaurant" ],
+    "asian" => [ "asian_restaurant", "chinese_restaurant", "japanese_restaurant", "thai_restaurant" ],
+    "indonesian" => [ "indonesian_restaurant" ],
+
+    # European Cuisines
+    "italian" => [ "italian_restaurant", "pizza_restaurant" ],
+    "pizza" => [ "pizza_restaurant", "italian_restaurant" ],
+    "french" => [ "french_restaurant" ],
+    "spanish" => [ "spanish_restaurant" ],
+    "greek" => [ "greek_restaurant" ],
+    "turkish" => [ "turkish_restaurant" ],
+
+    # Middle Eastern & Mediterranean
+    "mediterranean" => [ "mediterranean_restaurant", "greek_restaurant", "lebanese_restaurant" ],
+    "middle eastern" => [ "middle_eastern_restaurant", "lebanese_restaurant", "turkish_restaurant" ],
+    "lebanese" => [ "lebanese_restaurant", "middle_eastern_restaurant" ],
+
+    # American & Western
+    "american" => [ "american_restaurant", "diner", "hamburger_restaurant" ],
+    "burger" => [ "hamburger_restaurant", "american_restaurant", "bar_and_grill" ],
+    "hamburger" => [ "hamburger_restaurant", "american_restaurant" ],
+    "bbq" => [ "barbecue_restaurant" ],
+    "barbecue" => [ "barbecue_restaurant" ],
+    "steakhouse" => [ "steak_house" ],
+    "steak" => [ "steak_house" ],
+    "diner" => [ "diner", "american_restaurant" ],
+
+    # Latin American
+    "mexican" => [ "mexican_restaurant" ],
+    "brazilian" => [ "brazilian_restaurant" ],
+
+    # African
+    "african" => [ "african_restaurant" ],
+
+    # Seafood & Specialty
+    "seafood" => [ "seafood_restaurant" ],
+    "sandwich" => [ "sandwich_shop", "deli" ],
+    "deli" => [ "deli", "sandwich_shop" ],
+
+    # Meal Types
+    "breakfast" => [ "breakfast_restaurant", "diner", "bagel_shop", "brunch_restaurant" ],
+    "brunch" => [ "brunch_restaurant", "breakfast_restaurant" ],
+    "fast food" => [ "fast_food_restaurant", "hamburger_restaurant" ],
+    "fine dining" => [ "fine_dining_restaurant" ],
+
+    # Desserts & Bakery
+    "bakery" => [ "bakery", "dessert_restaurant" ],
+    "dessert" => [ "dessert_restaurant", "ice_cream_shop", "bakery" ],
+    "ice cream" => [ "ice_cream_shop" ],
+
+    # Dietary
+    "vegetarian" => [ "vegetarian_restaurant", "vegan_restaurant" ],
+    "vegan" => [ "vegan_restaurant" ]
+  }.freeze
+
+  # Map bar-related keywords to Google Places types
+  BAR_TYPE_MAPPING = {
+    "bar" => [ "bar", "bar_and_grill", "pub" ],
+    "cocktail" => [ "bar", "wine_bar" ],
+    "cocktails" => [ "bar", "wine_bar" ],
+    "wine" => [ "wine_bar", "bar" ],
+    "wine bar" => [ "wine_bar" ],
+    "beer" => [ "bar", "pub", "bar_and_grill" ],
+    "pub" => [ "pub", "bar" ],
+    "sports bar" => [ "bar_and_grill", "bar" ],
+    "bar and grill" => [ "bar_and_grill" ],
+    "coffee" => [ "coffee_shop", "cafe" ],
+    "cafe" => [ "cafe", "coffee_shop" ]
+  }.freeze
+
+  # Ambiance keywords that don't map to specific Google types
+  # These will be matched against venue names and descriptions
+  BAR_AMBIANCE_KEYWORDS = {
+    "speakeasy" => [ "speakeasy", "hidden", "secret", "cocktail" ],
+    "dive bar" => [ "dive", "casual", "no-frills" ],
+    "tiki" => [ "tiki", "tropical", "rum", "polynesian" ],
+    "karaoke" => [ "karaoke", "sing", "singing" ],
+    "live music" => [ "live music", "jazz", "blues", "band", "music" ],
+    "jazz" => [ "jazz", "live music", "jazz club" ],
+    "sports bar" => [ "sports", "game", "games", "tv", "screens" ],
+    "nightclub" => [ "club", "nightclub", "dance", "dancing", "dj" ],
+    "lounge" => [ "lounge", "cocktail lounge" ]
+  }.freeze
+
   # Rank venues based on user preferences, ratings, and keyword matching
   # Returns top N venues sorted by relevance score
   def self.rank_venues(venues, user_preferences, top_n: 10)
@@ -27,21 +122,36 @@ class VenueRankingService
   def self.calculate_venue_score(venue, keywords, budget_preference, dietary_requirements)
     score = 0.0
 
-    # 1. Rating Score (35% weight) - Higher ratings get more points
+    # 0. CRITICAL: Dietary Requirements Filter (MUST PASS)
+    # If dietary requirements exist, venue MUST be compatible (70%+ match)
+    # Otherwise, exclude it entirely from recommendations
+    if dietary_requirements.any?
+      dietary_score = check_dietary_compatibility(venue, dietary_requirements)
+
+      # Hard filter: If dietary compatibility is below 70%, exclude this venue
+      if dietary_score < 0.7
+        return -999  # This ensures venue won't be recommended
+      end
+
+      # If compatible, give a bonus
+      score += 20
+    else
+      score += 10  # Neutral if no dietary requirements
+    end
+
+    # 1. Rating Score (30% weight) - Higher ratings get more points
     if venue[:rating].present?
-      rating_score = (venue[:rating].to_f / 5.0) * 35
+      rating_score = (venue[:rating].to_f / 5.0) * 30
       score += rating_score
     end
 
-    # 2. Keyword Matching (35% weight) - Match user preferences to venue types/name
-    venue_text = build_venue_search_text(venue)
-    keyword_matches = keywords.count { |kw| venue_text.include?(kw.downcase) }
+    # 2. Keyword Matching (30% weight) - Match user preferences to venue types
     if keywords.any?
-      keyword_score = (keyword_matches.to_f / keywords.size) * 35
+      keyword_score = calculate_keyword_match_score(venue, keywords)
       score += keyword_score
     else
       # If no keywords, give neutral score
-      score += 17.5
+      score += 15
     end
 
     # 3. Budget Matching (15% weight) - Match price level to budget preference
@@ -52,15 +162,7 @@ class VenueRankingService
       score += 7.5  # Neutral if no budget specified
     end
 
-    # 4. Dietary Requirements (15% weight) - Critical for allergies/restrictions
-    if dietary_requirements.any?
-      dietary_score = check_dietary_compatibility(venue, dietary_requirements)
-      score += dietary_score * 15
-    else
-      score += 7.5  # Neutral if no dietary requirements
-    end
-
-    # 5. Popularity Bonus - More reviews = more reliable
+    # 4. Popularity Bonus - More reviews = more reliable
     if venue[:user_ratings_total].present? && venue[:user_ratings_total] > 100
       score += 5
     end
@@ -76,40 +178,76 @@ class VenueRankingService
     ].compact.join(" ").downcase
   end
 
+  def self.calculate_keyword_match_score(venue, user_keywords)
+    venue_types = venue[:types] || []
+    venue_name = venue[:name]&.downcase || ""
+
+    matches = 0
+    total_keywords = user_keywords.size
+
+    user_keywords.each do |keyword|
+      keyword_lower = keyword.downcase
+
+      # First, try to match against Google Places types using our mapping
+      expected_types = CUISINE_TYPE_MAPPING[keyword_lower] || BAR_TYPE_MAPPING[keyword_lower]
+
+      if expected_types && (venue_types & expected_types).any?
+        # Direct type match - highest confidence
+        matches += 1
+      elsif BAR_AMBIANCE_KEYWORDS[keyword_lower]
+        # Check ambiance keywords in venue name
+        ambiance_terms = BAR_AMBIANCE_KEYWORDS[keyword_lower]
+        if ambiance_terms.any? { |term| venue_name.include?(term) }
+          matches += 1
+        end
+      else
+        # Fallback: check if keyword appears in venue name or types (legacy behavior)
+        venue_text = build_venue_search_text(venue)
+        if venue_text.include?(keyword_lower)
+          matches += 0.5  # Partial credit for text match
+        end
+      end
+    end
+
+    return 0 if total_keywords == 0
+    (matches.to_f / total_keywords) * 30
+  end
+
   def self.extract_keywords(preferences)
     return [] if preferences.blank?
 
     text = preferences.to_s.downcase
+    found_keywords = []
 
-    # Common cuisine types
-    cuisines = [
-      "mexican", "italian", "chinese", "japanese", "sushi", "thai", "indian", "korean", "vietnamese",
-      "french", "spanish", "greek", "mediterranean", "middle eastern", "lebanese", "turkish",
-      "american", "burger", "pizza", "bbq", "barbecue", "steakhouse", "seafood",
-      "ethiopian", "african", "caribbean", "cuban", "peruvian", "brazilian",
-      "ramen", "tacos", "dim sum", "tapas", "brunch", "breakfast"
-    ]
+    # Check all cuisine keywords from our mapping
+    CUISINE_TYPE_MAPPING.keys.each do |keyword|
+      found_keywords << keyword if text.include?(keyword)
+    end
 
-    # Atmosphere keywords
+    # Check all bar keywords from our mapping
+    BAR_TYPE_MAPPING.keys.each do |keyword|
+      found_keywords << keyword if text.include?(keyword)
+    end
+
+    # Check all ambiance keywords
+    BAR_AMBIANCE_KEYWORDS.keys.each do |keyword|
+      found_keywords << keyword if text.include?(keyword)
+    end
+
+    # Additional atmosphere keywords (not tied to specific types)
     atmosphere = [
       "romantic", "casual", "upscale", "trendy", "cozy", "lively", "quiet",
       "rooftop", "outdoor", "patio", "waterfront", "views"
     ]
-
-    # Bar-specific keywords
-    bar_types = [
-      "cocktail", "craft cocktail", "whiskey", "wine bar", "beer", "craft beer", "brewery",
-      "speakeasy", "dive bar", "sports bar", "lounge", "pub", "tiki",
-      "karaoke", "live music", "jazz", "dance", "club", "nightclub"
-    ]
-
-    all_keywords = cuisines + atmosphere + bar_types
-    found_keywords = all_keywords.select { |keyword| text.include?(keyword) }
+    atmosphere.each do |keyword|
+      found_keywords << keyword if text.include?(keyword)
+    end
 
     # Check for specific food items that indicate cuisine
     found_keywords << "mexican" if text.match?(/taco|burrito|quesadilla/) && !found_keywords.include?("mexican")
     found_keywords << "italian" if text.match?(/pasta|risotto|tiramisu/) && !found_keywords.include?("italian")
     found_keywords << "japanese" if text.match?(/sushi|ramen|tempura/) && !found_keywords.include?("japanese")
+    found_keywords << "chinese" if text.match?(/dim sum|dumpling/) && !found_keywords.include?("chinese")
 
     found_keywords.uniq
   end
@@ -155,26 +293,46 @@ class VenueRankingService
   end
 
   def self.check_dietary_compatibility(venue, dietary_requirements)
-    # Check venue types for dietary compatibility
+    # Check venue types and Google Places dietary fields for compatibility
     venue_types = venue[:types]&.map(&:downcase) || []
     venue_name = venue[:name].downcase
 
     compatible_count = 0
     dietary_requirements.each do |requirement|
       case requirement
-      when "vegan", "vegetarian"
-        # Check if venue is known for vegan/vegetarian options
-        if venue_types.include?("vegetarian_restaurant") ||
+      when "vegan"
+        # Check Google Places field first (most reliable), then types, then name
+        if venue[:serves_vegan_food] == true ||
            venue_types.include?("vegan_restaurant") ||
-           venue_name.include?("vegan") ||
-           venue_name.include?("vegetarian")
+           venue_name.include?("vegan")
+          compatible_count += 1
+        end
+      when "vegetarian"
+        # Vegetarians can eat at vegan restaurants too
+        if venue[:serves_vegetarian_food] == true ||
+           venue[:serves_vegan_food] == true ||
+           venue_types.include?("vegetarian_restaurant") ||
+           venue_types.include?("vegan_restaurant") ||
+           venue_name.include?("vegetarian") ||
+           venue_name.include?("vegan")
           compatible_count += 1
         end
       when "gluten-free"
-        # Hard to detect from Google Places data, give neutral
-        compatible_count += 0.5
-      when "halal", "kosher"
-        if venue_name.include?(requirement)
+        # Google Places doesn't have a gluten-free field, check name
+        if venue_name.match?(/gluten.?free|celiac/)
+          compatible_count += 1
+        else
+          # Give partial credit - many restaurants have gluten-free options
+          compatible_count += 0.5
+        end
+      when "halal"
+        # Check name and types
+        if venue_name.include?("halal") || venue_types.any? { |t| t.include?("halal") }
+          compatible_count += 1
+        end
+      when "kosher"
+        # Check name and types
+        if venue_name.include?("kosher") || venue_types.any? { |t| t.include?("kosher") }
           compatible_count += 1
         end
       end

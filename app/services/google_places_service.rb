@@ -208,7 +208,9 @@ class GooglePlacesService
 
     Rails.cache.fetch(cache_key, expires_in: CACHE_DURATION) do
       fields = "place_id,name,formatted_address,formatted_phone_number,opening_hours,website," \
-               "rating,user_ratings_total,price_level,business_status,types,reviews,photos,geometry"
+               "rating,user_ratings_total,price_level,business_status,types,reviews,photos,geometry," \
+               "serves_vegetarian_food,serves_vegan_food,good_for_groups,outdoor_seating," \
+               "reservable,takeout,delivery,serves_breakfast,serves_brunch,serves_lunch,serves_dinner"
 
       details_url = "https://maps.googleapis.com/maps/api/place/details/json?" \
                     "place_id=#{place_id}&fields=#{fields}&key=#{api_key}"
@@ -233,7 +235,18 @@ class GooglePlacesService
           reviews: result["reviews"] || [],
           photos: (result["photos"] || []).first(3),
           latitude: result.dig("geometry", "location", "lat"),
-          longitude: result.dig("geometry", "location", "lng")
+          longitude: result.dig("geometry", "location", "lng"),
+          serves_vegetarian_food: result["serves_vegetarian_food"],
+          serves_vegan_food: result["serves_vegan_food"],
+          good_for_groups: result["good_for_groups"],
+          outdoor_seating: result["outdoor_seating"],
+          reservable: result["reservable"],
+          takeout: result["takeout"],
+          delivery: result["delivery"],
+          serves_breakfast: result["serves_breakfast"],
+          serves_brunch: result["serves_brunch"],
+          serves_lunch: result["serves_lunch"],
+          serves_dinner: result["serves_dinner"]
         }
       else
         nil

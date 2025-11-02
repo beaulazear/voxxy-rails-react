@@ -510,7 +510,16 @@ class OpenaiController < ApplicationController
           types: details[:types],
           user_ratings_total: details[:user_ratings_total],
           latitude: details[:latitude],
-          longitude: details[:longitude]
+          longitude: details[:longitude],
+          serves_vegetarian_food: details[:serves_vegetarian_food],
+          serves_vegan_food: details[:serves_vegan_food],
+          good_for_groups: details[:good_for_groups],
+          outdoor_seating: details[:outdoor_seating],
+          reservable: details[:reservable],
+          serves_breakfast: details[:serves_breakfast],
+          serves_brunch: details[:serves_brunch],
+          serves_lunch: details[:serves_lunch],
+          serves_dinner: details[:serves_dinner]
         }
       else
         # Fallback: Use basic venue data if details API fails
@@ -608,7 +617,16 @@ class OpenaiController < ApplicationController
           types: details[:types],
           user_ratings_total: details[:user_ratings_total],
           latitude: details[:latitude],
-          longitude: details[:longitude]
+          longitude: details[:longitude],
+          serves_vegetarian_food: details[:serves_vegetarian_food],
+          serves_vegan_food: details[:serves_vegan_food],
+          good_for_groups: details[:good_for_groups],
+          outdoor_seating: details[:outdoor_seating],
+          reservable: details[:reservable],
+          serves_breakfast: details[:serves_breakfast],
+          serves_brunch: details[:serves_brunch],
+          serves_lunch: details[:serves_lunch],
+          serves_dinner: details[:serves_dinner]
         }
       else
         # Fallback: Use basic venue data if details API fails
