@@ -1,0 +1,69 @@
+module Api
+  module V1
+    module Presents
+      class EventSerializer
+        def initialize(event, options = {})
+          @event = event
+          @include_organization = options[:include_organization] || false
+          @include_registrations = options[:include_registrations] || false
+        end
+
+        def as_json
+          {
+            id: @event.id,
+            title: @event.title,
+            slug: @event.slug,
+            description: @event.description,
+            dates: {
+              start: @event.event_date,
+              end: @event.event_end_date
+            },
+            location: @event.location,
+            poster_url: @event.poster_url,
+            ticket_url: @event.ticket_url,
+            pricing: {
+              ticket_price: @event.ticket_price&.to_f,
+              currency: "USD"
+            },
+            capacity: {
+              total: @event.capacity,
+              registered: @event.registered_count,
+              remaining: @event.spots_remaining,
+              is_full: @event.full?
+            },
+            status: {
+              published: @event.published,
+              registration_open: @event.registration_open,
+              status: @event.status
+            },
+            created_at: @event.created_at,
+            updated_at: @event.updated_at
+          }.tap do |json|
+            json[:organization] = organization_json if @include_organization
+            json[:registrations] = registrations_json if @include_registrations
+            json[:registration_count] = @event.registered_count
+          end
+        end
+
+        private
+
+        def organization_json
+          {
+            id: @event.organization.id,
+            name: @event.organization.name,
+            slug: @event.organization.slug,
+            city: @event.organization.city,
+            state: @event.organization.state,
+            verified: @event.organization.verified
+          }
+        end
+
+        def registrations_json
+          @event.registrations.confirmed.map do |registration|
+            Api::V1::Presents::RegistrationSerializer.new(registration).as_json
+          end
+        end
+      end
+    end
+  end
+end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_01_191938) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_04_140634) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -91,6 +91,35 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_01_191938) do
     t.index ["blocker_id"], name: "index_blocked_users_on_blocker_id"
   end
 
+  create_table "budget_line_items", force: :cascade do |t|
+    t.bigint "budget_id", null: false
+    t.string "name", null: false
+    t.string "category"
+    t.decimal "budgeted_amount", precision: 10, scale: 2
+    t.decimal "actual_amount", precision: 10, scale: 2, default: "0.0"
+    t.text "notes"
+    t.bigint "vendor_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["budget_id"], name: "index_budget_line_items_on_budget_id"
+    t.index ["category"], name: "index_budget_line_items_on_category"
+    t.index ["vendor_id"], name: "index_budget_line_items_on_vendor_id"
+  end
+
+  create_table "budgets", force: :cascade do |t|
+    t.string "budgetable_type", null: false
+    t.bigint "budgetable_id", null: false
+    t.bigint "user_id", null: false
+    t.string "title"
+    t.decimal "total_amount", precision: 10, scale: 2
+    t.decimal "spent_amount", precision: 10, scale: 2, default: "0.0"
+    t.string "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["budgetable_type", "budgetable_id"], name: "index_budgets_on_budgetable"
+    t.index ["user_id"], name: "index_budgets_on_user_id"
+  end
+
   create_table "bug_reports", force: :cascade do |t|
     t.string "name", null: false
     t.string "email", null: false
@@ -120,6 +149,31 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_01_191938) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_contacts_on_email"
+  end
+
+  create_table "events", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.string "title", null: false
+    t.string "slug", null: false
+    t.text "description"
+    t.datetime "event_date"
+    t.datetime "event_end_date"
+    t.string "location"
+    t.string "poster_url"
+    t.string "ticket_url"
+    t.decimal "ticket_price", precision: 8, scale: 2
+    t.integer "capacity"
+    t.integer "registered_count", default: 0
+    t.boolean "published", default: false
+    t.boolean "registration_open", default: true
+    t.string "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_date"], name: "index_events_on_event_date"
+    t.index ["organization_id"], name: "index_events_on_organization_id"
+    t.index ["published"], name: "index_events_on_published"
+    t.index ["slug"], name: "index_events_on_slug", unique: true
+    t.index ["status"], name: "index_events_on_status"
   end
 
   create_table "feedbacks", force: :cascade do |t|
@@ -168,6 +222,31 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_01_191938) do
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
+  create_table "organizations", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.text "description"
+    t.string "logo_url"
+    t.string "website"
+    t.string "instagram_handle"
+    t.string "phone"
+    t.string "email"
+    t.string "address"
+    t.string "city"
+    t.string "state"
+    t.string "zip_code"
+    t.decimal "latitude", precision: 10, scale: 6
+    t.decimal "longitude", precision: 10, scale: 6
+    t.boolean "verified", default: false
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_organizations_on_active"
+    t.index ["slug"], name: "index_organizations_on_slug", unique: true
+    t.index ["user_id"], name: "index_organizations_on_user_id"
+  end
+
   create_table "pinned_activities", force: :cascade do |t|
     t.bigint "activity_id", null: false
     t.string "title"
@@ -186,6 +265,27 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_01_191938) do
     t.decimal "latitude", precision: 10, scale: 6
     t.decimal "longitude", precision: 10, scale: 6
     t.index ["activity_id"], name: "index_pinned_activities_on_activity_id"
+  end
+
+  create_table "registrations", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "user_id"
+    t.string "email", null: false
+    t.string "name"
+    t.string "phone"
+    t.boolean "subscribed", default: false
+    t.string "ticket_code"
+    t.string "qr_code_url"
+    t.boolean "checked_in", default: false
+    t.datetime "checked_in_at"
+    t.string "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_registrations_on_email"
+    t.index ["event_id"], name: "index_registrations_on_event_id"
+    t.index ["status"], name: "index_registrations_on_status"
+    t.index ["ticket_code"], name: "index_registrations_on_ticket_code", unique: true
+    t.index ["user_id"], name: "index_registrations_on_user_id"
   end
 
   create_table "reports", force: :cascade do |t|
@@ -312,16 +412,51 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_01_191938) do
     t.string "community_guidelines_version"
     t.string "favorite_food"
     t.string "bar_preferences"
+    t.string "role", default: "consumer"
+    t.string "product_context"
     t.index ["banned_at"], name: "index_users_on_banned_at"
     t.index ["city"], name: "index_users_on_city"
     t.index ["community_guidelines_accepted_at"], name: "index_users_on_community_guidelines_accepted_at"
     t.index ["latitude", "longitude"], name: "index_users_on_latitude_and_longitude"
     t.index ["privacy_policy_accepted_at"], name: "index_users_on_privacy_policy_accepted_at"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["role"], name: "index_users_on_role"
     t.index ["state"], name: "index_users_on_state"
     t.index ["status"], name: "index_users_on_status"
     t.index ["suspended_until"], name: "index_users_on_suspended_until"
     t.index ["terms_accepted_at"], name: "index_users_on_terms_accepted_at"
+  end
+
+  create_table "vendors", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.string "vendor_type", null: false
+    t.text "description"
+    t.string "logo_url"
+    t.string "website"
+    t.string "instagram_handle"
+    t.string "contact_email"
+    t.string "phone"
+    t.json "services"
+    t.json "pricing"
+    t.string "address"
+    t.string "city"
+    t.string "state"
+    t.string "zip_code"
+    t.decimal "latitude", precision: 10, scale: 6
+    t.decimal "longitude", precision: 10, scale: 6
+    t.boolean "verified", default: false
+    t.boolean "active", default: true
+    t.integer "views_count", default: 0
+    t.decimal "rating", precision: 3, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_vendors_on_active"
+    t.index ["slug"], name: "index_vendors_on_slug", unique: true
+    t.index ["user_id"], name: "index_vendors_on_user_id"
+    t.index ["vendor_type"], name: "index_vendors_on_vendor_type"
+    t.index ["verified"], name: "index_vendors_on_verified"
   end
 
   create_table "votes", force: :cascade do |t|
@@ -350,15 +485,22 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_01_191938) do
   add_foreign_key "activity_participants", "users"
   add_foreign_key "blocked_users", "users", column: "blocked_id"
   add_foreign_key "blocked_users", "users", column: "blocker_id"
+  add_foreign_key "budget_line_items", "budgets"
+  add_foreign_key "budget_line_items", "vendors"
+  add_foreign_key "budgets", "users"
   add_foreign_key "comments", "pinned_activities"
   add_foreign_key "comments", "users"
+  add_foreign_key "events", "organizations"
   add_foreign_key "moderation_actions", "reports"
   add_foreign_key "moderation_actions", "users"
   add_foreign_key "moderation_actions", "users", column: "moderator_id"
   add_foreign_key "notifications", "activities"
   add_foreign_key "notifications", "users"
   add_foreign_key "notifications", "users", column: "triggering_user_id"
+  add_foreign_key "organizations", "users"
   add_foreign_key "pinned_activities", "activities"
+  add_foreign_key "registrations", "events"
+  add_foreign_key "registrations", "users"
   add_foreign_key "reports", "activities"
   add_foreign_key "reports", "users", column: "reporter_id"
   add_foreign_key "reports", "users", column: "reviewed_by_id"
@@ -369,6 +511,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_01_191938) do
   add_foreign_key "time_slots", "activities"
   add_foreign_key "user_activities", "pinned_activities"
   add_foreign_key "user_activities", "users"
+  add_foreign_key "vendors", "users"
   add_foreign_key "votes", "pinned_activities"
   add_foreign_key "votes", "users"
 end

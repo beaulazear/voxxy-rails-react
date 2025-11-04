@@ -22,6 +22,16 @@ class User < ApplicationRecord
   has_many :blocked_by_relationships, class_name: "BlockedUser", foreign_key: "blocked_id", dependent: :destroy
   has_many :blocked_by_users, through: :blocked_by_relationships, source: :blocker
 
+  # Presents associations
+  has_many :organizations, dependent: :destroy
+  has_many :vendors, dependent: :destroy
+  has_many :budgets, dependent: :destroy
+
+  # Role management
+  ROLES = %w[consumer venue_owner vendor admin].freeze
+
+  validates :role, inclusion: { in: ROLES }, allow_blank: true
+
   before_create :generate_confirmation_code
 
   validates :name, presence: true
@@ -333,6 +343,40 @@ class User < ApplicationRecord
     if suspended? && suspended_until.present? && suspended_until <= Time.current
       unsuspend!
     end
+  end
+
+  # Role helpers
+  def consumer?
+    role == "consumer"
+  end
+
+  def venue_owner?
+    role == "venue_owner"
+  end
+
+  def vendor?
+    role == "vendor"
+  end
+
+  def admin?
+    role == "admin" || admin == true
+  end
+
+  def presents_user?
+    venue_owner? || vendor?
+  end
+
+  def mobile_user?
+    consumer?
+  end
+
+  # Product context helpers
+  def uses_mobile?
+    product_context.in?([ "mobile", "both" ]) || consumer?
+  end
+
+  def uses_presents?
+    product_context.in?([ "presents", "both" ]) || presents_user?
   end
 
   private
