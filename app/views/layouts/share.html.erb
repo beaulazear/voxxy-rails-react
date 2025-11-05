@@ -7,18 +7,50 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="restaurant">
     <meta property="og:url" content="<%= request.original_url %>">
-    <meta property="og:title" content="<%= @activity&.activity_name || @name || "Check this out on Voxxy" %>">
-    <meta property="og:description" content="<%= @activity&.welcome_message || @address || "Shared from Voxxy, your social discovery app" %>">
-    <meta property="og:image" content="<%= request.base_url %>/icon.png">
+    <meta property="og:title" content="<%= @name || "Amazing Place on Voxxy" %>">
+    <meta property="og:description" content="<%= @og_description || "Discover and share amazing places with friends on Voxxy" %>">
+    <meta property="og:site_name" content="Voxxy">
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="<%= request.original_url %>">
-    <meta property="twitter:title" content="<%= @activity&.activity_name || @name || "Check this out on Voxxy" %>">
-    <meta property="twitter:description" content="<%= @activity&.welcome_message || @address || "Shared from Voxxy" %>">
-    <meta property="twitter:image" content="<%= request.base_url %>/icon.png">
+    <% if @share_image.present? %>
+      <%# Use actual place photo %>
+      <meta property="og:image" content="<%= @share_image %>">
+      <meta property="og:image:width" content="1200">
+      <meta property="og:image:height" content="630">
+      <meta property="og:image:alt" content="Photo of <%= @name %>">
+    <% else %>
+      <%# Fallback to Voxxy icon %>
+      <meta property="og:image" content="<%= request.base_url %>/voxxy-share-default.png">
+      <meta property="og:image:width" content="1200">
+      <meta property="og:image:height" content="630">
+    <% end %>
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="<%= request.original_url %>">
+    <meta name="twitter:title" content="<%= @name || "Amazing Place on Voxxy" %>">
+    <meta name="twitter:description" content="<%= @og_description || "Discover and share amazing places with friends on Voxxy" %>">
+    <% if @share_image.present? %>
+      <meta name="twitter:image" content="<%= @share_image %>">
+      <meta name="twitter:image:alt" content="Photo of <%= @name %>">
+    <% else %>
+      <meta name="twitter:image" content="<%= request.base_url %>/voxxy-share-default.png">
+    <% end %>
+
+    <!-- iMessage / Apple -->
+    <meta property="al:ios:url" content="voxxy://share/favorite/<%= @favorite_id %>">
+    <meta property="al:ios:app_name" content="Voxxy">
+    <%# Add your App Store ID when available %>
+    <%# <meta property="al:ios:app_store_id" content="YOUR_APP_STORE_ID"> %>
+
+    <!-- Additional metadata -->
+    <% if @address.present? %>
+      <meta property="og:locality" content="<%= @address.split(',').first %>">
+    <% end %>
+    <% if @price_range.present? %>
+      <meta property="og:price:amount" content="<%= @price_range %>">
+    <% end %>
 
     <%= stylesheet_link_tag 'share', media: 'all' %>
     <style>
