@@ -22,6 +22,7 @@ module VoxxyRails
     local_ip = ENV.fetch("LOCAL_IP", nil)
     allowed_origins = [
       "http://localhost:3000",
+      "http://localhost:5173", # Vite dev server
       "https://www.voxxyai.com",
       "https://hey-voxxy.onrender.com",
       "https://heyvoxxy.com",

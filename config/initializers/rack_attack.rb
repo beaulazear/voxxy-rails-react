@@ -82,6 +82,9 @@ class Rack::Attack
     # Skip blocking for localhost/development
     next false if req.ip == "::1" || req.ip == "127.0.0.1"
 
+    # Always allow share pages for social media previews
+    next false if req.path.start_with?("/share/")
+
     # Block requests with suspicious user agents
     req.user_agent&.match?(/curl|wget|scanner|bot/i) && !whitelisted_bot?(req.user_agent)
   end
@@ -153,7 +156,16 @@ class Rack::Attack
       /bingbot/i,
       /slackbot/i,
       /twitterbot/i,
-      /facebookexternalhit/i
+      /facebookexternalhit/i,
+      /whatsapp/i,
+      /imessagebot/i,
+      /apple/i,
+      /linkedinbot/i,
+      /discordbot/i,
+      /telegrambot/i,
+      /skype/i,
+      /pinterest/i,
+      /redditbot/i
     ]
 
     whitelisted.any? { |pattern| user_agent.match?(pattern) }

@@ -2,8 +2,9 @@
 class ShareController < ActionController::Base
   include ApplicationHelper
 
-  protect_from_forgery with: :exception, only: [ :favorite ]
-  protect_from_forgery with: :null_session, if: -> { request.format.json? }
+  # Share pages need to be publicly accessible for rich previews
+  # Disable CSRF protection for share links since they're GET requests
+  skip_before_action :verify_authenticity_token
 
   def favorite
     @favorite_id = params[:id]
