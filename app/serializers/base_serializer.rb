@@ -8,6 +8,8 @@ class BaseSerializer
       email: user.email,
       avatar: user.avatar,
       admin: user.admin,
+      role: user.role,  # V3.0: Critical for frontend routing
+      product_context: user.product_context,  # V3.0: Track which products user has access to
       created_at: user.created_at,
       confirmed_at: user.confirmed_at,
       profile_pic_url: user.profile_pic_url,

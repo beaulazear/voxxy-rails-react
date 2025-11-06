@@ -18,15 +18,23 @@ class ShareController < ActionController::Base
 
     # Use database values if available, otherwise fall back to URL params
     if @favorite
-      @name ||= @favorite.title || @favorite.name || @favorite.activity_name
+      @name ||= @favorite.title
       @address ||= @favorite.address
       @latitude ||= @favorite.latitude
       @longitude ||= @favorite.longitude
       @description = @favorite.description
+      @reason = @favorite.reason
       @price_range = @favorite.price_range
-      @activity_type = @favorite.activity_type
+      @website = @favorite.website
+      @hours = @favorite.hours
+
+      # Get activity type from pinned_activity if available
+      @activity_type = @favorite.pinned_activity&.activity&.activity_type
+
+      # Parse photos and reviews
       @photos = parse_photos(@favorite.photos)
-      @share_image = @photos&.first || nil
+      @reviews = parse_reviews(@favorite.reviews)
+      @share_image = @photos&.first&.dig("photo_url") || nil
     end
 
     # Build rich description for Open Graph
@@ -57,6 +65,15 @@ class ShareController < ActionController::Base
     []
   end
 
+  def parse_reviews(reviews)
+    return [] unless reviews
+    return reviews if reviews.is_a?(Array)
+    return JSON.parse(reviews) if reviews.is_a?(String)
+    []
+  rescue JSON::ParserError
+    []
+  end
+
   def build_og_description
     parts = []
 
@@ -81,9 +98,19 @@ class ShareController < ActionController::Base
       parts << "📍 #{short_address}"
     end
 
-    # Description snippet
-    if @description.present?
-      snippet = @description.length > 100 ? "#{@description[0..97]}..." : @description
+    # Average rating from reviews
+    if @reviews.present? && @reviews.any?
+      ratings = @reviews.map { |r| (r["rating"] || r[:rating]).to_f }.compact
+      if ratings.any?
+        avg_rating = (ratings.sum / ratings.size).round(1)
+        parts << "⭐ #{avg_rating}/5 (#{ratings.size} reviews)"
+      end
+    end
+
+    # Description snippet or reason
+    description_text = @description.presence || @reason.presence
+    if description_text.present?
+      snippet = description_text.length > 100 ? "#{description_text[0..97]}..." : description_text
       parts << snippet
     end
 

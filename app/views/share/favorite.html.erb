@@ -11,11 +11,26 @@
       <p class="rest-name"><%= @name %></p>
     <% end %>
 
+    <% if @price_range.present? %>
+      <div style="margin-bottom: 12px;">
+        <span class="rest-price"><%= @price_range %></span>
+      </div>
+    <% end %>
+
     <% if @address.present? %>
       <div class="info-banner">
         <div class="info-banner-icon">📍</div>
         <div class="info-banner-text">
           <%= @address %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @hours.present? %>
+      <div class="info-banner" style="margin-top: 12px;">
+        <div class="info-banner-icon">🕒</div>
+        <div class="info-banner-text">
+          <%= @hours %>
         </div>
       </div>
     <% end %>
@@ -42,41 +57,72 @@
         </a>
       <% end %>
 
+      <% if @website.present? %>
+        <a href="<%= @website %>" target="_blank" rel="noopener" class="glass-button">
+          🌐 Website
+        </a>
+      <% end %>
+
       <a id="shareFavorite" class="glass-button">
         🔗 Share
       </a>
     </div>
   </section>
 
-  <!-- Additional details if favorite exists in database -->
-  <% if @favorite %>
+  <!-- Photos section -->
+  <% if @photos.present? && @photos.any? %>
+    <div class="card">
+      <h2>📸 Photos</h2>
+      <div class="photos-grid">
+        <% @photos.take(6).each do |photo| %>
+          <% photo_url = photo["photo_url"] || photo[:photo_url] %>
+          <% if photo_url.present? %>
+            <div class="photo-item">
+              <img src="<%= photo_url %>" alt="Photo of <%= @name %>" loading="lazy">
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- About this place section -->
+  <% if @description.present? || @reason.present? %>
     <div class="card">
       <h2>💬 About this place</h2>
-      <% if @favorite.description.present? %>
-        <p class="rest-desc"><%= @favorite.description %></p>
+
+      <% if @description.present? %>
+        <p class="rest-desc"><%= @description %></p>
       <% end %>
 
-      <% if @favorite.reason.present? %>
-        <p class="rest-desc"><em>"<%= @favorite.reason %>"</em></p>
-      <% end %>
-
-      <% if @favorite.price_range.present? %>
-        <div style="margin-top: 12px;">
-          <span class="rest-price"><%= @favorite.price_range %></span>
+      <% if @reason.present? %>
+        <div class="reason-box">
+          <p class="reason-label">Why this was saved:</p>
+          <p class="rest-desc reason-text"><em>"<%= @reason %>"</em></p>
         </div>
       <% end %>
+    </div>
+  <% end %>
 
-      <% if @favorite.hours.present? %>
-        <div style="margin-top: 12px;">
-          <p class="rest-desc"><strong>Hours:</strong> <%= @favorite.hours %></p>
-        </div>
-      <% end %>
-
-      <% if @favorite.website.present? %>
-        <div class="action-buttons">
-          <a href="<%= @favorite.website %>" target="_blank" rel="noopener" class="glass-button">
-            🌐 Visit Website
-          </a>
+  <!-- Reviews section -->
+  <% if @reviews.present? && @reviews.any? %>
+    <div class="card">
+      <h2>⭐ Reviews</h2>
+      <% @reviews.take(3).each do |review| %>
+        <div class="review-item">
+          <div class="review-header">
+            <span class="review-author"><%= review["author_name"] || review[:author_name] %></span>
+            <span class="review-rating">
+              <% rating = (review["rating"] || review[:rating]).to_i %>
+              <% rating.times do %>⭐<% end %>
+            </span>
+          </div>
+          <% review_text = review["text"] || review[:text] %>
+          <% if review_text.present? %>
+            <p class="review-text">
+              <%= review_text.length > 200 ? "#{review_text[0..197]}..." : review_text %>
+            </p>
+          <% end %>
         </div>
       <% end %>
     </div>

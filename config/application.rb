@@ -24,9 +24,13 @@ module VoxxyRails
       "http://localhost:3000",
       "http://localhost:5173", # Vite dev server
       "https://www.voxxyai.com",
+      "https://voxxyai.com",
       "https://hey-voxxy.onrender.com",
       "https://heyvoxxy.com",
       "https://www.heyvoxxy.com",
+      "https://voxxypresents.com",
+      "https://www.voxxypresents.com",
+      "https://voxxy-presents-client-staging.onrender.com", # Staging frontend
       "http://192.168.1.123:8081", # mobile dev origin
       "null" # React Native often uses 'null' as origin
     ]
