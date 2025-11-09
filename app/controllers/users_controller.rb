@@ -251,7 +251,7 @@ class UsersController < ApplicationController
     params.require(:user).permit(
       :name, :email, :password, :password_confirmation, :avatar, :preferences,
       :text_notifications, :email_notifications, :push_notifications, :profile_pic,
-      :neighborhood, :city, :state, :latitude, :longitude, :favorite_food, :bar_preferences
+      :neighborhood, :city, :state, :latitude, :longitude, :favorite_food, :bar_preferences, :role
     )
   end
 

@@ -12,7 +12,8 @@ class BaseEmailService
       primary_domain = ENV.fetch("PRIMARY_DOMAIN", "voxxyai.com")
       "https://#{primary_domain}"
     else
-      "http://localhost:3000"
+      # Allow configuring frontend URL for development (Voxxy Presents runs on port 5173)
+      ENV.fetch("FRONTEND_URL", "http://localhost:5173")
     end
   end
 

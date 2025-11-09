@@ -13,7 +13,8 @@ class PasswordResetService < BaseEmailService
     subject = "🔑 Reset Your Password on Voxxy"
 
     frontend_host = app_base_url
-    reset_link = "#{frontend_host}/#/reset-password?token=#{user.reset_password_token}"
+    # Voxxy Presents uses BrowserRouter (not HashRouter), so no hash in URL
+    reset_link = "#{frontend_host}/reset-password?token=#{user.reset_password_token}"
 
     Rails.logger.info "Password Reset Link: #{reset_link}"
 
