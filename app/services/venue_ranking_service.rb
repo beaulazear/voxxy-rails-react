@@ -152,7 +152,26 @@ class VenueRankingService
       end
     end
 
-    Rails.logger.info "[VENUE FILTERING] Original: #{venues.size}, After filtering: #{filtered_venues.size}, Meal type: #{meal_type}, Keywords: #{keywords.join(', ')}"
+    Rails.logger.info "[VENUE FILTERING] Original: #{venues.size}, After non-meal filter: #{filtered_venues.size}"
+
+    # Filter out permanently closed venues (and temporarily closed)
+    filtered_venues = filtered_venues.reject do |venue|
+      venue[:business_status] == "CLOSED_PERMANENTLY" ||
+      venue[:business_status] == "CLOSED_TEMPORARILY"
+    end
+
+    Rails.logger.info "[VENUE FILTERING] After closed filter: #{filtered_venues.size}"
+
+    # Filter by meal service times (uses Google Places data)
+    if meal_type == "dinner"
+      filtered_venues = filtered_venues.select { |v| v[:serves_dinner] != false }
+    elsif meal_type == "lunch"
+      filtered_venues = filtered_venues.select { |v| v[:serves_lunch] != false }
+    elsif meal_type == "breakfast"
+      filtered_venues = filtered_venues.select { |v| v[:serves_breakfast] != false }
+    end
+
+    Rails.logger.info "[VENUE FILTERING] After meal-time filter: #{filtered_venues.size}, Meal type: #{meal_type}, Keywords: #{keywords.join(', ')}"
 
     # Score each venue
     scored_venues = filtered_venues.map do |venue|
@@ -195,10 +214,17 @@ class VenueRankingService
       score += rating_score
     end
 
-    # 2. Keyword Matching (30% weight) - Match user preferences to venue types
+    # 2. Keyword Matching - Match user preferences to venue types
+    # Dynamic weighting: If user specifies cuisine, make it more important
     if keywords.any?
       keyword_score = calculate_keyword_match_score(venue, keywords)
-      score += keyword_score
+
+      # If user has cuisine preferences, boost keyword importance
+      has_cuisine_keyword = (keywords & CUISINE_TYPE_MAPPING.keys).any?
+      keyword_weight = has_cuisine_keyword ? 40 : 30  # 40 vs 30
+
+      # Scale the score
+      score += (keyword_score / 30.0) * keyword_weight
     else
       # If no keywords, give neutral score
       score += 15
@@ -206,8 +232,8 @@ class VenueRankingService
 
     # 3. Budget Matching (15% weight) - Match price level to budget preference
     if budget_preference.present? && venue[:price_level].present?
-      price_match = budget_matches?(venue[:price_level], budget_preference)
-      score += (price_match ? 15 : 5)
+      budget_score = budget_matches?(venue[:price_level], budget_preference)
+      score += budget_score
     else
       score += 7.5  # Neutral if no budget specified
     end
@@ -347,12 +373,22 @@ class VenueRankingService
   end
 
   def self.budget_matches?(venue_price, budget_preference)
-    # Extract dollar signs count
+    return 7.5 if budget_preference.blank? || venue_price.blank?
+
     venue_level = venue_price.count("$")
     budget_level = budget_preference.count("$")
 
-    # Allow +/- 1 level flexibility
-    (venue_level - budget_level).abs <= 1
+    diff = (venue_level - budget_level).abs
+
+    # Tiered scoring:
+    # Exact match: 15 points
+    # 1 level off: 8 points (acceptable)
+    # 2+ levels off: 0 points (too different)
+    case diff
+    when 0 then 15
+    when 1 then 8
+    else 0
+    end
   end
 
   def self.check_dietary_compatibility(venue, dietary_requirements)
