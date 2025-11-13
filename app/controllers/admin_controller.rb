@@ -167,6 +167,7 @@ class AdminController < ApplicationController
         confirmed_at: user.confirmed_at,
         created_at: user.created_at,
         admin: user.admin,
+        role: user.role,
         platform: user.platform,
         push_enabled: user.push_notifications && user.push_token.present?,
         notification_preferences: {

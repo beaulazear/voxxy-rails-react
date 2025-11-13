@@ -3,16 +3,16 @@ class VenueRankingService
   # This ensures frontend keywords align with backend matching
   CUISINE_TYPE_MAPPING = {
     # Asian Cuisines
-    "chinese" => [ "chinese_restaurant" ],
+    "chinese" => [ "chinese_restaurant", "asian_restaurant" ],
     "japanese" => [ "japanese_restaurant", "sushi_restaurant", "ramen_restaurant" ],
     "sushi" => [ "sushi_restaurant", "japanese_restaurant" ],
     "ramen" => [ "ramen_restaurant", "japanese_restaurant" ],
-    "thai" => [ "thai_restaurant" ],
-    "indian" => [ "indian_restaurant" ],
-    "korean" => [ "korean_restaurant" ],
-    "vietnamese" => [ "vietnamese_restaurant" ],
+    "thai" => [ "thai_restaurant", "asian_restaurant" ],
+    "indian" => [ "indian_restaurant", "asian_restaurant" ],
+    "korean" => [ "korean_restaurant", "asian_restaurant" ],
+    "vietnamese" => [ "vietnamese_restaurant", "asian_restaurant" ],
     "asian" => [ "asian_restaurant", "chinese_restaurant", "japanese_restaurant", "thai_restaurant" ],
-    "indonesian" => [ "indonesian_restaurant" ],
+    "indonesian" => [ "indonesian_restaurant", "asian_restaurant" ],
 
     # European Cuisines
     "italian" => [ "italian_restaurant", "pizza_restaurant" ],
@@ -94,6 +94,29 @@ class VenueRankingService
     "lounge" => [ "lounge", "cocktail lounge" ]
   }.freeze
 
+  # Venue types to EXCLUDE from restaurant recommendations (unless explicitly requested)
+  # These are not appropriate for meal recommendations (breakfast/lunch/dinner)
+  NON_MEAL_VENUE_TYPES = [
+    "coffee_shop",
+    "cafe",
+    "ice_cream_shop",
+    "bakery",
+    "dessert_shop",
+    "dessert_restaurant",
+    "convenience_store",
+    "gas_station",
+    "liquor_store",
+    "supermarket",
+    "grocery_store"
+  ].freeze
+
+  # Meal type keywords to detect what meal the user wants
+  MEAL_TYPE_KEYWORDS = {
+    "breakfast" => ["breakfast", "morning", "brunch"],
+    "lunch" => ["lunch", "midday", "afternoon"],
+    "dinner" => ["dinner", "evening", "supper", "night"]
+  }.freeze
+
   # Rank venues based on user preferences, ratings, and keyword matching
   # Returns top N venues sorted by relevance score
   def self.rank_venues(venues, user_preferences, top_n: 10)
@@ -103,9 +126,36 @@ class VenueRankingService
     keywords = extract_keywords(user_preferences)
     budget_preference = extract_budget_preference(user_preferences)
     dietary_requirements = extract_dietary_requirements(user_preferences)
+    meal_type = extract_meal_type(user_preferences)
+
+    # Filter out inappropriate venue types for meal recommendations
+    # Allow dessert/coffee venues ONLY if user explicitly requested them
+    explicitly_requested_types = []
+    explicitly_requested_types += ["coffee_shop", "cafe"] if keywords.include?("coffee") || keywords.include?("cafe")
+    explicitly_requested_types += ["ice_cream_shop", "dessert_restaurant", "bakery"] if keywords.include?("dessert") || keywords.include?("ice cream") || keywords.include?("bakery")
+
+    filtered_venues = venues.reject do |venue|
+      venue_types = venue[:types] || []
+
+      # Check if venue is a non-meal type (coffee shop, ice cream, etc.)
+      has_non_meal_type = (venue_types & NON_MEAL_VENUE_TYPES).any?
+
+      if has_non_meal_type
+        # Allow it if user explicitly requested this type (e.g., "dessert" or "coffee")
+        explicitly_allowed = (venue_types & explicitly_requested_types).any?
+
+        # Exclude if NOT explicitly requested
+        !explicitly_allowed
+      else
+        # Keep all proper restaurants
+        false
+      end
+    end
+
+    Rails.logger.info "[VENUE FILTERING] Original: #{venues.size}, After filtering: #{filtered_venues.size}, Meal type: #{meal_type}, Keywords: #{keywords.join(', ')}"
 
     # Score each venue
-    scored_venues = venues.map do |venue|
+    scored_venues = filtered_venues.map do |venue|
       score = calculate_venue_score(venue, keywords, budget_preference, dietary_requirements)
       { venue: venue, score: score }
     end
@@ -281,6 +331,19 @@ class VenueRankingService
     requirements << "shellfish-free" if text.match?(/no.?shellfish|shellfish allerg/)
 
     requirements.uniq
+  end
+
+  def self.extract_meal_type(preferences)
+    return nil if preferences.blank?
+
+    text = preferences.to_s.downcase
+
+    # Check for each meal type
+    MEAL_TYPE_KEYWORDS.each do |meal_type, keywords|
+      return meal_type if keywords.any? { |keyword| text.include?(keyword) }
+    end
+
+    nil  # No specific meal type mentioned
   end
 
   def self.budget_matches?(venue_price, budget_preference)
