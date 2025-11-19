@@ -1,6 +1,7 @@
 class Event < ApplicationRecord
   belongs_to :organization
   has_many :registrations, dependent: :destroy
+  has_many :vendor_applications, dependent: :destroy
   has_one :budget, as: :budgetable, dependent: :destroy
 
   validates :title, presence: true
@@ -21,6 +22,14 @@ class Event < ApplicationRecord
   def spots_remaining
     return nil unless capacity.present?
     capacity - registered_count
+  end
+
+  def active_vendor_application
+    vendor_applications.active.first
+  end
+
+  def has_vendor_application?
+    vendor_applications.active.exists?
   end
 
   private

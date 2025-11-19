@@ -1,16 +1,24 @@
 class Registration < ApplicationRecord
   belongs_to :event, counter_cache: :registered_count
   belongs_to :user, optional: true
+  belongs_to :vendor_application, optional: true, counter_cache: :submissions_count
 
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :status, inclusion: { in: %w[pending confirmed cancelled] }, allow_blank: true
+  validates :status, inclusion: { in: %w[pending confirmed cancelled approved rejected waitlist] }, allow_blank: true
   validates :email, uniqueness: { scope: :event_id, message: "already registered for this event" }
+  validates :business_name, presence: true, if: :vendor_registration?
+  validates :vendor_category, presence: true, if: :vendor_registration?
 
   before_create :generate_ticket_code
   after_create :send_confirmation_email
 
   scope :confirmed, -> { where(status: "confirmed") }
   scope :pending, -> { where(status: "pending") }
+  scope :approved, -> { where(status: "approved") }
+  scope :rejected, -> { where(status: "rejected") }
+  scope :waitlist, -> { where(status: "waitlist") }
+  scope :vendor_registrations, -> { where.not(vendor_application_id: nil) }
+  scope :by_category, ->(category) { where(vendor_category: category) }
 
   def confirm!
     update(status: "confirmed")
@@ -22,6 +30,22 @@ class Registration < ApplicationRecord
 
   def check_in!
     update(checked_in: true, checked_in_at: Time.current)
+  end
+
+  def approve!
+    update(status: "approved")
+  end
+
+  def reject!
+    update(status: "rejected")
+  end
+
+  def move_to_waitlist!
+    update(status: "waitlist")
+  end
+
+  def vendor_registration?
+    vendor_application_id.present?
   end
 
   private

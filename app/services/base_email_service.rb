@@ -17,6 +17,38 @@ class BaseEmailService
     end
   end
 
+  # Get the correct frontend URL based on user role and environment
+  def self.user_frontend_url(user)
+    # Check if we're in production environment (could be staging or prod deployment)
+    if Rails.env.production?
+      # Use PRIMARY_DOMAIN to determine if staging or production
+      primary_domain = ENV.fetch("PRIMARY_DOMAIN", "voxxyai.com")
+
+      if primary_domain.include?("voxxyai.com")
+        # Staging environment (voxxyai.com API)
+        if user.presents_user?
+          "https://voxxy-presents-client-staging.onrender.com"
+        else
+          "https://voxxyai.com"
+        end
+      else
+        # Production environment (heyvoxxy.com API)
+        if user.presents_user?
+          "https://www.voxxypresents.com"
+        else
+          "https://heyvoxxy.com"
+        end
+      end
+    else
+      # Development: Allow override or use localhost
+      if user.presents_user?
+        ENV.fetch("PRESENTS_FRONTEND_URL", "http://localhost:5173")
+      else
+        ENV.fetch("MOBILE_FRONTEND_URL", "http://localhost:3000")
+      end
+    end
+  end
+
   # Check if user can receive emails
   def self.can_send_email_to_user?(user)
     return true unless user.respond_to?(:email_notifications) # If no preference field, allow

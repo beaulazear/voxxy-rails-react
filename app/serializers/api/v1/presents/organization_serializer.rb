@@ -11,6 +11,7 @@ module Api
         def as_json
           {
             id: @organization.id,
+            user_id: @organization.user_id,
             name: @organization.name,
             slug: @organization.slug,
             description: @organization.description,

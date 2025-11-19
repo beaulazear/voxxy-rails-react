@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_04_140634) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_16_163713) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -281,11 +281,17 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_04_140634) do
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "vendor_application_id"
+    t.string "business_name"
+    t.string "vendor_category"
     t.index ["email"], name: "index_registrations_on_email"
     t.index ["event_id"], name: "index_registrations_on_event_id"
     t.index ["status"], name: "index_registrations_on_status"
     t.index ["ticket_code"], name: "index_registrations_on_ticket_code", unique: true
     t.index ["user_id"], name: "index_registrations_on_user_id"
+    t.index ["vendor_application_id", "status"], name: "index_registrations_on_vendor_application_id_and_status"
+    t.index ["vendor_application_id"], name: "index_registrations_on_vendor_application_id"
+    t.index ["vendor_category"], name: "index_registrations_on_vendor_category"
   end
 
   create_table "reports", force: :cascade do |t|
@@ -321,6 +327,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_04_140634) do
     t.bigint "user_id"
     t.jsonb "availability", default: {}, null: false
     t.string "email"
+    t.text "dietary_requirements"
     t.index ["activity_id", "email"], name: "index_responses_on_activity_and_email", unique: true, where: "(email IS NOT NULL)"
     t.index ["activity_id"], name: "index_responses_on_activity_id"
     t.check_constraint "user_id IS NOT NULL OR email IS NOT NULL", name: "responses_user_or_email_present"
@@ -427,6 +434,22 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_04_140634) do
     t.index ["terms_accepted_at"], name: "index_users_on_terms_accepted_at"
   end
 
+  create_table "vendor_applications", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.string "status", default: "active", null: false
+    t.jsonb "categories", default: []
+    t.integer "submissions_count", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "shareable_code", null: false
+    t.index ["created_at"], name: "index_vendor_applications_on_created_at"
+    t.index ["event_id"], name: "index_vendor_applications_on_event_id"
+    t.index ["shareable_code"], name: "index_vendor_applications_on_shareable_code", unique: true
+    t.index ["status"], name: "index_vendor_applications_on_status"
+  end
+
   create_table "vendors", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "name", null: false
@@ -501,6 +524,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_04_140634) do
   add_foreign_key "pinned_activities", "activities"
   add_foreign_key "registrations", "events"
   add_foreign_key "registrations", "users"
+  add_foreign_key "registrations", "vendor_applications"
   add_foreign_key "reports", "activities"
   add_foreign_key "reports", "users", column: "reporter_id"
   add_foreign_key "reports", "users", column: "reviewed_by_id"
@@ -511,6 +535,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_04_140634) do
   add_foreign_key "time_slots", "activities"
   add_foreign_key "user_activities", "pinned_activities"
   add_foreign_key "user_activities", "users"
+  add_foreign_key "vendor_applications", "events"
   add_foreign_key "vendors", "users"
   add_foreign_key "votes", "pinned_activities"
   add_foreign_key "votes", "users"

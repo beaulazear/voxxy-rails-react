@@ -274,6 +274,7 @@ Rails.application.routes.draw do
         resources :events do
           resources :registrations, only: [ :index, :create ]
           resources :budgets, only: [ :index, :create ]
+          resources :vendor_applications, only: [ :index, :create ]
         end
 
         # Vendors (marketplace)
@@ -283,13 +284,27 @@ Rails.application.routes.draw do
           end
         end
 
+        # Vendor Applications (vendor application forms)
+        resources :vendor_applications, only: [ :show, :update, :destroy ] do
+          collection do
+            get 'lookup/:code', action: :lookup_by_code, as: :lookup
+          end
+          member do
+            get :submissions
+          end
+        end
+
         # Budgets
         resources :budgets do
           resources :budget_line_items
         end
 
-        # Registrations (event RSVPs)
-        resources :registrations, only: [ :show, :update ]
+        # Registrations (event RSVPs and vendor applications)
+        resources :registrations, only: [ :show, :update ] do
+          collection do
+            get 'track/:ticket_code', action: :track, as: :track
+          end
+        end
       end
 
       # SHARED ROUTES

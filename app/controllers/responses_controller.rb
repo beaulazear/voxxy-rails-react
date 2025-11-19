@@ -24,6 +24,7 @@ class ResponsesController < ApplicationController
         user_id: current_user.id,
         email: nil,
         notes: response_params[:notes],
+        dietary_requirements: response_params[:dietary_requirements],
         activity_id: response_params[:activity_id],
         availability: response_params[:availability] || {}
       )
@@ -82,6 +83,6 @@ class ResponsesController < ApplicationController
   def response_params
     params
       .require(:response)
-      .permit(:notes, :activity_id, availability: {})
+      .permit(:notes, :dietary_requirements, :activity_id, availability: {})
   end
 end

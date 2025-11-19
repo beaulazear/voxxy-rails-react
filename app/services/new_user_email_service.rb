@@ -3,7 +3,22 @@ class NewUserEmailService < BaseEmailService
     return unless can_send_email_to_user?(user)
     Rails.logger.info "Sending welcome email to: #{user.email}"
 
-    subject = "You're in. Let's Voxxy."
+    # Determine product-specific content based on user role
+    if user.presents_user?
+      # Voxxy Presents welcome (venue owners & vendors)
+      product_name = "Voxxy Presents"
+      subject = "Welcome to Voxxy Presents"
+      description = if user.vendor?
+        "Voxxy Presents connects you with event opportunities and helps you manage your vendor applications — making it easier to grow your business and reach new clients."
+      else
+        "Voxxy Presents helps you plan and manage events seamlessly — from venue selection to guest management, all in one place."
+      end
+    else
+      # Voxxy Mobile welcome (consumers)
+      product_name = "Voxxy"
+      subject = "You're in. Let's Voxxy."
+      description = "Voxxy helps you find the perfect spot for food and drinks with friends — no more endless group chats trying to pick a place."
+    end
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
@@ -11,11 +26,11 @@ class NewUserEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Welcome to Voxxy! We're excited to have you here. 🎉
+        Welcome to #{product_name}! We're excited to have you here. 🎉
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Voxxy helps you find the perfect spot for food and drinks with friends — no more endless group chats trying to pick a place.
+        #{description}
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
@@ -29,7 +44,7 @@ class NewUserEmailService < BaseEmailService
     HTML
 
     email_html = build_simple_email_template(
-      "Welcome to Voxxy!",
+      "Welcome to #{product_name}!",
       content
     )
 

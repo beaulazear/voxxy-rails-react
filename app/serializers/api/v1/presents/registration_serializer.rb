@@ -19,6 +19,9 @@ module Api
             checked_in: @registration.checked_in,
             checked_in_at: @registration.checked_in_at,
             subscribed: @registration.subscribed,
+            business_name: @registration.business_name,
+            vendor_category: @registration.vendor_category,
+            vendor_application_id: @registration.vendor_application_id,
             created_at: @registration.created_at,
             updated_at: @registration.updated_at
           }.tap do |json|

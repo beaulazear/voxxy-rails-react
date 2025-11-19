@@ -8,15 +8,19 @@ class PasswordResetService < BaseEmailService
     Rails.logger.info "Attempting to send password reset email with API key: #{ENV.fetch('VoxxyKeyAPI')&.slice(0, 4)}..."
     Rails.logger.info "To: #{user.email}, From: team@voxxyai.com"
 
+    # Determine product name based on user role
+    product_name = user.presents_user? ? "Voxxy Presents" : "Voxxy"
+
     from = SendGrid::Email.new(email: "team@voxxyai.com", name: "Voxxy Team")
     to = SendGrid::Email.new(email: user.email)
-    subject = "🔑 Reset Your Password on Voxxy"
+    subject = "🔑 Reset Your Password on #{product_name}"
 
-    frontend_host = app_base_url
+    # Use role-aware frontend URL to send users to the correct app
+    frontend_host = user_frontend_url(user)
     # Voxxy Presents uses BrowserRouter (not HashRouter), so no hash in URL
     reset_link = "#{frontend_host}/reset-password?token=#{user.reset_password_token}"
 
-    Rails.logger.info "Password Reset Link: #{reset_link}"
+    Rails.logger.info "Password Reset Link: #{reset_link} (user role: #{user.role})"
 
     content = Content.new(
       type: "text/html",
@@ -33,7 +37,7 @@ class PasswordResetService < BaseEmailService
               <h1 style="color: #8e44ad; margin-bottom: 10px;">Reset Your Password</h1>
               <p style="color: #333; font-size: 16px;">Hey #{user.name},</p>
               <p style="color: #333; font-size: 16px;">
-                We received a request to reset your password. Click the button below to set a new one:
+                We received a request to reset your #{product_name} password. Click the button below to set a new one:
               </p>
 
               <a href="#{reset_link}"
@@ -43,7 +47,7 @@ class PasswordResetService < BaseEmailService
               </a>
 
               <p style="color: #666; font-size: 14px; margin-top: 20px;">
-                If you didn’t request this, no worries—you can safely ignore this email. 💜
+                If you didn't request this, no worries—you can safely ignore this email. 💜
               </p>
             </div>
 

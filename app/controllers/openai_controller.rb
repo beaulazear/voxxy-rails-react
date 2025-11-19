@@ -37,21 +37,28 @@ class OpenaiController < ApplicationController
 
     # Build complete input by combining explicit responses + profile preferences
     # Only include restaurant-specific preferences (favorite_food)
-    combined_responses = build_combined_responses(activity_id, user_responses, "restaurant")
+    combined_data = build_combined_responses(activity_id, user_responses, "restaurant")
 
     # If no responses at all (explicit or from profiles), return error
-    if combined_responses.blank?
+    if combined_data[:notes].blank?
       render json: { error: "No preferences available. Please submit responses or add profile preferences." }, status: :unprocessable_entity and return
     end
 
     user_id  = current_user.id
     cache_key = "user_#{user_id}_" \
                 "activity_#{activity_id}_" \
-                "#{generate_cache_key(combined_responses, activity_location, date_notes, 'restaurant')}"
+                "#{generate_cache_key(combined_data[:notes], activity_location, date_notes, 'restaurant')}_" \
+                "#{combined_data[:dietary_requirements]}"
 
     recommendations = Rails.cache.fetch(cache_key, expires_in: CACHE_DURATION) do
       # Use hybrid approach by default
-      fetch_hybrid_restaurant_recommendations(combined_responses, activity_location, date_notes, radius)
+      fetch_hybrid_restaurant_recommendations(
+        combined_data[:notes],
+        activity_location,
+        date_notes,
+        radius,
+        dietary_requirements: combined_data[:dietary_requirements]
+      )
     end
 
     if recommendations.nil?
@@ -80,21 +87,28 @@ class OpenaiController < ApplicationController
 
     # Build complete input by combining explicit responses + profile preferences
     # Only include bar-specific preferences (bar_preferences)
-    combined_responses = build_combined_responses(activity_id, user_responses, "bar")
+    combined_data = build_combined_responses(activity_id, user_responses, "bar")
 
     # If no responses at all (explicit or from profiles), return error
-    if combined_responses.blank?
+    if combined_data[:notes].blank?
       render json: { error: "No preferences available. Please submit responses or add profile preferences." }, status: :unprocessable_entity and return
     end
 
     user_id  = current_user.id
     cache_key = "user_#{user_id}_" \
                 "activity_#{activity_id}_" \
-                "#{generate_cache_key(combined_responses, activity_location, date_notes, 'bar')}"
+                "#{generate_cache_key(combined_data[:notes], activity_location, date_notes, 'bar')}_" \
+                "#{combined_data[:dietary_requirements]}"
 
     recommendations = Rails.cache.fetch(cache_key, expires_in: CACHE_DURATION) do
       # Use hybrid approach by default
-      fetch_hybrid_bar_recommendations(combined_responses, activity_location, date_notes, radius)
+      fetch_hybrid_bar_recommendations(
+        combined_data[:notes],
+        activity_location,
+        date_notes,
+        radius,
+        dietary_requirements: combined_data[:dietary_requirements]
+      )
     end
 
     if recommendations.nil?
@@ -112,20 +126,20 @@ class OpenaiController < ApplicationController
 
     # Build complete input by combining explicit responses + profile preferences
     # Only include general preferences (no food or bar preferences)
-    combined_responses = build_combined_responses(activity_id, user_responses, "game")
+    combined_data = build_combined_responses(activity_id, user_responses, "game")
 
     # If no responses at all (explicit or from profiles), return error
-    if combined_responses.blank?
+    if combined_data[:notes].blank?
       render json: { error: "No preferences available. Please submit responses or add profile preferences." }, status: :unprocessable_entity and return
     end
 
     user_id  = current_user.id
     cache_key = "user_#{user_id}_" \
                 "activity_#{activity_id}_" \
-                "#{generate_cache_key(combined_responses, activity_location, date_notes, 'game')}"
+                "#{generate_cache_key(combined_data[:notes], activity_location, date_notes, 'game')}"
 
     recommendations = Rails.cache.fetch(cache_key, expires_in: CACHE_DURATION) do
-      fetch_game_recommendations_from_openai(combined_responses, activity_location, date_notes)
+      fetch_game_recommendations_from_openai(combined_data[:notes], activity_location, date_notes)
     end
 
     if recommendations.present?
@@ -251,13 +265,16 @@ class OpenaiController < ApplicationController
   private
 
   def build_combined_responses(activity_id, explicit_responses, venue_type = nil)
-    return explicit_responses if activity_id.blank?
+    # Return hash with notes and dietary_requirements
+    if activity_id.blank?
+      return { notes: explicit_responses, dietary_requirements: nil }
+    end
 
     begin
       activity = Activity.find(activity_id)
     rescue ActiveRecord::RecordNotFound
       # If activity not found, just use explicit responses
-      return explicit_responses
+      return { notes: explicit_responses, dietary_requirements: nil }
     end
 
     # Get all participants (host + accepted participants)
@@ -265,45 +282,51 @@ class OpenaiController < ApplicationController
 
     # Build complete input
     all_inputs = []
+    all_dietary_requirements = []
 
-    # Add explicit responses if present
-    all_inputs << explicit_responses if explicit_responses.present?
+    # For SOLO activities with existing activity_id, prioritize database response over explicit_responses
+    # This ensures we capture dietary_requirements that are saved in the DB
+    if activity.is_solo && explicit_responses.present?
+      db_response = activity.responses.find_by(user_id: activity.user_id)
 
-    # If explicit responses were provided, we already have the latest data
-    # So we don't need to check the database for those users
-    if explicit_responses.present?
-      # For users without explicit responses in this request, check DB responses and profile preferences
-      all_participants.each do |participant|
-        # For solo activities, if explicit response was provided, skip DB lookup
-        next if activity.is_solo && explicit_responses.present?
-
-        # Check if they have a response in the database
-        db_response = activity.responses.find_by(user_id: participant.id)
-        if db_response&.notes.present?
-          all_inputs << db_response.notes
-        else
-          # No DB response, check profile preferences (filtered by venue type)
-          profile_input = build_profile_input(participant, venue_type)
-          all_inputs << profile_input if profile_input.present?
-        end
+      if db_response
+        # Use database response (has both notes AND dietary_requirements)
+        all_inputs << db_response.notes if db_response.notes.present?
+        all_dietary_requirements << db_response.dietary_requirements if db_response.dietary_requirements.present?
+      else
+        # Fallback to explicit_responses if no DB response exists (guest mode or first request)
+        all_inputs << explicit_responses if explicit_responses.present?
       end
     else
-      # No explicit responses provided, use DB responses and fall back to profiles
+      # For group activities or when no explicit_responses, check all participants
+      all_inputs << explicit_responses if explicit_responses.present?
+
       all_participants.each do |participant|
+        # Check if they have a response in the database
         db_response = activity.responses.find_by(user_id: participant.id)
-        if db_response&.notes.present?
-          all_inputs << db_response.notes
+        if db_response
+          all_inputs << db_response.notes if db_response.notes.present?
+          all_dietary_requirements << db_response.dietary_requirements if db_response.dietary_requirements.present?
         else
           # No DB response, check profile preferences (filtered by venue type)
           profile_input = build_profile_input(participant, venue_type)
           all_inputs << profile_input if profile_input.present?
+
+          # Extract ONLY dietary requirements from user profile preferences
+          # This prevents general preferences like "I love spicy food" from being treated as dietary requirements
+          if participant.preferences.present?
+            dietary_from_profile = VenueRankingService.extract_dietary_requirements(participant.preferences)
+            all_dietary_requirements << dietary_from_profile.join(", ") if dietary_from_profile.any?
+          end
         end
       end
     end
 
-    # Return combined input
-    return nil if all_inputs.empty?
-    all_inputs.join("\n\n")
+    # Return combined input as hash
+    {
+      notes: all_inputs.empty? ? nil : all_inputs.join("\n\n"),
+      dietary_requirements: all_dietary_requirements.empty? ? nil : all_dietary_requirements.join(", ")
+    }
   end
 
   def build_profile_input(user, venue_type = nil)
@@ -453,7 +476,7 @@ class OpenaiController < ApplicationController
     Digest::SHA256.hexdigest(hash_input)
   end
 
-  def fetch_hybrid_restaurant_recommendations(responses, activity_location, date_notes, radius)
+  def fetch_hybrid_restaurant_recommendations(responses, activity_location, date_notes, radius, dietary_requirements: nil)
     # Determine smart radius based on location type
     smart_radius = determine_smart_radius(activity_location, radius)
 
@@ -547,9 +570,15 @@ class OpenaiController < ApplicationController
 
     # Step 3: Use local ranking service to personalize and rank venues
     Rails.logger.info "[RECOMMENDATIONS] Starting local ranking..."
+    Rails.logger.info "[RECOMMENDATIONS] Dietary Requirements: #{dietary_requirements || 'None'}"
     ranking_start = Time.current
 
-    ranked_recommendations = VenueRankingService.rank_venues(detailed_venues, responses, top_n: 10)
+    ranked_recommendations = VenueRankingService.rank_venues(
+      detailed_venues,
+      responses,
+      dietary_requirements_string: dietary_requirements,
+      top_n: 10
+    )
 
     ranking_elapsed = (Time.current - ranking_start).round(2)
     Rails.logger.info "[RECOMMENDATIONS] Local ranking completed in #{ranking_elapsed}s"
@@ -560,7 +589,7 @@ class OpenaiController < ApplicationController
     ranked_recommendations
   end
 
-  def fetch_hybrid_bar_recommendations(responses, activity_location, date_notes, radius)
+  def fetch_hybrid_bar_recommendations(responses, activity_location, date_notes, radius, dietary_requirements: nil)
     # Determine smart radius based on location type
     smart_radius = determine_smart_radius(activity_location, radius)
 
@@ -654,9 +683,15 @@ class OpenaiController < ApplicationController
 
     # Step 3: Use local ranking service to personalize and rank venues
     Rails.logger.info "[RECOMMENDATIONS] Starting local ranking..."
+    Rails.logger.info "[RECOMMENDATIONS] Dietary Requirements: #{dietary_requirements || 'None'}"
     ranking_start = Time.current
 
-    ranked_recommendations = VenueRankingService.rank_venues(detailed_venues, responses, top_n: 10)
+    ranked_recommendations = VenueRankingService.rank_venues(
+      detailed_venues,
+      responses,
+      dietary_requirements_string: dietary_requirements,
+      top_n: 10
+    )
 
     ranking_elapsed = (Time.current - ranking_start).round(2)
     Rails.logger.info "[RECOMMENDATIONS] Local ranking completed in #{ranking_elapsed}s"

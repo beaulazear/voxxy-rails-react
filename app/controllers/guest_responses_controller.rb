@@ -38,6 +38,7 @@ class GuestResponsesController < ApplicationController
     if existing_response
       existing_response.update!(
         notes: guest_response_params[:notes],
+        dietary_requirements: guest_response_params[:dietary_requirements],
         availability: guest_response_params[:availability] || {},
         user_id: existing_user&.id
       )
@@ -48,6 +49,7 @@ class GuestResponsesController < ApplicationController
       @response.email = @participant.invited_email
       @response.user_id = existing_user&.id
       @response.notes = guest_response_params[:notes]
+      @response.dietary_requirements = guest_response_params[:dietary_requirements]
       @response.availability = guest_response_params[:availability] || {}
       @response.save!
     end
@@ -166,6 +168,6 @@ class GuestResponsesController < ApplicationController
   end
 
   def guest_response_params
-    params.require(:response).permit(:notes, availability: {})
+    params.require(:response).permit(:notes, :dietary_requirements, availability: {})
   end
 end

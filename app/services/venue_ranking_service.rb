@@ -112,27 +112,44 @@ class VenueRankingService
 
   # Meal type keywords to detect what meal the user wants
   MEAL_TYPE_KEYWORDS = {
-    "breakfast" => ["breakfast", "morning", "brunch"],
-    "lunch" => ["lunch", "midday", "afternoon"],
-    "dinner" => ["dinner", "evening", "supper", "night"]
+    "breakfast" => [ "breakfast", "morning", "brunch" ],
+    "lunch" => [ "lunch", "midday", "afternoon" ],
+    "dinner" => [ "dinner", "evening", "supper", "night" ]
   }.freeze
 
   # Rank venues based on user preferences, ratings, and keyword matching
   # Returns top N venues sorted by relevance score
-  def self.rank_venues(venues, user_preferences, top_n: 10)
+  #
+  # @param venues [Array] Array of venue hashes from Google Places
+  # @param user_preferences [String] User's preference notes (cuisines, atmospheres, budget, etc.)
+  # @param dietary_requirements_string [String, nil] HARD dietary requirements (vegetarian, vegan, etc.) - separate from preferences
+  # @param top_n [Integer] Number of top venues to return
+  def self.rank_venues(venues, user_preferences, dietary_requirements_string: nil, top_n: 10)
     return [] if venues.empty?
 
     # Extract keywords from user preferences
     keywords = extract_keywords(user_preferences)
     budget_preference = extract_budget_preference(user_preferences)
-    dietary_requirements = extract_dietary_requirements(user_preferences)
+
+    # PRIORITY 1: Use explicit dietary_requirements field if provided (from frontend)
+    # PRIORITY 2: Fall back to extracting from user_preferences (legacy/guest mode)
+    dietary_requirements = if dietary_requirements_string.present?
+      extract_dietary_requirements(dietary_requirements_string)
+    else
+      extract_dietary_requirements(user_preferences)
+    end
+
+    # DEBUG: Log dietary requirements
+    Rails.logger.info "[DIETARY FILTER] Dietary requirements string: #{dietary_requirements_string || 'None'}"
+    Rails.logger.info "[DIETARY FILTER] Extracted requirements: #{dietary_requirements.join(', ')}" if dietary_requirements.any?
+
     meal_type = extract_meal_type(user_preferences)
 
     # Filter out inappropriate venue types for meal recommendations
     # Allow dessert/coffee venues ONLY if user explicitly requested them
     explicitly_requested_types = []
-    explicitly_requested_types += ["coffee_shop", "cafe"] if keywords.include?("coffee") || keywords.include?("cafe")
-    explicitly_requested_types += ["ice_cream_shop", "dessert_restaurant", "bakery"] if keywords.include?("dessert") || keywords.include?("ice cream") || keywords.include?("bakery")
+    explicitly_requested_types += [ "coffee_shop", "cafe" ] if keywords.include?("coffee") || keywords.include?("cafe")
+    explicitly_requested_types += [ "ice_cream_shop", "dessert_restaurant", "bakery" ] if keywords.include?("dessert") || keywords.include?("ice cream") || keywords.include?("bakery")
 
     filtered_venues = venues.reject do |venue|
       venue_types = venue[:types] || []
@@ -172,6 +189,30 @@ class VenueRankingService
     end
 
     Rails.logger.info "[VENUE FILTERING] After meal-time filter: #{filtered_venues.size}, Meal type: #{meal_type}, Keywords: #{keywords.join(', ')}"
+
+    # HARD FILTER: Exclude meat-focused venues for vegetarian/vegan requirements
+    if dietary_requirements.any? { |r| r == "vegetarian" || r == "vegan" }
+      filtered_venues = filtered_venues.reject do |venue|
+        venue_name = venue[:name].downcase
+        venue_types = venue[:types]&.map(&:downcase) || []
+
+        # Comprehensive meat keyword list
+        # Exclude if name contains meat keywords AND doesn't contain veggie alternatives
+        is_meat_focused = (venue_name.match?(/chicken|brisket|steak|bbq|butcher|burger|meat|wings|ribs|pork|bacon|ham|sausage|lamb|duck|turkey|carnivore|charcuterie|steakhouse/) &&
+                          !venue_name.match?(/veggie|vegan|plant|impossible|beyond/))
+
+        # Exclude specific meat-focused venue types
+        has_meat_type = (venue_types & ["steakhouse", "barbecue_restaurant", "butcher_shop"]).any?
+
+        if is_meat_focused || has_meat_type
+          Rails.logger.info "[DIETARY FILTER] Excluding meat venue: #{venue[:name]} (types: #{venue_types.join(', ')})"
+        end
+
+        is_meat_focused || has_meat_type
+      end
+
+      Rails.logger.info "[DIETARY FILTER] After vegetarian/vegan filter: #{filtered_venues.size} venues"
+    end
 
     # Score each venue
     scored_venues = filtered_venues.map do |venue|
@@ -396,6 +437,8 @@ class VenueRankingService
     venue_types = venue[:types]&.map(&:downcase) || []
     venue_name = venue[:name].downcase
 
+    Rails.logger.info "[DIETARY CHECK] Checking #{venue[:name]} for: #{dietary_requirements.join(', ')}"
+
     compatible_count = 0
     dietary_requirements.each do |requirement|
       case requirement
@@ -405,16 +448,33 @@ class VenueRankingService
            venue_types.include?("vegan_restaurant") ||
            venue_name.include?("vegan")
           compatible_count += 1
+          Rails.logger.info "[DIETARY CHECK]   ✓ Vegan: PASS"
+        else
+          Rails.logger.info "[DIETARY CHECK]   ✗ Vegan: FAIL (serves_vegan=#{venue[:serves_vegan_food]}, types=#{venue_types.join(', ')})"
         end
       when "vegetarian"
-        # Vegetarians can eat at vegan restaurants too
-        if venue[:serves_vegetarian_food] == true ||
-           venue[:serves_vegan_food] == true ||
-           venue_types.include?("vegetarian_restaurant") ||
-           venue_types.include?("vegan_restaurant") ||
-           venue_name.include?("vegetarian") ||
-           venue_name.include?("vegan")
+        # Check Google Places field first (most reliable)
+        if venue[:serves_vegetarian_food] == true || venue[:serves_vegan_food] == true
           compatible_count += 1
+          Rails.logger.info "[DIETARY CHECK]   ✓ Vegetarian: PASS (Google Places field)"
+        # Check venue types
+        elsif venue_types.include?("vegetarian_restaurant") || venue_types.include?("vegan_restaurant")
+          compatible_count += 1
+          Rails.logger.info "[DIETARY CHECK]   ✓ Vegetarian: PASS (venue type)"
+        # Check venue name
+        elsif venue_name.match?(/vegetarian|vegan|plant.?based|veggie/)
+          compatible_count += 1
+          Rails.logger.info "[DIETARY CHECK]   ✓ Vegetarian: PASS (name match)"
+        # If venue has meat-related keywords, fail (using same comprehensive list as hard filter)
+        elsif venue_name.match?(/chicken|brisket|steak|bbq|burger|wings|ribs|pork|bacon|ham|sausage|lamb|duck|turkey|carnivore|charcuterie|steakhouse/) &&
+              !venue_name.match?(/veggie|impossible|beyond/)
+          # Explicitly NOT vegetarian
+          compatible_count += 0
+          Rails.logger.info "[DIETARY CHECK]   ✗ Vegetarian: FAIL (meat-focused name)"
+        else
+          # Unknown - give partial credit instead of failing completely
+          compatible_count += 0.3
+          Rails.logger.info "[DIETARY CHECK]   ~ Vegetarian: PARTIAL (no data, serves_veg=#{venue[:serves_vegetarian_food]})"
         end
       when "gluten-free"
         # Google Places doesn't have a gluten-free field, check name
@@ -438,7 +498,11 @@ class VenueRankingService
     end
 
     return 1.0 if dietary_requirements.empty?
-    compatible_count.to_f / dietary_requirements.size
+
+    compatibility_score = compatible_count.to_f / dietary_requirements.size
+    Rails.logger.info "[DIETARY CHECK] Final score: #{compatibility_score.round(2)} (#{compatible_count}/#{dietary_requirements.size})"
+
+    compatibility_score
   end
 
   def self.format_recommendation(venue)

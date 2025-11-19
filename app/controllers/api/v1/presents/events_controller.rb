@@ -4,6 +4,7 @@ module Api
       class EventsController < BaseController
         skip_before_action :authorized, only: [ :index, :show ]
         skip_before_action :check_presents_access, only: [ :index, :show ]
+        before_action :set_current_user_optional, only: [ :index, :show ]
         before_action :require_venue_owner, only: [ :create, :update, :destroy ]
         before_action :set_event, only: [ :show, :update, :destroy ]
 
@@ -11,12 +12,28 @@ module Api
         # GET /api/v1/presents/organizations/:organization_id/events
         def index
           events = Event.includes(:organization)
-          events = events.published unless @current_user&.admin?
 
           # Support nested route (events under organization)
           if params[:organization_id]
             organization = Organization.find_by!(slug: params[:organization_id])
+            Rails.logger.info "=== Events Index Debug ==="
+            Rails.logger.info "Organization: #{organization.inspect}"
+            Rails.logger.info "Current User: #{@current_user&.id}"
+            Rails.logger.info "Organization User ID: #{organization.user_id}"
+
             events = events.where(organization_id: organization.id)
+            Rails.logger.info "Events for org (before published filter): #{events.pluck(:id, :title, :published)}"
+
+            # Show all events (including unpublished) to the organization owner
+            is_owner = @current_user && organization.user_id == @current_user.id
+            Rails.logger.info "Is Owner: #{is_owner}"
+            Rails.logger.info "Is Admin: #{@current_user&.admin?}"
+
+            events = events.published unless @current_user&.admin? || is_owner
+            Rails.logger.info "Events after published filter: #{events.pluck(:id, :title, :published)}"
+          else
+            # For general event list, only show published events unless admin
+            events = events.published unless @current_user&.admin?
           end
 
           # Filter by status
@@ -38,7 +55,11 @@ module Api
 
         # GET /api/v1/presents/events/:id
         def show
-          serialized = EventSerializer.new(@event, include_organization: true).as_json
+          serialized = EventSerializer.new(
+            @event,
+            include_organization: true,
+            include_vendor_application: true
+          ).as_json
           render json: serialized, status: :ok
         end
 
@@ -74,6 +95,18 @@ module Api
         end
 
         private
+
+        def set_current_user_optional
+          # Set @current_user if token is present, but don't require it
+          return unless request.headers["Authorization"].present?
+
+          token = request.headers["Authorization"].split(" ").last
+          decoded = JsonWebToken.decode(token)
+          @current_user = User.find_by(id: decoded[:user_id]) if decoded
+        rescue
+          # If token is invalid, just set @current_user to nil
+          @current_user = nil
+        end
 
         def set_event
           @event = Event.find_by!(slug: params[:id])

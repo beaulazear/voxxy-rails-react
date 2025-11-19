@@ -6,6 +6,7 @@ module Api
           @event = event
           @include_organization = options[:include_organization] || false
           @include_registrations = options[:include_registrations] || false
+          @include_vendor_application = options[:include_vendor_application] || false
         end
 
         def as_json
@@ -42,6 +43,7 @@ module Api
             json[:organization] = organization_json if @include_organization
             json[:registrations] = registrations_json if @include_registrations
             json[:registration_count] = @event.registered_count
+            json[:vendor_application] = vendor_application_json if @include_vendor_application
           end
         end
 
@@ -62,6 +64,19 @@ module Api
           @event.registrations.confirmed.map do |registration|
             Api::V1::Presents::RegistrationSerializer.new(registration).as_json
           end
+        end
+
+        def vendor_application_json
+          active_app = @event.vendor_applications.active.first
+          return nil unless active_app
+
+          {
+            id: active_app.id,
+            name: active_app.name,
+            description: active_app.description,
+            categories: active_app.categories,
+            submissions_count: active_app.submissions_count
+          }
         end
       end
     end

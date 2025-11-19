@@ -3,7 +3,10 @@ class EmailVerificationService < BaseEmailService
     # Always send verification emails regardless of preferences (account security)
     Rails.logger.info "Sending verification email to: #{user.email}"
 
-    subject = "Verify your email - Welcome to Voxxy"
+    # Determine product name based on user role
+    product_name = user.presents_user? ? "Voxxy Presents" : "Voxxy"
+
+    subject = "Verify your email - Welcome to #{product_name}"
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
@@ -11,7 +14,7 @@ class EmailVerificationService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Welcome to Voxxy! To get started, please verify your email address by entering this code in the app:
+        Welcome to #{product_name}! To get started, please verify your email address by entering this code in the app:
       </p>
 
       <div style="text-align: center; margin: 40px 0;">
@@ -36,7 +39,7 @@ class EmailVerificationService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        If you didn't create a Voxxy account, you can safely ignore this email.
+        If you didn't create a #{product_name} account, you can safely ignore this email.
       </p>
     HTML
 
