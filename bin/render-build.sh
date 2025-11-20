@@ -15,3 +15,7 @@ bundle install
 bundle exec rails assets:precompile RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1
 
 bundle exec rails db:migrate
+
+# Seed admin user account
+echo "Running seeds to ensure admin account exists..."
+bundle exec rails db:seed
