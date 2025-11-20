@@ -202,7 +202,7 @@ class VenueRankingService
                           !venue_name.match?(/veggie|vegan|plant|impossible|beyond/))
 
         # Exclude specific meat-focused venue types
-        has_meat_type = (venue_types & ["steakhouse", "barbecue_restaurant", "butcher_shop"]).any?
+        has_meat_type = (venue_types & [ "steakhouse", "barbecue_restaurant", "butcher_shop" ]).any?
 
         if is_meat_focused || has_meat_type
           Rails.logger.info "[DIETARY FILTER] Excluding meat venue: #{venue[:name]} (types: #{venue_types.join(', ')})"

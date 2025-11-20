@@ -5,6 +5,6 @@ class AddVendorFieldsToRegistrations < ActiveRecord::Migration[7.2]
     add_column :registrations, :vendor_category, :string
 
     add_index :registrations, :vendor_category
-    add_index :registrations, [:vendor_application_id, :status]
+    add_index :registrations, [ :vendor_application_id, :status ]
   end
 end

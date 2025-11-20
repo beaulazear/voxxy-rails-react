@@ -287,7 +287,7 @@ Rails.application.routes.draw do
         # Vendor Applications (vendor application forms)
         resources :vendor_applications, only: [ :show, :update, :destroy ] do
           collection do
-            get 'lookup/:code', action: :lookup_by_code, as: :lookup
+            get "lookup/:code", action: :lookup_by_code, as: :lookup
           end
           member do
             get :submissions
@@ -302,7 +302,7 @@ Rails.application.routes.draw do
         # Registrations (event RSVPs and vendor applications)
         resources :registrations, only: [ :show, :update ] do
           collection do
-            get 'track/:ticket_code', action: :track, as: :track
+            get "track/:ticket_code", action: :track, as: :track
           end
         end
       end

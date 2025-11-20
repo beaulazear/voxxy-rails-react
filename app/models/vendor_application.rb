@@ -8,8 +8,8 @@ class VendorApplication < ApplicationRecord
 
   before_validation :generate_shareable_code, on: :create
 
-  scope :active, -> { where(status: 'active') }
-  scope :inactive, -> { where(status: 'inactive') }
+  scope :active, -> { where(status: "active") }
+  scope :inactive, -> { where(status: "inactive") }
   scope :recent, -> { order(created_at: :desc) }
 
   # Add a category to the application
@@ -29,7 +29,7 @@ class VendorApplication < ApplicationRecord
 
   # Check if application accepts submissions
   def accepting_submissions?
-    status == 'active'
+    status == "active"
   end
 
   # Get submissions grouped by status
@@ -44,7 +44,7 @@ class VendorApplication < ApplicationRecord
 
   # Generate shareable link for this application
   def shareable_url(base_url = nil)
-    base_url ||= ENV['FRONTEND_URL'] || 'http://localhost:5173'
+    base_url ||= ENV["FRONTEND_URL"] || "http://localhost:5173"
     "#{base_url}/apply/#{shareable_code}"
   end
 
@@ -57,7 +57,7 @@ class VendorApplication < ApplicationRecord
 
     loop do
       # Create a readable code: EVENT-202511-A1B2C3
-      date_part = Time.current.strftime('%Y%m')
+      date_part = Time.current.strftime("%Y%m")
       random_part = SecureRandom.alphanumeric(6).upcase
       code = "EVENT-#{date_part}-#{random_part}"
 

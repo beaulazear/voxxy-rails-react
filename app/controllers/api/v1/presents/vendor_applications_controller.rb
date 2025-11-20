@@ -2,11 +2,11 @@ module Api
   module V1
     module Presents
       class VendorApplicationsController < BaseController
-        skip_before_action :authorized, only: [:lookup_by_code]
-        skip_before_action :check_presents_access, only: [:lookup_by_code]
-        before_action :require_venue_owner, only: [:create, :update, :destroy]
-        before_action :set_event, only: [:index, :create]
-        before_action :set_vendor_application, only: [:show, :update, :destroy, :submissions]
+        skip_before_action :authorized, only: [ :lookup_by_code ]
+        skip_before_action :check_presents_access, only: [ :lookup_by_code ]
+        before_action :require_venue_owner, only: [ :create, :update, :destroy ]
+        before_action :set_event, only: [ :index, :create ]
+        before_action :set_vendor_application, only: [ :show, :update, :destroy, :submissions ]
 
         # GET /api/v1/presents/events/:event_slug/vendor_applications
         def index
@@ -109,7 +109,7 @@ module Api
           # Check ownership
           unless @event.organization.user_id == @current_user.id || @current_user.admin?
             render json: { error: "Not authorized" }, status: :forbidden
-            return
+            nil
           end
         rescue ActiveRecord::RecordNotFound
           render json: { error: "Event not found" }, status: :not_found
@@ -119,10 +119,10 @@ module Api
           @vendor_application = VendorApplication.find(params[:id])
 
           # Check ownership for update/destroy
-          if action_name.in?(["update", "destroy", "submissions"])
+          if action_name.in?([ "update", "destroy", "submissions" ])
             unless @vendor_application.event.organization.user_id == @current_user.id || @current_user.admin?
               render json: { error: "Not authorized" }, status: :forbidden
-              return
+              nil
             end
           end
         rescue ActiveRecord::RecordNotFound
