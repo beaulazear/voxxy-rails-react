@@ -17,8 +17,15 @@ class PasswordResetService < BaseEmailService
 
     # Use role-aware frontend URL to send users to the correct app
     frontend_host = user_frontend_url(user)
-    # Voxxy Presents uses BrowserRouter (not HashRouter), so no hash in URL
-    reset_link = "#{frontend_host}/reset-password?token=#{user.reset_password_token}"
+
+    # Voxxy Presents uses BrowserRouter (no hash), consumers use HashRouter (with #/)
+    if user.presents_user?
+      # Voxxy Presents: /reset-password (no hash)
+      reset_link = "#{frontend_host}/reset-password?token=#{user.reset_password_token}"
+    else
+      # Consumer/Mobile: #/reset-password (with hash for legacy HashRouter)
+      reset_link = "#{frontend_host}/#/reset-password?token=#{user.reset_password_token}"
+    end
 
     Rails.logger.info "Password Reset Link: #{reset_link} (user role: #{user.role})"
 
