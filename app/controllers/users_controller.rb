@@ -258,7 +258,7 @@ class UsersController < ApplicationController
     # Allow role changes in development/staging only (for testing)
     # In production, role changes should only happen through dedicated admin endpoints
     # Check by hostname since staging may run with RAILS_ENV=production
-    is_staging = request.host.include?('voxxyai.com')
+    is_staging = request.host.include?("voxxyai.com")
     if Rails.env.development? || is_staging
       permitted << :role
     end
