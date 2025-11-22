@@ -264,6 +264,9 @@ Rails.application.routes.draw do
       # All routes for the new Voxxy Presents venue/events product
 
       namespace :presents do
+        # Current user's organization
+        get "me/organization", to: "organizations#my_organization"
+
         # Organizations (venues/clubs)
         resources :organizations do
           resources :events, only: [ :index, :create ]

@@ -7,6 +7,19 @@ module Api
         before_action :require_venue_owner, only: [ :create, :update, :destroy ]
         before_action :set_organization, only: [ :show, :update, :destroy ]
 
+        # GET /api/v1/presents/me/organization
+        # Returns the current user's organization (first one they own)
+        def my_organization
+          organization = @current_user.organizations.first
+
+          if organization
+            serialized = OrganizationSerializer.new(organization).as_json
+            render json: serialized, status: :ok
+          else
+            render json: { organization: nil }, status: :ok
+          end
+        end
+
         # GET /api/v1/presents/organizations
         def index
           organizations = Organization.active.includes(:user)
