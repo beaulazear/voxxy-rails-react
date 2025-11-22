@@ -248,19 +248,14 @@ class UsersController < ApplicationController
   private
 
   def user_params
-    # Base parameters that any user can update
-    permitted = [
+    # Security: Never allow role to be set via user_params
+    # Role changes should only happen through dedicated admin endpoints
+    # This prevents privilege escalation attacks
+    params.require(:user).permit(
       :name, :email, :password, :password_confirmation, :avatar, :preferences,
       :text_notifications, :email_notifications, :push_notifications, :profile_pic,
       :neighborhood, :city, :state, :latitude, :longitude, :favorite_food, :bar_preferences
-    ]
-
-    # Only allow role updates in development OR for admin users
-    if Rails.env.development? || current_user.admin?
-      permitted << :role
-    end
-
-    params.require(:user).permit(*permitted)
+    )
   end
 
   def handle_pending_invites(user)

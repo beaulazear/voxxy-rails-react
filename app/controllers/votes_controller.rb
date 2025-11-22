@@ -19,7 +19,8 @@ class VotesController < ApplicationController
       end
 
       def destroy
-        vote = Vote.find_by(id: params[:id])
+        # Security: Only allow users to delete their own votes (prevents IDOR)
+        vote = current_user.votes.find_by(id: params[:id])
 
         if vote&.destroy
           Rails.logger.debug "Votes after delete: #{@pinned_activity.votes.select(:id, :user_id)}"

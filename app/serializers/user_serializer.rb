@@ -12,7 +12,6 @@ class UserSerializer < BaseSerializer
       text_notifications: user.text_notifications,
       email_notifications: user.email_notifications,
       push_notifications: user.push_notifications,
-      confirmation_code: user.confirmation_code,
       admin: user.admin,
       # Policy acceptance status
       terms_accepted: user.has_accepted_terms?,
