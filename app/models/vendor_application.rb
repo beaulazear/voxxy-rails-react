@@ -44,11 +44,27 @@ class VendorApplication < ApplicationRecord
 
   # Generate shareable link for this application
   def shareable_url(base_url = nil)
-    base_url ||= ENV["FRONTEND_URL"] || "http://localhost:5173"
+    base_url ||= presents_frontend_url
     "#{base_url}/apply/#{shareable_code}"
   end
 
   private
+
+  # Get the correct Voxxy Presents frontend URL based on environment
+  def presents_frontend_url
+    if Rails.env.production?
+      primary_domain = ENV.fetch("PRIMARY_DOMAIN", "voxxyai.com")
+      if primary_domain.include?("voxxyai.com")
+        # Staging environment
+        "https://voxxy-presents-client-staging.onrender.com"
+      else
+        # Production environment
+        "https://www.voxxypresents.com"
+      end
+    else
+      ENV.fetch("FRONTEND_URL", "http://localhost:5173")
+    end
+  end
 
   # Generate a unique shareable code
   # Format: EVENT-YYYYMM-RANDOM (e.g., EVENT-202511-A1B2C3)
