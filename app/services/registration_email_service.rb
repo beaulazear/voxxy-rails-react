@@ -1,4 +1,6 @@
 class RegistrationEmailService < BaseEmailService
+  # Voxxy Presents logo URL
+  PRESENTS_LOGO_URL = "https://res.cloudinary.com/dgtpgywhl/image/upload/v1764081415/Voxxy_Presents_-_Option_1_ovzjj5.svg"
   # Send confirmation email to the person who registered/submitted
   def self.send_confirmation(registration)
     Rails.logger.info "Sending registration confirmation email to: #{registration.email}"
@@ -40,12 +42,12 @@ class RegistrationEmailService < BaseEmailService
         You have a new vendor application submission for <strong>#{event.title}</strong>!
       </p>
 
-      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #9D60F8;">
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568;"><strong>Business Name:</strong> #{registration.business_name}</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568;"><strong>Category:</strong> #{registration.vendor_category}</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568;"><strong>Contact:</strong> #{registration.name}</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568;"><strong>Email:</strong> #{registration.email}</p>
-        #{registration.phone.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #4a5568;'><strong>Phone:</strong> #{registration.phone}</p>" : ""}
+      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #9D60F8; text-align: left;">
+        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Business Name:</strong> #{registration.business_name}</p>
+        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Category:</strong> #{registration.vendor_category}</p>
+        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Contact:</strong> #{registration.name}</p>
+        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Email:</strong> #{registration.email}</p>
+        #{registration.phone.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;'><strong>Phone:</strong> #{registration.phone}</p>" : ""}
       </div>
 
       <p style="#{BASE_STYLES[:text]}">
@@ -53,7 +55,7 @@ class RegistrationEmailService < BaseEmailService
       </p>
     HTML
 
-    email_html = build_simple_email_template(
+    email_html = build_presents_email_template(
       "New Vendor Application",
       content,
       "Review Submission",
@@ -100,6 +102,56 @@ class RegistrationEmailService < BaseEmailService
 
   private
 
+  # Build Voxxy Presents branded email template
+  def self.build_presents_email_template(title, content, button_text = nil, button_url = nil)
+    <<~HTML
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>#{title}</title>
+          <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+        </head>
+        <body style="#{BASE_STYLES[:body]}">
+          <div style="#{BASE_STYLES[:container]}">
+            <div style="#{BASE_STYLES[:inner_container]}">
+              <!-- Voxxy Presents Logo -->
+              <div style="#{BASE_STYLES[:header]}">
+                <img src="#{PRESENTS_LOGO_URL}"
+                     alt="Voxxy Presents" style="#{BASE_STYLES[:logo]}">
+              </div>
+
+              <!-- Main Title -->
+              <h1 style="#{BASE_STYLES[:title]}">#{title}</h1>
+
+              <!-- Content -->
+              <div>
+                #{content}
+              </div>
+
+              <!-- Button -->
+              #{button_text && button_url ?
+                "<div style='text-align: center; margin: 30px 0;'>
+                  <a href='#{button_url}' style='#{BASE_STYLES[:button]}'>#{button_text}</a>
+                </div>" : ""
+              }
+
+              <!-- Footer -->
+              <div style="#{BASE_STYLES[:footer]}">
+                <p style="margin: 0 0 10px 0;">See you at the event! ✨</p>
+                <p style="font-size: 12px; color: #a0aec0; margin: 0;">
+                  If you didn't expect this email, you can safely ignore it.
+                  <br><a href="mailto:unsubscribe@voxxyai.com" style="color: #9D60F8; text-decoration: none;">Unsubscribe</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    HTML
+  end
+
   # Send confirmation to vendor application submitter
   def self.send_vendor_submission_confirmation(registration)
     event = registration.event
@@ -130,12 +182,12 @@ class RegistrationEmailService < BaseEmailService
         Thank you for applying to <strong>#{event.title}</strong>! We've received your vendor application and our team will review it soon.
       </p>
 
-      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #9D60F8;">
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568;"><strong>Application Type:</strong> #{vendor_app.name}</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568;"><strong>Business Name:</strong> #{registration.business_name}</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568;"><strong>Category:</strong> #{registration.vendor_category}</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568;"><strong>Status:</strong> Pending Review</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568;"><strong>Tracking Code:</strong> <code style="background: white; padding: 2px 6px; border-radius: 4px; font-family: monospace;">#{registration.ticket_code}</code></p>
+      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #9D60F8; text-align: left;">
+        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Application Type:</strong> #{vendor_app.name}</p>
+        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Business Name:</strong> #{registration.business_name}</p>
+        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Category:</strong> #{registration.vendor_category}</p>
+        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Status:</strong> Pending Review</p>
+        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Tracking Code:</strong> <code style="background: white; padding: 2px 6px; border-radius: 4px; font-family: monospace;">#{registration.ticket_code}</code></p>
       </div>
 
       <p style="#{BASE_STYLES[:text]}">
@@ -143,7 +195,7 @@ class RegistrationEmailService < BaseEmailService
       </p>
     HTML
 
-    email_html = build_simple_email_template(
+    email_html = build_presents_email_template(
       "Application Received",
       content,
       "Track My Application",
@@ -189,11 +241,11 @@ class RegistrationEmailService < BaseEmailService
         You're all set for <strong>#{event.title}</strong>! We're excited to see you there.
       </p>
 
-      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #9D60F8;">
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568;"><strong>Event:</strong> #{event.title}</p>
-        #{event.event_date.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #4a5568;'><strong>Date:</strong> #{event.event_date.strftime('%B %d, %Y at %I:%M %p')}</p>" : ""}
-        #{event.location.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #4a5568;'><strong>Location:</strong> #{event.location}</p>" : ""}
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568;"><strong>Confirmation Code:</strong> <code style="background: white; padding: 2px 6px; border-radius: 4px; font-family: monospace;">#{registration.ticket_code}</code></p>
+      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #9D60F8; text-align: left;">
+        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Event:</strong> #{event.title}</p>
+        #{event.event_date.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;'><strong>Date:</strong> #{event.event_date.strftime('%B %d, %Y at %I:%M %p')}</p>" : ""}
+        #{event.location.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;'><strong>Location:</strong> #{event.location}</p>" : ""}
+        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Confirmation Code:</strong> <code style="background: white; padding: 2px 6px; border-radius: 4px; font-family: monospace;">#{registration.ticket_code}</code></p>
       </div>
 
       <p style="#{BASE_STYLES[:text]}">
@@ -201,7 +253,7 @@ class RegistrationEmailService < BaseEmailService
       </p>
     HTML
 
-    email_html = build_simple_email_template(
+    email_html = build_presents_email_template(
       "You're Registered!",
       content,
       "View Event Details",
@@ -233,10 +285,10 @@ class RegistrationEmailService < BaseEmailService
         Great news! Your vendor application for <strong>#{event.title}</strong> has been approved!
       </p>
 
-      <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
-        <p style="margin: 5px 0; font-size: 14px; color: #155724;"><strong>Status:</strong> Approved ✓</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #155724;"><strong>Business:</strong> #{registration.business_name}</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #155724;"><strong>Category:</strong> #{registration.vendor_category}</p>
+      <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745; text-align: left;">
+        <p style="margin: 5px 0; font-size: 14px; color: #155724; text-align: left;"><strong>Status:</strong> Approved ✓</p>
+        <p style="margin: 5px 0; font-size: 14px; color: #155724; text-align: left;"><strong>Business:</strong> #{registration.business_name}</p>
+        <p style="margin: 5px 0; font-size: 14px; color: #155724; text-align: left;"><strong>Category:</strong> #{registration.vendor_category}</p>
       </div>
 
       <p style="#{BASE_STYLES[:text]}">
@@ -248,7 +300,7 @@ class RegistrationEmailService < BaseEmailService
       </p>
     HTML
 
-    email_html = build_simple_email_template(
+    email_html = build_presents_email_template(
       "Application Approved!",
       content
     )
@@ -287,7 +339,7 @@ class RegistrationEmailService < BaseEmailService
       </p>
     HTML
 
-    email_html = build_simple_email_template(
+    email_html = build_presents_email_template(
       "Application Status Update",
       content
     )
@@ -317,10 +369,10 @@ class RegistrationEmailService < BaseEmailService
         Thank you for applying to <strong>#{event.title}</strong>! Your application has been added to our waitlist.
       </p>
 
-      <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
-        <p style="margin: 5px 0; font-size: 14px; color: #856404;"><strong>Status:</strong> Waitlisted</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #856404;"><strong>Business:</strong> #{registration.business_name}</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #856404;"><strong>Category:</strong> #{registration.vendor_category}</p>
+      <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107; text-align: left;">
+        <p style="margin: 5px 0; font-size: 14px; color: #856404; text-align: left;"><strong>Status:</strong> Waitlisted</p>
+        <p style="margin: 5px 0; font-size: 14px; color: #856404; text-align: left;"><strong>Business:</strong> #{registration.business_name}</p>
+        <p style="margin: 5px 0; font-size: 14px; color: #856404; text-align: left;"><strong>Category:</strong> #{registration.vendor_category}</p>
       </div>
 
       <p style="#{BASE_STYLES[:text]}">
@@ -332,7 +384,7 @@ class RegistrationEmailService < BaseEmailService
       </p>
     HTML
 
-    email_html = build_simple_email_template(
+    email_html = build_presents_email_template(
       "You're on the Waitlist",
       content
     )
