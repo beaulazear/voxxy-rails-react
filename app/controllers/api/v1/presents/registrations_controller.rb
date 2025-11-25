@@ -63,8 +63,7 @@ module Api
           end
 
           if registration.save
-            # TODO: Send confirmation email
-            # RegistrationEmailService.send_confirmation(registration)
+            # Confirmation email sent via after_create callback in Registration model
 
             serialized = RegistrationSerializer.new(registration, include_event: true).as_json
             render json: serialized, status: :created

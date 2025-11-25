@@ -11,6 +11,7 @@ class Registration < ApplicationRecord
 
   before_create :generate_ticket_code
   after_create :send_confirmation_email
+  after_update :send_status_update_email, if: :saved_change_to_status?
 
   scope :confirmed, -> { where(status: "confirmed") }
   scope :pending, -> { where(status: "pending") }
@@ -55,6 +56,18 @@ class Registration < ApplicationRecord
   end
 
   def send_confirmation_email
-    # TODO: Implement RegistrationEmailService.send_confirmation(self)
+    RegistrationEmailService.send_confirmation(self)
+    # Notify event owner if this is a vendor application
+    RegistrationEmailService.notify_owner_of_submission(self) if vendor_registration?
+  rescue StandardError => e
+    Rails.logger.error "Failed to send confirmation email for registration #{id}: #{e.message}"
+    # Don't raise - we don't want to block registration creation if email fails
+  end
+
+  def send_status_update_email
+    RegistrationEmailService.send_status_update(self)
+  rescue StandardError => e
+    Rails.logger.error "Failed to send status update email for registration #{id}: #{e.message}"
+    # Don't raise - we don't want to block status updates if email fails
   end
 end
