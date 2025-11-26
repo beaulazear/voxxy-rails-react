@@ -1,6 +1,6 @@
 class RegistrationEmailService < BaseEmailService
-  # Voxxy Presents logo URL
-  PRESENTS_LOGO_URL = "https://res.cloudinary.com/dgtpgywhl/image/upload/v1764081415/Voxxy_Presents_-_Option_1_ovzjj5.svg"
+  # Voxxy Presents logo URL (converted to PNG for email compatibility)
+  PRESENTS_LOGO_URL = "https://res.cloudinary.com/dgtpgywhl/image/upload/f_png/v1764081415/Voxxy_Presents_-_Option_1_ovzjj5.svg"
   # Send confirmation email to the person who registered/submitted
   def self.send_confirmation(registration)
     Rails.logger.info "Sending registration confirmation email to: #{registration.email}"
