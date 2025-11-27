@@ -282,7 +282,8 @@ GEM
     rake (13.2.1)
     rdoc (6.10.0)
       psych (>= 4.0.0)
-    redis (4.8.1)
+    redis (5.4.1)
+      redis-client (>= 0.22.0)
     redis-client (0.25.0)
       connection_pool
     regexp_parser (2.9.2)
@@ -429,7 +430,7 @@ DEPENDENCIES
   rack-attack
   rack-cors
   rails (~> 7.2.2)
-  redis (~> 4.0)
+  redis (~> 5.4)
   rspec-rails (~> 6.0)
   rubocop-rails-omakase
   ruby-openai
