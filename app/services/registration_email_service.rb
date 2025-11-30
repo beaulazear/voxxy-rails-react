@@ -175,7 +175,7 @@ class RegistrationEmailService < BaseEmailService
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
-        Hi #{registration.name},
+        Hi #{registration.name} from <strong>#{registration.business_name}</strong>,
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
@@ -183,7 +183,7 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #9D60F8; text-align: left;">
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Application Type:</strong> #{vendor_app.name}</p>
+        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Contact Name:</strong> #{registration.name}</p>
         <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Business Name:</strong> #{registration.business_name}</p>
         <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Category:</strong> #{registration.vendor_category}</p>
         <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Status:</strong> Pending Review</p>
