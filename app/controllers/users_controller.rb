@@ -249,21 +249,24 @@ class UsersController < ApplicationController
 
   def user_params
     # Base permitted params
-    permitted = [
+    permitted_params = params.require(:user).permit(
       :name, :email, :password, :password_confirmation, :avatar, :preferences,
       :text_notifications, :email_notifications, :push_notifications, :profile_pic,
       :neighborhood, :city, :state, :latitude, :longitude, :favorite_food, :bar_preferences
-    ]
+    )
 
-    # Allow role changes in development/staging only (for testing)
-    # In production, role changes should only happen through dedicated admin endpoints
+    # Allow non-admin role changes in development/staging only (for testing)
+    # Only these roles can be set through mass assignment - admin must be set separately
     # Check by hostname since staging may run with RAILS_ENV=production
     is_staging = request.host.include?("voxxyai.com")
-    if Rails.env.development? || is_staging
-      permitted << :role
+    if (Rails.env.development? || is_staging) && params[:user][:role].present?
+      safe_roles = %w[consumer venue_owner vendor]
+      if safe_roles.include?(params[:user][:role])
+        permitted_params[:role] = params[:user][:role]
+      end
     end
 
-    params.require(:user).permit(*permitted)
+    permitted_params
   end
 
   def handle_pending_invites(user)
