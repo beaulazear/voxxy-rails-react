@@ -271,6 +271,7 @@ Rails.application.routes.draw do
         resources :organizations do
           resources :events, only: [ :index, :create ]
           resources :budgets, only: [ :index, :create ]
+          resources :vendor_contacts, only: [ :index ]
         end
 
         # Events
@@ -284,6 +285,15 @@ Rails.application.routes.draw do
         resources :vendors do
           collection do
             get :search
+          end
+        end
+
+        # Vendor Contacts (CRM)
+        resources :vendor_contacts do
+          member do
+            post :record_interaction
+            post :add_tag
+            delete :remove_tag
           end
         end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_16_163713) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_17_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -450,6 +450,35 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_16_163713) do
     t.index ["status"], name: "index_vendor_applications_on_status"
   end
 
+  create_table "vendor_contacts", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.bigint "vendor_id"
+    t.bigint "registration_id"
+    t.string "name", null: false
+    t.string "email"
+    t.string "phone"
+    t.string "company_name"
+    t.string "job_title"
+    t.string "contact_type"
+    t.string "status", default: "new"
+    t.text "notes"
+    t.jsonb "tags", default: []
+    t.integer "interaction_count", default: 0
+    t.datetime "last_contacted_at"
+    t.string "source"
+    t.datetime "imported_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contact_type"], name: "index_vendor_contacts_on_contact_type"
+    t.index ["created_at"], name: "index_vendor_contacts_on_created_at"
+    t.index ["email"], name: "index_vendor_contacts_on_email"
+    t.index ["organization_id", "status"], name: "index_vendor_contacts_on_organization_id_and_status"
+    t.index ["organization_id"], name: "index_vendor_contacts_on_organization_id"
+    t.index ["registration_id"], name: "index_vendor_contacts_on_registration_id"
+    t.index ["status"], name: "index_vendor_contacts_on_status"
+    t.index ["vendor_id"], name: "index_vendor_contacts_on_vendor_id"
+  end
+
   create_table "vendors", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "name", null: false
@@ -536,6 +565,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_16_163713) do
   add_foreign_key "user_activities", "pinned_activities"
   add_foreign_key "user_activities", "users"
   add_foreign_key "vendor_applications", "events"
+  add_foreign_key "vendor_contacts", "organizations"
+  add_foreign_key "vendor_contacts", "registrations"
+  add_foreign_key "vendor_contacts", "vendors"
   add_foreign_key "vendors", "users"
   add_foreign_key "votes", "pinned_activities"
   add_foreign_key "votes", "users"

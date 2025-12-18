@@ -2,6 +2,7 @@ class Organization < ApplicationRecord
   belongs_to :user
   has_many :events, dependent: :destroy
   has_many :budgets, as: :budgetable, dependent: :destroy
+  has_many :vendor_contacts, dependent: :destroy
 
   validates :name, presence: true
   validates :slug, presence: true, uniqueness: true
