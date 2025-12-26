@@ -7,6 +7,8 @@ class Event < ApplicationRecord
   validates :title, presence: true
   validates :slug, presence: true, uniqueness: true
   validates :status, inclusion: { in: %w[draft published cancelled completed] }, allow_blank: true
+  validates :application_deadline, presence: true, on: :create
+  validate :application_deadline_before_event_date, if: :application_deadline_changed?
 
   before_validation :generate_slug, on: :create
   before_save :update_registration_status
@@ -40,5 +42,13 @@ class Event < ApplicationRecord
 
   def update_registration_status
     self.registration_open = false if full?
+  end
+
+  def application_deadline_before_event_date
+    return unless application_deadline.present? && event_date.present?
+
+    if application_deadline > event_date
+      errors.add(:application_deadline, "must be on or before the event start date")
+    end
   end
 end

@@ -125,7 +125,7 @@ module Api
           params.require(:event).permit(
             :title, :description, :event_date, :event_end_date, :location,
             :poster_url, :ticket_url, :ticket_price, :capacity,
-            :published, :registration_open, :status
+            :published, :registration_open, :status, :application_deadline
           )
         end
       end

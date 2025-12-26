@@ -19,6 +19,10 @@ module Api
             event_id: @vendor_application.event_id,
             shareable_code: @vendor_application.shareable_code,
             shareable_url: @vendor_application.shareable_url,
+            pricing: {
+              booth_price: @vendor_application.booth_price&.to_f,
+              currency: "USD"
+            },
             created_at: @vendor_application.created_at,
             updated_at: @vendor_application.updated_at
           }.tap do |json|

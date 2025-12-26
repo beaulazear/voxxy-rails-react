@@ -37,6 +37,7 @@ module Api
               registration_open: @event.registration_open,
               status: @event.status
             },
+            application_deadline: @event.application_deadline,
             created_at: @event.created_at,
             updated_at: @event.updated_at
           }.tap do |json|
@@ -75,7 +76,8 @@ module Api
             name: active_app.name,
             description: active_app.description,
             categories: active_app.categories,
-            submissions_count: active_app.submissions_count
+            submissions_count: active_app.submissions_count,
+            booth_price: active_app.booth_price&.to_f
           }
         end
       end

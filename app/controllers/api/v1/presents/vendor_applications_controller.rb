@@ -134,6 +134,7 @@ module Api
             :name,
             :description,
             :status,
+            :booth_price,
             categories: []
           )
         end

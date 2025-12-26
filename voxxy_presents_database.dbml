@@ -1,0 +1,220 @@
+// Voxxy Presents - Database Schema
+// Generated for dbdiagram.io
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table users {
+  id integer [primary key]
+  name varchar
+  username varchar
+  email varchar
+  password_digest varchar
+  role varchar [note: 'consumer, venue_owner, vendor, admin']
+  product_context varchar [note: 'mobile, presents, both']
+  avatar varchar
+  city varchar
+  state varchar
+  latitude decimal
+  longitude decimal
+  admin boolean [default: false]
+  status varchar [default: 'active']
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'System users - venue_owner role manages organizations'
+}
+
+Table organizations {
+  id integer [primary key]
+  user_id integer [not null, ref: > users.id]
+  name varchar [not null]
+  slug varchar [unique, not null]
+  description text
+  logo_url varchar
+  website varchar
+  instagram_handle varchar
+  phone varchar
+  email varchar
+  address varchar
+  city varchar
+  state varchar
+  zip_code varchar
+  latitude decimal
+  longitude decimal
+  verified boolean [default: false]
+  active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Venues/clubs that organize events - owned by venue_owner users'
+}
+
+Table events {
+  id integer [primary key]
+  organization_id integer [not null, ref: > organizations.id]
+  title varchar [not null]
+  slug varchar [unique, not null]
+  description text
+  event_date timestamp
+  event_end_date timestamp
+  location varchar
+  poster_url varchar
+  ticket_url varchar
+  ticket_price decimal
+  capacity integer
+  registered_count integer [default: 0]
+  published boolean [default: false]
+  registration_open boolean [default: true]
+  status varchar [note: 'draft, published, cancelled, completed']
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Events hosted by organizations'
+}
+
+Table vendor_applications {
+  id integer [primary key]
+  event_id integer [not null, ref: > events.id]
+  name varchar [not null]
+  description text
+  status varchar [default: 'active', note: 'active, inactive']
+  categories jsonb [default: '[]']
+  submissions_count integer [default: 0]
+  shareable_code varchar [unique, not null]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Application forms for vendors to apply to specific events'
+}
+
+Table registrations {
+  id integer [primary key]
+  event_id integer [not null, ref: > events.id]
+  user_id integer [ref: > users.id]
+  vendor_application_id integer [ref: > vendor_applications.id]
+  email varchar [not null]
+  name varchar
+  phone varchar
+  business_name varchar [note: 'For vendor applications']
+  vendor_category varchar [note: 'Category vendor is applying under']
+  subscribed boolean [default: false]
+  ticket_code varchar [unique]
+  qr_code_url varchar
+  checked_in boolean [default: false]
+  checked_in_at timestamp
+  status varchar [note: 'pending, confirmed, cancelled, approved, rejected, waitlist']
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Dual-purpose: event RSVPs and vendor application submissions'
+}
+
+Table vendors {
+  id integer [primary key]
+  user_id integer [not null, ref: > users.id]
+  name varchar [not null]
+  slug varchar [unique, not null]
+  vendor_type varchar [not null]
+  description text
+  logo_url varchar
+  website varchar
+  instagram_handle varchar
+  contact_email varchar
+  phone varchar
+  services json
+  pricing json
+  address varchar
+  city varchar
+  state varchar
+  zip_code varchar
+  latitude decimal
+  longitude decimal
+  verified boolean [default: false]
+  active boolean [default: true]
+  views_count integer [default: 0]
+  rating decimal
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Vendor marketplace profiles - owned by vendor role users'
+}
+
+Table vendor_contacts {
+  id integer [primary key]
+  organization_id integer [not null, ref: > organizations.id]
+  vendor_id integer [ref: > vendors.id]
+  registration_id integer [ref: > registrations.id]
+  name varchar [not null]
+  email varchar
+  phone varchar
+  company_name varchar
+  job_title varchar
+  contact_type varchar [note: 'lead, vendor, partner, client, other']
+  status varchar [default: 'new', note: 'new, contacted, interested, converted, closed']
+  notes text
+  tags jsonb [default: '[]']
+  interaction_count integer [default: 0]
+  last_contacted_at timestamp
+  source varchar [note: 'application, import, manual_entry']
+  imported_at timestamp
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'CRM contacts for organizations to manage vendor relationships'
+}
+
+Table budgets {
+  id integer [primary key]
+  budgetable_type varchar [not null, note: 'Organization or Event']
+  budgetable_id integer [not null]
+  user_id integer [not null, ref: > users.id]
+  title varchar
+  total_amount decimal
+  spent_amount decimal [default: 0.0]
+  status varchar
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Polymorphic - belongs to Organization or Event'
+}
+
+Table budget_line_items {
+  id integer [primary key]
+  budget_id integer [not null, ref: > budgets.id]
+  vendor_id integer [ref: > vendors.id]
+  name varchar [not null]
+  category varchar
+  budgeted_amount decimal
+  actual_amount decimal [default: 0.0]
+  notes text
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Line items within budgets - can reference vendors'
+}
+
+// Relationships Documentation
+//
+// User Hierarchy:
+// - Users with role=venue_owner create Organizations
+// - Users with role=vendor create Vendors (marketplace profiles)
+// - Users can register for Events (as attendees)
+//
+// Organization Flow:
+// - Organizations create Events
+// - Organizations manage Budgets
+// - Organizations manage VendorContacts (CRM)
+//
+// Event Flow:
+// - Events have VendorApplications (forms for vendor submissions)
+// - Events have Registrations (both attendee RSVPs and vendor applications)
+// - Events can have Budgets
+//
+// Vendor Application Flow:
+// - VendorApplications belong to Events
+// - Registrations with vendor_application_id are vendor submissions
+// - VendorContacts can be imported from Registrations
+//
+// Budget Flow:
+// - Budgets are polymorphic (belong to Organization or Event)
+// - BudgetLineItems belong to Budgets
+// - BudgetLineItems can reference Vendors

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_17_120000) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_26_154314) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -169,6 +169,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_17_120000) do
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "application_deadline"
+    t.index ["application_deadline"], name: "index_events_on_application_deadline"
     t.index ["event_date"], name: "index_events_on_event_date"
     t.index ["organization_id"], name: "index_events_on_organization_id"
     t.index ["published"], name: "index_events_on_published"
@@ -444,6 +446,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_17_120000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "shareable_code", null: false
+    t.decimal "booth_price", precision: 8, scale: 2
     t.index ["created_at"], name: "index_vendor_applications_on_created_at"
     t.index ["event_id"], name: "index_vendor_applications_on_event_id"
     t.index ["shareable_code"], name: "index_vendor_applications_on_shareable_code", unique: true

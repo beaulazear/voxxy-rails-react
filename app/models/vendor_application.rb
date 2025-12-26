@@ -5,6 +5,7 @@ class VendorApplication < ApplicationRecord
   validates :name, presence: true
   validates :status, inclusion: { in: %w[active inactive] }
   validates :shareable_code, presence: true, uniqueness: true
+  validates :booth_price, presence: true, numericality: { greater_than_or_equal_to: 0 }, on: :create
 
   before_validation :generate_shareable_code, on: :create
 
