@@ -279,7 +279,16 @@ Rails.application.routes.draw do
           resources :registrations, only: [ :index, :create ]
           resources :budgets, only: [ :index, :create ]
           resources :vendor_applications, only: [ :index, :create ]
+          resources :invitations, controller: :event_invitations, only: [ :index ] do
+            collection do
+              post :batch, action: :create_batch
+            end
+          end
         end
+
+        # Public invitation endpoints (no auth required)
+        get "invitations/:token", to: "event_invitations#show_by_token"
+        patch "invitations/:token/respond", to: "event_invitations#respond"
 
         # Vendors (marketplace)
         resources :vendors do

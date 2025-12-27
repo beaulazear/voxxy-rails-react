@@ -3,6 +3,8 @@ class VendorContact < ApplicationRecord
   belongs_to :organization
   belongs_to :vendor, optional: true
   belongs_to :registration, optional: true
+  has_many :event_invitations, dependent: :destroy
+  has_many :invited_events, through: :event_invitations, source: :event
 
   # Validations
   validates :name, presence: true

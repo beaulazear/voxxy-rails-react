@@ -2,6 +2,8 @@ class Event < ApplicationRecord
   belongs_to :organization
   has_many :registrations, dependent: :destroy
   has_many :vendor_applications, dependent: :destroy
+  has_many :event_invitations, dependent: :destroy
+  has_many :invited_contacts, through: :event_invitations, source: :vendor_contact
   has_one :budget, as: :budgetable, dependent: :destroy
 
   validates :title, presence: true

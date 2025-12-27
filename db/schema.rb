@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_26_154314) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_27_005811) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -149,6 +149,24 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_26_154314) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_contacts_on_email"
+  end
+
+  create_table "event_invitations", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "vendor_contact_id", null: false
+    t.string "status", default: "pending", null: false
+    t.string "invitation_token", null: false
+    t.datetime "sent_at"
+    t.datetime "responded_at"
+    t.text "response_notes"
+    t.datetime "expires_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "vendor_contact_id"], name: "index_event_invitations_on_event_id_and_vendor_contact_id", unique: true
+    t.index ["event_id"], name: "index_event_invitations_on_event_id"
+    t.index ["invitation_token"], name: "index_event_invitations_on_invitation_token", unique: true
+    t.index ["status"], name: "index_event_invitations_on_status"
+    t.index ["vendor_contact_id"], name: "index_event_invitations_on_vendor_contact_id"
   end
 
   create_table "events", force: :cascade do |t|
@@ -545,6 +563,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_26_154314) do
   add_foreign_key "budgets", "users"
   add_foreign_key "comments", "pinned_activities"
   add_foreign_key "comments", "users"
+  add_foreign_key "event_invitations", "events"
+  add_foreign_key "event_invitations", "vendor_contacts"
   add_foreign_key "events", "organizations"
   add_foreign_key "moderation_actions", "reports"
   add_foreign_key "moderation_actions", "users"
