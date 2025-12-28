@@ -1,0 +1,26 @@
+Invitation Declined
+===================
+
+Hello <%= @vendor_contact.name %>,
+
+We've received your response declining the invitation to participate in <%= @event.title %>.
+
+EVENT DETAILS
+-------------
+Event: <%= @event.title %>
+Date: <%= @event.event_date.strftime("%B %d, %Y at %I:%M %p") %>
+<% if @event.location.present? %>
+Location: <%= @event.location %>
+<% end %>
+
+<% if @invitation.response_notes.present? %>
+Your note: "<%= @invitation.response_notes %>"
+<% end %>
+
+We understand and appreciate you taking the time to respond. We hope to have the opportunity to work with you in the future!
+
+If you have any questions or would like to discuss future opportunities, feel free to reach out to <%= @organization.name %>.
+
+---
+
+Confirmation sent via Voxxy Presents

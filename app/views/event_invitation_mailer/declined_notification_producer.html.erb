@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      color: #555;
+      margin: 0;
+      font-size: 24px;
+    }
+    .content {
+      color: #333;
+      line-height: 1.6;
+    }
+    .details-box {
+      background-color: #f8f8f8;
+      padding: 20px;
+      border-radius: 5px;
+      margin: 20px 0;
+      border-left: 4px solid #9b59b6;
+    }
+    .footer {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+      text-align: center;
+      color: #777;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Invitation Declined</h1>
+    </div>
+
+    <div class="content">
+      <p>Hello,</p>
+
+      <p><strong><%= @vendor_contact.name %></strong> (<%= @vendor_contact.company_name || @vendor_contact.email %>) has declined the invitation to participate in <strong><%= @event.title %></strong>.</p>
+
+      <div class="details-box">
+        <h3 style="margin-top: 0; color: #9b59b6;">Vendor Contact Details</h3>
+        <p><strong>Name:</strong> <%= @vendor_contact.name %></p>
+        <% if @vendor_contact.company_name.present? %>
+          <p><strong>Company:</strong> <%= @vendor_contact.company_name %></p>
+        <% end %>
+        <p><strong>Email:</strong> <%= @vendor_contact.email %></p>
+        <% if @invitation.response_notes.present? %>
+          <p><strong>Their message:</strong> "<%= @invitation.response_notes %>"</p>
+        <% end %>
+      </div>
+
+      <p>You may want to reach out to other contacts from your network or consider alternative vendors for this event.</p>
+    </div>
+
+    <div class="footer">
+      <p>Notification sent via Voxxy Presents</p>
+    </div>
+  </div>
+</body>
+</html>

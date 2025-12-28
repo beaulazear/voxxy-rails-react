@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      color: #9b59b6;
+      margin: 0;
+      font-size: 28px;
+    }
+    .content {
+      color: #333;
+      line-height: 1.6;
+    }
+    .event-details {
+      background-color: #f8f8f8;
+      padding: 20px;
+      border-radius: 5px;
+      margin: 20px 0;
+      border-left: 4px solid #9b59b6;
+    }
+    .event-details h3 {
+      margin-top: 0;
+      color: #9b59b6;
+    }
+    .event-details p {
+      margin: 8px 0;
+    }
+    .event-details strong {
+      color: #555;
+    }
+    .button-container {
+      text-align: center;
+      margin: 30px 0;
+    }
+    .button {
+      display: inline-block;
+      padding: 12px 30px;
+      margin: 0 10px;
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    .button-accept {
+      background-color: #27ae60;
+    }
+    .button-accept:hover {
+      background-color: #229954;
+    }
+    .button-view {
+      background-color: #9b59b6;
+    }
+    .button-view:hover {
+      background-color: #8e44ad;
+    }
+    .deadline {
+      background-color: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 5px;
+      padding: 15px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    .deadline strong {
+      color: #856404;
+    }
+    .footer {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+      text-align: center;
+      color: #777;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>You're Invited!</h1>
+    </div>
+
+    <div class="content">
+      <p>Hello <%= @vendor_contact.name %>,</p>
+
+      <p><strong><%= @organization.name %></strong> would like to invite you to participate in an upcoming event.</p>
+
+      <div class="event-details">
+        <h3><%= @event.title %></h3>
+
+        <% if @event.description.present? %>
+          <p><%= @event.description %></p>
+        <% end %>
+
+        <p><strong>Date:</strong> <%= @event.event_date.strftime("%B %d, %Y at %I:%M %p") %></p>
+
+        <% if @event.location.present? %>
+          <p><strong>Location:</strong> <%= @event.location %></p>
+        <% end %>
+
+        <% if @event.application_deadline.present? %>
+          <p><strong>Application Deadline:</strong> <%= @event.application_deadline.strftime("%B %d, %Y at %I:%M %p") %></p>
+        <% end %>
+      </div>
+
+      <% if @deadline.present? %>
+        <div class="deadline">
+          <strong>⏰ Please respond by <%= @deadline %></strong>
+        </div>
+      <% end %>
+
+      <p>We think you would be a great fit for this event and would love to have you participate!</p>
+
+      <div class="button-container">
+        <a href="<%= @invitation_url %>" class="button button-view">View Invitation Details</a>
+      </div>
+
+      <p style="text-align: center; color: #777; font-size: 14px;">
+        Click the button above to view the full invitation and respond.
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>This invitation was sent by <%= @organization.name %> via Voxxy Presents</p>
+      <p>If you believe this was sent in error, please contact <%= @organization.name %> directly.</p>
+    </div>
+  </div>
+</body>
+</html>

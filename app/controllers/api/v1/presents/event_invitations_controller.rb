@@ -77,6 +77,14 @@ module Api
               created_invitations << invitation
               # Mark as sent immediately (could also be done via background job)
               invitation.mark_as_sent!
+
+              # Send invitation email
+              begin
+                EventInvitationMailer.invitation_email(invitation).deliver_now
+              rescue => e
+                Rails.logger.error "Failed to send invitation email: #{e.message}"
+                # Don't fail the entire operation if email fails
+              end
             else
               errors << {
                 vendor_contact_id: contact.id,
@@ -142,6 +150,24 @@ module Api
           end
 
           if success
+            # Send confirmation emails
+            begin
+              if response_status == "accepted"
+                # Send confirmation to vendor
+                EventInvitationMailer.accepted_confirmation_vendor(@invitation).deliver_now
+                # Notify producer
+                EventInvitationMailer.accepted_notification_producer(@invitation).deliver_now
+              else
+                # Send confirmation to vendor
+                EventInvitationMailer.declined_confirmation_vendor(@invitation).deliver_now
+                # Notify producer
+                EventInvitationMailer.declined_notification_producer(@invitation).deliver_now
+              end
+            rescue => e
+              Rails.logger.error "Failed to send confirmation emails: #{e.message}"
+              # Don't fail the response if email fails
+            end
+
             serialized = EventInvitationSerializer.new(
               @invitation,
               include_event: true,

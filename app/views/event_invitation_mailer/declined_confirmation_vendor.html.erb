@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      color: #555;
+      margin: 0;
+      font-size: 24px;
+    }
+    .content {
+      color: #333;
+      line-height: 1.6;
+    }
+    .event-summary {
+      background-color: #f8f8f8;
+      padding: 20px;
+      border-radius: 5px;
+      margin: 20px 0;
+      border-left: 4px solid #9b59b6;
+    }
+    .footer {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+      text-align: center;
+      color: #777;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Invitation Declined</h1>
+    </div>
+
+    <div class="content">
+      <p>Hello <%= @vendor_contact.name %>,</p>
+
+      <p>We've received your response declining the invitation to participate in <strong><%= @event.title %></strong>.</p>
+
+      <div class="event-summary">
+        <h3 style="margin-top: 0; color: #9b59b6;">Event Details</h3>
+        <p><strong>Event:</strong> <%= @event.title %></p>
+        <p><strong>Date:</strong> <%= @event.event_date.strftime("%B %d, %Y at %I:%M %p") %></p>
+        <% if @event.location.present? %>
+          <p><strong>Location:</strong> <%= @event.location %></p>
+        <% end %>
+      </div>
+
+      <% if @invitation.response_notes.present? %>
+        <p><strong>Your note:</strong> "<%= @invitation.response_notes %>"</p>
+      <% end %>
+
+      <p>We understand and appreciate you taking the time to respond. We hope to have the opportunity to work with you in the future!</p>
+
+      <p>If you have any questions or would like to discuss future opportunities, feel free to reach out to <%= @organization.name %>.</p>
+    </div>
+
+    <div class="footer">
+      <p>Confirmation sent via Voxxy Presents</p>
+    </div>
+  </div>
+</body>
+</html>

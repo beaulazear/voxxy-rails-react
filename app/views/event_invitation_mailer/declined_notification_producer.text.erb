@@ -1,0 +1,24 @@
+Invitation Declined
+===================
+
+Hello,
+
+<%= @vendor_contact.name %> (<%= @vendor_contact.company_name || @vendor_contact.email %>) has declined the invitation to participate in <%= @event.title %>.
+
+VENDOR CONTACT DETAILS
+----------------------
+Name: <%= @vendor_contact.name %>
+<% if @vendor_contact.company_name.present? %>
+Company: <%= @vendor_contact.company_name %>
+<% end %>
+Email: <%= @vendor_contact.email %>
+
+<% if @invitation.response_notes.present? %>
+Their message: "<%= @invitation.response_notes %>"
+<% end %>
+
+You may want to reach out to other contacts from your network or consider alternative vendors for this event.
+
+---
+
+Notification sent via Voxxy Presents

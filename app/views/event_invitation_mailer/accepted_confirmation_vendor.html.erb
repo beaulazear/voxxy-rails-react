@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      color: #27ae60;
+      margin: 0;
+      font-size: 28px;
+    }
+    .checkmark {
+      font-size: 48px;
+      color: #27ae60;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .content {
+      color: #333;
+      line-height: 1.6;
+    }
+    .event-summary {
+      background-color: #f8f8f8;
+      padding: 20px;
+      border-radius: 5px;
+      margin: 20px 0;
+      border-left: 4px solid #27ae60;
+    }
+    .event-summary h3 {
+      margin-top: 0;
+      color: #27ae60;
+    }
+    .next-steps {
+      background-color: #e8f5e9;
+      padding: 20px;
+      border-radius: 5px;
+      margin: 20px 0;
+    }
+    .next-steps h3 {
+      margin-top: 0;
+      color: #27ae60;
+    }
+    .next-steps ul {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    .footer {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+      text-align: center;
+      color: #777;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="checkmark">✓</div>
+
+    <div class="header">
+      <h1>Thank You for Accepting!</h1>
+    </div>
+
+    <div class="content">
+      <p>Hello <%= @vendor_contact.name %>,</p>
+
+      <p>Thank you for accepting the invitation to participate in <strong><%= @event.title %></strong>!</p>
+
+      <div class="event-summary">
+        <h3>Event Details</h3>
+        <p><strong>Event:</strong> <%= @event.title %></p>
+        <p><strong>Date:</strong> <%= @event.event_date.strftime("%B %d, %Y at %I:%M %p") %></p>
+        <% if @event.location.present? %>
+          <p><strong>Location:</strong> <%= @event.location %></p>
+        <% end %>
+        <p><strong>Organizer:</strong> <%= @organization.name %></p>
+      </div>
+
+      <div class="next-steps">
+        <h3>Next Steps</h3>
+        <ul>
+          <li><%= @organization.name %> will reach out with additional details about your participation</li>
+          <li>Keep an eye on your email for further instructions</li>
+          <li>If you have any questions, feel free to contact <%= @organization.name %> directly</li>
+        </ul>
+      </div>
+
+      <p>We're excited to have you participate and look forward to a successful event!</p>
+
+      <% if @invitation.response_notes.present? %>
+        <p><strong>Your note:</strong> "<%= @invitation.response_notes %>"</p>
+      <% end %>
+    </div>
+
+    <div class="footer">
+      <p>Confirmation sent via Voxxy Presents</p>
+      <p>Questions? Contact <%= @organization.name %> for more information.</p>
+    </div>
+  </div>
+</body>
+</html>
