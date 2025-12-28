@@ -44,7 +44,7 @@ module Api
             json[:organization] = organization_json if @include_organization
             json[:registrations] = registrations_json if @include_registrations
             json[:registration_count] = @event.registered_count
-            json[:vendor_application] = vendor_application_json if @include_vendor_application
+            json[:vendor_applications] = vendor_applications_json if @include_vendor_application
           end
         end
 
@@ -67,18 +67,20 @@ module Api
           end
         end
 
-        def vendor_application_json
-          active_app = @event.vendor_applications.active.first
-          return nil unless active_app
+        def vendor_applications_json
+          active_apps = @event.vendor_applications.active
+          return [] if active_apps.empty?
 
-          {
-            id: active_app.id,
-            name: active_app.name,
-            description: active_app.description,
-            categories: active_app.categories,
-            submissions_count: active_app.submissions_count,
-            booth_price: active_app.booth_price&.to_f
-          }
+          active_apps.map do |app|
+            {
+              id: app.id,
+              name: app.name,
+              description: app.description,
+              categories: app.categories,
+              submissions_count: app.submissions_count,
+              booth_price: app.booth_price&.to_f
+            }
+          end
         end
       end
     end
