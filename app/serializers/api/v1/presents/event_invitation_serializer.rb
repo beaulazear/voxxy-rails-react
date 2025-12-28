@@ -43,8 +43,24 @@ module Api
             description: @event_invitation.event.description,
             event_date: @event_invitation.event.event_date,
             location: @event_invitation.event.location,
-            application_deadline: @event_invitation.event.application_deadline
+            application_deadline: @event_invitation.event.application_deadline,
+            vendor_applications: vendor_applications_json
           }
+        end
+
+        def vendor_applications_json
+          @event_invitation.event.vendor_applications.active.map do |application|
+            {
+              id: application.id,
+              name: application.name,
+              description: application.description,
+              categories: application.categories || [],
+              booth_price: application.booth_price,
+              shareable_code: application.shareable_code,
+              shareable_url: application.shareable_url,
+              status: application.status
+            }
+          end
         end
 
         def vendor_contact_json

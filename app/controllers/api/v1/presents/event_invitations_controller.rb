@@ -183,7 +183,7 @@ module Api
         private
 
         def set_event
-          @event = Event.find_by(slug: params[:event_slug])
+          @event = Event.find_by(slug: params[:event_id])
           unless @event
             render json: { error: "Event not found" }, status: :not_found
           end
@@ -199,7 +199,8 @@ module Api
         end
 
         def set_invitation_by_token
-          @invitation = EventInvitation.find_by(invitation_token: params[:token])
+          @invitation = EventInvitation.includes(event: :vendor_applications)
+                                       .find_by(invitation_token: params[:token])
           unless @invitation
             render json: { error: "Invitation not found" }, status: :not_found
           end
