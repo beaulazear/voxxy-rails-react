@@ -43,7 +43,9 @@ module Api
             description: @event_invitation.event.description,
             event_date: @event_invitation.event.event_date,
             location: @event_invitation.event.location,
+            poster_url: @event_invitation.event.poster_url,
             application_deadline: @event_invitation.event.application_deadline,
+            organization: organization_json,
             vendor_applications: vendor_applications_json
           }
         end
@@ -61,6 +63,16 @@ module Api
               status: application.status
             }
           end
+        end
+
+        def organization_json
+          return nil unless @event_invitation.event.organization.present?
+
+          {
+            id: @event_invitation.event.organization.id,
+            name: @event_invitation.event.organization.name,
+            slug: @event_invitation.event.organization.slug
+          }
         end
 
         def vendor_contact_json
