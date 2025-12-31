@@ -135,6 +135,11 @@ module Api
             :description,
             :status,
             :booth_price,
+            :install_date,
+            :install_start_time,
+            :install_end_time,
+            :payment_link,
+            :application_tags,
             categories: []
           )
         end

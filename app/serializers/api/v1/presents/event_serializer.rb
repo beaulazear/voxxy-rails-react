@@ -17,11 +17,16 @@ module Api
             description: @event.description,
             dates: {
               start: @event.event_date,
-              end: @event.event_end_date
+              end: @event.event_end_date,
+              start_time: @event.start_time,
+              end_time: @event.end_time
             },
+            venue: @event.venue,
             location: @event.location,
             poster_url: @event.poster_url,
             ticket_url: @event.ticket_url,
+            ticket_link: @event.ticket_link,
+            age_restriction: @event.age_restriction,
             pricing: {
               ticket_price: @event.ticket_price&.to_f,
               currency: "USD"
