@@ -6,6 +6,11 @@ class Event < ApplicationRecord
   has_many :invited_contacts, through: :event_invitations, source: :vendor_contact
   has_one :budget, as: :budgetable, dependent: :destroy
 
+  # Email automation associations
+  belongs_to :email_campaign_template, optional: true
+  has_many :scheduled_emails, dependent: :destroy
+  has_many :email_deliveries, through: :scheduled_emails
+
   validates :title, presence: true
   validates :slug, presence: true, uniqueness: true
   validates :status, inclusion: { in: %w[draft published cancelled completed] }, allow_blank: true
@@ -14,6 +19,7 @@ class Event < ApplicationRecord
 
   before_validation :generate_slug, on: :create
   before_save :update_registration_status
+  after_create :assign_email_template_and_generate_emails
 
   scope :published, -> { where(published: true) }
   scope :upcoming, -> { where("event_date > ?", Time.current).order(event_date: :asc) }
@@ -52,5 +58,47 @@ class Event < ApplicationRecord
     if application_deadline > event_date
       errors.add(:application_deadline, "must be on or before the event start date")
     end
+  end
+
+  def assign_email_template_and_generate_emails
+    # Skip if email_campaign_template is already assigned
+    return if email_campaign_template.present?
+
+    # Try to find organization's default template first
+    template = organization.email_campaign_templates.find_by(is_default: true) if organization
+
+    # Fallback to system default template
+    template ||= EmailCampaignTemplate.default_template
+
+    # If no template found, skip email generation gracefully
+    return unless template
+
+    # Assign the template
+    update_column(:email_campaign_template_id, template.id)
+
+    # Generate scheduled emails
+    generate_scheduled_emails
+  rescue => e
+    # Log error but don't fail event creation
+    Rails.logger.error("Failed to generate scheduled emails for event #{id}: #{e.message}")
+  end
+
+  def generate_scheduled_emails
+    return unless email_campaign_template
+
+    generator = ScheduledEmailGenerator.new(self)
+    emails = generator.generate
+
+    Rails.logger.info("Generated #{emails.count} scheduled emails for event #{id}")
+
+    # Log any errors from generation
+    generator.errors.each do |error|
+      Rails.logger.warn("Email generation warning for event #{id}: #{error}")
+    end
+
+    emails
+  rescue => e
+    Rails.logger.error("Failed to generate scheduled emails for event #{id}: #{e.message}")
+    []
   end
 end

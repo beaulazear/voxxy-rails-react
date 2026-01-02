@@ -3,6 +3,9 @@ class Registration < ApplicationRecord
   belongs_to :user, optional: true
   belongs_to :vendor_application, optional: true, counter_cache: :submissions_count
 
+  # Email automation associations
+  has_many :email_deliveries, dependent: :destroy
+
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :status, inclusion: { in: %w[pending confirmed cancelled approved rejected waitlist] }, allow_blank: true
   validates :email, uniqueness: { scope: :event_id, message: "already registered for this event" }

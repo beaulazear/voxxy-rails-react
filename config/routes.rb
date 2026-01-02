@@ -299,6 +299,9 @@ Rails.application.routes.draw do
 
         # Vendor Contacts (CRM)
         resources :vendor_contacts do
+          collection do
+            post :bulk_import
+          end
           member do
             post :record_interaction
             post :add_tag
@@ -327,6 +330,38 @@ Rails.application.routes.draw do
             get "track/:ticket_code", action: :track, as: :track
           end
         end
+
+        # Email Automation
+        resources :email_campaign_templates do
+          member do
+            post :clone
+          end
+          resources :email_template_items do
+            member do
+              patch :reorder
+            end
+          end
+        end
+
+        # Scheduled emails nested under events
+        resources :events, only: [] do
+          resources :scheduled_emails, only: [ :index, :show, :update, :destroy ] do
+            collection do
+              post :generate
+            end
+            member do
+              post :pause
+              post :resume
+              post :send_now
+              post :preview
+            end
+          end
+        end
+      end
+
+      # Webhooks (outside presents namespace - public endpoint)
+      namespace :webhooks do
+        post :sendgrid, to: "sendgrid#create"
       end
 
       # SHARED ROUTES

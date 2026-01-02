@@ -1,3 +1,5 @@
+require "timeout"
+
 module Api
   module V1
     module Presents
@@ -94,6 +96,69 @@ module Api
         def destroy
           @vendor_contact.destroy
           render json: { message: "Vendor contact deleted successfully" }, status: :ok
+        end
+
+        # POST /api/v1/presents/vendor_contacts/bulk_import
+        def bulk_import
+          # Ensure user owns an organization
+          unless @current_user.organizations.any?
+            render json: { error: "You must have an organization to import contacts" }, status: :forbidden
+            return
+          end
+
+          # Get the organization (use first organization for now)
+          organization = @current_user.organizations.first
+
+          # Validate file presence
+          unless params[:file].present?
+            render json: { error: "No file provided" }, status: :unprocessable_entity
+            return
+          end
+
+          # Validate file type
+          file = params[:file]
+          unless file.content_type == "text/csv" || file.original_filename.end_with?(".csv")
+            render json: { error: "File must be a CSV" }, status: :unprocessable_entity
+            return
+          end
+
+          # Parse options
+          options = {
+            skip_duplicates: ActiveModel::Type::Boolean.new.cast(params[:skip_duplicates] || true),
+            update_existing: ActiveModel::Type::Boolean.new.cast(params[:update_existing] || false),
+            tags: params[:tags].present? ? JSON.parse(params[:tags]) : []
+          }
+
+          # Process import
+          import_service = VendorContactImportService.new(organization, file, options)
+
+          # Set timeout to prevent long-running requests
+          result = Timeout.timeout(120) do
+            import_service.process
+          end
+
+          # Return results
+          render json: {
+            success: true,
+            summary: {
+              total_rows: result[:total_rows],
+              created: result[:created],
+              updated: result[:updated],
+              skipped: result[:skipped],
+              failed: result[:failed]
+            },
+            errors: result[:errors]
+          }, status: :ok
+
+        rescue Timeout::Error
+          render json: {
+            error: "Import timeout - file too large. Please split into smaller files."
+          }, status: :request_timeout
+
+        rescue StandardError => e
+          render json: {
+            error: "Import failed: #{e.message}"
+          }, status: :internal_server_error
         end
 
         # POST /api/v1/presents/vendor_contacts/:id/record_interaction

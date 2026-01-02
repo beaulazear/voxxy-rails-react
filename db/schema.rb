@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_31_003148) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_02_144200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -151,6 +151,72 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_31_003148) do
     t.index ["email"], name: "index_contacts_on_email"
   end
 
+  create_table "email_campaign_templates", force: :cascade do |t|
+    t.string "template_type", null: false
+    t.bigint "organization_id"
+    t.string "name", null: false
+    t.text "description"
+    t.boolean "is_default", default: false
+    t.integer "email_count", default: 0
+    t.integer "events_count", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "name"], name: "index_email_campaign_templates_on_organization_id_and_name", unique: true
+    t.index ["organization_id"], name: "index_email_campaign_templates_on_organization_id"
+    t.index ["template_type", "is_default"], name: "index_email_campaign_templates_on_template_type_and_is_default"
+  end
+
+  create_table "email_deliveries", force: :cascade do |t|
+    t.bigint "scheduled_email_id", null: false
+    t.bigint "event_id", null: false
+    t.bigint "registration_id", null: false
+    t.string "sendgrid_message_id", null: false
+    t.string "recipient_email", null: false
+    t.string "status", default: "queued", null: false
+    t.string "bounce_type"
+    t.text "bounce_reason"
+    t.text "drop_reason"
+    t.datetime "sent_at"
+    t.datetime "delivered_at"
+    t.datetime "bounced_at"
+    t.datetime "dropped_at"
+    t.datetime "unsubscribed_at"
+    t.integer "retry_count", default: 0
+    t.datetime "next_retry_at"
+    t.integer "max_retries", default: 3
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "status"], name: "index_email_deliveries_on_event_id_and_status"
+    t.index ["event_id"], name: "index_email_deliveries_on_event_id"
+    t.index ["next_retry_at"], name: "index_email_deliveries_on_next_retry_at", where: "(next_retry_at IS NOT NULL)"
+    t.index ["registration_id", "status"], name: "index_email_deliveries_on_registration_id_and_status"
+    t.index ["registration_id"], name: "index_email_deliveries_on_registration_id"
+    t.index ["scheduled_email_id"], name: "index_email_deliveries_on_scheduled_email_id"
+    t.index ["sendgrid_message_id"], name: "index_email_deliveries_on_sendgrid_message_id", unique: true
+  end
+
+  create_table "email_template_items", force: :cascade do |t|
+    t.bigint "email_campaign_template_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.string "category"
+    t.integer "position", default: 0
+    t.string "subject_template", null: false
+    t.text "body_template", null: false
+    t.string "trigger_type", null: false
+    t.integer "trigger_value"
+    t.time "trigger_time"
+    t.jsonb "filter_criteria", default: {}
+    t.boolean "enabled_by_default", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category"], name: "index_email_template_items_on_category"
+    t.index ["email_campaign_template_id", "position"], name: "idx_on_email_campaign_template_id_position_f8c4195b8e"
+    t.index ["email_campaign_template_id"], name: "index_email_template_items_on_email_campaign_template_id"
+    t.index ["filter_criteria"], name: "index_email_template_items_on_filter_criteria", using: :gin
+    t.check_constraint "\"position\" >= 1 AND \"position\" <= 40", name: "position_range"
+  end
+
   create_table "event_invitations", force: :cascade do |t|
     t.bigint "event_id", null: false
     t.bigint "vendor_contact_id", null: false
@@ -193,7 +259,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_31_003148) do
     t.string "end_time"
     t.string "age_restriction"
     t.string "ticket_link"
+    t.bigint "email_campaign_template_id"
     t.index ["application_deadline"], name: "index_events_on_application_deadline"
+    t.index ["email_campaign_template_id"], name: "index_events_on_email_campaign_template_id"
     t.index ["event_date"], name: "index_events_on_event_date"
     t.index ["organization_id"], name: "index_events_on_organization_id"
     t.index ["published"], name: "index_events_on_published"
@@ -309,6 +377,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_31_003148) do
     t.bigint "vendor_application_id"
     t.string "business_name"
     t.string "vendor_category"
+    t.boolean "email_unsubscribed", default: false, null: false
     t.index ["email"], name: "index_registrations_on_email"
     t.index ["event_id"], name: "index_registrations_on_event_id"
     t.index ["status"], name: "index_registrations_on_status"
@@ -356,6 +425,32 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_31_003148) do
     t.index ["activity_id", "email"], name: "index_responses_on_activity_and_email", unique: true, where: "(email IS NOT NULL)"
     t.index ["activity_id"], name: "index_responses_on_activity_id"
     t.check_constraint "user_id IS NOT NULL OR email IS NOT NULL", name: "responses_user_or_email_present"
+  end
+
+  create_table "scheduled_emails", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "email_campaign_template_id"
+    t.bigint "email_template_item_id"
+    t.string "name", null: false
+    t.string "subject_template"
+    t.text "body_template"
+    t.string "trigger_type"
+    t.integer "trigger_value"
+    t.time "trigger_time"
+    t.datetime "scheduled_for"
+    t.jsonb "filter_criteria", default: {}
+    t.string "status", default: "scheduled"
+    t.datetime "sent_at"
+    t.integer "recipient_count", default: 0
+    t.text "error_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email_campaign_template_id"], name: "index_scheduled_emails_on_email_campaign_template_id"
+    t.index ["email_template_item_id"], name: "index_scheduled_emails_on_email_template_item_id"
+    t.index ["event_id", "status"], name: "index_scheduled_emails_on_event_id_and_status"
+    t.index ["event_id"], name: "index_scheduled_emails_on_event_id"
+    t.index ["filter_criteria"], name: "index_scheduled_emails_on_filter_criteria", using: :gin
+    t.index ["status", "scheduled_for"], name: "index_scheduled_emails_on_status_and_scheduled_for"
   end
 
   create_table "time_slot_votes", force: :cascade do |t|
@@ -573,8 +668,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_31_003148) do
   add_foreign_key "budgets", "users"
   add_foreign_key "comments", "pinned_activities"
   add_foreign_key "comments", "users"
+  add_foreign_key "email_campaign_templates", "organizations"
+  add_foreign_key "email_deliveries", "events"
+  add_foreign_key "email_deliveries", "registrations"
+  add_foreign_key "email_deliveries", "scheduled_emails"
+  add_foreign_key "email_template_items", "email_campaign_templates"
   add_foreign_key "event_invitations", "events"
   add_foreign_key "event_invitations", "vendor_contacts"
+  add_foreign_key "events", "email_campaign_templates"
   add_foreign_key "events", "organizations"
   add_foreign_key "moderation_actions", "reports"
   add_foreign_key "moderation_actions", "users"
@@ -592,6 +693,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_31_003148) do
   add_foreign_key "reports", "users", column: "reviewed_by_id"
   add_foreign_key "responses", "activities"
   add_foreign_key "responses", "users", on_delete: :cascade
+  add_foreign_key "scheduled_emails", "email_campaign_templates"
+  add_foreign_key "scheduled_emails", "email_template_items"
+  add_foreign_key "scheduled_emails", "events"
   add_foreign_key "time_slot_votes", "time_slots"
   add_foreign_key "time_slot_votes", "users"
   add_foreign_key "time_slots", "activities"
