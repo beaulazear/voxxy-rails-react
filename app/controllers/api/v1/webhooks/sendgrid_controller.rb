@@ -4,7 +4,7 @@ module Api
   module V1
     module Webhooks
       class SendgridController < ApplicationController
-        skip_before_action :verify_authenticity_token, only: [ :create ]
+        skip_before_action :authorized
 
         # POST /api/v1/webhooks/sendgrid
         def create
