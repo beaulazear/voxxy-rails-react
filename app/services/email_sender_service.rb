@@ -12,10 +12,8 @@ class EmailSenderService
 
   # Send email to all matching recipients
   def send_to_recipients
-    recipients = RecipientFilterService.filter_recipients(
-      event: event,
-      filter_criteria: scheduled_email.filter_criteria
-    )
+    filter_service = RecipientFilterService.new(event, scheduled_email.filter_criteria)
+    recipients = filter_service.filter_recipients
 
     if recipients.empty?
       Rails.logger.info("No recipients match filter criteria for scheduled email ##{scheduled_email.id}")
