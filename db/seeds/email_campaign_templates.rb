@@ -8,9 +8,9 @@ puts "\n🌱 Seeding Email Campaign Templates...\n"
 existing_default = EmailCampaignTemplate.find_by(template_type: 'system', is_default: true)
 
 if existing_default
-  puts "⚠️  Default template already exists (ID: #{existing_default.id})"
-  puts "   Deleting and recreating..."
-  existing_default.destroy
+  puts "✅ Default template already exists (ID: #{existing_default.id})"
+  puts "   Skipping creation. Use 'rails email_automation:regenerate' to update individual events."
+  exit 0
 end
 
 # Create the default system template
