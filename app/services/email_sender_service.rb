@@ -54,17 +54,9 @@ class EmailSenderService
     end
 
     # Resolve variables
-    subject = EmailVariableResolver.resolve(
-      template: scheduled_email.subject_template,
-      event: event,
-      registration: registration
-    )
-
-    body = EmailVariableResolver.resolve(
-      template: scheduled_email.body_template,
-      event: event,
-      registration: registration
-    )
+    resolver = EmailVariableResolver.new(event, registration)
+    subject = resolver.resolve(scheduled_email.subject_template)
+    body = resolver.resolve(scheduled_email.body_template)
 
     # Send via SendGrid
     response = send_via_sendgrid(
