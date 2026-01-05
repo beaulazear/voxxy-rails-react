@@ -156,9 +156,10 @@ module Api
         private
 
         def set_event
-          @event = Event.find(params[:event_id])
-        rescue ActiveRecord::RecordNotFound
-          render json: { error: "Event not found" }, status: :not_found
+          @event = Event.find_by(slug: params[:event_id])
+          unless @event
+            render json: { error: "Event not found" }, status: :not_found
+          end
         end
 
         def set_scheduled_email
