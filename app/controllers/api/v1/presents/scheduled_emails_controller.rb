@@ -104,9 +104,25 @@ module Api
             return
           end
 
-          @scheduled_email.update(scheduled_for: Time.current, status: "scheduled")
+          # Send immediately using EmailSenderService
+          begin
+            service = EmailSenderService.new(@scheduled_email)
+            result = service.send_to_recipients
 
-          render json: { message: "Email scheduled to send immediately", email: @scheduled_email }
+            render json: {
+              message: "Email sent successfully",
+              sent_count: result[:sent],
+              failed_count: result[:failed],
+              email: @scheduled_email.reload
+            }
+          rescue => e
+            Rails.logger.error("Failed to send email immediately: #{e.message}")
+            @scheduled_email.update(status: "failed", error_message: e.message)
+
+            render json: {
+              error: "Failed to send email: #{e.message}"
+            }, status: :unprocessable_entity
+          end
         end
 
         # POST /api/v1/presents/events/:event_id/scheduled_emails/:id/preview

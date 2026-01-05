@@ -1,0 +1,20 @@
+# Sidekiq-Cron Schedule Configuration
+# This file defines recurring jobs for the email automation system
+
+# Email Sender Worker - Checks for scheduled emails ready to send
+# Runs every 5 minutes
+email_sender_worker:
+  cron: "*/5 * * * *"  # Every 5 minutes
+  class: "EmailSenderWorker"
+  queue: email_delivery
+  description: "Checks for scheduled emails ready to send and sends them"
+  active_job: false
+
+# Email Retry Scanner - Checks for emails pending retry
+# Runs every 30 minutes
+email_retry_scanner:
+  cron: "*/30 * * * *"  # Every 30 minutes
+  class: "EmailRetryScannerJob"
+  queue: email_delivery
+  description: "Scans for soft-bounced emails that need to be retried"
+  active_job: false
