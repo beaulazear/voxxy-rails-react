@@ -81,7 +81,7 @@ class EmailVariableResolver
       .gsub("[boothPrice]", format_currency(event.ticket_price))
       .gsub("[paymentDueDate]", format_date(event.application_deadline))
       .gsub("[organizationName]", event.organization&.name || "")
-      .gsub("[organizationEmail]", event.organization&.email || event.organization&.contact_email || "")
+      .gsub("[organizationEmail]", event.organization&.email || "")
   end
 
   def resolve_registration_variables(template)
