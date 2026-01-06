@@ -279,7 +279,7 @@ create_email(template, {
   trigger_type: 'days_before_payment_deadline',
   trigger_value: 7,
   trigger_time: '10:00',
-  filter_criteria: { status: [ 'approved' ], payment_status: [ 'unpaid' ] },
+  filter_criteria: { status: [ 'approved' ] },
   enabled_by_default: true
 })
 
@@ -307,7 +307,7 @@ create_email(template, {
   trigger_type: 'days_before_payment_deadline',
   trigger_value: 3,
   trigger_time: '09:00',
-  filter_criteria: { status: [ 'approved' ], payment_status: [ 'unpaid' ] },
+  filter_criteria: { status: [ 'approved' ] },
   enabled_by_default: true
 })
 
@@ -337,7 +337,7 @@ create_email(template, {
   trigger_type: 'on_payment_deadline',
   trigger_value: 0,
   trigger_time: '08:00',
-  filter_criteria: { status: [ 'approved' ], payment_status: [ 'unpaid' ] },
+  filter_criteria: { status: [ 'approved' ] },
   enabled_by_default: true
 })
 
@@ -381,7 +381,7 @@ create_email(template, {
   trigger_type: 'days_before_event',
   trigger_value: 33,
   trigger_time: '10:00',
-  filter_criteria: { status: [ 'approved', 'confirmed' ], payment_status: [ 'paid' ] },
+  filter_criteria: { status: [ 'approved', 'confirmed' ] },
   enabled_by_default: true
 })
 
@@ -421,7 +421,7 @@ create_email(template, {
   trigger_type: 'days_before_event',
   trigger_value: 23,
   trigger_time: '11:00',
-  filter_criteria: { status: [ 'approved', 'confirmed' ], payment_status: [ 'paid' ] },
+  filter_criteria: { status: [ 'approved', 'confirmed' ] },
   enabled_by_default: true
 })
 
@@ -456,7 +456,7 @@ create_email(template, {
   trigger_type: 'days_before_event',
   trigger_value: 10,
   trigger_time: '09:00',
-  filter_criteria: { status: [ 'approved', 'confirmed' ], payment_status: [ 'paid' ] },
+  filter_criteria: { status: [ 'approved', 'confirmed' ] },
   enabled_by_default: true
 })
 
@@ -495,7 +495,7 @@ create_email(template, {
   trigger_type: 'days_before_event',
   trigger_value: 4,
   trigger_time: '16:00',
-  filter_criteria: { status: [ 'approved', 'confirmed' ], payment_status: [ 'paid' ] },
+  filter_criteria: { status: [ 'approved', 'confirmed' ] },
   enabled_by_default: true
 })
 
@@ -529,7 +529,7 @@ create_email(template, {
   trigger_type: 'days_before_event',
   trigger_value: 2,
   trigger_time: '17:00',
-  filter_criteria: { status: [ 'approved', 'confirmed' ], payment_status: [ 'paid' ] },
+  filter_criteria: { status: [ 'approved', 'confirmed' ] },
   enabled_by_default: true
 })
 
@@ -567,7 +567,7 @@ create_email(template, {
   trigger_type: 'on_event_date',
   trigger_value: 0,
   trigger_time: '07:00',
-  filter_criteria: { status: [ 'approved', 'confirmed' ], payment_status: [ 'paid' ] },
+  filter_criteria: { status: [ 'approved', 'confirmed' ] },
   enabled_by_default: true
 })
 
@@ -600,7 +600,7 @@ create_email(template, {
   trigger_type: 'days_after_event',
   trigger_value: 1,
   trigger_time: '10:00',
-  filter_criteria: { status: [ 'approved', 'confirmed' ], payment_status: [ 'paid' ] },
+  filter_criteria: { status: [ 'approved', 'confirmed' ] },
   enabled_by_default: true
 })
 
