@@ -145,11 +145,10 @@ module Api
           )
 
           render json: {
-            registration: { id: registration.id, name: registration.name, email: registration.email },
+            recipient_name: registration.name,
+            recipient_email: registration.email,
             subject: resolved[:subject],
-            body: resolved[:body],
-            original_subject: @scheduled_email.subject_template,
-            original_body: @scheduled_email.body_template
+            body: resolved[:body]
           }
         end
 

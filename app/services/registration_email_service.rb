@@ -1,6 +1,4 @@
 class RegistrationEmailService < BaseEmailService
-  # Voxxy Presents logo URL (converted to PNG for email compatibility)
-  PRESENTS_LOGO_URL = "https://res.cloudinary.com/dgtpgywhl/image/upload/f_png/v1764081415/Voxxy_Presents_-_Option_1_ovzjj5.svg"
   # Send confirmation email to the person who registered/submitted
   def self.send_confirmation(registration)
     Rails.logger.info "Sending registration confirmation email to: #{registration.email}"
@@ -48,7 +46,17 @@ class RegistrationEmailService < BaseEmailService
         <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Contact:</strong> #{registration.name}</p>
         <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Email:</strong> #{registration.email}</p>
         #{registration.phone.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;'><strong>Phone:</strong> #{registration.phone}</p>" : ""}
+        #{registration.instagram_handle.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;'><strong>Instagram:</strong> <a href='https://instagram.com/#{registration.instagram_handle.delete_prefix('@')}' style='color: #9D60F8; text-decoration: none;'>#{registration.instagram_handle}</a></p>" : ""}
+        #{registration.tiktok_handle.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;'><strong>TikTok:</strong> <a href='https://tiktok.com/@#{registration.tiktok_handle.delete_prefix('@')}' style='color: #9D60F8; text-decoration: none;'>#{registration.tiktok_handle}</a></p>" : ""}
+        #{registration.website.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;'><strong>Website:</strong> <a href='#{registration.website}' style='color: #9D60F8; text-decoration: none;'>#{registration.website}</a></p>" : ""}
       </div>
+
+      #{registration.note_to_host.present? ?
+        "<div style='background: #fffbea; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;'>
+          <p style='margin: 0 0 8px 0; font-size: 14px; color: #92400e; font-weight: 600;'>Message from Vendor:</p>
+          <p style='margin: 0; font-size: 14px; color: #78350f; font-style: italic;'>\"#{registration.note_to_host}\"</p>
+        </div>" : ""
+      }
 
       <p style="#{BASE_STYLES[:text]}">
         Review the submission and update its status (approve, reject, or waitlist) in your dashboard.
@@ -59,7 +67,8 @@ class RegistrationEmailService < BaseEmailService
       "New Vendor Application",
       content,
       "Review Submission",
-      submission_url
+      submission_url,
+      event.organization
     )
 
     # Use organization email if available, otherwise use owner's email
@@ -102,8 +111,8 @@ class RegistrationEmailService < BaseEmailService
 
   private
 
-  # Build Voxxy Presents branded email template
-  def self.build_presents_email_template(title, content, button_text = nil, button_url = nil)
+  # Build email template with organization branding
+  def self.build_presents_email_template(title, content, button_text = nil, button_url = nil, organization = nil)
     <<~HTML
       <!DOCTYPE html>
       <html>
@@ -116,10 +125,9 @@ class RegistrationEmailService < BaseEmailService
         <body style="#{BASE_STYLES[:body]}">
           <div style="#{BASE_STYLES[:container]}">
             <div style="#{BASE_STYLES[:inner_container]}">
-              <!-- Voxxy Presents Logo -->
+              <!-- Organization Header -->
               <div style="#{BASE_STYLES[:header]}">
-                <img src="#{PRESENTS_LOGO_URL}"
-                     alt="Voxxy Presents" style="#{BASE_STYLES[:logo]}">
+                <h2 style="margin: 0; color: #9D60F8; font-size: 24px; font-weight: 700;">#{organization&.name || 'Event Organizer'}</h2>
               </div>
 
               <!-- Main Title -->
@@ -142,7 +150,6 @@ class RegistrationEmailService < BaseEmailService
                 <p style="margin: 0 0 10px 0;">See you at the event! ✨</p>
                 <p style="font-size: 12px; color: #a0aec0; margin: 0;">
                   If you didn't expect this email, you can safely ignore it.
-                  <br><a href="mailto:unsubscribe@voxxyai.com" style="color: #9D60F8; text-decoration: none;">Unsubscribe</a>
                 </p>
               </div>
             </div>
@@ -199,7 +206,8 @@ class RegistrationEmailService < BaseEmailService
       "Application Received",
       content,
       "Track My Application",
-      tracking_url
+      tracking_url,
+      event.organization
     )
 
     headers = {
@@ -257,7 +265,8 @@ class RegistrationEmailService < BaseEmailService
       "You're Registered!",
       content,
       "View Event Details",
-      event_url
+      event_url,
+      event.organization
     )
 
     headers = {
@@ -302,7 +311,10 @@ class RegistrationEmailService < BaseEmailService
 
     email_html = build_presents_email_template(
       "Application Approved!",
-      content
+      content,
+      nil,
+      nil,
+      event.organization
     )
 
     headers = {
@@ -341,7 +353,10 @@ class RegistrationEmailService < BaseEmailService
 
     email_html = build_presents_email_template(
       "Application Status Update",
-      content
+      content,
+      nil,
+      nil,
+      event.organization
     )
 
     headers = {
@@ -386,7 +401,10 @@ class RegistrationEmailService < BaseEmailService
 
     email_html = build_presents_email_template(
       "You're on the Waitlist",
-      content
+      content,
+      nil,
+      nil,
+      event.organization
     )
 
     headers = {
