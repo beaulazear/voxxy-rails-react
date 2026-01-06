@@ -166,16 +166,29 @@ class VendorContactImportService
     # Merge with additional tags from options
     tags = (tags + @options[:tags]).uniq
 
+    # Parse categories (comma-separated string to array)
+    categories = if row[:categories].present?
+                   row[:categories].to_s.split(",").map(&:strip).reject(&:blank?)
+    else
+                   []
+    end
+
     {
       name: row[:name]&.strip,
       email: row[:email]&.strip&.downcase,
       phone: row[:phone]&.strip,
-      company_name: row[:business_name]&.strip || row[:company_name]&.strip,
+      business_name: row[:business_name]&.strip,
       job_title: row[:job_title]&.strip,
       contact_type: row[:contact_type]&.strip&.downcase || "vendor",
       status: row[:status]&.strip&.downcase || "new",
       tags: tags,
+      categories: categories,
       notes: row[:notes]&.strip,
+      location: row[:location]&.strip,
+      instagram_handle: row[:instagram_handle]&.strip || row[:instagram]&.strip,
+      tiktok_handle: row[:tiktok_handle]&.strip || row[:tiktok]&.strip,
+      website: row[:website]&.strip || row[:portfolio_url]&.strip,
+      featured: row[:featured].to_s.downcase.in?([ "true", "1", "yes" ]),
       source: "csv_import",
       imported_at: Time.current,
       organization_id: @organization.id

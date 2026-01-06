@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_06_002558) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_06_053015) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -587,7 +587,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_06_002558) do
     t.string "name", null: false
     t.string "email"
     t.string "phone"
-    t.string "company_name"
+    t.string "business_name"
     t.string "job_title"
     t.string "contact_type"
     t.string "status", default: "new"
@@ -599,9 +599,18 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_06_002558) do
     t.datetime "imported_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "instagram_handle"
+    t.string "tiktok_handle"
+    t.string "website"
+    t.string "location"
+    t.jsonb "categories", default: []
+    t.boolean "featured", default: false
+    t.index ["categories"], name: "index_vendor_contacts_on_categories", using: :gin
     t.index ["contact_type"], name: "index_vendor_contacts_on_contact_type"
     t.index ["created_at"], name: "index_vendor_contacts_on_created_at"
     t.index ["email"], name: "index_vendor_contacts_on_email"
+    t.index ["featured"], name: "index_vendor_contacts_on_featured"
+    t.index ["location"], name: "index_vendor_contacts_on_location"
     t.index ["organization_id", "status"], name: "index_vendor_contacts_on_organization_id_and_status"
     t.index ["organization_id"], name: "index_vendor_contacts_on_organization_id"
     t.index ["registration_id"], name: "index_vendor_contacts_on_registration_id"

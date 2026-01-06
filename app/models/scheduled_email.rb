@@ -35,27 +35,27 @@ class ScheduledEmail < ApplicationRecord
     # Apply filter criteria if present
     if filter_criteria.present?
       # Filter by status (e.g., ['approved', 'confirmed'])
-      if filter_criteria['status'].present?
-        recipients = recipients.where(status: filter_criteria['status'])
+      if filter_criteria["status"].present?
+        recipients = recipients.where(status: filter_criteria["status"])
       end
 
       # Filter by vendor category
-      if filter_criteria['vendor_category'].present?
-        recipients = recipients.where(vendor_category: filter_criteria['vendor_category'])
+      if filter_criteria["vendor_category"].present?
+        recipients = recipients.where(vendor_category: filter_criteria["vendor_category"])
       end
 
       # Filter by excluded status
-      if filter_criteria['exclude_status'].present?
-        recipients = recipients.where.not(status: filter_criteria['exclude_status'])
+      if filter_criteria["exclude_status"].present?
+        recipients = recipients.where.not(status: filter_criteria["exclude_status"])
       end
 
       # Filter by location
-      if filter_criteria['location_city'].present?
+      if filter_criteria["location_city"].present?
         # Note: registrations table doesn't have city field yet
         # This is prepared for future use
       end
 
-      if filter_criteria['location_state'].present?
+      if filter_criteria["location_state"].present?
         # Note: registrations table doesn't have state field yet
         # This is prepared for future use
       end
