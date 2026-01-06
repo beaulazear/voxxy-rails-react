@@ -177,7 +177,7 @@ mock_event = OpenStruct.new(
   title: "Summer Market 2025",
   event_date: Date.parse('2025-06-15'),
   location: "Piedmont Park, Atlanta, GA",
-  organization: OpenStruct.new(name: "Voxxy Presents", email: "hello@voxxypresents.com")
+  organization: OpenStruct.new(name: "Voxxy Presents", email: "team@voxxypresents.com")
 )
 
 mock_registration = OpenStruct.new(

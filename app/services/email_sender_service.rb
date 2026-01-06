@@ -87,7 +87,7 @@ class EmailSenderService
     mail = SendGrid::Mail.new
 
     # From address
-    from_email = organization.email || ENV["SENDER_EMAIL"] || "hello@voxxypresents.com"
+    from_email = organization.email || ENV["SENDER_EMAIL"] || "team@voxxypresents.com"
     from_name = organization.name || "Voxxy Presents"
     mail.from = SendGrid::Email.new(email: from_email, name: from_name)
 

@@ -140,7 +140,7 @@ test "EmailVariableResolver.resolve - event variables" do
     title: "Summer Market 2025",
     event_date: Date.parse('2025-06-15'),
     venue: "Piedmont Park",
-    organization: OpenStruct.new(name: "Voxxy Presents", email: "hello@voxxypresents.com")
+    organization: OpenStruct.new(name: "Voxxy Presents", email: "team@voxxypresents.com")
   )
 
   mock_registration = OpenStruct.new(
