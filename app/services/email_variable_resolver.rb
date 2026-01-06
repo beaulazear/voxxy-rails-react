@@ -11,6 +11,7 @@
 #     [eventDate] - Formatted event date
 #     [eventTime] - Event time
 #     [eventLocation] - Event location/address
+#     [eventVenue] - Event venue name
 #     [eventDescription] - Event description
 #     [applicationDeadline] - Application deadline date
 #     [boothPrice] - Booth/vendor price
@@ -28,18 +29,27 @@
 #     [boothNumber] - Assigned booth number (if any)
 #     [applicationDate] - Date application was submitted
 #
+#   Vendor Application variables (from active vendor application):
+#     [installDate] - Setup/install date
+#     [installTime] - Setup/install time range
+#     [installStartTime] - Setup/install start time
+#     [installEndTime] - Setup/install end time
+#     [paymentLink] - Payment link URL
+#
 #   Special variables:
 #     [unsubscribeLink] - Unsubscribe URL
 #     [eventLink] - Public event page URL
+#     [bulletinLink] - Public event bulletin page URL (same as eventLink)
 #     [dashboardLink] - Vendor dashboard URL
 
 class EmailVariableResolver
-  attr_reader :event, :registration, :base_url
+  attr_reader :event, :registration, :base_url, :vendor_application
 
   def initialize(event, registration = nil, base_url: nil)
     @event = event
     @registration = registration
     @base_url = base_url || ENV["FRONTEND_URL"] || "https://voxxy.io"
+    @vendor_application = event&.active_vendor_application
   end
 
   # Resolve all variables in a template string
@@ -53,6 +63,9 @@ class EmailVariableResolver
 
     # Resolve vendor/registration variables (if registration present)
     resolved = resolve_registration_variables(resolved) if registration
+
+    # Resolve vendor application variables (if vendor_application present)
+    resolved = resolve_vendor_application_variables(resolved) if vendor_application
 
     # Resolve special variables
     resolved = resolve_special_variables(resolved)
@@ -71,14 +84,18 @@ class EmailVariableResolver
   private
 
   def resolve_event_variables(template)
+    # Get booth price from vendor_application if available, otherwise use event ticket_price
+    booth_price = vendor_application&.booth_price || event.ticket_price
+
     template
       .gsub("[eventName]", event.title || "")
       .gsub("[eventDate]", format_date(event.event_date))
       .gsub("[eventTime]", event.start_time || "")
-      .gsub("[eventLocation]", event.venue || event.location || "")
+      .gsub("[eventLocation]", event.location || "")
+      .gsub("[eventVenue]", event.venue || "")
       .gsub("[eventDescription]", event.description || "")
       .gsub("[applicationDeadline]", format_date(event.application_deadline))
-      .gsub("[boothPrice]", format_currency(event.ticket_price))
+      .gsub("[boothPrice]", format_currency(booth_price))
       .gsub("[paymentDueDate]", format_date(event.application_deadline))
       .gsub("[organizationName]", event.organization&.name || "")
       .gsub("[organizationEmail]", event.organization&.email || "")
@@ -104,10 +121,30 @@ class EmailVariableResolver
       .gsub("[applicationDate]", format_date(registration.created_at))
   end
 
+  def resolve_vendor_application_variables(template)
+    # Format install time range
+    install_time = ""
+    if vendor_application.install_start_time.present? && vendor_application.install_end_time.present?
+      install_time = "#{vendor_application.install_start_time} - #{vendor_application.install_end_time}"
+    elsif vendor_application.install_start_time.present?
+      install_time = vendor_application.install_start_time
+    elsif vendor_application.install_end_time.present?
+      install_time = vendor_application.install_end_time
+    end
+
+    template
+      .gsub("[installDate]", format_date(vendor_application.install_date))
+      .gsub("[installTime]", install_time)
+      .gsub("[installStartTime]", vendor_application.install_start_time || "")
+      .gsub("[installEndTime]", vendor_application.install_end_time || "")
+      .gsub("[paymentLink]", vendor_application.payment_link || "")
+  end
+
   def resolve_special_variables(template)
     template
       .gsub("[unsubscribeLink]", unsubscribe_link)
       .gsub("[eventLink]", event_link)
+      .gsub("[bulletinLink]", event_link)  # Bulletin link is same as event link
       .gsub("[dashboardLink]", dashboard_link)
   end
 

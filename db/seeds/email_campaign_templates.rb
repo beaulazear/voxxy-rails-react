@@ -54,17 +54,17 @@ create_email(template, {
       <li><strong>Date:</strong> [eventDate]</li>
       <li><strong>Location:</strong> [eventVenue], [eventLocation]</li>
       <li><strong>Application Deadline:</strong> [applicationDeadline]</li>
-      <li><strong>Booth Fee:</strong> [categoryPrice]</li>
+      <li><strong>Booth Fee:</strong> [boothPrice]</li>
     </ul>
 
     <p style="text-align: center; margin: 30px 0;">
-      <a href="{{event_url}}" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Apply Now</a>
+      <a href="[eventLink]" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Apply Now</a>
     </p>
 
     <p>Spots are limited—apply early to secure your spot!</p>
 
     <p>Looking forward to having you,<br>
-    [producerName]</p>
+    [organizationName]</p>
   HTML
   trigger_type: 'on_application_open',
   trigger_value: 0,
@@ -94,11 +94,11 @@ create_email(template, {
     <strong>Event Date:</strong> [eventDate]</p>
 
     <p style="text-align: center; margin: 30px 0;">
-      <a href="{{event_url}}" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Apply Now</a>
+      <a href="[eventLink]" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Apply Now</a>
     </p>
 
     <p>Best regards,<br>
-    [producerName]</p>
+    [organizationName]</p>
   HTML
   trigger_type: 'days_before_deadline',
   trigger_value: 70,
@@ -121,16 +121,16 @@ create_email(template, {
     <ul>
       <li>Event: [eventDate] at [eventVenue]</li>
       <li>Deadline: [applicationDeadline]</li>
-      <li>Fee: [categoryPrice]</li>
+      <li>Fee: [boothPrice]</li>
     </ul>
 
     <p style="text-align: center; margin: 30px 0;">
-      <a href="{{event_url}}" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Submit Application</a>
+      <a href="[eventLink]" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Submit Application</a>
     </p>
 
     <p>Questions? Reply to this email.</p>
 
-    <p>[producerName]</p>
+    <p>[organizationName]</p>
   HTML
   trigger_type: 'days_before_deadline',
   trigger_value: 56,
@@ -154,11 +154,11 @@ create_email(template, {
     <p>Don't miss this opportunity to be part of an amazing event at [eventVenue] on [eventDate].</p>
 
     <p style="text-align: center; margin: 30px 0;">
-      <a href="{{event_url}}" style="background: #dc2626; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Apply Before It's Too Late</a>
+      <a href="[eventLink]" style="background: #dc2626; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Apply Before It's Too Late</a>
     </p>
 
     <p>See you there!<br>
-    [producerName]</p>
+    [organizationName]</p>
   HTML
   trigger_type: 'days_before_deadline',
   trigger_value: 12,
@@ -189,24 +189,24 @@ create_email(template, {
     <ol>
       <li>We'll review your application</li>
       <li>You'll hear from us by [applicationDeadline]</li>
-      <li>If approved, payment will be due by [paymentDeadline]</li>
+      <li>If approved, payment will be due by [paymentDueDate]</li>
     </ol>
 
     <p><strong>Your Application Details:</strong></p>
     <ul>
-      <li>Business Name: [vendorName]</li>
-      <li>Category: [categoryName]</li>
-      <li>Booth Fee: [categoryPrice]</li>
+      <li>Business Name: [businessName]</li>
+      <li>Category: [vendorCategory]</li>
+      <li>Booth Fee: [boothPrice]</li>
     </ul>
 
     <p style="text-align: center; margin: 30px 0;">
-      <a href="{{tracking_url}}" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Track Your Application</a>
+      <a href="[dashboardLink]" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">View Your Dashboard</a>
     </p>
 
     <p>Thank you for applying!</p>
 
     <p>Best regards,<br>
-    [producerName]</p>
+    [organizationName]</p>
   HTML
   trigger_type: 'on_application_submit',
   trigger_value: 0,
@@ -234,18 +234,18 @@ create_email(template, {
     <p><strong>Congratulations!</strong> Your application for <strong>[eventName]</strong> has been approved!</p>
 
     <h3>Next Step: Complete Payment</h3>
-    <p>Your booth fee of <strong>[categoryPrice]</strong> is due by <strong>[paymentDeadline]</strong>.</p>
+    <p>Your booth fee of <strong>[boothPrice]</strong> is due by <strong>[paymentDueDate]</strong>.</p>
 
     <p style="text-align: center; margin: 30px 0;">
       <a href="[paymentLink]" style="background: #10b981; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Pay Now</a>
     </p>
 
-    <p><strong>Important:</strong> Your spot is reserved until [paymentDeadline]. After this date, unpaid spots may be released to waitlisted vendors.</p>
+    <p><strong>Important:</strong> Your spot is reserved until [paymentDueDate]. After this date, unpaid spots may be released to waitlisted vendors.</p>
 
     <p>We're excited to have you at [eventName]!</p>
 
     <p>Best regards,<br>
-    [producerName]</p>
+    [organizationName]</p>
   HTML
   trigger_type: 'on_approval',
   trigger_value: 0,
@@ -264,8 +264,8 @@ create_email(template, {
 
     <p>This is a friendly reminder that your payment for <strong>[eventName]</strong> is due in 7 days.</p>
 
-    <p><strong>Amount Due:</strong> [categoryPrice]<br>
-    <strong>Payment Deadline:</strong> [paymentDeadline]</p>
+    <p><strong>Amount Due:</strong> [boothPrice]<br>
+    <strong>Payment Deadline:</strong> [paymentDueDate]</p>
 
     <p style="text-align: center; margin: 30px 0;">
       <a href="[paymentLink]" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Complete Payment</a>
@@ -274,7 +274,7 @@ create_email(template, {
     <p>Questions about payment? Reply to this email.</p>
 
     <p>Thank you,<br>
-    [producerName]</p>
+    [organizationName]</p>
   HTML
   trigger_type: 'days_before_payment_deadline',
   trigger_value: 7,
@@ -291,9 +291,9 @@ create_email(template, {
   body_template: <<~HTML,
     <p>Hi [firstName],</p>
 
-    <p><strong>Important:</strong> Your payment for <strong>[eventName]</strong> is due in 3 days on [paymentDeadline].</p>
+    <p><strong>Important:</strong> Your payment for <strong>[eventName]</strong> is due in 3 days on [paymentDueDate].</p>
 
-    <p>Please complete your payment of <strong>[categoryPrice]</strong> to secure your spot.</p>
+    <p>Please complete your payment of <strong>[boothPrice]</strong> to secure your spot.</p>
 
     <p style="text-align: center; margin: 30px 0;">
       <a href="[paymentLink]" style="background: #f59e0b; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Pay Now</a>
@@ -302,7 +302,7 @@ create_email(template, {
     <p><strong>Note:</strong> Unpaid spots may be released to our waitlist after the deadline.</p>
 
     <p>Thank you,<br>
-    [producerName]</p>
+    [organizationName]</p>
   HTML
   trigger_type: 'days_before_payment_deadline',
   trigger_value: 3,
@@ -321,7 +321,7 @@ create_email(template, {
 
     <p><strong>URGENT:</strong> Your payment for <strong>[eventName]</strong> is due <strong>TODAY</strong>.</p>
 
-    <p>Amount: <strong>[categoryPrice]</strong></p>
+    <p>Amount: <strong>[boothPrice]</strong></p>
 
     <p style="text-align: center; margin: 30px 0;">
       <a href="[paymentLink]" style="background: #dc2626; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Pay Immediately</a>
@@ -329,10 +329,10 @@ create_email(template, {
 
     <p><strong>Important:</strong> If payment is not received by end of day, your spot may be released.</p>
 
-    <p>Need an extension? Contact us immediately at [producerEmail].</p>
+    <p>Need an extension? Contact us immediately at [organizationEmail].</p>
 
     <p>Thank you,<br>
-    [producerName]</p>
+    [organizationName]</p>
   HTML
   trigger_type: 'on_payment_deadline',
   trigger_value: 0,
@@ -376,7 +376,7 @@ create_email(template, {
     </p>
 
     <p>See you soon!<br>
-    [producerName]</p>
+    [organizationName]</p>
   HTML
   trigger_type: 'days_before_event',
   trigger_value: 33,
@@ -416,7 +416,7 @@ create_email(template, {
     <p>Questions? Reply to this email.</p>
 
     <p>Best,<br>
-    [producerName]</p>
+    [organizationName]</p>
   HTML
   trigger_type: 'days_before_event',
   trigger_value: 23,
@@ -451,7 +451,7 @@ create_email(template, {
     </p>
 
     <p>Getting excited!<br>
-    [producerName]</p>
+    [organizationName]</p>
   HTML
   trigger_type: 'days_before_event',
   trigger_value: 10,
@@ -490,7 +490,7 @@ create_email(template, {
     </p>
 
     <p>Can't wait to see you!<br>
-    [producerName]</p>
+    [organizationName]</p>
   HTML
   trigger_type: 'days_before_event',
   trigger_value: 4,
@@ -517,14 +517,14 @@ create_email(template, {
     <p><strong>Weather Forecast:</strong> Check local weather and plan accordingly!</p>
 
     <p><strong>Last-Minute Questions?</strong><br>
-    Contact us at [producerEmail]</p>
+    Contact us at [organizationEmail]</p>
 
     <p style="text-align: center; margin: 30px 0;">
       <a href="[bulletinLink]" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Check for Updates</a>
     </p>
 
     <p>Almost here!<br>
-    [producerName]</p>
+    [organizationName]</p>
   HTML
   trigger_type: 'days_before_event',
   trigger_value: 2,
@@ -562,7 +562,7 @@ create_email(template, {
     </p>
 
     <p>See you soon!<br>
-    [producerName]</p>
+    [organizationName]</p>
   HTML
   trigger_type: 'on_event_date',
   trigger_value: 0,
@@ -590,16 +590,12 @@ create_email(template, {
       <li>🔔 Stay tuned for future events</li>
     </ul>
 
-    <p>We'd love to hear about your experience:</p>
-
-    <p style="text-align: center; margin: 30px 0;">
-      <a href="{{feedback_url}}" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Share Feedback</a>
-    </p>
+    <p>We'd love to hear about your experience! Reply to this email to share your feedback.</p>
 
     <p>Looking forward to working with you again!</p>
 
     <p>With gratitude,<br>
-    [producerName]</p>
+    [organizationName]</p>
   HTML
   trigger_type: 'days_after_event',
   trigger_value: 1,
