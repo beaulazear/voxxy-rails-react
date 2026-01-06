@@ -50,7 +50,7 @@ namespace :email_automation do
   end
 
   desc "Regenerate scheduled emails for a specific event (by slug)"
-  task :regenerate, [:event_slug] => :environment do |t, args|
+  task :regenerate, [ :event_slug ] => :environment do |t, args|
     unless args[:event_slug]
       puts "❌ Error: Please provide an event slug"
       puts "   Usage: rails email_automation:regenerate[event-slug]"

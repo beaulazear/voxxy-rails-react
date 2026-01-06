@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_02_144200) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_06_002558) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -378,6 +378,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_02_144200) do
     t.string "business_name"
     t.string "vendor_category"
     t.boolean "email_unsubscribed", default: false, null: false
+    t.string "instagram_handle"
+    t.string "tiktok_handle"
+    t.string "website"
+    t.text "note_to_host"
     t.index ["email"], name: "index_registrations_on_email"
     t.index ["event_id"], name: "index_registrations_on_event_id"
     t.index ["status"], name: "index_registrations_on_status"

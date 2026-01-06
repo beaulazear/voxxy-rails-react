@@ -132,7 +132,11 @@ module Api
             :subscribed,
             :business_name,
             :vendor_category,
-            :vendor_application_id
+            :vendor_application_id,
+            :instagram_handle,
+            :tiktok_handle,
+            :website,
+            :note_to_host
           )
         end
 
