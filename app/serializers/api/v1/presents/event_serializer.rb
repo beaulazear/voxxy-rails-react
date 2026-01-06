@@ -83,7 +83,13 @@ module Api
               description: app.description,
               categories: app.categories,
               submissions_count: app.submissions_count,
-              booth_price: app.booth_price&.to_f
+              booth_price: app.booth_price&.to_f,
+              install: {
+                install_date: app.install_date,
+                install_start_time: app.install_start_time,
+                install_end_time: app.install_end_time
+              },
+              application_tags: app.application_tags
             }
           end
         end
