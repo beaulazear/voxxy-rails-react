@@ -22,6 +22,10 @@ module Api
             business_name: @registration.business_name,
             vendor_category: @registration.vendor_category,
             vendor_application_id: @registration.vendor_application_id,
+            instagram_handle: @registration.instagram_handle,
+            tiktok_handle: @registration.tiktok_handle,
+            website: @registration.website,
+            note_to_host: @registration.note_to_host,
             created_at: @registration.created_at,
             updated_at: @registration.updated_at
           }.tap do |json|
