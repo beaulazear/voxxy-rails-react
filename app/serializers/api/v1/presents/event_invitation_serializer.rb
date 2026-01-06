@@ -41,8 +41,17 @@ module Api
             title: @event_invitation.event.title,
             slug: @event_invitation.event.slug,
             description: @event_invitation.event.description,
-            event_date: @event_invitation.event.event_date,
+            dates: {
+              start: @event_invitation.event.event_date,
+              end: @event_invitation.event.event_end_date,
+              start_time: @event_invitation.event.start_time,
+              end_time: @event_invitation.event.end_time
+            },
+            venue: @event_invitation.event.venue,
             location: @event_invitation.event.location,
+            age_restriction: @event_invitation.event.age_restriction,
+            ticket_url: @event_invitation.event.ticket_url,
+            ticket_link: @event_invitation.event.ticket_link,
             poster_url: @event_invitation.event.poster_url,
             application_deadline: @event_invitation.event.application_deadline,
             organization: organization_json,
@@ -57,10 +66,16 @@ module Api
               name: application.name,
               description: application.description,
               categories: application.categories || [],
-              booth_price: application.booth_price,
+              booth_price: application.booth_price&.to_f,
               shareable_code: application.shareable_code,
               shareable_url: application.shareable_url,
-              status: application.status
+              status: application.status,
+              install: {
+                install_date: application.install_date,
+                install_start_time: application.install_start_time,
+                install_end_time: application.install_end_time
+              },
+              application_tags: application.application_tags
             }
           end
         end
@@ -80,7 +95,7 @@ module Api
             id: @event_invitation.vendor_contact.id,
             name: @event_invitation.vendor_contact.name,
             email: @event_invitation.vendor_contact.email,
-            company_name: @event_invitation.vendor_contact.company_name,
+            business_name: @event_invitation.vendor_contact.try(:business_name),
             contact_type: @event_invitation.vendor_contact.contact_type
           }
         end

@@ -113,10 +113,38 @@
           <p><%= @event.description %></p>
         <% end %>
 
-        <p><strong>Date:</strong> <%= @event.event_date.strftime("%B %d, %Y at %I:%M %p") %></p>
+        <% if @event.event_date.present? %>
+          <p><strong>Date:</strong>
+            <% if @event.event_end_date.present? && @event.event_date.to_date != @event.event_end_date.to_date %>
+              <%= @event.event_date.strftime("%B %d") %> - <%= @event.event_end_date.strftime("%B %d, %Y") %>
+            <% else %>
+              <%= @event.event_date.strftime("%B %d, %Y") %>
+            <% end %>
+          </p>
+        <% end %>
+
+        <% if @event.start_time.present? || @event.end_time.present? %>
+          <p><strong>Time:</strong>
+            <%= @event.start_time.present? ? @event.start_time : '' %>
+            <%= @event.start_time.present? && @event.end_time.present? ? ' - ' : '' %>
+            <%= @event.end_time.present? ? @event.end_time : '' %>
+          </p>
+        <% end %>
+
+        <% if @event.venue.present? %>
+          <p><strong>Venue:</strong> <%= @event.venue %></p>
+        <% end %>
 
         <% if @event.location.present? %>
           <p><strong>Location:</strong> <%= @event.location %></p>
+        <% end %>
+
+        <% if @event.age_restriction.present? %>
+          <p><strong>Age Restriction:</strong> <%= @event.age_restriction %></p>
+        <% end %>
+
+        <% if @event.ticket_link.present? || @event.ticket_url.present? %>
+          <p><strong>Event Info:</strong> <a href="<%= @event.ticket_link.presence || @event.ticket_url %>" style="color: #9b59b6; text-decoration: none;">View Details</a></p>
         <% end %>
 
         <% if @event.application_deadline.present? %>
@@ -142,7 +170,7 @@
     </div>
 
     <div class="footer">
-      <p>This invitation was sent by <%= @organization.name %> via Voxxy Presents</p>
+      <p>This invitation was sent by <%= @organization.name %></p>
       <p>If you believe this was sent in error, please contact <%= @organization.name %> directly.</p>
     </div>
   </div>

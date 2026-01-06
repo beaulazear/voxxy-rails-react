@@ -3,13 +3,13 @@ Invitation Declined
 
 Hello,
 
-<%= @vendor_contact.name %> (<%= @vendor_contact.company_name || @vendor_contact.email %>) has declined the invitation to participate in <%= @event.title %>.
+<%= @vendor_contact.name %> (<%= @vendor_contact.try(:business_name) || @vendor_contact.email %>) has declined the invitation to participate in <%= @event.title %>.
 
 VENDOR CONTACT DETAILS
 ----------------------
 Name: <%= @vendor_contact.name %>
-<% if @vendor_contact.company_name.present? %>
-Company: <%= @vendor_contact.company_name %>
+<% if @vendor_contact.try(:business_name).present? %>
+Company: <%= @vendor_contact.business_name %>
 <% end %>
 Email: <%= @vendor_contact.email %>
 

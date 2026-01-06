@@ -64,13 +64,13 @@
     <div class="content">
       <p>Hello,</p>
 
-      <p><strong><%= @vendor_contact.name %></strong> (<%= @vendor_contact.company_name || @vendor_contact.email %>) has accepted your invitation to participate in <strong><%= @event.title %></strong>!</p>
+      <p><strong><%= @vendor_contact.name %></strong> (<%= @vendor_contact.try(:business_name) || @vendor_contact.email %>) has accepted your invitation to participate in <strong><%= @event.title %></strong>!</p>
 
       <div class="details-box">
         <h3 style="margin-top: 0; color: #27ae60;">Vendor Contact Details</h3>
         <p><strong>Name:</strong> <%= @vendor_contact.name %></p>
-        <% if @vendor_contact.company_name.present? %>
-          <p><strong>Company:</strong> <%= @vendor_contact.company_name %></p>
+        <% if @vendor_contact.try(:business_name).present? %>
+          <p><strong>Company:</strong> <%= @vendor_contact.business_name %></p>
         <% end %>
         <p><strong>Email:</strong> <%= @vendor_contact.email %></p>
         <% if @vendor_contact.phone.present? %>

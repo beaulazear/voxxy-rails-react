@@ -36,7 +36,7 @@ module Api
           if params[:search].present?
             search_term = "%#{params[:search]}%"
             vendor_contacts = vendor_contacts.where(
-              "name ILIKE ? OR email ILIKE ? OR company_name ILIKE ?",
+              "name ILIKE ? OR email ILIKE ? OR business_name ILIKE ?",
               search_term, search_term, search_term
             )
           end

@@ -1,4 +1,11 @@
-name,email,phone,business_name,job_title,contact_type,tags,notes
-Sarah Mitchell,sarah@ceramics.com,555-1234,Sarah's Ceramics,Owner,vendor,"art,local",Met at Spring Market 2024
-John Davidson,john@foodtruck.com,555-5678,John's Tacos,Manager,vendor,"food,catering",Interested in summer events
-Maria Santos,maria@events.com,555-9012,Event Solutions,Event Coordinator,partner,"planning,logistics",Partnership opportunity
+name,email,phone,business_name,job_title,contact_type,location,instagram_handle,tiktok_handle,website,categories,tags,notes,featured
+Sarah Mitchell,sarah@ceramics.com,555-1234,Sarah's Ceramics,Owner,vendor,"Portland, OR",@sarahceramics,@sarahceramics,https://sarahceramics.com,"Artist,Table Vendor","art,local,reliable",Met at Spring Market 2024 - beautiful pottery,true
+John Davidson,john@foodtruck.com,555-5678,John's Tacos,Manager,vendor,"Seattle, WA",@johnstacos,@johnstacos,https://johnstacos.com,"Food & Beverage","food,catering,mexican",Interested in summer events - great reviews,false
+Maria Santos,maria@events.com,555-9012,Event Solutions,Event Coordinator,partner,"Los Angeles, CA",@eventsolutions,,https://eventsolutions.com,,"planning,logistics,professional",Partnership opportunity for Q2 2026,false
+Alex Chen,alex@artcollective.com,555-3456,Portland Art Collective,Director,vendor,"Portland, OR",@pdxartcollective,@pdxart,https://pdxartcollective.org,"Artist,Sponsor","art,community,nonprofit",Runs monthly art shows - potential sponsor,true
+Jamie Wilson,jamie@sweettreats.com,555-7890,Sweet Treats Bakery,Head Baker,vendor,"Eugene, OR",@sweettreats_pdx,@sweettreats,https://sweettreatspdx.com,"Food & Beverage,Table Vendor","bakery,desserts,vegan",Amazing vegan cupcakes - very popular,false
+Taylor Rodriguez,taylor@eventspace.com,555-2468,The Warehouse,Venue Manager,partner,"Portland, OR",@thewarehouse_pdx,,https://thewarehousepdx.com,,"venue,space,rental",Interested in co-hosting events,false
+Morgan Lee,morgan@craftbeer.com,555-1357,Cascade Brewing,Marketing Director,sponsor,"Bend, OR",@cascadebrewing,@cascadebrewing,https://cascadebrewing.com,Sponsor,"beer,beverage,local",Potential beverage sponsor for all events,true
+Jordan Park,jordan@photography.com,555-8642,Jordan Park Photography,Photographer,vendor,"Portland, OR",@jordanparkphoto,@jordanparkphoto,https://jordanpark.photo,Artist,"photography,professional,events",Event photographer - excellent portfolio,false
+Casey Martinez,casey@jewelry.com,555-9753,Handmade by Casey,Jeweler,vendor,"Ashland, OR",@handmadebycasey,,https://handmadebycasey.shop,"Artist,Table Vendor","jewelry,handmade,sustainable",Beautiful handcrafted jewelry - eco-friendly,false
+River Thompson,river@musiclive.com,555-3691,River Thompson Music,Musician,vendor,"Portland, OR",@riverthompsonmusic,@riverthompson,https://riverthompson.com,Artist,"music,entertainment,live",Acoustic performer - great for background music,true
