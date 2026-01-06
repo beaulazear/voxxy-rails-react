@@ -17,26 +17,26 @@ module Api
               name: @vendor_contact.name,
               email: @vendor_contact.email,
               phone: @vendor_contact.phone,
-              business_name: @vendor_contact.business_name,
+              business_name: @vendor_contact.try(:business_name) || @vendor_contact.try(:company_name),
               job_title: @vendor_contact.job_title,
-              location: @vendor_contact.location
+              location: @vendor_contact.try(:location)
             },
             crm_data: {
               contact_type: @vendor_contact.contact_type,
               status: @vendor_contact.status,
               notes: @vendor_contact.notes,
               tags: @vendor_contact.tags || [],
-              categories: @vendor_contact.categories || [],
-              featured: @vendor_contact.featured || false
+              categories: @vendor_contact.try(:categories) || [],
+              featured: @vendor_contact.try(:featured) || false
             },
             activity: {
               interaction_count: @vendor_contact.interaction_count || 0,
               last_contacted_at: @vendor_contact.last_contacted_at
             },
             social: {
-              instagram_handle: @vendor_contact.instagram_handle,
-              tiktok_handle: @vendor_contact.tiktok_handle,
-              website: @vendor_contact.website
+              instagram_handle: @vendor_contact.try(:instagram_handle),
+              tiktok_handle: @vendor_contact.try(:tiktok_handle),
+              website: @vendor_contact.try(:website)
             },
             metadata: {
               source: @vendor_contact.source,
