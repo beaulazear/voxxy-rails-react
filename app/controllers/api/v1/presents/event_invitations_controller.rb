@@ -93,6 +93,22 @@ module Api
             end
           end
 
+          # After sending invitations, mark the "Immediate Announcement" scheduled email as sent
+          if created_invitations.any?
+            announcement_email = @event.scheduled_emails.find_by(
+              "name LIKE ? OR trigger_type = ?",
+              "%Immediate%",
+              "on_application_open"
+            )
+
+            if announcement_email && announcement_email.status == "scheduled"
+              announcement_email.update(
+                status: "sent",
+                sent_at: Time.current
+              )
+            end
+          end
+
           # Serialize created invitations
           serialized = created_invitations.map do |invitation|
             EventInvitationSerializer.new(invitation, include_vendor_contact: true, include_token: true).as_json

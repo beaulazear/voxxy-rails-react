@@ -29,6 +29,11 @@ class ScheduledEmail < ApplicationRecord
   def recipient_count
     return 0 unless event
 
+    # Special handling for announcement emails - they go to invited vendor contacts, not registrations
+    if is_announcement_email?
+      return event.event_invitations.count
+    end
+
     # Start with all registrations for this event
     recipients = event.registrations.where(email_unsubscribed: false)
 
@@ -72,5 +77,16 @@ class ScheduledEmail < ApplicationRecord
   # Check if email can be sent
   def sendable?
     status == "scheduled" && scheduled_for && scheduled_for <= Time.current
+  end
+
+  private
+
+  # Check if this is an announcement email (goes to invited contacts, not registrations)
+  def is_announcement_email?
+    # Check if it's an announcement by trigger type
+    return true if trigger_type == "on_application_open"
+
+    # Also check by name for backward compatibility
+    name.downcase.include?("announcement") || name.downcase.include?("immediate")
   end
 end
