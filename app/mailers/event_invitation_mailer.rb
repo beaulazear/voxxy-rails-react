@@ -9,12 +9,14 @@ class EventInvitationMailer < ApplicationMailer
     # Generate invitation URL
     @invitation_url = @invitation.invitation_url
 
-    # Format deadline
-    @deadline = @invitation.expires_at&.strftime("%B %d, %Y at %I:%M %p")
+    # Build location string for subject line
+    location_parts = []
+    location_parts << @event.location if @event.location.present?
+    location_suffix = location_parts.any? ? " in #{location_parts.join(', ')}" : ""
 
     mail(
       to: @vendor_contact.email,
-      subject: "You're invited to participate in #{@event.title}"
+      subject: "#{@event.title} is coming#{location_suffix}"
     )
   end
 

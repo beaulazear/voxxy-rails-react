@@ -1,40 +1,27 @@
-You're Invited!
-================
+Hi <%= @vendor_contact.business_name.present? ? @vendor_contact.business_name : @vendor_contact.name %>,
 
-Hello <%= @vendor_contact.name %>,
+We're excited to announce <%= @event.title %> and would love to have you join us!
 
-<%= @organization.name %> would like to invite you to participate in an upcoming event.
-
-EVENT DETAILS
--------------
-<%= @event.title %>
-
-<% if @event.description.present? %>
-<%= @event.description %>
+<% if @event.event_date.present? %>
+📅 Event Date: <%= @event.event_date.strftime("%B %d, %Y") %>
 <% end %>
 
-Date: <%= @event.event_date.strftime("%B %d, %Y at %I:%M %p") %>
-
-<% if @event.location.present? %>
-Location: <%= @event.location %>
+<% if @event.venue.present? || @event.location.present? %>
+📍 Location: <%= [@event.venue, @event.location].compact.join(', ') %>
 <% end %>
 
 <% if @event.application_deadline.present? %>
-Application Deadline: <%= @event.application_deadline.strftime("%B %d, %Y at %I:%M %p") %>
+⏰ Application Deadline: <%= @event.application_deadline.strftime("%B %d, %Y") %>
 <% end %>
 
-<% if @deadline.present? %>
-⏰ PLEASE RESPOND BY <%= @deadline.upcase %>
-<% end %>
+This is a great opportunity to showcase your work and connect with the community.
 
-We think you would be a great fit for this event and would love to have you participate!
+Best,
+<%= @organization.name %>
 
-VIEW INVITATION & RESPOND
--------------------------
-Click or copy this link to view the full invitation details and respond:
+APPLY NOW
+---------
 <%= @invitation_url %>
 
 ---
-
-This invitation was sent by <%= @organization.name %> via Voxxy Presents.
-If you believe this was sent in error, please contact <%= @organization.name %> directly.
+Unsubscribe - Unsubscribe Preferences

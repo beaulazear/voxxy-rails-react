@@ -4,174 +4,100 @@
   <meta charset="UTF-8">
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       background-color: #f4f4f4;
       padding: 20px;
       margin: 0;
+      line-height: 1.6;
     }
     .container {
       max-width: 600px;
       margin: 0 auto;
       background: #fff;
-      padding: 30px;
+      padding: 40px;
       border-radius: 8px;
-      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    .header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    .header h1 {
-      color: #9b59b6;
-      margin: 0;
-      font-size: 28px;
     }
     .content {
       color: #333;
-      line-height: 1.6;
+      font-size: 16px;
+    }
+    .content p {
+      margin: 0 0 20px 0;
     }
     .event-details {
-      background-color: #f8f8f8;
-      padding: 20px;
-      border-radius: 5px;
-      margin: 20px 0;
-      border-left: 4px solid #9b59b6;
-    }
-    .event-details h3 {
-      margin-top: 0;
-      color: #9b59b6;
+      margin: 30px 0;
+      padding: 0;
     }
     .event-details p {
-      margin: 8px 0;
-    }
-    .event-details strong {
-      color: #555;
+      margin: 12px 0;
+      font-size: 16px;
     }
     .button-container {
       text-align: center;
-      margin: 30px 0;
+      margin: 40px 0 30px 0;
     }
     .button {
       display: inline-block;
-      padding: 12px 30px;
-      margin: 0 10px;
+      padding: 14px 32px;
+      background-color: #9333ea;
       color: #fff;
       text-decoration: none;
       font-size: 16px;
-      font-weight: bold;
-      border-radius: 5px;
-      transition: background-color 0.3s;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: background-color 0.2s;
     }
-    .button-accept {
-      background-color: #27ae60;
-    }
-    .button-accept:hover {
-      background-color: #229954;
-    }
-    .button-view {
-      background-color: #9b59b6;
-    }
-    .button-view:hover {
-      background-color: #8e44ad;
-    }
-    .deadline {
-      background-color: #fff3cd;
-      border: 1px solid #ffc107;
-      border-radius: 5px;
-      padding: 15px;
-      margin: 20px 0;
-      text-align: center;
-    }
-    .deadline strong {
-      color: #856404;
+    .button:hover {
+      background-color: #7e22ce;
     }
     .footer {
-      margin-top: 30px;
+      margin-top: 40px;
       padding-top: 20px;
-      border-top: 1px solid #e0e0e0;
+      border-top: 1px solid #e5e7eb;
       text-align: center;
-      color: #777;
+      color: #6b7280;
       font-size: 14px;
+    }
+    .footer a {
+      color: #9333ea;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <h1>You're Invited!</h1>
-    </div>
-
     <div class="content">
-      <p>Hello <%= @vendor_contact.name %>,</p>
+      <p>Hi <%= @vendor_contact.business_name.present? ? @vendor_contact.business_name : @vendor_contact.name %>,</p>
 
-      <p><strong><%= @organization.name %></strong> would like to invite you to participate in an upcoming event.</p>
+      <p>We're excited to announce <strong><%= @event.title %></strong> and would love to have you join us!</p>
 
       <div class="event-details">
-        <h3><%= @event.title %></h3>
-
-        <% if @event.description.present? %>
-          <p><%= @event.description %></p>
-        <% end %>
-
         <% if @event.event_date.present? %>
-          <p><strong>Date:</strong>
-            <% if @event.event_end_date.present? && @event.event_date.to_date != @event.event_end_date.to_date %>
-              <%= @event.event_date.strftime("%B %d") %> - <%= @event.event_end_date.strftime("%B %d, %Y") %>
-            <% else %>
-              <%= @event.event_date.strftime("%B %d, %Y") %>
-            <% end %>
+          <p>📅 <strong>Event Date:</strong> <%= @event.event_date.strftime("%B %d, %Y") %></p>
+        <% end %>
+
+        <% if @event.venue.present? || @event.location.present? %>
+          <p>📍 <strong>Location:</strong>
+            <%= [@event.venue, @event.location].compact.join(', ') %>
           </p>
-        <% end %>
-
-        <% if @event.start_time.present? || @event.end_time.present? %>
-          <p><strong>Time:</strong>
-            <%= @event.start_time.present? ? @event.start_time : '' %>
-            <%= @event.start_time.present? && @event.end_time.present? ? ' - ' : '' %>
-            <%= @event.end_time.present? ? @event.end_time : '' %>
-          </p>
-        <% end %>
-
-        <% if @event.venue.present? %>
-          <p><strong>Venue:</strong> <%= @event.venue %></p>
-        <% end %>
-
-        <% if @event.location.present? %>
-          <p><strong>Location:</strong> <%= @event.location %></p>
-        <% end %>
-
-        <% if @event.age_restriction.present? %>
-          <p><strong>Age Restriction:</strong> <%= @event.age_restriction %></p>
-        <% end %>
-
-        <% if @event.ticket_link.present? || @event.ticket_url.present? %>
-          <p><strong>Event Info:</strong> <a href="<%= @event.ticket_link.presence || @event.ticket_url %>" style="color: #9b59b6; text-decoration: none;">View Details</a></p>
         <% end %>
 
         <% if @event.application_deadline.present? %>
-          <p><strong>Application Deadline:</strong> <%= @event.application_deadline.strftime("%B %d, %Y at %I:%M %p") %></p>
+          <p>⏰ <strong>Application Deadline:</strong> <%= @event.application_deadline.strftime("%B %d, %Y") %></p>
         <% end %>
       </div>
 
-      <% if @deadline.present? %>
-        <div class="deadline">
-          <strong>⏰ Please respond by <%= @deadline %></strong>
-        </div>
-      <% end %>
+      <p>This is a great opportunity to showcase your work and connect with the community.</p>
 
-      <p>We think you would be a great fit for this event and would love to have you participate!</p>
+      <p>Best,<br><%= @organization.name %></p>
 
       <div class="button-container">
-        <a href="<%= @invitation_url %>" class="button button-view">View Invitation Details</a>
+        <a href="<%= @invitation_url %>" class="button">Apply Now</a>
       </div>
-
-      <p style="text-align: center; color: #777; font-size: 14px;">
-        Click the button above to view the full invitation and respond.
-      </p>
     </div>
 
     <div class="footer">
-      <p>This invitation was sent by <%= @organization.name %></p>
-      <p>If you believe this was sent in error, please contact <%= @organization.name %> directly.</p>
+      <p><a href="#">Unsubscribe</a> - <a href="#">Unsubscribe Preferences</a></p>
     </div>
   </div>
 </body>
