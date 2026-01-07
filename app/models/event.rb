@@ -16,6 +16,7 @@ class Event < ApplicationRecord
   validates :status, inclusion: { in: %w[draft published cancelled completed] }, allow_blank: true
   validates :application_deadline, presence: true, on: :create
   validate :application_deadline_before_event_date, if: :application_deadline_changed?
+  validate :payment_deadline_after_application_deadline, if: -> { payment_deadline.present? && application_deadline.present? }
 
   before_validation :generate_slug, on: :create
   before_save :update_registration_status
@@ -57,6 +58,19 @@ class Event < ApplicationRecord
 
     if application_deadline > event_date
       errors.add(:application_deadline, "must be on or before the event start date")
+    end
+  end
+
+  def payment_deadline_after_application_deadline
+    return unless payment_deadline.present? && application_deadline.present?
+
+    if payment_deadline < application_deadline
+      errors.add(:payment_deadline, "must be on or after the application deadline")
+    end
+
+    # Payment deadline should also be before event date
+    if event_date.present? && payment_deadline > event_date
+      errors.add(:payment_deadline, "must be on or before the event start date")
     end
   end
 

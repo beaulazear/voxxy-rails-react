@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_06_053015) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_07_041851) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -260,6 +260,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_06_053015) do
     t.string "age_restriction"
     t.string "ticket_link"
     t.bigint "email_campaign_template_id"
+    t.date "payment_deadline"
     t.index ["application_deadline"], name: "index_events_on_application_deadline"
     t.index ["email_campaign_template_id"], name: "index_events_on_email_campaign_template_id"
     t.index ["event_date"], name: "index_events_on_event_date"
