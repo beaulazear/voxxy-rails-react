@@ -1,6 +1,10 @@
 # Email Campaign Templates Seed Data
-# Creates the default system template with 16 editable email templates
-# Based on EMAIL_TEMPLATES.md specification
+# Creates the default system template with 7 scheduled email templates
+# Based on simplified email schedule requirements
+#
+# NOTE: The "Event Announcement (immediate)" email sent on event creation
+# is handled by the EventInvitation system, NOT by scheduled emails.
+# It is tracked in the email deliveries but not duplicated here.
 
 puts "\n🌱 Seeding Email Campaign Templates...\n"
 
@@ -18,7 +22,7 @@ puts "\n1️⃣  Creating Default Email Campaign Template..."
 template = EmailCampaignTemplate.create!(
   template_type: 'system',
   name: 'Default Event Campaign',
-  description: 'Standard email campaign for all event types with 16 automated emails',
+  description: 'Simplified email campaign with 7 automated emails covering application deadline, payment reminders, and event countdown',
   is_default: true
 )
 puts "   ✅ Created: #{template.name} (ID: #{template.id})"
@@ -34,286 +38,120 @@ end
 puts "\n2️⃣  Adding Email Templates...\n"
 
 # ==============================================================================
-# CATEGORY 1: EVENT ANNOUNCEMENTS (4 emails)
+# CATEGORY 1: EVENT ANNOUNCEMENTS (2 emails)
 # ==============================================================================
 
 puts "   📢 Event Announcements..."
 
 create_email(template, {
-  name: 'Immediate Announcement - Applications Open',
+  name: '1 Day Before Application Deadline',
   position: 1,
   category: 'event_announcements',
-  subject_template: "You're Invited: [eventName] - Apply Now!",
+  subject_template: "⏰ Last Chance: [eventName] Applications Close Tomorrow!",
   body_template: <<~HTML,
     <p>Hi [firstName],</p>
 
-    <p>We're excited to announce <strong>[eventName]</strong> and we'd love to have you participate!</p>
+    <p><strong>Final reminder!</strong> Applications for <strong>[eventName]</strong> close <strong>tomorrow</strong> on [applicationDeadline].</p>
 
     <h3>Event Details:</h3>
     <ul>
       <li><strong>Date:</strong> [eventDate]</li>
       <li><strong>Location:</strong> [eventVenue], [eventLocation]</li>
-      <li><strong>Application Deadline:</strong> [applicationDeadline]</li>
       <li><strong>Booth Fee:</strong> [boothPrice]</li>
     </ul>
 
     <p style="text-align: center; margin: 30px 0;">
-      <a href="[eventLink]" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Apply Now</a>
+      <a href="[eventLink]" style="background: #f59e0b; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Apply Before It's Too Late</a>
     </p>
 
-    <p>Spots are limited—apply early to secure your spot!</p>
+    <p>Don't miss this opportunity!</p>
 
-    <p>Looking forward to having you,<br>
+    <p>Best regards,<br>
     [organizationName]</p>
   HTML
-  trigger_type: 'on_application_open',
-  trigger_value: 0,
+  trigger_type: 'days_before_deadline',
+  trigger_value: 1,
   trigger_time: '09:00',
   filter_criteria: {},
   enabled_by_default: true
 })
 
 create_email(template, {
-  name: '10 Weeks Before Deadline',
+  name: 'Application Deadline Day',
   position: 2,
   category: 'event_announcements',
-  subject_template: 'Early Bird: [eventName] Applications Open',
+  subject_template: '🚨 URGENT: [eventName] Applications Close TODAY',
   body_template: <<~HTML,
     <p>Hi [firstName],</p>
 
-    <p>Don't miss out on <strong>[eventName]</strong>! We're accepting applications now.</p>
+    <p><strong>URGENT:</strong> Today is the final day to apply for <strong>[eventName]</strong>!</p>
 
-    <h3>Why Apply Early?</h3>
+    <p>Applications close at midnight tonight.</p>
+
+    <h3>Quick Details:</h3>
     <ul>
-      <li>✅ Better booth selection</li>
-      <li>✅ More time to prepare</li>
-      <li>✅ Priority consideration</li>
-    </ul>
-
-    <p><strong>Application Deadline:</strong> [applicationDeadline]<br>
-    <strong>Event Date:</strong> [eventDate]</p>
-
-    <p style="text-align: center; margin: 30px 0;">
-      <a href="[eventLink]" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Apply Now</a>
-    </p>
-
-    <p>Best regards,<br>
-    [organizationName]</p>
-  HTML
-  trigger_type: 'days_before_deadline',
-  trigger_value: 70,
-  trigger_time: '10:00',
-  filter_criteria: {},
-  enabled_by_default: true
-})
-
-create_email(template, {
-  name: '8 Weeks Before Deadline',
-  position: 3,
-  category: 'event_announcements',
-  subject_template: 'Last Chance to Apply: [eventName]',
-  body_template: <<~HTML,
-    <p>Hi [firstName],</p>
-
-    <p>Just a friendly reminder that applications for <strong>[eventName]</strong> close in 8 weeks!</p>
-
-    <p><strong>Key Details:</strong></p>
-    <ul>
-      <li>Event: [eventDate] at [eventVenue]</li>
-      <li>Deadline: [applicationDeadline]</li>
-      <li>Fee: [boothPrice]</li>
+      <li><strong>Event Date:</strong> [eventDate]</li>
+      <li><strong>Location:</strong> [eventVenue]</li>
+      <li><strong>Booth Fee:</strong> [boothPrice]</li>
     </ul>
 
     <p style="text-align: center; margin: 30px 0;">
-      <a href="[eventLink]" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Submit Application</a>
+      <a href="[eventLink]" style="background: #dc2626; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Apply Right Now</a>
     </p>
 
-    <p>Questions? Reply to this email.</p>
+    <p><strong>This is your last chance!</strong></p>
 
-    <p>[organizationName]</p>
-  HTML
-  trigger_type: 'days_before_deadline',
-  trigger_value: 56,
-  trigger_time: '11:00',
-  filter_criteria: {},
-  enabled_by_default: true
-})
-
-create_email(template, {
-  name: '12 Days Before Deadline',
-  position: 4,
-  category: 'event_announcements',
-  subject_template: '⏰ Final Reminder: [eventName] Applications Close Soon',
-  body_template: <<~HTML,
-    <p>Hi [firstName],</p>
-
-    <p><strong>This is your final reminder!</strong></p>
-
-    <p>Applications for <strong>[eventName]</strong> close in just <strong>12 days</strong> on [applicationDeadline].</p>
-
-    <p>Don't miss this opportunity to be part of an amazing event at [eventVenue] on [eventDate].</p>
-
-    <p style="text-align: center; margin: 30px 0;">
-      <a href="[eventLink]" style="background: #dc2626; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Apply Before It's Too Late</a>
-    </p>
-
-    <p>See you there!<br>
+    <p>Thanks,<br>
     [organizationName]</p>
   HTML
   trigger_type: 'days_before_deadline',
-  trigger_value: 12,
-  trigger_time: '09:00',
-  filter_criteria: {},
-  enabled_by_default: true
-})
-
-puts "      ✓ Added 4 announcement emails"
-
-# ==============================================================================
-# CATEGORY 2: APPLICATION UPDATES (1 email)
-# ==============================================================================
-
-puts "   📝 Application Updates..."
-
-create_email(template, {
-  name: 'Application Received',
-  position: 5,
-  category: 'application_updates',
-  subject_template: 'Application Received - [eventName]',
-  body_template: <<~HTML,
-    <p>Hi [firstName],</p>
-
-    <p>Great news! We've received your application for <strong>[eventName]</strong>.</p>
-
-    <h3>What's Next?</h3>
-    <ol>
-      <li>We'll review your application</li>
-      <li>You'll hear from us by [applicationDeadline]</li>
-      <li>If approved, payment will be due by [paymentDueDate]</li>
-    </ol>
-
-    <p><strong>Your Application Details:</strong></p>
-    <ul>
-      <li>Business Name: [businessName]</li>
-      <li>Category: [vendorCategory]</li>
-      <li>Booth Fee: [boothPrice]</li>
-    </ul>
-
-    <p style="text-align: center; margin: 30px 0;">
-      <a href="[dashboardLink]" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">View Your Dashboard</a>
-    </p>
-
-    <p>Thank you for applying!</p>
-
-    <p>Best regards,<br>
-    [organizationName]</p>
-  HTML
-  trigger_type: 'on_application_submit',
   trigger_value: 0,
-  trigger_time: nil,
+  trigger_time: '08:00',
   filter_criteria: {},
   enabled_by_default: true
 })
 
-puts "      ✓ Added 1 application update email"
+puts "      ✓ Added 2 announcement emails"
 
 # ==============================================================================
-# CATEGORY 3: PAYMENT REMINDERS (4 emails)
+# CATEGORY 2: PAYMENT REMINDERS (2 emails)
 # ==============================================================================
 
 puts "   💳 Payment Reminders..."
 
 create_email(template, {
-  name: 'Payment Details',
-  position: 6,
+  name: '1 Day Before Payment Due',
+  position: 3,
   category: 'payment_reminders',
-  subject_template: '🎉 Approved! Payment Details for [eventName]',
+  subject_template: 'Reminder: Payment Due Tomorrow - [eventName]',
   body_template: <<~HTML,
     <p>Hi [firstName],</p>
 
-    <p><strong>Congratulations!</strong> Your application for <strong>[eventName]</strong> has been approved!</p>
+    <p>This is a reminder that your payment for <strong>[eventName]</strong> is due <strong>tomorrow</strong> on [paymentDueDate].</p>
 
-    <h3>Next Step: Complete Payment</h3>
-    <p>Your booth fee of <strong>[boothPrice]</strong> is due by <strong>[paymentDueDate]</strong>.</p>
-
-    <p style="text-align: center; margin: 30px 0;">
-      <a href="[paymentLink]" style="background: #10b981; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Pay Now</a>
-    </p>
-
-    <p><strong>Important:</strong> Your spot is reserved until [paymentDueDate]. After this date, unpaid spots may be released to waitlisted vendors.</p>
-
-    <p>We're excited to have you at [eventName]!</p>
-
-    <p>Best regards,<br>
-    [organizationName]</p>
-  HTML
-  trigger_type: 'on_approval',
-  trigger_value: 0,
-  trigger_time: nil,
-  filter_criteria: { status: [ 'approved' ] },
-  enabled_by_default: true
-})
-
-create_email(template, {
-  name: '1 Week Before Payment Due',
-  position: 7,
-  category: 'payment_reminders',
-  subject_template: 'Reminder: Payment Due in 7 Days - [eventName]',
-  body_template: <<~HTML,
-    <p>Hi [firstName],</p>
-
-    <p>This is a friendly reminder that your payment for <strong>[eventName]</strong> is due in 7 days.</p>
-
-    <p><strong>Amount Due:</strong> [boothPrice]<br>
-    <strong>Payment Deadline:</strong> [paymentDueDate]</p>
+    <p><strong>Amount Due:</strong> [boothPrice]</p>
 
     <p style="text-align: center; margin: 30px 0;">
-      <a href="[paymentLink]" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Complete Payment</a>
+      <a href="[paymentLink]" style="background: #f59e0b; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Complete Payment</a>
     </p>
 
-    <p>Questions about payment? Reply to this email.</p>
+    <p>Please complete your payment to secure your spot.</p>
+
+    <p>Questions? Reply to this email.</p>
 
     <p>Thank you,<br>
     [organizationName]</p>
   HTML
   trigger_type: 'days_before_payment_deadline',
-  trigger_value: 7,
+  trigger_value: 1,
   trigger_time: '10:00',
-  filter_criteria: { status: [ 'approved' ] },
-  enabled_by_default: true
-})
-
-create_email(template, {
-  name: '3 Days Before Payment Due',
-  position: 8,
-  category: 'payment_reminders',
-  subject_template: '⚠️ Payment Due in 3 Days - [eventName]',
-  body_template: <<~HTML,
-    <p>Hi [firstName],</p>
-
-    <p><strong>Important:</strong> Your payment for <strong>[eventName]</strong> is due in 3 days on [paymentDueDate].</p>
-
-    <p>Please complete your payment of <strong>[boothPrice]</strong> to secure your spot.</p>
-
-    <p style="text-align: center; margin: 30px 0;">
-      <a href="[paymentLink]" style="background: #f59e0b; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Pay Now</a>
-    </p>
-
-    <p><strong>Note:</strong> Unpaid spots may be released to our waitlist after the deadline.</p>
-
-    <p>Thank you,<br>
-    [organizationName]</p>
-  HTML
-  trigger_type: 'days_before_payment_deadline',
-  trigger_value: 3,
-  trigger_time: '09:00',
   filter_criteria: { status: [ 'approved' ] },
   enabled_by_default: true
 })
 
 create_email(template, {
   name: 'Payment Due Today',
-  position: 9,
+  position: 4,
   category: 'payment_reminders',
   subject_template: '🚨 URGENT: Payment Due Today - [eventName]',
   body_template: <<~HTML,
@@ -341,134 +179,23 @@ create_email(template, {
   enabled_by_default: true
 })
 
-puts "      ✓ Added 4 payment reminder emails"
+puts "      ✓ Added 2 payment reminder emails"
 
 # ==============================================================================
-# CATEGORY 4: EVENT COUNTDOWN (7 emails)
+# CATEGORY 3: EVENT COUNTDOWN (3 emails)
 # ==============================================================================
 
 puts "   ⏰ Event Countdown..."
 
 create_email(template, {
-  name: '33 Days Before Event',
-  position: 10,
+  name: '1 Day Before Event',
+  position: 5,
   category: 'event_countdown',
-  subject_template: 'One Month Until [eventName]!',
+  subject_template: 'Tomorrow: [eventName] Final Details',
   body_template: <<~HTML,
     <p>Hi [firstName],</p>
 
-    <p><strong>[eventName]</strong> is just one month away!</p>
-
-    <p><strong>Mark Your Calendar:</strong><br>
-    📅 [eventDate]<br>
-    📍 [eventVenue], [eventLocation]<br>
-    ⏰ [eventTime]</p>
-
-    <h3>What to Expect:</h3>
-    <ul>
-      <li>Setup details coming soon</li>
-      <li>Event day logistics</li>
-      <li>Important vendor information</li>
-    </ul>
-
-    <p style="text-align: center; margin: 30px 0;">
-      <a href="[bulletinLink]" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">View Event Updates</a>
-    </p>
-
-    <p>See you soon!<br>
-    [organizationName]</p>
-  HTML
-  trigger_type: 'days_before_event',
-  trigger_value: 33,
-  trigger_time: '10:00',
-  filter_criteria: { status: [ 'approved', 'confirmed' ] },
-  enabled_by_default: true
-})
-
-create_email(template, {
-  name: '23 Days Before Event',
-  position: 11,
-  category: 'event_countdown',
-  subject_template: '3 Weeks Until [eventName] - Important Updates',
-  body_template: <<~HTML,
-    <p>Hi [firstName],</p>
-
-    <p>We're 3 weeks away from <strong>[eventName]</strong>!</p>
-
-    <h3>Important Information:</h3>
-    <ul>
-      <li><strong>Setup Date:</strong> [installDate]</li>
-      <li><strong>Setup Time:</strong> [installTime]</li>
-      <li><strong>Event Start:</strong> [eventTime] on [eventDate]</li>
-    </ul>
-
-    <p><strong>What to Bring:</strong></p>
-    <ul>
-      <li>Business license (if applicable)</li>
-      <li>Setup materials</li>
-      <li>Marketing materials</li>
-    </ul>
-
-    <p style="text-align: center; margin: 30px 0;">
-      <a href="[bulletinLink]" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">View Full Details</a>
-    </p>
-
-    <p>Questions? Reply to this email.</p>
-
-    <p>Best,<br>
-    [organizationName]</p>
-  HTML
-  trigger_type: 'days_before_event',
-  trigger_value: 23,
-  trigger_time: '11:00',
-  filter_criteria: { status: [ 'approved', 'confirmed' ] },
-  enabled_by_default: true
-})
-
-create_email(template, {
-  name: '10 Days Before Event',
-  position: 12,
-  category: 'event_countdown',
-  subject_template: '10 Days to Go! [eventName] Prep Checklist',
-  body_template: <<~HTML,
-    <p>Hi [firstName],</p>
-
-    <p>Only 10 days until <strong>[eventName]</strong>!</p>
-
-    <h3>Pre-Event Checklist:</h3>
-    <p>✅ Confirm you can attend<br>
-    ✅ Prepare your booth setup<br>
-    ✅ Review setup instructions<br>
-    ✅ Gather necessary permits<br>
-    ✅ Prep your inventory</p>
-
-    <p><strong>Setup Details:</strong><br>
-    📅 [installDate] at [installTime]<br>
-    📍 [eventVenue]</p>
-
-    <p style="text-align: center; margin: 30px 0;">
-      <a href="[bulletinLink]" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">View Setup Instructions</a>
-    </p>
-
-    <p>Getting excited!<br>
-    [organizationName]</p>
-  HTML
-  trigger_type: 'days_before_event',
-  trigger_value: 10,
-  trigger_time: '09:00',
-  filter_criteria: { status: [ 'approved', 'confirmed' ] },
-  enabled_by_default: true
-})
-
-create_email(template, {
-  name: '4 Days Before Event',
-  position: 13,
-  category: 'event_countdown',
-  subject_template: 'This Weekend: [eventName] Final Details',
-  body_template: <<~HTML,
-    <p>Hi [firstName],</p>
-
-    <p><strong>[eventName]</strong> is this weekend!</p>
+    <p><strong>[eventName]</strong> is <strong>tomorrow</strong>!</p>
 
     <h3>Final Reminders:</h3>
     <ul>
@@ -489,45 +216,13 @@ create_email(template, {
       <a href="[bulletinLink]" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Last-Minute Updates</a>
     </p>
 
-    <p>Can't wait to see you!<br>
+    <p>Can't wait to see you tomorrow!</p>
+
+    <p>Best,<br>
     [organizationName]</p>
   HTML
   trigger_type: 'days_before_event',
-  trigger_value: 4,
-  trigger_time: '16:00',
-  filter_criteria: { status: [ 'approved', 'confirmed' ] },
-  enabled_by_default: true
-})
-
-create_email(template, {
-  name: '2 Days Before Event',
-  position: 14,
-  category: 'event_countdown',
-  subject_template: '2 Days Away! [eventName] Weather & Updates',
-  body_template: <<~HTML,
-    <p>Hi [firstName],</p>
-
-    <p>Just 2 days until <strong>[eventName]</strong>!</p>
-
-    <h3>Quick Reminders:</h3>
-    <p>📅 <strong>Setup:</strong> [installDate] at [installTime]<br>
-    🎪 <strong>Event:</strong> [eventDate] at [eventTime]<br>
-    📍 <strong>Where:</strong> [eventVenue]</p>
-
-    <p><strong>Weather Forecast:</strong> Check local weather and plan accordingly!</p>
-
-    <p><strong>Last-Minute Questions?</strong><br>
-    Contact us at [organizationEmail]</p>
-
-    <p style="text-align: center; margin: 30px 0;">
-      <a href="[bulletinLink]" style="background: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Check for Updates</a>
-    </p>
-
-    <p>Almost here!<br>
-    [organizationName]</p>
-  HTML
-  trigger_type: 'days_before_event',
-  trigger_value: 2,
+  trigger_value: 1,
   trigger_time: '17:00',
   filter_criteria: { status: [ 'approved', 'confirmed' ] },
   enabled_by_default: true
@@ -535,7 +230,7 @@ create_email(template, {
 
 create_email(template, {
   name: 'Day of Event',
-  position: 15,
+  position: 6,
   category: 'event_countdown',
   subject_template: '🎉 Today is the Day! [eventName]',
   body_template: <<~HTML,
@@ -561,7 +256,9 @@ create_email(template, {
       <a href="[bulletinLink]" style="background: #10b981; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Day-Of Information</a>
     </p>
 
-    <p>See you soon!<br>
+    <p>See you soon!</p>
+
+    <p>Best,<br>
     [organizationName]</p>
   HTML
   trigger_type: 'on_event_date',
@@ -573,7 +270,7 @@ create_email(template, {
 
 create_email(template, {
   name: 'Day After Event - Thank You',
-  position: 16,
+  position: 7,
   category: 'event_countdown',
   subject_template: 'Thank You for Making [eventName] Amazing!',
   body_template: <<~HTML,
@@ -604,7 +301,7 @@ create_email(template, {
   enabled_by_default: true
 })
 
-puts "      ✓ Added 7 event countdown emails"
+puts "      ✓ Added 3 event countdown emails"
 
 # Summary
 template.reload
@@ -619,8 +316,11 @@ puts "=" * 60
 
 puts "\n📊 Email Breakdown:"
 puts "   Event Announcements: #{template.email_template_items.where(category: 'event_announcements').count}"
-puts "   Application Updates: #{template.email_template_items.where(category: 'application_updates').count}"
 puts "   Payment Reminders: #{template.email_template_items.where(category: 'payment_reminders').count}"
 puts "   Event Countdown: #{template.email_template_items.where(category: 'event_countdown').count}"
+
+puts "\n📝 Note: The immediate 'Event Announcement' email sent on event creation"
+puts "   is handled by the EventInvitation system and tracked separately."
+puts "   It is NOT included in this scheduled email template.\n"
 
 puts "\n🎉 Ready to automate events!\n\n"
