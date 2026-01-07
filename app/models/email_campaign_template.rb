@@ -14,8 +14,13 @@ class EmailCampaignTemplate < ApplicationRecord
   # Scopes
   scope :system_templates, -> { where(template_type: "system") }
   scope :user_templates, -> { where(template_type: "user") }
-  scope :default_template, -> { where(is_default: true).first }
+  scope :defaults, -> { where(is_default: true) }
   scope :for_organization, ->(org_id) { where(organization_id: org_id) }
+
+  # Class method to get the default system template
+  def self.default_template
+    where(template_type: "system", is_default: true).first
+  end
 
   private
 

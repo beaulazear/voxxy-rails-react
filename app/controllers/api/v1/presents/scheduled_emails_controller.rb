@@ -43,10 +43,14 @@ module Api
             generator.generate
           end
 
+          # Calculate skipped count from errors
+          skipped_count = generator.errors.count
+
           render json: {
             message: "Generated #{emails.count} scheduled emails",
-            emails: emails,
-            errors: generator.errors
+            generated_count: emails.count,
+            skipped_count: skipped_count,
+            scheduled_emails: emails
           }, status: :created
         end
 
