@@ -42,6 +42,18 @@ class ScheduledEmailGenerator
         next
       end
 
+      # Check if scheduled email already exists for this event + template item
+      existing = ScheduledEmail.find_by(
+        event: event,
+        email_template_item: item
+      )
+
+      if existing
+        @errors << "Skipped '#{item.name}' - already exists (ID: #{existing.id})"
+        scheduled_emails << existing
+        next
+      end
+
       # Create scheduled email
       scheduled_email = create_scheduled_email(item, scheduled_time)
 
@@ -74,6 +86,18 @@ class ScheduledEmailGenerator
       scheduled_time = calculator.calculate(item)
       next unless scheduled_time
       next if scheduled_time < Time.current
+
+      # Check if scheduled email already exists for this event + template item
+      existing = ScheduledEmail.find_by(
+        event: event,
+        email_template_item: item
+      )
+
+      if existing
+        @errors << "Skipped '#{item.name}' - already exists (ID: #{existing.id})"
+        scheduled_emails << existing
+        next
+      end
 
       scheduled_email = create_scheduled_email(item, scheduled_time)
       scheduled_emails << scheduled_email if scheduled_email.persisted?
