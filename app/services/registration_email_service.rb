@@ -162,52 +162,51 @@ class RegistrationEmailService < BaseEmailService
   # Send confirmation to vendor application submitter
   def self.send_vendor_submission_confirmation(registration)
     event = registration.event
-    vendor_app = registration.vendor_application
+    organization = event.organization
 
-    # Build tracking URL (public endpoint, no auth needed)
-    if Rails.env.production?
-      primary_domain = ENV.fetch("PRIMARY_DOMAIN", "voxxyai.com")
-      if primary_domain.include?("voxxyai.com")
-        frontend_url = "https://voxxy-presents-client-staging.onrender.com"
-      else
-        frontend_url = "https://www.voxxypresents.com"
-      end
-    else
-      frontend_url = ENV.fetch("PRESENTS_FRONTEND_URL", "http://localhost:5173")
-    end
+    # Parse first name from full name
+    first_name = registration.name.to_s.split(" ").first || registration.name
 
-    tracking_url = "#{frontend_url}/track/#{registration.ticket_code}"
+    # Get producer name and email
+    producer_name = organization.name || "Event Organizer"
+    producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
+
+    # Format event date
+    event_date = event.event_date.present? ? event.event_date.strftime("%B %d, %Y") : "TBD"
 
     subject = "Application Received - #{event.title}"
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
-        Hi #{registration.name} from <strong>#{registration.business_name}</strong>,
+        Hi #{first_name},
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Thank you for applying to <strong>#{event.title}</strong>! We've received your vendor application and our team will review it soon.
+        Thank you for applying to <strong>#{event.title}</strong>! We've received your application.
       </p>
 
-      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #9D60F8; text-align: left;">
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Contact Name:</strong> #{registration.name}</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Business Name:</strong> #{registration.business_name}</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Category:</strong> #{registration.vendor_category}</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Status:</strong> Pending Review</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Tracking Code:</strong> <code style="background: white; padding: 2px 6px; border-radius: 4px; font-family: monospace;">#{registration.ticket_code}</code></p>
-      </div>
+      <p style="#{BASE_STYLES[:text]}">
+        📅 <strong>Event Date:</strong> #{event_date}<br/>
+        📍 <strong>Location:</strong> #{event.venue.present? ? "#{event.venue}, " : ""}#{event.location || "TBD"}<br/>
+        🏷️ <strong>Category:</strong> #{registration.vendor_category}
+      </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        You can track your application status anytime using the button below or your tracking code.
+        We'll review your application and get back to you soon. Keep an eye on your inbox for updates.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}; margin-top: 30px;">
+        Best,<br/>
+        #{producer_name}
       </p>
     HTML
 
     email_html = build_presents_email_template(
       "Application Received",
       content,
-      "Track My Application",
-      tracking_url,
-      event.organization
+      nil,
+      nil,
+      organization
     )
 
     headers = {
@@ -372,30 +371,37 @@ class RegistrationEmailService < BaseEmailService
   # Send waitlist notification
   def self.send_waitlist_notification(registration)
     event = registration.event
+    organization = event.organization
+
+    # Parse first name from full name
+    first_name = registration.name.to_s.split(" ").first || registration.name
+
+    # Get producer name and email
+    producer_name = organization.name || "Event Organizer"
+    producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
 
     subject = "You're on the Waitlist - #{event.title}"
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
-        Hi #{registration.name},
+        Hi #{first_name},
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Thank you for applying to <strong>#{event.title}</strong>! Your application has been added to our waitlist.
-      </p>
-
-      <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107; text-align: left;">
-        <p style="margin: 5px 0; font-size: 14px; color: #856404; text-align: left;"><strong>Status:</strong> Waitlisted</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #856404; text-align: left;"><strong>Business:</strong> #{registration.business_name}</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #856404; text-align: left;"><strong>Category:</strong> #{registration.vendor_category}</p>
-      </div>
-
-      <p style="#{BASE_STYLES[:text]}">
-        We'll notify you if a spot becomes available. Thank you for your patience!
+        We noticed payment wasn't received by the deadline for <strong>#{event.title}</strong>.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        If you have any questions, feel free to respond to this email.
+        Your spot has been moved to the waitlist. If a spot becomes available and you'd still like to participate, we'll reach out.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        If you believe this is an error, please contact us immediately at <a href="mailto:#{producer_email}" style="color: #9D60F8; text-decoration: none;">#{producer_email}</a>.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}; margin-top: 30px;">
+        Best,<br/>
+        #{producer_name}
       </p>
     HTML
 
@@ -404,7 +410,7 @@ class RegistrationEmailService < BaseEmailService
       content,
       nil,
       nil,
-      event.organization
+      organization
     )
 
     headers = {
