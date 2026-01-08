@@ -61,14 +61,20 @@ module Api
             return
           end
 
+          Rails.logger.info("📧 Updating scheduled email #{@scheduled_email.id}: #{@scheduled_email.name}")
+          Rails.logger.info("📦 Update params: #{params[:scheduled_email].inspect}")
+          Rails.logger.info("🔍 Trigger fields changed? #{trigger_fields_changed?}")
+
           # Recalculate scheduled_for if trigger fields are being updated
           if trigger_fields_changed?
             recalculate_scheduled_time
           end
 
           if @scheduled_email.update(scheduled_email_params)
+            Rails.logger.info("✅ Email updated successfully. New scheduled_for: #{@scheduled_email.scheduled_for}")
             render json: @scheduled_email
           else
+            Rails.logger.error("❌ Failed to update email: #{@scheduled_email.errors.full_messages}")
             render json: { errors: @scheduled_email.errors.full_messages }, status: :unprocessable_entity
           end
         end
@@ -188,9 +194,10 @@ module Api
           email_params = params[:scheduled_email]
           return false unless email_params
 
-          email_params[:trigger_type].present? ||
-            email_params[:trigger_value].present? ||
-            email_params[:trigger_time].present?
+          # Check if keys exist (not if values are present, since 0 is a valid value)
+          email_params.key?(:trigger_type) ||
+            email_params.key?(:trigger_value) ||
+            email_params.key?(:trigger_time)
         end
 
         def recalculate_scheduled_time
@@ -201,8 +208,20 @@ module Api
 
           # Use updated values if provided, otherwise use existing values
           trigger_type = email_params[:trigger_type] || @scheduled_email.trigger_type
-          trigger_value = email_params[:trigger_value] || @scheduled_email.trigger_value
+          # Handle trigger_value properly - convert to integer if it's a string
+          trigger_value = if email_params.key?(:trigger_value)
+            email_params[:trigger_value].to_i
+          else
+            @scheduled_email.trigger_value
+          end
           trigger_time = email_params[:trigger_time] || @scheduled_email.trigger_time
+
+          Rails.logger.info("🧮 Recalculating scheduled_for with:")
+          Rails.logger.info("   trigger_type: #{trigger_type}")
+          Rails.logger.info("   trigger_value: #{trigger_value}")
+          Rails.logger.info("   trigger_time: #{trigger_time}")
+          Rails.logger.info("   event_date: #{@event.event_date}")
+          Rails.logger.info("   application_deadline: #{@event.application_deadline}")
 
           # Create a simple object that responds to the calculator's needs
           temp_item = OpenStruct.new(
@@ -217,9 +236,9 @@ module Api
           if new_scheduled_for
             # Add the calculated scheduled_for to params so it gets updated
             params[:scheduled_email][:scheduled_for] = new_scheduled_for
-            Rails.logger.info("Recalculated scheduled_for: #{new_scheduled_for} for email #{@scheduled_email.id}")
+            Rails.logger.info("✨ Recalculated scheduled_for: #{new_scheduled_for} (was: #{@scheduled_email.scheduled_for})")
           else
-            Rails.logger.warn("Could not recalculate scheduled_for for email #{@scheduled_email.id}")
+            Rails.logger.warn("⚠️  Could not recalculate scheduled_for for email #{@scheduled_email.id}")
           end
         end
       end
