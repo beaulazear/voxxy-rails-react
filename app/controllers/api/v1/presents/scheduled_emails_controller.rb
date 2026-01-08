@@ -61,6 +61,11 @@ module Api
             return
           end
 
+          # Recalculate scheduled_for if trigger fields are being updated
+          if trigger_fields_changed?
+            recalculate_scheduled_time
+          end
+
           if @scheduled_email.update(scheduled_email_params)
             render json: @scheduled_email
           else
@@ -174,8 +179,48 @@ module Api
         def scheduled_email_params
           params.require(:scheduled_email).permit(
             :name, :subject_template, :body_template, :scheduled_for, :status,
+            :trigger_type, :trigger_value, :trigger_time,
             filter_criteria: {}
           )
+        end
+
+        def trigger_fields_changed?
+          email_params = params[:scheduled_email]
+          return false unless email_params
+
+          email_params[:trigger_type].present? ||
+            email_params[:trigger_value].present? ||
+            email_params[:trigger_time].present?
+        end
+
+        def recalculate_scheduled_time
+          email_params = params[:scheduled_email]
+
+          # Build a temporary object with the updated trigger values
+          calculator = EmailScheduleCalculator.new(@event)
+
+          # Use updated values if provided, otherwise use existing values
+          trigger_type = email_params[:trigger_type] || @scheduled_email.trigger_type
+          trigger_value = email_params[:trigger_value] || @scheduled_email.trigger_value
+          trigger_time = email_params[:trigger_time] || @scheduled_email.trigger_time
+
+          # Create a simple object that responds to the calculator's needs
+          temp_item = OpenStruct.new(
+            trigger_type: trigger_type,
+            trigger_value: trigger_value,
+            trigger_time: trigger_time
+          )
+
+          # Calculate new scheduled time
+          new_scheduled_for = calculator.calculate(temp_item)
+
+          if new_scheduled_for
+            # Add the calculated scheduled_for to params so it gets updated
+            params[:scheduled_email][:scheduled_for] = new_scheduled_for
+            Rails.logger.info("Recalculated scheduled_for: #{new_scheduled_for} for email #{@scheduled_email.id}")
+          else
+            Rails.logger.warn("Could not recalculate scheduled_for for email #{@scheduled_email.id}")
+          end
         end
       end
     end

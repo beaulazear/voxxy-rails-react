@@ -5,25 +5,25 @@ namespace :events do
     puts "🎪 Creating test event..."
     puts ""
 
-    # Find or create a test organization
-    test_user = User.find_or_create_by!(email: "producer@voxxytest.com") do |u|
-      u.name = "Test Producer"
-      u.password = "password123"
-      u.password_confirmation = "password123"
-      u.role = "venue_owner"
-      u.product_context = "presents"
-      u.confirmed_at = Time.current
+    # Find your user account
+    test_user = User.find_by!(email: "beaulazear@gmail.com")
+
+    # Ensure user has correct role for creating events
+    unless test_user.role == "venue_owner" || test_user.role == "producer" || test_user.admin?
+      test_user.update!(role: "venue_owner")
+      puts "⚠️  Updated user role to venue_owner"
     end
 
-    org = Organization.find_or_create_by!(user: test_user) do |o|
-      o.name = "Voxxy Test Venue"
-      o.slug = "voxxy-test-venue"
-      o.description = "Test venue for development"
-      o.city = "New York"
-      o.state = "NY"
-      o.verified = true
-      o.active = true
-    end
+    # Find or create organization for this user
+    org = test_user.organizations.first || Organization.create!(
+      user: test_user,
+      name: "Beau's Test Venue",
+      description: "Test venue for development",
+      city: "New York",
+      state: "NY",
+      verified: true,
+      active: true
+    )
 
     puts "✅ Organization: #{org.name}"
 
@@ -178,29 +178,55 @@ namespace :events do
     puts "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   end
 
-  desc "Clean up all test events (removes events with 'Test Event' in title)"
+  desc "Clean up all test events (removes events with 'Test Event' in title from your organization)"
   task cleanup_test: :environment do
     puts "🧹 Cleaning up test events..."
 
-    test_events = Event.where("title LIKE ?", "%Test Event%")
+    test_user = User.find_by(email: "beaulazear@gmail.com")
+    unless test_user
+      puts "❌ User beaulazear@gmail.com not found"
+      next
+    end
+
+    org = test_user.organizations.first
+    unless org
+      puts "ℹ️  No organization found for user"
+      next
+    end
+
+    test_events = org.events.where("title LIKE ?", "%Test Event%")
     count = test_events.count
 
     if count > 0
       test_events.destroy_all
-      puts "✅ Deleted #{count} test events"
+      puts "✅ Deleted #{count} test events from #{org.name}"
     else
       puts "ℹ️  No test events found to clean up"
     end
   end
 
-  desc "List all test events"
+  desc "List all test events from your organization"
   task list_test: :environment do
     puts "📋 Test Events:"
     puts ""
 
-    test_events = Event.where("title LIKE ?", "%Test Event%").order(created_at: :desc)
+    test_user = User.find_by(email: "beaulazear@gmail.com")
+    unless test_user
+      puts "❌ User beaulazear@gmail.com not found"
+      next
+    end
+
+    org = test_user.organizations.first
+    unless org
+      puts "ℹ️  No organization found for user"
+      next
+    end
+
+    test_events = org.events.where("title LIKE ?", "%Test Event%").order(created_at: :desc)
 
     if test_events.any?
+      puts "Organization: #{org.name}"
+      puts ""
       test_events.each do |event|
         puts "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         puts "#{event.title}"
@@ -214,7 +240,7 @@ namespace :events do
       puts ""
       puts "Total: #{test_events.count} test events"
     else
-      puts "No test events found"
+      puts "No test events found for #{org.name}"
     end
   end
 end
