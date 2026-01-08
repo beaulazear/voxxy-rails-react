@@ -145,6 +145,8 @@ class ScheduledEmailGenerator
       subject_template: email_template_item.subject_template,
       body_template: email_template_item.body_template,
       trigger_type: email_template_item.trigger_type,
+      trigger_value: email_template_item.trigger_value,
+      trigger_time: email_template_item.trigger_time,
       scheduled_for: scheduled_time,
       filter_criteria: email_template_item.filter_criteria,
       status: "scheduled"
