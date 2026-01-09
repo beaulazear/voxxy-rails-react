@@ -284,6 +284,12 @@ Rails.application.routes.draw do
               post :batch, action: :create_batch
             end
           end
+
+          # Email notification endpoints for events
+          post "email_notifications/check_event_update_impact", to: "email_notifications#check_event_update_impact"
+          post "email_notifications/send_event_update", to: "email_notifications#send_event_update_emails"
+          post "email_notifications/check_cancellation_impact", to: "email_notifications#check_cancellation_impact"
+          post "email_notifications/send_cancellation", to: "email_notifications#send_cancellation_emails"
         end
 
         # Public invitation endpoints (no auth required)
@@ -328,6 +334,12 @@ Rails.application.routes.draw do
         resources :registrations, only: [ :show, :update ] do
           collection do
             get "track/:ticket_code", action: :track, as: :track
+          end
+
+          # Email notification endpoints for registrations
+          member do
+            post "email_notifications/send_payment_confirmation", to: "email_notifications#send_payment_confirmation"
+            post "email_notifications/send_category_change", to: "email_notifications#send_category_change"
           end
         end
 

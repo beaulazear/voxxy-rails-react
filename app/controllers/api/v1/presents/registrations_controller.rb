@@ -83,7 +83,37 @@ module Api
         def update
           if @registration.update(update_params)
             serialized = RegistrationSerializer.new(@registration, include_event: true).as_json
-            render json: serialized, status: :ok
+            response_data = { registration: serialized }
+
+            # Check if vendor category was changed
+            if @registration.saved_change_to_vendor_category?
+              change_info = @registration.category_change_info
+              response_data[:email_notification] = {
+                type: "category_changed",
+                requires_confirmation: true,
+                recipient_email: @registration.email,
+                warning: "Vendor category was changed from '#{change_info[:old_category]}' to '#{change_info[:new_category]}'. Would you like to notify this vendor?",
+                endpoint: {
+                  send: "/api/v1/presents/registrations/#{@registration.id}/email_notifications/send_category_change"
+                }
+              }
+            end
+
+            # Check if payment status was confirmed
+            if @registration.saved_change_to_payment_status? &&
+               (@registration.payment_status == "confirmed" || @registration.payment_status == "paid")
+              response_data[:email_notification] = {
+                type: "payment_confirmed",
+                requires_confirmation: true,
+                recipient_email: @registration.email,
+                warning: "Payment was marked as confirmed. Would you like to send a confirmation email to this vendor?",
+                endpoint: {
+                  send: "/api/v1/presents/registrations/#{@registration.id}/email_notifications/send_payment_confirmation"
+                }
+              }
+            end
+
+            render json: response_data, status: :ok
           else
             render json: { errors: @registration.errors.full_messages },
                    status: :unprocessable_entity
@@ -141,7 +171,7 @@ module Api
         end
 
         def update_params
-          params.require(:registration).permit(:name, :phone, :status)
+          params.require(:registration).permit(:name, :phone, :status, :vendor_category, :payment_status)
         end
       end
     end

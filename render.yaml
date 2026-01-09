@@ -25,8 +25,14 @@ services:
         sync: false  # Set this manually in Render dashboard
       - key: VoxxyKeyAPI
         sync: false  # SendGrid API key - set this manually in Render dashboard
+      - key: PRIMARY_DOMAIN
+        sync: false  # Your domain for emails
       - key: FRONTEND_URL
-        sync: false  # Set to your frontend URL
+        sync: false  # General frontend URL
+      - key: PRESENTS_FRONTEND_URL
+        sync: false  # Presents/Events frontend URL
+      - key: MOBILE_FRONTEND_URL
+        sync: false  # Mobile app frontend URL
     healthCheckPath: /health
     autoDeploy: true
 
@@ -53,7 +59,13 @@ services:
         sync: false  # Same as web service
       - key: VoxxyKeyAPI
         sync: false  # SendGrid API key - same as web service
+      - key: PRIMARY_DOMAIN
+        sync: false  # Same as web service
       - key: FRONTEND_URL
+        sync: false  # Same as web service
+      - key: PRESENTS_FRONTEND_URL
+        sync: false  # Same as web service
+      - key: MOBILE_FRONTEND_URL
         sync: false  # Same as web service
     autoDeploy: true
 

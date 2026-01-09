@@ -43,6 +43,43 @@ class Event < ApplicationRecord
     vendor_applications.active.exists?
   end
 
+  # Check if event details that would trigger notification emails have changed
+  def details_changed_requiring_notification?
+    saved_change_to_event_date? ||
+    saved_change_to_venue? ||
+    saved_change_to_location? ||
+    saved_change_to_start_time? ||
+    saved_change_to_end_time?
+  end
+
+  # Returns hash with information about what changed
+  def event_change_info
+    return nil unless details_changed_requiring_notification?
+
+    changes = {}
+    changes[:event_date] = { old: saved_change_to_event_date[0], new: saved_change_to_event_date[1] } if saved_change_to_event_date?
+    changes[:venue] = { old: saved_change_to_venue[0], new: saved_change_to_venue[1] } if saved_change_to_venue?
+    changes[:location] = { old: saved_change_to_location[0], new: saved_change_to_location[1] } if saved_change_to_location?
+    changes[:start_time] = { old: saved_change_to_start_time[0], new: saved_change_to_start_time[1] } if saved_change_to_start_time?
+    changes[:end_time] = { old: saved_change_to_end_time[0], new: saved_change_to_end_time[1] } if saved_change_to_end_time?
+
+    {
+      changed_fields: changes.keys,
+      changes: changes,
+      changed_at: updated_at
+    }
+  end
+
+  # Check if event was just canceled
+  def just_canceled?
+    saved_change_to_status? && status == "cancelled"
+  end
+
+  # Count how many people would receive emails
+  def email_notification_count
+    registrations.where(email_unsubscribed: false).count
+  end
+
   private
 
   def generate_slug

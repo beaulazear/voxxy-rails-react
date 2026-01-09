@@ -81,7 +81,40 @@ module Api
         def update
           if @event.update(event_params)
             serialized = EventSerializer.new(@event, include_organization: true).as_json
-            render json: serialized, status: :ok
+            response_data = { event: serialized }
+
+            # Check if this update would trigger email notifications
+            if @event.details_changed_requiring_notification?
+              recipient_count = @event.email_notification_count
+              response_data[:email_notification] = {
+                type: "event_details_changed",
+                requires_confirmation: true,
+                recipient_count: recipient_count,
+                warning: "Event details were updated. Would you like to notify #{recipient_count} #{'vendor'.pluralize(recipient_count)}?",
+                changed_fields: @event.event_change_info[:changed_fields],
+                endpoint: {
+                  check: "/api/v1/presents/events/#{@event.slug}/email_notifications/check_event_update_impact",
+                  send: "/api/v1/presents/events/#{@event.slug}/email_notifications/send_event_update"
+                }
+              }
+            end
+
+            # Check if event was just canceled
+            if @event.just_canceled?
+              recipient_count = @event.email_notification_count
+              response_data[:email_notification] = {
+                type: "event_canceled",
+                requires_confirmation: true,
+                recipient_count: recipient_count,
+                warning: "⚠️ IMPORTANT: Event has been canceled. Would you like to notify #{recipient_count} #{'vendor'.pluralize(recipient_count)}?",
+                endpoint: {
+                  check: "/api/v1/presents/events/#{@event.slug}/email_notifications/check_cancellation_impact",
+                  send: "/api/v1/presents/events/#{@event.slug}/email_notifications/send_cancellation"
+                }
+              }
+            end
+
+            render json: response_data, status: :ok
           else
             render json: { errors: @event.errors.full_messages },
                    status: :unprocessable_entity

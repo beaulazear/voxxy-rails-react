@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_07_041851) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_09_021143) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -383,8 +383,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_07_041851) do
     t.string "tiktok_handle"
     t.string "website"
     t.text "note_to_host"
+    t.string "payment_status", default: "pending"
+    t.datetime "payment_confirmed_at"
     t.index ["email"], name: "index_registrations_on_email"
     t.index ["event_id"], name: "index_registrations_on_event_id"
+    t.index ["payment_status"], name: "index_registrations_on_payment_status"
     t.index ["status"], name: "index_registrations_on_status"
     t.index ["ticket_code"], name: "index_registrations_on_ticket_code", unique: true
     t.index ["user_id"], name: "index_registrations_on_user_id"
