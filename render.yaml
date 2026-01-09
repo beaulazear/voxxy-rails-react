@@ -17,7 +17,7 @@ services:
       - key: REDIS_URL
         fromService:
           type: redis
-          name: voxxy-redis
+          name: beau-redis
           property: connectionString
       - key: RAILS_ENV
         value: production
@@ -45,7 +45,7 @@ services:
       - key: REDIS_URL
         fromService:
           type: redis
-          name: voxxy-redis
+          name: beau-redis
           property: connectionString
       - key: RAILS_ENV
         value: production
@@ -57,15 +57,12 @@ services:
         sync: false  # Same as web service
     autoDeploy: true
 
+  # Note: Redis service 'beau-redis' already exists in Render
+  # The Blueprint will automatically link to the existing Redis instance
+
 databases:
   # PostgreSQL Database
   - name: voxxy-postgres
     plan: starter  # Change to your plan
     databaseName: voxxy_production
     user: voxxy
-
-  # Redis for Sidekiq and Caching
-  - name: voxxy-redis
-    plan: starter  # Change to your plan
-    maxmemoryPolicy: allkeys-lru
-    ipAllowList: []  # Leave empty to allow all IPs from your services
