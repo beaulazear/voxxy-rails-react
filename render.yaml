@@ -1,0 +1,71 @@
+# Render.com Blueprint Configuration
+# This file defines all services for the Voxxy Presents platform
+
+services:
+  # Main Rails Web Application
+  - type: web
+    name: voxxy-rails
+    runtime: ruby
+    plan: starter  # Change to your plan: starter, standard, pro, etc.
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec puma -C config/puma.rb"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: voxxy-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: voxxy-redis
+          property: connectionString
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_MASTER_KEY
+        sync: false  # Set this manually in Render dashboard
+      - key: SENDGRID_API_KEY
+        sync: false  # Set this manually in Render dashboard
+      - key: FRONTEND_URL
+        sync: false  # Set to your frontend URL
+    healthCheckPath: /health
+    autoDeploy: true
+
+  # Sidekiq Background Job Worker
+  - type: worker
+    name: voxxy-sidekiq
+    runtime: ruby
+    plan: starter  # Can be smaller plan than web service
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec sidekiq -C config/sidekiq.yml"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: voxxy-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: voxxy-redis
+          property: connectionString
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_MASTER_KEY
+        sync: false  # Same as web service
+      - key: SENDGRID_API_KEY
+        sync: false  # Same as web service
+      - key: FRONTEND_URL
+        sync: false  # Same as web service
+    autoDeploy: true
+
+databases:
+  # PostgreSQL Database
+  - name: voxxy-postgres
+    plan: starter  # Change to your plan
+    databaseName: voxxy_production
+    user: voxxy
+
+  # Redis for Sidekiq and Caching
+  - name: voxxy-redis
+    plan: starter  # Change to your plan
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []  # Leave empty to allow all IPs from your services
