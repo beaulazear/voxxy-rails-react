@@ -4,35 +4,70 @@ This guide covers deploying the Voxxy Presents platform to Render.com, including
 
 ## Table of Contents
 
-1. [Initial Setup](#initial-setup)
-2. [Environment Variables](#environment-variables)
-3. [Sidekiq Email Worker](#sidekiq-email-worker)
-4. [Monitoring](#monitoring)
-5. [Troubleshooting](#troubleshooting)
+1. [Current Deployment Status](#current-deployment-status)
+2. [Initial Setup](#initial-setup)
+3. [Environment Variables](#environment-variables)
+4. [Sidekiq Email Worker](#sidekiq-email-worker)
+5. [Monitoring](#monitoring)
+6. [Troubleshooting](#troubleshooting)
+
+---
+
+## Current Deployment Status
+
+### Production Environment (`main` branch)
+- **Web Service**: `hey-voxxy` ✅ Running
+- **Worker Service**: `heyvoxxy-sidekiq` ✅ Running
+- **Database**: `VoxxyDB` (PostgreSQL)
+- **Redis**: `beau-redis` (shared with staging)
+- **Domain**: heyvoxxy.com
+- **Status**: Fully operational - emails sending automatically every 5 minutes
+
+### Staging Environment (`staging` branch)
+- **Web Service**: `voxxy-reails-react` ✅ Running
+- **Worker Service**: `voxxy-sidekiq` ✅ Running
+- **Database**: `beaulazear` (PostgreSQL)
+- **Redis**: `beau-redis` (shared with production)
+- **Status**: Fully operational - emails sending automatically every 5 minutes
+
+**Note**: Both environments run independently. Each worker only processes jobs for its own environment/database.
 
 ---
 
 ## Initial Setup
 
-### 1. Connect Your Repository
+**Note**: Production and staging are already set up (see status above). Use this guide to set up a new environment or understand how the current setup works.
 
-1. Go to [Render Dashboard](https://dashboard.render.com)
-2. Click **"New +"** → **"Blueprint"**
-3. Connect your GitHub/GitLab repository
-4. Select the repository containing `render.yaml`
-5. Render will automatically detect the blueprint and create:
-   - **Web Service** (voxxy-rails) - Your Rails application
-   - **Worker Service** (voxxy-sidekiq) - Background job processor
-   - **PostgreSQL Database** (voxxy-postgres)
-   - **Redis Instance** (voxxy-redis) - For Sidekiq job queue
+### Manual Setup (Recommended)
 
-### 2. Initial Deployment
+To create a new Sidekiq worker for an existing environment:
 
-Click **"Apply"** to create all services. Render will:
-- Provision all infrastructure
-- Run the build command (`bin/render-build.sh`)
-- Deploy your application
-- Start the Sidekiq worker
+1. **Go to [Render Dashboard](https://dashboard.render.com)**
+2. Click **"New +"** → **"Background Worker"**
+3. **Configure**:
+   - **Name**: `your-environment-sidekiq` (e.g., `heyvoxxy-sidekiq`, `voxxy-sidekiq`)
+   - **Environment**: Select **"Ruby"** (NOT Docker)
+   - **Repository**: Your Rails repository
+   - **Branch**: Your environment branch (`main`, `staging`, etc.)
+   - **Build Command**: `./bin/render-build.sh`
+   - **Start Command**: `bundle exec sidekiq -C config/sidekiq.yml`
+4. **Link Database**: Add `DATABASE_URL` environment variable → Link to your PostgreSQL database
+5. **Link Redis**: Add `REDIS_URL` environment variable → Link to `beau-redis`
+6. **Copy Environment Variables** from your web service (see below)
+7. Click **"Create Background Worker"**
+
+### Blueprint Setup (Alternative - Not Recommended)
+
+The `render.yaml` file in the repo can be used to create services automatically, but:
+- ⚠️ May create duplicate services if you already have services running
+- ⚠️ Service names may not match your existing setup
+- ✅ Manual setup gives you more control
+
+If using Blueprint:
+1. Click **"New +"** → **"Blueprint"**
+2. Select repository containing `render.yaml`
+3. Render will create web service + worker service
+4. Manually verify database and Redis connections
 
 ---
 
@@ -58,15 +93,19 @@ These are automatically set by Render (no action needed):
 ### How to Set Variables
 
 1. Go to Render Dashboard
-2. Select **voxxy-rails** (web service)
+2. Select your **web service**:
+   - Production: `hey-voxxy`
+   - Staging: `voxxy-reails-react`
 3. Click **"Environment"** tab
 4. Add each variable:
    - Click **"Add Environment Variable"**
    - Enter key and value
    - Click **"Save Changes"**
-5. **Repeat for voxxy-sidekiq** (worker service)
+5. **Repeat for worker service**:
+   - Production: `heyvoxxy-sidekiq`
+   - Staging: `voxxy-sidekiq`
 
-**Important:** Both services must have the same environment variables!
+**Important:** Both web and worker services must have the same environment variables!
 
 ---
 
@@ -74,12 +113,14 @@ These are automatically set by Render (no action needed):
 
 ### How It Works
 
-The **voxxy-sidekiq** worker service runs Sidekiq with sidekiq-cron, which:
+The worker services (`heyvoxxy-sidekiq` for production, `voxxy-sidekiq` for staging) run Sidekiq with sidekiq-cron, which:
 1. Starts the Sidekiq process
 2. Loads the cron schedule from `config/sidekiq_schedule.yml`
 3. Runs `EmailSenderWorker` every 5 minutes
 4. Checks for scheduled emails ready to send
 5. Sends emails via SendGrid
+
+Each worker processes jobs independently for its own environment.
 
 ### Cron Jobs Configured
 
@@ -93,7 +134,9 @@ The **voxxy-sidekiq** worker service runs Sidekiq with sidekiq-cron, which:
 #### Method 1: Check Render Logs
 
 1. Go to Render Dashboard
-2. Select **voxxy-sidekiq** service
+2. Select your worker service:
+   - Production: `heyvoxxy-sidekiq`
+   - Staging: `voxxy-sidekiq`
 3. Click **"Logs"** tab
 4. Look for these log messages:
 
@@ -186,7 +229,9 @@ Sidekiq::Stats.new
 
 ### View Worker Logs
 
-Render Dashboard → **voxxy-sidekiq** → **Logs**
+**Render Dashboard** → Select worker service → **Logs**
+- Production: `heyvoxxy-sidekiq`
+- Staging: `voxxy-sidekiq`
 
 Look for:
 ```
@@ -205,11 +250,14 @@ EmailSenderWorker complete: 3 sent, 0 failed
 
 #### Check 1: Is Sidekiq Worker Running?
 
-**Render Dashboard → voxxy-sidekiq → Status should be "Live"**
+**Render Dashboard → Select worker service → Status should be "Live"**
+- Production: `heyvoxxy-sidekiq`
+- Staging: `voxxy-sidekiq`
 
 If stopped:
 - Check logs for errors
 - Verify REDIS_URL is set
+- Verify DATABASE_URL is set
 - Restart the worker
 
 #### Check 2: Are Jobs Being Enqueued?

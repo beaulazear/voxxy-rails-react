@@ -16,6 +16,8 @@ module Api
             phone: @registration.phone,
             ticket_code: @registration.ticket_code,
             status: @registration.status,
+            payment_status: @registration.payment_status,
+            payment_confirmed_at: @registration.payment_confirmed_at,
             checked_in: @registration.checked_in,
             checked_in_at: @registration.checked_in_at,
             subscribed: @registration.subscribed,

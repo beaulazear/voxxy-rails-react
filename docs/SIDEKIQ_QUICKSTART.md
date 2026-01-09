@@ -1,82 +1,49 @@
 # Sidekiq Email Worker - Quick Start Guide
 
-## 🚨 Immediate Action Required
+## ✅ Current Status (January 9, 2026)
 
-Your scheduled emails aren't sending because **Sidekiq worker is not running in production**.
+**Production Environment (`main` branch):**
+- **Web Service**: `hey-voxxy` ✅ Running
+- **Worker Service**: `heyvoxxy-sidekiq` ✅ **FULLY OPERATIONAL**
+- **Database**: `VoxxyDB` (PostgreSQL)
+- **Redis**: `beau-redis`
+- **Status**: Emails sending automatically every 5 minutes
 
----
+**Staging Environment (`staging` branch):**
+- **Web Service**: `voxxy-reails-react` ✅ Running
+- **Worker Service**: `voxxy-sidekiq` ✅ **FULLY OPERATIONAL**
+- **Database**: `beaulazear` (PostgreSQL)
+- **Redis**: `beau-redis`
+- **Status**: Emails sending automatically every 5 minutes
 
-## ✅ Solution (3 Steps)
-
-### Step 1: Deploy the New Configuration (5 minutes)
-
-1. **Commit the new files:**
-   ```bash
-   git add render.yaml config/sidekiq.yml docs/
-   git commit -m "Add Render Sidekiq worker configuration"
-   git push origin main
-   ```
-
-2. **Go to Render Dashboard:**
-   - Visit https://dashboard.render.com
-   - You should see a new deployment triggered
-   - **OR** manually create services from Blueprint:
-     - Click **"New +"** → **"Blueprint"**
-     - Select your repository
-     - Click **"Apply"**
-
-3. **Render will automatically create:**
-   - ✅ Web Service (your Rails app) - already exists
-   - ✅ **Worker Service (Sidekiq)** - **NEW!** This is what was missing
-   - ✅ Redis Instance - should already exist
+**Both environments are operational!** Use this guide to verify status, troubleshoot, or set up a new environment.
 
 ---
 
-### Step 2: Set Environment Variables (5 minutes)
+## 🔍 Quick Verification
 
-**IMPORTANT:** You must set these variables in **BOTH** services:
+### Check Worker Status
 
-#### For `voxxy-rails` (Web Service):
-
-1. Render Dashboard → **voxxy-rails** → **Environment**
-2. Verify these exist (add if missing):
-   - `RAILS_MASTER_KEY` = (your master.key content)
-   - `VoxxyKeyAPI` = (your SendGrid API key)
-   - `FRONTEND_URL` = (your frontend URL)
-
-#### For `voxxy-sidekiq` (Worker Service):
-
-1. Render Dashboard → **voxxy-sidekiq** → **Environment**
-2. Add the **SAME** variables as above:
-   - `RAILS_MASTER_KEY` = (same value)
-   - `VoxxyKeyAPI` = (same value)
-   - `FRONTEND_URL` = (same value)
-
-**Note:** `DATABASE_URL` and `REDIS_URL` are auto-configured by Render.
-
----
-
-### Step 3: Verify It's Working (2 minutes)
-
-#### Check Sidekiq Worker Logs
-
-1. Render Dashboard → **voxxy-sidekiq** → **Logs**
-2. Look for these success messages:
+1. **Render Dashboard** → Select worker service:
+   - Production: `heyvoxxy-sidekiq`
+   - Staging: `voxxy-sidekiq`
+2. **Logs** tab → Look for:
 
 ```
 ✓ Loaded sidekiq-cron schedule with 2 jobs
-Sidekiq cron jobs loaded
-```
-
-#### Check Email Worker is Running
-
-Within 5 minutes, you should see:
-
-```
 EmailSenderWorker: Checking for scheduled emails ready to send...
 ```
 
-Every 5 minutes after that, you'll see the worker checking for emails.
+### Check Recent Email Sends
+
+**Production logs example:**
+```
+Found 4 scheduled emails ready to send
+Sending scheduled email #2: 4 Days Before Event
+✓ Email sent to greerlcourtney@gmail.com (SendGrid status: 202)
+✓ Sent scheduled email #2 to 1 recipients (0 failed)
+EmailSenderWorker complete: 4 sent, 0 failed
+```
 
 ---
 
@@ -84,7 +51,9 @@ Every 5 minutes after that, you'll see the worker checking for emails.
 
 ### Option 1: Check Worker Logs (Easiest)
 
-Render Dashboard → **voxxy-sidekiq** → **Logs**
+**Render Dashboard** → Select worker service → **Logs**
+- Production: `heyvoxxy-sidekiq`
+- Staging: `voxxy-sidekiq`
 
 Look for:
 ```
@@ -96,7 +65,9 @@ EmailSenderWorker complete: 3 sent, 0 failed
 
 ### Option 2: Use Rails Console
 
-1. Render Dashboard → **voxxy-rails** → **Shell**
+1. **Render Dashboard** → Select web service → **Shell**
+   - Production: `hey-voxxy`
+   - Staging: `voxxy-reails-react`
 2. Run:
    ```bash
    rails console
@@ -125,19 +96,28 @@ EmailSenderWorker.new.perform
 
 ---
 
-## 🔍 What Changed
+## 🔍 Current Architecture
 
-### Before:
-- ❌ Rails web app running in Render
-- ❌ Redis running in Render
-- ❌ **No Sidekiq worker** ← This was the problem!
-- ❌ Emails scheduled but never sent
+### Production Setup:
+- ✅ Rails web app: `hey-voxxy` (main branch)
+- ✅ Redis: `beau-redis` (shared)
+- ✅ **Sidekiq worker**: `heyvoxxy-sidekiq` ✅
+- ✅ Database: `VoxxyDB`
+- ✅ **Emails sent automatically every 5 minutes**
 
-### After:
-- ✅ Rails web app running in Render
-- ✅ Redis running in Render
-- ✅ **Sidekiq worker running** ← NEW!
-- ✅ **Emails automatically sent every 5 minutes**
+### Staging Setup:
+- ✅ Rails web app: `voxxy-reails-react` (staging branch)
+- ✅ Redis: `beau-redis` (shared)
+- ✅ **Sidekiq worker**: `voxxy-sidekiq` ✅
+- ✅ Database: `beaulazear`
+- ✅ **Emails sent automatically every 5 minutes**
+
+### How It Works:
+1. Each worker connects to its own database
+2. Workers check every 5 minutes for scheduled emails (`scheduled_for <= current_time`)
+3. Emails are sent via SendGrid
+4. Status updated from `scheduled` → `sent`
+5. Both environments operate independently
 
 ---
 
@@ -209,11 +189,36 @@ See full troubleshooting guide in `docs/RENDER_DEPLOYMENT.md`
 
 ---
 
-## 🎯 Next Steps
+## 🎯 Setting Up a New Environment
 
-1. **Deploy now** (commit and push)
-2. **Wait 10-15 minutes** for Render to build and deploy
-3. **Check worker logs** to verify it's running
-4. **Monitor for 1 hour** to see emails being sent
+If you need to set up Sidekiq for a new environment:
 
-Your scheduled emails should start sending automatically! 🚀
+1. **Create Background Worker** in Render Dashboard:
+   - Name: `your-env-sidekiq`
+   - Branch: Your environment branch
+   - Build: `./bin/render-build.sh`
+   - Start: `bundle exec sidekiq -C config/sidekiq.yml`
+
+2. **Link Services**:
+   - DATABASE_URL → Link to your PostgreSQL
+   - REDIS_URL → Link to `beau-redis`
+
+3. **Copy Environment Variables**:
+   - Copy ALL env vars from your web service to worker service
+   - Including: `RAILS_MASTER_KEY`, `VoxxyKeyAPI`, `PRIMARY_DOMAIN`, `FRONTEND_URL`, etc.
+
+4. **Wait 10-15 minutes** for deployment
+
+5. **Verify in logs**:
+   ```
+   ✓ Loaded sidekiq-cron schedule with 2 jobs
+   EmailSenderWorker: Checking for scheduled emails ready to send...
+   ```
+
+See `docs/RENDER_DEPLOYMENT.md` for detailed instructions.
+
+---
+
+## ✅ System Status
+
+**Production and staging are fully operational!** Scheduled emails are sending automatically every 5 minutes. 🚀
