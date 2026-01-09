@@ -26,12 +26,3 @@
 # Job timeout (in seconds)
 # Jobs running longer than this will be terminated
 :timeout: 300
-
-# Lifecycle events for logging
-:lifecycle_events:
-  startup:
-    - INFO
-  quiet:
-    - INFO
-  shutdown:
-    - INFO
