@@ -45,7 +45,7 @@ Set these environment variables in **both** the web service AND worker service:
 | Variable | Description | Where to Set |
 |----------|-------------|--------------|
 | `RAILS_MASTER_KEY` | Your `config/master.key` content | Render Dashboard → Service → Environment |
-| `SENDGRID_API_KEY` | SendGrid API key for email delivery | Render Dashboard → Service → Environment |
+| `VoxxyKeyAPI` | SendGrid API key for email delivery | Render Dashboard → Service → Environment |
 | `FRONTEND_URL` | Your frontend URL (e.g., `https://voxxy.com`) | Render Dashboard → Service → Environment |
 
 ### Auto-Configured Variables

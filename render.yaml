@@ -23,8 +23,8 @@ services:
         value: production
       - key: RAILS_MASTER_KEY
         sync: false  # Set this manually in Render dashboard
-      - key: SENDGRID_API_KEY
-        sync: false  # Set this manually in Render dashboard
+      - key: VoxxyKeyAPI
+        sync: false  # SendGrid API key - set this manually in Render dashboard
       - key: FRONTEND_URL
         sync: false  # Set to your frontend URL
     healthCheckPath: /health
@@ -51,8 +51,8 @@ services:
         value: production
       - key: RAILS_MASTER_KEY
         sync: false  # Same as web service
-      - key: SENDGRID_API_KEY
-        sync: false  # Same as web service
+      - key: VoxxyKeyAPI
+        sync: false  # SendGrid API key - same as web service
       - key: FRONTEND_URL
         sync: false  # Same as web service
     autoDeploy: true

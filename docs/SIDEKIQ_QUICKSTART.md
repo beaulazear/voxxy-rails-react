@@ -41,7 +41,7 @@ Your scheduled emails aren't sending because **Sidekiq worker is not running in 
 1. Render Dashboard → **voxxy-rails** → **Environment**
 2. Verify these exist (add if missing):
    - `RAILS_MASTER_KEY` = (your master.key content)
-   - `SENDGRID_API_KEY` = (your SendGrid API key)
+   - `VoxxyKeyAPI` = (your SendGrid API key)
    - `FRONTEND_URL` = (your frontend URL)
 
 #### For `voxxy-sidekiq` (Worker Service):
@@ -49,7 +49,7 @@ Your scheduled emails aren't sending because **Sidekiq worker is not running in 
 1. Render Dashboard → **voxxy-sidekiq** → **Environment**
 2. Add the **SAME** variables as above:
    - `RAILS_MASTER_KEY` = (same value)
-   - `SENDGRID_API_KEY` = (same value)
+   - `VoxxyKeyAPI` = (same value)
    - `FRONTEND_URL` = (same value)
 
 **Note:** `DATABASE_URL` and `REDIS_URL` are auto-configured by Render.
