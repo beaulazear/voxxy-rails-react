@@ -60,9 +60,5 @@ services:
   # Note: Redis service 'beau-redis' already exists in Render
   # The Blueprint will automatically link to the existing Redis instance
 
-databases:
-  # PostgreSQL Database
-  - name: voxxy-postgres
-    plan: starter  # Change to your plan
-    databaseName: voxxy_production
-    user: voxxy
+  # Note: PostgreSQL database 'voxxy-postgres' already exists in Render
+  # The Blueprint will automatically link to the existing database instance
