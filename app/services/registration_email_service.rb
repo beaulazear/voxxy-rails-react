@@ -422,4 +422,283 @@ class RegistrationEmailService < BaseEmailService
 
     Rails.logger.info "Waitlist notification sent successfully to #{registration.email}"
   end
+
+  # Send payment confirmation
+  def self.send_payment_confirmation(registration)
+    event = registration.event
+    organization = event.organization
+    vendor_app = registration.vendor_application
+
+    # Parse first name from full name
+    first_name = registration.name.to_s.split(" ").first || registration.name
+
+    # Get producer name and email
+    producer_name = organization.name || "Event Organizer"
+
+    # Get category price (from vendor_application if available)
+    category_price = vendor_app&.booth_price || event.ticket_price
+    formatted_price = category_price.present? ? "$#{category_price.to_i}" : "TBD"
+
+    # Format dates and times
+    event_date = event.event_date.present? ? event.event_date.strftime("%B %d, %Y") : "TBD"
+    install_date = vendor_app&.install_date.present? ? vendor_app.install_date.strftime("%B %d, %Y") : "TBD"
+
+    install_time = if vendor_app&.install_start_time.present? && vendor_app&.install_end_time.present?
+      "#{vendor_app.install_start_time} - #{vendor_app.install_end_time}"
+    elsif vendor_app&.install_start_time.present?
+      vendor_app.install_start_time
+    else
+      "TBD"
+    end
+
+    subject = "✅ Payment Confirmed - #{event.title}"
+
+    content = <<~HTML
+      <p style="#{BASE_STYLES[:text]}">
+        Hi #{first_name},
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Great news! Your payment for <strong>#{event.title}</strong> has been confirmed.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        🏷️ <strong>Category:</strong> #{registration.vendor_category}<br/>
+        💰 <strong>Amount Paid:</strong> #{formatted_price}
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        📅 <strong>Event:</strong> #{event_date}<br/>
+        📍 <strong>Location:</strong> #{event.venue.present? ? "#{event.venue}, " : ""}#{event.location || "TBD"}<br/>
+        🛠️ <strong>Install:</strong> #{install_date} at #{install_time}
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        You're all set! We'll send more details as the event approaches.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}; margin-top: 30px;">
+        Best,<br/>
+        #{producer_name}
+      </p>
+    HTML
+
+    email_html = build_presents_email_template(
+      "Payment Confirmed",
+      content,
+      nil,
+      nil,
+      organization
+    )
+
+    headers = {
+      "X-Entity-Ref-ID" => "registration-#{registration.id}",
+      "X-SMTPAPI" => '{"category": ["transactional", "payment-confirmed"]}'
+    }
+
+    send_email(registration.email, subject, email_html, headers)
+
+    Rails.logger.info "Payment confirmation sent successfully to #{registration.email}"
+  end
+
+  # Send category change notification
+  def self.send_category_change_notification(registration, new_category_price = nil)
+    event = registration.event
+    organization = event.organization
+
+    # Parse first name from full name
+    first_name = registration.name.to_s.split(" ").first || registration.name
+
+    # Get producer name and email
+    producer_name = organization.name || "Event Organizer"
+    producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
+
+    # Get category price
+    category_price = new_category_price || registration.vendor_application&.booth_price || event.ticket_price
+    formatted_price = category_price.present? ? "$#{category_price.to_i}" : "TBD"
+
+    subject = "Category Update - #{event.title}"
+
+    content = <<~HTML
+      <p style="#{BASE_STYLES[:text]}">
+        Hi #{first_name},
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Your category for <strong>#{event.title}</strong> has been updated to: <strong>#{registration.vendor_category}</strong>
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        New pricing: #{formatted_price}
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        If you have questions about this change, please contact <a href="mailto:#{producer_email}" style="color: #9D60F8; text-decoration: none;">#{producer_email}</a>.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}; margin-top: 30px;">
+        Best,<br/>
+        #{producer_name}
+      </p>
+    HTML
+
+    email_html = build_presents_email_template(
+      "Category Update",
+      content,
+      nil,
+      nil,
+      organization
+    )
+
+    headers = {
+      "X-Entity-Ref-ID" => "registration-#{registration.id}",
+      "X-SMTPAPI" => '{"category": ["transactional", "category-changed"]}'
+    }
+
+    send_email(registration.email, subject, email_html, headers)
+
+    Rails.logger.info "Category change notification sent successfully to #{registration.email}"
+  end
+
+  # Send event details changed notification to all registrations
+  def self.send_event_details_changed_to_all(event)
+    organization = event.organization
+    producer_name = organization.name || "Event Organizer"
+    producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
+
+    # Format event details
+    event_date = event.event_date.present? ? event.event_date.strftime("%B %d, %Y") : "TBD"
+    event_time = event.start_time.present? ? event.start_time : "TBD"
+
+    subject = "📝 Event Update - #{event.title}"
+
+    sent_count = 0
+    failed_count = 0
+
+    event.registrations.where(email_unsubscribed: false).find_each do |registration|
+      begin
+        # Parse first name
+        first_name = registration.name.to_s.split(" ").first || registration.name
+
+        content = <<~HTML
+          <p style="#{BASE_STYLES[:text]}">
+            Hi #{first_name},
+          </p>
+
+          <p style="#{BASE_STYLES[:text]}">
+            There has been an update to <strong>#{event.title}</strong>. Please review the latest event details:
+          </p>
+
+          <p style="#{BASE_STYLES[:text]}">
+            📅 <strong>Event Date:</strong> #{event_date}<br/>
+            📍 <strong>Venue:</strong> #{event.venue.present? ? "#{event.venue}, " : ""}#{event.location || "TBD"}<br/>
+            ⏰ <strong>Time:</strong> #{event_time}
+          </p>
+
+          <p style="#{BASE_STYLES[:text]}">
+            Please make note of any changes that may affect your participation.
+          </p>
+
+          <p style="#{BASE_STYLES[:text]}">
+            If you have questions, contact <a href="mailto:#{producer_email}" style="color: #9D60F8; text-decoration: none;">#{producer_email}</a>.
+          </p>
+
+          <p style="#{BASE_STYLES[:text]}; margin-top: 30px;">
+            Best,<br/>
+            #{producer_name}
+          </p>
+        HTML
+
+        email_html = build_presents_email_template(
+          "Event Update",
+          content,
+          nil,
+          nil,
+          organization
+        )
+
+        headers = {
+          "X-Entity-Ref-ID" => "event-#{event.id}",
+          "X-SMTPAPI" => '{"category": ["transactional", "event-details-changed"]}'
+        }
+
+        send_email(registration.email, subject, email_html, headers)
+        sent_count += 1
+      rescue StandardError => e
+        Rails.logger.error "Failed to send event details update to #{registration.email}: #{e.message}"
+        failed_count += 1
+      end
+    end
+
+    Rails.logger.info "Event details update sent to #{sent_count} recipients (#{failed_count} failed)"
+    { sent: sent_count, failed: failed_count }
+  end
+
+  # Send event canceled notification to all registrations
+  def self.send_event_canceled_to_all(event)
+    organization = event.organization
+    producer_name = organization.name || "Event Organizer"
+    producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
+
+    subject = "❌ Event Canceled - #{event.title}"
+
+    sent_count = 0
+    failed_count = 0
+
+    event.registrations.where(email_unsubscribed: false).find_each do |registration|
+      begin
+        # Parse first name
+        first_name = registration.name.to_s.split(" ").first || registration.name
+
+        content = <<~HTML
+          <p style="#{BASE_STYLES[:text]}">
+            Hi #{first_name},
+          </p>
+
+          <p style="#{BASE_STYLES[:text]}">
+            We regret to inform you that <strong>#{event.title}</strong> has been canceled.
+          </p>
+
+          <p style="#{BASE_STYLES[:text]}">
+            We sincerely apologize for any inconvenience this may cause. If you have already made a payment, you will receive a full refund within 5-7 business days.
+          </p>
+
+          <p style="#{BASE_STYLES[:text]}">
+            For any questions regarding refunds or future events, please contact <a href="mailto:#{producer_email}" style="color: #9D60F8; text-decoration: none;">#{producer_email}</a>.
+          </p>
+
+          <p style="#{BASE_STYLES[:text]}">
+            Thank you for your understanding, and we hope to see you at a future event.
+          </p>
+
+          <p style="#{BASE_STYLES[:text]}; margin-top: 30px;">
+            Best,<br/>
+            #{producer_name}
+          </p>
+        HTML
+
+        email_html = build_presents_email_template(
+          "Event Canceled",
+          content,
+          nil,
+          nil,
+          organization
+        )
+
+        headers = {
+          "X-Entity-Ref-ID" => "event-#{event.id}",
+          "X-SMTPAPI" => '{"category": ["transactional", "event-canceled"]}'
+        }
+
+        send_email(registration.email, subject, email_html, headers)
+        sent_count += 1
+      rescue StandardError => e
+        Rails.logger.error "Failed to send event cancellation to #{registration.email}: #{e.message}"
+        failed_count += 1
+      end
+    end
+
+    Rails.logger.info "Event cancellation sent to #{sent_count} recipients (#{failed_count} failed)"
+    { sent: sent_count, failed: failed_count }
+  end
 end

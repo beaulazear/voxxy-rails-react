@@ -102,7 +102,7 @@ Rails.application.configure do
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
     user_name: "apikey", # Use 'apikey' as the username
-    password: ENV.fetch("VoxxyKeyAPI"), # Use your environment variable
+    password: ENV["VoxxyKeyAPI"] || "dummy-for-build", # Use your environment variable (dummy during build)
     domain: ENV.fetch("PRIMARY_DOMAIN", "voxxyai.com"), # Your verified domain
     address: "smtp.sendgrid.net",
     port: 587,
