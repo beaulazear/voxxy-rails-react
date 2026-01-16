@@ -2,6 +2,7 @@ class ApplicationController < ActionController::API
   include ActionController::Cookies
   include JsonWebToken
 
+  before_action :set_robots_header
   before_action :authorized
   skip_before_action :authorized, only: [ :test ]
 
@@ -34,6 +35,13 @@ class ApplicationController < ActionController::API
   end
 
   private
+
+  def set_robots_header
+    # Block search engines on staging domain (voxxyai.com)
+    if request.host == "voxxyai.com" || request.host == "www.voxxyai.com"
+      response.headers["X-Robots-Tag"] = "noindex, nofollow"
+    end
+  end
 
   def frontend_host
     if Rails.env.production?

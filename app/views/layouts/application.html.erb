@@ -1,12 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title><%= content_for(:title) || "Voxxy Rails" %></title>
+    <meta charset="utf-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
     <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <% if request.host == "voxxyai.com" || request.host == "www.voxxyai.com" %>
+      <%# Block search engines on staging domain %>
+      <meta name="robots" content="noindex, nofollow">
+      <title><%= content_for(:title) || "Voxxy Staging" %></title>
+    <% else %>
+      <%# SEO-optimized meta tags for production %>
+      <title><%= content_for(:title) || "Voxxy - AI-Powered Group Planning & Event Coordination | Voxxy AI" %></title>
+      <meta name="description" content="<%= content_for(:description) || 'Voxxy helps groups coordinate plans effortlessly. Collect availability, get AI recommendations, and organize events with ease. From Voxxy AI Inc - making group planning simple.' %>" />
+      <meta name="keywords" content="voxxy, voxxy ai, voxxyai, hey voxxy, heyvoxxy, voxxy presents, voxxypresents, group planning, event coordination, ai planning assistant, schedule coordination, group activities, event management" />
+      <meta name="author" content="Voxxy AI Inc" />
+      <meta name="robots" content="index, follow" />
+      <link rel="canonical" href="https://<%= request.host %><%= request.path %>" />
+
+      <%# Open Graph / Facebook %>
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content="https://<%= request.host %><%= request.path %>" />
+      <meta property="og:title" content="<%= content_for(:og_title) || content_for(:title) || 'Voxxy - AI-Powered Group Planning' %>" />
+      <meta property="og:description" content="<%= content_for(:og_description) || content_for(:description) || 'Voxxy helps groups coordinate plans effortlessly with AI-powered recommendations.' %>" />
+      <meta property="og:image" content="https://<%= request.host %>/voxxy-share-default.png" />
+      <meta property="og:site_name" content="Voxxy" />
+
+      <%# Twitter Card %>
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:url" content="https://<%= request.host %><%= request.path %>" />
+      <meta name="twitter:title" content="<%= content_for(:twitter_title) || content_for(:title) || 'Voxxy - AI-Powered Group Planning' %>" />
+      <meta name="twitter:description" content="<%= content_for(:twitter_description) || content_for(:description) || 'Voxxy helps groups coordinate plans effortlessly.' %>" />
+      <meta name="twitter:image" content="https://<%= request.host %>/voxxy-share-default.png" />
+    <% end %>
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 

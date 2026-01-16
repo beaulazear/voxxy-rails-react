@@ -454,6 +454,12 @@ Rails.application.routes.draw do
   get "/test", to: "application#test"
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # Dynamic robots.txt (blocks voxxyai.com from search engines)
+  get "/robots.txt", to: "robots#show", defaults: { format: :text }
+
+  # Sitemap for SEO
+  get "/sitemap.xml", to: "sitemap#show", defaults: { format: :xml }
+
   mount ActionCable.server => "/cable"
 
   # Sidekiq Web UI (for monitoring background jobs)
