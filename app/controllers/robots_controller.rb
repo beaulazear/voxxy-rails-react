@@ -1,6 +1,6 @@
 class RobotsController < ApplicationController
-  # Skip CSRF protection for robots.txt
-  skip_before_action :verify_authenticity_token
+  # Skip authorization for public robots.txt
+  skip_before_action :authorized
 
   def show
     # Block search engines on voxxyai.com (staging)
