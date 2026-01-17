@@ -111,7 +111,7 @@ class EmailScheduleCalculator
   end
 
   # Combine a date with a time string (e.g., "09:00") or Time object
-  # Returns a DateTime in UTC
+  # Returns a DateTime in UTC (converted from Eastern time)
   def combine_date_and_time(date, time_input)
     # Handle both string ("09:00") and Time objects
     if time_input.is_a?(Time) || time_input.is_a?(ActiveSupport::TimeWithZone)
@@ -121,8 +121,9 @@ class EmailScheduleCalculator
       hour, minute = time_input.to_s.split(":").map(&:to_i)
     end
 
-    # Use UTC timezone
-    Time.use_zone("UTC") do
+    # Use Eastern timezone (America/New_York handles EST/EDT automatically)
+    # Rails will store as UTC in database
+    Time.use_zone("America/New_York") do
       Time.zone.local(date.year, date.month, date.day, hour, minute, 0)
     end
   end
