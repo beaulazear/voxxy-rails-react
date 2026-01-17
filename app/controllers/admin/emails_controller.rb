@@ -263,12 +263,12 @@ class Admin::EmailsController < ApplicationController
     subject = resolver.resolve(email_item.subject_template)
     body = resolver.resolve(email_item.body_template)
 
-    # Build HTML with BASE_STYLES
+    # Build HTML with BASE_STYLES (using positional arguments)
     BaseEmailService.build_simple_email_template(
-      heading: subject,
-      message: body,
-      link_text: "View Event Details",
-      link_url: "https://voxxypresents.com/events/#{event.slug}"
+      subject,
+      body,
+      "View Event Details",
+      "https://voxxypresents.com/events/#{event.slug}"
     )
   end
 
@@ -282,55 +282,55 @@ class Admin::EmailsController < ApplicationController
       subject = "Application Received"
       message = "Thank you for applying to #{event.title}. We have received your application and will review it shortly."
       BaseEmailService.build_simple_email_template(
-        heading: subject,
-        message: message,
-        link_text: "Track Your Application",
-        link_url: "https://voxxypresents.com/applications/track/#{registration.ticket_code}"
+        subject,
+        message,
+        "Track Your Application",
+        "https://voxxypresents.com/applications/track/#{registration.ticket_code}"
       )
     when :approval
       subject = "Your Application Was Approved"
       message = "Congratulations! Your application to #{event.title} has been approved."
       BaseEmailService.build_simple_email_template(
-        heading: subject,
-        message: message,
-        link_text: "View Details",
-        link_url: "https://voxxypresents.com/applications/track/#{registration.ticket_code}"
+        subject,
+        message,
+        "View Details",
+        "https://voxxypresents.com/applications/track/#{registration.ticket_code}"
       )
     when :rejection
       subject = "Application Status Update"
       message = "Thank you for your interest in #{event.title}. Unfortunately, we are unable to accept your application at this time."
       BaseEmailService.build_simple_email_template(
-        heading: subject,
-        message: message,
-        link_text: "View Other Events",
-        link_url: "https://voxxypresents.com/events"
+        subject,
+        message,
+        "View Other Events",
+        "https://voxxypresents.com/events"
       )
     when :waitlist
       subject = "Waitlist Status"
       message = "Your application to #{event.title} has been placed on the waitlist. We will notify you if a spot becomes available."
       BaseEmailService.build_simple_email_template(
-        heading: subject,
-        message: message,
-        link_text: "Track Your Application",
-        link_url: "https://voxxypresents.com/applications/track/#{registration.ticket_code}"
+        subject,
+        message,
+        "Track Your Application",
+        "https://voxxypresents.com/applications/track/#{registration.ticket_code}"
       )
     when :submission_notification
       subject = "New Vendor Application"
       message = "A new vendor application has been submitted for #{event.title}."
       BaseEmailService.build_simple_email_template(
-        heading: subject,
-        message: message,
-        link_text: "View Application",
-        link_url: "https://voxxypresents.com/producer/pending"
+        subject,
+        message,
+        "View Application",
+        "https://voxxypresents.com/producer/pending"
       )
     when :payment_confirmation
       subject = "Payment Confirmed"
       message = "Your payment for #{event.title} has been confirmed. We look forward to seeing you at the event!"
       BaseEmailService.build_simple_email_template(
-        heading: subject,
-        message: message,
-        link_text: "View Details",
-        link_url: "https://voxxypresents.com/applications/track/#{registration.ticket_code}"
+        subject,
+        message,
+        "View Details",
+        "https://voxxypresents.com/applications/track/#{registration.ticket_code}"
       )
     end
   end
@@ -355,10 +355,10 @@ class Admin::EmailsController < ApplicationController
     subject = "Category Update"
     message = "Your booth category for #{event.title} has been updated. The new fee is $200."
     BaseEmailService.build_simple_email_template(
-      heading: subject,
-      message: message,
-      link_text: "View Details",
-      link_url: "https://voxxypresents.com/applications/track/#{registration.ticket_code}"
+      subject,
+      message,
+      "View Details",
+      "https://voxxypresents.com/applications/track/#{registration.ticket_code}"
     )
   end
 
@@ -366,10 +366,10 @@ class Admin::EmailsController < ApplicationController
     subject = "Event Update"
     message = "Important updates have been made to #{event.title}. Please review the changes."
     BaseEmailService.build_simple_email_template(
-      heading: subject,
-      message: message,
-      link_text: "View Event Details",
-      link_url: "https://voxxypresents.com/events/#{event.slug}"
+      subject,
+      message,
+      "View Event Details",
+      "https://voxxypresents.com/events/#{event.slug}"
     )
   end
 
@@ -377,10 +377,10 @@ class Admin::EmailsController < ApplicationController
     subject = "Event Canceled"
     message = "We regret to inform you that #{event.title} has been canceled. Refunds will be processed automatically."
     BaseEmailService.build_simple_email_template(
-      heading: subject,
-      message: message,
-      link_text: "View Other Events",
-      link_url: "https://voxxypresents.com/events"
+      subject,
+      message,
+      "View Other Events",
+      "https://voxxypresents.com/events"
     )
   end
 end
