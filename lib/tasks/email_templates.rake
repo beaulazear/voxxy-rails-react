@@ -20,42 +20,49 @@ namespace :email_templates do
       # Position 1: 1 Day Before Application Deadline
       {
         position: 1,
+        name: "1 Day Before Application Deadline",
         subject: "Last Chance: [eventName] Applications Close Tomorrow",
         body: "This is your final reminder that applications for [eventName] close tomorrow.\n\nDon't miss this opportunity to be part of [eventName] on [eventDate] at [eventLocation].\n\nSubmit your application before the deadline."
       },
       # Position 2: Application Deadline Day
       {
         position: 2,
+        name: "Application Deadline Day",
         subject: "URGENT: [eventName] Applications Close Today",
         body: "Today is the last day to apply for [eventName].\n\nApplications close at midnight tonight. Submit your application now to secure your spot at [eventLocation] on [eventDate].\n\nThis is your final chance to participate in this event."
       },
       # Position 3: 1 Day Before Payment Due
       {
         position: 3,
+        name: "1 Day Before Payment Due",
         subject: "Reminder: Payment Due Tomorrow - [eventName]",
         body: "Your payment for [eventName] is due tomorrow.\n\nEvent Details:\n• Event: [eventName]\n• Date: [eventDate]\n• Location: [eventLocation]\n• Amount Due: [categoryPrice]\n\nPlease submit your payment by the deadline to confirm your participation."
       },
       # Position 4: Payment Due Today
       {
         position: 4,
+        name: "Payment Due Today",
         subject: "URGENT: Payment Due Today - [eventName]",
         body: "This is a reminder that your payment for [eventName] is due today.\n\nAmount Due: [categoryPrice]\nEvent Date: [eventDate]\nLocation: [eventLocation]\n\nPlease submit your payment today to avoid losing your spot."
       },
       # Position 5: 1 Day Before Event
       {
         position: 5,
+        name: "1 Day Before Event",
         subject: "Tomorrow: [eventName] Final Details",
         body: "[eventName] is tomorrow.\n\nEvent Details:\n• Date: [eventDate]\n• Location: [eventLocation]\n• Start Time: [eventStartTime]\n• Load-in: [loadInTime]\n\nWe look forward to seeing you tomorrow. Please arrive during the load-in window to set up your space."
       },
       # Position 6: Day of Event
       {
         position: 6,
+        name: "Day of Event",
         subject: "Today: [eventName]",
         body: "Today is the day.\n\n[eventName] starts at [eventStartTime] at [eventLocation].\n\nThank you for being part of this event. We're excited to see you there."
       },
-      # Position 7: Day After Event
+      # Position 7: Day After Event - Thank You
       {
         position: 7,
+        name: "Day After Event - Thank You",
         subject: "Thank You for Participating in [eventName]",
         body: "Thank you for being part of [eventName] yesterday.\n\nWe hope the event was successful for you. We'd love to have you at our future events.\n\nStay tuned for upcoming opportunities."
       }
@@ -67,10 +74,11 @@ namespace :email_templates do
 
       if item
         item.update!(
+          name: update[:name],
           subject_template: update[:subject],
           body_template: update[:body]
         )
-        puts "  ✅ Updated Position #{update[:position]}: #{update[:subject]}"
+        puts "  ✅ Updated Position #{update[:position]}: #{update[:name]}"
         updated_count += 1
       else
         puts "  ⚠️  Position #{update[:position]} not found"
