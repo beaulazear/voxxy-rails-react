@@ -62,18 +62,18 @@ class BaseEmailService
     can_send_email_to_user?(user)
   end
 
-  # Voxxy brand email styling
+  # Simplified, deliverability-focused email styling
   BASE_STYLES = {
-    body: "margin: 0; padding: 0; font-family: 'Montserrat', Arial, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%); min-height: 100vh;",
-    container: "max-width: 600px; margin: 0 auto; padding: 40px 20px;",
-    inner_container: "background: rgba(255, 255, 255, 0.95); border-radius: 16px; padding: 40px 30px; text-align: center; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);",
-    header: "margin-bottom: 30px;",
-    logo: "margin-bottom: 30px; max-width: 100%; height: auto; width: 200px;",
-    title: "font-family: 'Montserrat', Arial, sans-serif; font-size: 28px; font-weight: 700; color: #2d3748; margin: 0 0 16px 0;",
-    subtitle: "font-family: 'Montserrat', Arial, sans-serif; font-size: 16px; color: #718096; margin: 0 0 20px 0; line-height: 1.5;",
-    text: "font-family: 'Montserrat', Arial, sans-serif; font-size: 16px; color: #4a5568; line-height: 1.5; margin: 0 0 16px 0; text-align: left;",
-    button: "display: inline-block; font-family: 'Montserrat', Arial, sans-serif; padding: 16px 32px; font-size: 16px; font-weight: 600; color: white; background-color: #9D60F8; text-decoration: none; border-radius: 8px; margin: 20px 0;",
-    footer: "font-family: 'Montserrat', Arial, sans-serif; font-size: 14px; color: #718096; margin: 30px 0 0 0; text-align: center;"
+    body: "margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background-color: #f5f5f5;",
+    container: "max-width: 600px; margin: 0 auto; padding: 20px;",
+    inner_container: "background-color: #ffffff; padding: 30px; border: 1px solid #e0e0e0;",
+    header: "margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #e0e0e0;",
+    logo: "max-width: 100%; height: auto; width: 150px;",
+    title: "font-size: 22px; font-weight: 600; color: #1a1a1a; margin: 0 0 15px 0; line-height: 1.3;",
+    subtitle: "font-size: 16px; color: #666666; margin: 0 0 20px 0; line-height: 1.4;",
+    text: "font-size: 15px; color: #333333; line-height: 1.6; margin: 0 0 15px 0;",
+    link: "color: #0066cc; text-decoration: underline;",
+    footer: "font-size: 13px; color: #888888; margin: 25px 0 0 0; padding-top: 20px; border-top: 1px solid #e0e0e0;"
   }.freeze
 
   def self.send_email(to_email, subject, content_html, additional_headers = {})
@@ -116,7 +116,7 @@ class BaseEmailService
     raise
   end
 
-  def self.build_simple_email_template(title, content, button_text = nil, button_url = nil)
+  def self.build_simple_email_template(title, content, link_text = nil, link_url = nil)
     <<~HTML
       <!DOCTYPE html>
       <html>
@@ -124,12 +124,11 @@ class BaseEmailService
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1">
           <title>#{title}</title>
-          <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
         </head>
         <body style="#{BASE_STYLES[:body]}">
           <div style="#{BASE_STYLES[:container]}">
             <div style="#{BASE_STYLES[:inner_container]}">
-              <!-- Logo -->
+              <!-- Header -->
               <div style="#{BASE_STYLES[:header]}">
                 <img src="https://res.cloudinary.com/dgtpgywhl/image/upload/v1746365141/Voxxy_Header_syvpzb.png"
                      alt="Voxxy" style="#{BASE_STYLES[:logo]}">
@@ -143,19 +142,22 @@ class BaseEmailService
                 #{content}
               </div>
 
-              <!-- Button -->
-              #{button_text && button_url ?
-                "<div style='text-align: center; margin: 30px 0;'>
-                  <a href='#{button_url}' style='#{BASE_STYLES[:button]}'>#{button_text}</a>
-                </div>" : ""
+              <!-- Link -->
+              #{link_text && link_url ?
+                "<p style='#{BASE_STYLES[:text]}'>
+                  <a href='#{link_url}' style='#{BASE_STYLES[:link]}'>#{link_text}</a>
+                </p>" : ""
               }
 
               <!-- Footer -->
               <div style="#{BASE_STYLES[:footer]}">
-                <p style="margin: 0 0 10px 0;">See you on Voxxy! ✨</p>
-                <p style="font-size: 12px; color: #a0aec0; margin: 0;">
+                <p style="margin: 0 0 8px 0;">See you on Voxxy.</p>
+                <p style="margin: 0 0 12px 0;">
                   If you didn't expect this email, you can safely ignore it.
-                  <br><a href="mailto:unsubscribe@voxxyai.com" style="color: #9D60F8; text-decoration: none;">Unsubscribe</a>
+                  <br><a href="mailto:unsubscribe@voxxyai.com" style="#{BASE_STYLES[:link]}">Unsubscribe</a>
+                </p>
+                <p style="margin: 0; font-size: 12px; color: #aaaaaa;">
+                  Powered by Voxxy Presents
                 </p>
               </div>
             </div>

@@ -37,29 +37,29 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        You have a new vendor application submission for <strong>#{event.title}</strong>!
+        You have received a new vendor application for <strong>#{event.title}</strong>.
       </p>
 
-      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #9D60F8; text-align: left;">
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Business Name:</strong> #{registration.business_name}</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Category:</strong> #{registration.vendor_category}</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Contact:</strong> #{registration.name}</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Email:</strong> #{registration.email}</p>
-        #{registration.phone.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;'><strong>Phone:</strong> #{registration.phone}</p>" : ""}
-        #{registration.instagram_handle.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;'><strong>Instagram:</strong> <a href='https://instagram.com/#{registration.instagram_handle.delete_prefix('@')}' style='color: #9D60F8; text-decoration: none;'>#{registration.instagram_handle}</a></p>" : ""}
-        #{registration.tiktok_handle.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;'><strong>TikTok:</strong> <a href='https://tiktok.com/@#{registration.tiktok_handle.delete_prefix('@')}' style='color: #9D60F8; text-decoration: none;'>#{registration.tiktok_handle}</a></p>" : ""}
-        #{registration.website.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;'><strong>Website:</strong> <a href='#{registration.website}' style='color: #9D60F8; text-decoration: none;'>#{registration.website}</a></p>" : ""}
+      <div style="background-color: #f9f9f9; padding: 15px; margin: 15px 0; border: 1px solid #e0e0e0;">
+        <p style="margin: 5px 0; font-size: 14px; color: #333333;"><strong>Business Name:</strong> #{registration.business_name}</p>
+        <p style="margin: 5px 0; font-size: 14px; color: #333333;"><strong>Category:</strong> #{registration.vendor_category}</p>
+        <p style="margin: 5px 0; font-size: 14px; color: #333333;"><strong>Contact:</strong> #{registration.name}</p>
+        <p style="margin: 5px 0; font-size: 14px; color: #333333;"><strong>Email:</strong> #{registration.email}</p>
+        #{registration.phone.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #333333;'><strong>Phone:</strong> #{registration.phone}</p>" : ""}
+        #{registration.instagram_handle.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #333333;'><strong>Instagram:</strong> <a href='https://instagram.com/#{registration.instagram_handle.delete_prefix('@')}' style='#{BASE_STYLES[:link]}'>#{registration.instagram_handle}</a></p>" : ""}
+        #{registration.tiktok_handle.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #333333;'><strong>TikTok:</strong> <a href='https://tiktok.com/@#{registration.tiktok_handle.delete_prefix('@')}' style='#{BASE_STYLES[:link]}'>#{registration.tiktok_handle}</a></p>" : ""}
+        #{registration.website.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #333333;'><strong>Website:</strong> <a href='#{registration.website}' style='#{BASE_STYLES[:link]}'>#{registration.website}</a></p>" : ""}
       </div>
 
       #{registration.note_to_host.present? ?
-        "<div style='background: #fffbea; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;'>
-          <p style='margin: 0 0 8px 0; font-size: 14px; color: #92400e; font-weight: 600;'>Message from Vendor:</p>
-          <p style='margin: 0; font-size: 14px; color: #78350f; font-style: italic;'>\"#{registration.note_to_host}\"</p>
+        "<div style='background-color: #fffef0; padding: 15px; margin: 15px 0; border: 1px solid #e0e0e0;'>
+          <p style='margin: 0 0 8px 0; font-size: 14px; color: #333333; font-weight: 600;'>Message from Vendor:</p>
+          <p style='margin: 0; font-size: 14px; color: #333333; font-style: italic;'>\"#{registration.note_to_host}\"</p>
         </div>" : ""
       }
 
       <p style="#{BASE_STYLES[:text]}">
-        Review the submission and update its status (approve, reject, or waitlist) in your dashboard.
+        Review the submission and update its status in your dashboard: <a href='#{submission_url}' style='#{BASE_STYLES[:link]}'>#{submission_url}</a>
       </p>
     HTML
 
@@ -112,7 +112,7 @@ class RegistrationEmailService < BaseEmailService
   private
 
   # Build email template with organization branding
-  def self.build_presents_email_template(title, content, button_text = nil, button_url = nil, organization = nil)
+  def self.build_presents_email_template(title, content, link_text = nil, link_url = nil, organization = nil)
     <<~HTML
       <!DOCTYPE html>
       <html>
@@ -120,14 +120,13 @@ class RegistrationEmailService < BaseEmailService
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1">
           <title>#{title}</title>
-          <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
         </head>
         <body style="#{BASE_STYLES[:body]}">
           <div style="#{BASE_STYLES[:container]}">
             <div style="#{BASE_STYLES[:inner_container]}">
               <!-- Organization Header -->
               <div style="#{BASE_STYLES[:header]}">
-                <h2 style="margin: 0; color: #9D60F8; font-size: 24px; font-weight: 700;">#{organization&.name || 'Event Organizer'}</h2>
+                <strong style="font-size: 18px; color: #1a1a1a;">#{organization&.name || 'Event Organizer'}</strong>
               </div>
 
               <!-- Main Title -->
@@ -138,18 +137,21 @@ class RegistrationEmailService < BaseEmailService
                 #{content}
               </div>
 
-              <!-- Button -->
-              #{button_text && button_url ?
-                "<div style='text-align: center; margin: 30px 0;'>
-                  <a href='#{button_url}' style='#{BASE_STYLES[:button]}'>#{button_text}</a>
-                </div>" : ""
+              <!-- Link -->
+              #{link_text && link_url ?
+                "<p style='#{BASE_STYLES[:text]}'>
+                  <a href='#{link_url}' style='#{BASE_STYLES[:link]}'>#{link_url}</a>
+                </p>" : ""
               }
 
               <!-- Footer -->
               <div style="#{BASE_STYLES[:footer]}">
-                <p style="margin: 0 0 10px 0;">See you at the event! ✨</p>
-                <p style="font-size: 12px; color: #a0aec0; margin: 0;">
+                <p style="margin: 0 0 8px 0;">See you at the event.</p>
+                <p style="margin: 0 0 12px 0;">
                   If you didn't expect this email, you can safely ignore it.
+                </p>
+                <p style="margin: 0; font-size: 12px; color: #aaaaaa;">
+                  Powered by Voxxy Presents
                 </p>
               </div>
             </div>
@@ -182,21 +184,21 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Thank you for applying to <strong>#{event.title}</strong>! We've received your application.
+        Thank you for applying to <strong>#{event.title}</strong>. We have received your application.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        📅 <strong>Event Date:</strong> #{event_date}<br/>
-        📍 <strong>Location:</strong> #{event.venue.present? ? "#{event.venue}, " : ""}#{event.location || "TBD"}<br/>
-        🏷️ <strong>Category:</strong> #{registration.vendor_category}
+        <strong>Event Date:</strong> #{event_date}<br/>
+        <strong>Location:</strong> #{event.venue.present? ? "#{event.venue}, " : ""}#{event.location || "TBD"}<br/>
+        <strong>Category:</strong> #{registration.vendor_category}
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        We'll review your application and get back to you soon. Keep an eye on your inbox for updates.
+        We will review your application and contact you soon. Please keep an eye on your inbox for updates.
       </p>
 
-      <p style="#{BASE_STYLES[:text]}; margin-top: 30px;">
-        Best,<br/>
+      <p style="#{BASE_STYLES[:text]}">
+        Best regards,<br/>
         #{producer_name}
       </p>
     HTML
@@ -237,7 +239,7 @@ class RegistrationEmailService < BaseEmailService
 
     event_url = "#{frontend_url}/events/#{event.slug}"
 
-    subject = "You're Registered - #{event.title}"
+    subject = "Registration Confirmed - #{event.title}"
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
@@ -245,18 +247,18 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        You're all set for <strong>#{event.title}</strong>! We're excited to see you there.
+        You are registered for <strong>#{event.title}</strong>. We look forward to seeing you there.
       </p>
 
-      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #9D60F8; text-align: left;">
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Event:</strong> #{event.title}</p>
-        #{event.event_date.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;'><strong>Date:</strong> #{event.event_date.strftime('%B %d, %Y at %I:%M %p')}</p>" : ""}
-        #{event.location.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;'><strong>Location:</strong> #{event.location}</p>" : ""}
-        <p style="margin: 5px 0; font-size: 14px; color: #4a5568; text-align: left;"><strong>Confirmation Code:</strong> <code style="background: white; padding: 2px 6px; border-radius: 4px; font-family: monospace;">#{registration.ticket_code}</code></p>
+      <div style="background-color: #f9f9f9; padding: 15px; margin: 15px 0; border: 1px solid #e0e0e0;">
+        <p style="margin: 5px 0; font-size: 14px; color: #333333;"><strong>Event:</strong> #{event.title}</p>
+        #{event.event_date.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #333333;'><strong>Date:</strong> #{event.event_date.strftime('%B %d, %Y at %I:%M %p')}</p>" : ""}
+        #{event.location.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #333333;'><strong>Location:</strong> #{event.location}</p>" : ""}
+        <p style="margin: 5px 0; font-size: 14px; color: #333333;"><strong>Confirmation Code:</strong> #{registration.ticket_code}</p>
       </div>
 
       <p style="#{BASE_STYLES[:text]}">
-        Save this confirmation code — you may need it for check-in at the event.
+        Please save this confirmation code. You may need it for check-in at the event.
       </p>
     HTML
 
@@ -282,7 +284,7 @@ class RegistrationEmailService < BaseEmailService
   def self.send_approval_email(registration)
     event = registration.event
 
-    subject = "🎉 Your Application Was Approved - #{event.title}"
+    subject = "Your Application Was Approved - #{event.title}"
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
@@ -290,21 +292,21 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Great news! Your vendor application for <strong>#{event.title}</strong> has been approved!
+        Good news. Your vendor application for <strong>#{event.title}</strong> has been approved.
       </p>
 
-      <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745; text-align: left;">
-        <p style="margin: 5px 0; font-size: 14px; color: #155724; text-align: left;"><strong>Status:</strong> Approved ✓</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #155724; text-align: left;"><strong>Business:</strong> #{registration.business_name}</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #155724; text-align: left;"><strong>Category:</strong> #{registration.vendor_category}</p>
+      <div style="background-color: #f0f9f0; padding: 15px; margin: 15px 0; border: 1px solid #c0e0c0;">
+        <p style="margin: 5px 0; font-size: 14px; color: #333333;"><strong>Status:</strong> Approved</p>
+        <p style="margin: 5px 0; font-size: 14px; color: #333333;"><strong>Business:</strong> #{registration.business_name}</p>
+        <p style="margin: 5px 0; font-size: 14px; color: #333333;"><strong>Category:</strong> #{registration.vendor_category}</p>
       </div>
 
       <p style="#{BASE_STYLES[:text]}">
-        The event organizer will reach out soon with next steps and additional details.
+        The event organizer will contact you soon with next steps and additional details.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        If you have any questions, feel free to respond to this email.
+        If you have any questions, please respond to this email.
       </p>
     HTML
 
@@ -330,7 +332,7 @@ class RegistrationEmailService < BaseEmailService
   def self.send_rejection_email(registration)
     event = registration.event
 
-    subject = "Update on Your Application - #{event.title}"
+    subject = "Application Status Update - #{event.title}"
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
@@ -338,15 +340,15 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Thank you for your interest in <strong>#{event.title}</strong>. After careful review, we're unable to move forward with your application at this time.
+        Thank you for your interest in <strong>#{event.title}</strong>. After careful review, we are unable to move forward with your application at this time.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        We appreciate you taking the time to apply and encourage you to check out future opportunities with us.
+        We appreciate you taking the time to apply and encourage you to check out future opportunities.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        If you have any questions, feel free to respond to this email.
+        If you have any questions, please respond to this email.
       </p>
     HTML
 
@@ -380,7 +382,7 @@ class RegistrationEmailService < BaseEmailService
     producer_name = organization.name || "Event Organizer"
     producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
 
-    subject = "You're on the Waitlist - #{event.title}"
+    subject = "Waitlist Status - #{event.title}"
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
@@ -388,19 +390,19 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        We noticed payment wasn't received by the deadline for <strong>#{event.title}</strong>.
+        Payment was not received by the deadline for <strong>#{event.title}</strong>.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Your spot has been moved to the waitlist. If a spot becomes available and you'd still like to participate, we'll reach out.
+        Your spot has been moved to the waitlist. If a spot becomes available and you would still like to participate, we will contact you.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        If you believe this is an error, please contact us immediately at <a href="mailto:#{producer_email}" style="color: #9D60F8; text-decoration: none;">#{producer_email}</a>.
+        If you believe this is an error, please contact us at <a href="mailto:#{producer_email}" style="#{BASE_STYLES[:link]}">#{producer_email}</a>.
       </p>
 
-      <p style="#{BASE_STYLES[:text]}; margin-top: 30px;">
-        Best,<br/>
+      <p style="#{BASE_STYLES[:text]}">
+        Best regards,<br/>
         #{producer_name}
       </p>
     HTML
@@ -451,7 +453,7 @@ class RegistrationEmailService < BaseEmailService
       "TBD"
     end
 
-    subject = "✅ Payment Confirmed - #{event.title}"
+    subject = "Payment Confirmed - #{event.title}"
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
@@ -459,26 +461,26 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Great news! Your payment for <strong>#{event.title}</strong> has been confirmed.
+        Your payment for <strong>#{event.title}</strong> has been confirmed.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        🏷️ <strong>Category:</strong> #{registration.vendor_category}<br/>
-        💰 <strong>Amount Paid:</strong> #{formatted_price}
+        <strong>Category:</strong> #{registration.vendor_category}<br/>
+        <strong>Amount Paid:</strong> #{formatted_price}
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        📅 <strong>Event:</strong> #{event_date}<br/>
-        📍 <strong>Location:</strong> #{event.venue.present? ? "#{event.venue}, " : ""}#{event.location || "TBD"}<br/>
-        🛠️ <strong>Install:</strong> #{install_date} at #{install_time}
+        <strong>Event:</strong> #{event_date}<br/>
+        <strong>Location:</strong> #{event.venue.present? ? "#{event.venue}, " : ""}#{event.location || "TBD"}<br/>
+        <strong>Install:</strong> #{install_date} at #{install_time}
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        You're all set! We'll send more details as the event approaches.
+        You are all set. We will send more details as the event approaches.
       </p>
 
-      <p style="#{BASE_STYLES[:text]}; margin-top: 30px;">
-        Best,<br/>
+      <p style="#{BASE_STYLES[:text]}">
+        Best regards,<br/>
         #{producer_name}
       </p>
     HTML
@@ -533,11 +535,11 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        If you have questions about this change, please contact <a href="mailto:#{producer_email}" style="color: #9D60F8; text-decoration: none;">#{producer_email}</a>.
+        If you have questions about this change, please contact <a href="mailto:#{producer_email}" style="#{BASE_STYLES[:link]}">#{producer_email}</a>.
       </p>
 
-      <p style="#{BASE_STYLES[:text]}; margin-top: 30px;">
-        Best,<br/>
+      <p style="#{BASE_STYLES[:text]}">
+        Best regards,<br/>
         #{producer_name}
       </p>
     HTML
@@ -570,7 +572,7 @@ class RegistrationEmailService < BaseEmailService
     event_date = event.event_date.present? ? event.event_date.strftime("%B %d, %Y") : "TBD"
     event_time = event.start_time.present? ? event.start_time : "TBD"
 
-    subject = "📝 Event Update - #{event.title}"
+    subject = "Event Update - #{event.title}"
 
     sent_count = 0
     failed_count = 0
@@ -590,9 +592,9 @@ class RegistrationEmailService < BaseEmailService
           </p>
 
           <p style="#{BASE_STYLES[:text]}">
-            📅 <strong>Event Date:</strong> #{event_date}<br/>
-            📍 <strong>Venue:</strong> #{event.venue.present? ? "#{event.venue}, " : ""}#{event.location || "TBD"}<br/>
-            ⏰ <strong>Time:</strong> #{event_time}
+            <strong>Event Date:</strong> #{event_date}<br/>
+            <strong>Venue:</strong> #{event.venue.present? ? "#{event.venue}, " : ""}#{event.location || "TBD"}<br/>
+            <strong>Time:</strong> #{event_time}
           </p>
 
           <p style="#{BASE_STYLES[:text]}">
@@ -600,11 +602,11 @@ class RegistrationEmailService < BaseEmailService
           </p>
 
           <p style="#{BASE_STYLES[:text]}">
-            If you have questions, contact <a href="mailto:#{producer_email}" style="color: #9D60F8; text-decoration: none;">#{producer_email}</a>.
+            If you have questions, contact <a href="mailto:#{producer_email}" style="#{BASE_STYLES[:link]}">#{producer_email}</a>.
           </p>
 
-          <p style="#{BASE_STYLES[:text]}; margin-top: 30px;">
-            Best,<br/>
+          <p style="#{BASE_STYLES[:text]}">
+            Best regards,<br/>
             #{producer_name}
           </p>
         HTML
@@ -640,7 +642,7 @@ class RegistrationEmailService < BaseEmailService
     producer_name = organization.name || "Event Organizer"
     producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
 
-    subject = "❌ Event Canceled - #{event.title}"
+    subject = "Event Canceled - #{event.title}"
 
     sent_count = 0
     failed_count = 0
@@ -660,19 +662,19 @@ class RegistrationEmailService < BaseEmailService
           </p>
 
           <p style="#{BASE_STYLES[:text]}">
-            We sincerely apologize for any inconvenience this may cause. If you have already made a payment, you will receive a full refund within 5-7 business days.
+            We apologize for any inconvenience this may cause. If you have already made a payment, you will receive a full refund within 5-7 business days.
           </p>
 
           <p style="#{BASE_STYLES[:text]}">
-            For any questions regarding refunds or future events, please contact <a href="mailto:#{producer_email}" style="color: #9D60F8; text-decoration: none;">#{producer_email}</a>.
+            For any questions regarding refunds or future events, please contact <a href="mailto:#{producer_email}" style="#{BASE_STYLES[:link]}">#{producer_email}</a>.
           </p>
 
           <p style="#{BASE_STYLES[:text]}">
             Thank you for your understanding, and we hope to see you at a future event.
           </p>
 
-          <p style="#{BASE_STYLES[:text]}; margin-top: 30px;">
-            Best,<br/>
+          <p style="#{BASE_STYLES[:text]}">
+            Best regards,<br/>
             #{producer_name}
           </p>
         HTML
