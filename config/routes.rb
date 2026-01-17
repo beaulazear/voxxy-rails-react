@@ -462,6 +462,7 @@ Rails.application.routes.draw do
         post :send_scheduled
         post :setup_test_data
         delete :cleanup_test_data
+        post :preview
       end
     end
   end
