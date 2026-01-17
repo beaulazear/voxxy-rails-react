@@ -68,10 +68,24 @@ class Admin::EmailsController < ApplicationController
   # POST /admin/emails/setup_test_data
   def setup_test_data
     service = Admin::EmailTestService.new(current_user)
-    @test_data = service.setup_test_data
+    test_data = service.setup_test_data
 
+    # Return only IDs to avoid JSON serialization issues
     respond_to do |format|
-      format.json { render json: { message: "Test data created successfully", data: @test_data } }
+      format.json do
+        render json: {
+          message: "Test data created successfully",
+          data: {
+            user_id: test_data[:user]&.id,
+            organization_id: test_data[:organization]&.id,
+            event_id: test_data[:event]&.id,
+            vendor_application_id: test_data[:vendor_application]&.id,
+            registration_id: test_data[:registration]&.id,
+            vendor_contact_id: test_data[:vendor_contact]&.id,
+            invitation_id: test_data[:invitation]&.id
+          }
+        }
+      end
       format.html do
         flash[:notice] = "Test data created successfully"
         redirect_to admin_emails_path
@@ -111,7 +125,14 @@ class Admin::EmailsController < ApplicationController
 
   # POST /admin/emails/preview
   def preview
-    email_type = params[:email_type]
+    # Check both nested and top-level parameter locations
+    email_type = params.dig(:email, :email_type) || params[:email_type]
+
+    unless email_type.present?
+      render json: { error: "email_type parameter is required" }, status: :unprocessable_entity
+      return
+    end
+
     service = Admin::EmailTestService.new(current_user)
     # Skip callbacks to prevent sending actual emails during preview
     test_data = service.setup_test_data(skip_callbacks: true)
