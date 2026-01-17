@@ -4,7 +4,7 @@ namespace :email_templates do
     puts "\n🔄 Updating Default Email Campaign Template...\n"
 
     # Find the default template
-    template = EmailCampaignTemplate.find_by(template_type: 'system', is_default: true)
+    template = EmailCampaignTemplate.find_by(template_type: "system", is_default: true)
 
     unless template
       puts "❌ No default template found. Run 'rails db:seed' first."
@@ -87,7 +87,7 @@ namespace :email_templates do
 
   desc "Show current default template subjects"
   task show_default: :environment do
-    template = EmailCampaignTemplate.find_by(template_type: 'system', is_default: true)
+    template = EmailCampaignTemplate.find_by(template_type: "system", is_default: true)
 
     unless template
       puts "❌ No default template found"
@@ -115,12 +115,12 @@ namespace :email_templates do
 
     confirmation = STDIN.gets.chomp
 
-    unless confirmation.downcase == 'yes'
+    unless confirmation.downcase == "yes"
       puts "Aborted."
       exit 0
     end
 
-    template = EmailCampaignTemplate.find_by(template_type: 'system', is_default: true)
+    template = EmailCampaignTemplate.find_by(template_type: "system", is_default: true)
 
     if template
       puts "Deleting template ID: #{template.id}..."
@@ -129,7 +129,7 @@ namespace :email_templates do
     end
 
     puts "Running seeds..."
-    load Rails.root.join('db', 'seeds', 'email_campaign_templates.rb')
+    load Rails.root.join("db", "seeds", "email_campaign_templates.rb")
     puts "\n✅ Default template recreated from seeds"
   end
 end

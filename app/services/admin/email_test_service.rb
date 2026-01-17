@@ -222,7 +222,9 @@ class Admin::EmailTestService
   def find_or_create_test_producer
     User.find_or_create_by!(email: "test.producer@voxxypresents.com") do |u|
       u.name = "Test Producer"
-      u.password = SecureRandom.hex(16)
+      password = SecureRandom.hex(16)
+      u.password = password
+      u.password_confirmation = password
       u.role = "venue_owner"
       u.confirmed_at = Time.current
       u.product_context = "presents"

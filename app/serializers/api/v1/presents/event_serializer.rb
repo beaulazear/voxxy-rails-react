@@ -43,6 +43,7 @@ module Api
               status: @event.status
             },
             application_deadline: @event.application_deadline,
+            payment_deadline: @event.payment_deadline,
             created_at: @event.created_at,
             updated_at: @event.updated_at
           }.tap do |json|

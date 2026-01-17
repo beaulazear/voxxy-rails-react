@@ -3,7 +3,7 @@ namespace :email_templates do
   task cleanup_old_structure: :environment do
     puts "\n🧹 Cleaning up old email template structure...\n"
 
-    template = EmailCampaignTemplate.find_by(template_type: 'system', is_default: true)
+    template = EmailCampaignTemplate.find_by(template_type: "system", is_default: true)
 
     unless template
       puts "❌ No default template found"
@@ -35,7 +35,7 @@ namespace :email_templates do
     print "Continue? (yes/no): "
     confirmation = STDIN.gets.chomp
 
-    unless confirmation.downcase == 'yes'
+    unless confirmation.downcase == "yes"
       puts "Aborted."
       exit 0
     end
@@ -72,7 +72,7 @@ namespace :email_templates do
 
   desc "Show count of scheduled emails using old template items"
   task show_old_scheduled_emails: :environment do
-    template = EmailCampaignTemplate.find_by(template_type: 'system', is_default: true)
+    template = EmailCampaignTemplate.find_by(template_type: "system", is_default: true)
 
     unless template
       puts "❌ No default template found"
@@ -90,7 +90,7 @@ namespace :email_templates do
 
     old_items.order(:position).each do |item|
       count = ScheduledEmail.where(email_template_item_id: item.id).count
-      scheduled_count = ScheduledEmail.where(email_template_item_id: item.id, status: 'scheduled').count
+      scheduled_count = ScheduledEmail.where(email_template_item_id: item.id, status: "scheduled").count
 
       puts "  Position #{item.position}: #{item.name}"
       puts "    Total scheduled emails: #{count}"
