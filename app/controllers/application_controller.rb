@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::API
   include ActionController::Cookies
+  include ActionController::MimeResponds
   include JsonWebToken
 
   before_action :set_robots_header
