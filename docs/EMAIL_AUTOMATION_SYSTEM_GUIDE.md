@@ -1,8 +1,10 @@
 # 📧 Email Automation System - Complete Implementation Guide
 
 **Platform:** Voxxy Presents
-**Last Updated:** January 4, 2026
+**Last Updated:** January 17, 2026
 **Purpose:** Comprehensive reference for the automated email campaign system
+
+**⚠️ Important:** As of January 17, 2026, the system uses 7 scheduled emails (not 16). See [EMAIL_SYSTEM_FIXES_JANUARY_17_2026.md](./EMAIL_SYSTEM_FIXES_JANUARY_17_2026.md) for migration details.
 
 ---
 
@@ -29,8 +31,8 @@
 
 The email automation system allows event producers to:
 
-1. **Create reusable email campaigns** - Collections of up to 40 automated emails
-2. **Schedule emails throughout the event lifecycle** - Pre-event announcements, application reminders, payment deadlines, event day logistics, post-event thank you
+1. **Create reusable email campaigns** - Collections of 7 automated scheduled emails
+2. **Schedule emails throughout the event lifecycle** - Application reminders, payment deadlines, event day logistics, post-event thank you
 3. **Send personalized emails automatically** - Emails sent at the right time to the right vendors with personalized content
 4. **Track email delivery in real-time** - Know exactly when emails are delivered, bounced, or failed
 5. **Automatically retry failed emails** - Soft bounces (temporary failures) are automatically retried
@@ -52,8 +54,8 @@ The email automation system allows event producers to:
 - No retry logic (bounced emails lost forever)
 
 **After (with automation):**
-- 16 editable emails scheduled automatically when event is created
-- Sent at optimal times based on event dates
+- 7 editable emails scheduled automatically when event is created
+- Sent at optimal times based on event dates (in Eastern timezone)
 - Fully personalized with vendor and event details
 - Real-time delivery tracking
 - Automatic retries for soft bounces
@@ -64,19 +66,19 @@ The email automation system allows event producers to:
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                        EMAIL CAMPAIGN                            │
-│  (Template: Collection of 40 emails)                            │
+│  (Template: Collection of 7 emails)                             │
 └─────────────────────────┬───────────────────────────────────────┘
                           │
                           ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │                    EVENT CREATED                                 │
-│  Producer creates event, selects email template                 │
+│  Producer creates event, system assigns default template        │
 └─────────────────────────┬───────────────────────────────────────┘
                           │
                           ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │              SCHEDULED EMAILS GENERATED                          │
-│  16 emails created with calculated send times                   │
+│  7 emails created with calculated send times (EST)              │
 └─────────────────────────┬───────────────────────────────────────┘
                           │
                           ↓

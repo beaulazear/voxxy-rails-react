@@ -23,9 +23,22 @@ This index helps you navigate the email system documentation for Voxxy Presents.
 
 ## 📚 Detailed Documentation
 
-### 1. Email Automation System (Scheduled Emails)
+### 1. Email System Fixes (January 17, 2026)
+📄 **[EMAIL_SYSTEM_FIXES_JANUARY_17_2026.md](./EMAIL_SYSTEM_FIXES_JANUARY_17_2026.md)** ⭐ **NEW**
+- **Last Updated:** January 17, 2026
+- **Purpose:** Critical fixes and improvements to email system
+- **Best for:** Understanding recent changes, timezone fixes, template migration
+- **Contains:**
+  - Template structure migration (16 → 7 emails)
+  - Timezone fix (UTC → Eastern time)
+  - Payment deadline calculator fix
+  - Admin email preview improvements
+  - Migration steps for existing events
+  - Testing and monitoring recommendations
+
+### 2. Email Automation System (Scheduled Emails)
 📄 **[EMAIL_AUTOMATION_SYSTEM_GUIDE.md](./EMAIL_AUTOMATION_SYSTEM_GUIDE.md)** (2,086 lines)
-- **Last Updated:** January 9, 2026
+- **Last Updated:** January 17, 2026
 - **Purpose:** Deep dive into the automated scheduled email system
 - **Best for:** Understanding the architecture, database schema, and workflow
 - **Contains:**
@@ -127,8 +140,10 @@ This index helps you navigate the email system documentation for Voxxy Presents.
 
 | Document | Status | Last Updated | Purpose |
 |----------|--------|--------------|---------|
+| **EMAIL_SYSTEM_FIXES_JANUARY_17_2026.md** | ✅ Current | Jan 17, 2026 | **Critical fixes and improvements** |
 | **VOXXY_PRESENTS_EMAIL_MASTER_REFERENCE.md** | ✅ Current | Jan 17, 2026 | **Master catalog of all emails** |
-| EMAIL_AUTOMATION_SYSTEM_GUIDE.md | ✅ Current | Jan 9, 2026 | Automated email system deep dive |
+| **EMAIL_TESTING_SYSTEM.md** | ✅ Current | Jan 17, 2026 | **Testing guide with preview** |
+| EMAIL_AUTOMATION_SYSTEM_GUIDE.md | ✅ Current | Jan 17, 2026 | Automated email system deep dive |
 | EMAIL_NOTIFICATION_SYSTEM.md | ✅ Current | Jan 8, 2026 | User confirmation flow |
 | EMAIL_NOTIFICATION_TESTING.md | ✅ Current | Jan 8, 2026 | Testing guide |
 | SENDGRID_WEBHOOK_SETUP.md | ✅ Current | Jan 2, 2026 | SendGrid setup |

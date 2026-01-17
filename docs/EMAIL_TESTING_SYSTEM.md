@@ -27,28 +27,36 @@ Navigate to: **`/admin/emails`**
 
 ### Features
 
-**1. Send All 21 Emails**
+**1. Preview Emails (NEW)**
+```
+Click: "Preview" button on any email card
+Result: Opens large modal with rendered email HTML
+Note: Creates test data without sending actual emails
+All 21 emails: Includes all invitation emails
+```
+
+**2. Send All 21 Emails**
 ```
 Click: "Send All 21 Emails to My Inbox"
 Result: All emails sent to your admin email address
 Time: ~2-3 minutes to receive all
 ```
 
-**2. Send 7 Scheduled Emails Only**
+**3. Send 7 Scheduled Emails Only**
 ```
 Click: "Send 7 Scheduled Emails Only"
 Result: Just the automated scheduled emails
 Time: ~1 minute to receive all
 ```
 
-**3. Setup Test Data**
+**4. Setup Test Data**
 ```
 Click: "Setup Test Data"
 Result: Creates test event, organization, registrations, etc.
 Note: Reusable - won't create duplicates
 ```
 
-**4. Cleanup Test Data**
+**5. Cleanup Test Data**
 ```
 Click: "Cleanup Test Data"
 Result: Removes all test records (marked with "TEST -" prefix)
@@ -219,7 +227,16 @@ You can filter test emails in SendGrid dashboard by these categories.
 3. Verify test data created successfully
 ```
 
-**2. Test All Emails**
+**2. Preview Emails (Recommended First Step)**
+```
+1. Click "Preview" button on any email card
+2. Large modal opens with rendered HTML
+3. Review styling and content
+4. Close modal and preview other emails
+5. No actual emails sent - safe to use anytime
+```
+
+**3. Test All Emails**
 ```
 1. Click "Send All 21 Emails to My Inbox"
 2. Wait 2-3 minutes
@@ -227,13 +244,13 @@ You can filter test emails in SendGrid dashboard by these categories.
 4. Verify styling, content, and deliverability
 ```
 
-**3. Test Individual Categories (Optional)**
+**4. Test Individual Categories (Optional)**
 ```
 1. Click "Send 7 Scheduled Emails Only"
 2. Verify scheduled email functionality
 ```
 
-**4. Cleanup (Optional)**
+**5. Cleanup (Optional)**
 ```
 1. Click "Cleanup Test Data" to remove test records
 2. Confirm deletion
