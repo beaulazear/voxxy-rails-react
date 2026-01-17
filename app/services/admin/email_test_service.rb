@@ -226,7 +226,6 @@ class Admin::EmailTestService
       u.role = "venue_owner"
       u.confirmed_at = Time.current
       u.product_context = "presents"
-      u.uses_presents = true
     end
   end
 
