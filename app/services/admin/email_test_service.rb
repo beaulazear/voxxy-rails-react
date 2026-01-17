@@ -345,7 +345,7 @@ class Admin::EmailTestService
       email: "test.contact@voxxypresents.com",
       organization: organization
     ) do |vc|
-      vc.contact_name = "Test Contact"
+      vc.name = "Test Contact"
       vc.business_name = "Test Business Co"
       vc.contact_type = "vendor"
       vc.status = "active"
