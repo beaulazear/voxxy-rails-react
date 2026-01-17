@@ -8,13 +8,13 @@ class Admin::EmailTestService
   end
 
   # Create or reuse test data for email testing
-  def setup_test_data
+  def setup_test_data(skip_callbacks: false)
     # Use existing test data or create new
     test_user = find_or_create_test_producer
     organization = find_or_create_test_organization(test_user)
-    event = find_or_create_test_event(organization)
+    event = find_or_create_test_event(organization, skip_callbacks: skip_callbacks)
     vendor_app = find_or_create_vendor_application(event)
-    registration = find_or_create_test_registration(event, vendor_app)
+    registration = find_or_create_test_registration(event, vendor_app, skip_callbacks: skip_callbacks)
     vendor_contact = find_or_create_vendor_contact(organization)
     invitation = find_or_create_invitation(event, vendor_contact)
 
@@ -242,24 +242,46 @@ class Admin::EmailTestService
     end
   end
 
-  def find_or_create_test_event(organization)
-    Event.find_or_create_by!(
+  def find_or_create_test_event(organization, skip_callbacks: false)
+    # Find existing test event first to avoid creating duplicates
+    existing_event = Event.find_by(
       title: "TEST - Summer Market 2026",
       organization: organization
-    ) do |event|
-      event.description = "Test event for email testing purposes"
-      event.event_date = 1.month.from_now
-      event.application_deadline = 1.week.from_now
-      event.payment_deadline = 3.weeks.from_now
-      event.venue = "Downtown Art Gallery"
-      event.location = "Raleigh, NC"
-      event.published = true
-      event.slug = "test-summer-market-2026-#{SecureRandom.hex(4)}"
-      event.start_time = "10:00 AM"
-      event.end_time = "6:00 PM"
-      event.capacity = 50
-      event.age_restriction = "All Ages"
+    )
+
+    return existing_event if existing_event
+
+    # Create new event with callbacks control
+    event = Event.new(
+      title: "TEST - Summer Market 2026",
+      organization: organization,
+      description: "Test event for email testing purposes",
+      event_date: 1.month.from_now,
+      application_deadline: 1.week.from_now,
+      payment_deadline: 3.weeks.from_now,
+      venue: "Downtown Art Gallery",
+      location: "Raleigh, NC",
+      published: true,
+      slug: "test-summer-market-2026-#{SecureRandom.hex(4)}",
+      start_time: "10:00 AM",
+      end_time: "6:00 PM",
+      capacity: 50,
+      age_restriction: "All Ages"
+    )
+
+    if skip_callbacks
+      # Skip callbacks during creation
+      Event.skip_callback(:create, :after, :assign_email_template_and_generate_emails)
+      begin
+        event.save!
+      ensure
+        Event.set_callback(:create, :after, :assign_email_template_and_generate_emails)
+      end
+    else
+      event.save!
     end
+
+    event
   end
 
   def find_or_create_vendor_application(event)
@@ -278,22 +300,44 @@ class Admin::EmailTestService
     end
   end
 
-  def find_or_create_test_registration(event, vendor_app)
-    Registration.find_or_create_by!(
+  def find_or_create_test_registration(event, vendor_app, skip_callbacks: false)
+    # Find existing test registration first
+    existing_registration = Registration.find_by(
       email: "test.vendor@voxxypresents.com",
       event: event
-    ) do |reg|
-      reg.name = "Test Vendor"
-      reg.business_name = "Test Artisan Goods"
-      reg.vendor_category = "Art"
-      reg.status = "pending"
-      reg.payment_status = "pending"
-      reg.vendor_application = vendor_app
-      reg.phone = "919-555-0123"
-      reg.instagram_handle = "@testartisan"
-      reg.note_to_host = "Looking forward to participating in this event!"
-      reg.ticket_code = "TEST#{SecureRandom.hex(4).upcase}"
+    )
+
+    return existing_registration if existing_registration
+
+    # Create new registration with callbacks control
+    registration = Registration.new(
+      email: "test.vendor@voxxypresents.com",
+      event: event,
+      name: "Test Vendor",
+      business_name: "Test Artisan Goods",
+      vendor_category: "Art",
+      status: "pending",
+      payment_status: "pending",
+      vendor_application: vendor_app,
+      phone: "919-555-0123",
+      instagram_handle: "@testartisan",
+      note_to_host: "Looking forward to participating in this event!",
+      ticket_code: "TEST#{SecureRandom.hex(4).upcase}"
+    )
+
+    if skip_callbacks
+      # Skip callbacks during creation (prevents confirmation email from sending)
+      Registration.skip_callback(:create, :after, :send_confirmation_email)
+      begin
+        registration.save!
+      ensure
+        Registration.set_callback(:create, :after, :send_confirmation_email)
+      end
+    else
+      registration.save!
     end
+
+    registration
   end
 
   def find_or_create_vendor_contact(organization)

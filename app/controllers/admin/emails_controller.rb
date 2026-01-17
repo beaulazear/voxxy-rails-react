@@ -113,7 +113,8 @@ class Admin::EmailsController < ApplicationController
   def preview
     email_type = params[:email_type]
     service = Admin::EmailTestService.new(current_user)
-    test_data = service.setup_test_data
+    # Skip callbacks to prevent sending actual emails during preview
+    test_data = service.setup_test_data(skip_callbacks: true)
 
     html_content = case email_type
     # Scheduled emails (1-7)
