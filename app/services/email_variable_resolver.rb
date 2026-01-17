@@ -15,6 +15,7 @@
 #     [eventDescription] - Event description
 #     [applicationDeadline] - Application deadline date
 #     [boothPrice] - Booth/vendor price
+#     [categoryPrice] - Alias for boothPrice (backwards compatibility)
 #     [paymentDueDate] - Payment due date
 #     [organizationName] - Organization name
 #     [organizationEmail] - Organization contact email
@@ -96,6 +97,7 @@ class EmailVariableResolver
       .gsub("[eventDescription]", event.description || "")
       .gsub("[applicationDeadline]", format_date(event.application_deadline))
       .gsub("[boothPrice]", format_currency(booth_price))
+      .gsub("[categoryPrice]", format_currency(booth_price))  # Alias for boothPrice (backwards compatibility)
       .gsub("[paymentDueDate]", format_date(event.application_deadline))
       .gsub("[organizationName]", event.organization&.name || "")
       .gsub("[organizationEmail]", event.organization&.email || "")
