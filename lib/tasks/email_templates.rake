@@ -22,49 +22,70 @@ namespace :email_templates do
         position: 1,
         name: "1 Day Before Application Deadline",
         subject: "Last Chance: [eventName] Applications Close Tomorrow",
-        body: "This is your final reminder that applications for [eventName] close tomorrow.\n\nDon't miss this opportunity to be part of [eventName] on [eventDate] at [eventLocation].\n\nSubmit your application before the deadline."
+        body: "This is your final reminder that applications for [eventName] close tomorrow.\n\nDon't miss this opportunity to be part of [eventName] on [eventDate] at [eventLocation].\n\nSubmit your application before the deadline.",
+        trigger_type: "days_before_deadline",
+        trigger_value: 1,
+        trigger_time: "09:00"
       },
       # Position 2: Application Deadline Day
       {
         position: 2,
         name: "Application Deadline Day",
         subject: "URGENT: [eventName] Applications Close Today",
-        body: "Today is the last day to apply for [eventName].\n\nApplications close at midnight tonight. Submit your application now to secure your spot at [eventLocation] on [eventDate].\n\nThis is your final chance to participate in this event."
+        body: "Today is the last day to apply for [eventName].\n\nApplications close at midnight tonight. Submit your application now to secure your spot at [eventLocation] on [eventDate].\n\nThis is your final chance to participate in this event.",
+        trigger_type: "days_before_deadline",
+        trigger_value: 0,
+        trigger_time: "08:00"
       },
       # Position 3: 1 Day Before Payment Due
       {
         position: 3,
         name: "1 Day Before Payment Due",
         subject: "Reminder: Payment Due Tomorrow - [eventName]",
-        body: "Your payment for [eventName] is due tomorrow.\n\nEvent Details:\n• Event: [eventName]\n• Date: [eventDate]\n• Location: [eventLocation]\n• Amount Due: [categoryPrice]\n\nPlease submit your payment by the deadline to confirm your participation."
+        body: "Your payment for [eventName] is due tomorrow.\n\nEvent Details:\n• Event: [eventName]\n• Date: [eventDate]\n• Location: [eventLocation]\n• Amount Due: [categoryPrice]\n\nPlease submit your payment by the deadline to confirm your participation.",
+        trigger_type: "days_before_payment_deadline",
+        trigger_value: 1,
+        trigger_time: "10:00"
       },
       # Position 4: Payment Due Today
       {
         position: 4,
         name: "Payment Due Today",
         subject: "URGENT: Payment Due Today - [eventName]",
-        body: "This is a reminder that your payment for [eventName] is due today.\n\nAmount Due: [categoryPrice]\nEvent Date: [eventDate]\nLocation: [eventLocation]\n\nPlease submit your payment today to avoid losing your spot."
+        body: "This is a reminder that your payment for [eventName] is due today.\n\nAmount Due: [categoryPrice]\nEvent Date: [eventDate]\nLocation: [eventLocation]\n\nPlease submit your payment today to avoid losing your spot.",
+        trigger_type: "on_payment_deadline",
+        trigger_value: 0,
+        trigger_time: "08:00"
       },
       # Position 5: 1 Day Before Event
       {
         position: 5,
         name: "1 Day Before Event",
         subject: "Tomorrow: [eventName] Final Details",
-        body: "[eventName] is tomorrow.\n\nEvent Details:\n• Date: [eventDate]\n• Location: [eventLocation]\n• Start Time: [eventStartTime]\n• Load-in: [loadInTime]\n\nWe look forward to seeing you tomorrow. Please arrive during the load-in window to set up your space."
+        body: "[eventName] is tomorrow.\n\nEvent Details:\n• Date: [eventDate]\n• Location: [eventLocation]\n• Start Time: [eventStartTime]\n• Load-in: [loadInTime]\n\nWe look forward to seeing you tomorrow. Please arrive during the load-in window to set up your space.",
+        trigger_type: "days_before_event",
+        trigger_value: 1,
+        trigger_time: "17:00"
       },
       # Position 6: Day of Event
       {
         position: 6,
         name: "Day of Event",
         subject: "Today: [eventName]",
-        body: "Today is the day.\n\n[eventName] starts at [eventStartTime] at [eventLocation].\n\nThank you for being part of this event. We're excited to see you there."
+        body: "Today is the day.\n\n[eventName] starts at [eventStartTime] at [eventLocation].\n\nThank you for being part of this event. We're excited to see you there.",
+        trigger_type: "on_event_date",
+        trigger_value: 0,
+        trigger_time: "07:00"
       },
       # Position 7: Day After Event - Thank You
       {
         position: 7,
         name: "Day After Event - Thank You",
         subject: "Thank You for Participating in [eventName]",
-        body: "Thank you for being part of [eventName] yesterday.\n\nWe hope the event was successful for you. We'd love to have you at our future events.\n\nStay tuned for upcoming opportunities."
+        body: "Thank you for being part of [eventName] yesterday.\n\nWe hope the event was successful for you. We'd love to have you at our future events.\n\nStay tuned for upcoming opportunities.",
+        trigger_type: "days_after_event",
+        trigger_value: 1,
+        trigger_time: "10:00"
       }
     ]
 
@@ -76,9 +97,12 @@ namespace :email_templates do
         item.update!(
           name: update[:name],
           subject_template: update[:subject],
-          body_template: update[:body]
+          body_template: update[:body],
+          trigger_type: update[:trigger_type],
+          trigger_value: update[:trigger_value],
+          trigger_time: update[:trigger_time]
         )
-        puts "  ✅ Updated Position #{update[:position]}: #{update[:name]}"
+        puts "  ✅ Updated Position #{update[:position]}: #{update[:name]} (#{update[:trigger_type]})"
         updated_count += 1
       else
         puts "  ⚠️  Position #{update[:position]} not found"

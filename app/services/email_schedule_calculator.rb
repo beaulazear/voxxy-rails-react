@@ -41,11 +41,9 @@ class EmailScheduleCalculator
     when "on_application_open"
       calculate_on_application_open(trigger_value, trigger_time)
     when "days_before_payment_deadline"
-      # Use application_deadline as proxy for payment deadline
-      calculate_days_before_deadline(trigger_value, trigger_time)
+      calculate_days_before_payment_deadline(trigger_value, trigger_time)
     when "on_payment_deadline"
-      # Use application_deadline as proxy for payment deadline
-      calculate_days_before_deadline(0, trigger_time)
+      calculate_on_payment_deadline(trigger_time)
     when "on_application_submit", "on_approval"
       # These are triggered by callbacks, not scheduled in advance
       nil
@@ -97,6 +95,19 @@ class EmailScheduleCalculator
     # Add optional offset (usually 0)
     scheduled_date = event.created_at.to_date + days_offset.days
     combine_date_and_time(scheduled_date, time)
+  end
+
+  def calculate_days_before_payment_deadline(days, time)
+    return nil unless event.payment_deadline
+
+    scheduled_date = event.payment_deadline - days.days
+    combine_date_and_time(scheduled_date, time)
+  end
+
+  def calculate_on_payment_deadline(time)
+    return nil unless event.payment_deadline
+
+    combine_date_and_time(event.payment_deadline, time)
   end
 
   # Combine a date with a time string (e.g., "09:00") or Time object
