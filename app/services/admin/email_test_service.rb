@@ -348,7 +348,7 @@ class Admin::EmailTestService
       vc.name = "Test Contact"
       vc.business_name = "Test Business Co"
       vc.contact_type = "vendor"
-      vc.status = "active"
+      vc.status = "new"
       vc.source = "manual"
       vc.phone = "919-555-0456"
       vc.tags = [ "art", "local" ]
