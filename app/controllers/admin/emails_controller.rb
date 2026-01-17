@@ -34,6 +34,8 @@ class Admin::EmailsController < ApplicationController
       end
     end
   rescue => e
+    Rails.logger.error "Error in send_all: #{e.class} - #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
     respond_to do |format|
       format.json { render json: { error: e.message }, status: :unprocessable_entity }
       format.html do
@@ -56,6 +58,8 @@ class Admin::EmailsController < ApplicationController
       end
     end
   rescue => e
+    Rails.logger.error "Error in send_scheduled: #{e.class} - #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
     respond_to do |format|
       format.json { render json: { error: e.message }, status: :unprocessable_entity }
       format.html do
@@ -92,6 +96,8 @@ class Admin::EmailsController < ApplicationController
       end
     end
   rescue => e
+    Rails.logger.error "Error in setup_test_data: #{e.class} - #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
     respond_to do |format|
       format.json { render json: { error: e.message }, status: :unprocessable_entity }
       format.html do
@@ -114,6 +120,8 @@ class Admin::EmailsController < ApplicationController
       end
     end
   rescue => e
+    Rails.logger.error "Error in cleanup_test_data: #{e.class} - #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
     respond_to do |format|
       format.json { render json: { error: e.message }, status: :unprocessable_entity }
       format.html do
@@ -200,6 +208,8 @@ class Admin::EmailsController < ApplicationController
 
     render json: { html: html_content }
   rescue => e
+    Rails.logger.error "Error in preview: #{e.class} - #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
     render json: { error: e.message }, status: :unprocessable_entity
   end
 
