@@ -368,17 +368,24 @@ class Admin::EmailsController < ApplicationController
   end
 
   def preview_invitation_email(invitation, type)
-    case type
+    mail = case type
     when :invitation
-      EventInvitationMailer.invitation_email(invitation).body.to_s
+      EventInvitationMailer.invitation_email(invitation)
     when :accepted_vendor
-      EventInvitationMailer.accepted_confirmation_vendor(invitation).body.to_s
+      EventInvitationMailer.accepted_confirmation_vendor(invitation)
     when :accepted_producer
-      EventInvitationMailer.accepted_notification_producer(invitation).body.to_s
+      EventInvitationMailer.accepted_notification_producer(invitation)
     when :declined_vendor
-      EventInvitationMailer.declined_confirmation_vendor(invitation).body.to_s
+      EventInvitationMailer.declined_confirmation_vendor(invitation)
     when :declined_producer
-      EventInvitationMailer.declined_notification_producer(invitation).body.to_s
+      EventInvitationMailer.declined_notification_producer(invitation)
+    end
+
+    # Extract HTML body from multipart email
+    if mail.multipart?
+      mail.html_part&.body&.decoded || mail.text_part&.body&.decoded || ""
+    else
+      mail.body.decoded
     end
   end
 
