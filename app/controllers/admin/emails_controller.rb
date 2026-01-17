@@ -8,6 +8,17 @@ class Admin::EmailsController < ApplicationController
   def index
     @test_email = current_user.email
     @email_categories = email_categories_data
+
+    respond_to do |format|
+      format.html # Render HTML view
+      format.json do
+        render json: {
+          test_email: @test_email,
+          email_categories: @email_categories,
+          total_emails: 21
+        }
+      end
+    end
   end
 
   # POST /admin/emails/send_all
