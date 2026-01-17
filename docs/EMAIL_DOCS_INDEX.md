@@ -172,12 +172,8 @@ This index helps you navigate the email system documentation for Voxxy Presents.
 3. Application Rejected
 4. Moved to Waitlist
 
-#### Event Invitation Emails (5)
+#### Event Invitation Emails (1)
 1. Vendor Invitation
-2. Invitation Accepted - Vendor Confirmation
-3. Invitation Accepted - Producer Notification
-4. Invitation Declined - Vendor Confirmation
-5. Invitation Declined - Producer Notification
 
 #### Admin/Producer Notification Emails (5)
 1. New Vendor Submission Notification

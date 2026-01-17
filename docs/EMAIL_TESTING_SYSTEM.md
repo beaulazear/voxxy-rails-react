@@ -19,10 +19,10 @@ The email testing system allows admins and venue owners to test Voxxy Presents e
 Navigate to: **`/admin/emails`**
 
 ### What You Can Test
-**All 21 Voxxy Presents emails:**
+**All 17 Voxxy Presents emails:**
 - 7 Scheduled Automated Emails
 - 4 Vendor Application Emails
-- 5 Event Invitation Emails
+- 1 Event Invitation Email
 - 5 Admin/Producer Notification Emails
 
 ### Features
@@ -32,14 +32,14 @@ Navigate to: **`/admin/emails`**
 Click: "Preview" button on any email card
 Result: Opens large modal with rendered email HTML
 Note: Creates test data without sending actual emails
-All 21 emails: Includes all invitation emails
+All 17 emails: Includes invitation email
 ```
 
-**2. Send All 21 Emails**
+**2. Send All 17 Emails**
 ```
-Click: "Send All 21 Emails to My Inbox"
+Click: "Send All 17 Emails to My Inbox"
 Result: All emails sent to your admin email address
-Time: ~2-3 minutes to receive all
+Time: ~2 minutes to receive all
 ```
 
 **3. Send 7 Scheduled Emails Only**
@@ -65,7 +65,7 @@ Warning: Use carefully - removes test data permanently
 
 ### Email Categories Dashboard
 
-The dashboard shows all 21 emails organized by category:
+The dashboard shows all 17 emails organized by category:
 
 **Scheduled Automated Emails (7)**
 - 1 Day Before Application Deadline
@@ -82,12 +82,8 @@ The dashboard shows all 21 emails organized by category:
 - Application Rejected
 - Moved to Waitlist
 
-**Event Invitation Emails (5)**
+**Event Invitation Email (1)**
 - Vendor Invitation
-- Invitation Accepted - Vendor Confirmation
-- Invitation Accepted - Producer Notification
-- Invitation Declined - Vendor Confirmation
-- Invitation Declined - Producer Notification
 
 **Admin/Producer Notification Emails (5)**
 - New Vendor Submission Notification
@@ -238,8 +234,8 @@ You can filter test emails in SendGrid dashboard by these categories.
 
 **3. Test All Emails**
 ```
-1. Click "Send All 21 Emails to My Inbox"
-2. Wait 2-3 minutes
+1. Click "Send All 17 Emails to My Inbox"
+2. Wait 2 minutes
 3. Check your inbox
 4. Verify styling, content, and deliverability
 ```
@@ -543,7 +539,8 @@ Use tools to check spam scores:
 ## Summary
 
 ### Admin Features
-- ✅ Test all 21 emails at once
+- ✅ Preview all 17 emails (no sending)
+- ✅ Test all 17 emails at once
 - ✅ Test scheduled emails only
 - ✅ Setup/cleanup test data
 - ✅ Visual dashboard with email categories

@@ -78,7 +78,7 @@ class Admin::EmailTestService
     results
   end
 
-  # Send all 21 emails to admin user's email (admin only)
+  # Send all 17 emails to admin user's email (admin only)
   def send_all_emails_to_admin
     return { error: "Admin access required" } unless user.admin?
 
@@ -115,7 +115,7 @@ class Admin::EmailTestService
         RegistrationEmailService.send_waitlist_notification(test_registration)
       end
 
-      # Category C: Event Invitation Emails (5)
+      # Category C: Event Invitation Email (1)
       invitation = test_data[:invitation]
       vendor_contact = test_data[:vendor_contact]
       original_vendor_email = vendor_contact.email
@@ -123,24 +123,6 @@ class Admin::EmailTestService
 
       results << send_email("Vendor Invitation") do
         EventInvitationMailer.invitation_email(invitation).deliver_now
-      end
-
-      results << send_email("Invitation Accepted - Vendor Confirmation") do
-        invitation.update!(status: "accepted", responded_at: Time.current)
-        EventInvitationMailer.accepted_confirmation_vendor(invitation).deliver_now
-      end
-
-      results << send_email("Invitation Accepted - Producer Notification") do
-        EventInvitationMailer.accepted_notification_producer(invitation).deliver_now
-      end
-
-      results << send_email("Invitation Declined - Vendor Confirmation") do
-        invitation.update!(status: "declined", responded_at: Time.current)
-        EventInvitationMailer.declined_confirmation_vendor(invitation).deliver_now
-      end
-
-      results << send_email("Invitation Declined - Producer Notification") do
-        EventInvitationMailer.declined_notification_producer(invitation).deliver_now
       end
 
       vendor_contact.update_column(:email, original_vendor_email)

@@ -3,12 +3,20 @@
 **Date:** January 17, 2026
 **Updated By:** Claude Code
 **Session:** Email Template Migration & Testing Panel Improvements
+**Final Email Count:** 17 emails (down from 21)
 
 ---
 
 ## Executive Summary
 
-This document details critical fixes and improvements made to the Voxxy Presents email system on January 17, 2026. The changes address scheduling accuracy, timezone handling, template structure, and admin testing capabilities.
+This document details critical fixes and improvements made to the Voxxy Presents email system on January 17, 2026. The changes address scheduling accuracy, timezone handling, template structure, admin testing capabilities, and workflow simplification.
+
+**Major Changes:**
+- Template structure migration (16 → 7 scheduled emails)
+- Timezone fix (UTC → Eastern time)
+- Payment deadline calculator improvements
+- Admin preview enhancements
+- Removed 4 invitation accept/decline emails (21 → 17 total)
 
 ---
 
@@ -214,6 +222,55 @@ Increased modal dimensions and improved flexbox layout
 
 ---
 
+### 5. Removed Invitation Accept/Decline Workflow (21 → 17 Emails)
+
+**Problem:**
+- System had 5 invitation emails with accept/decline workflow
+- Workflow was unnecessary - vendors apply if interested, no RSVP needed
+- Accept/decline emails never used in practice
+- Added complexity without value
+
+**User Workflow (Simplified):**
+1. Producer sends **Vendor Invitation** email (announcement)
+2. Vendor receives invitation with event details
+3. If interested → Vendor applies through application system
+4. If not interested → No action needed
+5. Producer tracks who was invited (database tracking remains)
+
+**Solution:**
+Removed 4 accept/decline emails, kept only invitation announcement
+
+**Files Removed:**
+- `app/views/event_invitation_mailer/accepted_confirmation_vendor.html.erb`
+- `app/views/event_invitation_mailer/accepted_notification_producer.html.erb`
+- `app/views/event_invitation_mailer/declined_confirmation_vendor.html.erb`
+- `app/views/event_invitation_mailer/declined_notification_producer.html.erb`
+- (Plus text versions)
+
+**Files Modified:**
+- `app/mailers/event_invitation_mailer.rb` - Removed 4 mailer methods
+- `app/controllers/admin/emails_controller.rb` - Removed preview cases, updated counts
+- `app/services/admin/email_test_service.rb` - Removed test sending code
+- Frontend: `EmailTestingPanel.tsx` - Updated counts and categories
+- Documentation: Updated all references from 21 → 17 emails
+
+**Model Unchanged:**
+- `EventInvitation` model kept as-is (accept!/decline! methods preserved for potential future use)
+
+**Result:**
+- ✅ Simplified invitation workflow
+- ✅ Removed unused emails
+- ✅ Total emails: 21 → 17
+- ✅ Invitation category: 5 → 1 email
+
+**Final Email Breakdown (17 Total):**
+- Scheduled: 7 emails
+- Vendor Application: 4 emails
+- Event Invitation: 1 email (was 5)
+- Admin/Producer: 5 emails
+
+---
+
 ## The 7 Scheduled Email Templates
 
 After cleanup, these are the final 7 automated emails with correct trigger settings:
@@ -243,14 +300,14 @@ After cleanup, these are the final 7 automated emails with correct trigger setti
 ### Current Features (All Working)
 
 **Preview System:**
-- ✅ Preview all 21 emails before sending
+- ✅ Preview all 17 emails before sending
 - ✅ Renders actual HTML in modal
-- ✅ Works for all categories including invitations
+- ✅ Works for all categories including invitation
 - ✅ Large modal for better visibility
 - ✅ Generates test data without sending actual emails
 
 **Sending System:**
-- ✅ Send all 21 emails to admin inbox
+- ✅ Send all 17 emails to admin inbox
 - ✅ Send 7 scheduled emails only
 - ✅ Automatic test data generation
 - ✅ Cleanup test data functionality
@@ -258,7 +315,7 @@ After cleanup, these are the final 7 automated emails with correct trigger setti
 **Email Categories:**
 1. **Scheduled Automated Emails (7)** - Time-based triggers
 2. **Vendor Application Emails (4)** - Status change triggers
-3. **Event Invitation Emails (5)** - Invitation workflow
+3. **Event Invitation Email (1)** - Vendor announcement
 4. **Admin/Producer Notifications (5)** - Producer alerts
 
 ### Access

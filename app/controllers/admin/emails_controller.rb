@@ -1,4 +1,4 @@
-# Admin controller for testing all 21 Voxxy Presents emails
+# Admin controller for testing all 17 Voxxy Presents emails
 # Admin-only access - sends emails to admin's own email address
 class Admin::EmailsController < ApplicationController
   before_action :authorized
@@ -15,7 +15,7 @@ class Admin::EmailsController < ApplicationController
         render json: {
           test_email: @test_email,
           email_categories: @email_categories,
-          total_emails: 21
+          total_emails: 17
         }
       end
     end
@@ -29,7 +29,7 @@ class Admin::EmailsController < ApplicationController
     respond_to do |format|
       format.json { render json: { results: @results, recipient: current_user.email } }
       format.html do
-        flash[:notice] = "Sending all 21 emails to #{current_user.email}. Check your inbox in a few minutes."
+        flash[:notice] = "Sending all 17 emails to #{current_user.email}. Check your inbox in a few minutes."
         redirect_to admin_emails_path
       end
     end
@@ -178,16 +178,6 @@ class Admin::EmailsController < ApplicationController
     # Event invitation emails
     when "invitation_vendor"
       preview_invitation_email(test_data[:invitation], :invitation)
-    when "invitation_accepted_vendor"
-      test_data[:invitation].update!(status: "accepted", responded_at: Time.current)
-      preview_invitation_email(test_data[:invitation], :accepted_vendor)
-    when "invitation_accepted_producer"
-      preview_invitation_email(test_data[:invitation], :accepted_producer)
-    when "invitation_declined_vendor"
-      test_data[:invitation].update!(status: "declined", responded_at: Time.current)
-      preview_invitation_email(test_data[:invitation], :declined_vendor)
-    when "invitation_declined_producer"
-      preview_invitation_email(test_data[:invitation], :declined_producer)
 
     # Admin/Producer notification emails
     when "new_submission"
@@ -256,14 +246,10 @@ class Admin::EmailsController < ApplicationController
       },
       {
         name: "Event Invitation Emails",
-        description: "Emails for inviting vendors and tracking responses",
-        count: 5,
+        description: "Emails for inviting vendors to events",
+        count: 1,
         emails: [
-          { name: "Vendor Invitation", subject: "Event Name is coming" },
-          { name: "Invitation Accepted - Vendor Confirmation", subject: "Thank You for Accepting" },
-          { name: "Invitation Accepted - Producer Notification", subject: "Vendor accepted invitation" },
-          { name: "Invitation Declined - Vendor Confirmation", subject: "Invitation Declined" },
-          { name: "Invitation Declined - Producer Notification", subject: "Vendor declined invitation" }
+          { name: "Vendor Invitation", subject: "Event Name is coming" }
         ]
       },
       {
@@ -368,18 +354,7 @@ class Admin::EmailsController < ApplicationController
   end
 
   def preview_invitation_email(invitation, type)
-    mail = case type
-    when :invitation
-      EventInvitationMailer.invitation_email(invitation)
-    when :accepted_vendor
-      EventInvitationMailer.accepted_confirmation_vendor(invitation)
-    when :accepted_producer
-      EventInvitationMailer.accepted_notification_producer(invitation)
-    when :declined_vendor
-      EventInvitationMailer.declined_confirmation_vendor(invitation)
-    when :declined_producer
-      EventInvitationMailer.declined_notification_producer(invitation)
-    end
+    mail = EventInvitationMailer.invitation_email(invitation)
 
     # Extract HTML body from multipart email
     if mail.multipart?
