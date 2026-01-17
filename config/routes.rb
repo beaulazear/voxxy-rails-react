@@ -369,6 +369,13 @@ Rails.application.routes.draw do
             end
           end
         end
+
+        # Email testing (venue owners only - 7 scheduled emails)
+        resources :email_tests, only: [ :index ] do
+          collection do
+            post :send_scheduled
+          end
+        end
       end
 
       # Webhooks (outside presents namespace - public endpoint)
@@ -445,6 +452,16 @@ Rails.application.routes.draw do
         post :unsuspend
         post :ban
         post :unban
+      end
+    end
+
+    # Email testing (admin only - all 21 emails)
+    resources :emails, only: [ :index ] do
+      collection do
+        post :send_all
+        post :send_scheduled
+        post :setup_test_data
+        delete :cleanup_test_data
       end
     end
   end

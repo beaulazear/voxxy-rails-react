@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Email Testing - Voxxy Presents</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .header {
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      color: #1a1a1a;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 15px;
+    }
+
+    .test-info {
+      background: #f0f9ff;
+      border-left: 4px solid #0066cc;
+      padding: 15px 20px;
+      margin-bottom: 30px;
+      border-radius: 4px;
+    }
+
+    .test-info strong {
+      color: #1a1a1a;
+    }
+
+    .test-info .email {
+      color: #0066cc;
+      font-weight: 600;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .btn-primary {
+      background: #0066cc;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0052a3;
+    }
+
+    .btn-secondary {
+      background: #6366f1;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #4f46e5;
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .category {
+      margin-bottom: 40px;
+    }
+
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .category-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .category-badge {
+      background: #e0e0e0;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #666;
+    }
+
+    .category-description {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .email-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 15px;
+    }
+
+    .email-card {
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 15px;
+      transition: all 0.2s;
+    }
+
+    .email-card:hover {
+      border-color: #0066cc;
+      box-shadow: 0 2px 8px rgba(0,102,204,0.1);
+    }
+
+    .email-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+
+    .email-subject {
+      font-size: 13px;
+      color: #666;
+      font-style: italic;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .flash {
+      padding: 15px 20px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 15px;
+    }
+
+    .flash-notice {
+      background: #d1fae5;
+      color: #065f46;
+      border-left: 4px solid #10b981;
+    }
+
+    .flash-alert {
+      background: #fee2e2;
+      color: #991b1b;
+      border-left: 4px solid #ef4444;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .warning-box {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      color: #856404;
+    }
+
+    .warning-box strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Admin Email Testing Dashboard</h1>
+      <p>Test all 21 Voxxy Presents emails - emails will be sent to your admin account</p>
+    </div>
+
+    <% if flash[:notice] %>
+      <div class="flash flash-notice">
+        <%= flash[:notice] %>
+      </div>
+    <% end %>
+
+    <% if flash[:alert] %>
+      <div class="flash flash-alert">
+        <%= flash[:alert] %>
+      </div>
+    <% end %>
+
+    <div class="test-info">
+      <strong>Test Email Recipient:</strong> <span class="email"><%= @test_email %></span>
+      <br>
+      <small>All test emails will be sent to your admin email address. You cannot change this for security reasons.</small>
+    </div>
+
+    <div class="warning-box">
+      <strong>Security Note:</strong>
+      Emails are automatically sent to YOUR email address (<%= @test_email %>) to prevent spam abuse. This cannot be changed.
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-number">21</div>
+        <div class="stat-label">Total Emails</div>
+      </div>
+      <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+        <div class="stat-number">7</div>
+        <div class="stat-label">Scheduled Emails</div>
+      </div>
+      <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+        <div class="stat-number">14</div>
+        <div class="stat-label">Transactional Emails</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <%= button_to "Send All 21 Emails to My Inbox", send_all_admin_emails_path, method: :post, class: "btn btn-primary", data: { confirm: "This will send all 21 emails to #{@test_email}. Continue?" } %>
+
+      <%= button_to "Send 7 Scheduled Emails Only", send_scheduled_admin_emails_path, method: :post, class: "btn btn-secondary", data: { confirm: "This will send 7 scheduled emails to #{@test_email}. Continue?" } %>
+
+      <%= button_to "Setup Test Data", setup_test_data_admin_emails_path, method: :post, class: "btn btn-success" %>
+
+      <%= button_to "Cleanup Test Data", cleanup_test_data_admin_emails_path, method: :delete, class: "btn btn-danger", data: { confirm: "This will remove all test data. Continue?" } %>
+    </div>
+
+    <% @email_categories.each do |category| %>
+      <div class="category">
+        <div class="category-header">
+          <div>
+            <div class="category-title"><%= category[:name] %></div>
+          </div>
+          <div class="category-badge"><%= category[:count] %> emails</div>
+        </div>
+
+        <div class="category-description">
+          <%= category[:description] %>
+        </div>
+
+        <div class="email-grid">
+          <% category[:emails].each do |email| %>
+            <div class="email-card">
+              <div class="email-name"><%= email[:name] %></div>
+              <div class="email-subject">Subject: <%= email[:subject] %></div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 13px; text-align: center;">
+      <p>Admin Email Testing Dashboard - Voxxy Presents</p>
+      <p>Last updated: January 17, 2026</p>
+    </div>
+  </div>
+</body>
+</html>
