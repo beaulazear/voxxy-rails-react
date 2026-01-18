@@ -153,6 +153,7 @@ namespace :email_templates do
     end
 
     template = EmailCampaignTemplate.find_by(template_type: "system", is_default: true)
+    event_ids = []
 
     if template
       puts "Deleting template ID: #{template.id}..."
@@ -173,15 +174,31 @@ namespace :email_templates do
         ScheduledEmail.where(email_campaign_template_id: template.id).update_all(email_campaign_template_id: nil)
       end
 
+      # Also detach events that reference the template
+      events_count = Event.where(email_campaign_template_id: template.id).count
+      if events_count > 0
+        puts "  Detaching #{events_count} events from template"
+        # Don't nullify - instead assign to the new template after it's created
+        event_ids = Event.where(email_campaign_template_id: template.id).pluck(:id)
+      end
+
       template.destroy
       puts "✅ Deleted"
     end
 
     puts "Running seeds..."
     load Rails.root.join("db", "seeds", "email_campaign_templates.rb")
+
+    # Reassign events to the new default template
+    new_template = EmailCampaignTemplate.find_by(template_type: "system", is_default: true)
+    if new_template && event_ids.any?
+      puts "  Reassigning #{event_ids.count} events to new template..."
+      Event.where(id: event_ids).update_all(email_campaign_template_id: new_template.id)
+    end
+
     puts "\n✅ Default template recreated from seeds"
     puts "\nNote: Existing scheduled emails were preserved but detached from old template."
-    puts "New events will use the updated template. To update existing events, run:"
+    puts "Events were reassigned to the new template. To regenerate emails with new formatting, run:"
     puts "  rails email_automation:regenerate[event-slug]"
   end
 end
