@@ -3,8 +3,8 @@ require "sendgrid-ruby"
 class BaseEmailService
   include SendGrid
   # Consistent sender information
-  SENDER_EMAIL = "team@voxxyai.com"
-  SENDER_NAME = "Voxxy"
+  SENDER_EMAIL = "noreply@voxxypresents.com"
+  SENDER_NAME = "Voxxy Presents"
 
   # Get the application base URL dynamically from environment
   def self.app_base_url
@@ -93,7 +93,7 @@ class BaseEmailService
     # Add spam-prevention headers
     mail.add_header(SendGrid::Header.new(key: "X-Priority", value: "3"))
     mail.add_header(SendGrid::Header.new(key: "X-Mailer", value: "Voxxy Application"))
-    mail.add_header(SendGrid::Header.new(key: "List-Unsubscribe", value: "<mailto:unsubscribe@voxxyai.com>"))
+    mail.add_header(SendGrid::Header.new(key: "List-Unsubscribe", value: "<mailto:unsubscribe@voxxypresents.com>"))
 
     # Add custom headers
     additional_headers.each do |key, value|
@@ -154,7 +154,7 @@ class BaseEmailService
                 <p style="margin: 0 0 8px 0;">See you on Voxxy.</p>
                 <p style="margin: 0 0 12px 0;">
                   If you didn't expect this email, you can safely ignore it.
-                  <br><a href="mailto:unsubscribe@voxxyai.com" style="#{BASE_STYLES[:link]}">Unsubscribe</a>
+                  <br><a href="mailto:unsubscribe@voxxypresents.com" style="#{BASE_STYLES[:link]}">Unsubscribe</a>
                 </p>
                 <p style="margin: 0; font-size: 12px; color: #aaaaaa;">
                   Powered by Voxxy Presents
