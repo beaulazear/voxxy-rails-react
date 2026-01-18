@@ -156,6 +156,16 @@ namespace :email_templates do
 
     if template
       puts "Deleting template ID: #{template.id}..."
+
+      # First, nullify foreign keys on scheduled_emails to avoid constraint violations
+      template.email_template_items.each do |item|
+        scheduled_count = ScheduledEmail.where(email_template_item_id: item.id).count
+        if scheduled_count > 0
+          puts "  Detaching #{scheduled_count} scheduled emails from template item: #{item.name}"
+          ScheduledEmail.where(email_template_item_id: item.id).update_all(email_template_item_id: nil)
+        end
+      end
+
       template.destroy
       puts "✅ Deleted"
     end
@@ -163,5 +173,8 @@ namespace :email_templates do
     puts "Running seeds..."
     load Rails.root.join("db", "seeds", "email_campaign_templates.rb")
     puts "\n✅ Default template recreated from seeds"
+    puts "\nNote: Existing scheduled emails were preserved but detached from old template."
+    puts "New events will use the updated template. To update existing events, run:"
+    puts "  rails email_automation:regenerate[event-slug]"
   end
 end
