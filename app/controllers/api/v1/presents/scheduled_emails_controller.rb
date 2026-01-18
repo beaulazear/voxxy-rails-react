@@ -9,7 +9,12 @@ module Api
 
         # GET /api/v1/presents/events/:event_id/scheduled_emails
         def index
-          emails = @event.scheduled_emails.includes(:email_template_item, :latest_delivery)
+          # Eager load associations for better performance
+          emails = @event.scheduled_emails
+            .includes(:email_template_item, :latest_delivery, :email_deliveries)
+            .order(scheduled_for: :asc)
+
+          # Apply filters
           emails = emails.where(status: params[:status]) if params[:status]
 
           if params[:category]
@@ -17,7 +22,25 @@ module Api
               .where(email_template_items: { category: params[:category] })
           end
 
-          render json: emails.order(scheduled_for: :asc), include: [ :email_template_item, :latest_delivery ]
+          # Serialize with delivery counts for sent emails
+          emails_json = emails.map do |email|
+            email.as_json(
+              include: {
+                email_template_item: {},
+                latest_delivery: {}
+              },
+              methods: [ :delivery_status ]
+            ).merge(
+              # Add aggregated delivery counts (only for sent emails)
+              delivery_counts: email.delivery_counts,
+              undelivered_count: email.undelivered_count,
+              unsubscribed_count: email.unsubscribed_count,
+              delivered_count: email.delivered_count,
+              delivery_rate: email.delivery_rate
+            )
+          end
+
+          render json: emails_json
         end
 
         # GET /api/v1/presents/events/:event_id/scheduled_emails/:id
