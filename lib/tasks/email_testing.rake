@@ -97,115 +97,146 @@ namespace :email_testing do
     puts "   ✅ Music Vendor Application: $200, Install: #{music_app.install_date.strftime('%b %d')} @ 5-8 PM"
     puts ""
 
-    # Step 5: Create vendor contacts with REAL email addresses
-    puts "👥 Creating vendor contacts (REAL EMAILS)..."
-    contact1 = VendorContact.find_or_create_by!(
+    # Step 5: Create vendor contacts (10 total - mix of real and test emails)
+    puts "👥 Creating 10 vendor contacts..."
+
+    contacts = []
+
+    # Contact 1: Real email
+    contacts << VendorContact.find_or_create_by!(
       organization: org,
       email: "beau09946@gmail.com"
     ) do |c|
       c.name = "Beau Lazear (Gmail 1)"
-      c.business_name = "Test Business 1"
+      c.business_name = "Test Food Truck"
       c.contact_type = "vendor"
       c.status = "new"
     end
-    puts "   ✅ Contact 1: #{contact1.email}"
+    puts "   ✅ Contact 1: beau09946@gmail.com"
 
-    contact2 = VendorContact.find_or_create_by!(
+    # Contact 2: Real email
+    contacts << VendorContact.find_or_create_by!(
       organization: org,
       email: "beaulazear@gmail.com"
     ) do |c|
       c.name = "Beau Lazear (Gmail 2)"
-      c.business_name = "Test Business 2"
+      c.business_name = "Test Art Gallery"
       c.contact_type = "vendor"
       c.status = "new"
     end
-    puts "   ✅ Contact 2: #{contact2.email}"
+    puts "   ✅ Contact 2: beaulazear@gmail.com"
+
+    # Contact 3: BOUNCE TEST - Invalid email
+    contacts << VendorContact.find_or_create_by!(
+      organization: org,
+      email: "courtneygreer@voxxyai.com"
+    ) do |c|
+      c.name = "Courtney Greer (WILL BOUNCE)"
+      c.business_name = "Bounce Test Co"
+      c.contact_type = "vendor"
+      c.status = "new"
+    end
+    puts "   ✅ Contact 3: courtneygreer@voxxyai.com (WILL BOUNCE - for testing)"
+
+    # Contacts 4-10: Test emails for variety
+    test_contacts = [
+      { email: "vendor1@test.com", name: "Sarah Martinez", business: "Martinez Jewelry" },
+      { email: "vendor2@test.com", name: "James Chen", business: "Chen's Pottery Studio" },
+      { email: "vendor3@test.com", name: "Maria Rodriguez", business: "Rodriguez Bakery" },
+      { email: "vendor4@test.com", name: "David Kim", business: "Kim's Coffee Roasters" },
+      { email: "vendor5@test.com", name: "Emily Johnson", business: "Handmade Soaps Co" },
+      { email: "vendor6@test.com", name: "Michael Brown", business: "Brown's BBQ" },
+      { email: "vendor7@test.com", name: "Lisa Anderson", business: "Anderson Photography" }
+    ]
+
+    test_contacts.each_with_index do |contact_data, index|
+      contacts << VendorContact.find_or_create_by!(
+        organization: org,
+        email: contact_data[:email]
+      ) do |c|
+        c.name = contact_data[:name]
+        c.business_name = contact_data[:business]
+        c.contact_type = "vendor"
+        c.status = "new"
+      end
+      puts "   ✅ Contact #{index + 4}: #{contact_data[:email]}"
+    end
     puts ""
 
-    # Step 6: Create and send invitations
-    puts "✉️  Creating and sending invitations (EMAILS WILL BE SENT)..."
+    # Step 6: Create and send invitations (10 total)
+    puts "✉️  Creating and sending invitations to all 10 contacts..."
 
-    inv1 = EventInvitation.create!(
-      event: event,
-      vendor_contact: contact1
-    )
+    invitations = []
+    sent_count = 0
+    failed_count = 0
 
-    inv2 = EventInvitation.create!(
-      event: event,
-      vendor_contact: contact2
-    )
+    contacts.each_with_index do |contact, index|
+      invitation = EventInvitation.create!(
+        event: event,
+        vendor_contact: contact
+      )
+      invitations << invitation
 
-    # Send actual emails via mailer
-    begin
-      EventInvitationMailer.invitation_email(inv1).deliver_now
-      puts "   ✅ Email sent to: beau09946@gmail.com"
-    rescue => e
-      puts "   ❌ Failed to send email to beau09946@gmail.com: #{e.message}"
+      # Send actual emails via mailer
+      begin
+        EventInvitationMailer.invitation_email(invitation).deliver_now
+        invitation.mark_as_sent!
+        sent_count += 1
+        puts "   ✅ Email #{index + 1} sent to: #{contact.email}"
+      rescue => e
+        failed_count += 1
+        puts "   ❌ Failed to send email to #{contact.email}: #{e.message}"
+      end
     end
 
-    begin
-      EventInvitationMailer.invitation_email(inv2).deliver_now
-      puts "   ✅ Email sent to: beaulazear@gmail.com"
-    rescue => e
-      puts "   ❌ Failed to send email to beaulazear@gmail.com: #{e.message}"
+    puts ""
+    puts "   📊 Invitation Summary:"
+    puts "      ✅ Successfully sent: #{sent_count}"
+    puts "      ❌ Failed: #{failed_count}"
+    puts "      📧 Total invitations: #{invitations.count}"
+    puts ""
+    puts "   🔗 Sample Invitation URLs:"
+    invitations.first(3).each do |inv|
+      puts "      #{inv.invitation_url}"
     end
-
-    # Mark as sent
-    inv1.mark_as_sent!
-    inv2.mark_as_sent!
-
-    puts "   📧 Invitation URLs:"
-    puts "      #{inv1.invitation_url}"
-    puts "      #{inv2.invitation_url}"
     puts ""
 
-    # Step 7: Create test registrations (linked to specific applications)
-    puts "📋 Creating test registrations..."
+    # Step 7: Create 15 test registrations (variety of statuses and payment states)
+    puts "📋 Creating 15 test registrations (vendors who have applied)..."
 
-    reg1 = event.registrations.create!(
-      name: "Approved Unpaid Vendor",
-      email: "approved-unpaid@test.com",
-      business_name: "Unpaid Food Truck",
-      vendor_category: "Food",
-      status: "approved",
-      payment_status: "pending",
-      vendor_application: food_app  # Links to Food app ($150)
-    )
-    puts "   ✅ Registration 1: Food + Approved + Unpaid ($150) - should get payment reminders"
+    registrations_data = [
+      { name: "Approved Unpaid Vendor 1", email: "approved-unpaid-1@test.com", business: "Unpaid Food Truck", category: "Food", status: "approved", payment: "pending", app: food_app },
+      { name: "Approved Paid Vendor 1", email: "approved-paid-1@test.com", business: "Paid Art Gallery", category: "Art", status: "approved", payment: "confirmed", app: art_app },
+      { name: "Pending Vendor 1", email: "pending-1@test.com", business: "Pending Music Band", category: "Music", status: "pending", payment: "pending", app: music_app },
+      { name: "Overdue Vendor 1", email: "overdue-1@test.com", business: "Overdue Catering Co", category: "Food", status: "approved", payment: "overdue", app: food_app },
+      { name: "Approved Unpaid Vendor 2", email: "approved-unpaid-2@test.com", business: "Taco Paradise", category: "Food", status: "approved", payment: "pending", app: food_app },
+      { name: "Approved Paid Vendor 2", email: "approved-paid-2@test.com", business: "Sculpture Studio", category: "Art", status: "approved", payment: "confirmed", app: art_app },
+      { name: "Pending Vendor 2", email: "pending-2@test.com", business: "Jazz Quartet", category: "Music", status: "pending", payment: "pending", app: music_app },
+      { name: "Waitlist Vendor", email: "waitlist@test.com", business: "Waitlist Jewelry", category: "Art", status: "waitlist", payment: "pending", app: art_app },
+      { name: "Rejected Vendor", email: "rejected@test.com", business: "Rejected Coffee", category: "Food", status: "rejected", payment: "pending", app: food_app },
+      { name: "Confirmed Paid Vendor", email: "confirmed-paid@test.com", business: "Premium Art Co", category: "Art", status: "confirmed", payment: "confirmed", app: art_app },
+      { name: "Approved Unpaid Vendor 3", email: "approved-unpaid-3@test.com", business: "Burger Station", category: "Food", status: "approved", payment: "pending", app: food_app },
+      { name: "Overdue Vendor 2", email: "overdue-2@test.com", business: "Late Payment Band", category: "Music", status: "approved", payment: "overdue", app: music_app },
+      { name: "Cancelled Vendor", email: "cancelled@test.com", business: "Cancelled Vendor", category: "Food", status: "cancelled", payment: "pending", app: food_app },
+      { name: "Approved Paid Vendor 3", email: "approved-paid-3@test.com", business: "DJ Services", category: "Music", status: "approved", payment: "confirmed", app: music_app },
+      { name: "Approved Unpaid Vendor 4", email: "approved-unpaid-4@test.com", business: "Ice Cream Truck", category: "Food", status: "approved", payment: "pending", app: food_app }
+    ]
 
-    reg2 = event.registrations.create!(
-      name: "Approved Paid Vendor",
-      email: "approved-paid@test.com",
-      business_name: "Paid Art Gallery",
-      vendor_category: "Art",
-      status: "approved",
-      payment_status: "confirmed",
-      payment_confirmed_at: Time.current,
-      vendor_application: art_app  # Links to Art app ($100)
-    )
-    puts "   ✅ Registration 2: Art + Approved + Paid ($100) - should NOT get payment reminders"
+    registrations_data.each_with_index do |reg_data, index|
+      reg = event.registrations.create!(
+        name: reg_data[:name],
+        email: reg_data[:email],
+        business_name: reg_data[:business],
+        vendor_category: reg_data[:category],
+        status: reg_data[:status],
+        payment_status: reg_data[:payment],
+        payment_confirmed_at: (reg_data[:payment] == "confirmed" ? Time.current : nil),
+        vendor_application: reg_data[:app]
+      )
 
-    reg3 = event.registrations.create!(
-      name: "Pending Vendor",
-      email: "pending@test.com",
-      business_name: "Pending Music Band",
-      vendor_category: "Music",
-      status: "pending",
-      payment_status: "pending",
-      vendor_application: music_app  # Links to Music app ($200)
-    )
-    puts "   ✅ Registration 3: Music + Pending ($200) - should NOT get payment reminders"
-
-    reg4 = event.registrations.create!(
-      name: "Overdue Vendor",
-      email: "overdue@test.com",
-      business_name: "Overdue Catering Co",
-      vendor_category: "Food",
-      status: "approved",
-      payment_status: "overdue",
-      vendor_application: food_app  # Links to Food app ($150)
-    )
-    puts "   ✅ Registration 4: Food + Approved + Overdue ($150) - should get payment reminders"
+      payment_reminder = (reg_data[:status] == "approved" && %w[pending overdue].include?(reg_data[:payment])) ? "YES" : "NO"
+      puts "   ✅ Registration #{index + 1}: #{reg_data[:category]} + #{reg_data[:status]} + #{reg_data[:payment]} - Payment reminders: #{payment_reminder}"
+    end
     puts ""
 
     # Summary
@@ -223,32 +254,54 @@ namespace :email_testing do
     puts "   2. Art Vendor Application: $100 (Install: #{art_app.install_date.strftime('%b %d')} @ 7-10 AM)"
     puts "   3. Music Vendor Application: $200 (Install: #{music_app.install_date.strftime('%b %d')} @ 5-8 PM)"
     puts ""
-    puts "📧 INVITATIONS SENT TO:"
-    puts "   - beau09946@gmail.com"
-    puts "   - beaulazear@gmail.com"
+    puts "📧 INVITATIONS SENT: #{event.event_invitations.count} total"
+    puts "   Real emails (will deliver):"
+    puts "     - beau09946@gmail.com"
+    puts "     - beaulazear@gmail.com"
+    puts ""
+    puts "   🚨 BOUNCE TEST EMAIL:"
+    puts "     - courtneygreer@voxxyai.com (WILL BOUNCE - great for testing!)"
+    puts ""
+    puts "   Test emails (may not deliver):"
+    puts "     - vendor1@test.com through vendor7@test.com"
     puts ""
     puts "   Total Invitations: #{event.event_invitations.count}"
-    puts "   Sent Count (NEW method): #{event.event_invitations.where.not(sent_at: nil).count}"
-    puts "   Sent Count (OLD method): #{event.event_invitations.sent.count}"
+    puts "   Sent Count: #{event.event_invitations.where.not(sent_at: nil).count}"
     puts ""
-    puts "📋 REGISTRATIONS CREATED: #{event.registrations.count}"
-    puts "   - Food (Approved + Unpaid): 1 vendor @ $150"
-    puts "   - Food (Approved + Overdue): 1 vendor @ $150"
-    puts "   - Art (Approved + Paid): 1 vendor @ $100"
-    puts "   - Music (Pending): 1 vendor @ $200"
+    puts "📋 REGISTRATIONS (VENDORS) CREATED: #{event.registrations.count} total"
     puts ""
-    puts "   Approved + Unpaid: #{event.registrations.where(status: 'approved', payment_status: [ 'pending', 'overdue' ]).count} (should get payment reminders)"
-    puts "   Approved + Paid: #{event.registrations.where(status: 'approved', payment_status: [ 'confirmed', 'paid' ]).count} (should NOT get payment reminders)"
-    puts "   Pending: #{event.registrations.where(status: 'pending').count} (should NOT get payment reminders)"
+    puts "   By Status:"
+    puts "     - Approved: #{event.registrations.where(status: 'approved').count} vendors"
+    puts "     - Pending: #{event.registrations.where(status: 'pending').count} vendors"
+    puts "     - Confirmed: #{event.registrations.where(status: 'confirmed').count} vendors"
+    puts "     - Waitlist: #{event.registrations.where(status: 'waitlist').count} vendors"
+    puts "     - Rejected: #{event.registrations.where(status: 'rejected').count} vendors"
+    puts "     - Cancelled: #{event.registrations.where(status: 'cancelled').count} vendors"
     puts ""
-    puts "✅ CHECK YOUR INBOX: Invitation emails have been sent!"
+    puts "   By Payment Status:"
+    puts "     - Pending: #{event.registrations.where(payment_status: 'pending').count} vendors"
+    puts "     - Confirmed: #{event.registrations.where(payment_status: 'confirmed').count} vendors"
+    puts "     - Overdue: #{event.registrations.where(payment_status: 'overdue').count} vendors"
+    puts ""
+    puts "   📬 Payment Reminder Targeting:"
+    puts "     - Should get reminders: #{event.registrations.where(status: 'approved', payment_status: [ 'pending', 'overdue' ]).count} vendors"
+    puts "     - Should NOT get reminders: #{event.registrations.where.not(status: 'approved').or(event.registrations.where(payment_status: [ 'confirmed', 'paid' ])).count} vendors"
+    puts ""
+    puts "✅ CHECK YOUR INBOX: #{sent_count} invitation emails were sent (including 1 that will bounce)!"
     puts ""
     puts "🧪 TO TEST:"
-    puts "   1. Check your Gmail inbox for invitation emails"
-    puts "   2. In UI, verify 3 vendor applications with different prices ($150, $100, $200)"
-    puts "   3. Verify invitation count shows 2 (and stays 2 after viewing)"
-    puts "   4. Test payment reminder filtering with RecipientFilterService"
-    puts "   5. Verify each registration links to correct vendor_application_id"
+    puts "   1. Check Gmail for 2 real invitation emails"
+    puts "   2. Wait ~1 minute for courtneygreer@voxxyai.com to bounce"
+    puts "   3. Check webhook logs for bounce event processing"
+    puts "   4. Verify EmailDelivery record created for bounce"
+    puts "   5. In UI, verify invitation count shows 10"
+    puts "   6. In UI, verify vendor count shows 15"
+    puts "   7. Test payment reminder filtering (should target ~6 vendors)"
+    puts "   8. Visualize data in email dashboard with more variety"
+    puts ""
+    puts "🔍 TO CHECK BOUNCE TRACKING:"
+    puts "   Rails console:"
+    puts "   EmailDelivery.find_by(recipient_email: 'courtneygreer@voxxyai.com')"
     puts ""
     puts "🧹 TO CLEANUP:"
     puts "   rails email_testing:cleanup"
@@ -273,10 +326,16 @@ namespace :email_testing do
 
     # Delete vendor contacts with test emails
     puts "🗑️  Deleting test vendor contacts..."
-    contact_count = VendorContact.where(email: [ "beau09946@gmail.com", "beaulazear@gmail.com" ])
+    test_emails = [
+      "beau09946@gmail.com",
+      "beaulazear@gmail.com",
+      "courtneygreer@voxxyai.com"
+    ]
+
+    contact_count = VendorContact.where(email: test_emails)
                                   .or(VendorContact.where("email LIKE ?", "%@test.com"))
                                   .count
-    VendorContact.where(email: [ "beau09946@gmail.com", "beaulazear@gmail.com" ])
+    VendorContact.where(email: test_emails)
                  .or(VendorContact.where("email LIKE ?", "%@test.com"))
                  .destroy_all
     puts "   ✅ Deleted #{contact_count} vendor contact(s)"
