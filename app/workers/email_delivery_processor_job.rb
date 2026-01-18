@@ -15,7 +15,15 @@ class EmailDeliveryProcessorJob
       return
     end
 
+    # Try to find existing EmailDelivery record
     delivery = EmailDelivery.find_by(sendgrid_message_id: sg_message_id)
+
+    # If not found and this is an invitation, create delivery record on-the-fly
+    # Note: SendGrid flattens custom args to top level of webhook payload
+    if delivery.nil? && event_data["event_invitation_id"].present?
+      Rails.logger.info("Creating delivery record for invitation email (message: #{sg_message_id})")
+      delivery = create_invitation_delivery(event_data, sg_message_id)
+    end
 
     unless delivery
       Rails.logger.info("No delivery record found for SendGrid message: #{sg_message_id}")
@@ -138,5 +146,27 @@ class EmailDeliveryProcessorJob
     EmailRetryJob.perform_in(next_delay, delivery.id)
 
     Rails.logger.info("↻ Retry ##{delivery.retry_count} scheduled for #{delivery.next_retry_at}")
+  end
+
+  def create_invitation_delivery(event_data, sg_message_id)
+    # SendGrid flattens custom args to top level of webhook payload
+    event_id = event_data["event_id"]
+    invitation_id = event_data["event_invitation_id"]
+
+    return nil unless event_id && invitation_id
+
+    invitation = EventInvitation.find_by(id: invitation_id)
+    return nil unless invitation
+
+    EmailDelivery.create!(
+      event_id: event_id,
+      sendgrid_message_id: sg_message_id,
+      recipient_email: event_data["email"],
+      status: "sent",
+      sent_at: Time.at(event_data["timestamp"].to_i)
+    )
+  rescue => e
+    Rails.logger.error("Failed to create invitation delivery: #{e.message}")
+    nil
   end
 end

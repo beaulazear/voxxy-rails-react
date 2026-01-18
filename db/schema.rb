@@ -141,6 +141,23 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_18_193338) do
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
+  create_table "contact_lists", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.string "name", null: false
+    t.string "list_type", null: false
+    t.text "description"
+    t.jsonb "filters", default: {}
+    t.integer "contact_ids", default: [], array: true
+    t.integer "contacts_count", default: 0
+    t.datetime "last_used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["filters"], name: "index_contact_lists_on_filters", using: :gin
+    t.index ["list_type"], name: "index_contact_lists_on_list_type"
+    t.index ["organization_id", "name"], name: "index_contact_lists_on_organization_id_and_name", unique: true
+    t.index ["organization_id"], name: "index_contact_lists_on_organization_id"
+  end
+
   create_table "contacts", force: :cascade do |t|
     t.string "name", null: false
     t.string "email", null: false
@@ -694,6 +711,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_18_193338) do
   add_foreign_key "budgets", "users"
   add_foreign_key "comments", "pinned_activities"
   add_foreign_key "comments", "users"
+  add_foreign_key "contact_lists", "organizations"
   add_foreign_key "email_campaign_templates", "organizations"
   add_foreign_key "email_deliveries", "events"
   add_foreign_key "email_deliveries", "registrations"

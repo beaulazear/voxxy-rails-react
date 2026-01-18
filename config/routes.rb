@@ -271,7 +271,19 @@ Rails.application.routes.draw do
         resources :organizations do
           resources :events, only: [ :index, :create ]
           resources :budgets, only: [ :index, :create ]
-          resources :vendor_contacts, only: [ :index ]
+          resources :vendor_contacts, only: [ :index ] do
+            collection do
+              get :ids
+            end
+          end
+          resources :contact_lists, only: [ :index, :create ]
+        end
+
+        # Contact Lists
+        resources :contact_lists, only: [ :show, :update, :destroy ] do
+          member do
+            get :contacts
+          end
         end
 
         # Events

@@ -8,6 +8,39 @@ module Api
         before_action :set_vendor_contact, only: [ :show, :update, :destroy ]
         before_action :check_organization_ownership, only: [ :show, :update, :destroy ]
 
+        # GET /api/v1/presents/organizations/:organization_id/vendor_contacts/ids
+        # Returns just the IDs of all contacts matching filters (for bulk selection)
+        def ids
+          organization = Organization.find(params[:organization_id])
+          unless organization.user_id == @current_user.id || @current_user.admin?
+            return render json: { error: "Not authorized" }, status: :forbidden
+          end
+
+          vendor_contacts = organization.vendor_contacts
+
+          # Apply same filters as index
+          vendor_contacts = vendor_contacts.by_status(params[:status]) if params[:status].present?
+          vendor_contacts = vendor_contacts.by_contact_type(params[:contact_type]) if params[:contact_type].present?
+          vendor_contacts = vendor_contacts.by_location(params[:location]) if params[:location].present?
+          vendor_contacts = vendor_contacts.by_category(params[:category]) if params[:category].present?
+          vendor_contacts = vendor_contacts.featured if params[:featured] == "true"
+          vendor_contacts = vendor_contacts.with_email if params[:has_email] == "true"
+          vendor_contacts = vendor_contacts.with_phone if params[:has_phone] == "true"
+
+          # Apply search
+          if params[:search].present?
+            search_term = "%#{params[:search]}%"
+            vendor_contacts = vendor_contacts.where(
+              "name ILIKE ? OR email ILIKE ? OR business_name ILIKE ?",
+              search_term, search_term, search_term
+            )
+          end
+
+          # Return just the IDs
+          ids = vendor_contacts.pluck(:id)
+          render json: { ids: ids, count: ids.length }, status: :ok
+        end
+
         # GET /api/v1/presents/vendor_contacts
         # GET /api/v1/presents/organizations/:organization_id/vendor_contacts
         def index
@@ -51,11 +84,35 @@ module Api
           # Includes for performance
           vendor_contacts = vendor_contacts.includes(:organization, :vendor, :registration)
 
-          serialized = vendor_contacts.map do |contact|
+          # Pagination
+          page = params[:page]&.to_i || 1
+          per_page = params[:per_page]&.to_i || 100
+
+          # Ensure page is at least 1
+          page = 1 if page < 1
+          # Ensure per_page is reasonable (between 10 and 200)
+          per_page = [ [ per_page, 10 ].max, 200 ].min
+
+          # Get total count before pagination
+          total_count = vendor_contacts.count
+          total_pages = (total_count.to_f / per_page).ceil
+
+          # Apply pagination
+          paginated_contacts = vendor_contacts.offset((page - 1) * per_page).limit(per_page)
+
+          serialized = paginated_contacts.map do |contact|
             VendorContactSerializer.new(contact, include_relations: true).as_json
           end
 
-          render json: { vendor_contacts: serialized }, status: :ok
+          render json: {
+            vendor_contacts: serialized,
+            meta: {
+              current_page: page,
+              per_page: per_page,
+              total_count: total_count,
+              total_pages: total_pages
+            }
+          }, status: :ok
         end
 
         # GET /api/v1/presents/vendor_contacts/:id
