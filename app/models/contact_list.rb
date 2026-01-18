@@ -41,23 +41,27 @@ class ContactList < ApplicationRecord
   def resolve_smart_list
     scope = organization.vendor_contacts
 
-    # Apply category filter
+    # Apply category filter (OR operation - match ANY category)
     if filters["categories"].present?
-      filters["categories"].each do |category|
-        scope = scope.by_category(category)
-      end
+      category_conditions = filters["categories"].map do |category|
+        "categories @> ?"
+      end.join(" OR ")
+      category_values = filters["categories"].map { |cat| [ cat ].to_json }
+      scope = scope.where(category_conditions, *category_values)
     end
 
-    # Apply location filter
+    # Apply location filter (OR operation - match ANY location)
     if filters["locations"].present?
       scope = scope.where(location: filters["locations"])
     end
 
-    # Apply tags filter
+    # Apply tags filter (OR operation - match ANY tag)
     if filters["tags"].present?
-      filters["tags"].each do |tag|
-        scope = scope.where("tags @> ?", [ tag ].to_json)
-      end
+      tag_conditions = filters["tags"].map do |tag|
+        "tags @> ?"
+      end.join(" OR ")
+      tag_values = filters["tags"].map { |tag| [ tag ].to_json }
+      scope = scope.where(tag_conditions, *tag_values)
     end
 
     scope

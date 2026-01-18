@@ -9,13 +9,21 @@ class EmailDeliveryProcessorJob
   def perform(event_data)
     event_type = event_data["event"]
     sg_message_id = extract_message_id(event_data)
+    unique_args = event_data["unique_args"] || event_data["uniqueArgs"] || {}
 
     unless sg_message_id
       Rails.logger.warn("No message ID in SendGrid event: #{event_type}")
       return
     end
 
+    # Try to find existing EmailDelivery record
     delivery = EmailDelivery.find_by(sendgrid_message_id: sg_message_id)
+
+    # If not found and this is an invitation, create delivery record on-the-fly
+    if delivery.nil? && unique_args["email_type"] == "invitation"
+      Rails.logger.info("Creating delivery record for invitation email (message: #{sg_message_id})")
+      delivery = create_invitation_delivery(event_data, unique_args, sg_message_id)
+    end
 
     unless delivery
       Rails.logger.info("No delivery record found for SendGrid message: #{sg_message_id}")
@@ -138,5 +146,26 @@ class EmailDeliveryProcessorJob
     EmailRetryJob.perform_in(next_delay, delivery.id)
 
     Rails.logger.info("↻ Retry ##{delivery.retry_count} scheduled for #{delivery.next_retry_at}")
+  end
+
+  def create_invitation_delivery(event_data, unique_args, sg_message_id)
+    event_id = unique_args["event_id"]
+    invitation_id = unique_args["event_invitation_id"]
+
+    return nil unless event_id && invitation_id
+
+    invitation = EventInvitation.find_by(id: invitation_id)
+    return nil unless invitation
+
+    EmailDelivery.create!(
+      event_id: event_id,
+      sendgrid_message_id: sg_message_id,
+      recipient_email: event_data["email"],
+      status: "sent",
+      sent_at: Time.at(event_data["timestamp"].to_i)
+    )
+  rescue => e
+    Rails.logger.error("Failed to create invitation delivery: #{e.message}")
+    nil
   end
 end
