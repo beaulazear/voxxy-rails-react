@@ -4,7 +4,9 @@
 
 ## Overview
 
-Added email preview functionality to the admin email testing dashboard. Admins can now preview any of the 21 emails before sending them, seeing exactly what recipients will receive.
+Added email preview functionality to the admin email testing dashboard. Admins can now preview any of the 17 emails before sending them, seeing exactly what recipients will receive.
+
+**Updated:** January 17, 2026 - Email count reduced from 21 to 17 (removed 4 invitation accept/decline emails)
 
 ---
 
@@ -26,7 +28,7 @@ def preview
   html_content = case email_type
   when "scheduled_1" then preview_scheduled_email(test_data, 1)
   when "application_confirmation" then preview_registration_email(...)
-  # ... all 21 email types
+  # ... all 17 email types
   end
 
   render json: { html: html_content }
@@ -353,7 +355,7 @@ When testing preview feature:
 ## Summary
 
 ✅ Preview functionality fully integrated
-✅ All 21 emails can be previewed
+✅ All 17 emails can be previewed
 ✅ No emails sent during preview
 ✅ Beautiful modal matches admin dashboard theme
 ✅ Duplicate security warnings consolidated

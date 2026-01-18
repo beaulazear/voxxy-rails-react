@@ -39,8 +39,8 @@ end
 
 **1. Added API Methods** (`src/services/api.ts`)
 Added 5 new methods to `adminApi`:
-- `getEmailCategories()` - Fetch all 21 email categories
-- `sendAllEmails()` - Send all 21 emails to admin's inbox
+- `getEmailCategories()` - Fetch all 17 email categories
+- `sendAllEmails()` - Send all 17 emails to admin's inbox
 - `sendScheduledEmails()` - Send 7 scheduled emails only
 - `setupTestData()` - Create test data (events, registrations, etc.)
 - `cleanupTestData()` - Remove all test data
@@ -73,7 +73,7 @@ A beautiful React component matching your existing admin dashboard design:
 ### Features Available
 
 **Email Categories Display:**
-- View all 21 emails organized by 4 categories
+- View all 17 emails organized by 4 categories
 - See email names and subject lines
 - Visual cards with gradient icons
 
@@ -136,7 +136,7 @@ All endpoints require admin authentication (JWT token):
 
 ```
 GET    /admin/emails.json                      → Fetch email categories
-POST   /admin/emails/send_all.json             → Send all 21 emails
+POST   /admin/emails/send_all.json             → Send all 17 emails
 POST   /admin/emails/send_scheduled.json       → Send 7 scheduled emails
 POST   /admin/emails/setup_test_data.json      → Create test data
 DELETE /admin/emails/cleanup_test_data.json    → Remove test data
@@ -388,7 +388,7 @@ user.update!(role: 'admin')
 
 ✅ Email testing fully integrated into React admin dashboard
 ✅ Matches existing design perfectly
-✅ All 21 emails visible and testable
+✅ All 17 emails visible and testable
 ✅ Secure (emails only to admin's inbox)
 ✅ Beautiful UI with loading states and error handling
 ✅ Mobile responsive

@@ -1,8 +1,15 @@
 # 📧 Voxxy Presents Email System - Master Reference
 
 **Last Updated:** January 17, 2026
+**Total Emails:** 17 (7 scheduled + 10 transactional)
 **Purpose:** Complete reference for ALL emails used in Voxxy Presents
 **Audience:** Developers making email edits across the entire system
+
+**Recent Changes (Jan 17, 2026):**
+- ✅ Removed 4 invitation accept/decline emails (21 → 17 total)
+- ✅ All emails now use Eastern timezone (was UTC)
+- ✅ Removed emojis from all subject lines
+- ✅ Simplified styling for better deliverability
 
 ---
 
@@ -31,13 +38,15 @@ Voxxy Presents has **TWO distinct email systems**:
 - **Delivery:** Automatic via EmailSenderWorker (every 5 minutes)
 - **Tracking:** Full delivery tracking with EmailDelivery records
 
-### System 2: Transactional Service Emails (11+ emails)
+### System 2: Transactional Service Emails (10 emails)
 - **Purpose:** Immediate emails triggered by specific actions
 - **Technology:** Ruby service classes, SendGrid delivery
 - **Customizable:** No (hardcoded in services)
 - **Location:** Service files (`app/services/`, `app/mailers/`)
 - **Delivery:** Immediate (synchronous or via model callbacks)
 - **Tracking:** Via SendGrid categories only
+
+**Total Emails:** 17 (7 scheduled + 10 transactional)
 
 ---
 
@@ -62,16 +71,12 @@ Voxxy Presents has **TWO distinct email systems**:
 3. Rejection notification
 4. Waitlist notification
 
-### Category C: Event Invitation Emails
-**Count:** 5 emails
-**Editable via:** EventInvitationMailer + email templates
+### Category C: Event Invitation Email
+**Count:** 1 email
+**Editable via:** EventInvitationMailer + email template
 **Sent via:** ActionMailer
 
-1. Initial invitation
-2. Acceptance confirmation (vendor)
-3. Acceptance notification (producer)
-4. Decline confirmation (vendor)
-5. Decline notification (producer)
+1. Vendor invitation (announcement)
 
 ### Category D: Admin/Producer Notification Emails
 **Count:** 2+ emails
@@ -91,26 +96,26 @@ Voxxy Presents has **TWO distinct email systems**:
 ### 🎯 CATEGORY A: Scheduled Automated Emails (7 total)
 
 #### A1. **1 Day Before Application Deadline**
-- **File:** `db/seeds/email_campaign_templates.rb` (Lines 46-77)
-- **Trigger:** 1 day before `application_deadline` at 09:00 UTC
+- **File:** `db/seeds/email_campaign_templates.rb`
+- **Trigger:** 1 day before `application_deadline` at 09:00 EST
 - **Recipients:** All vendors (no filter)
-- **Subject:** `⏰ Last Chance: [eventName] Applications Close Tomorrow!`
+- **Subject:** `Last Chance: [eventName] Applications Close Tomorrow`
 - **Purpose:** Urgency reminder before deadline
 - **Variables:** `[eventName]`, `[eventDate]`, `[eventVenue]`, `[eventLocation]`, `[boothPrice]`, `[eventLink]`, `[organizationName]`
 - **Status:** ✅ Active
 
 #### A2. **Application Deadline Day**
-- **File:** `db/seeds/email_campaign_templates.rb` (Lines 79-112)
-- **Trigger:** On `application_deadline` day at 08:00 UTC
+- **File:** `db/seeds/email_campaign_templates.rb`
+- **Trigger:** On `application_deadline` day at 08:00 EST
 - **Recipients:** All vendors (no filter)
-- **Subject:** `🚨 URGENT: [eventName] Applications Close TODAY`
+- **Subject:** `URGENT: [eventName] Applications Close Today`
 - **Purpose:** Final urgency on deadline day
 - **Variables:** Same as A1
 - **Status:** ✅ Active
 
 #### A3. **1 Day Before Payment Due**
-- **File:** `db/seeds/email_campaign_templates.rb` (Lines 122-150)
-- **Trigger:** 1 day before payment deadline at 10:00 UTC
+- **File:** `db/seeds/email_campaign_templates.rb`
+- **Trigger:** 1 day before payment deadline at 10:00 EST
 - **Recipients:** **Approved vendors only** (`status: ['approved']`)
 - **Subject:** `Reminder: Payment Due Tomorrow - [eventName]`
 - **Purpose:** Payment reminder
@@ -118,17 +123,17 @@ Voxxy Presents has **TWO distinct email systems**:
 - **Status:** ✅ Active
 
 #### A4. **Payment Due Today**
-- **File:** `db/seeds/email_campaign_templates.rb` (Lines 152-180)
-- **Trigger:** On payment deadline at 08:00 UTC
+- **File:** `db/seeds/email_campaign_templates.rb`
+- **Trigger:** On payment deadline at 08:00 EST
 - **Recipients:** **Approved vendors only** (`status: ['approved']`)
-- **Subject:** `🚨 URGENT: Payment Due Today - [eventName]`
+- **Subject:** `URGENT: Payment Due Today - [eventName]`
 - **Purpose:** Final payment urgency
 - **Variables:** Same as A3 + `[organizationEmail]`
 - **Status:** ✅ Active
 
 #### A5. **1 Day Before Event**
-- **File:** `db/seeds/email_campaign_templates.rb` (Lines 190-229)
-- **Trigger:** 1 day before `event_date` at 17:00 UTC
+- **File:** `db/seeds/email_campaign_templates.rb`
+- **Trigger:** 1 day before `event_date` at 17:00 EST
 - **Recipients:** **Approved/Confirmed vendors** (`status: ['approved', 'confirmed']`)
 - **Subject:** `Tomorrow: [eventName] Final Details`
 - **Purpose:** Final preparation reminders
@@ -136,19 +141,19 @@ Voxxy Presents has **TWO distinct email systems**:
 - **Status:** ✅ Active
 
 #### A6. **Day of Event**
-- **File:** `db/seeds/email_campaign_templates.rb` (Lines 231-269)
-- **Trigger:** On `event_date` at 07:00 UTC
+- **File:** `db/seeds/email_campaign_templates.rb`
+- **Trigger:** On `event_date` at 07:00 EST
 - **Recipients:** **Approved/Confirmed vendors** (`status: ['approved', 'confirmed']`)
-- **Subject:** `🎉 Today is the Day! [eventName]`
-- **Purpose:** Event day excitement and reminders
+- **Subject:** `Today: [eventName]`
+- **Purpose:** Event day reminders
 - **Variables:** Same as A5
 - **Status:** ✅ Active
 
 #### A7. **Day After Event - Thank You**
-- **File:** `db/seeds/email_campaign_templates.rb` (Lines 271-302)
-- **Trigger:** 1 day after `event_date` at 10:00 UTC
+- **File:** `db/seeds/email_campaign_templates.rb`
+- **Trigger:** 1 day after `event_date` at 10:00 EST
 - **Recipients:** **Approved/Confirmed vendors** (`status: ['approved', 'confirmed']`)
-- **Subject:** `Thank You for Making [eventName] Amazing!`
+- **Subject:** `Thank You for Participating in [eventName]`
 - **Purpose:** Post-event gratitude
 - **Variables:** `[firstName]`, `[eventName]`, `[organizationName]`
 - **Status:** ✅ Active
@@ -169,12 +174,12 @@ Voxxy Presents has **TWO distinct email systems**:
 - **SendGrid Category:** `transactional`, `application-confirmation`
 
 #### B2. **Application Approved**
-- **File:** `app/services/registration_email_service.rb` (Lines 282-327)
+- **File:** `app/services/registration_email_service.rb`
 - **Trigger:** When registration status changes to "approved"
 - **Recipients:** Vendor applicant
-- **Subject:** `🎉 Your Application Was Approved - #{event.title}`
+- **Subject:** `Your Application Was Approved - #{event.title}`
 - **Purpose:** Notify approval
-- **Template:** Green success box with approval details
+- **Template:** Approval details with payment instructions
 - **Status:** ✅ Active
 - **SendGrid Category:** `transactional`, `application-approved`
 
@@ -200,53 +205,19 @@ Voxxy Presents has **TWO distinct email systems**:
 
 ---
 
-### 🎯 CATEGORY C: Event Invitation Emails (5 total)
+### 🎯 CATEGORY C: Event Invitation Email (1 total)
 
 #### C1. **Vendor Invitation**
-- **File:** `app/mailers/event_invitation_mailer.rb` (Lines 3-21)
+- **File:** `app/mailers/event_invitation_mailer.rb`
 - **View Template:** `app/views/event_invitation_mailer/invitation_email.html.erb`
 - **Trigger:** When producer sends batch invitations
 - **Recipients:** Vendor contacts selected by producer
 - **Subject:** `#{event.title} is coming in #{event.location}`
-- **Purpose:** Invite vendors to apply
-- **Contains:** Event details, invitation token link, apply button
+- **Purpose:** Invite vendors to event (announcement email)
+- **Workflow:** Vendors apply through normal application system if interested
+- **Contains:** Event details, invitation URL with token
 - **Status:** ✅ Active
-
-#### C2. **Invitation Accepted - Vendor Confirmation**
-- **File:** `app/mailers/event_invitation_mailer.rb` (Lines 24-34)
-- **View Template:** `app/views/event_invitation_mailer/accepted_confirmation_vendor.html.erb`
-- **Trigger:** When vendor accepts invitation
-- **Recipients:** Vendor who accepted
-- **Subject:** `Thank you for accepting - #{event.title}`
-- **Purpose:** Confirm acceptance, provide next steps
-- **Status:** ✅ Active
-
-#### C3. **Invitation Accepted - Producer Notification**
-- **File:** `app/mailers/event_invitation_mailer.rb` (Lines 37-48)
-- **View Template:** `app/views/event_invitation_mailer/accepted_notification_producer.html.erb`
-- **Trigger:** When vendor accepts invitation
-- **Recipients:** Event producer/organizer
-- **Subject:** `#{vendor_contact.name} accepted your invitation to #{event.title}`
-- **Purpose:** Notify producer of acceptance
-- **Status:** ✅ Active
-
-#### C4. **Invitation Declined - Vendor Confirmation**
-- **File:** `app/mailers/event_invitation_mailer.rb` (Lines 51-60)
-- **View Template:** `app/views/event_invitation_mailer/declined_confirmation_vendor.html.erb`
-- **Trigger:** When vendor declines invitation
-- **Recipients:** Vendor who declined
-- **Subject:** `Invitation declined - #{event.title}`
-- **Purpose:** Confirm decline
-- **Status:** ✅ Active
-
-#### C5. **Invitation Declined - Producer Notification**
-- **File:** `app/mailers/event_invitation_mailer.rb` (Lines 63-74)
-- **View Template:** `app/views/event_invitation_mailer/declined_notification_producer.html.erb`
-- **Trigger:** When vendor declines invitation
-- **Recipients:** Event producer/organizer
-- **Subject:** `#{vendor_contact.name} declined invitation to #{event.title}`
-- **Purpose:** Notify producer of decline
-- **Status:** ✅ Active
+- **Note:** Removed accept/decline workflow (January 17, 2026) - vendors simply apply if interested
 
 ---
 
@@ -264,10 +235,10 @@ Voxxy Presents has **TWO distinct email systems**:
 - **SendGrid Category:** `transactional`, `vendor-submission`
 
 #### D2. **Payment Confirmed**
-- **File:** `app/services/registration_email_service.rb` (Lines 427-502)
+- **File:** `app/services/registration_email_service.rb`
 - **Trigger:** Manual (via email notification controller)
 - **Recipients:** Vendor whose payment was confirmed
-- **Subject:** `✅ Payment Confirmed - #{event.title}`
+- **Subject:** `Payment Confirmed - #{event.title}`
 - **Purpose:** Confirm payment received
 - **Contains:** Category, amount paid, event details, install schedule
 - **Status:** ✅ Active
@@ -283,20 +254,20 @@ Voxxy Presents has **TWO distinct email systems**:
 - **SendGrid Category:** `transactional`, `category-changed`
 
 #### D4. **Event Details Changed (Bulk)**
-- **File:** `app/services/registration_email_service.rb` (Lines 564-635)
+- **File:** `app/services/registration_email_service.rb`
 - **Trigger:** Manual (via email notification controller) when event details change
 - **Recipients:** ALL registered vendors (excluding unsubscribed)
-- **Subject:** `📝 Event Update - #{event.title}`
+- **Subject:** `Event Update - #{event.title}`
 - **Purpose:** Notify all vendors of event changes (date, venue, time)
 - **Bulk:** Yes (iterates through all registrations)
 - **Status:** ✅ Active
 - **SendGrid Category:** `transactional`, `event-details-changed`
 
 #### D5. **Event Canceled (Bulk)**
-- **File:** `app/services/registration_email_service.rb` (Lines 638-703)
+- **File:** `app/services/registration_email_service.rb`
 - **Trigger:** Manual (via email notification controller) when event canceled
 - **Recipients:** ALL registered vendors (excluding unsubscribed)
-- **Subject:** `❌ Event Canceled - #{event.title}`
+- **Subject:** `Event Canceled - #{event.title}`
 - **Purpose:** Notify all vendors of cancellation and refund info
 - **Bulk:** Yes (iterates through all registrations)
 - **Status:** ✅ Active
@@ -306,48 +277,42 @@ Voxxy Presents has **TWO distinct email systems**:
 
 ## Email Styling & Branding
 
-### Automated Emails (Category A)
-**Source:** Email template seed file generates HTML inline
+**Last Updated:** January 17, 2026 - Simplified styling for better deliverability
 
-**Styling:**
-- **Font:** Montserrat (loaded from Google Fonts)
-- **Colors:**
-  - Primary: `#9D60F8` (purple)
-  - CTA buttons: `#f59e0b` (orange), `#dc2626` (red urgent), `#6366f1` (indigo), `#10b981` (green)
-  - Background: White content on transparent container
-- **Layout:** Centered, single-column, mobile-responsive
-- **Components:** H3 headings, bullet lists, centered CTA buttons
+### All Emails (Unified Styling)
+**Source:** BaseEmailService provides BASE_STYLES constants
 
-**Variables:** Square brackets `[variableName]` resolved by EmailVariableResolver
-
-### Service Emails (Categories B, C, D)
-**Source:** BaseEmailService provides styling constants
+**Design Philosophy:**
+- **No emojis** in subject lines or content (removed Jan 2026)
+- **Plain text links** instead of styled buttons (better deliverability)
+- **Simplified colors** (neutral grays and blues)
+- **System fonts** (no external font loading)
 
 **Key Styling Constants (`BASE_STYLES`):**
 ```ruby
-body: "background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%)"
-container: "max-width: 600px; margin: 0 auto; padding: 40px 20px"
-inner_container: "background: rgba(255, 255, 255, 0.95); border-radius: 16px; padding: 40px 30px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3)"
-title: "font-size: 28px; font-weight: 700; color: #2d3748"
-text: "font-size: 16px; color: #4a5568; line-height: 1.5"
-button: "padding: 16px 32px; color: white; background-color: #9D60F8; border-radius: 8px"
-footer: "font-size: 14px; color: #718096"
+background: "#f5f5f5" (light gray)
+container: "#ffffff" (white)
+border: "1px solid #e0e0e0"
+text_color: "#333333" (dark gray)
+link_color: "#0066cc" (blue)
+footer_color: "#888888" (medium gray)
+font_family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif"
 ```
-
-**Organization Branding:**
-- Header shows organization name in purple (`#9D60F8`)
-- Uses organization email as from address if available
-- Fallback: `team@voxxyai.com` / "Voxxy"
 
 **Template Method:**
 ```ruby
-build_presents_email_template(title, content, button_text, button_url, organization)
+build_simple_email_template(heading, message, link_text, link_url)
 ```
 
-**Logo:** Voxxy header image from Cloudinary
-```
-https://res.cloudinary.com/dgtpgywhl/image/upload/v1746365141/Voxxy_Header_syvpzb.png
-```
+**Organization Branding:**
+- Header shows organization name
+- Uses organization email as from address if available
+- Fallback: `team@voxxyai.com` / "Voxxy Presents"
+
+**Links:**
+- Plain underlined text links (no buttons)
+- Blue color (#0066cc)
+- Full URLs displayed for transparency
 
 ---
 
