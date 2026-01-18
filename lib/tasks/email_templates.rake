@@ -178,8 +178,9 @@ namespace :email_templates do
       events_count = Event.where(email_campaign_template_id: template.id).count
       if events_count > 0
         puts "  Detaching #{events_count} events from template"
-        # Don't nullify - instead assign to the new template after it's created
+        # Save event IDs to reassign later, then nullify the foreign key
         event_ids = Event.where(email_campaign_template_id: template.id).pluck(:id)
+        Event.where(email_campaign_template_id: template.id).update_all(email_campaign_template_id: nil)
       end
 
       template.destroy
