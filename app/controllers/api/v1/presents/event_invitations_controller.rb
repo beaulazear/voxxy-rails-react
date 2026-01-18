@@ -31,7 +31,9 @@ module Api
           meta = {
             total_count: @event.event_invitations.count,
             pending_count: @event.event_invitations.pending.count,
-            sent_count: @event.event_invitations.sent.count,
+            # Count invitations that have been sent (have sent_at timestamp)
+            # This remains stable even when status changes to viewed/accepted/declined
+            sent_count: @event.event_invitations.where.not(sent_at: nil).count,
             viewed_count: @event.event_invitations.viewed.count,
             accepted_count: @event.event_invitations.accepted.count,
             declined_count: @event.event_invitations.declined.count,

@@ -139,7 +139,10 @@ create_email(template, {
   trigger_type: 'days_before_payment_deadline',
   trigger_value: 1,
   trigger_time: '10:00',
-  filter_criteria: { status: [ 'approved' ] },
+  filter_criteria: {
+    statuses: [ 'approved' ],
+    payment_status: [ 'pending', 'overdue' ]
+  },
   enabled_by_default: true
 })
 
@@ -171,7 +174,10 @@ create_email(template, {
   trigger_type: 'on_payment_deadline',
   trigger_value: 0,
   trigger_time: '08:00',
-  filter_criteria: { status: [ 'approved' ] },
+  filter_criteria: {
+    statuses: [ 'approved' ],
+    payment_status: [ 'pending', 'overdue' ]
+  },
   enabled_by_default: true
 })
 

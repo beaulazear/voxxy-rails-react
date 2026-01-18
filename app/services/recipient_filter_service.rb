@@ -63,10 +63,18 @@ class RecipientFilterService
   private
 
   def filter_by_status(scope)
-    statuses = filter_criteria["statuses"] || filter_criteria[:statuses]
+    # Support both singular and plural keys for backward compatibility
+    statuses = filter_criteria["statuses"] ||
+               filter_criteria[:statuses] ||
+               filter_criteria["status"] ||
+               filter_criteria[:status]
+
     return scope unless statuses.present?
 
-    scope.where(status: statuses)
+    # Convert single value to array
+    statuses_array = Array(statuses)
+
+    scope.where(status: statuses_array)
   end
 
   def filter_by_vendor_category(scope)
@@ -80,7 +88,10 @@ class RecipientFilterService
     payment_status = filter_criteria["payment_status"] || filter_criteria[:payment_status]
     return scope unless payment_status.present?
 
-    scope.where(payment_status: payment_status)
+    # Convert single value to array
+    payment_statuses_array = Array(payment_status)
+
+    scope.where(payment_status: payment_statuses_array)
   end
 
   def filter_by_application_status(scope)
