@@ -25,37 +25,37 @@ namespace :email_templates do
       {
         position: 1,
         name: "1 Day Before Application Deadline",
-        filter_criteria: { "statuses" => ["pending"] }
+        filter_criteria: { "statuses" => [ "pending" ] }
       },
       {
         position: 2,
         name: "Application Deadline Day",
-        filter_criteria: { "statuses" => ["pending"] }
+        filter_criteria: { "statuses" => [ "pending" ] }
       },
       {
         position: 3,
         name: "1 Day Before Payment Due",
-        filter_criteria: { "statuses" => ["approved"], "payment_status" => ["pending", "overdue"] }
+        filter_criteria: { "statuses" => [ "approved" ], "payment_status" => [ "pending", "overdue" ] }
       },
       {
         position: 4,
         name: "Payment Due Today",
-        filter_criteria: { "statuses" => ["approved"], "payment_status" => ["pending", "overdue"] }
+        filter_criteria: { "statuses" => [ "approved" ], "payment_status" => [ "pending", "overdue" ] }
       },
       {
         position: 5,
         name: "1 Day Before Event",
-        filter_criteria: { "statuses" => ["approved", "confirmed"] }
+        filter_criteria: { "statuses" => [ "approved", "confirmed" ] }
       },
       {
         position: 6,
         name: "Day of Event",
-        filter_criteria: { "statuses" => ["approved", "confirmed"] }
+        filter_criteria: { "statuses" => [ "approved", "confirmed" ] }
       },
       {
         position: 7,
         name: "Day After Event - Thank You",
-        filter_criteria: { "statuses" => ["approved", "confirmed"] }
+        filter_criteria: { "statuses" => [ "approved", "confirmed" ] }
       }
     ]
 

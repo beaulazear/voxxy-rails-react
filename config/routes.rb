@@ -276,6 +276,14 @@ Rails.application.routes.draw do
               get :ids
             end
           end
+          resources :contact_lists, only: [ :index, :create ]
+        end
+
+        # Contact Lists
+        resources :contact_lists, only: [ :show, :update, :destroy ] do
+          member do
+            get :contacts
+          end
         end
 
         # Events

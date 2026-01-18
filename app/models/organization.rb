@@ -3,6 +3,7 @@ class Organization < ApplicationRecord
   has_many :events, dependent: :destroy
   has_many :budgets, as: :budgetable, dependent: :destroy
   has_many :vendor_contacts, dependent: :destroy
+  has_many :contact_lists, dependent: :destroy
   has_many :email_campaign_templates, dependent: :destroy
 
   validates :name, presence: true
