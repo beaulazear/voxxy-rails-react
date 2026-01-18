@@ -5,6 +5,7 @@ class Event < ApplicationRecord
   has_many :event_invitations, dependent: :destroy
   has_many :invited_contacts, through: :event_invitations, source: :vendor_contact
   has_one :budget, as: :budgetable, dependent: :destroy
+  has_one :event_portal, dependent: :destroy
 
   # Email automation associations
   belongs_to :email_campaign_template, optional: true
@@ -21,6 +22,7 @@ class Event < ApplicationRecord
   before_validation :generate_slug, on: :create
   before_save :update_registration_status
   after_create :assign_email_template_and_generate_emails
+  after_create :create_event_portal
 
   scope :published, -> { where(published: true) }
   scope :upcoming, -> { where("event_date > ?", Time.current).order(event_date: :asc) }
@@ -151,5 +153,11 @@ class Event < ApplicationRecord
   rescue => e
     Rails.logger.error("Failed to generate scheduled emails for event #{id}: #{e.message}")
     []
+  end
+
+  def create_event_portal
+    EventPortal.create!(event: self)
+  rescue => e
+    Rails.logger.error("Failed to create event portal for event #{id}: #{e.message}")
   end
 end

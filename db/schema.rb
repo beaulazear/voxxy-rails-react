@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_18_190827) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_18_193338) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -250,6 +250,15 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_18_190827) do
     t.index ["invitation_token"], name: "index_event_invitations_on_invitation_token", unique: true
     t.index ["status"], name: "index_event_invitations_on_status"
     t.index ["vendor_contact_id"], name: "index_event_invitations_on_vendor_contact_id"
+  end
+
+  create_table "event_portals", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.integer "view_count", default: 0
+    t.datetime "last_viewed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_event_portals_on_event_id", unique: true
   end
 
   create_table "events", force: :cascade do |t|
@@ -710,6 +719,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_18_190827) do
   add_foreign_key "email_template_items", "email_campaign_templates"
   add_foreign_key "event_invitations", "events"
   add_foreign_key "event_invitations", "vendor_contacts"
+  add_foreign_key "event_portals", "events"
   add_foreign_key "events", "email_campaign_templates"
   add_foreign_key "events", "organizations"
   add_foreign_key "moderation_actions", "reports"
