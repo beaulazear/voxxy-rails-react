@@ -1,15 +1,15 @@
 namespace :email_testing do
-  desc "Create test event and send real invitation emails to your Gmail addresses"
-  task :setup => :environment do
+  desc "Create test event with multiple vendor applications and send real invitation emails"
+  task setup: :environment do
     puts ""
     puts "=" * 80
-    puts "📧 EMAIL TESTING SETUP - Creating test event with real invitations"
+    puts "📧 EMAIL TESTING SETUP - Multiple Applications Architecture"
     puts "=" * 80
     puts ""
 
     # Step 1: Cleanup old test events
     puts "🧹 Cleaning up old test events..."
-    Event.where('title LIKE ?', '%TEST EMAIL%').destroy_all
+    Event.where("title LIKE ?", "%TEST EMAIL%").destroy_all
     puts "   ✅ Old test events removed"
     puts ""
 
@@ -51,40 +51,73 @@ namespace :email_testing do
     puts "   📝 Slug: #{event.slug}"
     puts ""
 
-    # Step 4: Create vendor application
-    puts "📋 Creating vendor application..."
-    vendor_app = VendorApplication.create!(
+    # Step 4: Create multiple vendor applications (one per category)
+    puts "📋 Creating vendor applications (multiple with different prices)..."
+
+    food_app = VendorApplication.create!(
       event: event,
-      name: "Vendor Application",
-      categories: ['Food', 'Art', 'Music'],
-      booth_price: 100.00,
-      status: 'active',
-      description: "Test vendor application"
+      name: "Food Vendor Application",
+      categories: [ "Food" ],
+      booth_price: 150.00,
+      install_date: event.event_date - 1.day,
+      install_start_time: "6:00 AM",
+      install_end_time: "9:00 AM",
+      payment_link: "https://payment.example.com/food",
+      status: "active",
+      description: "Apply as a food vendor"
     )
-    puts "   ✅ Vendor application created"
+    puts "   ✅ Food Vendor Application: $150, Install: #{food_app.install_date.strftime('%b %d')} @ 6-9 AM"
+
+    art_app = VendorApplication.create!(
+      event: event,
+      name: "Art Vendor Application",
+      categories: [ "Art" ],
+      booth_price: 100.00,
+      install_date: event.event_date - 1.day,
+      install_start_time: "7:00 AM",
+      install_end_time: "10:00 AM",
+      payment_link: "https://payment.example.com/art",
+      status: "active",
+      description: "Apply as an art vendor"
+    )
+    puts "   ✅ Art Vendor Application: $100, Install: #{art_app.install_date.strftime('%b %d')} @ 7-10 AM"
+
+    music_app = VendorApplication.create!(
+      event: event,
+      name: "Music Vendor Application",
+      categories: [ "Music" ],
+      booth_price: 200.00,
+      install_date: event.event_date - 2.days,
+      install_start_time: "5:00 PM",
+      install_end_time: "8:00 PM",
+      payment_link: "https://payment.example.com/music",
+      status: "active",
+      description: "Apply as a music/entertainment vendor"
+    )
+    puts "   ✅ Music Vendor Application: $200, Install: #{music_app.install_date.strftime('%b %d')} @ 5-8 PM"
     puts ""
 
     # Step 5: Create vendor contacts with REAL email addresses
     puts "👥 Creating vendor contacts (REAL EMAILS)..."
     contact1 = VendorContact.find_or_create_by!(
       organization: org,
-      email: 'beau09946@gmail.com'
+      email: "beau09946@gmail.com"
     ) do |c|
-      c.name = 'Beau Lazear (Gmail 1)'
-      c.business_name = 'Test Business 1'
-      c.contact_type = 'vendor'
-      c.status = 'new'
+      c.name = "Beau Lazear (Gmail 1)"
+      c.business_name = "Test Business 1"
+      c.contact_type = "vendor"
+      c.status = "new"
     end
     puts "   ✅ Contact 1: #{contact1.email}"
 
     contact2 = VendorContact.find_or_create_by!(
       organization: org,
-      email: 'beaulazear@gmail.com'
+      email: "beaulazear@gmail.com"
     ) do |c|
-      c.name = 'Beau Lazear (Gmail 2)'
-      c.business_name = 'Test Business 2'
-      c.contact_type = 'vendor'
-      c.status = 'new'
+      c.name = "Beau Lazear (Gmail 2)"
+      c.business_name = "Test Business 2"
+      c.contact_type = "vendor"
+      c.status = "new"
     end
     puts "   ✅ Contact 2: #{contact2.email}"
     puts ""
@@ -126,53 +159,53 @@ namespace :email_testing do
     puts "      #{inv2.invitation_url}"
     puts ""
 
-    # Step 7: Create test registrations
+    # Step 7: Create test registrations (linked to specific applications)
     puts "📋 Creating test registrations..."
 
     reg1 = event.registrations.create!(
-      name: 'Approved Unpaid Vendor',
-      email: 'approved-unpaid@test.com',
-      business_name: 'Unpaid Co',
-      vendor_category: 'Food',
-      status: 'approved',
-      payment_status: 'pending',
-      vendor_application: vendor_app
+      name: "Approved Unpaid Vendor",
+      email: "approved-unpaid@test.com",
+      business_name: "Unpaid Food Truck",
+      vendor_category: "Food",
+      status: "approved",
+      payment_status: "pending",
+      vendor_application: food_app  # Links to Food app ($150)
     )
-    puts "   ✅ Registration 1: Approved + Unpaid (should get payment reminders)"
+    puts "   ✅ Registration 1: Food + Approved + Unpaid ($150) - should get payment reminders"
 
     reg2 = event.registrations.create!(
-      name: 'Approved Paid Vendor',
-      email: 'approved-paid@test.com',
-      business_name: 'Paid Co',
-      vendor_category: 'Art',
-      status: 'approved',
-      payment_status: 'confirmed',
+      name: "Approved Paid Vendor",
+      email: "approved-paid@test.com",
+      business_name: "Paid Art Gallery",
+      vendor_category: "Art",
+      status: "approved",
+      payment_status: "confirmed",
       payment_confirmed_at: Time.current,
-      vendor_application: vendor_app
+      vendor_application: art_app  # Links to Art app ($100)
     )
-    puts "   ✅ Registration 2: Approved + Paid (should NOT get payment reminders)"
+    puts "   ✅ Registration 2: Art + Approved + Paid ($100) - should NOT get payment reminders"
 
     reg3 = event.registrations.create!(
-      name: 'Pending Vendor',
-      email: 'pending@test.com',
-      business_name: 'Pending Co',
-      vendor_category: 'Music',
-      status: 'pending',
-      payment_status: 'pending',
-      vendor_application: vendor_app
+      name: "Pending Vendor",
+      email: "pending@test.com",
+      business_name: "Pending Music Band",
+      vendor_category: "Music",
+      status: "pending",
+      payment_status: "pending",
+      vendor_application: music_app  # Links to Music app ($200)
     )
-    puts "   ✅ Registration 3: Pending (should NOT get payment reminders)"
+    puts "   ✅ Registration 3: Music + Pending ($200) - should NOT get payment reminders"
 
     reg4 = event.registrations.create!(
-      name: 'Overdue Vendor',
-      email: 'overdue@test.com',
-      business_name: 'Overdue Co',
-      vendor_category: 'Food',
-      status: 'approved',
-      payment_status: 'overdue',
-      vendor_application: vendor_app
+      name: "Overdue Vendor",
+      email: "overdue@test.com",
+      business_name: "Overdue Catering Co",
+      vendor_category: "Food",
+      status: "approved",
+      payment_status: "overdue",
+      vendor_application: food_app  # Links to Food app ($150)
     )
-    puts "   ✅ Registration 4: Approved + Overdue (should get payment reminders)"
+    puts "   ✅ Registration 4: Food + Approved + Overdue ($150) - should get payment reminders"
     puts ""
 
     # Summary
@@ -185,6 +218,11 @@ namespace :email_testing do
     puts "   Event Slug: #{event.slug}"
     puts "   Event Title: #{event.title}"
     puts ""
+    puts "📋 VENDOR APPLICATIONS CREATED: #{event.vendor_applications.count}"
+    puts "   1. Food Vendor Application: $150 (Install: #{food_app.install_date.strftime('%b %d')} @ 6-9 AM)"
+    puts "   2. Art Vendor Application: $100 (Install: #{art_app.install_date.strftime('%b %d')} @ 7-10 AM)"
+    puts "   3. Music Vendor Application: $200 (Install: #{music_app.install_date.strftime('%b %d')} @ 5-8 PM)"
+    puts ""
     puts "📧 INVITATIONS SENT TO:"
     puts "   - beau09946@gmail.com"
     puts "   - beaulazear@gmail.com"
@@ -193,18 +231,24 @@ namespace :email_testing do
     puts "   Sent Count (NEW method): #{event.event_invitations.where.not(sent_at: nil).count}"
     puts "   Sent Count (OLD method): #{event.event_invitations.sent.count}"
     puts ""
-    puts "📋 REGISTRATIONS CREATED:"
-    puts "   Total: #{event.registrations.count}"
-    puts "   Approved + Unpaid: #{event.registrations.where(status: 'approved', payment_status: ['pending', 'overdue']).count}"
-    puts "   Approved + Paid: #{event.registrations.where(status: 'approved', payment_status: ['confirmed', 'paid']).count}"
-    puts "   Pending: #{event.registrations.where(status: 'pending').count}"
+    puts "📋 REGISTRATIONS CREATED: #{event.registrations.count}"
+    puts "   - Food (Approved + Unpaid): 1 vendor @ $150"
+    puts "   - Food (Approved + Overdue): 1 vendor @ $150"
+    puts "   - Art (Approved + Paid): 1 vendor @ $100"
+    puts "   - Music (Pending): 1 vendor @ $200"
+    puts ""
+    puts "   Approved + Unpaid: #{event.registrations.where(status: 'approved', payment_status: [ 'pending', 'overdue' ]).count} (should get payment reminders)"
+    puts "   Approved + Paid: #{event.registrations.where(status: 'approved', payment_status: [ 'confirmed', 'paid' ]).count} (should NOT get payment reminders)"
+    puts "   Pending: #{event.registrations.where(status: 'pending').count} (should NOT get payment reminders)"
     puts ""
     puts "✅ CHECK YOUR INBOX: Invitation emails have been sent!"
     puts ""
     puts "🧪 TO TEST:"
     puts "   1. Check your Gmail inbox for invitation emails"
-    puts "   2. In UI, verify invitation count shows 2 (and stays 2 after viewing)"
-    puts "   3. Test payment reminder filtering with RecipientFilterService"
+    puts "   2. In UI, verify 3 vendor applications with different prices ($150, $100, $200)"
+    puts "   3. Verify invitation count shows 2 (and stays 2 after viewing)"
+    puts "   4. Test payment reminder filtering with RecipientFilterService"
+    puts "   5. Verify each registration links to correct vendor_application_id"
     puts ""
     puts "🧹 TO CLEANUP:"
     puts "   rails email_testing:cleanup"
@@ -213,7 +257,7 @@ namespace :email_testing do
   end
 
   desc "Clean up test email data (events and vendor contacts)"
-  task :cleanup => :environment do
+  task cleanup: :environment do
     puts ""
     puts "=" * 80
     puts "🧹 CLEANING UP TEST EMAIL DATA"
@@ -222,25 +266,25 @@ namespace :email_testing do
 
     # Delete test events
     puts "🗑️  Deleting TEST EMAIL events..."
-    event_count = Event.where('title LIKE ?', '%TEST EMAIL%').count
-    Event.where('title LIKE ?', '%TEST EMAIL%').destroy_all
+    event_count = Event.where("title LIKE ?", "%TEST EMAIL%").count
+    Event.where("title LIKE ?", "%TEST EMAIL%").destroy_all
     puts "   ✅ Deleted #{event_count} test event(s)"
     puts ""
 
     # Delete vendor contacts with test emails
     puts "🗑️  Deleting test vendor contacts..."
-    contact_count = VendorContact.where(email: ['beau09946@gmail.com', 'beaulazear@gmail.com'])
-                                  .or(VendorContact.where('email LIKE ?', '%@test.com'))
+    contact_count = VendorContact.where(email: [ "beau09946@gmail.com", "beaulazear@gmail.com" ])
+                                  .or(VendorContact.where("email LIKE ?", "%@test.com"))
                                   .count
-    VendorContact.where(email: ['beau09946@gmail.com', 'beaulazear@gmail.com'])
-                 .or(VendorContact.where('email LIKE ?', '%@test.com'))
+    VendorContact.where(email: [ "beau09946@gmail.com", "beaulazear@gmail.com" ])
+                 .or(VendorContact.where("email LIKE ?", "%@test.com"))
                  .destroy_all
     puts "   ✅ Deleted #{contact_count} vendor contact(s)"
     puts ""
 
     # Optionally delete test organization
     puts "🗑️  Checking for test organization..."
-    test_org = Organization.where('slug LIKE ?', '%test-email-org%')
+    test_org = Organization.where("slug LIKE ?", "%test-email-org%")
     if test_org.any?
       org_count = test_org.count
       test_org.destroy_all
@@ -257,7 +301,7 @@ namespace :email_testing do
   end
 
   desc "Send a test invitation email for an existing event"
-  task :send_invitation, [:event_slug, :email] => :environment do |t, args|
+  task :send_invitation, [ :event_slug, :email ] => :environment do |t, args|
     puts ""
     puts "=" * 80
     puts "📧 SENDING TEST INVITATION"
@@ -310,8 +354,8 @@ namespace :email_testing do
     ) do |c|
       c.name = "Test Contact"
       c.business_name = "Test Business"
-      c.contact_type = 'vendor'
-      c.status = 'new'
+      c.contact_type = "vendor"
+      c.status = "new"
     end
     puts "   ✅ Contact: #{contact.email}"
     puts ""
