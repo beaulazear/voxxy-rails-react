@@ -98,7 +98,7 @@ class EmailVariableResolver
       .gsub("[applicationDeadline]", format_date(event.application_deadline))
       .gsub("[boothPrice]", format_currency(booth_price))
       .gsub("[categoryPrice]", format_currency(booth_price))  # Alias for boothPrice (backwards compatibility)
-      .gsub("[paymentDueDate]", format_date(event.application_deadline))
+      .gsub("[paymentDueDate]", format_date(event.payment_deadline))
       .gsub("[organizationName]", event.organization&.name || "")
       .gsub("[organizationEmail]", event.organization&.email || "")
   end

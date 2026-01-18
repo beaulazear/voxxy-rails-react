@@ -122,7 +122,8 @@ module Api
         end
 
         def set_organization
-          @organization = current_user&.organization if respond_to?(:current_user)
+          # Get the first organization for the current user (since user has_many organizations)
+          @organization = @current_user&.organizations&.first if @current_user
           @organization ||= Organization.find(params[:organization_id]) if params[:organization_id]
         end
 
