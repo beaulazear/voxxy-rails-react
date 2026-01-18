@@ -3,7 +3,7 @@ module Api
     module Presents
       class ContactListsController < BaseController
         before_action :require_venue_owner
-        before_action :set_organization
+        before_action :set_organization, only: [ :index, :create ]
         before_action :set_contact_list, only: [ :show, :update, :destroy, :contacts ]
         before_action :check_ownership, only: [ :show, :update, :destroy, :contacts ]
 
