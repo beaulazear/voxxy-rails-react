@@ -166,6 +166,13 @@ namespace :email_templates do
         end
       end
 
+      # Also detach scheduled_emails that reference the template itself
+      template_scheduled_count = ScheduledEmail.where(email_campaign_template_id: template.id).count
+      if template_scheduled_count > 0
+        puts "  Detaching #{template_scheduled_count} scheduled emails from template itself"
+        ScheduledEmail.where(email_campaign_template_id: template.id).update_all(email_campaign_template_id: nil)
+      end
+
       template.destroy
       puts "✅ Deleted"
     end
