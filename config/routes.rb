@@ -296,6 +296,10 @@ Rails.application.routes.draw do
         get "invitations/:token", to: "event_invitations#show_by_token"
         patch "invitations/:token/respond", to: "event_invitations#respond"
 
+        # Public event portal endpoints (no auth required)
+        post "portals/verify", to: "event_portals#verify_access"
+        get "portals/:event_slug", to: "event_portals#show_by_slug"
+
         # Vendors (marketplace)
         resources :vendors do
           collection do
