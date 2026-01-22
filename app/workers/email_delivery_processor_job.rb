@@ -4,7 +4,7 @@
 class EmailDeliveryProcessorJob
   include Sidekiq::Job
 
-  sidekiq_options queue: :email_webhooks, retry: 3
+  sidekiq_options queue: :email_delivery, retry: 3
 
   def perform(event_data)
     event_type = event_data["event"]
