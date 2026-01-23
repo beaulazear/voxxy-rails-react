@@ -9,8 +9,8 @@ class UnsubscribeToken < ApplicationRecord
   before_validation :generate_token, on: :create
   before_validation :set_expiration, on: :create
 
-  scope :active, -> { where('expires_at > ?', Time.current).where(used_at: nil) }
-  scope :expired, -> { where('expires_at <= ?', Time.current) }
+  scope :active, -> { where("expires_at > ?", Time.current).where(used_at: nil) }
+  scope :expired, -> { where("expires_at <= ?", Time.current) }
   scope :used, -> { where.not(used_at: nil) }
 
   def expired?

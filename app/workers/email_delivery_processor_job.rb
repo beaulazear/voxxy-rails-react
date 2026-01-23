@@ -113,8 +113,8 @@ class EmailDeliveryProcessorJob
     begin
       EmailUnsubscribe.create_or_find_unsubscribe(
         email: delivery.recipient_email,
-        scope: 'global',
-        source: 'sendgrid_webhook'
+        scope: "global",
+        source: "sendgrid_webhook"
       )
       Rails.logger.info("⊗ User globally unsubscribed via SendGrid: #{delivery.recipient_email}")
     rescue => e

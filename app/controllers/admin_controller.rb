@@ -233,17 +233,17 @@ class AdminController < ApplicationController
     # Voxxy Presents specific analytics
 
     # User statistics (Presents users only)
-    presents_users = User.where(role: ['vendor', 'venue_owner', 'producer'])
+    presents_users = User.where(role: [ "vendor", "venue_owner", "producer" ])
     total_presents_users = presents_users.count
-    producers_count = User.where(role: ['venue_owner', 'producer']).count
-    vendors_count = User.where(role: 'vendor').count
+    producers_count = User.where(role: [ "venue_owner", "producer" ]).count
+    vendors_count = User.where(role: "vendor").count
 
     # Event statistics
     total_events = Event.count
     today = Date.today
-    active_events = Event.where('event_date >= ?', today).count
-    past_events = Event.where('event_date < ?', today).count
-    upcoming_events = Event.where('event_date > ?', today).count
+    active_events = Event.where("event_date >= ?", today).count
+    past_events = Event.where("event_date < ?", today).count
+    upcoming_events = Event.where("event_date > ?", today).count
     events_today = Event.where(event_date: today).count
 
     # Event status breakdown
@@ -256,16 +256,16 @@ class AdminController < ApplicationController
 
     # Registration (vendor application) statistics
     total_registrations = Registration.count
-    pending_registrations = Registration.where(status: 'pending').count
-    approved_registrations = Registration.where(status: 'approved').count
-    rejected_registrations = Registration.where(status: 'rejected').count
+    pending_registrations = Registration.where(status: "pending").count
+    approved_registrations = Registration.where(status: "approved").count
+    rejected_registrations = Registration.where(status: "rejected").count
 
     # Top event creators (users with most events via their organizations)
     top_creators = User.joins(:organizations)
-                      .joins('INNER JOIN events ON events.organization_id = organizations.id')
-                      .group('users.id', 'users.name', 'users.email', 'users.role')
-                      .select('users.id, users.name, users.email, users.role, COUNT(events.id) as events_count')
-                      .order('events_count DESC')
+                      .joins("INNER JOIN events ON events.organization_id = organizations.id")
+                      .group("users.id", "users.name", "users.email", "users.role")
+                      .select("users.id, users.name, users.email, users.role, COUNT(events.id) as events_count")
+                      .order("events_count DESC")
                       .limit(10)
                       .map do |user|
       {
@@ -279,10 +279,10 @@ class AdminController < ApplicationController
 
     # Users with event counts (all presents users)
     users_with_events = presents_users.left_joins(:organizations)
-                                      .left_joins('LEFT JOIN events ON events.organization_id = organizations.id')
-                                      .group('users.id', 'users.name', 'users.email', 'users.role', 'users.confirmed_at', 'users.created_at')
-                                      .select('users.*, COUNT(DISTINCT events.id) as events_count')
-                                      .order('events_count DESC')
+                                      .left_joins("LEFT JOIN events ON events.organization_id = organizations.id")
+                                      .group("users.id", "users.name", "users.email", "users.role", "users.confirmed_at", "users.created_at")
+                                      .select("users.*, COUNT(DISTINCT events.id) as events_count")
+                                      .order("events_count DESC")
                                       .map do |user|
       {
         id: user.id,

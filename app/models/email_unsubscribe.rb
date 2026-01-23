@@ -11,22 +11,22 @@ class EmailUnsubscribe < ApplicationRecord
   validates :unsubscribe_source, inclusion: { in: SOURCES }, allow_nil: true
 
   # Conditional validations based on scope
-  validates :event_id, presence: true, if: -> { scope == 'event' }
-  validates :organization_id, presence: true, if: -> { scope == 'organization' }
-  validates :event_id, absence: true, if: -> { scope == 'global' }
-  validates :organization_id, absence: true, if: -> { scope == 'global' }
+  validates :event_id, presence: true, if: -> { scope == "event" }
+  validates :organization_id, presence: true, if: -> { scope == "organization" }
+  validates :event_id, absence: true, if: -> { scope == "global" }
+  validates :organization_id, absence: true, if: -> { scope == "global" }
 
   # Uniqueness validations
-  validates :event_id, uniqueness: { scope: :email }, if: -> { scope == 'event' && event_id.present? }
-  validates :organization_id, uniqueness: { scope: :email }, if: -> { scope == 'organization' && organization_id.present? }
-  validates :email, uniqueness: true, if: -> { scope == 'global' }
+  validates :event_id, uniqueness: { scope: :email }, if: -> { scope == "event" && event_id.present? }
+  validates :organization_id, uniqueness: { scope: :email }, if: -> { scope == "organization" && organization_id.present? }
+  validates :email, uniqueness: true, if: -> { scope == "global" }
 
   before_validation :normalize_email
   before_validation :set_unsubscribed_at, on: :create
 
-  scope :global, -> { where(scope: 'global') }
-  scope :for_event, ->(event) { where(scope: 'event', event_id: event.id) }
-  scope :for_organization, ->(org) { where(scope: 'organization', organization_id: org.id) }
+  scope :global, -> { where(scope: "global") }
+  scope :for_event, ->(event) { where(scope: "event", event_id: event.id) }
+  scope :for_organization, ->(org) { where(scope: "organization", organization_id: org.id) }
   scope :for_email, ->(email) { where(email: email.downcase.strip) }
 
   # Check if an email is unsubscribed from a specific event
@@ -57,11 +57,11 @@ class EmailUnsubscribe < ApplicationRecord
   # Check if an email applies to a given event and organization
   def applies_to?(event, organization)
     case scope
-    when 'event'
+    when "event"
       event_id == event.id
-    when 'organization'
+    when "organization"
       organization_id == organization.id
-    when 'global'
+    when "global"
       true
     else
       false
@@ -69,7 +69,7 @@ class EmailUnsubscribe < ApplicationRecord
   end
 
   # Create or find unsubscribe record
-  def self.create_or_find_unsubscribe(email:, scope:, event: nil, organization: nil, source: 'user_action')
+  def self.create_or_find_unsubscribe(email:, scope:, event: nil, organization: nil, source: "user_action")
     normalized_email = email.downcase.strip
 
     attrs = {
@@ -78,17 +78,17 @@ class EmailUnsubscribe < ApplicationRecord
       unsubscribe_source: source
     }
 
-    attrs[:event_id] = event.id if event && scope == 'event'
-    attrs[:organization_id] = organization.id if organization && scope == 'organization'
+    attrs[:event_id] = event.id if event && scope == "event"
+    attrs[:organization_id] = organization.id if organization && scope == "organization"
 
     # Try to find existing record first
     existing = case scope
-    when 'event'
-      find_by(email: normalized_email, scope: 'event', event_id: event.id)
-    when 'organization'
-      find_by(email: normalized_email, scope: 'organization', organization_id: organization.id)
-    when 'global'
-      find_by(email: normalized_email, scope: 'global')
+    when "event"
+      find_by(email: normalized_email, scope: "event", event_id: event.id)
+    when "organization"
+      find_by(email: normalized_email, scope: "organization", organization_id: organization.id)
+    when "global"
+      find_by(email: normalized_email, scope: "global")
     end
 
     existing || create!(attrs)

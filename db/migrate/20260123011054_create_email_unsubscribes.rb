@@ -11,9 +11,9 @@ class CreateEmailUnsubscribes < ActiveRecord::Migration[7.2]
       t.timestamps
     end
 
-    add_index :email_unsubscribes, [:email, :scope]
-    add_index :email_unsubscribes, [:email, :event_id], unique: true, where: "scope = 'event'"
-    add_index :email_unsubscribes, [:email, :organization_id], unique: true, where: "scope = 'organization'"
+    add_index :email_unsubscribes, [ :email, :scope ]
+    add_index :email_unsubscribes, [ :email, :event_id ], unique: true, where: "scope = 'event'"
+    add_index :email_unsubscribes, [ :email, :organization_id ], unique: true, where: "scope = 'organization'"
     add_index :email_unsubscribes, :email, unique: true, where: "scope = 'global'"
   end
 end

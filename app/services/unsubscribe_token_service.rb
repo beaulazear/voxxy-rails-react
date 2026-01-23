@@ -43,27 +43,27 @@ class UnsubscribeTokenService
 
     # Create the unsubscribe record
     unsubscribe_record = case scope
-    when 'event'
+    when "event"
       raise ArgumentError, "Cannot unsubscribe from event - no event context in token" unless event
       EmailUnsubscribe.create_or_find_unsubscribe(
         email: email,
-        scope: 'event',
+        scope: "event",
         event: event,
-        source: 'user_action'
+        source: "user_action"
       )
-    when 'organization'
+    when "organization"
       raise ArgumentError, "Cannot unsubscribe from organization - no organization context in token" unless organization
       EmailUnsubscribe.create_or_find_unsubscribe(
         email: email,
-        scope: 'organization',
+        scope: "organization",
         organization: organization,
-        source: 'user_action'
+        source: "user_action"
       )
-    when 'global'
+    when "global"
       EmailUnsubscribe.create_or_find_unsubscribe(
         email: email,
-        scope: 'global',
-        source: 'user_action'
+        scope: "global",
+        source: "user_action"
       )
     end
 
@@ -71,7 +71,7 @@ class UnsubscribeTokenService
     unsubscribe_token.mark_as_used!
 
     # Also update the Registration model's email_unsubscribed flag if global unsubscribe
-    if scope == 'global' && event
+    if scope == "global" && event
       event.registrations.where(email: email).update_all(email_unsubscribed: true)
     end
 
@@ -79,7 +79,7 @@ class UnsubscribeTokenService
   end
 
   def self.generate_unsubscribe_url(token, frontend_url: nil)
-    base_url = frontend_url || ENV['PRESENTS_FRONTEND_URL'] || 'https://voxxypresents.com'
+    base_url = frontend_url || ENV["PRESENTS_FRONTEND_URL"] || "https://voxxypresents.com"
     "#{base_url}/unsubscribe/#{token}"
   end
 end

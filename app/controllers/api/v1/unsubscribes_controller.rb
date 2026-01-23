@@ -2,7 +2,7 @@ module Api
   module V1
     class UnsubscribesController < ApplicationController
       # No authentication required - public endpoint with token-based security
-      skip_before_action :authorized, only: [:show, :create]
+      skip_before_action :authorized, only: [ :show, :create ]
 
       # GET /api/v1/unsubscribe/:token
       # Validates token and returns context (event, organization info)
@@ -41,13 +41,13 @@ module Api
 
         rescue ActiveRecord::RecordNotFound => e
           render json: {
-            error: 'Invalid or expired unsubscribe token',
+            error: "Invalid or expired unsubscribe token",
             message: e.message
           }, status: :not_found
         rescue => e
           Rails.logger.error("Unsubscribe token validation error: #{e.message}")
           render json: {
-            error: 'Failed to validate unsubscribe token',
+            error: "Failed to validate unsubscribe token",
             message: e.message
           }, status: :unprocessable_entity
         end
@@ -61,7 +61,7 @@ module Api
 
           unless EmailUnsubscribe::SCOPES.include?(scope)
             return render json: {
-              error: 'Invalid scope',
+              error: "Invalid scope",
               message: "Scope must be one of: #{EmailUnsubscribe::SCOPES.join(', ')}"
             }, status: :bad_request
           end
@@ -97,19 +97,19 @@ module Api
 
         rescue ActiveRecord::RecordNotFound => e
           render json: {
-            error: 'Invalid or expired unsubscribe token',
+            error: "Invalid or expired unsubscribe token",
             message: e.message
           }, status: :not_found
         rescue ArgumentError => e
           render json: {
-            error: 'Invalid request',
+            error: "Invalid request",
             message: e.message
           }, status: :bad_request
         rescue => e
           Rails.logger.error("Unsubscribe processing error: #{e.message}")
           Rails.logger.error(e.backtrace.join("\n"))
           render json: {
-            error: 'Failed to process unsubscribe',
+            error: "Failed to process unsubscribe",
             message: e.message
           }, status: :unprocessable_entity
         end
@@ -119,19 +119,19 @@ module Api
 
       def available_scopes(event, organization)
         scopes = []
-        scopes << 'event' if event
-        scopes << 'organization' if organization
-        scopes << 'global'
+        scopes << "event" if event
+        scopes << "organization" if organization
+        scopes << "global"
         scopes
       end
 
       def unsubscribe_success_message(scope, unsubscribe_record)
         case scope
-        when 'event'
+        when "event"
           "You have been unsubscribed from emails about #{unsubscribe_record.event.title}"
-        when 'organization'
+        when "organization"
           "You have been unsubscribed from all emails from #{unsubscribe_record.organization.name}"
-        when 'global'
+        when "global"
           "You have been unsubscribed from all Voxxy Presents emails"
         else
           "You have been successfully unsubscribed"
