@@ -37,7 +37,9 @@ module Api
             viewed_count: @event.event_invitations.viewed.count,
             accepted_count: @event.event_invitations.accepted.count,
             declined_count: @event.event_invitations.declined.count,
-            expired_count: @event.event_invitations.expired.count
+            expired_count: @event.event_invitations.expired.count,
+            # Delivery tracking stats for invitation emails
+            delivery_stats: calculate_invitation_delivery_stats
           }
 
           render json: { invitations: serialized, meta: meta }, status: :ok
@@ -206,6 +208,22 @@ module Api
           unless @invitation
             render json: { error: "Invitation not found" }, status: :not_found
           end
+        end
+
+        def calculate_invitation_delivery_stats
+          # Get all EmailDelivery records for invitation emails for this event
+          invitation_deliveries = EmailDelivery.where(event_id: @event.id)
+                                               .where.not(event_invitation_id: nil)
+
+          {
+            total_sent: invitation_deliveries.count,
+            delivered: invitation_deliveries.where(status: "delivered").count,
+            bounced: invitation_deliveries.where(status: "bounced").count,
+            dropped: invitation_deliveries.where(status: "dropped").count,
+            undelivered: invitation_deliveries.where(status: [ "bounced", "dropped" ]).count,
+            unsubscribed: invitation_deliveries.where(status: "unsubscribed").count,
+            pending: invitation_deliveries.where(status: [ "queued", "sent" ]).count
+          }
         end
       end
     end
