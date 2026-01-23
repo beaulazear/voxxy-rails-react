@@ -322,11 +322,20 @@ namespace :email_testing do
     event_count = test_events.count
 
     if event_count > 0
+      event_ids = test_events.pluck(:id)
+
       # Delete EmailDelivery records first (they reference event_invitations)
       puts "🗑️  Deleting EmailDelivery records for test events..."
-      delivery_count = EmailDelivery.where(event_id: test_events.pluck(:id)).count
-      EmailDelivery.where(event_id: test_events.pluck(:id)).delete_all
+      delivery_count = EmailDelivery.where(event_id: event_ids).count
+      EmailDelivery.where(event_id: event_ids).delete_all
       puts "   ✅ Deleted #{delivery_count} email delivery record(s)"
+      puts ""
+
+      # Delete UnsubscribeToken records (they reference events)
+      puts "🗑️  Deleting UnsubscribeToken records for test events..."
+      token_count = UnsubscribeToken.where(event_id: event_ids).count
+      UnsubscribeToken.where(event_id: event_ids).delete_all
+      puts "   ✅ Deleted #{token_count} unsubscribe token(s)"
       puts ""
 
       # Now delete test events (this will cascade to invitations, registrations, etc.)
