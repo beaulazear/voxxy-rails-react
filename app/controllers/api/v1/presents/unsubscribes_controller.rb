@@ -4,6 +4,7 @@ module Api
       class UnsubscribesController < BaseController
         # No authentication required - public endpoint with token-based security
         skip_before_action :authorized, only: [ :show, :create ]
+        skip_before_action :check_presents_access, only: [ :show, :create ]
 
         # GET /api/v1/presents/unsubscribe/:token
         # Validates token and returns context (event, organization info)
