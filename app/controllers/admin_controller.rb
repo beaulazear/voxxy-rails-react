@@ -261,37 +261,50 @@ class AdminController < ApplicationController
     rejected_registrations = Registration.where(status: "rejected").count
 
     # Top event creators (users with most events via their organizations)
-    top_creators = User.joins(:organizations)
+    top_creators_query = User.joins(:organizations)
                       .joins("INNER JOIN events ON events.organization_id = organizations.id")
                       .group("users.id", "users.name", "users.email", "users.role")
                       .select("users.id, users.name, users.email, users.role, COUNT(events.id) as events_count")
                       .order("events_count DESC")
                       .limit(10)
-                      .map do |user|
+
+    top_creators = top_creators_query.map do |user|
       {
         id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
-        events_count: user.events_count
+        events_count: user.events_count.to_i
       }
     end
 
     # Users with event counts (all presents users)
-    users_with_events = presents_users.left_joins(:organizations)
-                                      .left_joins("LEFT JOIN events ON events.organization_id = organizations.id")
-                                      .group("users.id", "users.name", "users.email", "users.role", "users.confirmed_at", "users.created_at")
-                                      .select("users.*, COUNT(DISTINCT events.id) as events_count")
-                                      .order("events_count DESC")
-                                      .map do |user|
+    # Use raw SQL to avoid ActiveRecord join issues in Rails 7.2
+    users_with_events = ActiveRecord::Base.connection.execute(<<-SQL.squish
+      SELECT
+        users.id,
+        users.name,
+        users.email,
+        users.role,
+        users.confirmed_at,
+        users.created_at,
+        COUNT(DISTINCT events.id) as events_count
+      FROM users
+      LEFT JOIN organizations ON organizations.user_id = users.id
+      LEFT JOIN events ON events.organization_id = organizations.id
+      WHERE users.role IN ('vendor', 'venue_owner', 'producer')
+      GROUP BY users.id, users.name, users.email, users.role, users.confirmed_at, users.created_at
+      ORDER BY events_count DESC
+    SQL
+    ).map do |row|
       {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        confirmed_at: user.confirmed_at,
-        created_at: user.created_at,
-        events_count: user.events_count || 0
+        id: row["id"],
+        name: row["name"],
+        email: row["email"],
+        role: row["role"],
+        confirmed_at: row["confirmed_at"],
+        created_at: row["created_at"],
+        events_count: row["events_count"].to_i
       }
     end
 
