@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_18_193338) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_23_002354) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -184,9 +184,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_18_193338) do
   end
 
   create_table "email_deliveries", force: :cascade do |t|
-    t.bigint "scheduled_email_id", null: false
+    t.bigint "scheduled_email_id"
     t.bigint "event_id", null: false
-    t.bigint "registration_id", null: false
+    t.bigint "registration_id"
     t.string "sendgrid_message_id", null: false
     t.string "recipient_email", null: false
     t.string "status", default: "queued", null: false
@@ -203,13 +203,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_18_193338) do
     t.integer "max_retries", default: 3
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "event_invitation_id"
     t.index ["event_id", "status"], name: "index_email_deliveries_on_event_id_and_status"
     t.index ["event_id"], name: "index_email_deliveries_on_event_id"
+    t.index ["event_invitation_id"], name: "index_email_deliveries_on_event_invitation_id"
     t.index ["next_retry_at"], name: "index_email_deliveries_on_next_retry_at", where: "(next_retry_at IS NOT NULL)"
     t.index ["registration_id", "status"], name: "index_email_deliveries_on_registration_id_and_status"
     t.index ["registration_id"], name: "index_email_deliveries_on_registration_id"
     t.index ["scheduled_email_id"], name: "index_email_deliveries_on_scheduled_email_id"
     t.index ["sendgrid_message_id"], name: "index_email_deliveries_on_sendgrid_message_id", unique: true
+    t.check_constraint "scheduled_email_id IS NOT NULL AND event_invitation_id IS NULL OR scheduled_email_id IS NULL AND event_invitation_id IS NOT NULL", name: "check_email_source"
   end
 
   create_table "email_template_items", force: :cascade do |t|
@@ -713,6 +716,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_18_193338) do
   add_foreign_key "comments", "users"
   add_foreign_key "contact_lists", "organizations"
   add_foreign_key "email_campaign_templates", "organizations"
+  add_foreign_key "email_deliveries", "event_invitations"
   add_foreign_key "email_deliveries", "events"
   add_foreign_key "email_deliveries", "registrations"
   add_foreign_key "email_deliveries", "scheduled_emails"

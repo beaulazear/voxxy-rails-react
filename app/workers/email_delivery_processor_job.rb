@@ -160,6 +160,7 @@ class EmailDeliveryProcessorJob
 
     EmailDelivery.create!(
       event_id: event_id,
+      event_invitation_id: invitation_id,
       sendgrid_message_id: sg_message_id,
       recipient_email: event_data["email"],
       status: "sent",

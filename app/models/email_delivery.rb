@@ -1,8 +1,9 @@
 class EmailDelivery < ApplicationRecord
   # Associations
-  belongs_to :scheduled_email
+  belongs_to :scheduled_email, optional: true
   belongs_to :event
-  belongs_to :registration
+  belongs_to :registration, optional: true
+  belongs_to :event_invitation, optional: true
 
   # Enums for status
   enum status: {
@@ -18,6 +19,19 @@ class EmailDelivery < ApplicationRecord
   validates :sendgrid_message_id, presence: true, uniqueness: true
   validates :recipient_email, presence: true
   validates :status, presence: true
+
+  # Ensure either scheduled_email_id OR event_invitation_id is present
+  validate :must_have_email_source
+
+  private
+
+  def must_have_email_source
+    if scheduled_email_id.blank? && event_invitation_id.blank?
+      errors.add(:base, "Must have either scheduled_email_id or event_invitation_id")
+    elsif scheduled_email_id.present? && event_invitation_id.present?
+      errors.add(:base, "Cannot have both scheduled_email_id and event_invitation_id")
+    end
+  end
 
   # Scopes
   scope :failed, -> { where(status: [ "bounced", "dropped" ]) }
