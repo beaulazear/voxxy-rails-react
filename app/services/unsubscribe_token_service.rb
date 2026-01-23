@@ -79,7 +79,7 @@ class UnsubscribeTokenService
   end
 
   def self.generate_unsubscribe_url(token, frontend_url: nil)
-    base_url = frontend_url || ENV["PRESENTS_FRONTEND_URL"] || "https://voxxypresents.com"
+    base_url = frontend_url || FrontendUrlHelper.presents_frontend_url
     "#{base_url}/unsubscribe/#{token}"
   end
 end
