@@ -1,10 +1,31 @@
-# Invitation Bounce Tracking - Fix Documentation
+# Invitation Bounce Tracking - Fix Documentation [ARCHIVED]
 
 **Date:** January 18, 2026
 **Issue:** Invitation emails that bounce are not being tracked as "undelivered"
-**Status:** Needs Implementation
+**Status:** ✅ IMPLEMENTATION COMPLETE (January 23, 2026)
+
+**⚠️ This document is archived for historical reference only.**
+
+For current implementation details, see:
+- [WEBHOOK_TRACKING_COMPLETE_FLOW.md](./WEBHOOK_TRACKING_COMPLETE_FLOW.md) - Complete working flow
+- [INVITATION_BOUNCE_TRACKING_IMPLEMENTATION.md](./INVITATION_BOUNCE_TRACKING_IMPLEMENTATION.md) - Implementation guide
+- Migration: `db/migrate/20260123002354_make_email_delivery_flexible_for_invitations.rb`
 
 ---
+
+## ✅ Resolution Summary
+
+The issue was fixed with a two-part solution:
+
+1. **Queue Fix (Jan 23)**: Changed EmailDeliveryProcessorJob from `:email_webhooks` to `:email_delivery` queue
+2. **Schema Fix (Jan 23)**: Made EmailDelivery table flexible for both scheduled and invitation emails
+   - Made `scheduled_email_id` and `registration_id` nullable
+   - Added `event_invitation_id` column
+   - Added check constraint for data integrity
+
+---
+
+## 📚 Original Problem Analysis (Historical)
 
 ## 🐛 Problem
 

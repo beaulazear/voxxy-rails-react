@@ -394,6 +394,10 @@ Rails.application.routes.draw do
         end
       end
 
+      # Public unsubscribe endpoints (no auth required - token-based security)
+      get "unsubscribe/:token", to: "unsubscribes#show"
+      post "unsubscribe/:token", to: "unsubscribes#create"
+
       # Webhooks (outside presents namespace - public endpoint)
       namespace :webhooks do
         post :sendgrid, to: "sendgrid#create"
@@ -453,6 +457,7 @@ Rails.application.routes.draw do
   get "/admin/admin_users", to: "admin#admin_users"
   get "/admin/user_breakdown", to: "admin#user_breakdown"
   get "/admin/unconfirmed_users", to: "admin#unconfirmed_users"
+  get "/admin/presents_analytics", to: "admin#presents_analytics"
   get "/admin/flagged_restaurants", to: "admin#flagged_restaurants"
 
   namespace :admin do

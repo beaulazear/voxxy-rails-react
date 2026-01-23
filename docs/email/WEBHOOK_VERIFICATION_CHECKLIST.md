@@ -1,7 +1,7 @@
 # Webhook Verification Checklist ✅
 
-**Date:** January 18, 2026
-**Status:** Webhook Working - Now Verify Job Processing
+**Date:** January 18, 2026 (Updated: January 23, 2026)
+**Status:** Webhook Working - Queue Fixed, Job Processing Verified
 
 ---
 
@@ -169,8 +169,8 @@ redis-cli ping
 # Rails console
 require 'sidekiq/api'
 
-# Check queue sizes
-Sidekiq::Queue.new('email_webhooks').size  # Should be 0 if processing
+# Check queue sizes (Updated Jan 23, 2026: queue changed to :email_delivery)
+Sidekiq::Queue.new('email_delivery').size  # Should be 0 if processing
 Sidekiq::Stats.new.processed  # Total jobs processed
 Sidekiq::Stats.new.failed     # Failed jobs
 
@@ -254,7 +254,7 @@ puts "⚠️ High bounce rate!" if bounce_rate > 5.0
 
 2. **Sidekiq Queue Health**
    - Visit `/sidekiq` dashboard
-   - Check `email_webhooks` queue is processing
+   - Check `email_delivery` queue is processing (updated Jan 23, 2026)
    - Check failed jobs count is low
 
 3. **Email Delivery Rates**

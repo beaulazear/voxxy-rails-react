@@ -140,9 +140,15 @@ class EmailVariableResolver
   def unsubscribe_link
     return "" unless registration
 
-    # Use unsubscribe_token if available, otherwise use registration ID
-    token = registration.respond_to?(:unsubscribe_token) ? (registration.unsubscribe_token || registration.id) : registration.id
-    "#{base_url}/unsubscribe?token=#{token}"
+    begin
+      # Generate a secure unsubscribe token for this registration
+      unsubscribe_token = UnsubscribeTokenService.generate_for_registration(registration)
+      UnsubscribeTokenService.generate_unsubscribe_url(unsubscribe_token.token, frontend_url: base_url)
+    rescue => e
+      Rails.logger.error("Failed to generate unsubscribe link: #{e.message}")
+      # Fallback to empty string if token generation fails
+      ""
+    end
   end
 
   def event_link
