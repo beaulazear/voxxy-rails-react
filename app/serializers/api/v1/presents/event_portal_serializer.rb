@@ -5,6 +5,7 @@ module Api
         def initialize(event_portal, options = {})
           @event_portal = event_portal
           @event = event_portal.event
+          @current_user_email = options[:current_user_email]
         end
 
         def as_json
@@ -14,7 +15,7 @@ module Api
             last_viewed_at: @event_portal.last_viewed_at,
             event: event_json,
             vendor_categories: vendor_categories_json,
-            producer_updates: []  # Placeholder for Phase 2
+            producer_updates: producer_updates_json
           }
         end
 
@@ -76,6 +77,15 @@ module Api
               },
               application_tags: app.application_tags
             }
+          end
+        end
+
+        def producer_updates_json
+          bulletins = @event.bulletins.for_display.limit(50)
+          return [] if bulletins.empty?
+
+          bulletins.map do |bulletin|
+            BulletinSerializer.new(bulletin, current_user_email: @current_user_email).as_json
           end
         end
       end

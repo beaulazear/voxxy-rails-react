@@ -47,9 +47,12 @@ module Api
           # Verify session token
           verify_portal_token!(event.id)
 
+          # Get vendor email from session for read tracking
+          vendor_email = session[:vendor_email]
+
           render json: Api::V1::Presents::EventPortalSerializer.new(
             event.event_portal,
-            include: [ :event, :"event.vendor_applications", :"event.organization" ]
+            current_user_email: vendor_email
           ).serializable_hash
         rescue ActiveRecord::RecordNotFound
           render json: { error: "Event not found" }, status: :not_found

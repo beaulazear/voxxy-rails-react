@@ -6,6 +6,7 @@ class Event < ApplicationRecord
   has_many :invited_contacts, through: :event_invitations, source: :vendor_contact
   has_one :budget, as: :budgetable, dependent: :destroy
   has_one :event_portal, dependent: :destroy
+  has_many :bulletins, dependent: :destroy
 
   # Email automation associations
   belongs_to :email_campaign_template, optional: true

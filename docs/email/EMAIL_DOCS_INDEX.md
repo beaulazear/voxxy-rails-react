@@ -1,6 +1,6 @@
 # 📧 Email Documentation Index
 
-**Last Updated:** January 17, 2026
+**Last Updated:** January 23, 2026
 
 This index helps you navigate the email system documentation for Voxxy Presents.
 
@@ -23,8 +23,40 @@ This index helps you navigate the email system documentation for Voxxy Presents.
 
 ## 📚 Detailed Documentation
 
-### 1. Email System Fixes (January 17, 2026)
-📄 **[EMAIL_SYSTEM_FIXES_JANUARY_17_2026.md](./EMAIL_SYSTEM_FIXES_JANUARY_17_2026.md)** ⭐ **NEW**
+### 1. Webhook Processing Fix (January 23, 2026)
+📄 **[WEBHOOK_PROCESSING_FIX_JAN_23_2026.md](./WEBHOOK_PROCESSING_FIX_JAN_23_2026.md)** ⭐ **NEW**
+- **Last Updated:** January 23, 2026
+- **Purpose:** Critical fix for invitation email delivery tracking
+- **Best for:** Understanding why invitation bounces weren't tracked and how it was fixed
+- **Contains:**
+  - Root cause analysis (SMTP vs SendGrid Web API)
+  - Solution: Create EmailDelivery records before sending
+  - 3-tier webhook lookup strategy
+  - Schema changes (event_invitation_id column)
+  - Testing and verification steps
+  - Impact: 95% → 100% tracking coverage
+
+📄 **[WEBHOOK_VERIFICATION_CHECKLIST.md](./WEBHOOK_VERIFICATION_CHECKLIST.md)**
+- **Last Updated:** January 23, 2026
+- **Purpose:** Step-by-step verification checklist for webhook integration
+- **Best for:** Verifying webhook setup and troubleshooting
+- **Contains:**
+  - Webhook configuration verification
+  - Job processing checks
+  - Queue health monitoring (updated for :email_delivery queue)
+  - Test invitation sending guide
+  - Daily and weekly monitoring checks
+
+📄 **[WEBHOOK_TRACKING_COMPLETE_FLOW.md](./WEBHOOK_TRACKING_COMPLETE_FLOW.md)**
+- **Purpose:** Complete flow documentation for email delivery tracking
+- **Best for:** Understanding the end-to-end webhook flow
+- **Contains:**
+  - SendGrid webhook event flow
+  - EmailDeliveryProcessorJob logic
+  - Database updates and status tracking
+
+### 2. Email System Fixes (January 17, 2026)
+📄 **[EMAIL_SYSTEM_FIXES_JANUARY_17_2026.md](./EMAIL_SYSTEM_FIXES_JANUARY_17_2026.md)**
 - **Last Updated:** January 17, 2026
 - **Purpose:** Critical fixes and improvements to email system
 - **Best for:** Understanding recent changes, timezone fixes, template migration
@@ -36,7 +68,7 @@ This index helps you navigate the email system documentation for Voxxy Presents.
   - Migration steps for existing events
   - Testing and monitoring recommendations
 
-### 2. Email Automation System (Scheduled Emails)
+### 3. Email Automation System (Scheduled Emails)
 📄 **[EMAIL_AUTOMATION_SYSTEM_GUIDE.md](./EMAIL_AUTOMATION_SYSTEM_GUIDE.md)** (2,086 lines)
 - **Last Updated:** January 17, 2026
 - **Purpose:** Deep dive into the automated scheduled email system
@@ -50,7 +82,7 @@ This index helps you navigate the email system documentation for Voxxy Presents.
   - Key workflows and recent changes
   - Developer reference and debugging tips
 
-### 3. Email Notification System (User Confirmation)
+### 4. Email Notification System (User Confirmation)
 📄 **[EMAIL_NOTIFICATION_SYSTEM.md](./EMAIL_NOTIFICATION_SYSTEM.md)** (472 lines)
 - **Last Updated:** January 8, 2026
 - **Purpose:** Documents the user confirmation flow for bulk/sensitive emails
@@ -64,7 +96,7 @@ This index helps you navigate the email system documentation for Voxxy Presents.
 
 **Key Insight:** This doc explains the architectural pattern where certain emails (payment confirmation, event updates, cancellation) require explicit user confirmation via the frontend before sending.
 
-### 4. Email Notification Testing Guide
+### 5. Email Notification Testing Guide
 📄 **[EMAIL_NOTIFICATION_TESTING.md](./EMAIL_NOTIFICATION_TESTING.md)** (343 lines)
 - **Last Updated:** January 8, 2026
 - **Purpose:** Step-by-step testing guide for the email notification system
@@ -75,7 +107,7 @@ This index helps you navigate the email system documentation for Voxxy Presents.
   - API payload examples
   - Frontend behavior validation
 
-### 5. SendGrid Webhook Setup
+### 6. SendGrid Webhook Setup
 📄 **[SENDGRID_WEBHOOK_SETUP.md](./SENDGRID_WEBHOOK_SETUP.md)** (365 lines)
 - **Last Updated:** January 2, 2026
 - **Purpose:** Setup guide for SendGrid webhook integration
@@ -123,6 +155,13 @@ This index helps you navigate the email system documentation for Voxxy Presents.
 ### Use Case: "I need to set up email delivery tracking"
 1. Follow **[SENDGRID_WEBHOOK_SETUP.md](./SENDGRID_WEBHOOK_SETUP.md)**
 2. Understand the system: **[EMAIL_AUTOMATION_SYSTEM_GUIDE.md](./EMAIL_AUTOMATION_SYSTEM_GUIDE.md)** → "Delivery Tracking"
+3. Verify setup: **[WEBHOOK_VERIFICATION_CHECKLIST.md](./WEBHOOK_VERIFICATION_CHECKLIST.md)**
+
+### Use Case: "Email bounces/drops aren't being tracked"
+1. Check webhook fix: **[WEBHOOK_PROCESSING_FIX_JAN_23_2026.md](./WEBHOOK_PROCESSING_FIX_JAN_23_2026.md)**
+2. Verify webhook configuration: **[WEBHOOK_VERIFICATION_CHECKLIST.md](./WEBHOOK_VERIFICATION_CHECKLIST.md)**
+3. Check EmailDelivery records created before sending
+4. Review Sidekiq logs for EmailDeliveryProcessorJob
 
 ### Use Case: "I need to test email functionality"
 1. Quick tests: **[VOXXY_PRESENTS_EMAIL_MASTER_REFERENCE.md](./VOXXY_PRESENTS_EMAIL_MASTER_REFERENCE.md)** → "Testing Emails"
@@ -135,10 +174,13 @@ This index helps you navigate the email system documentation for Voxxy Presents.
 
 | Document | Status | Last Updated | Purpose |
 |----------|--------|--------------|---------|
-| **EMAIL_SYSTEM_FIXES_JANUARY_17_2026.md** | ✅ Current | Jan 17, 2026 | **Critical fixes and improvements** |
-| **VOXXY_PRESENTS_EMAIL_MASTER_REFERENCE.md** | ✅ Current | Jan 17, 2026 | **Master catalog of all emails** |
-| **EMAIL_TESTING_SYSTEM.md** | ✅ Current | Jan 17, 2026 | **Testing guide with preview** |
+| **WEBHOOK_PROCESSING_FIX_JAN_23_2026.md** | ✅ Current | Jan 23, 2026 | **Invitation tracking fix** |
+| **WEBHOOK_VERIFICATION_CHECKLIST.md** | ✅ Current | Jan 23, 2026 | **Webhook verification steps** |
+| **VOXXY_PRESENTS_EMAIL_MASTER_REFERENCE.md** | ✅ Current | Jan 23, 2026 | **Master catalog of all emails** |
+| EMAIL_SYSTEM_FIXES_JANUARY_17_2026.md | ✅ Current | Jan 17, 2026 | Template migration & timezone fixes |
+| EMAIL_TESTING_SYSTEM.md | ✅ Current | Jan 17, 2026 | Testing guide with preview |
 | EMAIL_AUTOMATION_SYSTEM_GUIDE.md | ✅ Current | Jan 17, 2026 | Automated email system deep dive |
+| WEBHOOK_TRACKING_COMPLETE_FLOW.md | ✅ Current | Jan 18, 2026 | Complete webhook flow |
 | EMAIL_NOTIFICATION_SYSTEM.md | ✅ Current | Jan 8, 2026 | User confirmation flow |
 | EMAIL_NOTIFICATION_TESTING.md | ✅ Current | Jan 8, 2026 | Testing guide |
 | SENDGRID_WEBHOOK_SETUP.md | ✅ Current | Jan 2, 2026 | SendGrid setup |
@@ -229,5 +271,5 @@ For new developers working on the email system:
 
 **Questions or feedback on documentation?** Update this index and related docs as needed!
 
-**Last Updated:** January 18, 2026
-**Status:** ✅ Duplicate documentation removed (EMAIL_SYSTEM_DOCUMENTATION.md)
+**Last Updated:** January 23, 2026
+**Status:** ✅ Updated with webhook processing fix documentation

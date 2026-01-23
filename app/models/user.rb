@@ -26,6 +26,7 @@ class User < ApplicationRecord
   has_many :organizations, dependent: :destroy
   has_many :vendors, dependent: :destroy
   has_many :budgets, dependent: :destroy
+  has_many :authored_bulletins, class_name: "Bulletin", foreign_key: "author_id", dependent: :destroy
 
   # Role management
   ROLES = %w[consumer venue_owner vendor admin].freeze

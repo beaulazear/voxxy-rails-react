@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_23_011054) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_23_150336) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -128,6 +128,36 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_011054) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_bug_reports_on_email"
+  end
+
+  create_table "bulletin_reads", force: :cascade do |t|
+    t.bigint "bulletin_id", null: false
+    t.bigint "user_id"
+    t.string "registration_email"
+    t.datetime "read_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bulletin_id", "registration_email"], name: "index_bulletin_reads_on_bulletin_and_email", unique: true, where: "(registration_email IS NOT NULL)"
+    t.index ["bulletin_id", "user_id"], name: "index_bulletin_reads_on_bulletin_and_user", unique: true, where: "(user_id IS NOT NULL)"
+    t.index ["bulletin_id"], name: "index_bulletin_reads_on_bulletin_id"
+    t.index ["user_id"], name: "index_bulletin_reads_on_user_id"
+  end
+
+  create_table "bulletins", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "author_id", null: false
+    t.string "subject", null: false
+    t.text "body", null: false
+    t.string "bulletin_type", default: "announcement"
+    t.boolean "pinned", default: false
+    t.integer "view_count", default: 0
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_bulletins_on_author_id"
+    t.index ["event_id", "created_at"], name: "index_bulletins_on_event_id_and_created_at"
+    t.index ["event_id", "pinned"], name: "index_bulletins_on_event_id_and_pinned"
+    t.index ["event_id"], name: "index_bulletins_on_event_id"
   end
 
   create_table "comments", force: :cascade do |t|
@@ -745,6 +775,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_011054) do
   add_foreign_key "budget_line_items", "budgets"
   add_foreign_key "budget_line_items", "vendors"
   add_foreign_key "budgets", "users"
+  add_foreign_key "bulletin_reads", "bulletins"
+  add_foreign_key "bulletin_reads", "users"
+  add_foreign_key "bulletins", "events"
+  add_foreign_key "bulletins", "users", column: "author_id"
   add_foreign_key "comments", "pinned_activities"
   add_foreign_key "comments", "users"
   add_foreign_key "contact_lists", "organizations"

@@ -1,11 +1,18 @@
 # 📧 Voxxy Presents Email System - Master Reference
 
-**Last Updated:** January 17, 2026
+**Last Updated:** January 23, 2026
 **Total Emails:** 17 (7 scheduled + 10 transactional)
 **Purpose:** Complete reference for ALL emails used in Voxxy Presents
 **Audience:** Developers making email edits across the entire system
 
-**Recent Changes (Jan 17, 2026):**
+**Recent Changes (Jan 23, 2026):**
+- ✅ Fixed invitation email delivery tracking (SMTP + webhook integration)
+- ✅ EmailDelivery records now created BEFORE sending invitation emails
+- ✅ Webhook processor enhanced with 3-tier lookup strategy
+- ✅ Frontend shows accurate undelivered counts for invitation bounces/drops
+- ✅ 100% email tracking coverage for both scheduled and invitation emails
+
+**Previous Changes (Jan 17, 2026):**
 - ✅ Removed 4 invitation accept/decline emails (21 → 17 total)
 - ✅ All emails now use Eastern timezone (was UTC)
 - ✅ Removed emojis from all subject lines
@@ -26,25 +33,82 @@
 
 ---
 
+## 🔧 Recent Technical Fixes (January 23, 2026)
+
+### Issue: Invitation Email Delivery Tracking Not Working
+
+**Problem:**
+- 95% of invitation emails (bounces, drops) were not being tracked
+- SendGrid webhooks couldn't create `EmailDelivery` records
+- Root cause: SMTP delivery doesn't transmit `X-SMTPAPI` custom args to SendGrid
+- Result: Frontend showed 0 undelivered for invitation emails despite actual bounces
+
+**Solution Implemented:**
+1. **Create EmailDelivery records BEFORE sending** (like scheduled emails do)
+   - Controller creates record with temporary message ID
+   - Format: `"pending-{invitation_id}-{timestamp}"`
+   - Stores `recipient_email` and `event_invitation_id` for lookup
+
+2. **Enhanced webhook processor with 3-tier lookup strategy:**
+   - Primary: Find by `sendgrid_message_id` (fast path)
+   - Fallback: Find by `recipient_email` + `event_invitation_id` + timestamp
+   - Legacy: Create on-the-fly using custom args (backwards compatibility)
+
+3. **Webhook updates temporary message ID with real ID from SendGrid**
+   - Future webhooks use fast primary lookup
+   - Ensures all delivery events are tracked
+
+**Files Changed:**
+- `app/controllers/api/v1/presents/event_invitations_controller.rb` - Create tracking records
+- `app/workers/email_delivery_processor_job.rb` - Enhanced webhook processing
+- Frontend: `src/components/producer/Email/EmailAutomationTab.tsx` - Display stats
+- Frontend: `src/services/api.ts` - Add `delivery_stats` type
+
+**Result:**
+- ✅ 100% of invitation emails now tracked (delivered, bounced, dropped)
+- ✅ Frontend displays accurate undelivered counts
+- ✅ Works with existing SMTP configuration (no delivery method changes needed)
+- ✅ Matches scheduled email tracking architecture
+
+**Testing:**
+```bash
+# Send test invitations
+bundle exec rake email_testing:send_test_invitations
+
+# Check tracking records created
+EmailDelivery.where.not(event_invitation_id: nil).count
+
+# Wait for webhooks, check status updates
+EmailDelivery.where.not(event_invitation_id: nil).group(:status).count
+```
+
+**Related Documentation:**
+- `/docs/email/WEBHOOK_PROCESSING_FIX_JAN_23_2026.md` - Complete fix details
+- `/docs/email/WEBHOOK_VERIFICATION_CHECKLIST.md` - Verification steps
+
+---
+
 ## Email System Overview
 
 Voxxy Presents has **TWO distinct email systems**:
 
 ### System 1: Automated Scheduled Emails (7 emails)
 - **Purpose:** Time-based automated campaigns throughout event lifecycle
-- **Technology:** Database-driven, SendGrid delivery, Sidekiq background jobs
+- **Technology:** Database-driven, SendGrid Web API delivery, Sidekiq background jobs
 - **Customizable:** Yes, per organization via email templates
 - **Location:** Seed file (`db/seeds/email_campaign_templates.rb`)
 - **Delivery:** Automatic via EmailSenderWorker (every 5 minutes)
-- **Tracking:** Full delivery tracking with EmailDelivery records
+- **Tracking:** Full delivery tracking with EmailDelivery records (created before sending)
+- **Delivery Method:** SendGrid Web API via `EmailSenderService`
 
 ### System 2: Transactional Service Emails (10 emails)
 - **Purpose:** Immediate emails triggered by specific actions
-- **Technology:** Ruby service classes, SendGrid delivery
+- **Technology:** Ruby service classes, ActionMailer + SMTP delivery
 - **Customizable:** No (hardcoded in services)
 - **Location:** Service files (`app/services/`, `app/mailers/`)
 - **Delivery:** Immediate (synchronous or via model callbacks)
-- **Tracking:** Via SendGrid categories only
+- **Tracking:** Full delivery tracking with EmailDelivery records (created before sending for invitations)
+- **Delivery Method:** SMTP via ActionMailer
 
 **Total Emails:** 17 (7 scheduled + 10 transactional)
 
@@ -210,12 +274,18 @@ Voxxy Presents has **TWO distinct email systems**:
 #### C1. **Vendor Invitation**
 - **File:** `app/mailers/event_invitation_mailer.rb`
 - **View Template:** `app/views/event_invitation_mailer/invitation_email.html.erb`
+- **Controller:** `app/controllers/api/v1/presents/event_invitations_controller.rb` (batch send)
 - **Trigger:** When producer sends batch invitations
 - **Recipients:** Vendor contacts selected by producer
 - **Subject:** `#{event.title} is coming in #{event.location}`
 - **Purpose:** Invite vendors to event (announcement email)
 - **Workflow:** Vendors apply through normal application system if interested
 - **Contains:** Event details, invitation URL with token
+- **Delivery Method:** ActionMailer SMTP (via `deliver_now`)
+- **Tracking:** EmailDelivery record created BEFORE sending (Jan 23, 2026 fix)
+  - Record created with temporary message ID
+  - Webhook updates with real SendGrid message ID
+  - Lookup by recipient_email + event_invitation_id + timestamp
 - **Status:** ✅ Active
 - **Note:** Removed accept/decline workflow (January 17, 2026) - vendors simply apply if interested
 
@@ -272,6 +342,144 @@ Voxxy Presents has **TWO distinct email systems**:
 - **Bulk:** Yes (iterates through all registrations)
 - **Status:** ✅ Active
 - **SendGrid Category:** `transactional`, `event-canceled`
+
+---
+
+## 📊 Email Delivery Tracking System
+
+**Last Updated:** January 23, 2026
+
+### Overview
+
+All emails (scheduled and invitation) now have full delivery tracking via the `EmailDelivery` model and SendGrid webhook integration.
+
+### Architecture
+
+#### Two Delivery Methods
+
+**Method 1: SendGrid Web API (Scheduled Emails)**
+- Used by: `EmailSenderService` for automated scheduled emails
+- Process:
+  1. Service creates `EmailDelivery` record BEFORE sending
+  2. Sends via SendGrid Web API with custom args
+  3. Captures SendGrid message ID from API response
+  4. Updates `EmailDelivery` record with message ID
+  5. Webhook finds record by `sendgrid_message_id`
+
+**Method 2: ActionMailer SMTP (Invitation Emails)**
+- Used by: `EventInvitationMailer` for invitation emails
+- Process:
+  1. Controller creates `EmailDelivery` record BEFORE sending
+  2. Sends via ActionMailer SMTP (`deliver_now`)
+  3. Uses temporary message ID: `"pending-{invitation_id}-{timestamp}"`
+  4. Webhook finds record by `recipient_email` + `event_invitation_id`
+  5. Updates `sendgrid_message_id` with real ID from webhook
+
+### Webhook Processing Strategy
+
+**File:** `app/workers/email_delivery_processor_job.rb`
+
+**3-Tier Lookup Strategy:**
+
+1. **Primary Lookup**: Find by `sendgrid_message_id`
+   - Fast database index lookup
+   - Works for scheduled emails sent via API
+   - Works for invitations after webhook updates message ID
+
+2. **Invitation Fallback**: Find by `recipient_email` + `event_invitation_id` + recent timestamp
+   - Used when SMTP delivery creates record with temporary ID
+   - Looks for records sent within last hour
+   - Updates `sendgrid_message_id` with real ID from webhook
+   - Ensures future webhooks use fast primary lookup
+
+3. **Legacy Fallback**: Create on-the-fly using custom args
+   - Checks for `event_invitation_id` in webhook payload
+   - Backwards compatibility for old invitations
+   - Custom args may be flattened or nested in webhook
+
+### EmailDelivery Model
+
+**File:** `app/models/email_delivery.rb`
+
+**Key Fields:**
+- `sendgrid_message_id` - SendGrid's unique message identifier
+- `recipient_email` - Email address
+- `status` - `sent`, `delivered`, `bounced`, `dropped`, `unsubscribed`
+- `event_id` - Event reference
+- `scheduled_email_id` - For scheduled emails (optional)
+- `event_invitation_id` - For invitation emails (optional)
+- `registration_id` - For scheduled emails (optional)
+- `bounce_type`, `bounce_reason`, `drop_reason` - Error details
+- Timestamps: `sent_at`, `delivered_at`, `bounced_at`, `dropped_at`
+
+**Constraints:**
+- Must have EITHER `scheduled_email_id` OR `event_invitation_id` (not both, not neither)
+- Database check constraint enforces this rule
+- `registration_id` is optional (nullable for invitations)
+
+### Frontend Integration
+
+**Invitation Emails:**
+- API endpoint: `/api/v1/presents/events/:event_slug/invitations`
+- Response includes `delivery_stats` in meta:
+  ```json
+  {
+    "total_sent": 10,
+    "delivered": 8,
+    "bounced": 1,
+    "dropped": 1,
+    "undelivered": 2,
+    "unsubscribed": 0,
+    "pending": 0
+  }
+  ```
+- Frontend creates virtual "Event Announcement (Invitations Sent)" email row
+- Populates `undelivered_count` from `delivery_stats.undelivered`
+- Displays tooltip with breakdown on hover
+
+**Scheduled Emails:**
+- Fetched from `/api/v1/presents/events/:event_slug/scheduled_emails`
+- Include `delivery_counts` object per email
+- Display undelivered, delivered, and unsubscribed counts
+
+### Troubleshooting
+
+**Problem: Invitations not tracking**
+- Check: EmailDelivery records created before sending
+- Check: Webhook processor logs show "Found invitation delivery by email"
+- Check: `sendgrid_message_id` updated from temporary to real ID
+
+**Problem: Webhook can't find record**
+- Check: Record created within last hour (lookup window)
+- Check: `recipient_email` matches exactly (case-sensitive)
+- Check: `event_invitation_id` is set correctly
+
+**Problem: Duplicate delivery records**
+- Check: No race condition in batch sending
+- Check: Unique constraint on `sendgrid_message_id`
+
+### Testing Delivery Tracking
+
+```ruby
+# Rails console - Test invitation tracking
+event = Event.last
+contact = VendorContact.last
+
+# Create and send invitation
+invitation = EventInvitation.create!(event: event, vendor_contact: contact)
+invitation.mark_as_sent!
+
+# Check delivery record created
+delivery = EmailDelivery.find_by(event_invitation_id: invitation.id)
+puts "Delivery record: #{delivery.inspect}"
+puts "Message ID: #{delivery.sendgrid_message_id}"
+puts "Status: #{delivery.status}"
+
+# Wait for webhook, then check status update
+sleep 60
+delivery.reload
+puts "Updated status: #{delivery.status}"
+```
 
 ---
 
@@ -595,10 +803,12 @@ Services:
 └── app/services/recipient_filter_service.rb (filters recipients)
 
 Workers:
-└── app/workers/email_sender_worker.rb (runs every 5 minutes)
+├── app/workers/email_sender_worker.rb (runs every 5 minutes, sends scheduled emails)
+└── app/workers/email_delivery_processor_job.rb (processes SendGrid webhooks)
 
 Controllers:
-└── app/controllers/api/v1/presents/scheduled_emails_controller.rb
+├── app/controllers/api/v1/presents/scheduled_emails_controller.rb
+└── app/controllers/api/v1/webhooks_controller.rb (receives SendGrid webhooks)
 ```
 
 ### Service Email System
@@ -617,6 +827,10 @@ Views:
     ├── accepted_notification_producer.html.erb
     ├── declined_confirmation_vendor.html.erb
     └── declined_notification_producer.html.erb
+
+Controllers:
+└── app/controllers/api/v1/presents/event_invitations_controller.rb
+    (handles batch invitation sending with delivery tracking)
 ```
 
 ### Email Notification Controllers

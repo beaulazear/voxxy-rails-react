@@ -1,12 +1,13 @@
 module Api
   module V1
-    class UnsubscribesController < ApplicationController
-      # No authentication required - public endpoint with token-based security
-      skip_before_action :authorized, only: [ :show, :create ]
+    module Presents
+      class UnsubscribesController < BaseController
+        # No authentication required - public endpoint with token-based security
+        skip_before_action :authorized, only: [ :show, :create ]
 
-      # GET /api/v1/unsubscribe/:token
-      # Validates token and returns context (event, organization info)
-      def show
+        # GET /api/v1/presents/unsubscribe/:token
+        # Validates token and returns context (event, organization info)
+        def show
         begin
           context = UnsubscribeTokenService.validate_and_get_context(params[:token])
 
@@ -53,7 +54,7 @@ module Api
         end
       end
 
-      # POST /api/v1/unsubscribe/:token
+      # POST /api/v1/presents/unsubscribe/:token
       # Process unsubscribe with specified scope
       def create
         begin
@@ -136,6 +137,7 @@ module Api
         else
           "You have been successfully unsubscribed"
         end
+      end
       end
     end
   end

@@ -296,12 +296,21 @@ Rails.application.routes.draw do
               post :batch, action: :create_batch
             end
           end
+          resources :bulletins, only: [ :index, :create ]
 
           # Email notification endpoints for events
           post "email_notifications/check_event_update_impact", to: "email_notifications#check_event_update_impact"
           post "email_notifications/send_event_update", to: "email_notifications#send_event_update_emails"
           post "email_notifications/check_cancellation_impact", to: "email_notifications#check_cancellation_impact"
           post "email_notifications/send_cancellation", to: "email_notifications#send_cancellation_emails"
+        end
+
+        # Bulletins (producer announcements)
+        resources :bulletins, only: [ :show, :update, :destroy ] do
+          member do
+            post :toggle_pin
+            post :mark_read
+          end
         end
 
         # Public invitation endpoints (no auth required)
@@ -392,11 +401,11 @@ Rails.application.routes.draw do
             post :send_scheduled
           end
         end
-      end
 
-      # Public unsubscribe endpoints (no auth required - token-based security)
-      get "unsubscribe/:token", to: "unsubscribes#show"
-      post "unsubscribe/:token", to: "unsubscribes#create"
+        # Public unsubscribe endpoints (no auth required - token-based security)
+        get "unsubscribe/:token", to: "unsubscribes#show"
+        post "unsubscribe/:token", to: "unsubscribes#create"
+      end
 
       # Webhooks (outside presents namespace - public endpoint)
       namespace :webhooks do
