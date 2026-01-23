@@ -9,6 +9,20 @@ class EventInvitationMailer < ApplicationMailer
     # Generate invitation URL
     @invitation_url = @invitation.invitation_url
 
+    # Generate unsubscribe token and URL
+    begin
+      unsubscribe_token = UnsubscribeTokenService.generate_token(
+        email: @vendor_contact.email,
+        event: @event,
+        organization: @organization
+      )
+      @unsubscribe_url = UnsubscribeTokenService.generate_unsubscribe_url(unsubscribe_token.token)
+    rescue => e
+      Rails.logger.error("Failed to generate unsubscribe link for invitation: #{e.message}")
+      # Fallback to empty string if token generation fails
+      @unsubscribe_url = ""
+    end
+
     # Build location string for subject line
     location_parts = []
     location_parts << @event.location if @event.location.present?

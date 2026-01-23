@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_23_002354) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_23_011054) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -235,6 +235,23 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_002354) do
     t.index ["email_campaign_template_id"], name: "index_email_template_items_on_email_campaign_template_id"
     t.index ["filter_criteria"], name: "index_email_template_items_on_filter_criteria", using: :gin
     t.check_constraint "\"position\" >= 1 AND \"position\" <= 40", name: "position_range"
+  end
+
+  create_table "email_unsubscribes", force: :cascade do |t|
+    t.string "email", null: false
+    t.string "scope", null: false
+    t.bigint "event_id"
+    t.bigint "organization_id"
+    t.datetime "unsubscribed_at", null: false
+    t.string "unsubscribe_source"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email", "event_id"], name: "index_email_unsubscribes_on_email_and_event_id", unique: true, where: "((scope)::text = 'event'::text)"
+    t.index ["email", "organization_id"], name: "index_email_unsubscribes_on_email_and_organization_id", unique: true, where: "((scope)::text = 'organization'::text)"
+    t.index ["email", "scope"], name: "index_email_unsubscribes_on_email_and_scope"
+    t.index ["email"], name: "index_email_unsubscribes_on_email", unique: true, where: "((scope)::text = 'global'::text)"
+    t.index ["event_id"], name: "index_email_unsubscribes_on_event_id"
+    t.index ["organization_id"], name: "index_email_unsubscribes_on_organization_id"
   end
 
   create_table "event_invitations", force: :cascade do |t|
@@ -512,6 +529,22 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_002354) do
     t.index ["activity_id"], name: "index_time_slots_on_activity_id"
   end
 
+  create_table "unsubscribe_tokens", force: :cascade do |t|
+    t.string "token", null: false
+    t.string "email", null: false
+    t.bigint "event_id"
+    t.bigint "organization_id"
+    t.datetime "expires_at", null: false
+    t.datetime "used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_unsubscribe_tokens_on_email"
+    t.index ["event_id"], name: "index_unsubscribe_tokens_on_event_id"
+    t.index ["expires_at"], name: "index_unsubscribe_tokens_on_expires_at"
+    t.index ["organization_id"], name: "index_unsubscribe_tokens_on_organization_id"
+    t.index ["token"], name: "index_unsubscribe_tokens_on_token", unique: true
+  end
+
   create_table "user_activities", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "pinned_activity_id", null: false
@@ -721,6 +754,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_002354) do
   add_foreign_key "email_deliveries", "registrations"
   add_foreign_key "email_deliveries", "scheduled_emails"
   add_foreign_key "email_template_items", "email_campaign_templates"
+  add_foreign_key "email_unsubscribes", "events"
+  add_foreign_key "email_unsubscribes", "organizations"
   add_foreign_key "event_invitations", "events"
   add_foreign_key "event_invitations", "vendor_contacts"
   add_foreign_key "event_portals", "events"
@@ -748,6 +783,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_002354) do
   add_foreign_key "time_slot_votes", "time_slots"
   add_foreign_key "time_slot_votes", "users"
   add_foreign_key "time_slots", "activities"
+  add_foreign_key "unsubscribe_tokens", "events"
+  add_foreign_key "unsubscribe_tokens", "organizations"
   add_foreign_key "user_activities", "pinned_activities"
   add_foreign_key "user_activities", "users"
   add_foreign_key "vendor_applications", "events"

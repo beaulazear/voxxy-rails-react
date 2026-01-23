@@ -229,6 +229,121 @@ class AdminController < ApplicationController
     render json: { error: "Failed to fetch unconfirmed users: #{e.message}" }, status: :internal_server_error
   end
 
+  def presents_analytics
+    # Voxxy Presents specific analytics
+
+    # User statistics (Presents users only)
+    presents_users = User.where(role: ['vendor', 'venue_owner', 'producer'])
+    total_presents_users = presents_users.count
+    producers_count = User.where(role: ['venue_owner', 'producer']).count
+    vendors_count = User.where(role: 'vendor').count
+
+    # Event statistics
+    total_events = Event.count
+    today = Date.today
+    active_events = Event.where('event_date >= ?', today).count
+    past_events = Event.where('event_date < ?', today).count
+    upcoming_events = Event.where('event_date > ?', today).count
+    events_today = Event.where(event_date: today).count
+
+    # Event status breakdown
+    draft_events = Event.where(published: false).count
+    published_events = Event.where(published: true).count
+
+    # Organization statistics
+    total_orgs = Organization.count
+    verified_orgs = Organization.where(verified: true).count
+
+    # Registration (vendor application) statistics
+    total_registrations = Registration.count
+    pending_registrations = Registration.where(status: 'pending').count
+    approved_registrations = Registration.where(status: 'approved').count
+    rejected_registrations = Registration.where(status: 'rejected').count
+
+    # Top event creators (users with most events via their organizations)
+    top_creators = User.joins(:organizations)
+                      .joins('INNER JOIN events ON events.organization_id = organizations.id')
+                      .group('users.id', 'users.name', 'users.email', 'users.role')
+                      .select('users.id, users.name, users.email, users.role, COUNT(events.id) as events_count')
+                      .order('events_count DESC')
+                      .limit(10)
+                      .map do |user|
+      {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        events_count: user.events_count
+      }
+    end
+
+    # Users with event counts (all presents users)
+    users_with_events = presents_users.left_joins(:organizations)
+                                      .left_joins('LEFT JOIN events ON events.organization_id = organizations.id')
+                                      .group('users.id', 'users.name', 'users.email', 'users.role', 'users.confirmed_at', 'users.created_at')
+                                      .select('users.*, COUNT(DISTINCT events.id) as events_count')
+                                      .order('events_count DESC')
+                                      .map do |user|
+      {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        confirmed_at: user.confirmed_at,
+        created_at: user.created_at,
+        events_count: user.events_count || 0
+      }
+    end
+
+    # Recent events
+    recent_events = Event.order(created_at: :desc).limit(5).map do |event|
+      {
+        id: event.id,
+        title: event.title,
+        slug: event.slug,
+        event_date: event.event_date,
+        published: event.published,
+        registered_count: event.registered_count,
+        created_at: event.created_at,
+        organization_name: event.organization&.name
+      }
+    end
+
+    render json: {
+      users: {
+        total: total_presents_users,
+        producers: producers_count,
+        vendors: vendors_count
+      },
+      events: {
+        total: total_events,
+        active: active_events,
+        past: past_events,
+        upcoming: upcoming_events,
+        today: events_today,
+        draft: draft_events,
+        published: published_events
+      },
+      organizations: {
+        total: total_orgs,
+        verified: verified_orgs
+      },
+      registrations: {
+        total: total_registrations,
+        pending: pending_registrations,
+        approved: approved_registrations,
+        rejected: rejected_registrations
+      },
+      top_creators: top_creators,
+      users_with_events: users_with_events,
+      recent_events: recent_events
+    }
+  rescue => e
+    Rails.logger.error "Failed to fetch presents analytics: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
+    render json: { error: "Failed to fetch analytics: #{e.message}" }, status: :internal_server_error
+  end
+
   private
 
   def admin_authorized

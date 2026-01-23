@@ -55,7 +55,12 @@ class RecipientFilterService
     return false if filter_criteria["vendor_categories"].present? && !filter_criteria["vendor_categories"].include?(registration.vendor_category)
     return false if filter_criteria["payment_status"].present? && registration.payment_status != filter_criteria["payment_status"]
     return false if filter_criteria["application_status"].present? && registration.application_status != filter_criteria["application_status"]
-    return false if filter_criteria["exclude_unsubscribed"] && registration.email_unsubscribed?
+
+    # Check unsubscribe status (both old and new systems)
+    if filter_criteria["exclude_unsubscribed"] != false # Default to true
+      return false if registration.email_unsubscribed?
+      return false if EmailUnsubscribe.unsubscribed_from_event?(registration.email, event)
+    end
 
     true
   end
@@ -109,6 +114,29 @@ class RecipientFilterService
 
     return scope unless exclude
 
-    scope.where(email_unsubscribed: false)
+    # First, filter by the old email_unsubscribed field (backwards compatibility)
+    scope = scope.where(email_unsubscribed: false)
+
+    # Then, exclude emails in the new EmailUnsubscribe table
+    # This includes: global unsubscribes, organization unsubscribes, and event-specific unsubscribes
+    unsubscribed_emails = EmailUnsubscribe
+      .for_email(scope.pluck(:email))
+      .where(
+        "(scope = 'global') OR " \
+        "(scope = 'organization' AND organization_id = ?) OR " \
+        "(scope = 'event' AND event_id = ?)",
+        event.organization_id,
+        event.id
+      )
+      .pluck(:email)
+      .map(&:downcase)
+      .uniq
+
+    if unsubscribed_emails.any?
+      # Exclude these emails from the scope
+      scope = scope.where.not("LOWER(email) IN (?)", unsubscribed_emails)
+    end
+
+    scope
   end
 end

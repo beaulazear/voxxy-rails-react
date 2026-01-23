@@ -69,7 +69,11 @@ create_email(template, {
     <p>Best regards,<br/>
     [organizationName]</p>
 
-    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #aaaaaa;">
+    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #888888;">
+      <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
+    </p>
+
+    <p style="margin-top: 10px; font-size: 12px; color: #aaaaaa;">
       Powered by Voxxy Presents
     </p>
   HTML
@@ -106,7 +110,11 @@ create_email(template, {
     <p>Thanks,<br/>
     [organizationName]</p>
 
-    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #aaaaaa;">
+    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #888888;">
+      <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
+    </p>
+
+    <p style="margin-top: 10px; font-size: 12px; color: #aaaaaa;">
       Powered by Voxxy Presents
     </p>
   HTML
@@ -151,7 +159,11 @@ create_email(template, {
     <p>Thank you,<br/>
     [organizationName]</p>
 
-    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #aaaaaa;">
+    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #888888;">
+      <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
+    </p>
+
+    <p style="margin-top: 10px; font-size: 12px; color: #aaaaaa;">
       Powered by Voxxy Presents
     </p>
   HTML
@@ -193,7 +205,11 @@ create_email(template, {
     <p>Thank you,<br/>
     [organizationName]</p>
 
-    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #aaaaaa;">
+    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #888888;">
+      <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
+    </p>
+
+    <p style="margin-top: 10px; font-size: 12px; color: #aaaaaa;">
       Powered by Voxxy Presents
     </p>
   HTML
@@ -251,7 +267,11 @@ create_email(template, {
     <p>Best regards,<br/>
     [organizationName]</p>
 
-    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #aaaaaa;">
+    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #888888;">
+      <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
+    </p>
+
+    <p style="margin-top: 10px; font-size: 12px; color: #aaaaaa;">
       Powered by Voxxy Presents
     </p>
   HTML
@@ -297,7 +317,11 @@ create_email(template, {
     <p>Best regards,<br/>
     [organizationName]</p>
 
-    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #aaaaaa;">
+    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #888888;">
+      <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
+    </p>
+
+    <p style="margin-top: 10px; font-size: 12px; color: #aaaaaa;">
       Powered by Voxxy Presents
     </p>
   HTML
@@ -331,7 +355,11 @@ create_email(template, {
     <p>Best regards,<br/>
     [organizationName]</p>
 
-    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #aaaaaa;">
+    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #888888;">
+      <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
+    </p>
+
+    <p style="margin-top: 10px; font-size: 12px; color: #aaaaaa;">
       Powered by Voxxy Presents
     </p>
   HTML

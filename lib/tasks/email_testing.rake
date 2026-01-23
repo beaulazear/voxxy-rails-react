@@ -317,12 +317,27 @@ namespace :email_testing do
     puts "=" * 80
     puts ""
 
-    # Delete test events
-    puts "🗑️  Deleting TEST EMAIL events..."
-    event_count = Event.where("title LIKE ?", "%TEST EMAIL%").count
-    Event.where("title LIKE ?", "%TEST EMAIL%").destroy_all
-    puts "   ✅ Deleted #{event_count} test event(s)"
-    puts ""
+    # Find test events first
+    test_events = Event.where("title LIKE ?", "%TEST EMAIL%")
+    event_count = test_events.count
+
+    if event_count > 0
+      # Delete EmailDelivery records first (they reference event_invitations)
+      puts "🗑️  Deleting EmailDelivery records for test events..."
+      delivery_count = EmailDelivery.where(event_id: test_events.pluck(:id)).count
+      EmailDelivery.where(event_id: test_events.pluck(:id)).delete_all
+      puts "   ✅ Deleted #{delivery_count} email delivery record(s)"
+      puts ""
+
+      # Now delete test events (this will cascade to invitations, registrations, etc.)
+      puts "🗑️  Deleting TEST EMAIL events..."
+      test_events.destroy_all
+      puts "   ✅ Deleted #{event_count} test event(s)"
+      puts ""
+    else
+      puts "   ℹ️  No test events found"
+      puts ""
+    end
 
     # Delete vendor contacts with test emails
     puts "🗑️  Deleting test vendor contacts..."
