@@ -395,10 +395,12 @@ Rails.application.routes.draw do
           end
         end
 
-        # Email testing (venue owners only - 7 scheduled emails)
+        # Email testing (venue owners only - 10 emails total)
         resources :email_tests, only: [ :index ] do
           collection do
-            post :send_scheduled
+            post :send_scheduled           # 7 scheduled emails
+            post :send_notification_emails # 3 notification emails
+            post :send_all                 # All 10 emails
           end
         end
 

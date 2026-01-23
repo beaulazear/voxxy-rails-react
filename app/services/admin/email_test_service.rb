@@ -78,6 +78,40 @@ class Admin::EmailTestService
     results
   end
 
+  # Send notification emails (3 emails) to producer's email
+  # These are the system emails sent when producers make changes
+  def send_notification_emails_to_producer
+    test_data = setup_test_data
+    results = []
+    recipient_email = user.email
+
+    # Override registration email to send to test user
+    test_registration = test_data[:registration]
+    original_email = test_registration.email
+    test_registration.update_column(:email, recipient_email)
+
+    begin
+      results << send_email("Category Changed") do
+        test_registration.update_column(:vendor_category, "Food")
+        RegistrationEmailService.send_category_change_notification(test_registration, 200)
+      end
+
+      results << send_email("Event Details Changed") do
+        RegistrationEmailService.send_event_details_changed_to_all(test_data[:event])
+      end
+
+      results << send_email("Payment Confirmed") do
+        test_registration.update_column(:payment_status, "paid")
+        RegistrationEmailService.send_payment_confirmation(test_registration)
+      end
+    ensure
+      # Restore original email
+      test_registration.update_column(:email, original_email)
+    end
+
+    results
+  end
+
   # Send all 17 emails to admin user's email (admin only)
   def send_all_emails_to_admin
     return { error: "Admin access required" } unless user.admin?
