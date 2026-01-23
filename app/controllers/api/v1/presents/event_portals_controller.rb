@@ -6,53 +6,32 @@ module Api
         skip_before_action :check_presents_access, only: [ :verify_access, :show_by_slug ]
 
         # POST /api/v1/presents/portals/verify
-        # Params: { event_slug: "summer-art-market", application_code: "EVENT-202601-ABC123", email: "vendor@example.com" }
+        # Params: { event_slug: "summer-art-market", email: "vendor@example.com" }
         def verify_access
           event = Event.find_by!(slug: params[:event_slug])
-          application_code = params[:application_code]&.strip
           email = params[:email]&.downcase&.strip
-
-          # Find the vendor application by code and ensure it belongs to this event
-          vendor_application = VendorApplication.find_by(shareable_code: application_code, event_id: event.id)
-
-          unless vendor_application
-            return render json: {
-              access_granted: false,
-              error: "Invalid application code for this event"
-            }, status: :not_found
-          end
-
-          # Check if email exists in invitations for this event
-          invited = event.event_invitations.joins(:vendor_contact).exists?(
-            vendor_contacts: { email: email }
-          )
 
           # Check if email exists in registrations (applied) for this event
           applied = event.registrations.exists?(email: email)
 
-          if invited && applied
-            # Track portal view
-            event.event_portal&.track_view!
-
-            # Generate session token
-            portal_token = generate_session_token(event.id, email)
-
-            render json: {
-              access_granted: true,
-              portal_token: portal_token,
-              event_slug: event.slug
-            }
-          elsif invited && !applied
-            render json: {
+          unless applied
+            return render json: {
               access_granted: false,
-              error: "You must submit an application before accessing the portal"
-            }, status: :forbidden
-          else
-            render json: {
-              access_granted: false,
-              error: "Email not found for this event. Make sure you were invited."
+              error: "Email not found. Please make sure you have applied to this event."
             }, status: :not_found
           end
+
+          # Track portal view
+          event.event_portal&.track_view!
+
+          # Generate session token
+          portal_token = generate_session_token(event.id, email)
+
+          render json: {
+            access_granted: true,
+            portal_token: portal_token,
+            event_slug: event.slug
+          }
         rescue ActiveRecord::RecordNotFound
           render json: {
             access_granted: false,
