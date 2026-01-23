@@ -82,20 +82,27 @@ module Api
               # Mark as sent immediately (could also be done via background job)
               invitation.mark_as_sent!
 
-              # Send invitation email and create delivery tracking record
+              # Create EmailDelivery record BEFORE sending (ensures all invitations tracked)
+              # Initial status is "queued" - will be updated to "sent" or "dropped"
+              delivery_record = create_invitation_delivery_record(invitation, @event, contact)
+
+              # Send invitation email
               begin
                 mail = EventInvitationMailer.invitation_email(invitation)
                 mail.deliver_now
 
-                # Create EmailDelivery record for webhook tracking
-                # Note: We generate a predictable tracking ID since ActionMailer/SMTP
-                # doesn't return the SendGrid message ID
-                create_invitation_delivery_record(invitation, @event, contact)
-
                 Rails.logger.info("✓ Sent invitation email to #{contact.email}")
               rescue => e
-                Rails.logger.error "Failed to send invitation email: #{e.message}"
-                # Don't fail the entire operation if email fails
+                Rails.logger.error "Failed to send invitation email to #{contact.email}: #{e.message}"
+
+                # Mark delivery as failed in tracking system
+                if delivery_record
+                  delivery_record.update(
+                    status: "dropped",
+                    drop_reason: "Email send failed: #{e.message}",
+                    dropped_at: Time.current
+                  )
+                end
               end
             else
               errors << {
@@ -235,7 +242,8 @@ module Api
         end
 
         def create_invitation_delivery_record(invitation, event, contact)
-          # Create EmailDelivery record BEFORE webhook arrives
+          # Create EmailDelivery record BEFORE sending email
+          # This ensures ALL invitations are tracked, even if email send fails
           # Use recipient email as lookup key since we can't get SendGrid message ID from SMTP
           # Webhook will find this record by matching recipient_email + event_invitation_id
 
@@ -244,7 +252,7 @@ module Api
             event_invitation_id: invitation.id,
             sendgrid_message_id: "pending-#{invitation.id}-#{Time.current.to_i}",
             recipient_email: contact.email,
-            status: "sent",
+            status: "queued",  # Initial status - indicates send attempt in progress
             sent_at: Time.current
           )
 
