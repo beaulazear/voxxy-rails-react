@@ -103,10 +103,22 @@ class EmailDeliveryProcessorJob
       unsubscribed_at: Time.current
     )
 
-    # Mark registration as globally unsubscribed
+    # Mark registration as globally unsubscribed (old system - backwards compatibility)
     if delivery.registration
       delivery.registration.update(email_unsubscribed: true)
-      Rails.logger.info("⊗ User unsubscribed: #{delivery.recipient_email}")
+    end
+
+    # Create global unsubscribe record (new system)
+    # This allows them to re-subscribe through user preferences later if desired
+    begin
+      EmailUnsubscribe.create_or_find_unsubscribe(
+        email: delivery.recipient_email,
+        scope: 'global',
+        source: 'sendgrid_webhook'
+      )
+      Rails.logger.info("⊗ User globally unsubscribed via SendGrid: #{delivery.recipient_email}")
+    rescue => e
+      Rails.logger.error("Failed to create global unsubscribe record: #{e.message}")
     end
   end
 
@@ -158,16 +170,44 @@ class EmailDeliveryProcessorJob
     invitation = EventInvitation.find_by(id: invitation_id)
     return nil unless invitation
 
-    EmailDelivery.create!(
+    # Try to find a related ScheduledEmail for this invitation
+    # Event Announcements are sent via EventInvitationMailer but tracked as ScheduledEmails
+    scheduled_email = find_scheduled_email_for_invitation(event_id, event_data["timestamp"])
+
+    delivery_params = {
       event_id: event_id,
       event_invitation_id: invitation_id,
       sendgrid_message_id: sg_message_id,
       recipient_email: event_data["email"],
       status: "sent",
       sent_at: Time.at(event_data["timestamp"].to_i)
-    )
+    }
+
+    # If we found a matching scheduled email, link to it
+    # This allows ScheduledEmail.undelivered_count to find these records
+    if scheduled_email
+      delivery_params[:scheduled_email_id] = scheduled_email.id
+      # Remove event_invitation_id to satisfy the check constraint
+      delivery_params.delete(:event_invitation_id)
+      Rails.logger.info("Linking invitation delivery to ScheduledEmail ##{scheduled_email.id}")
+    end
+
+    EmailDelivery.create!(delivery_params)
   rescue => e
     Rails.logger.error("Failed to create invitation delivery: #{e.message}")
     nil
+  end
+
+  def find_scheduled_email_for_invitation(event_id, timestamp)
+    # Look for Event Announcement scheduled emails sent around the same time
+    # Event Announcements are typically "on_application_open" trigger type
+    sent_time = Time.at(timestamp.to_i)
+    time_window = 10.minutes # Allow 10 minute window for matching
+
+    ScheduledEmail.where(event_id: event_id)
+                  .where(status: "sent")
+                  .where("sent_at BETWEEN ? AND ?", sent_time - time_window, sent_time + time_window)
+                  .where("trigger_type = ? OR name ILIKE ?", "on_application_open", "%announcement%")
+                  .first
   end
 end
