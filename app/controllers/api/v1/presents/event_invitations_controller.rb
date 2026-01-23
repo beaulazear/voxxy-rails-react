@@ -82,9 +82,17 @@ module Api
               # Mark as sent immediately (could also be done via background job)
               invitation.mark_as_sent!
 
-              # Send invitation email
+              # Send invitation email and create delivery tracking record
               begin
-                EventInvitationMailer.invitation_email(invitation).deliver_now
+                mail = EventInvitationMailer.invitation_email(invitation)
+                mail.deliver_now
+
+                # Create EmailDelivery record for webhook tracking
+                # Note: We generate a predictable tracking ID since ActionMailer/SMTP
+                # doesn't return the SendGrid message ID
+                create_invitation_delivery_record(invitation, @event, contact)
+
+                Rails.logger.info("✓ Sent invitation email to #{contact.email}")
               rescue => e
                 Rails.logger.error "Failed to send invitation email: #{e.message}"
                 # Don't fail the entire operation if email fails
@@ -224,6 +232,26 @@ module Api
             unsubscribed: invitation_deliveries.where(status: "unsubscribed").count,
             pending: invitation_deliveries.where(status: [ "queued", "sent" ]).count
           }
+        end
+
+        def create_invitation_delivery_record(invitation, event, contact)
+          # Create EmailDelivery record BEFORE webhook arrives
+          # Use recipient email as lookup key since we can't get SendGrid message ID from SMTP
+          # Webhook will find this record by matching recipient_email + event_invitation_id
+
+          EmailDelivery.create!(
+            event_id: event.id,
+            event_invitation_id: invitation.id,
+            sendgrid_message_id: "pending-#{invitation.id}-#{Time.current.to_i}",
+            recipient_email: contact.email,
+            status: "sent",
+            sent_at: Time.current
+          )
+
+          Rails.logger.info("Created delivery tracking record for invitation ##{invitation.id} to #{contact.email}")
+        rescue ActiveRecord::RecordInvalid => e
+          Rails.logger.error("Failed to create invitation delivery record: #{e.message}")
+          nil
         end
       end
     end

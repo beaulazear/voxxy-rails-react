@@ -15,15 +15,37 @@ class EmailDeliveryProcessorJob
       return
     end
 
-    # Try to find existing EmailDelivery record
+    # Try to find existing EmailDelivery record by SendGrid message ID
     delivery = EmailDelivery.find_by(sendgrid_message_id: sg_message_id)
 
-    # If not found and this is an invitation, create delivery record on-the-fly
-    # Note: SendGrid may send custom args flattened OR nested - check both
-    invitation_id = event_data["event_invitation_id"] || event_data.dig("unique_args", "event_invitation_id")
-    if delivery.nil? && invitation_id.present?
-      Rails.logger.info("Creating delivery record for invitation email (message: #{sg_message_id})")
-      delivery = create_invitation_delivery(event_data, sg_message_id)
+    # If not found by message ID, try to find by recipient email for invitation emails
+    # (Invitation emails sent via SMTP create records with temporary message IDs)
+    if delivery.nil?
+      recipient_email = event_data["email"]
+      if recipient_email.present?
+        # Look for recent invitation delivery records with this recipient email
+        delivery = EmailDelivery.where(recipient_email: recipient_email)
+                                .where.not(event_invitation_id: nil)
+                                .where("sent_at > ?", 1.hour.ago)
+                                .order(sent_at: :desc)
+                                .first
+
+        if delivery
+          # Update the sendgrid_message_id with the real one from the webhook
+          delivery.update_column(:sendgrid_message_id, sg_message_id)
+          Rails.logger.info("Found invitation delivery by email, updated message ID: #{sg_message_id}")
+        end
+      end
+    end
+
+    # If still not found and webhook has custom args, create record on-the-fly
+    # (Fallback for old invitations sent before this fix)
+    if delivery.nil?
+      invitation_id = event_data["event_invitation_id"] || event_data.dig("unique_args", "event_invitation_id")
+      if invitation_id.present?
+        Rails.logger.info("Creating delivery record for invitation email (message: #{sg_message_id})")
+        delivery = create_invitation_delivery(event_data, sg_message_id)
+      end
     end
 
     unless delivery
