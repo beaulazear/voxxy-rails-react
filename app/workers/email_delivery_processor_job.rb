@@ -19,8 +19,9 @@ class EmailDeliveryProcessorJob
     delivery = EmailDelivery.find_by(sendgrid_message_id: sg_message_id)
 
     # If not found and this is an invitation, create delivery record on-the-fly
-    # Note: SendGrid flattens custom args to top level of webhook payload
-    if delivery.nil? && event_data["event_invitation_id"].present?
+    # Note: SendGrid may send custom args flattened OR nested - check both
+    invitation_id = event_data["event_invitation_id"] || event_data.dig("unique_args", "event_invitation_id")
+    if delivery.nil? && invitation_id.present?
       Rails.logger.info("Creating delivery record for invitation email (message: #{sg_message_id})")
       delivery = create_invitation_delivery(event_data, sg_message_id)
     end
@@ -161,9 +162,9 @@ class EmailDeliveryProcessorJob
   end
 
   def create_invitation_delivery(event_data, sg_message_id)
-    # SendGrid flattens custom args to top level of webhook payload
-    event_id = event_data["event_id"]
-    invitation_id = event_data["event_invitation_id"]
+    # SendGrid may send custom args flattened OR nested - check both locations
+    event_id = event_data["event_id"] || event_data.dig("unique_args", "event_id")
+    invitation_id = event_data["event_invitation_id"] || event_data.dig("unique_args", "event_invitation_id")
 
     return nil unless event_id && invitation_id
 
