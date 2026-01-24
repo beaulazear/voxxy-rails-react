@@ -1,7 +1,7 @@
 module Api
   module V1
     module Presents
-      class PaymentTransactionsController < AuthorizedController
+      class PaymentTransactionsController < BaseController
         before_action :set_event
 
         # GET /api/v1/presents/events/:event_id/payment_transactions

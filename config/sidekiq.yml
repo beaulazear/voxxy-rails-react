@@ -10,6 +10,7 @@
 :queues:
   - [critical, 10]      # Highest priority
   - [email_delivery, 5] # Email sending jobs
+  - [payment_sync, 3]   # Payment sync jobs
   - [default, 1]        # Default priority
 
 # Production-specific settings

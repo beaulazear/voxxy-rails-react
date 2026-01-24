@@ -1,7 +1,7 @@
 module Api
   module V1
     module Presents
-      class PaymentIntegrationsController < AuthorizedController
+      class PaymentIntegrationsController < BaseController
         before_action :set_event
         before_action :set_payment_integration, only: [:show, :update, :destroy, :sync]
 

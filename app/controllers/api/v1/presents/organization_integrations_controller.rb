@@ -1,7 +1,7 @@
 module Api
   module V1
     module Presents
-      class OrganizationIntegrationsController < AuthorizedController
+      class OrganizationIntegrationsController < BaseController
         before_action :set_organization
 
         # POST /api/v1/presents/organizations/:organization_id/integrations/eventbrite/connect
