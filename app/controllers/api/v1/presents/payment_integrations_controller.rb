@@ -78,7 +78,11 @@ module Api
         private
 
         def set_event
-          @event = current_user.organization.events.find(params[:event_id])
+          @event = Event.find_by!(slug: params[:event_id])
+
+          unless @event.organization.user_id == @current_user.id || @current_user.admin?
+            render json: { error: 'Not authorized' }, status: :forbidden
+          end
         rescue ActiveRecord::RecordNotFound
           render json: { error: 'Event not found' }, status: :not_found
         end

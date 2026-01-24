@@ -82,9 +82,15 @@ module Api
         private
 
         def set_organization
-          @organization = current_user.organization
+          @organization = Organization.find_by(slug: params[:organization_id]) ||
+                          Organization.find_by(id: params[:organization_id])
+
           unless @organization
-            render json: { error: 'Organization not found' }, status: :not_found
+            return render json: { error: 'Organization not found' }, status: :not_found
+          end
+
+          unless @organization.user_id == @current_user.id || @current_user.admin?
+            render json: { error: 'Not authorized' }, status: :forbidden
           end
         end
       end

@@ -6,7 +6,7 @@ module Api
 
         # GET /api/v1/presents/events/:event_id/payment_transactions
         def index
-          transactions = @event.payment_transactions.includes(:contact, :registration)
+          transactions = @event.payment_transactions.includes(:vendor_contact, :registration)
 
           # Filters
           transactions = transactions.where(payment_status: params[:payment_status]) if params[:payment_status].present?
@@ -15,19 +15,10 @@ module Api
           # Search by email
           transactions = transactions.where('payer_email ILIKE ?', "%#{params[:search]}%") if params[:search].present?
 
-          # Pagination
-          page = params[:page] || 1
-          per_page = params[:per_page] || 50
-          transactions = transactions.page(page).per(per_page)
+          transactions = transactions.order(created_at: :desc)
 
           render json: {
-            transactions: transactions.map { |t| serialize_transaction(t) },
-            meta: {
-              current_page: transactions.current_page,
-              total_pages: transactions.total_pages,
-              total_count: transactions.total_count,
-              per_page: per_page.to_i
-            }
+            transactions: transactions.map { |t| serialize_transaction(t) }
           }, status: :ok
         end
 
@@ -45,7 +36,7 @@ module Api
           transaction = @event.payment_transactions.find(params[:id])
           contact = @event.organization.vendor_contacts.find(params[:contact_id])
 
-          transaction.update!(contact: contact)
+          transaction.update!(vendor_contact: contact)
 
           # Update contact payment status
           contact.update!(
@@ -78,7 +69,11 @@ module Api
         private
 
         def set_event
-          @event = current_user.organization.events.find(params[:event_id])
+          @event = Event.find_by!(slug: params[:event_id])
+
+          unless @event.organization.user_id == @current_user.id || @current_user.admin?
+            render json: { error: 'Not authorized' }, status: :forbidden
+          end
         rescue ActiveRecord::RecordNotFound
           render json: { error: 'Event not found' }, status: :not_found
         end
@@ -99,10 +94,10 @@ module Api
             transaction_updated_at: transaction.transaction_updated_at,
             last_synced_at: transaction.last_synced_at,
             matched: transaction.matched?,
-            contact: transaction.contact ? {
-              id: transaction.contact.id,
-              name: transaction.contact.name,
-              email: transaction.contact.email
+            vendor_contact: transaction.vendor_contact ? {
+              id: transaction.vendor_contact.id,
+              name: transaction.vendor_contact.name,
+              email: transaction.vendor_contact.email
             } : nil,
             registration: transaction.registration ? {
               id: transaction.registration.id,
