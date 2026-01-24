@@ -6,13 +6,13 @@ class PaymentSyncService
     @provider = build_provider
   end
 
-  def sync(sync_type: 'incremental')
+  def sync(sync_type: "incremental")
     return unless payment_integration.auto_sync_enabled?
 
     @sync_log = create_sync_log(sync_type)
 
     # Determine if full or incremental sync
-    changed_since = sync_type == 'full' ? nil : payment_integration.last_synced_at
+    changed_since = sync_type == "full" ? nil : payment_integration.last_synced_at
 
     # Fetch transactions from provider
     transactions = @provider.fetch_transactions(changed_since: changed_since)
@@ -39,7 +39,7 @@ class PaymentSyncService
 
   def build_provider
     case payment_integration.provider
-    when 'eventbrite'
+    when "eventbrite"
       PaymentProviders::EventbriteProvider.new(payment_integration)
     else
       raise "Unsupported provider: #{payment_integration.provider}"
@@ -95,7 +95,6 @@ class PaymentSyncService
       .where(payment_integration: payment_integration)
       .where(vendor_contact_id: nil)
       .find_each do |transaction|
-
       # Find vendor contact by email + organization
       vendor_contact = VendorContact.find_by(
         email: transaction.payer_email&.downcase&.strip,
@@ -140,7 +139,7 @@ class PaymentSyncService
   def update_registration_payment_status(registration, transaction)
     # Toggle the existing vendor_fee_paid boolean
     # This will trigger the existing payment confirmation email
-    vendor_fee_paid = transaction.payment_status == 'paid'
+    vendor_fee_paid = transaction.payment_status == "paid"
 
     registration.update(
       vendor_fee_paid: vendor_fee_paid,
@@ -162,7 +161,7 @@ class PaymentSyncService
   def update_sync_state
     payment_integration.update(
       last_synced_at: Time.current,
-      sync_status: 'active',
+      sync_status: "active",
       sync_metadata: payment_integration.sync_metadata.merge(
         last_sync_type: sync_log.sync_type,
         last_sync_at: Time.current.iso8601,
@@ -181,7 +180,7 @@ class PaymentSyncService
     Rails.logger.error(error.backtrace.join("\n"))
 
     payment_integration.update(
-      sync_status: 'error',
+      sync_status: "error",
       sync_metadata: payment_integration.sync_metadata.merge(
         last_error: error.message,
         last_error_at: Time.current.iso8601

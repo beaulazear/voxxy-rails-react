@@ -104,9 +104,39 @@ class ScheduledEmail < ApplicationRecord
   end
 
   # Count of recipients who unsubscribed
+  # Checks both old email_deliveries (SendGrid webhooks) and new EmailUnsubscribe table
   def unsubscribed_count
-    return 0 unless status == "sent"
-    email_deliveries.where(status: "unsubscribed").count
+    return 0 unless event
+
+    # If email already sent, count from email_deliveries (historical)
+    if status == "sent"
+      return email_deliveries.where(status: "unsubscribed").count
+    end
+
+    # For scheduled emails, count how many current recipients are unsubscribed
+    # This helps show how many people WON'T receive the email
+    recipient_emails = if is_announcement_email?
+      event.event_invitations.joins(:vendor_contact).pluck("vendor_contacts.email")
+    else
+      # Get emails from registrations that match the filter criteria
+      recipients = event.registrations
+      if filter_criteria.present?
+        recipients = recipients.where(status: filter_criteria["status"]) if filter_criteria["status"].present?
+        recipients = recipients.where(vendor_category: filter_criteria["vendor_category"]) if filter_criteria["vendor_category"].present?
+        recipients = recipients.where.not(status: filter_criteria["exclude_status"]) if filter_criteria["exclude_status"].present?
+      end
+      recipients.pluck(:email)
+    end
+
+    return 0 if recipient_emails.empty?
+
+    # Count how many of these emails are in the EmailUnsubscribe table for this event
+    EmailUnsubscribe.for_email(recipient_emails)
+      .where(
+        "(scope = 'event' AND event_id = ?) OR (scope = 'organization' AND organization_id = ?) OR scope = 'global'",
+        event.id,
+        event.organization_id
+      ).count
   end
 
   # Count of successfully delivered emails

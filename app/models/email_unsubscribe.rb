@@ -27,7 +27,17 @@ class EmailUnsubscribe < ApplicationRecord
   scope :global, -> { where(scope: "global") }
   scope :for_event, ->(event) { where(scope: "event", event_id: event.id) }
   scope :for_organization, ->(org) { where(scope: "organization", organization_id: org.id) }
-  scope :for_email, ->(email) { where(email: email.downcase.strip) }
+  scope :for_email, ->(email) {
+    # Handle both single email string and array of emails
+    if email.is_a?(Array)
+      # Normalize all emails in the array
+      normalized_emails = email.map { |e| e.to_s.downcase.strip }.compact.uniq
+      where(email: normalized_emails)
+    else
+      # Single email string
+      where(email: email.to_s.downcase.strip)
+    end
+  }
 
   # Check if an email is unsubscribed from a specific event
   def self.unsubscribed_from_event?(email, event)
@@ -92,6 +102,33 @@ class EmailUnsubscribe < ApplicationRecord
     end
 
     existing || create!(attrs)
+  end
+
+  # Resubscribe - delete the unsubscribe record to allow emails again
+  def self.resubscribe(email:, scope:, event: nil, organization: nil)
+    normalized_email = email.downcase.strip
+
+    record = case scope
+    when "event"
+      find_by(email: normalized_email, scope: "event", event_id: event&.id)
+    when "organization"
+      find_by(email: normalized_email, scope: "organization", organization_id: organization&.id)
+    when "global"
+      find_by(email: normalized_email, scope: "global")
+    end
+
+    if record
+      record.destroy!
+
+      # If was globally unsubscribed, also update Registration records
+      if scope == "global" && event
+        event.registrations.where(email: normalized_email).update_all(email_unsubscribed: false)
+      end
+
+      true
+    else
+      false
+    end
   end
 
   private

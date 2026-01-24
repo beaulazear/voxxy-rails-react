@@ -1,5 +1,5 @@
 class EventbriteApiClient
-  BASE_URL = 'https://www.eventbriteapi.com/v3'
+  BASE_URL = "https://www.eventbriteapi.com/v3"
 
   class Error < StandardError; end
   class AuthenticationError < Error; end
@@ -17,8 +17,8 @@ class EventbriteApiClient
     uri.query = URI.encode_www_form(params) if params.any?
 
     request = Net::HTTP::Get.new(uri)
-    request['Authorization'] = "Bearer #{@api_token}"
-    request['Content-Type'] = 'application/json'
+    request["Authorization"] = "Bearer #{@api_token}"
+    request["Content-Type"] = "application/json"
 
     response = @http.request(request)
 
@@ -30,7 +30,7 @@ class EventbriteApiClient
 
   # Test connection to validate API token
   def test_connection
-    get('/users/me/')
+    get("/users/me/")
     true
   rescue AuthenticationError
     false
@@ -56,7 +56,7 @@ class EventbriteApiClient
     when 404
       raise NotFoundError, "Eventbrite resource not found. Check event ID."
     when 429
-      retry_after = response['Retry-After']&.to_i || 60
+      retry_after = response["Retry-After"]&.to_i || 60
       raise RateLimitError, "Rate limited. Retry after #{retry_after} seconds."
     when 500..599
       raise ServerError, "Eventbrite server error: #{response.code}"

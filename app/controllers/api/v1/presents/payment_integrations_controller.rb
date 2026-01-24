@@ -3,7 +3,7 @@ module Api
     module Presents
       class PaymentIntegrationsController < BaseController
         before_action :set_event
-        before_action :set_payment_integration, only: [:show, :update, :destroy, :sync]
+        before_action :set_payment_integration, only: [ :show, :update, :destroy, :sync ]
 
         # GET /api/v1/presents/events/:event_id/payment_integrations
         def index
@@ -14,7 +14,7 @@ module Api
         # POST /api/v1/presents/events/:event_id/payment_integrations
         # Create new payment integration (link Eventbrite event)
         def create
-          provider = params[:provider] || 'eventbrite'
+          provider = params[:provider] || "eventbrite"
           provider_url = params[:provider_url]
           provider_event_id = params[:provider_event_id]
 
@@ -24,7 +24,7 @@ module Api
           end
 
           if provider_event_id.blank?
-            return render json: { error: 'Could not extract event ID from URL' }, status: :unprocessable_entity
+            return render json: { error: "Could not extract event ID from URL" }, status: :unprocessable_entity
           end
 
           # Create the integration
@@ -64,15 +64,15 @@ module Api
 
         # DELETE /api/v1/presents/payment_integrations/:id
         def destroy
-          @integration.update(sync_status: 'inactive')
-          render json: { message: 'Payment integration deactivated' }, status: :ok
+          @integration.update(sync_status: "inactive")
+          render json: { message: "Payment integration deactivated" }, status: :ok
         end
 
         # POST /api/v1/presents/payment_integrations/:id/sync
         # Manually trigger full resync
         def sync
           PaymentSyncWorker.perform_async(@integration.id)
-          render json: { message: 'Sync initiated' }, status: :accepted
+          render json: { message: "Sync initiated" }, status: :accepted
         end
 
         private
@@ -81,22 +81,22 @@ module Api
           @event = Event.find_by!(slug: params[:event_id])
 
           unless @event.organization.user_id == @current_user.id || @current_user.admin?
-            render json: { error: 'Not authorized' }, status: :forbidden
+            render json: { error: "Not authorized" }, status: :forbidden
           end
         rescue ActiveRecord::RecordNotFound
-          render json: { error: 'Event not found' }, status: :not_found
+          render json: { error: "Event not found" }, status: :not_found
         end
 
         def set_payment_integration
           @integration = @event.payment_integrations.find(params[:id])
         rescue ActiveRecord::RecordNotFound
-          render json: { error: 'Payment integration not found' }, status: :not_found
+          render json: { error: "Payment integration not found" }, status: :not_found
         end
 
         def extract_provider_id(provider, url)
           case provider
-          when 'eventbrite'
-            temp_integration = PaymentIntegration.new(organization: @event.organization, provider: 'eventbrite')
+          when "eventbrite"
+            temp_integration = PaymentIntegration.new(organization: @event.organization, provider: "eventbrite")
             provider_service = PaymentProviders::EventbriteProvider.new(temp_integration)
             provider_service.extract_provider_id_from_url(url)
           else

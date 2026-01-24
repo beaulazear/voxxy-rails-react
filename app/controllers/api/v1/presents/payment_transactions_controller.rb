@@ -13,7 +13,7 @@ module Api
           transactions = transactions.where(provider: params[:provider]) if params[:provider].present?
 
           # Search by email
-          transactions = transactions.where('payer_email ILIKE ?', "%#{params[:search]}%") if params[:search].present?
+          transactions = transactions.where("payer_email ILIKE ?", "%#{params[:search]}%") if params[:search].present?
 
           transactions = transactions.order(created_at: :desc)
 
@@ -27,7 +27,7 @@ module Api
           transaction = @event.payment_transactions.find(params[:id])
           render json: serialize_transaction(transaction, detailed: true), status: :ok
         rescue ActiveRecord::RecordNotFound
-          render json: { error: 'Transaction not found' }, status: :not_found
+          render json: { error: "Transaction not found" }, status: :not_found
         end
 
         # PATCH /api/v1/presents/payment_transactions/:id/match
@@ -51,7 +51,7 @@ module Api
           registration = Registration.find_by(event: @event, email: contact.email)
           if registration
             registration.update!(
-              vendor_fee_paid: transaction.payment_status == 'paid',
+              vendor_fee_paid: transaction.payment_status == "paid",
               payment_transaction_id: transaction.id,
               payment_provider: transaction.provider,
               payment_amount: transaction.amount
@@ -72,10 +72,10 @@ module Api
           @event = Event.find_by!(slug: params[:event_id])
 
           unless @event.organization.user_id == @current_user.id || @current_user.admin?
-            render json: { error: 'Not authorized' }, status: :forbidden
+            render json: { error: "Not authorized" }, status: :forbidden
           end
         rescue ActiveRecord::RecordNotFound
-          render json: { error: 'Event not found' }, status: :not_found
+          render json: { error: "Event not found" }, status: :not_found
         end
 
         def serialize_transaction(transaction, detailed: false)

@@ -7,16 +7,16 @@ class PaymentIntegration < ApplicationRecord
   validates :provider, presence: true
   validates :provider, uniqueness: { scope: :event_id }
 
-  enum sync_status: { active: 'active', paused: 'paused', error: 'error', inactive: 'inactive' }
+  enum sync_status: { active: "active", paused: "paused", error: "error", inactive: "inactive" }
 
-  scope :active_syncs, -> { where(sync_status: 'active', auto_sync_enabled: true) }
+  scope :active_syncs, -> { where(sync_status: "active", auto_sync_enabled: true) }
 
   def active?
-    sync_status == 'active'
+    sync_status == "active"
   end
 
   def paused?
-    sync_status == 'paused'
+    sync_status == "paused"
   end
 
   def needs_sync?

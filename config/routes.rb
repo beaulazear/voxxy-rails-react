@@ -427,6 +427,7 @@ Rails.application.routes.draw do
         # Public unsubscribe endpoints (no auth required - token-based security)
         get "unsubscribe/:token", to: "unsubscribes#show"
         post "unsubscribe/:token", to: "unsubscribes#create"
+        post "unsubscribe/:token/resubscribe", to: "unsubscribes#resubscribe"
       end
 
       # Webhooks (outside presents namespace - public endpoint)

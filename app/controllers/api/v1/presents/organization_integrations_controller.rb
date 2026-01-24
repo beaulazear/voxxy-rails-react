@@ -9,13 +9,13 @@ module Api
           api_token = params[:api_token]
 
           if api_token.blank?
-            return render json: { error: 'API token is required' }, status: :unprocessable_entity
+            return render json: { error: "API token is required" }, status: :unprocessable_entity
           end
 
           # Test the connection
           client = EventbriteApiClient.new(api_token)
           unless client.test_connection
-            return render json: { error: 'Invalid API token or connection failed' }, status: :unprocessable_entity
+            return render json: { error: "Invalid API token or connection failed" }, status: :unprocessable_entity
           end
 
           # Save the token
@@ -26,7 +26,7 @@ module Api
           )
 
           render json: {
-            message: 'Eventbrite connected successfully',
+            message: "Eventbrite connected successfully",
             organization: {
               id: @organization.id,
               eventbrite_connected: @organization.eventbrite_connected,
@@ -35,7 +35,7 @@ module Api
           }, status: :ok
         rescue => e
           Rails.logger.error("Eventbrite connection error: #{e.message}")
-          render json: { error: 'Failed to connect to Eventbrite' }, status: :internal_server_error
+          render json: { error: "Failed to connect to Eventbrite" }, status: :internal_server_error
         end
 
         # DELETE /api/v1/presents/organizations/:organization_id/integrations/eventbrite/disconnect
@@ -46,7 +46,7 @@ module Api
             eventbrite_connected_at: nil
           )
 
-          render json: { message: 'Eventbrite disconnected successfully' }, status: :ok
+          render json: { message: "Eventbrite disconnected successfully" }, status: :ok
         end
 
         # GET /api/v1/presents/organizations/:organization_id/integrations/eventbrite/status
@@ -61,13 +61,13 @@ module Api
         # Fetches list of events from Eventbrite for dropdown
         def eventbrite_events
           unless @organization.eventbrite_connected?
-            return render json: { error: 'Eventbrite not connected' }, status: :unprocessable_entity
+            return render json: { error: "Eventbrite not connected" }, status: :unprocessable_entity
           end
 
           # Create a temporary payment integration object to use the provider
           temp_integration = PaymentIntegration.new(
             organization: @organization,
-            provider: 'eventbrite'
+            provider: "eventbrite"
           )
           provider = PaymentProviders::EventbriteProvider.new(temp_integration)
 
@@ -76,7 +76,7 @@ module Api
           render json: { events: events }, status: :ok
         rescue => e
           Rails.logger.error("Error fetching Eventbrite events: #{e.message}")
-          render json: { error: 'Failed to fetch Eventbrite events' }, status: :internal_server_error
+          render json: { error: "Failed to fetch Eventbrite events" }, status: :internal_server_error
         end
 
         private
@@ -86,11 +86,11 @@ module Api
                           Organization.find_by(id: params[:organization_id])
 
           unless @organization
-            return render json: { error: 'Organization not found' }, status: :not_found
+            return render json: { error: "Organization not found" }, status: :not_found
           end
 
           unless @organization.user_id == @current_user.id || @current_user.admin?
-            render json: { error: 'Not authorized' }, status: :forbidden
+            render json: { error: "Not authorized" }, status: :forbidden
           end
         end
       end

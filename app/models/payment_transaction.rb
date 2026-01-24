@@ -40,7 +40,7 @@ class PaymentTransaction < ApplicationRecord
     # Update registration vendor_fee_paid if registration exists
     if registration.present?
       registration.update(
-        vendor_fee_paid: payment_status == 'paid',
+        vendor_fee_paid: payment_status == "paid",
         payment_provider: provider,
         payment_amount: amount
       )

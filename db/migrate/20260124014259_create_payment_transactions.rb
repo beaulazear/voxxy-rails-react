@@ -37,7 +37,7 @@ class CreatePaymentTransactions < ActiveRecord::Migration[7.2]
     end
 
     add_index :payment_transactions, :provider_transaction_id, unique: true
-    add_index :payment_transactions, [:event_id, :payer_email]
+    add_index :payment_transactions, [ :event_id, :payer_email ]
     add_index :payment_transactions, :payment_status
   end
 end

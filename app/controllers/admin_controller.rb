@@ -322,6 +322,32 @@ class AdminController < ApplicationController
       }
     end
 
+    # Unsubscribe statistics
+    total_unsubscribes = EmailUnsubscribe.count
+    unsubscribes_by_scope = EmailUnsubscribe.group(:scope).count
+    recent_unsubscribes_7d = EmailUnsubscribe.where("created_at >= ?", 7.days.ago).count
+    recent_unsubscribes_30d = EmailUnsubscribe.where("created_at >= ?", 30.days.ago).count
+
+    # Top events with unsubscribes
+    top_event_unsubscribes = EmailUnsubscribe
+      .where(scope: "event")
+      .joins(:event)
+      .group("events.id", "events.title")
+      .select("events.id, events.title, COUNT(email_unsubscribes.id) as unsub_count")
+      .order("unsub_count DESC")
+      .limit(5)
+      .map { |row| { event_id: row.id, event_title: row.title, unsubscribe_count: row.unsub_count } }
+
+    # Top organizations with unsubscribes
+    top_org_unsubscribes = EmailUnsubscribe
+      .where(scope: "organization")
+      .joins(:organization)
+      .group("organizations.id", "organizations.name")
+      .select("organizations.id, organizations.name, COUNT(email_unsubscribes.id) as unsub_count")
+      .order("unsub_count DESC")
+      .limit(5)
+      .map { |row| { organization_id: row.id, organization_name: row.name, unsubscribe_count: row.unsub_count } }
+
     render json: {
       users: {
         total: total_presents_users,
@@ -349,7 +375,15 @@ class AdminController < ApplicationController
       },
       top_creators: top_creators,
       users_with_events: users_with_events,
-      recent_events: recent_events
+      recent_events: recent_events,
+      unsubscribes: {
+        total: total_unsubscribes,
+        by_scope: unsubscribes_by_scope,
+        recent_7_days: recent_unsubscribes_7d,
+        recent_30_days: recent_unsubscribes_30d,
+        top_events: top_event_unsubscribes,
+        top_organizations: top_org_unsubscribes
+      }
     }
   rescue => e
     Rails.logger.error "Failed to fetch presents analytics: #{e.message}"

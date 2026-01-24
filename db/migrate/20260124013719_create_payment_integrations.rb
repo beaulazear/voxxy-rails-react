@@ -22,6 +22,6 @@ class CreatePaymentIntegrations < ActiveRecord::Migration[7.2]
       t.timestamps
     end
 
-    add_index :payment_integrations, [:event_id, :provider], unique: true
+    add_index :payment_integrations, [ :event_id, :provider ], unique: true
   end
 end
