@@ -5,6 +5,7 @@ class Organization < ApplicationRecord
   has_many :vendor_contacts, dependent: :destroy
   has_many :contact_lists, dependent: :destroy
   has_many :email_campaign_templates, dependent: :destroy
+  has_many :payment_integrations, dependent: :destroy
 
   validates :name, presence: true
   validates :slug, presence: true, uniqueness: true
@@ -14,6 +15,11 @@ class Organization < ApplicationRecord
 
   scope :active, -> { where(active: true) }
   scope :verified, -> { where(verified: true) }
+
+  # Eventbrite integration
+  def eventbrite_connected?
+    eventbrite_api_token.present? && eventbrite_connected
+  end
 
   private
 

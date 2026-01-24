@@ -5,6 +5,8 @@ class VendorContact < ApplicationRecord
   belongs_to :registration, optional: true
   has_many :event_invitations, dependent: :destroy
   has_many :invited_events, through: :event_invitations, source: :event
+  belongs_to :payment_transaction, optional: true
+  has_many :payment_transactions, foreign_key: :contact_id
 
   # Validations
   validates :name, presence: true
@@ -15,6 +17,9 @@ class VendorContact < ApplicationRecord
   validates :website, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), message: "must be a valid URL" }, allow_blank: true
   validates :instagram_handle, format: { with: /\A@?[\w\.]+\z/, message: "must be a valid Instagram handle" }, allow_blank: true
   validates :tiktok_handle, format: { with: /\A@?[\w\.]+\z/, message: "must be a valid TikTok handle" }, allow_blank: true
+
+  # Enums
+  enum payment_status: { pending: 0, paid: 1, refunded: 2, cancelled: 3 }
 
   # Scopes
   scope :by_organization, ->(org_id) { where(organization_id: org_id) }
@@ -27,6 +32,8 @@ class VendorContact < ApplicationRecord
   scope :recently_contacted, -> { where.not(last_contacted_at: nil).order(last_contacted_at: :desc) }
   scope :with_email, -> { where.not(email: nil) }
   scope :with_phone, -> { where.not(phone: nil) }
+  scope :payment_pending, -> { where(payment_status: :pending) }
+  scope :payment_paid, -> { where(payment_status: :paid) }
 
   # Callbacks
   before_save :normalize_email

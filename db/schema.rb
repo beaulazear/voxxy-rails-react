@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_23_150336) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_24_024619) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -195,7 +195,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_150336) do
     t.text "message", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "payment_status", default: 0
+    t.bigint "payment_transaction_id"
+    t.string "payment_provider"
+    t.decimal "payment_amount", precision: 10, scale: 2
+    t.datetime "payment_date"
     t.index ["email"], name: "index_contacts_on_email"
+    t.index ["payment_status"], name: "index_contacts_on_payment_status"
+    t.index ["payment_transaction_id"], name: "index_contacts_on_payment_transaction_id"
   end
 
   create_table "email_campaign_templates", force: :cascade do |t|
@@ -337,6 +344,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_150336) do
     t.string "ticket_link"
     t.bigint "email_campaign_template_id"
     t.date "payment_deadline"
+    t.string "vendor_payment_link"
+    t.decimal "vendor_fee_amount", precision: 10, scale: 2
+    t.string "vendor_fee_currency", default: "USD"
     t.index ["application_deadline"], name: "index_events_on_application_deadline"
     t.index ["email_campaign_template_id"], name: "index_events_on_email_campaign_template_id"
     t.index ["event_date"], name: "index_events_on_event_date"
@@ -412,9 +422,80 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_150336) do
     t.boolean "active", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "eventbrite_api_token"
+    t.boolean "eventbrite_connected", default: false
+    t.datetime "eventbrite_connected_at"
     t.index ["active"], name: "index_organizations_on_active"
     t.index ["slug"], name: "index_organizations_on_slug", unique: true
     t.index ["user_id"], name: "index_organizations_on_user_id"
+  end
+
+  create_table "payment_integrations", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "organization_id", null: false
+    t.string "provider", null: false
+    t.string "provider_event_id"
+    t.string "provider_url"
+    t.boolean "auto_sync_enabled", default: true
+    t.boolean "auto_update_payment_status", default: true
+    t.boolean "auto_send_confirmations", default: false
+    t.string "sync_status", default: "active"
+    t.datetime "last_synced_at"
+    t.jsonb "sync_metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "provider"], name: "index_payment_integrations_on_event_id_and_provider", unique: true
+    t.index ["event_id"], name: "index_payment_integrations_on_event_id"
+    t.index ["organization_id"], name: "index_payment_integrations_on_organization_id"
+  end
+
+  create_table "payment_sync_logs", force: :cascade do |t|
+    t.bigint "payment_integration_id", null: false
+    t.string "sync_type"
+    t.integer "transactions_fetched", default: 0
+    t.integer "transactions_inserted", default: 0
+    t.integer "transactions_updated", default: 0
+    t.integer "contacts_matched", default: 0
+    t.integer "contacts_updated", default: 0
+    t.integer "registrations_updated", default: 0
+    t.text "error_messages"
+    t.jsonb "metadata", default: {}
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["payment_integration_id"], name: "index_payment_sync_logs_on_payment_integration_id"
+  end
+
+  create_table "payment_transactions", force: :cascade do |t|
+    t.bigint "payment_integration_id", null: false
+    t.bigint "event_id", null: false
+    t.bigint "vendor_contact_id"
+    t.bigint "registration_id"
+    t.string "provider_transaction_id", null: false
+    t.string "provider", null: false
+    t.string "payer_email", null: false
+    t.string "payer_first_name"
+    t.string "payer_last_name"
+    t.string "provider_status"
+    t.integer "payment_status", default: 0, null: false
+    t.decimal "amount", precision: 10, scale: 2
+    t.string "currency", default: "USD"
+    t.datetime "transaction_created_at"
+    t.datetime "transaction_updated_at"
+    t.datetime "last_synced_at"
+    t.datetime "payment_confirmation_sent_at"
+    t.jsonb "raw_provider_data", default: {}
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "payer_email"], name: "index_payment_transactions_on_event_id_and_payer_email"
+    t.index ["event_id"], name: "index_payment_transactions_on_event_id"
+    t.index ["payment_integration_id"], name: "index_payment_transactions_on_payment_integration_id"
+    t.index ["payment_status"], name: "index_payment_transactions_on_payment_status"
+    t.index ["provider_transaction_id"], name: "index_payment_transactions_on_provider_transaction_id", unique: true
+    t.index ["registration_id"], name: "index_payment_transactions_on_registration_id"
+    t.index ["vendor_contact_id"], name: "index_payment_transactions_on_vendor_contact_id"
   end
 
   create_table "pinned_activities", force: :cascade do |t|
@@ -461,15 +542,21 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_150336) do
     t.text "note_to_host"
     t.string "payment_status", default: "pending"
     t.datetime "payment_confirmed_at"
+    t.bigint "payment_transaction_id"
+    t.string "payment_provider"
+    t.decimal "payment_amount", precision: 10, scale: 2
+    t.boolean "vendor_fee_paid", default: false
     t.index ["email"], name: "index_registrations_on_email"
     t.index ["event_id"], name: "index_registrations_on_event_id"
     t.index ["payment_status"], name: "index_registrations_on_payment_status"
+    t.index ["payment_transaction_id"], name: "index_registrations_on_payment_transaction_id"
     t.index ["status"], name: "index_registrations_on_status"
     t.index ["ticket_code"], name: "index_registrations_on_ticket_code", unique: true
     t.index ["user_id"], name: "index_registrations_on_user_id"
     t.index ["vendor_application_id", "status"], name: "index_registrations_on_vendor_application_id_and_status"
     t.index ["vendor_application_id"], name: "index_registrations_on_vendor_application_id"
     t.index ["vendor_category"], name: "index_registrations_on_vendor_category"
+    t.index ["vendor_fee_paid"], name: "index_registrations_on_vendor_fee_paid"
   end
 
   create_table "reports", force: :cascade do |t|
@@ -701,6 +788,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_150336) do
     t.string "location"
     t.jsonb "categories", default: []
     t.boolean "featured", default: false
+    t.integer "payment_status", default: 0
+    t.bigint "payment_transaction_id"
+    t.string "payment_provider"
+    t.decimal "payment_amount", precision: 10, scale: 2
+    t.datetime "payment_date"
     t.index ["categories"], name: "index_vendor_contacts_on_categories", using: :gin
     t.index ["contact_type"], name: "index_vendor_contacts_on_contact_type"
     t.index ["created_at"], name: "index_vendor_contacts_on_created_at"
@@ -709,6 +801,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_150336) do
     t.index ["location"], name: "index_vendor_contacts_on_location"
     t.index ["organization_id", "status"], name: "index_vendor_contacts_on_organization_id_and_status"
     t.index ["organization_id"], name: "index_vendor_contacts_on_organization_id"
+    t.index ["payment_status"], name: "index_vendor_contacts_on_payment_status"
+    t.index ["payment_transaction_id"], name: "index_vendor_contacts_on_payment_transaction_id"
     t.index ["registration_id"], name: "index_vendor_contacts_on_registration_id"
     t.index ["status"], name: "index_vendor_contacts_on_status"
     t.index ["vendor_id"], name: "index_vendor_contacts_on_vendor_id"
@@ -782,6 +876,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_150336) do
   add_foreign_key "comments", "pinned_activities"
   add_foreign_key "comments", "users"
   add_foreign_key "contact_lists", "organizations"
+  add_foreign_key "contacts", "payment_transactions"
   add_foreign_key "email_campaign_templates", "organizations"
   add_foreign_key "email_deliveries", "event_invitations"
   add_foreign_key "email_deliveries", "events"
@@ -802,8 +897,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_150336) do
   add_foreign_key "notifications", "users"
   add_foreign_key "notifications", "users", column: "triggering_user_id"
   add_foreign_key "organizations", "users"
+  add_foreign_key "payment_integrations", "events"
+  add_foreign_key "payment_integrations", "organizations"
+  add_foreign_key "payment_sync_logs", "payment_integrations"
+  add_foreign_key "payment_transactions", "events"
+  add_foreign_key "payment_transactions", "payment_integrations"
+  add_foreign_key "payment_transactions", "registrations"
+  add_foreign_key "payment_transactions", "vendor_contacts"
   add_foreign_key "pinned_activities", "activities"
   add_foreign_key "registrations", "events"
+  add_foreign_key "registrations", "payment_transactions"
   add_foreign_key "registrations", "users"
   add_foreign_key "registrations", "vendor_applications"
   add_foreign_key "reports", "activities"
@@ -823,6 +926,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_150336) do
   add_foreign_key "user_activities", "users"
   add_foreign_key "vendor_applications", "events"
   add_foreign_key "vendor_contacts", "organizations"
+  add_foreign_key "vendor_contacts", "payment_transactions"
   add_foreign_key "vendor_contacts", "registrations"
   add_foreign_key "vendor_contacts", "vendors"
   add_foreign_key "vendors", "users"

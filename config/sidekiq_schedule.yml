@@ -18,3 +18,12 @@ email_retry_scanner:
   queue: email_delivery
   description: "Scans for soft-bounced emails that need to be retried"
   active_job: false
+
+# Payment Sync Worker - Syncs payment transactions from Eventbrite and other providers
+# Runs every 15 minutes
+payment_sync_worker:
+  cron: "*/15 * * * *"  # Every 15 minutes
+  class: "PaymentSyncWorker"
+  queue: payment_sync
+  description: "Syncs payment transactions from external providers (Eventbrite, etc.)"
+  active_job: false

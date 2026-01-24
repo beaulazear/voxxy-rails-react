@@ -277,6 +277,12 @@ Rails.application.routes.draw do
             end
           end
           resources :contact_lists, only: [ :index, :create ]
+
+          # Organization-level integrations
+          post "integrations/eventbrite/connect", to: "organization_integrations#connect_eventbrite"
+          delete "integrations/eventbrite/disconnect", to: "organization_integrations#disconnect_eventbrite"
+          get "integrations/eventbrite/status", to: "organization_integrations#eventbrite_status"
+          get "integrations/eventbrite/events", to: "organization_integrations#eventbrite_events"
         end
 
         # Contact Lists
@@ -297,6 +303,20 @@ Rails.application.routes.draw do
             end
           end
           resources :bulletins, only: [ :index, :create ]
+
+          # Payment integrations (Eventbrite, Stripe, etc.)
+          resources :payment_integrations, only: [ :index, :create, :update, :destroy ] do
+            member do
+              post :sync
+            end
+          end
+
+          # Payment transactions
+          resources :payment_transactions, only: [ :index, :show ] do
+            member do
+              patch :match
+            end
+          end
 
           # Email notification endpoints for events
           post "email_notifications/check_event_update_impact", to: "email_notifications#check_event_update_impact"

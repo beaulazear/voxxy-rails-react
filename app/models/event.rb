@@ -13,6 +13,10 @@ class Event < ApplicationRecord
   has_many :scheduled_emails, dependent: :destroy
   has_many :email_deliveries, through: :scheduled_emails
 
+  # Payment integration associations
+  has_many :payment_integrations, dependent: :destroy
+  has_many :payment_transactions, dependent: :destroy
+
   validates :title, presence: true
   validates :slug, presence: true, uniqueness: true
   validates :status, inclusion: { in: %w[draft published cancelled completed] }, allow_blank: true

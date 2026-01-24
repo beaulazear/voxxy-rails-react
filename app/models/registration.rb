@@ -2,6 +2,7 @@ class Registration < ApplicationRecord
   belongs_to :event, counter_cache: :registered_count
   belongs_to :user, optional: true
   belongs_to :vendor_application, optional: true, counter_cache: :submissions_count
+  belongs_to :payment_transaction, optional: true
 
   # Email automation associations
   has_many :email_deliveries, dependent: :destroy
