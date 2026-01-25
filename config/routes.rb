@@ -411,6 +411,7 @@ Rails.application.routes.draw do
               post :resume
               post :send_now
               post :preview
+              post :retry_failed
             end
           end
         end

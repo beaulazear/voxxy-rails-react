@@ -5,7 +5,7 @@ module Api
     module Presents
       class ScheduledEmailsController < BaseController
         before_action :set_event
-        before_action :set_scheduled_email, only: [ :show, :update, :destroy, :pause, :resume, :send_now, :preview ]
+        before_action :set_scheduled_email, only: [ :show, :update, :destroy, :pause, :resume, :send_now, :preview, :retry_failed ]
 
         # GET /api/v1/presents/events/:event_id/scheduled_emails
         def index
@@ -188,6 +188,52 @@ module Api
             subject: resolved[:subject],
             body: resolved[:body]
           }
+        end
+
+        # POST /api/v1/presents/events/:event_id/scheduled_emails/:id/retry_failed
+        def retry_failed
+          unless @scheduled_email.status == "sent"
+            render json: { error: "Can only retry failed deliveries for sent emails" }, status: :unprocessable_entity
+            return
+          end
+
+          # Get all failed deliveries that are retryable (soft bounces only, within retry limit)
+          failed_deliveries = @scheduled_email.email_deliveries.failed
+          retryable_deliveries = failed_deliveries.select(&:retryable?)
+
+          if retryable_deliveries.empty?
+            hard_bounce_count = failed_deliveries.count - retryable_deliveries.count
+            message = if hard_bounce_count > 0
+              "No retryable deliveries found (#{hard_bounce_count} hard bounces cannot be retried)"
+            else
+              "No failed deliveries found"
+            end
+
+            render json: { message: message, retried_count: 0, skipped_count: hard_bounce_count }, status: :ok
+            return
+          end
+
+          retried_count = 0
+          retry_failed_count = 0
+          skipped_count = failed_deliveries.count - retryable_deliveries.count
+
+          retryable_deliveries.each do |delivery|
+            begin
+              EmailSenderService.retry_delivery(delivery)
+              retried_count += 1
+            rescue => e
+              Rails.logger.error("Failed to retry delivery #{delivery.id}: #{e.message}")
+              retry_failed_count += 1
+            end
+          end
+
+          render json: {
+            message: "Retry initiated for #{retried_count} #{'delivery'.pluralize(retried_count)}",
+            retried_count: retried_count,
+            retry_failed_count: retry_failed_count,
+            skipped_count: skipped_count,
+            total_failed: failed_deliveries.count
+          }, status: :ok
         end
 
         private
