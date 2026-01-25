@@ -112,86 +112,143 @@ namespace :email_automation do
     generator = ScheduledEmailGenerator.new(event)
     emails = generator.generate
     puts "✅ Generated #{emails.count} scheduled emails"
-
-    # Create test registrations (different statuses for filtering)
-    # Using Gmail's plus addressing (email+tag@gmail.com) to bypass uniqueness validation
-    # All emails still arrive at the base Gmail address
-    # BOTH users get 3 registrations each to receive ALL 7 emails
-    registrations = []
-
-    puts "\n📝 Creating registrations to ensure BOTH users receive ALL 7 emails..."
-    puts "   Using Gmail plus addressing (email+tag@gmail.com) to create multiple registrations"
     puts ""
+
+    # Step 1: Create vendor applications (needed for registrations)
+    puts "📋 Creating vendor applications..."
+
+    food_app = VendorApplication.create!(
+      event: event,
+      name: "Food Vendor Application",
+      categories: [ "Food" ],
+      booth_price: 150.00,
+      install_date: event.event_date - 1.day,
+      install_start_time: "6:00 AM",
+      install_end_time: "9:00 AM",
+      payment_link: "https://payment.example.com/food",
+      status: "active",
+      description: "Apply as a food vendor"
+    )
+
+    art_app = VendorApplication.create!(
+      event: event,
+      name: "Art Vendor Application",
+      categories: [ "Art" ],
+      booth_price: 100.00,
+      install_date: event.event_date - 1.day,
+      install_start_time: "7:00 AM",
+      install_end_time: "10:00 AM",
+      payment_link: "https://payment.example.com/art",
+      status: "active",
+      description: "Apply as an art vendor"
+    )
+
+    music_app = VendorApplication.create!(
+      event: event,
+      name: "Music Vendor Application",
+      categories: [ "Music" ],
+      booth_price: 200.00,
+      install_date: event.event_date - 2.days,
+      install_start_time: "5:00 PM",
+      install_end_time: "8:00 PM",
+      payment_link: "https://payment.example.com/music",
+      status: "active",
+      description: "Apply as a music/entertainment vendor"
+    )
+
+    puts "✅ Created 3 vendor applications (Food $150, Art $100, Music $200)"
+    puts ""
+
+    # Step 2: Create test registrations (vendors who have applied)
+    # Using Gmail's plus addressing to create multiple registrations per email
+    puts "📝 Creating vendor registrations to ensure BOTH users receive ALL 7 emails..."
+    registrations = []
 
     # BEAU'S REGISTRATIONS (3 total - covers all email types)
 
-    # 1. Approved + Unpaid (will get payment reminder emails #3-4)
-    registrations << Registration.create!(
-      event: event,
-      name: "Beau Lazear (Payment Pending)",
-      email: "beaulazear+unpaid@gmail.com",
-      status: "approved",
-      payment_status: "pending"
-    )
-
-    # 2. Approved + Confirmed (will get event countdown emails #5-7)
-    registrations << Registration.create!(
-      event: event,
-      name: "Beau Lazear (Confirmed)",
-      email: "beaulazear+confirmed@gmail.com",
-      status: "approved",
-      payment_status: "confirmed"
-    )
-
-    # 3. Pending (will get application deadline emails #1-2)
-    registrations << Registration.create!(
-      event: event,
-      name: "Beau Lazear (Pending)",
+    # 1. Pending (will get application deadline emails #1-2)
+    registrations << event.registrations.create!(
+      name: "Beau Lazear",
       email: "beaulazear+pending@gmail.com",
-      status: "pending"
+      business_name: "Beau's Pending Food Truck",
+      vendor_category: "Food",
+      status: "pending",
+      payment_status: "pending",
+      vendor_application: food_app
+    )
+
+    # 2. Approved + Unpaid (will get payment reminder emails #3-4)
+    registrations << event.registrations.create!(
+      name: "Beau Lazear",
+      email: "beaulazear+unpaid@gmail.com",
+      business_name: "Beau's Art Gallery",
+      vendor_category: "Art",
+      status: "approved",
+      payment_status: "pending",
+      vendor_application: art_app
+    )
+
+    # 3. Approved + Confirmed (will get event countdown emails #5-7)
+    registrations << event.registrations.create!(
+      name: "Beau Lazear",
+      email: "beaulazear+confirmed@gmail.com",
+      business_name: "Beau's Music Band",
+      vendor_category: "Music",
+      status: "approved",
+      payment_status: "confirmed",
+      payment_confirmed_at: Time.current,
+      vendor_application: music_app
     )
 
     # COURTNEY'S REGISTRATIONS (3 total - covers all email types)
 
-    # 1. Approved + Unpaid (will get payment reminder emails #3-4)
-    registrations << Registration.create!(
-      event: event,
-      name: "Courtney Greer (Payment Pending)",
-      email: "greerlcourtney+unpaid@gmail.com",
-      status: "approved",
-      payment_status: "pending"
-    )
-
-    # 2. Approved + Confirmed (will get event countdown emails #5-7)
-    registrations << Registration.create!(
-      event: event,
-      name: "Courtney Greer (Confirmed)",
-      email: "greerlcourtney+confirmed@gmail.com",
-      status: "approved",
-      payment_status: "confirmed"
-    )
-
-    # 3. Pending (will get application deadline emails #1-2)
-    registrations << Registration.create!(
-      event: event,
-      name: "Courtney Greer (Pending)",
+    # 1. Pending (will get application deadline emails #1-2)
+    registrations << event.registrations.create!(
+      name: "Courtney Greer",
       email: "greerlcourtney+pending@gmail.com",
-      status: "pending"
+      business_name: "Courtney's Pending Coffee Co",
+      vendor_category: "Food",
+      status: "pending",
+      payment_status: "pending",
+      vendor_application: food_app
     )
 
-    puts "✅ Created #{registrations.count} test registrations (3 per person)"
+    # 2. Approved + Unpaid (will get payment reminder emails #3-4)
+    registrations << event.registrations.create!(
+      name: "Courtney Greer",
+      email: "greerlcourtney+unpaid@gmail.com",
+      business_name: "Courtney's Sculpture Studio",
+      vendor_category: "Art",
+      status: "approved",
+      payment_status: "pending",
+      vendor_application: art_app
+    )
+
+    # 3. Approved + Confirmed (will get event countdown emails #5-7)
+    registrations << event.registrations.create!(
+      name: "Courtney Greer",
+      email: "greerlcourtney+confirmed@gmail.com",
+      business_name: "Courtney's DJ Services",
+      vendor_category: "Music",
+      status: "approved",
+      payment_status: "confirmed",
+      payment_confirmed_at: Time.current,
+      vendor_application: music_app
+    )
+
+    puts "✅ Created #{registrations.count} vendor registrations (3 per person)"
     puts ""
     puts "   📧 All emails will arrive at:"
-    puts "      - beaulazear@gmail.com (receives all 3 registrations → ALL 7 emails)"
-    puts "      - greerlcourtney@gmail.com (receives all 3 registrations → ALL 7 emails)"
+    puts "      - beaulazear@gmail.com (3 vendors → ALL 7 scheduled emails)"
+    puts "      - greerlcourtney@gmail.com (3 vendors → ALL 7 scheduled emails)"
     puts ""
-    puts "   ℹ️  Gmail plus addressing used (+unpaid, +confirmed, +pending)"
+    puts "   ℹ️  Gmail plus addressing used (+pending, +unpaid, +confirmed)"
     puts "      All emails arrive at the base inbox regardless of the +tag"
     puts ""
     puts "   📬 Email Distribution:"
-    puts "      - Deadline reminders (#1-2) → email+pending@ registrations"
-    puts "      - Payment reminders (#3-4) → email+unpaid@ registrations"
-    puts "      - Event countdown (#5-7) → email+confirmed@ registrations"
+    puts "      #1-2 Deadline reminders → email+pending@ (pending status)"
+    puts "      #3-4 Payment reminders → email+unpaid@ (approved + pending payment)"
+    puts "      #5-7 Event countdown → email+confirmed@ (approved + confirmed payment)"
 
     # Now compress the schedule
     puts ""
@@ -224,18 +281,34 @@ namespace :email_automation do
     total_duration = (scheduled_emails.count - 1) * interval_minutes
     puts ""
     puts "="*80
-    puts "✅ TEST EVENT READY!"
+    puts "✅ TEST EVENT READY FOR 30-MINUTE EMAIL TEST!"
     puts "="*80
-    puts "Event Slug: #{event.slug}"
-    puts "Total Emails: #{scheduled_emails.count}"
-    puts "Schedule Duration: #{total_duration} minutes"
     puts ""
-    puts "🚀 Next Steps:"
-    puts "   1. To send emails immediately: rake email_automation:trigger_worker_now"
-    puts "   2. Or wait for automatic sending (4-minute intervals)"
-    puts "   3. To reset schedule: rake email_automation:reset_schedule[#{event.slug}]"
+    puts "📊 EVENT SUMMARY:"
+    puts "   Event Slug: #{event.slug}"
+    puts "   Vendor Applications: #{event.vendor_applications.count} (Food, Art, Music)"
+    puts "   Vendor Registrations: #{event.registrations.count} (6 total, 3 per email)"
+    puts "   Scheduled Emails: #{scheduled_emails.count}"
+    puts "   Schedule Duration: #{total_duration} minutes"
     puts ""
-    puts "📧 Monitor in dashboard: /events/#{event.slug}/emails"
+    puts "📧 SYSTEM EMAILS (Already Sent):"
+    puts "   You received 6 'Registration Confirmed' emails (1 per registration)"
+    puts "   These are instant system emails, NOT the scheduled automation emails"
+    puts ""
+    puts "⏰ SCHEDULED EMAILS (Will Send Automatically):"
+    puts "   7 scheduled emails will fire over next #{total_duration} minutes"
+    puts "   EmailSenderWorker runs every 5 minutes to check for ready emails"
+    puts "   Both beaulazear@gmail.com and greerlcourtney@gmail.com will receive all 7"
+    puts ""
+    puts "🚀 NEXT STEPS:"
+    puts "   Option 1 (Manual): rake email_automation:trigger_worker_now"
+    puts "               Manually trigger worker every 4-5 minutes to send next batch"
+    puts ""
+    puts "   Option 2 (Automatic): Wait - worker runs every 5 minutes automatically"
+    puts "               Emails will send over ~30 minutes without any action"
+    puts ""
+    puts "   Monitor: Check dashboard at /events/#{event.slug}/emails"
+    puts "   Cleanup: rake email_automation:cleanup_test_events"
     puts ""
   end
 
