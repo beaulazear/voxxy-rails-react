@@ -8,7 +8,21 @@ puts "="*80 + "\n"
 
 # Setup
 puts "📝 Setting up test environment..."
-org = Organization.first || Organization.create!(name: "Test Organization #{SecureRandom.hex(4)}")
+
+# Find test user
+test_user = User.find_by(email: "beaulazear@gmail.com")
+unless test_user
+  puts "✗ User beaulazear@gmail.com not found. Please create a user account first."
+  exit 1
+end
+
+# Use first organization or create one
+org = test_user.organizations.first || Organization.create!(
+  user: test_user,
+  name: "Test Organization #{SecureRandom.hex(4)}",
+  email: "test@voxxyai.com"
+)
+
 template = EmailCampaignTemplate.default_template.first
 
 unless template
@@ -16,6 +30,7 @@ unless template
   exit 1
 end
 
+puts "✓ User: #{test_user.email}"
 puts "✓ Organization: #{org.name}"
 puts "✓ Default template: #{template.name} (#{template.email_count} emails)\n"
 

@@ -71,12 +71,24 @@ namespace :email_automation do
     puts "🎬 CREATING TEST EVENT WITH COMPRESSED EMAIL SCHEDULE"
     puts "="*80
 
-    # Find or create organization
-    org = Organization.find_or_create_by!(name: "Test Organization") do |o|
-      o.slug = "test-org-#{SecureRandom.hex(4)}"
-      o.organization_type = "venue"
+    # Find test user
+    test_user = User.find_by(email: "beaulazear@gmail.com")
+
+    unless test_user
+      puts "❌ Error: User beaulazear@gmail.com not found"
+      puts "   Please create a user account first or log in to the platform"
+      exit 1
     end
+
+    # Find or create organization for test user
+    org = test_user.organizations.first || Organization.create!(
+      user: test_user,
+      name: "Test Email Automation Org",
+      slug: "test-automation-org-#{SecureRandom.hex(4)}",
+      email: "testautomation@voxxyai.com"
+    )
     puts "✅ Organization: #{org.name}"
+    puts "   Owner: #{test_user.email}"
 
     # Create event (8 days out - normal timeline)
     event = Event.create!(
