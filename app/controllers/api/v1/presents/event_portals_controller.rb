@@ -21,8 +21,9 @@ module Api
             }, status: :not_found
           end
 
-          # Track portal view
-          event.event_portal&.track_view!
+          # Track portal view (create portal if it doesn't exist)
+          portal = event.event_portal || event.create_event_portal!
+          portal.track_view!
 
           # Generate session token
           portal_token = generate_session_token(event.id, email)
@@ -50,8 +51,11 @@ module Api
           # Get vendor email from session for read tracking
           vendor_email = session[:vendor_email]
 
+          # Ensure event_portal exists (create if needed)
+          portal = event.event_portal || event.create_event_portal!
+
           render json: Api::V1::Presents::EventPortalSerializer.new(
-            event.event_portal,
+            portal,
             current_user_email: vendor_email
           ).serializable_hash
         rescue ActiveRecord::RecordNotFound
