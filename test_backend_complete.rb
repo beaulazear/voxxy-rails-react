@@ -49,8 +49,9 @@ event = Event.create!(
   organization: org,
   title: "Backend Test Event #{SecureRandom.hex(4)}",
   slug: "backend-test-#{SecureRandom.hex(6)}",
-  event_date: 45.days.from_now.to_date,
-  application_deadline: 30.days.from_now.to_date,
+  event_date: 8.days.from_now.to_date,
+  application_deadline: 5.days.from_now.to_date,
+  payment_deadline: 7.days.from_now.to_date,
   start_time: "10:00",
   venue: "Test Venue"
 )
