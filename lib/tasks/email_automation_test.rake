@@ -115,26 +115,23 @@ namespace :email_automation do
 
     # Create test registrations (different statuses for filtering)
     # Using real emails for you and your colleague to receive test emails
+    # BOTH users get 3 registrations each to receive ALL 7 emails
     registrations = []
 
-    # Approved + Unpaid (will get payment reminders)
+    puts "\n📝 Creating registrations to ensure BOTH users receive ALL 7 emails..."
+
+    # BEAU'S REGISTRATIONS (3 total - covers all email types)
+
+    # 1. Approved + Unpaid (will get payment reminder emails #3-4)
     registrations << Registration.create!(
       event: event,
-      name: "Beau Lazear",
+      name: "Beau Lazear (Payment Pending)",
       email: "beaulazear@gmail.com",
       status: "approved",
       payment_status: "pending"
     )
 
-    registrations << Registration.create!(
-      event: event,
-      name: "Courtney Greer",
-      email: "greerlcourtney@gmail.com",
-      status: "approved",
-      payment_status: "pending"
-    )
-
-    # Approved + Paid (will get event reminders)
+    # 2. Approved + Confirmed (will get event countdown emails #5-7)
     registrations << Registration.create!(
       event: event,
       name: "Beau Lazear (Confirmed)",
@@ -143,7 +140,35 @@ namespace :email_automation do
       payment_status: "confirmed"
     )
 
-    # Pending (will get deadline reminders)
+    # 3. Pending (will get application deadline emails #1-2)
+    registrations << Registration.create!(
+      event: event,
+      name: "Beau Lazear (Pending)",
+      email: "beaulazear@gmail.com",
+      status: "pending"
+    )
+
+    # COURTNEY'S REGISTRATIONS (3 total - covers all email types)
+
+    # 1. Approved + Unpaid (will get payment reminder emails #3-4)
+    registrations << Registration.create!(
+      event: event,
+      name: "Courtney Greer (Payment Pending)",
+      email: "greerlcourtney@gmail.com",
+      status: "approved",
+      payment_status: "pending"
+    )
+
+    # 2. Approved + Confirmed (will get event countdown emails #5-7)
+    registrations << Registration.create!(
+      event: event,
+      name: "Courtney Greer (Confirmed)",
+      email: "greerlcourtney@gmail.com",
+      status: "approved",
+      payment_status: "confirmed"
+    )
+
+    # 3. Pending (will get application deadline emails #1-2)
     registrations << Registration.create!(
       event: event,
       name: "Courtney Greer (Pending)",
@@ -151,15 +176,16 @@ namespace :email_automation do
       status: "pending"
     )
 
-    puts "✅ Created #{registrations.count} test registrations"
-    puts "   📧 Emails will be sent to:"
-    puts "      - beaulazear@gmail.com (2 registrations: approved unpaid + confirmed)"
-    puts "      - greerlcourtney@gmail.com (2 registrations: approved unpaid + pending)"
+    puts "✅ Created #{registrations.count} test registrations (3 per person)"
     puts ""
-    puts "   📬 Email filtering:"
-    puts "      - Payment reminders → 2 approved (unpaid) vendors"
-    puts "      - Event reminders → 1 confirmed vendor"
-    puts "      - Deadline reminders → 1 pending vendor"
+    puts "   📧 Email Recipients:"
+    puts "      - beaulazear@gmail.com (3 registrations → ALL 7 emails)"
+    puts "      - greerlcourtney@gmail.com (3 registrations → ALL 7 emails)"
+    puts ""
+    puts "   📬 Email Distribution:"
+    puts "      - Deadline reminders (#1-2) → Both pending registrations"
+    puts "      - Payment reminders (#3-4) → Both approved+unpaid registrations"
+    puts "      - Event countdown (#5-7) → Both approved+confirmed registrations"
 
     # Now compress the schedule
     puts ""
