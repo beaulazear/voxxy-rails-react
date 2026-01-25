@@ -114,11 +114,14 @@ namespace :email_automation do
     puts "✅ Generated #{emails.count} scheduled emails"
 
     # Create test registrations (different statuses for filtering)
-    # Using real emails for you and your colleague to receive test emails
+    # Using Gmail's plus addressing (email+tag@gmail.com) to bypass uniqueness validation
+    # All emails still arrive at the base Gmail address
     # BOTH users get 3 registrations each to receive ALL 7 emails
     registrations = []
 
     puts "\n📝 Creating registrations to ensure BOTH users receive ALL 7 emails..."
+    puts "   Using Gmail plus addressing (email+tag@gmail.com) to create multiple registrations"
+    puts ""
 
     # BEAU'S REGISTRATIONS (3 total - covers all email types)
 
@@ -126,7 +129,7 @@ namespace :email_automation do
     registrations << Registration.create!(
       event: event,
       name: "Beau Lazear (Payment Pending)",
-      email: "beaulazear@gmail.com",
+      email: "beaulazear+unpaid@gmail.com",
       status: "approved",
       payment_status: "pending"
     )
@@ -135,7 +138,7 @@ namespace :email_automation do
     registrations << Registration.create!(
       event: event,
       name: "Beau Lazear (Confirmed)",
-      email: "beaulazear@gmail.com",
+      email: "beaulazear+confirmed@gmail.com",
       status: "approved",
       payment_status: "confirmed"
     )
@@ -144,7 +147,7 @@ namespace :email_automation do
     registrations << Registration.create!(
       event: event,
       name: "Beau Lazear (Pending)",
-      email: "beaulazear@gmail.com",
+      email: "beaulazear+pending@gmail.com",
       status: "pending"
     )
 
@@ -154,7 +157,7 @@ namespace :email_automation do
     registrations << Registration.create!(
       event: event,
       name: "Courtney Greer (Payment Pending)",
-      email: "greerlcourtney@gmail.com",
+      email: "greerlcourtney+unpaid@gmail.com",
       status: "approved",
       payment_status: "pending"
     )
@@ -163,7 +166,7 @@ namespace :email_automation do
     registrations << Registration.create!(
       event: event,
       name: "Courtney Greer (Confirmed)",
-      email: "greerlcourtney@gmail.com",
+      email: "greerlcourtney+confirmed@gmail.com",
       status: "approved",
       payment_status: "confirmed"
     )
@@ -172,20 +175,23 @@ namespace :email_automation do
     registrations << Registration.create!(
       event: event,
       name: "Courtney Greer (Pending)",
-      email: "greerlcourtney@gmail.com",
+      email: "greerlcourtney+pending@gmail.com",
       status: "pending"
     )
 
     puts "✅ Created #{registrations.count} test registrations (3 per person)"
     puts ""
-    puts "   📧 Email Recipients:"
-    puts "      - beaulazear@gmail.com (3 registrations → ALL 7 emails)"
-    puts "      - greerlcourtney@gmail.com (3 registrations → ALL 7 emails)"
+    puts "   📧 All emails will arrive at:"
+    puts "      - beaulazear@gmail.com (receives all 3 registrations → ALL 7 emails)"
+    puts "      - greerlcourtney@gmail.com (receives all 3 registrations → ALL 7 emails)"
+    puts ""
+    puts "   ℹ️  Gmail plus addressing used (+unpaid, +confirmed, +pending)"
+    puts "      All emails arrive at the base inbox regardless of the +tag"
     puts ""
     puts "   📬 Email Distribution:"
-    puts "      - Deadline reminders (#1-2) → Both pending registrations"
-    puts "      - Payment reminders (#3-4) → Both approved+unpaid registrations"
-    puts "      - Event countdown (#5-7) → Both approved+confirmed registrations"
+    puts "      - Deadline reminders (#1-2) → email+pending@ registrations"
+    puts "      - Payment reminders (#3-4) → email+unpaid@ registrations"
+    puts "      - Event countdown (#5-7) → email+confirmed@ registrations"
 
     # Now compress the schedule
     puts ""
