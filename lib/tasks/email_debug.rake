@@ -104,7 +104,7 @@ namespace :email_automation do
         puts "   Schedule: #{email_sender_job.cron}"
         puts "   Class: #{email_sender_job.klass}"
         puts "   Last run: #{email_sender_job.last_enqueue_time}"
-        puts "   Next run: #{email_sender_job.next_enqueue_time}"
+        puts "   Status: #{email_sender_job.status}"
       else
         puts "❌ EmailSenderWorker cron job NOT FOUND"
         puts "   Available jobs:"
