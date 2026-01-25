@@ -37,9 +37,9 @@ namespace :email_testing do
     event = Event.create!(
       title: "TEST EMAIL FILTERING EVENT",
       slug: "test-email-#{Time.now.to_i}",
-      event_date: 30.days.from_now,
-      application_deadline: 15.days.from_now,
-      payment_deadline: 20.days.from_now,
+      event_date: 8.days.from_now,
+      application_deadline: 5.days.from_now,
+      payment_deadline: 7.days.from_now,
       start_time: "10:00 AM",
       location: "Test Venue, Test City, CA",
       venue: "Test Venue",
