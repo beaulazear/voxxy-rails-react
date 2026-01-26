@@ -32,7 +32,8 @@ namespace :email_testing do
           )
 
     # Always update email to ensure consistency on every test run
-    org.update!(email: "beau@beausorganization.com")
+    # Using noreply@voxxypresents.com (verified in SendGrid)
+    org.update!(email: "noreply@voxxypresents.com")
 
     puts "   ✅ Organization: #{org.name}"
     puts "   📧 Email: #{org.email}"
