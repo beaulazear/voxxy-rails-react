@@ -166,21 +166,26 @@ class RegistrationEmailService < BaseEmailService
     event = registration.event
     organization = event.organization
 
-    # Parse first name from full name
-    first_name = registration.name.to_s.split(" ").first || registration.name
+    # Get greeting name (businessName preferred, fallback to firstName)
+    greeting_name = if registration.business_name.present?
+      registration.business_name
+    else
+      registration.name.to_s.split(" ").first || registration.name
+    end
 
-    # Get producer name and email
-    producer_name = organization.name || "Event Organizer"
+    # Get producer email
     producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
 
     # Format event date
     event_date = event.event_date.present? ? event.event_date.strftime("%B %d, %Y") : "TBD"
+    location = [event.venue, event.location].compact.join(", ")
+    location = "TBD" if location.blank?
 
     subject = "Application Received - #{event.title}"
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
-        Hi #{first_name},
+        Hi #{greeting_name},
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
@@ -189,8 +194,9 @@ class RegistrationEmailService < BaseEmailService
 
       <p style="#{BASE_STYLES[:text]}">
         <strong>Event Date:</strong> #{event_date}<br/>
-        <strong>Location:</strong> #{event.venue.present? ? "#{event.venue}, " : ""}#{event.location || "TBD"}<br/>
-        <strong>Category:</strong> #{registration.vendor_category}
+        <strong>Location:</strong> #{location}<br/>
+        <strong>Category:</strong> #{registration.vendor_category}<br/>
+        <strong>Confirmation Code:</strong> #{registration.ticket_code}
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
@@ -199,7 +205,13 @@ class RegistrationEmailService < BaseEmailService
 
       <p style="#{BASE_STYLES[:text]}">
         Best regards,<br/>
-        #{producer_name}
+        #{organization.name || "Event Organizer"}
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="font-size: 12px; color: #888888;">
+        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
       </p>
     HTML
 
@@ -283,39 +295,68 @@ class RegistrationEmailService < BaseEmailService
   # Send approval notification
   def self.send_approval_email(registration)
     event = registration.event
+    organization = event.organization
 
-    subject = "Your Application Was Approved - #{event.title}"
+    # Get greeting name (businessName preferred, fallback to firstName)
+    greeting_name = if registration.business_name.present?
+      registration.business_name
+    else
+      registration.name.to_s.split(" ").first || registration.name
+    end
+
+    # Get producer email
+    producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
+
+    # Build dashboard link
+    base_url = ENV["FRONTEND_URL"] || "https://voxxy.io"
+    dashboard_link = "#{base_url}/vendor/dashboard"
+
+    subject = "You're in - #{event.title}"
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
-        Hi #{registration.name},
+        Hi #{greeting_name},
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Good news. Your vendor application for <strong>#{event.title}</strong> has been approved.
-      </p>
-
-      <div style="background-color: #f0f9f0; padding: 15px; margin: 15px 0; border: 1px solid #c0e0c0;">
-        <p style="margin: 5px 0; font-size: 14px; color: #333333;"><strong>Status:</strong> Approved</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #333333;"><strong>Business:</strong> #{registration.business_name}</p>
-        <p style="margin: 5px 0; font-size: 14px; color: #333333;"><strong>Category:</strong> #{registration.vendor_category}</p>
-      </div>
-
-      <p style="#{BASE_STYLES[:text]}">
-        The event organizer will contact you soon with next steps and additional details.
+        Great news - your application to <strong>#{event.title}</strong> has been approved!
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        If you have any questions, please respond to this email.
+        You can now access your event portal to view event details, your category information, load-in times, and payment instructions:<br/>
+        <a href="#{dashboard_link}" style="color: #0066cc; text-decoration: underline;">#{dashboard_link}</a>
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        To sign in, use the email address you applied with: #{registration.email}
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Once you've completed payment, you'll be fully confirmed for the event. If you have any questions, contact us at #{producer_email}.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        We're excited to have you!
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Best,<br/>
+        #{organization.name || "Event Organizer"}
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="font-size: 12px; color: #888888;">
+        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
       </p>
     HTML
 
     email_html = build_presents_email_template(
-      "Application Approved!",
+      "You're in!",
       content,
       nil,
       nil,
-      event.organization
+      organization
     )
 
     headers = {
@@ -331,33 +372,51 @@ class RegistrationEmailService < BaseEmailService
   # Send rejection notification
   def self.send_rejection_email(registration)
     event = registration.event
+    organization = event.organization
 
-    subject = "Application Status Update - #{event.title}"
+    # Get greeting name (businessName preferred, fallback to firstName)
+    greeting_name = if registration.business_name.present?
+      registration.business_name
+    else
+      registration.name.to_s.split(" ").first || registration.name
+    end
+
+    # Get producer email
+    producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
+
+    subject = "Update on your application - #{event.title}"
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
-        Hi #{registration.name},
+        Hi #{greeting_name},
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Thank you for your interest in <strong>#{event.title}</strong>. After careful review, we are unable to move forward with your application at this time.
+        Thank you for applying to <strong>#{event.title}</strong>. After reviewing all applications, we weren't able to offer you a spot this time.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        We appreciate you taking the time to apply and encourage you to check out future opportunities.
+        We appreciate your interest and hope you'll consider applying to future events.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        If you have any questions, please respond to this email.
+        Best,<br/>
+        #{organization.name || "Event Organizer"}
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="font-size: 12px; color: #888888;">
+        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
       </p>
     HTML
 
     email_html = build_presents_email_template(
-      "Application Status Update",
+      "Application Update",
       content,
       nil,
       nil,
-      event.organization
+      organization
     )
 
     headers = {
@@ -375,22 +434,25 @@ class RegistrationEmailService < BaseEmailService
     event = registration.event
     organization = event.organization
 
-    # Parse first name from full name
-    first_name = registration.name.to_s.split(" ").first || registration.name
+    # Get greeting name (businessName preferred, fallback to firstName)
+    greeting_name = if registration.business_name.present?
+      registration.business_name
+    else
+      registration.name.to_s.split(" ").first || registration.name
+    end
 
-    # Get producer name and email
-    producer_name = organization.name || "Event Organizer"
+    # Get producer email
     producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
 
-    subject = "Waitlist Status - #{event.title}"
+    subject = "Waitlist update - #{event.title}"
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
-        Hi #{first_name},
+        Hi #{greeting_name},
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Payment was not received by the deadline for <strong>#{event.title}</strong>.
+        Your payment for <strong>#{event.title}</strong> was not received by the deadline.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
@@ -398,17 +460,23 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        If you believe this is an error, please contact us at <a href="mailto:#{producer_email}" style="#{BASE_STYLES[:link]}">#{producer_email}</a>.
+        If you believe this is an error, please contact us at #{producer_email}.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
         Best regards,<br/>
-        #{producer_name}
+        #{organization.name || "Event Organizer"}
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="font-size: 12px; color: #888888;">
+        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
       </p>
     HTML
 
     email_html = build_presents_email_template(
-      "You're on the Waitlist",
+      "Waitlist Update",
       content,
       nil,
       nil,
@@ -429,59 +497,60 @@ class RegistrationEmailService < BaseEmailService
   def self.send_payment_confirmation(registration)
     event = registration.event
     organization = event.organization
-    vendor_app = registration.vendor_application
 
-    # Parse first name from full name
-    first_name = registration.name.to_s.split(" ").first || registration.name
-
-    # Get producer name and email
-    producer_name = organization.name || "Event Organizer"
-
-    # Get category price (from vendor_application if available)
-    category_price = vendor_app&.booth_price || event.ticket_price
-    formatted_price = category_price.present? ? "$#{category_price.to_i}" : "TBD"
-
-    # Format dates and times
-    event_date = event.event_date.present? ? event.event_date.strftime("%B %d, %Y") : "TBD"
-    install_date = vendor_app&.install_date.present? ? vendor_app.install_date.strftime("%B %d, %Y") : "TBD"
-
-    install_time = if vendor_app&.install_start_time.present? && vendor_app&.install_end_time.present?
-      "#{vendor_app.install_start_time} - #{vendor_app.install_end_time}"
-    elsif vendor_app&.install_start_time.present?
-      vendor_app.install_start_time
+    # Get greeting name (businessName preferred, fallback to firstName)
+    greeting_name = if registration.business_name.present?
+      registration.business_name
     else
-      "TBD"
+      registration.name.to_s.split(" ").first || registration.name
     end
 
-    subject = "Payment Confirmed - #{event.title}"
+    # Get producer email
+    producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
+
+    # Format event date and location
+    event_date = event.event_date.present? ? event.event_date.strftime("%B %d, %Y") : "TBD"
+    location = [event.venue, event.location].compact.join(", ")
+    location = "TBD" if location.blank?
+
+    # Build dashboard link
+    base_url = ENV["FRONTEND_URL"] || "https://voxxy.io"
+    dashboard_link = "#{base_url}/vendor/dashboard"
+
+    subject = "Payment confirmed - #{event.title}"
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
-        Hi #{first_name},
+        Hi #{greeting_name},
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Your payment for <strong>#{event.title}</strong> has been confirmed.
+        Your payment for <strong>#{event.title}</strong> has been confirmed. You're all set.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
         <strong>Category:</strong> #{registration.vendor_category}<br/>
-        <strong>Amount Paid:</strong> #{formatted_price}
+        <strong>Event Date:</strong> #{event_date}<br/>
+        <strong>Location:</strong> #{location}
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>Event:</strong> #{event_date}<br/>
-        <strong>Location:</strong> #{event.venue.present? ? "#{event.venue}, " : ""}#{event.location || "TBD"}<br/>
-        <strong>Install:</strong> #{install_date} at #{install_time}
+        View all event details on your dashboard:<br/>
+        <a href="#{dashboard_link}" style="color: #0066cc; text-decoration: underline;">#{dashboard_link}</a>
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        You are all set. We will send more details as the event approaches.
+        See you at the event.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Best regards,<br/>
-        #{producer_name}
+        #{organization.name || "Event Organizer"}
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="font-size: 12px; color: #888888;">
+        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
       </p>
     HTML
 
@@ -508,39 +577,53 @@ class RegistrationEmailService < BaseEmailService
     event = registration.event
     organization = event.organization
 
-    # Parse first name from full name
-    first_name = registration.name.to_s.split(" ").first || registration.name
+    # Get greeting name (businessName preferred, fallback to firstName)
+    greeting_name = if registration.business_name.present?
+      registration.business_name
+    else
+      registration.name.to_s.split(" ").first || registration.name
+    end
 
-    # Get producer name and email
-    producer_name = organization.name || "Event Organizer"
+    # Get producer email
     producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
 
-    # Get category price
-    category_price = new_category_price || registration.vendor_application&.booth_price || event.ticket_price
-    formatted_price = category_price.present? ? "$#{category_price.to_i}" : "TBD"
+    # Build dashboard link
+    base_url = ENV["FRONTEND_URL"] || "https://voxxy.io"
+    dashboard_link = "#{base_url}/vendor/dashboard"
 
-    subject = "Category Update - #{event.title}"
+    subject = "Category update for #{event.title}"
 
     content = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
-        Hi #{first_name},
+        Hi #{greeting_name},
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Your category for <strong>#{event.title}</strong> has been updated to: <strong>#{registration.vendor_category}</strong>
+        We've made a change to your category for <strong>#{event.title}</strong>.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        New pricing: #{formatted_price}
+        <strong>New Category:</strong> #{registration.vendor_category}
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        If you have questions about this change, please contact <a href="mailto:#{producer_email}" style="#{BASE_STYLES[:link]}">#{producer_email}</a>.
+        Please review the update on your event portal:<br/>
+        <a href="#{dashboard_link}" style="color: #0066cc; text-decoration: underline;">#{dashboard_link}</a>
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Best regards,<br/>
-        #{producer_name}
+        If you have any questions, contact us at #{producer_email}.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Thanks,<br/>
+        #{organization.name || "Event Organizer"}
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="font-size: 12px; color: #888888;">
+        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
       </p>
     HTML
 

@@ -49,38 +49,36 @@ create_email(template, {
   category: 'event_announcements',
   subject_template: "Last Chance: [eventName] Applications Close Tomorrow",
   body_template: <<~HTML,
-    <p>Hi [firstName],</p>
+    <p>Hi [greetingName],</p>
 
     <p>This is a final reminder that applications for <strong>[eventName]</strong> close tomorrow on [applicationDeadline].</p>
 
-    <div style="background-color: #f9f9f9; padding: 15px; margin: 15px 0; border: 1px solid #e0e0e0;">
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333333;"><strong>Date:</strong> [eventDate]</p>
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333333;"><strong>Location:</strong> [eventVenue], [eventLocation]</p>
-      <p style="margin: 0; font-size: 14px; color: #333333;"><strong>Application Deadline:</strong> [applicationDeadline]</p>
-    </div>
+    <p><strong>Date:</strong> [eventDate]<br/>
+    <strong>Location:</strong> [eventVenue], [eventLocation]<br/>
+    <strong>Application Deadline:</strong> [applicationDeadline]</p>
 
-    <div style="background-color: #e6f3ff; padding: 15px; margin: 15px 0; border: 1px solid #0066cc;">
-      <p style="margin: 0 0 10px 0; font-size: 14px; color: #333333; font-weight: 600;">View all vendor application options, pricing, and details:</p>
-      <p style="margin: 0;"><a href="[eventLink]" style="color: #0066cc; text-decoration: underline; font-weight: 600;">[eventLink]</a></p>
-    </div>
+    <p>View all vendor application options, pricing, and details:<br/>
+    <a href="[eventLink]" style="color: #0066cc; text-decoration: underline;">[eventLink]</a></p>
 
-    <p><strong>Apply now before tomorrow's deadline!</strong></p>
+    <p>Apply now before tomorrow's deadline!</p>
 
     <p>Best regards,<br/>
     [organizationName]</p>
 
-    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #888888;">
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>
+
+    <p style="font-size: 12px; color: #888888;">Please do not reply to this email. For questions, contact <a href="mailto:[organizationEmail]" style="color: #888888;">[organizationEmail]</a></p>
+
+    <p style="font-size: 12px; color: #888888;">
       <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
     </p>
 
-    <p style="margin-top: 10px; font-size: 12px; color: #aaaaaa;">
-      Powered by Voxxy Presents
-    </p>
+    <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
   trigger_type: 'days_before_deadline',
   trigger_value: 1,
   trigger_time: '09:00',
-  filter_criteria: { statuses: [ 'pending' ] },  # Only send to vendors awaiting review
+  filter_criteria: { statuses: [ 'pending' ] },
   enabled_by_default: true
 })
 
@@ -90,38 +88,36 @@ create_email(template, {
   category: 'event_announcements',
   subject_template: 'URGENT: [eventName] Applications Close Today',
   body_template: <<~HTML,
-    <p>Hi [firstName],</p>
+    <p>Hi [greetingName],</p>
 
     <p>Today is the final day to apply for <strong>[eventName]</strong>. Applications close at midnight tonight.</p>
 
-    <div style="background-color: #f9f9f9; padding: 15px; margin: 15px 0; border: 1px solid #e0e0e0;">
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333333;"><strong>Event Date:</strong> [eventDate]</p>
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333333;"><strong>Location:</strong> [eventVenue]</p>
-      <p style="margin: 0; font-size: 14px; color: #333333;"><strong>Deadline:</strong> Today, [applicationDeadline]</p>
-    </div>
+    <p><strong>Event Date:</strong> [eventDate]<br/>
+    <strong>Location:</strong> [eventVenue]<br/>
+    <strong>Deadline:</strong> Today, [applicationDeadline]</p>
 
-    <div style="background-color: #fff3cd; padding: 15px; margin: 15px 0; border: 1px solid #ffc107;">
-      <p style="margin: 0 0 10px 0; font-size: 14px; color: #333333; font-weight: 600;">⚠️ Last chance! View application options and apply now:</p>
-      <p style="margin: 0;"><a href="[eventLink]" style="color: #0066cc; text-decoration: underline; font-weight: 600;">[eventLink]</a></p>
-    </div>
+    <p>Last chance! View application options and apply now:<br/>
+    <a href="[eventLink]" style="color: #0066cc; text-decoration: underline;">[eventLink]</a></p>
 
-    <p><strong>This is your last chance.</strong></p>
+    <p>This is your last chance.</p>
 
     <p>Thanks,<br/>
     [organizationName]</p>
 
-    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #888888;">
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>
+
+    <p style="font-size: 12px; color: #888888;">Please do not reply to this email. For questions, contact <a href="mailto:[organizationEmail]" style="color: #888888;">[organizationEmail]</a></p>
+
+    <p style="font-size: 12px; color: #888888;">
       <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
     </p>
 
-    <p style="margin-top: 10px; font-size: 12px; color: #aaaaaa;">
-      Powered by Voxxy Presents
-    </p>
+    <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
   trigger_type: 'days_before_deadline',
   trigger_value: 0,
   trigger_time: '08:00',
-  filter_criteria: { statuses: [ 'pending' ] },  # Only send to vendors awaiting review
+  filter_criteria: { statuses: [ 'pending' ] },
   enabled_by_default: true
 })
 
@@ -139,33 +135,31 @@ create_email(template, {
   category: 'payment_reminders',
   subject_template: 'Reminder: Payment Due Tomorrow - [eventName]',
   body_template: <<~HTML,
-    <p>Hi [firstName],</p>
+    <p>Hi [greetingName],</p>
 
     <p>This is a reminder that your payment for <strong>[eventName]</strong> is due tomorrow on [paymentDueDate].</p>
 
-    <div style="background-color: #f9f9f9; padding: 15px; margin: 15px 0; border: 1px solid #e0e0e0;">
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333333;"><strong>Payment Due Date:</strong> [paymentDueDate]</p>
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333333;"><strong>Event Date:</strong> [eventDate]</p>
-      <p style="margin: 0; font-size: 14px; color: #333333;"><strong>Category:</strong> [vendorCategory]</p>
-    </div>
+    <p><strong>Payment Due Date:</strong> [paymentDueDate]<br/>
+    <strong>Event Date:</strong> [eventDate]<br/>
+    <strong>Category:</strong> [vendorCategory]</p>
 
-    <div style="background-color: #e6f3ff; padding: 15px; margin: 15px 0; border: 1px solid #0066cc;">
-      <p style="margin: 0 0 10px 0; font-size: 14px; color: #333333; font-weight: 600;">View your application details and payment information:</p>
-      <p style="margin: 0;"><a href="[eventLink]" style="color: #0066cc; text-decoration: underline; font-weight: 600;">[eventLink]</a></p>
-    </div>
+    <p>View your payment details and submit payment on your vendor dashboard:<br/>
+    <a href="[dashboardLink]" style="color: #0066cc; text-decoration: underline;">[dashboardLink]</a></p>
 
     <p>If you have already submitted payment, please disregard this message.</p>
 
     <p>Thank you,<br/>
     [organizationName]</p>
 
-    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #888888;">
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>
+
+    <p style="font-size: 12px; color: #888888;">Please do not reply to this email. For questions, contact <a href="mailto:[organizationEmail]" style="color: #888888;">[organizationEmail]</a></p>
+
+    <p style="font-size: 12px; color: #888888;">
       <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
     </p>
 
-    <p style="margin-top: 10px; font-size: 12px; color: #aaaaaa;">
-      Powered by Voxxy Presents
-    </p>
+    <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
   trigger_type: 'days_before_payment_deadline',
   trigger_value: 1,
@@ -183,20 +177,16 @@ create_email(template, {
   category: 'payment_reminders',
   subject_template: 'URGENT: Payment Due Today - [eventName]',
   body_template: <<~HTML,
-    <p>Hi [firstName],</p>
+    <p>Hi [greetingName],</p>
 
     <p>Your payment for <strong>[eventName]</strong> is due today.</p>
 
-    <div style="background-color: #f9f9f9; padding: 15px; margin: 15px 0; border: 1px solid #e0e0e0;">
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333333;"><strong>Due Date:</strong> Today, [paymentDueDate]</p>
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333333;"><strong>Event Date:</strong> [eventDate]</p>
-      <p style="margin: 0; font-size: 14px; color: #333333;"><strong>Category:</strong> [vendorCategory]</p>
-    </div>
+    <p><strong>Due Date:</strong> Today, [paymentDueDate]<br/>
+    <strong>Event Date:</strong> [eventDate]<br/>
+    <strong>Category:</strong> [vendorCategory]</p>
 
-    <div style="background-color: #fff3cd; padding: 15px; margin: 15px 0; border: 1px solid #ffc107;">
-      <p style="margin: 0 0 10px 0; font-size: 14px; color: #333333; font-weight: 600;">⚠️ Payment due today! View your details and submit payment:</p>
-      <p style="margin: 0;"><a href="[eventLink]" style="color: #0066cc; text-decoration: underline; font-weight: 600;">[eventLink]</a></p>
-    </div>
+    <p>Payment due today! View your details and submit payment:<br/>
+    <a href="[dashboardLink]" style="color: #0066cc; text-decoration: underline;">[dashboardLink]</a></p>
 
     <p>If payment is not received by midnight tonight, your spot may be moved to the waitlist.</p>
 
@@ -205,13 +195,15 @@ create_email(template, {
     <p>Thank you,<br/>
     [organizationName]</p>
 
-    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #888888;">
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>
+
+    <p style="font-size: 12px; color: #888888;">Please do not reply to this email. For questions, contact <a href="mailto:[organizationEmail]" style="color: #888888;">[organizationEmail]</a></p>
+
+    <p style="font-size: 12px; color: #888888;">
       <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
     </p>
 
-    <p style="margin-top: 10px; font-size: 12px; color: #aaaaaa;">
-      Powered by Voxxy Presents
-    </p>
+    <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
   trigger_type: 'on_payment_deadline',
   trigger_value: 0,
@@ -237,43 +229,38 @@ create_email(template, {
   category: 'event_countdown',
   subject_template: 'Tomorrow: [eventName] Final Details',
   body_template: <<~HTML,
-    <p>Hi [firstName],</p>
+    <p>Hi [greetingName],</p>
 
     <p><strong>[eventName]</strong> is tomorrow. Here are the final details you need:</p>
 
-    <div style="background-color: #f9f9f9; padding: 15px; margin: 15px 0; border: 1px solid #e0e0e0;">
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333333; font-weight: 600;">Event Information:</p>
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333333;"><strong>Date:</strong> [eventDate]</p>
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333333;"><strong>Time:</strong> [eventTime]</p>
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333333;"><strong>Venue:</strong> [eventVenue]</p>
-      <p style="margin: 0; font-size: 14px; color: #333333;"><strong>Location:</strong> [eventLocation]</p>
-    </div>
+    <p><strong>Event Information:</strong><br/>
+    <strong>Date:</strong> [eventDate]<br/>
+    <strong>Time:</strong> [eventTime]<br/>
+    <strong>Venue:</strong> [eventVenue]<br/>
+    <strong>Location:</strong> [eventLocation]</p>
 
-    <div style="background-color: #e6f3ff; padding: 15px; margin: 15px 0; border: 1px solid #0066cc;">
-      <p style="margin: 0 0 10px 0; font-size: 14px; color: #333333; font-weight: 600;">View your setup schedule and complete event details:</p>
-      <p style="margin: 0;"><a href="[eventLink]" style="color: #0066cc; text-decoration: underline; font-weight: 600;">[eventLink]</a></p>
-    </div>
+    <p>View your setup schedule and complete event details on your dashboard:<br/>
+    <a href="[dashboardLink]" style="color: #0066cc; text-decoration: underline;">[dashboardLink]</a></p>
 
-    <div style="background-color: #fffef0; padding: 15px; margin: 15px 0; border: 1px solid #e0e0e0;">
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333333; font-weight: 600;">Important Reminders:</p>
-      <p style="margin: 0 0 5px 0; font-size: 14px; color: #333333;">• Arrive during your scheduled setup time</p>
-      <p style="margin: 0 0 5px 0; font-size: 14px; color: #333333;">• Bring all necessary equipment and supplies</p>
-      <p style="margin: 0 0 5px 0; font-size: 14px; color: #333333;">• Have your confirmation code ready for check-in</p>
-      <p style="margin: 0; font-size: 14px; color: #333333;">• Review any vendor guidelines on the event page</p>
-    </div>
+    <p><strong>Important Reminders:</strong><br/>
+    - Arrive during your scheduled setup time<br/>
+    - Bring all necessary equipment and supplies<br/>
+    - Review any vendor guidelines on the event page</p>
 
     <p>We look forward to seeing you tomorrow.</p>
 
     <p>Best regards,<br/>
     [organizationName]</p>
 
-    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #888888;">
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>
+
+    <p style="font-size: 12px; color: #888888;">Please do not reply to this email. For questions, contact <a href="mailto:[organizationEmail]" style="color: #888888;">[organizationEmail]</a></p>
+
+    <p style="font-size: 12px; color: #888888;">
       <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
     </p>
 
-    <p style="margin-top: 10px; font-size: 12px; color: #aaaaaa;">
-      Powered by Voxxy Presents
-    </p>
+    <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
   trigger_type: 'days_before_event',
   trigger_value: 1,
@@ -288,42 +275,38 @@ create_email(template, {
   category: 'event_countdown',
   subject_template: 'Today: [eventName]',
   body_template: <<~HTML,
-    <p>Hi [firstName],</p>
+    <p>Hi [greetingName],</p>
 
     <p>Today is the day. <strong>[eventName]</strong> is happening today.</p>
 
-    <div style="background-color: #f9f9f9; padding: 15px; margin: 15px 0; border: 1px solid #e0e0e0;">
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333333; font-weight: 600;">Event Details:</p>
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333333;"><strong>Time:</strong> [eventTime]</p>
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333333;"><strong>Venue:</strong> [eventVenue]</p>
-      <p style="margin: 0; font-size: 14px; color: #333333;"><strong>Location:</strong> [eventLocation]</p>
-    </div>
+    <p><strong>Event Details:</strong><br/>
+    <strong>Time:</strong> [eventTime]<br/>
+    <strong>Venue:</strong> [eventVenue]<br/>
+    <strong>Location:</strong> [eventLocation]</p>
 
-    <div style="background-color: #e6f3ff; padding: 15px; margin: 15px 0; border: 1px solid #0066cc;">
-      <p style="margin: 0 0 10px 0; font-size: 14px; color: #333333; font-weight: 600;">View your setup time and event details:</p>
-      <p style="margin: 0;"><a href="[eventLink]" style="color: #0066cc; text-decoration: underline; font-weight: 600;">[eventLink]</a></p>
-    </div>
+    <p>View your setup time and event details:<br/>
+    <a href="[dashboardLink]" style="color: #0066cc; text-decoration: underline;">[dashboardLink]</a></p>
 
-    <div style="background-color: #fffef0; padding: 15px; margin: 15px 0; border: 1px solid #e0e0e0;">
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #333333; font-weight: 600;">Reminders:</p>
-      <p style="margin: 0 0 5px 0; font-size: 14px; color: #333333;">• Arrive on time for setup</p>
-      <p style="margin: 0 0 5px 0; font-size: 14px; color: #333333;">• Check in at the vendor desk</p>
-      <p style="margin: 0 0 5px 0; font-size: 14px; color: #333333;">• Follow all venue guidelines</p>
-      <p style="margin: 0; font-size: 14px; color: #333333;">• Have a successful event</p>
-    </div>
+    <p><strong>Reminders:</strong><br/>
+    - Arrive on time for setup<br/>
+    - Check in at the vendor desk<br/>
+    - Follow all venue guidelines<br/>
+    - Have a successful event</p>
 
     <p>See you there.</p>
 
     <p>Best regards,<br/>
     [organizationName]</p>
 
-    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #888888;">
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>
+
+    <p style="font-size: 12px; color: #888888;">Please do not reply to this email. For questions, contact <a href="mailto:[organizationEmail]" style="color: #888888;">[organizationEmail]</a></p>
+
+    <p style="font-size: 12px; color: #888888;">
       <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
     </p>
 
-    <p style="margin-top: 10px; font-size: 12px; color: #aaaaaa;">
-      Powered by Voxxy Presents
-    </p>
+    <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
   trigger_type: 'on_event_date',
   trigger_value: 0,
@@ -338,30 +321,28 @@ create_email(template, {
   category: 'event_countdown',
   subject_template: 'Thank You for Participating in [eventName]',
   body_template: <<~HTML,
-    <p>Hi [firstName],</p>
+    <p>Hi [greetingName],</p>
 
     <p>Thank you for participating in <strong>[eventName]</strong>. We appreciate your contribution to making this event a success.</p>
 
     <p>We hope the event met your expectations and provided value for your business.</p>
 
-    <div style="background-color: #f0f8ff; padding: 15px; margin: 15px 0; border: 1px solid #e0e0e0;">
-      <p style="margin: 0; font-size: 14px; color: #333333;">
-        If you have any feedback about the event, please share it with us. We are always looking to improve.
-      </p>
-    </div>
+    <p>If you have any feedback about the event, please share it with us. We are always looking to improve.</p>
 
     <p>We look forward to working with you again at future events.</p>
 
     <p>Best regards,<br/>
     [organizationName]</p>
 
-    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #888888;">
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>
+
+    <p style="font-size: 12px; color: #888888;">Please do not reply to this email. For questions, contact <a href="mailto:[organizationEmail]" style="color: #888888;">[organizationEmail]</a></p>
+
+    <p style="font-size: 12px; color: #888888;">
       <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
     </p>
 
-    <p style="margin-top: 10px; font-size: 12px; color: #aaaaaa;">
-      Powered by Voxxy Presents
-    </p>
+    <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
   trigger_type: 'days_after_event',
   trigger_value: 1,
