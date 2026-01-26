@@ -27,7 +27,7 @@ namespace :email_testing do
       user: test_user,
       name: "Test Email Org",
       slug: "test-email-org-#{SecureRandom.hex(4)}",
-      email: "testorg@voxxyai.com"
+      email: "beau@beausorganization.com"
     )
     puts "   ✅ Organization: #{org.name}"
     puts ""

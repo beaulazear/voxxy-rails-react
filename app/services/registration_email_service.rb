@@ -178,7 +178,7 @@ class RegistrationEmailService < BaseEmailService
 
     # Format event date
     event_date = event.event_date.present? ? event.event_date.strftime("%B %d, %Y") : "TBD"
-    location = [event.venue, event.location].compact.join(", ")
+    location = [ event.venue, event.location ].compact.join(", ")
     location = "TBD" if location.blank?
 
     subject = "Application Received - #{event.title}"
@@ -510,7 +510,7 @@ class RegistrationEmailService < BaseEmailService
 
     # Format event date and location
     event_date = event.event_date.present? ? event.event_date.strftime("%B %d, %Y") : "TBD"
-    location = [event.venue, event.location].compact.join(", ")
+    location = [ event.venue, event.location ].compact.join(", ")
     location = "TBD" if location.blank?
 
     # Build dashboard link

@@ -4,7 +4,7 @@ namespace :email_templates do
     puts "🔍 Finding default system email template..."
 
     template = EmailCampaignTemplate.find_by(
-      template_type: 'system',
+      template_type: "system",
       is_default: true
     )
 

@@ -85,7 +85,7 @@ namespace :email_automation do
       user: test_user,
       name: "Test Email Automation Org",
       slug: "test-automation-org-#{SecureRandom.hex(4)}",
-      email: "testautomation@voxxyai.com"
+      email: "beau@beausorganization.com"
     )
     puts "✅ Organization: #{org.name}"
     puts "   Owner: #{test_user.email}"
