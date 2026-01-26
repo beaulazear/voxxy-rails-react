@@ -460,7 +460,8 @@ namespace :email_automation do
       scheduled_emails: 0,
       registrations: 0,
       email_deliveries: 0,
-      invitations: 0
+      invitations: 0,
+      unsubscribe_tokens: 0
     }
 
     test_events.each do |event|
@@ -471,6 +472,11 @@ namespace :email_automation do
       total_stats[:registrations] += event.registrations.count
       total_stats[:email_deliveries] += event.scheduled_emails.sum { |e| e.email_deliveries.count }
       total_stats[:invitations] += event.event_invitations.count rescue 0
+
+      # Delete UnsubscribeTokens first (they have foreign key to events)
+      unsubscribe_count = UnsubscribeToken.where(event_id: event.id).count
+      UnsubscribeToken.where(event_id: event.id).delete_all
+      total_stats[:unsubscribe_tokens] += unsubscribe_count
 
       # Delete event (will cascade delete associated records due to dependent: :destroy)
       event.destroy!
@@ -487,6 +493,7 @@ namespace :email_automation do
     puts "  👥 Registrations: #{total_stats[:registrations]}"
     puts "  📬 Email Deliveries: #{total_stats[:email_deliveries]}"
     puts "  📨 Invitations: #{total_stats[:invitations]}" if total_stats[:invitations] > 0
+    puts "  🔕 Unsubscribe Tokens: #{total_stats[:unsubscribe_tokens]}" if total_stats[:unsubscribe_tokens] > 0
     puts ""
     puts "🎉 All test data cleaned up successfully!"
     puts ""

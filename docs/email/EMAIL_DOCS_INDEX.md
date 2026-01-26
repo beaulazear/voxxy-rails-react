@@ -55,7 +55,21 @@ This index helps you navigate the email system documentation for Voxxy Presents.
   - EmailDeliveryProcessorJob logic
   - Database updates and status tracking
 
-### 2. Email System Fixes (January 17, 2026)
+### 2. SendGrid SSL Certificate Fix (January 26, 2026)
+📄 **[EMAIL_SENDGRID_SSL_FIX_JAN_26_2026.md](./EMAIL_SENDGRID_SSL_FIX_JAN_26_2026.md)** ⭐ **NEW**
+- **Last Updated:** January 26, 2026
+- **Purpose:** Fix for OpenSSL 3.4.0 SSL certificate verification errors
+- **Best for:** Debugging why emails appear sent but don't arrive in development
+- **Contains:**
+  - Root cause: OpenSSL 3.4.0 CRL validation failure
+  - Solution: Add `openssl` gem to Gemfile
+  - Error handling improvements in EmailSenderService
+  - Production verification (12 emails sent successfully)
+  - Recipient filtering verification (all 7 email types)
+  - Gmail plus addressing testing technique
+  - Health check and prevention strategies
+
+### 3. Email System Fixes (January 17, 2026)
 📄 **[EMAIL_SYSTEM_FIXES_JANUARY_17_2026.md](./EMAIL_SYSTEM_FIXES_JANUARY_17_2026.md)**
 - **Last Updated:** January 17, 2026
 - **Purpose:** Critical fixes and improvements to email system
@@ -68,7 +82,7 @@ This index helps you navigate the email system documentation for Voxxy Presents.
   - Migration steps for existing events
   - Testing and monitoring recommendations
 
-### 3. Email Automation System (Scheduled Emails)
+### 4. Email Automation System (Scheduled Emails)
 📄 **[EMAIL_AUTOMATION_SYSTEM_GUIDE.md](./EMAIL_AUTOMATION_SYSTEM_GUIDE.md)** (2,086 lines)
 - **Last Updated:** January 17, 2026
 - **Purpose:** Deep dive into the automated scheduled email system
@@ -82,7 +96,7 @@ This index helps you navigate the email system documentation for Voxxy Presents.
   - Key workflows and recent changes
   - Developer reference and debugging tips
 
-### 4. Email Notification System (User Confirmation)
+### 5. Email Notification System (User Confirmation)
 📄 **[EMAIL_NOTIFICATION_SYSTEM.md](./EMAIL_NOTIFICATION_SYSTEM.md)** (472 lines)
 - **Last Updated:** January 8, 2026
 - **Purpose:** Documents the user confirmation flow for bulk/sensitive emails
@@ -96,7 +110,7 @@ This index helps you navigate the email system documentation for Voxxy Presents.
 
 **Key Insight:** This doc explains the architectural pattern where certain emails (payment confirmation, event updates, cancellation) require explicit user confirmation via the frontend before sending.
 
-### 5. Email Notification Testing Guide
+### 6. Email Notification Testing Guide
 📄 **[EMAIL_NOTIFICATION_TESTING.md](./EMAIL_NOTIFICATION_TESTING.md)** (343 lines)
 - **Last Updated:** January 8, 2026
 - **Purpose:** Step-by-step testing guide for the email notification system
@@ -107,7 +121,7 @@ This index helps you navigate the email system documentation for Voxxy Presents.
   - API payload examples
   - Frontend behavior validation
 
-### 6. SendGrid Webhook Setup
+### 7. SendGrid Webhook Setup
 📄 **[SENDGRID_WEBHOOK_SETUP.md](./SENDGRID_WEBHOOK_SETUP.md)** (365 lines)
 - **Last Updated:** January 2, 2026
 - **Purpose:** Setup guide for SendGrid webhook integration
@@ -152,6 +166,13 @@ This index helps you navigate the email system documentation for Voxxy Presents.
 3. Check if email requires user confirmation: **[EMAIL_NOTIFICATION_SYSTEM.md](./EMAIL_NOTIFICATION_SYSTEM.md)**
 4. Run test from **[VOXXY_PRESENTS_EMAIL_MASTER_REFERENCE.md](./VOXXY_PRESENTS_EMAIL_MASTER_REFERENCE.md)** → "Testing Emails"
 
+### Use Case: "Emails marked 'sent' but not arriving in development"
+1. Check for SSL errors: **[EMAIL_SENDGRID_SSL_FIX_JAN_26_2026.md](./EMAIL_SENDGRID_SSL_FIX_JAN_26_2026.md)**
+2. Verify `openssl` gem is in Gemfile and installed
+3. Check development logs for SSL certificate verification errors
+4. Restart Sidekiq after installing openssl gem
+5. Run health check: `bundle exec rake email:health_check`
+
 ### Use Case: "I need to set up email delivery tracking"
 1. Follow **[SENDGRID_WEBHOOK_SETUP.md](./SENDGRID_WEBHOOK_SETUP.md)**
 2. Understand the system: **[EMAIL_AUTOMATION_SYSTEM_GUIDE.md](./EMAIL_AUTOMATION_SYSTEM_GUIDE.md)** → "Delivery Tracking"
@@ -174,6 +195,7 @@ This index helps you navigate the email system documentation for Voxxy Presents.
 
 | Document | Status | Last Updated | Purpose |
 |----------|--------|--------------|---------|
+| **EMAIL_SENDGRID_SSL_FIX_JAN_26_2026.md** | ✅ Current | Jan 26, 2026 | **SSL certificate fix for SendGrid** |
 | **WEBHOOK_PROCESSING_FIX_JAN_23_2026.md** | ✅ Current | Jan 23, 2026 | **Invitation tracking fix** |
 | **WEBHOOK_VERIFICATION_CHECKLIST.md** | ✅ Current | Jan 23, 2026 | **Webhook verification steps** |
 | **VOXXY_PRESENTS_EMAIL_MASTER_REFERENCE.md** | ✅ Current | Jan 23, 2026 | **Master catalog of all emails** |
@@ -271,5 +293,5 @@ For new developers working on the email system:
 
 **Questions or feedback on documentation?** Update this index and related docs as needed!
 
-**Last Updated:** January 23, 2026
-**Status:** ✅ Updated with webhook processing fix documentation
+**Last Updated:** January 26, 2026
+**Status:** ✅ Updated with SendGrid SSL certificate fix documentation
