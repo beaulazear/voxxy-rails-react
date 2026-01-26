@@ -470,10 +470,14 @@ namespace :email_automation do
       # Count associated records before deletion
       total_stats[:scheduled_emails] += event.scheduled_emails.count
       total_stats[:registrations] += event.registrations.count
-      total_stats[:email_deliveries] += event.scheduled_emails.sum { |e| e.email_deliveries.count }
+      total_stats[:email_deliveries] += EmailDelivery.where(event_id: event.id).count
       total_stats[:invitations] += event.event_invitations.count rescue 0
 
-      # Delete UnsubscribeTokens first (they have foreign key to events)
+      # Delete ALL EmailDelivery records for this event first
+      # (they have foreign keys to both scheduled_emails AND event_invitations)
+      EmailDelivery.where(event_id: event.id).delete_all
+
+      # Delete UnsubscribeTokens (they have foreign key to events)
       unsubscribe_count = UnsubscribeToken.where(event_id: event.id).count
       UnsubscribeToken.where(event_id: event.id).delete_all
       total_stats[:unsubscribe_tokens] += unsubscribe_count
