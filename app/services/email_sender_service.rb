@@ -147,7 +147,10 @@ class EmailSenderService
 
   def create_delivery_record(registration, response)
     # Extract SendGrid message ID from response headers
-    message_id = response.headers["X-Message-Id"]
+    # Note: Net::HTTP stores all header keys in lowercase
+    message_id = response.headers["x-message-id"]
+    # Net::HTTP stores header values as arrays, extract first element
+    message_id = message_id.first if message_id.is_a?(Array)
 
     unless message_id
       Rails.logger.warn("No X-Message-Id in SendGrid response - delivery tracking may fail")
