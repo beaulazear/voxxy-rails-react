@@ -80,17 +80,19 @@ namespace :email_automation do
       exit 1
     end
 
-    # Find or create test organization by slug pattern (avoids using production orgs)
-    org = test_user.organizations.find_by("slug LIKE ?", "test-automation-org-%") ||
-          test_user.organizations.create!(
-            user: test_user,
-            name: "Test Email Automation Org",
-            slug: "test-automation-org-#{SecureRandom.hex(4)}"
-          )
+    # Use user's actual organization so events appear in their account
+    org = test_user.organizations.first
 
-    # Always update email to ensure consistency on every test run
-    # Using noreply@voxxypresents.com (verified in SendGrid)
-    org.update!(email: "noreply@voxxypresents.com")
+    unless org
+      puts "❌ Error: User has no organizations"
+      exit 1
+    end
+
+    # Update email to noreply@voxxypresents.com for consistency (if not already set)
+    # Note: EmailSenderService now always uses noreply@voxxypresents.com regardless of this setting
+    if org.email != "noreply@voxxypresents.com"
+      org.update!(email: "noreply@voxxypresents.com")
+    end
 
     puts "✅ Organization: #{org.name}"
     puts "   📧 Email: #{org.email}"
