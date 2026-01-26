@@ -73,21 +73,17 @@
 
       <p>We are excited to announce <strong><%= @event.title %></strong> and would like to invite you to participate.</p>
 
-      <div class="event-details">
+      <p>
         <% if @event.event_date.present? %>
-          <p><strong>Event Date:</strong> <%= @event.event_date.strftime("%B %d, %Y") %></p>
+          <strong>Event Date:</strong> <%= @event.event_date.strftime("%B %d, %Y") %><br/>
         <% end %>
-
         <% if @event.venue.present? || @event.location.present? %>
-          <p><strong>Location:</strong>
-            <%= [@event.venue, @event.location].compact.join(', ') %>
-          </p>
+          <strong>Location:</strong> <%= [@event.venue, @event.location].compact.join(', ') %><br/>
         <% end %>
-
         <% if @event.application_deadline.present? %>
-          <p><strong>Application Deadline:</strong> <%= @event.application_deadline.strftime("%B %d, %Y") %></p>
+          <strong>Application Deadline:</strong> <%= @event.application_deadline.strftime("%B %d, %Y") %>
         <% end %>
-      </div>
+      </p>
 
       <p>This is an opportunity to showcase your work and connect with the community.</p>
 
@@ -96,8 +92,13 @@
       <p>Best regards,<br/><%= @organization.name %></p>
     </div>
 
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>
+
     <div class="footer">
-      <p style="margin: 0 0 12px 0;">If you didn't expect this email, you can safely ignore it.</p>
+      <p style="margin: 0 0 12px 0; font-size: 12px; color: #888888;">
+        Please do not reply to this email. For questions, contact <a href="mailto:<%= @organization.email || @organization.user&.email || 'team@voxxypresents.com' %>" style="color: #888888;"><%= @organization.email || @organization.user&.email || 'team@voxxypresents.com' %></a>
+      </p>
+      <p style="margin: 0 0 12px 0; font-size: 12px; color: #888888;">If you didn't expect this email, you can safely ignore it.</p>
       <p style="margin: 0 0 12px 0; font-size: 12px; color: #888888;">
         <a href="<%= @unsubscribe_url %>" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
       </p>

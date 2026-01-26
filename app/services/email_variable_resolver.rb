@@ -94,7 +94,17 @@ class EmailVariableResolver
     # Get booth number if the field exists
     booth_number = registration.respond_to?(:booth_number) ? (registration.booth_number&.to_s || "TBD") : "TBD"
 
+    # Greeting name: businessName preferred, fallback to firstName
+    greeting_name = if registration.business_name.present?
+      registration.business_name
+    elsif first_name.present?
+      first_name
+    else
+      "there"  # Ultimate fallback if both are missing
+    end
+
     template
+      .gsub("[greetingName]", greeting_name)
       .gsub("[firstName]", first_name)
       .gsub("[lastName]", last_name)
       .gsub("[fullName]", registration.name || "")
