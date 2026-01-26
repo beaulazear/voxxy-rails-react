@@ -473,11 +473,16 @@ namespace :email_automation do
       total_stats[:email_deliveries] += EmailDelivery.where(event_id: event.id).count
       total_stats[:invitations] += event.event_invitations.count rescue 0
 
-      # Delete ALL EmailDelivery records for this event first
-      # (they have foreign keys to both scheduled_emails AND event_invitations)
+      # Delete ALL tables with foreign keys to events (in order of dependencies)
+      # These MUST be deleted before the event can be destroyed
+
+      # 1. EmailDelivery (references scheduled_emails AND event_invitations)
       EmailDelivery.where(event_id: event.id).delete_all
 
-      # Delete UnsubscribeTokens (they have foreign key to events)
+      # 2. EmailUnsubscribe (references events)
+      EmailUnsubscribe.where(event_id: event.id).delete_all rescue nil
+
+      # 3. UnsubscribeToken (references events)
       unsubscribe_count = UnsubscribeToken.where(event_id: event.id).count
       UnsubscribeToken.where(event_id: event.id).delete_all
       total_stats[:unsubscribe_tokens] += unsubscribe_count
