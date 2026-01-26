@@ -269,7 +269,7 @@ namespace :email_automation do
     puts "-" * 80
     scheduled_emails.reload.each_with_index do |email, index|
       scheduled_time = email.scheduled_for.in_time_zone("America/New_York")
-      recipient_count = RecipientFilterService.new(event, email).filter_recipients.count
+      recipient_count = RecipientFilterService.new(event, email.filter_criteria).filter_recipients.count
       puts sprintf("  %d. %-40s → %s (%d recipients)",
         index + 1,
         email.name,
