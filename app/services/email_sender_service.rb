@@ -97,9 +97,9 @@ class EmailSenderService
   def send_via_sendgrid(to_email:, to_name:, subject:, body:, scheduled_email_id:, event_id:, registration_id:)
     mail = SendGrid::Mail.new
 
-    # From address - always use verified sender (consistent with registration/invitation emails)
+    # From address - always use verified sender email with organization branding
     from_email = "noreply@voxxypresents.com"
-    from_name = "Voxxy Presents"
+    from_name = organization.name || "Voxxy Presents"
     mail.from = SendGrid::Email.new(email: from_email, name: from_name)
 
     # Subject

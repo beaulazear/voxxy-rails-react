@@ -31,8 +31,12 @@ class EventInvitationMailer < ApplicationMailer
     # Add SendGrid custom tracking args for webhook bounce processing
     headers["X-SMTPAPI"] = smtp_api_header.to_json
 
+    # Use organization name in from field with verified email
+    from_name = @organization.name || "Voxxy Presents"
+
     mail(
       to: @vendor_contact.email,
+      from: "#{from_name} <noreply@voxxypresents.com>",
       subject: "#{@event.title} is coming#{location_suffix}"
     )
   end

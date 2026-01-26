@@ -76,8 +76,8 @@ class BaseEmailService
     footer: "font-size: 13px; color: #888888; margin: 25px 0 0 0; padding-top: 20px; border-top: 1px solid #e0e0e0;"
   }.freeze
 
-  def self.send_email(to_email, subject, content_html, additional_headers = {})
-    from = SendGrid::Email.new(email: SENDER_EMAIL, name: SENDER_NAME)
+  def self.send_email(to_email, subject, content_html, additional_headers = {}, from_name: nil)
+    from = SendGrid::Email.new(email: SENDER_EMAIL, name: from_name || SENDER_NAME)
     to = SendGrid::Email.new(email: to_email)
     content = Content.new(type: "text/html", value: content_html)
 
