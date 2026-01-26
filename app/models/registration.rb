@@ -106,8 +106,7 @@ class Registration < ApplicationRecord
 
   def send_confirmation_email
     RegistrationEmailService.send_confirmation(self)
-    # Notify event owner if this is a vendor application
-    RegistrationEmailService.notify_owner_of_submission(self) if vendor_registration?
+    # Owner notification removed - only applicant receives confirmation email
   rescue StandardError => e
     Rails.logger.error "Failed to send confirmation email for registration #{id}: #{e.message}"
     # Don't raise - we don't want to block registration creation if email fails
