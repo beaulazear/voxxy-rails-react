@@ -12,6 +12,7 @@ class Event < ApplicationRecord
   belongs_to :email_campaign_template, optional: true
   has_many :scheduled_emails, dependent: :destroy
   has_many :email_deliveries, through: :scheduled_emails
+  has_many :unsubscribe_tokens, dependent: :delete_all
 
   # Payment integration associations
   has_many :payment_integrations, dependent: :destroy

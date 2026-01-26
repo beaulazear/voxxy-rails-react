@@ -5,7 +5,7 @@
 namespace :sidekiq do
   desc "Debug Sidekiq queues and job status"
   task debug: :environment do
-    require 'sidekiq/api'
+    require "sidekiq/api"
 
     puts "\n" + "="*80
     puts "🔍 SIDEKIQ DIAGNOSTICS"
@@ -32,7 +32,7 @@ namespace :sidekiq do
     puts ""
 
     # Email delivery queue details
-    email_queue = Sidekiq::Queue.new('email_delivery')
+    email_queue = Sidekiq::Queue.new("email_delivery")
     puts "📧 EMAIL_DELIVERY QUEUE DETAILS:"
     puts "-" * 80
     puts "Total jobs: #{email_queue.size}"
@@ -41,7 +41,7 @@ namespace :sidekiq do
     if email_queue.size > 0
       puts "First 10 jobs in queue:"
       email_queue.first(10).each_with_index do |job, index|
-        enqueued_at = Time.at(job.enqueued_at).strftime('%Y-%m-%d %H:%M:%S')
+        enqueued_at = Time.at(job.enqueued_at).strftime("%Y-%m-%d %H:%M:%S")
         puts "  #{index + 1}. Class: #{job.klass}"
         puts "     Args: #{job.args.inspect}"
         puts "     Enqueued: #{enqueued_at}"
@@ -63,7 +63,7 @@ namespace :sidekiq do
     if scheduled_set.size > 0
       puts "Next 10 scheduled jobs:"
       scheduled_set.first(10).each_with_index do |job, index|
-        scheduled_at = Time.at(job.at).strftime('%Y-%m-%d %H:%M:%S')
+        scheduled_at = Time.at(job.at).strftime("%Y-%m-%d %H:%M:%S")
         time_until = ((job.at - Time.now.to_f) / 60).round
         puts "  #{index + 1}. Class: #{job.klass}"
         puts "     Scheduled for: #{scheduled_at} (in #{time_until} min)"
@@ -85,7 +85,7 @@ namespace :sidekiq do
     if retry_set.size > 0
       puts "First 10 retrying jobs:"
       retry_set.first(10).each_with_index do |job, index|
-        retry_at = Time.at(job.at).strftime('%Y-%m-%d %H:%M:%S')
+        retry_at = Time.at(job.at).strftime("%Y-%m-%d %H:%M:%S")
         puts "  #{index + 1}. Class: #{job.klass}"
         puts "     Retry at: #{retry_at}"
         puts "     Error: #{job['error_message']}"
@@ -107,7 +107,7 @@ namespace :sidekiq do
     if dead_set.size > 0
       puts "First 10 dead jobs:"
       dead_set.first(10).each_with_index do |job, index|
-        failed_at = Time.at(job.at).strftime('%Y-%m-%d %H:%M:%S')
+        failed_at = Time.at(job.at).strftime("%Y-%m-%d %H:%M:%S")
         puts "  #{index + 1}. Class: #{job.klass}"
         puts "     Failed at: #{failed_at}"
         puts "     Error: #{job['error_message']}"
@@ -125,16 +125,16 @@ namespace :sidekiq do
     puts "="*80
     puts ""
 
-    email_sender_jobs = email_queue.select { |job| job.klass == 'EmailSenderWorker' }
+    email_sender_jobs = email_queue.select { |job| job.klass == "EmailSenderWorker" }
     puts "EmailSenderWorker jobs in email_delivery queue: #{email_sender_jobs.count}"
 
-    scheduled_email_sender = scheduled_set.select { |job| job.klass == 'EmailSenderWorker' }
+    scheduled_email_sender = scheduled_set.select { |job| job.klass == "EmailSenderWorker" }
     puts "EmailSenderWorker jobs in scheduled set: #{scheduled_email_sender.count}"
 
-    retry_email_sender = retry_set.select { |job| job.klass == 'EmailSenderWorker' }
+    retry_email_sender = retry_set.select { |job| job.klass == "EmailSenderWorker" }
     puts "EmailSenderWorker jobs in retry queue: #{retry_email_sender.count}"
 
-    dead_email_sender = dead_set.select { |job| job.klass == 'EmailSenderWorker' }
+    dead_email_sender = dead_set.select { |job| job.klass == "EmailSenderWorker" }
     puts "EmailSenderWorker jobs in dead queue: #{dead_email_sender.count}"
 
     puts ""
@@ -165,7 +165,7 @@ namespace :sidekiq do
 
   desc "Clear all dead jobs from Sidekiq"
   task clear_dead: :environment do
-    require 'sidekiq/api'
+    require "sidekiq/api"
     dead_set = Sidekiq::DeadSet.new
     count = dead_set.size
     dead_set.clear
@@ -174,7 +174,7 @@ namespace :sidekiq do
 
   desc "Clear all retry jobs from Sidekiq"
   task clear_retry: :environment do
-    require 'sidekiq/api'
+    require "sidekiq/api"
     retry_set = Sidekiq::RetrySet.new
     count = retry_set.size
     retry_set.clear

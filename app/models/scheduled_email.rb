@@ -165,6 +165,42 @@ class ScheduledEmail < ApplicationRecord
     status == "scheduled" && scheduled_for && scheduled_for <= Time.current
   end
 
+  # Check if email is overdue (scheduled time has passed but not sent)
+  # Returns true if:
+  # - Status is still "scheduled" (not sent, paused, or cancelled)
+  # - Scheduled time is in the past
+  # - Email is more than 10 minutes overdue (grace period for worker processing)
+  def overdue?
+    return false unless status == "scheduled"
+    return false unless scheduled_for
+
+    # Grace period: 10 minutes (worker runs every 5 min, so 10 min allows 2 cycles)
+    grace_period = 10.minutes
+    scheduled_for < (Time.current - grace_period)
+  end
+
+  # Calculate how many minutes overdue (negative if not overdue yet)
+  def minutes_overdue
+    return 0 unless scheduled_for
+    ((Time.current - scheduled_for) / 60).round
+  end
+
+  # Human-readable overdue message
+  def overdue_message
+    return nil unless overdue?
+
+    minutes = minutes_overdue
+    if minutes < 60
+      "#{minutes} minute#{'s' if minutes != 1} late"
+    elsif minutes < 1440 # Less than 24 hours
+      hours = (minutes / 60.0).round(1)
+      "#{hours} hour#{'s' if hours != 1} late"
+    else
+      days = (minutes / 1440.0).round(1)
+      "#{days} day#{'s' if days != 1} late"
+    end
+  end
+
   private
 
   # Check if this is an announcement email (goes to invited contacts, not registrations)

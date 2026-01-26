@@ -22,7 +22,7 @@ module Api
               .where(email_template_items: { category: params[:category] })
           end
 
-          # Serialize with delivery counts for sent emails
+          # Serialize with delivery counts for sent emails and overdue status
           emails_json = emails.map do |email|
             email.as_json(
               include: {
@@ -36,7 +36,11 @@ module Api
               undelivered_count: email.undelivered_count,
               unsubscribed_count: email.unsubscribed_count,
               delivered_count: email.delivered_count,
-              delivery_rate: email.delivery_rate
+              delivery_rate: email.delivery_rate,
+              # Add overdue detection (for scheduled emails)
+              overdue: email.overdue?,
+              minutes_overdue: email.minutes_overdue,
+              overdue_message: email.overdue_message
             )
           end
 
