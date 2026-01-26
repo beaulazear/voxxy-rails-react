@@ -22,25 +22,36 @@ class EmailSenderService
 
     sent_count = 0
     failed_count = 0
+    last_error = nil
 
     recipients.each do |registration|
       begin
         send_to_registration(registration)
         sent_count += 1
       rescue => e
+        last_error = e.message
         Rails.logger.error("Failed to send email to #{registration.email}: #{e.message}")
         failed_count += 1
       end
     end
 
     # Update scheduled email status
-    scheduled_email.update!(
-      status: "sent",
-      sent_at: Time.current,
-      recipient_count: sent_count
-    )
-
-    Rails.logger.info("✓ Sent scheduled email ##{scheduled_email.id} to #{sent_count} recipients (#{failed_count} failed)")
+    # Only mark as "sent" if at least one email was successfully delivered
+    if sent_count > 0
+      scheduled_email.update!(
+        status: "sent",
+        sent_at: Time.current,
+        recipient_count: sent_count
+      )
+      Rails.logger.info("✓ Sent scheduled email ##{scheduled_email.id} to #{sent_count} recipients (#{failed_count} failed)")
+    else
+      # All recipients failed - mark as failed with error message
+      scheduled_email.update!(
+        status: "failed",
+        error_message: "Failed to send to all #{failed_count} recipients. Last error: #{last_error}"
+      )
+      Rails.logger.error("✗ Failed to send scheduled email ##{scheduled_email.id} - all #{failed_count} recipients failed")
+    end
 
     { sent: sent_count, failed: failed_count }
   end
