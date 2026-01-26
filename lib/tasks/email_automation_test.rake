@@ -80,14 +80,19 @@ namespace :email_automation do
       exit 1
     end
 
-    # Find or create organization for test user
-    org = test_user.organizations.first || Organization.create!(
-      user: test_user,
-      name: "Test Email Automation Org",
-      slug: "test-automation-org-#{SecureRandom.hex(4)}",
-      email: "beau@beausorganization.com"
-    )
+    # Find or create test organization by slug pattern (avoids using production orgs)
+    org = test_user.organizations.find_by("slug LIKE ?", "test-automation-org-%") ||
+          test_user.organizations.create!(
+            user: test_user,
+            name: "Test Email Automation Org",
+            slug: "test-automation-org-#{SecureRandom.hex(4)}"
+          )
+
+    # Always update email to ensure consistency on every test run
+    org.update!(email: "beau@beausorganization.com")
+
     puts "✅ Organization: #{org.name}"
+    puts "   📧 Email: #{org.email}"
     puts "   Owner: #{test_user.email}"
 
     # Create event (8 days out - normal timeline)

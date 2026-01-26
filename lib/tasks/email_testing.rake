@@ -23,13 +23,19 @@ namespace :email_testing do
       next
     end
 
-    org = test_user.organizations.first || Organization.create!(
-      user: test_user,
-      name: "Test Email Org",
-      slug: "test-email-org-#{SecureRandom.hex(4)}",
-      email: "beau@beausorganization.com"
-    )
+    # Find or create test organization by slug pattern (avoids using production orgs)
+    org = test_user.organizations.find_by("slug LIKE ?", "test-email-org-%") ||
+          test_user.organizations.create!(
+            user: test_user,
+            name: "Test Email Org",
+            slug: "test-email-org-#{SecureRandom.hex(4)}"
+          )
+
+    # Always update email to ensure consistency on every test run
+    org.update!(email: "beau@beausorganization.com")
+
     puts "   ✅ Organization: #{org.name}"
+    puts "   📧 Email: #{org.email}"
     puts ""
 
     # Step 3: Create test event
