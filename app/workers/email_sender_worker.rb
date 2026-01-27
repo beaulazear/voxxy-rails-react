@@ -17,7 +17,7 @@ class EmailSenderWorker
       .where(status: "scheduled")
       .where("scheduled_for <= ?", Time.current)
       .where("scheduled_for >= ?", 7.days.ago)
-      .includes(:event, event: :organization)
+      .includes(:event, :email_template_item, event: :organization)
       .order(scheduled_for: :asc)
 
     if ready_emails.empty?
@@ -58,8 +58,11 @@ class EmailSenderWorker
   def send_scheduled_email(scheduled_email)
     Rails.logger.info("Sending scheduled email ##{scheduled_email.id}: #{scheduled_email.name}")
 
-    # Route to appropriate service based on email category
-    service = if scheduled_email.category == "event_announcements"
+    # Route to appropriate service based on email template category
+    # Access category through email_template_item association
+    category = scheduled_email.email_template_item&.category
+
+    service = if category == "event_announcements"
       # Application deadline reminders go to invited vendor contacts (not registrations)
       Rails.logger.info("  → Routing to InvitationReminderService (targets invited contacts)")
       InvitationReminderService.new(scheduled_email)
