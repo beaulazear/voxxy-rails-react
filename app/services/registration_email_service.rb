@@ -146,9 +146,8 @@ class RegistrationEmailService < BaseEmailService
 
               <!-- Footer -->
               <div style="#{BASE_STYLES[:footer]}">
-                <p style="margin: 0 0 8px 0;">See you at the event.</p>
-                <p style="margin: 0 0 12px 0;">
-                  If you didn't expect this email, you can safely ignore it.
+                <p style="margin: 0 0 12px 0; font-size: 12px; color: #888888;">
+                  <a href="mailto:unsubscribe@voxxypresents.com" style="#{BASE_STYLES[:link]}">Unsubscribe from these emails</a>
                 </p>
                 <p style="margin: 0; font-size: 12px; color: #aaaaaa;">
                   Powered by Voxxy Presents
@@ -307,9 +306,9 @@ class RegistrationEmailService < BaseEmailService
     # Get producer email
     producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
 
-    # Build dashboard link
+    # Build event portal link
     base_url = ENV["FRONTEND_URL"] || "https://voxxy.io"
-    dashboard_link = "#{base_url}/vendor/dashboard"
+    dashboard_link = "#{base_url}/portal/#{event.slug}"
 
     subject = "You're in - #{event.title}"
 
@@ -513,9 +512,9 @@ class RegistrationEmailService < BaseEmailService
     location = [event.venue, event.location].compact.join(", ")
     location = "TBD" if location.blank?
 
-    # Build dashboard link
+    # Build event portal link
     base_url = ENV["FRONTEND_URL"] || "https://voxxy.io"
-    dashboard_link = "#{base_url}/vendor/dashboard"
+    dashboard_link = "#{base_url}/portal/#{event.slug}"
 
     subject = "Payment confirmed - #{event.title}"
 
@@ -587,9 +586,9 @@ class RegistrationEmailService < BaseEmailService
     # Get producer email
     producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
 
-    # Build dashboard link
+    # Build event portal link
     base_url = ENV["FRONTEND_URL"] || "https://voxxy.io"
-    dashboard_link = "#{base_url}/vendor/dashboard"
+    dashboard_link = "#{base_url}/portal/#{event.slug}"
 
     subject = "Category update for #{event.title}"
 
