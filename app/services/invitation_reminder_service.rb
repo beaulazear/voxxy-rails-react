@@ -67,8 +67,9 @@ class InvitationReminderService < BaseEmailService
     end
 
     # Exclude vendor contacts who already registered/applied
-    registered_contact_ids = event.registrations.where.not(vendor_contact_id: nil).pluck(:vendor_contact_id)
-    invitations = invitations.where.not(vendor_contact_id: registered_contact_ids)
+    # Match by email address since registrations don't have vendor_contact_id
+    registered_emails = event.registrations.pluck(:email).compact.map(&:downcase)
+    invitations = invitations.joins(:vendor_contact).where.not("LOWER(vendor_contacts.email) IN (?)", registered_emails) if registered_emails.any?
 
     # Exclude unsubscribed contacts
     # Check both old email_unsubscribed field and new EmailUnsubscribe table

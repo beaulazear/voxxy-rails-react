@@ -111,11 +111,11 @@ namespace :debug do
           base_invitations = event.event_invitations.includes(:vendor_contact)
           puts "   1. Base event invitations: #{base_invitations.count}"
 
-          # Step 2: Check registration exclusion
-          registered_contact_ids = event.registrations.where.not(vendor_contact_id: nil).pluck(:vendor_contact_id)
-          puts "   2. Registered vendor_contact_ids: #{registered_contact_ids.inspect}"
+          # Step 2: Check registration exclusion (match by email)
+          registered_emails = event.registrations.pluck(:email).compact.map(&:downcase)
+          puts "   2. Registered emails: #{registered_emails.inspect}"
 
-          remaining_after_filter = base_invitations.reject { |inv| registered_contact_ids.include?(inv.vendor_contact_id) }
+          remaining_after_filter = base_invitations.reject { |inv| registered_emails.include?(inv.vendor_contact.email.downcase) }
           puts "   3. After excluding registered: #{remaining_after_filter.count}"
 
           # Step 3: Check unsubscribe filtering
