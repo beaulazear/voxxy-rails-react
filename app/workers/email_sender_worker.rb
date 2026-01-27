@@ -58,8 +58,17 @@ class EmailSenderWorker
   def send_scheduled_email(scheduled_email)
     Rails.logger.info("Sending scheduled email ##{scheduled_email.id}: #{scheduled_email.name}")
 
-    # Use EmailSenderService to send to all recipients
-    service = EmailSenderService.new(scheduled_email)
+    # Route to appropriate service based on email category
+    service = if scheduled_email.category == "event_announcements"
+      # Application deadline reminders go to invited vendor contacts (not registrations)
+      Rails.logger.info("  → Routing to InvitationReminderService (targets invited contacts)")
+      InvitationReminderService.new(scheduled_email)
+    else
+      # All other emails go to registrations (vendors who have applied)
+      Rails.logger.info("  → Routing to EmailSenderService (targets registrations)")
+      EmailSenderService.new(scheduled_email)
+    end
+
     result = service.send_to_recipients
 
     Rails.logger.info("✓ Scheduled email ##{scheduled_email.id} sent to #{result[:sent]} recipients")
