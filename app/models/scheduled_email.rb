@@ -42,12 +42,17 @@ class ScheduledEmail < ApplicationRecord
   def calculate_current_recipient_count
     return 0 unless event
 
-    # Special handling for announcement emails - they go to invited vendor contacts, not registrations
-    if is_announcement_email?
-      return event.event_invitations.count
+    # Route to appropriate service based on email category (matches EmailSenderWorker routing)
+    category = email_template_item&.category
+
+    if category == "event_announcements"
+      # Application deadline reminders - use InvitationReminderService filtering
+      service = InvitationReminderService.new(self)
+      recipients = service.send(:filter_invitation_recipients)
+      return recipients.count
     end
 
-    # Start with all registrations for this event
+    # All other emails - use RecipientFilterService (registrations-based)
     recipients = event.registrations.where(email_unsubscribed: false)
 
     # Apply filter criteria if present
