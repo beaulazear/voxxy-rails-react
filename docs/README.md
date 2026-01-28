@@ -2,7 +2,7 @@
 
 Current documentation for the Voxxy Rails API and Voxxy Presents event platform.
 
-**Last Updated:** January 18, 2026
+**Last Updated:** January 27, 2026
 
 ---
 
@@ -15,6 +15,14 @@ The email system is the core of Voxxy Presents' automation capabilities. Start w
   - Complete catalog of all 21 emails with file locations
   - Email styling guide and variables reference
   - Quick edit cheatsheet and testing instructions
+
+### Recent Updates (Jan 27, 2026)
+- **[email/INVITATION_REMINDER_ROUTING_SYSTEM.md](email/INVITATION_REMINDER_ROUTING_SYSTEM.md)** 🆕 **NEW**
+  - Category-based email routing for correct recipient targeting
+  - InvitationReminderService vs EmailSenderService architecture
+  - Recipients modal feature (clickable recipient counts in UI)
+  - Pre-production verification checklist
+  - Debug and troubleshooting guides
 
 ### Comprehensive Guides
 - **[email/EMAIL_DOCS_INDEX.md](email/EMAIL_DOCS_INDEX.md)** - Navigation hub for all email documentation

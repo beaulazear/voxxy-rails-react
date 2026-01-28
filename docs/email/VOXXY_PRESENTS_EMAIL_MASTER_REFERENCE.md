@@ -1,11 +1,19 @@
 # 📧 Voxxy Presents Email System - Master Reference
 
-**Last Updated:** January 23, 2026
+**Last Updated:** January 27, 2026
 **Total Emails:** 17 (7 scheduled + 10 transactional)
 **Purpose:** Complete reference for ALL emails used in Voxxy Presents
 **Audience:** Developers making email edits across the entire system
 
-**Recent Changes (Jan 23, 2026):**
+**Recent Changes (Jan 27, 2026):**
+- ✅ Implemented category-based email routing (InvitationReminderService vs EmailSenderService)
+- ✅ Application deadline emails now correctly target invited contacts who haven't applied
+- ✅ Added recipients modal - click any recipient count to see who will receive the email
+- ✅ Created pre-production verification rake task: `rake verify:email_system`
+- ✅ Added debug rake task: `rake debug:invitation_reminders[event-slug]`
+- 📄 **See:** [INVITATION_REMINDER_ROUTING_SYSTEM.md](./INVITATION_REMINDER_ROUTING_SYSTEM.md) for complete details
+
+**Previous Changes (Jan 23, 2026):**
 - ✅ Fixed invitation email delivery tracking (SMTP + webhook integration)
 - ✅ EmailDelivery records now created BEFORE sending invitation emails
 - ✅ Webhook processor enhanced with 3-tier lookup strategy

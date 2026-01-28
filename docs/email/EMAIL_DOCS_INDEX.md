@@ -1,6 +1,6 @@
 # 📧 Email Documentation Index
 
-**Last Updated:** January 23, 2026
+**Last Updated:** January 27, 2026
 
 This index helps you navigate the email system documentation for Voxxy Presents.
 
@@ -22,6 +22,21 @@ This index helps you navigate the email system documentation for Voxxy Presents.
 ---
 
 ## 📚 Detailed Documentation
+
+### 0. Invitation Reminder Routing & Recipients Modal (January 27, 2026)
+📄 **[INVITATION_REMINDER_ROUTING_SYSTEM.md](./INVITATION_REMINDER_ROUTING_SYSTEM.md)** ⭐ **NEW**
+- **Last Updated:** January 27, 2026
+- **Purpose:** Category-based email routing for correct recipient targeting
+- **Best for:** Understanding how invitation reminders vs registration emails are targeted
+- **Contains:**
+  - Problem solved: Application deadline emails going to wrong recipients
+  - Architecture: InvitationReminderService vs EmailSenderService routing
+  - Recipients modal feature (clickable recipient counts in UI)
+  - Backend API endpoint for viewing recipients
+  - Frontend implementation details
+  - Testing and verification guides
+  - Pre-production checklist (rake verify:email_system)
+  - Debug rake task for troubleshooting
 
 ### 1. Webhook Processing Fix (January 23, 2026)
 📄 **[WEBHOOK_PROCESSING_FIX_JAN_23_2026.md](./WEBHOOK_PROCESSING_FIX_JAN_23_2026.md)** ⭐ **NEW**
@@ -147,8 +162,21 @@ This index helps you navigate the email system documentation for Voxxy Presents.
 ### Use Case: "I need to understand the automated email system"
 1. Read **[EMAIL_AUTOMATION_SYSTEM_GUIDE.md](./EMAIL_AUTOMATION_SYSTEM_GUIDE.md)**
 2. Review the "Architecture" and "Key Workflows" sections
-3. Check "Developer Reference" for common tasks
-4. Reference **[VOXXY_PRESENTS_EMAIL_MASTER_REFERENCE.md](./VOXXY_PRESENTS_EMAIL_MASTER_REFERENCE.md)** for email details
+3. Understand recipient targeting: **[INVITATION_REMINDER_ROUTING_SYSTEM.md](./INVITATION_REMINDER_ROUTING_SYSTEM.md)**
+4. Check "Developer Reference" for common tasks
+5. Reference **[VOXXY_PRESENTS_EMAIL_MASTER_REFERENCE.md](./VOXXY_PRESENTS_EMAIL_MASTER_REFERENCE.md)** for email details
+
+### Use Case: "Application deadline emails going to wrong recipients"
+1. Read **[INVITATION_REMINDER_ROUTING_SYSTEM.md](./INVITATION_REMINDER_ROUTING_SYSTEM.md)**
+2. Run debug rake task: `bundle exec rake debug:invitation_reminders[your-event-slug]`
+3. Verify category is set to `event_announcements`
+4. Check InvitationReminderService filtering logic
+
+### Use Case: "I want to add a recipients modal to show who will receive an email"
+1. See implementation: **[INVITATION_REMINDER_ROUTING_SYSTEM.md](./INVITATION_REMINDER_ROUTING_SYSTEM.md)** → "Recipients Modal Feature"
+2. Backend API endpoint already exists: `GET /api/v1/presents/events/:event_slug/scheduled_emails/:id/recipients`
+3. Frontend component: `RecipientsModal.tsx`
+4. Pattern can be reused for other email types
 
 ### Use Case: "I need to add a new email to the system"
 1. Decide if it's automated (time-based) or transactional (action-triggered)
@@ -195,6 +223,7 @@ This index helps you navigate the email system documentation for Voxxy Presents.
 
 | Document | Status | Last Updated | Purpose |
 |----------|--------|--------------|---------|
+| **INVITATION_REMINDER_ROUTING_SYSTEM.md** | ✅ Current | Jan 27, 2026 | **Category-based routing & recipients modal** |
 | **EMAIL_SENDGRID_SSL_FIX_JAN_26_2026.md** | ✅ Current | Jan 26, 2026 | **SSL certificate fix for SendGrid** |
 | **WEBHOOK_PROCESSING_FIX_JAN_23_2026.md** | ✅ Current | Jan 23, 2026 | **Invitation tracking fix** |
 | **WEBHOOK_VERIFICATION_CHECKLIST.md** | ✅ Current | Jan 23, 2026 | **Webhook verification steps** |
@@ -293,5 +322,5 @@ For new developers working on the email system:
 
 **Questions or feedback on documentation?** Update this index and related docs as needed!
 
-**Last Updated:** January 26, 2026
-**Status:** ✅ Updated with SendGrid SSL certificate fix documentation
+**Last Updated:** January 27, 2026
+**Status:** ✅ Updated with invitation reminder routing system and recipients modal documentation
