@@ -80,11 +80,7 @@ class InvitationReminderService < BaseEmailService
       next true if vendor_contact.respond_to?(:email_unsubscribed?) && vendor_contact.email_unsubscribed?
 
       # Check new EmailUnsubscribe table
-      EmailUnsubscribe.unsubscribed?(
-        email: vendor_contact.email,
-        event: event,
-        organization: organization
-      )
+      EmailUnsubscribe.unsubscribed_from_event?(vendor_contact.email, event)
     end
   end
 

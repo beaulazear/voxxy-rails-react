@@ -130,7 +130,7 @@ namespace :debug do
             end
 
             # Check new EmailUnsubscribe table
-            if EmailUnsubscribe.unsubscribed?(email: vc.email, event: event, organization: event.organization)
+            if EmailUnsubscribe.unsubscribed_from_event?(vc.email, event)
               puts "      ❌ #{vc.email} - found in EmailUnsubscribe table"
               unsubscribed_count += 1
               next
