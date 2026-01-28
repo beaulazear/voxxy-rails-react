@@ -5,7 +5,7 @@ module Api
     module Presents
       class ScheduledEmailsController < BaseController
         before_action :set_event
-        before_action :set_scheduled_email, only: [ :show, :update, :destroy, :pause, :resume, :send_now, :preview, :retry_failed ]
+        before_action :set_scheduled_email, only: [ :show, :update, :destroy, :pause, :resume, :send_now, :preview, :retry_failed, :recipients ]
 
         # GET /api/v1/presents/events/:event_id/scheduled_emails
         def index
@@ -238,6 +238,62 @@ module Api
             skipped_count: skipped_count,
             total_failed: failed_deliveries.count
           }, status: :ok
+        end
+
+        # GET /api/v1/presents/events/:event_id/scheduled_emails/:id/recipients
+        def recipients
+          category = @scheduled_email.email_template_item&.category
+
+          recipients_list = if category == "event_announcements"
+            # Application deadline emails - get invited contacts who haven't applied yet
+            service = InvitationReminderService.new(@scheduled_email)
+            invitations = service.send(:filter_invitation_recipients)
+
+            invitations.map do |invitation|
+              vc = invitation.vendor_contact
+              {
+                email: vc.email,
+                name: vc.name,
+                organization: vc.business_name || vc.name
+              }
+            end
+          else
+            # All other emails - get registrations based on filter criteria
+            recipients = @event.registrations.where(email_unsubscribed: false)
+
+            # Apply filter criteria if present
+            if @scheduled_email.filter_criteria.present?
+              # Filter by status (e.g., ['approved', 'confirmed'])
+              if @scheduled_email.filter_criteria["status"].present?
+                recipients = recipients.where(status: @scheduled_email.filter_criteria["status"])
+              end
+
+              # Filter by vendor category
+              if @scheduled_email.filter_criteria["vendor_category"].present?
+                recipients = recipients.where(vendor_category: @scheduled_email.filter_criteria["vendor_category"])
+              end
+
+              # Filter by excluded status
+              if @scheduled_email.filter_criteria["exclude_status"].present?
+                recipients = recipients.where.not(status: @scheduled_email.filter_criteria["exclude_status"])
+              end
+            end
+
+            recipients.map do |registration|
+              {
+                email: registration.email,
+                name: registration.name,
+                organization: registration.business_name || registration.name
+              }
+            end
+          end
+
+          render json: {
+            count: recipients_list.count,
+            category: category,
+            email_type: category == "event_announcements" ? "invitation_reminders" : "registration_emails",
+            recipients: recipients_list
+          }
         end
 
         private

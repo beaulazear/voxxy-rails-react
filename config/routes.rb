@@ -412,6 +412,7 @@ Rails.application.routes.draw do
               post :send_now
               post :preview
               post :retry_failed
+              get :recipients
             end
           end
         end
