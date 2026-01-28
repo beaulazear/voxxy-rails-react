@@ -37,6 +37,11 @@ gem "rack-attack"
 gem "mixpanel-ruby"
 gem "concurrent-ruby", "~> 1.2"
 
+# Error tracking and monitoring
+gem "sentry-ruby"
+gem "sentry-rails"
+gem "sentry-sidekiq"
+
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
 
