@@ -167,6 +167,50 @@ namespace :email_automation do
     puts "✅ Created 3 vendor applications (Food $150, Art $100, Music $200)"
     puts ""
 
+    # Step 1.5: Create vendor contacts and send invitations
+    puts "📨 Creating vendor contacts and sending invitations..."
+
+    test_emails = [
+      "beaulazear@gmail.com",
+      "beau09946@gmail.com",
+      "beaulazear@voxxyai.com"
+    ]
+
+    contacts = []
+    test_emails.each do |email|
+      contacts << VendorContact.create!(
+        organization: org,
+        name: email.split("@").first.titleize,
+        email: email,
+        contact_type: "vendor"
+      )
+    end
+
+    puts "✅ Created #{contacts.count} vendor contacts"
+
+    # Create and send invitations
+    invitations = []
+    contacts.each do |contact|
+      invitation = EventInvitation.create!(
+        event: event,
+        vendor_contact: contact,
+        status: "sent",
+        sent_at: Time.current
+      )
+      invitations << invitation
+
+      # Send invitation email immediately
+      EventInvitationMailer.invitation_email(invitation).deliver_now
+    end
+
+    puts "✅ Sent #{invitations.count} invitations"
+    puts "   📧 Invitations sent to:"
+    test_emails.each { |email| puts "      - #{email}" }
+    puts ""
+    puts "   ℹ️  Application deadline reminders (#1-2) will target these contacts"
+    puts "      (unless they submit applications before reminders are sent)"
+    puts ""
+
     # Step 2: Create test registrations (vendors who have applied)
     # Using Gmail's plus addressing to create multiple registrations per email
     puts "📝 Creating vendor registrations to ensure BOTH users receive ALL 7 emails..."
@@ -246,17 +290,11 @@ namespace :email_automation do
 
     puts "✅ Created #{registrations.count} vendor registrations (3 per person)"
     puts ""
-    puts "   📧 All emails will arrive at:"
-    puts "      - beaulazear@gmail.com (3 vendors → ALL 7 scheduled emails)"
-    puts "      - greerlcourtney@gmail.com (3 vendors → ALL 7 scheduled emails)"
+    puts "   📧 All registration emails will arrive at:"
+    puts "      - beaulazear@gmail.com (using +pending, +unpaid, +confirmed)"
+    puts "      - greerlcourtney@gmail.com (using +pending, +unpaid, +confirmed)"
     puts ""
-    puts "   ℹ️  Gmail plus addressing used (+pending, +unpaid, +confirmed)"
-    puts "      All emails arrive at the base inbox regardless of the +tag"
-    puts ""
-    puts "   📬 Email Distribution:"
-    puts "      #1-2 Deadline reminders → email+pending@ (pending status)"
-    puts "      #3-4 Payment reminders → email+unpaid@ (approved + pending payment)"
-    puts "      #5-7 Event countdown → email+confirmed@ (approved + confirmed payment)"
+    puts "   ℹ️  Gmail plus addressing: All emails arrive at base inbox regardless of +tag"
 
     # Now compress the schedule
     puts ""
@@ -295,18 +333,29 @@ namespace :email_automation do
     puts "📊 EVENT SUMMARY:"
     puts "   Event Slug: #{event.slug}"
     puts "   Vendor Applications: #{event.vendor_applications.count} (Food, Art, Music)"
+    puts "   Vendor Invitations: #{event.event_invitations.count} (contacts who haven't applied)"
     puts "   Vendor Registrations: #{event.registrations.count} (6 total, 3 per email)"
     puts "   Scheduled Emails: #{scheduled_emails.count}"
     puts "   Schedule Duration: #{total_duration} minutes"
     puts ""
     puts "📧 SYSTEM EMAILS (Already Sent):"
+    puts "   You received 3 'Invitation' emails (to beaulazear@gmail.com, beau09946@gmail.com, beaulazear@voxxyai.com)"
     puts "   You received 6 'Registration Confirmed' emails (1 per registration)"
     puts "   These are instant system emails, NOT the scheduled automation emails"
     puts ""
     puts "⏰ SCHEDULED EMAILS (Will Send Automatically):"
     puts "   7 scheduled emails will fire over next #{total_duration} minutes"
     puts "   EmailSenderWorker runs every 5 minutes to check for ready emails"
-    puts "   Both beaulazear@gmail.com and greerlcourtney@gmail.com will receive all 7"
+    puts ""
+    puts "   📨 INVITATION FLOW (targets contacts who haven't applied):"
+    puts "      #1-2 Application deadline reminders → 3 invited contacts"
+    puts "      (beaulazear@gmail.com, beau09946@gmail.com, beaulazear@voxxyai.com)"
+    puts ""
+    puts "   📝 REGISTRATION FLOW (targets vendors who applied):"
+    puts "      #1-2 Application deadline reminders → 2 pending registrations (+pending emails)"
+    puts "      #3-4 Payment reminders → 2 approved/unpaid registrations (+unpaid emails)"
+    puts "      #5-7 Event countdown → 2 confirmed registrations (+confirmed emails)"
+    puts "      All arrive at: beaulazear@gmail.com and greerlcourtney@gmail.com"
     puts ""
     puts "🚀 NEXT STEPS:"
     puts "   Option 1 (Manual): rake email_automation:trigger_worker_now"
