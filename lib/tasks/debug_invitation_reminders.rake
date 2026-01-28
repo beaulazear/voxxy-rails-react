@@ -48,7 +48,6 @@ namespace :debug do
       registrations.each do |reg|
         puts "   - #{reg.name} (#{reg.email})"
         puts "     Status: #{reg.status}"
-        puts "     VendorContact ID: #{reg.vendor_contact_id || 'nil'}"
       end
     else
       puts "   (No registrations yet - expected for new event)"
