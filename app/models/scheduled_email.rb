@@ -11,6 +11,13 @@ class ScheduledEmail < ApplicationRecord
   validates :status, presence: true, inclusion: {
     in: %w[scheduled paused sent failed cancelled]
   }
+  validates :scheduled_for, presence: true
+  validates :subject_template, presence: true
+  validates :body_template, presence: true
+  validates :email_template_item, presence: true, on: :create
+
+  # Custom validation: Ensure email_template_item has a category (critical for routing)
+  validate :email_template_item_has_category, on: :create
 
   # Scopes
   scope :scheduled, -> { where(status: "scheduled") }
@@ -207,6 +214,15 @@ class ScheduledEmail < ApplicationRecord
   end
 
   private
+
+  # Custom validation: Ensure email_template_item has a category (critical for routing)
+  def email_template_item_has_category
+    return unless email_template_item
+
+    if email_template_item.category.blank?
+      errors.add(:email_template_item, "must have a category defined (required for email routing)")
+    end
+  end
 
   # Check if this is an announcement email (goes to invited contacts, not registrations)
   def is_announcement_email?

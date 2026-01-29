@@ -14,9 +14,29 @@ class InvitationReminderService
   def send_to_recipients
     recipients = filter_invitation_recipients
 
+    # CRITICAL: Log recipient count prominently for debugging
+    total_invitations = event.event_invitations.count
+    filtered_count = recipients.count
+    Rails.logger.info("📊 Recipient Count - Total invitations: #{total_invitations}, After filters: #{filtered_count}")
+
     if recipients.empty?
-      Rails.logger.info("No invited contacts to remind for scheduled email ##{scheduled_email.id}")
+      warning_msg = "⚠️  ZERO RECIPIENTS for invitation reminder ##{scheduled_email.id} (#{scheduled_email.name})"
+      Rails.logger.warn(warning_msg)
+      Rails.logger.warn("   Filter criteria: #{scheduled_email.filter_criteria.inspect}")
+      Rails.logger.warn("   Total invitations for event: #{total_invitations}")
+
+      # Mark as failed instead of sent when no recipients
+      scheduled_email.update(
+        status: "failed",
+        error_message: "No recipients matched filter criteria. Total invitations: #{total_invitations}"
+      )
       return { sent: 0, failed: 0 }
+    end
+
+    # Warn if very few recipients (possible filter misconfiguration)
+    if filtered_count < 3 && total_invitations > 10
+      Rails.logger.warn("⚠️  LOW RECIPIENT COUNT: Only #{filtered_count} recipients from #{total_invitations} total invitations")
+      Rails.logger.warn("   Filter criteria: #{scheduled_email.filter_criteria.inspect}")
     end
 
     sent_count = 0
@@ -29,7 +49,14 @@ class InvitationReminderService
         sent_count += 1
       rescue => e
         last_error = e.message
-        Rails.logger.error("Failed to send reminder to #{event_invitation.vendor_contact.email}: #{e.message}")
+        # Enhanced error logging with full context
+        vendor_contact = event_invitation.vendor_contact
+        Rails.logger.error("❌ INVITATION REMINDER FAILED")
+        Rails.logger.error("   Scheduled Email ID: #{scheduled_email.id}")
+        Rails.logger.error("   Event: #{event.title} (ID: #{event.id})")
+        Rails.logger.error("   Recipient: #{vendor_contact&.email || 'UNKNOWN'} (Invitation ID: #{event_invitation.id})")
+        Rails.logger.error("   Error: #{e.class}: #{e.message}")
+        Rails.logger.error("   Backtrace: #{e.backtrace.first(5).join("\n   ")}")
         failed_count += 1
       end
     end
@@ -153,7 +180,14 @@ class InvitationReminderService
 
     # Check response
     unless response.status_code.to_i.between?(200, 299)
-      raise "SendGrid API error: #{response.status_code} - #{response.body}"
+      error_msg = "SendGrid API error: #{response.status_code} - #{response.body}"
+      Rails.logger.error("❌ SENDGRID ERROR")
+      Rails.logger.error("   Status Code: #{response.status_code}")
+      Rails.logger.error("   Response Body: #{response.body}")
+      Rails.logger.error("   Recipient: #{to_email}")
+      Rails.logger.error("   Scheduled Email ID: #{scheduled_email_id}")
+      Rails.logger.error("   Event Invitation ID: #{event_invitation_id}")
+      raise error_msg
     end
 
     Rails.logger.info("✓ Email sent to #{to_email} (SendGrid status: #{response.status_code})")
@@ -168,11 +202,13 @@ class InvitationReminderService
     message_id = message_id.first if message_id.is_a?(Array)
 
     unless message_id
-      Rails.logger.warn("No X-Message-Id in SendGrid response - delivery tracking may fail")
-      message_id = "unknown-#{SecureRandom.hex(8)}"
+      error_msg = "No X-Message-Id in SendGrid response - cannot track delivery"
+      Rails.logger.error("❌ TRACKING ERROR: #{error_msg}")
+      # CRITICAL: If we can't track delivery, treat as send failure
+      raise ArgumentError, error_msg
     end
 
-    EmailDelivery.create!(
+    delivery = EmailDelivery.create!(
       scheduled_email: scheduled_email,
       event: event,
       event_invitation: event_invitation,
@@ -182,7 +218,14 @@ class InvitationReminderService
       status: "sent",
       sent_at: Time.current
     )
+
+    Rails.logger.info("✓ Delivery record created (ID: #{delivery.id}, Message ID: #{message_id})")
+    delivery
   rescue ActiveRecord::RecordInvalid => e
-    Rails.logger.error("Failed to create delivery record for invitation: #{e.message}")
+    # CRITICAL: Failed tracking = failed email (cannot verify delivery)
+    error_msg = "Failed to create delivery record for invitation: #{e.message}"
+    Rails.logger.error("❌ TRACKING ERROR: #{error_msg}")
+    Rails.logger.error("   Validation errors: #{e.record.errors.full_messages.join(', ')}")
+    raise e # Re-raise to fail the entire send operation
   end
 end

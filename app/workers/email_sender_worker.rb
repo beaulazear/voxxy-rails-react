@@ -62,6 +62,21 @@ class EmailSenderWorker
     # Access category through email_template_item association
     category = scheduled_email.email_template_item&.category
 
+    # CRITICAL: Validate category exists to prevent silent routing failures
+    if scheduled_email.email_template_item.nil?
+      error_msg = "No email_template_item associated with scheduled email ##{scheduled_email.id}"
+      Rails.logger.error("❌ ROUTING ERROR: #{error_msg}")
+      scheduled_email.update(status: "failed", error_message: error_msg)
+      raise ArgumentError, error_msg
+    end
+
+    if category.nil?
+      error_msg = "No category found for email_template_item ##{scheduled_email.email_template_item.id}"
+      Rails.logger.error("❌ ROUTING ERROR: #{error_msg}")
+      scheduled_email.update(status: "failed", error_message: error_msg)
+      raise ArgumentError, error_msg
+    end
+
     service = if category == "event_announcements"
       # Application deadline reminders go to invited vendor contacts (not registrations)
       Rails.logger.info("  → Routing to InvitationReminderService (targets invited contacts)")
@@ -69,6 +84,7 @@ class EmailSenderWorker
     else
       # All other emails go to registrations (vendors who have applied)
       Rails.logger.info("  → Routing to EmailSenderService (targets registrations)")
+      Rails.logger.info("  → Category: #{category}")
       EmailSenderService.new(scheduled_email)
     end
 
