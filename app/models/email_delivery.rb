@@ -26,10 +26,16 @@ class EmailDelivery < ApplicationRecord
   private
 
   def must_have_email_source
+    # Must have at least one email source
     if scheduled_email_id.blank? && event_invitation_id.blank?
       errors.add(:base, "Must have either scheduled_email_id or event_invitation_id")
-    elsif scheduled_email_id.present? && event_invitation_id.present?
-      errors.add(:base, "Cannot have both scheduled_email_id and event_invitation_id")
+    end
+
+    # Cannot have both recipient types (would be ambiguous)
+    # Note: scheduled_email_id + event_invitation_id IS VALID (invitation-based scheduled emails)
+    # Note: scheduled_email_id + registration_id IS VALID (registration-based scheduled emails)
+    if registration_id.present? && event_invitation_id.present?
+      errors.add(:base, "Cannot have both registration_id and event_invitation_id")
     end
   end
 
