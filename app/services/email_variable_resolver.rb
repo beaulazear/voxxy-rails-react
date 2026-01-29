@@ -32,7 +32,7 @@
 #     [unsubscribeLink] - Unsubscribe URL
 #     [eventLink] - Public event page URL (use as hub for all vendor application details)
 #     [bulletinLink] - Public event bulletin page URL (same as eventLink)
-#     [dashboardLink] - Vendor dashboard URL
+#     [dashboardLink] - Event-specific vendor portal URL (/portal/{event-slug})
 
 class EmailVariableResolver
   attr_reader :event, :registration, :base_url
@@ -168,6 +168,10 @@ class EmailVariableResolver
   def dashboard_link
     return "" unless registration
 
-    "#{base_url}/vendor/dashboard"
+    # Use the event's stored portal URL (no email pre-fill needed for emails)
+    event_portal = event.event_portal
+    return "" unless event_portal
+
+    "#{base_url}/portal/#{event.slug}"
   end
 end

@@ -64,7 +64,7 @@ class BaseEmailService
 
   # Simplified, deliverability-focused email styling
   BASE_STYLES = {
-    body: "margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background-color: #f5f5f5;",
+    body: "margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;",
     container: "max-width: 600px; margin: 0 auto; padding: 20px;",
     inner_container: "background-color: #ffffff; padding: 30px; border: 1px solid #e0e0e0;",
     header: "margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #e0e0e0;",
@@ -151,10 +151,8 @@ class BaseEmailService
 
               <!-- Footer -->
               <div style="#{BASE_STYLES[:footer]}">
-                <p style="margin: 0 0 8px 0;">See you on Voxxy.</p>
-                <p style="margin: 0 0 12px 0;">
-                  If you didn't expect this email, you can safely ignore it.
-                  <br><a href="mailto:unsubscribe@voxxypresents.com" style="#{BASE_STYLES[:link]}">Unsubscribe</a>
+                <p style="margin: 0 0 12px 0; font-size: 12px; color: #888888;">
+                  <a href="mailto:unsubscribe@voxxypresents.com" style="#{BASE_STYLES[:link]}">Unsubscribe from these emails</a>
                 </p>
                 <p style="margin: 0; font-size: 12px; color: #aaaaaa;">
                   Powered by Voxxy Presents

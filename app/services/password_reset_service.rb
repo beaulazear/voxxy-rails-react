@@ -33,7 +33,7 @@ class PasswordResetService < BaseEmailService
       type: "text/html",
       value: <<~HTML
         <html>
-          <body style="font-family: Arial, sans-serif; text-align: center; background-color: #f9f9f9; padding: 30px;">
+          <body style="font-family: Arial, sans-serif; text-align: center; padding: 30px;">
         #{'    '}
             <!-- Voxxy Logo -->
             <img src="https://res.cloudinary.com/dgtpgywhl/image/upload/v1746365141/Voxxy_Header_syvpzb.png"#{' '}
@@ -54,7 +54,7 @@ class PasswordResetService < BaseEmailService
               </a>
 
               <p style="color: #666; font-size: 14px; margin-top: 20px;">
-                If you didn't request this, no worries—you can safely ignore this email. 💜
+                If you didn't request this, you can safely ignore this email. 💜
               </p>
             </div>
 
