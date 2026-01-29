@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_24_024619) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_29_071501) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -249,7 +249,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_24_024619) do
     t.index ["registration_id"], name: "index_email_deliveries_on_registration_id"
     t.index ["scheduled_email_id"], name: "index_email_deliveries_on_scheduled_email_id"
     t.index ["sendgrid_message_id"], name: "index_email_deliveries_on_sendgrid_message_id", unique: true
-    t.check_constraint "scheduled_email_id IS NOT NULL AND event_invitation_id IS NULL OR scheduled_email_id IS NULL AND event_invitation_id IS NOT NULL", name: "check_email_source"
+    t.check_constraint "scheduled_email_id IS NOT NULL OR event_invitation_id IS NOT NULL", name: "check_email_source_present"
   end
 
   create_table "email_template_items", force: :cascade do |t|
