@@ -145,6 +145,12 @@ class InvitationReminderService
     from_name = organization.name || "Voxxy Presents"
     mail.from = SendGrid::Email.new(email: from_email, name: from_name)
 
+    # Reply-To address - allows recipients to reply directly to organization
+    mail.reply_to = SendGrid::Email.new(
+      email: organization.reply_to_email,
+      name: organization.reply_to_name
+    )
+
     # Subject
     mail.subject = subject
 
