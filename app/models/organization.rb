@@ -21,9 +21,10 @@ class Organization < ApplicationRecord
     eventbrite_api_token.present? && eventbrite_connected
   end
 
-  # Reply-to email for outgoing emails (with fallback to producer's account email)
+  # Reply-to email for outgoing emails (with fallback chain)
+  # Priority: 1) org email, 2) producer's account email, 3) support email
   def reply_to_email
-    email.presence || user&.email
+    email.presence || user&.email || "support@voxxypresents.com"
   end
 
   # Reply-to name for outgoing emails
