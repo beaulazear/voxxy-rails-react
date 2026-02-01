@@ -47,19 +47,46 @@ module Api
 
         # POST /api/v1/presents/events/:event_slug/invitations/batch
         # Create multiple invitations at once
+        # Accepts either:
+        #   - vendor_contact_ids: [1, 2, 3] (individual contact IDs)
+        #   - list_ids: [10, 20] (contact list IDs - will resolve all contacts)
+        #   - excluded_contact_ids: [5, 6] (contacts to exclude from lists)
         def create_batch
-          vendor_contact_ids = params[:vendor_contact_ids] || []
+          manual_contact_ids = params[:vendor_contact_ids] || []
+          list_ids = params[:list_ids] || []
+          excluded_contact_ids = params[:excluded_contact_ids] || []
 
-          if vendor_contact_ids.empty?
-            return render json: { error: "vendor_contact_ids cannot be empty" },
+          # Resolve all contact IDs from lists
+          list_contact_ids = []
+          if list_ids.any?
+            lists = ContactList.where(
+              id: list_ids,
+              organization_id: @event.organization_id
+            )
+
+            lists.each do |list|
+              # Get all contact IDs from this list (handles both smart and manual lists)
+              list_contact_ids += list.contacts.pluck(:id)
+            end
+
+            Rails.logger.info("Resolved #{list_contact_ids.length} contacts from #{lists.count} lists")
+          end
+
+          # Merge manual and list contacts, remove duplicates and excluded contacts
+          all_contact_ids = (manual_contact_ids + list_contact_ids).uniq - excluded_contact_ids
+
+          if all_contact_ids.empty?
+            return render json: { error: "No contacts to invite. Please select contacts or lists." },
                           status: :unprocessable_entity
           end
 
           # Validate that all contacts belong to the same organization as the event
           vendor_contacts = VendorContact.where(
-            id: vendor_contact_ids,
+            id: all_contact_ids,
             organization_id: @event.organization_id
           )
+
+          Rails.logger.info("Creating batch invitations: #{vendor_contacts.count} contacts (#{manual_contact_ids.count} manual + #{list_contact_ids.uniq.count} from lists - #{excluded_contact_ids.count} excluded)")
 
           # Track results
           created_invitations = []

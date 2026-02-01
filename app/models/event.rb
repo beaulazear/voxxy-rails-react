@@ -11,7 +11,8 @@ class Event < ApplicationRecord
   # Email automation associations
   belongs_to :email_campaign_template, optional: true
   has_many :scheduled_emails, dependent: :destroy
-  has_many :email_deliveries, through: :scheduled_emails
+  has_many :email_deliveries, dependent: :destroy  # Direct association - deletes ALL email deliveries (scheduled + invitations)
+  has_many :email_unsubscribes, dependent: :destroy
   has_many :unsubscribe_tokens, dependent: :delete_all
 
   # Payment integration associations

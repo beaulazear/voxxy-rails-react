@@ -76,7 +76,7 @@ class BaseEmailService
     footer: "font-size: 13px; color: #888888; margin: 25px 0 0 0; padding-top: 20px; border-top: 1px solid #e0e0e0;"
   }.freeze
 
-  def self.send_email(to_email, subject, content_html, additional_headers = {}, from_name: nil)
+  def self.send_email(to_email, subject, content_html, additional_headers = {}, from_name: nil, reply_to_email: nil, reply_to_name: nil)
     from = SendGrid::Email.new(email: SENDER_EMAIL, name: from_name || SENDER_NAME)
     to = SendGrid::Email.new(email: to_email)
     content = Content.new(type: "text/html", value: content_html)
@@ -84,6 +84,11 @@ class BaseEmailService
     mail = SendGrid::Mail.new
     mail.from = from
     mail.subject = subject
+
+    # Set reply-to if provided (allows replies to go to organization email instead of noreply)
+    if reply_to_email.present?
+      mail.reply_to = SendGrid::Email.new(email: reply_to_email, name: reply_to_name)
+    end
 
     personalization = SendGrid::Personalization.new
     personalization.add_to(to)
