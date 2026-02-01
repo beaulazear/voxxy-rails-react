@@ -2,6 +2,7 @@ class EventInvitation < ApplicationRecord
   # Associations
   belongs_to :event
   belongs_to :vendor_contact
+  has_many :email_deliveries, dependent: :destroy
 
   # Validations
   validates :status, inclusion: { in: %w[pending sent viewed accepted declined expired] }
