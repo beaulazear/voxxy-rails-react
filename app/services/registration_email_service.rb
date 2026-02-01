@@ -80,7 +80,15 @@ class RegistrationEmailService < BaseEmailService
       "Importance" => "high"
     }
 
-    send_email(recipient_email, subject, email_html, headers, from_name: event.organization.name)
+    send_email(
+      recipient_email,
+      subject,
+      email_html,
+      headers,
+      from_name: event.organization.name,
+      reply_to_email: registration.email,  # Vendor's email - owner can reply directly to vendor
+      reply_to_name: registration.name
+    )
 
     Rails.logger.info "Owner notification sent successfully to #{recipient_email}"
   rescue StandardError => e
@@ -227,7 +235,15 @@ class RegistrationEmailService < BaseEmailService
       "X-SMTPAPI" => '{"category": ["transactional", "application-confirmation"]}'
     }
 
-    send_email(registration.email, subject, email_html, headers, from_name: organization.name)
+    send_email(
+      registration.email,
+      subject,
+      email_html,
+      headers,
+      from_name: organization.name,
+      reply_to_email: organization.reply_to_email,
+      reply_to_name: organization.reply_to_name
+    )
 
     Rails.logger.info "Vendor submission confirmation sent successfully to #{registration.email}"
   end
@@ -286,7 +302,15 @@ class RegistrationEmailService < BaseEmailService
       "X-SMTPAPI" => '{"category": ["transactional", "event-registration"]}'
     }
 
-    send_email(registration.email, subject, email_html, headers, from_name: event.organization.name)
+    send_email(
+      registration.email,
+      subject,
+      email_html,
+      headers,
+      from_name: event.organization.name,
+      reply_to_email: event.organization.reply_to_email,
+      reply_to_name: event.organization.reply_to_name
+    )
 
     Rails.logger.info "Event registration confirmation sent successfully to #{registration.email}"
   end
@@ -363,7 +387,15 @@ class RegistrationEmailService < BaseEmailService
       "X-SMTPAPI" => '{"category": ["transactional", "application-approved"]}'
     }
 
-    send_email(registration.email, subject, email_html, headers, from_name: organization.name)
+    send_email(
+      registration.email,
+      subject,
+      email_html,
+      headers,
+      from_name: organization.name,
+      reply_to_email: organization.reply_to_email,
+      reply_to_name: organization.reply_to_name
+    )
 
     Rails.logger.info "Approval email sent successfully to #{registration.email}"
   end
@@ -423,7 +455,15 @@ class RegistrationEmailService < BaseEmailService
       "X-SMTPAPI" => '{"category": ["transactional", "application-rejected"]}'
     }
 
-    send_email(registration.email, subject, email_html, headers, from_name: organization.name)
+    send_email(
+      registration.email,
+      subject,
+      email_html,
+      headers,
+      from_name: organization.name,
+      reply_to_email: organization.reply_to_email,
+      reply_to_name: organization.reply_to_name
+    )
 
     Rails.logger.info "Rejection email sent successfully to #{registration.email}"
   end
@@ -487,7 +527,15 @@ class RegistrationEmailService < BaseEmailService
       "X-SMTPAPI" => '{"category": ["transactional", "application-waitlist"]}'
     }
 
-    send_email(registration.email, subject, email_html, headers, from_name: organization.name)
+    send_email(
+      registration.email,
+      subject,
+      email_html,
+      headers,
+      from_name: organization.name,
+      reply_to_email: organization.reply_to_email,
+      reply_to_name: organization.reply_to_name
+    )
 
     Rails.logger.info "Waitlist notification sent successfully to #{registration.email}"
   end
@@ -566,7 +614,15 @@ class RegistrationEmailService < BaseEmailService
       "X-SMTPAPI" => '{"category": ["transactional", "payment-confirmed"]}'
     }
 
-    send_email(registration.email, subject, email_html, headers, from_name: organization.name)
+    send_email(
+      registration.email,
+      subject,
+      email_html,
+      headers,
+      from_name: organization.name,
+      reply_to_email: organization.reply_to_email,
+      reply_to_name: organization.reply_to_name
+    )
 
     Rails.logger.info "Payment confirmation sent successfully to #{registration.email}"
   end
@@ -639,7 +695,15 @@ class RegistrationEmailService < BaseEmailService
       "X-SMTPAPI" => '{"category": ["transactional", "category-changed"]}'
     }
 
-    send_email(registration.email, subject, email_html, headers, from_name: organization.name)
+    send_email(
+      registration.email,
+      subject,
+      email_html,
+      headers,
+      from_name: organization.name,
+      reply_to_email: organization.reply_to_email,
+      reply_to_name: organization.reply_to_name
+    )
 
     Rails.logger.info "Category change notification sent successfully to #{registration.email}"
   end
@@ -706,7 +770,15 @@ class RegistrationEmailService < BaseEmailService
           "X-SMTPAPI" => '{"category": ["transactional", "event-details-changed"]}'
         }
 
-        send_email(registration.email, subject, email_html, headers, from_name: organization.name)
+        send_email(
+          registration.email,
+          subject,
+          email_html,
+          headers,
+          from_name: organization.name,
+          reply_to_email: organization.reply_to_email,
+          reply_to_name: organization.reply_to_name
+        )
         sent_count += 1
       rescue StandardError => e
         Rails.logger.error "Failed to send event details update to #{registration.email}: #{e.message}"
@@ -774,7 +846,15 @@ class RegistrationEmailService < BaseEmailService
           "X-SMTPAPI" => '{"category": ["transactional", "event-canceled"]}'
         }
 
-        send_email(registration.email, subject, email_html, headers, from_name: organization.name)
+        send_email(
+          registration.email,
+          subject,
+          email_html,
+          headers,
+          from_name: organization.name,
+          reply_to_email: organization.reply_to_email,
+          reply_to_name: organization.reply_to_name
+        )
         sent_count += 1
       rescue StandardError => e
         Rails.logger.error "Failed to send event cancellation to #{registration.email}: #{e.message}"

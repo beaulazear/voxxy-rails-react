@@ -103,7 +103,9 @@ class EmailSenderService
       body: body,
       scheduled_email_id: scheduled_email.id,
       event_id: event.id,
-      registration_id: registration.id
+      registration_id: registration.id,
+      reply_to_email: organization.reply_to_email,
+      reply_to_name: organization.reply_to_name
     )
 
     # Create delivery tracking record
@@ -120,13 +122,18 @@ class EmailSenderService
 
   private
 
-  def send_via_sendgrid(to_email:, to_name:, subject:, body:, scheduled_email_id:, event_id:, registration_id:)
+  def send_via_sendgrid(to_email:, to_name:, subject:, body:, scheduled_email_id:, event_id:, registration_id:, reply_to_email: nil, reply_to_name: nil)
     mail = SendGrid::Mail.new
 
     # From address - always use verified sender email with organization branding
     from_email = "noreply@voxxypresents.com"
     from_name = organization.name || "Voxxy Presents"
     mail.from = SendGrid::Email.new(email: from_email, name: from_name)
+
+    # Reply-To address - allows recipients to reply directly to organization
+    if reply_to_email.present?
+      mail.reply_to = SendGrid::Email.new(email: reply_to_email, name: reply_to_name)
+    end
 
     # Subject
     mail.subject = subject

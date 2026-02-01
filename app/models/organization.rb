@@ -21,6 +21,16 @@ class Organization < ApplicationRecord
     eventbrite_api_token.present? && eventbrite_connected
   end
 
+  # Reply-to email for outgoing emails (with fallback to producer's account email)
+  def reply_to_email
+    email.presence || user&.email
+  end
+
+  # Reply-to name for outgoing emails
+  def reply_to_name
+    name || user&.name
+  end
+
   private
 
   def generate_slug
