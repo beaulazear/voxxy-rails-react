@@ -149,7 +149,7 @@ class ScheduledEmailGenerator
       trigger_time: email_template_item.trigger_time,
       scheduled_for: scheduled_time,
       filter_criteria: email_template_item.filter_criteria,
-      status: "scheduled"
+      status: "paused" # Changed from "scheduled" - emails will be activated when event goes live
     )
   end
 end

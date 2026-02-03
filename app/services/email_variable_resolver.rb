@@ -40,7 +40,7 @@ class EmailVariableResolver
   def initialize(event, registration = nil, base_url: nil)
     @event = event
     @registration = registration
-    @base_url = base_url || ENV["FRONTEND_URL"] || "https://voxxy.io"
+    @base_url = base_url || FrontendUrlHelper.presents_frontend_url
   end
 
   # Resolve all variables in a template string

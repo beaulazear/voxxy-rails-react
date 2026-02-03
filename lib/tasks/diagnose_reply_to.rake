@@ -69,15 +69,15 @@ namespace :diagnose do
     puts "4. Checking EventInvitationMailer implementation..."
 
     # Check if the mailer file contains 'reply_to'
-    mailer_file = Rails.root.join('app', 'mailers', 'event_invitation_mailer.rb')
+    mailer_file = Rails.root.join("app", "mailers", "event_invitation_mailer.rb")
     if File.exist?(mailer_file)
       content = File.read(mailer_file)
-      has_reply_to = content.include?('reply_to:')
+      has_reply_to = content.include?("reply_to:")
       puts "   EventInvitationMailer has reply_to: #{has_reply_to ? '✅ YES' : '❌ NO'}"
 
       if has_reply_to
         # Find the reply_to line
-        reply_to_line = content.lines.find { |line| line.include?('reply_to:') }
+        reply_to_line = content.lines.find { |line| line.include?("reply_to:") }
         puts "   Reply-to line: #{reply_to_line.strip}" if reply_to_line
       end
     else

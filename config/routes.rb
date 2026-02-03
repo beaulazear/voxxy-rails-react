@@ -323,6 +323,11 @@ Rails.application.routes.draw do
           post "email_notifications/send_event_update", to: "email_notifications#send_event_update_emails"
           post "email_notifications/check_cancellation_impact", to: "email_notifications#check_cancellation_impact"
           post "email_notifications/send_cancellation", to: "email_notifications#send_cancellation_emails"
+
+          # Go live action - sends invitations and activates scheduled emails
+          member do
+            post :go_live
+          end
         end
 
         # Bulletins (producer announcements)

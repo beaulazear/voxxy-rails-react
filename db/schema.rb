@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_29_071501) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_03_133819) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -347,6 +347,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_29_071501) do
     t.string "vendor_payment_link"
     t.decimal "vendor_fee_amount", precision: 10, scale: 2
     t.string "vendor_fee_currency", default: "USD"
+    t.jsonb "invitation_list_ids", default: []
+    t.jsonb "invitation_contact_ids", default: []
+    t.jsonb "invitation_excluded_ids", default: []
+    t.boolean "is_live", default: false
     t.index ["application_deadline"], name: "index_events_on_application_deadline"
     t.index ["email_campaign_template_id"], name: "index_events_on_email_campaign_template_id"
     t.index ["event_date"], name: "index_events_on_event_date"
