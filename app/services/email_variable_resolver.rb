@@ -168,10 +168,10 @@ class EmailVariableResolver
   def dashboard_link
     return "" unless registration
 
-    # Use the event's stored portal URL (no email pre-fill needed for emails)
+    # Use the event's stored portal URL with secure access token
     event_portal = event.event_portal
     return "" unless event_portal
 
-    "#{base_url}/portal/#{event.slug}"
+    "#{base_url}/portal/#{event_portal.access_token}"
   end
 end

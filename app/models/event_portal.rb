@@ -1,9 +1,23 @@
 class EventPortal < ApplicationRecord
   belongs_to :event
 
-  # Generate portal URL using event slug, with optional email parameter for pre-filling
+  # Validations
+  validates :access_token, presence: true, uniqueness: true
+
+  # Callbacks
+  before_validation :generate_access_token, on: :create
+
+  # Generate portal URL using secure access token (primary method)
   def portal_url(email = nil, base_url = nil)
-    base_url ||= presents_frontend_url
+    base_url ||= FrontendUrlHelper.presents_frontend_url
+    url = "#{base_url}/portal/#{access_token}"
+    url += "?email=#{CGI.escape(email)}" if email.present?
+    url
+  end
+
+  # Legacy: Generate portal URL using event slug (deprecated, keep for backward compatibility)
+  def portal_url_by_slug(email = nil, base_url = nil)
+    base_url ||= FrontendUrlHelper.presents_frontend_url
     url = "#{base_url}/portal/#{event.slug}"
     url += "?email=#{CGI.escape(email)}" if email.present?
     url
@@ -17,19 +31,8 @@ class EventPortal < ApplicationRecord
 
   private
 
-  # Get the correct Voxxy Presents frontend URL based on environment
-  def presents_frontend_url
-    if Rails.env.production?
-      primary_domain = ENV.fetch("PRIMARY_DOMAIN", "voxxyai.com")
-      if primary_domain.include?("voxxyai.com")
-        # Staging environment
-        "https://voxxy-presents-client-staging.onrender.com"
-      else
-        # Production environment
-        "https://www.voxxypresents.com"
-      end
-    else
-      ENV.fetch("FRONTEND_URL", "http://localhost:5173")
-    end
+  # Generate a secure unique token for portal access
+  def generate_access_token
+    self.access_token ||= SecureRandom.urlsafe_base64(32)
   end
 end

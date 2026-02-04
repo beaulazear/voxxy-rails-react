@@ -2,13 +2,22 @@ module Api
   module V1
     module Presents
       class EventPortalsController < BaseController
-        skip_before_action :authorized, only: [ :verify_access, :show_by_slug ]
-        skip_before_action :check_presents_access, only: [ :verify_access, :show_by_slug ]
+        skip_before_action :authorized, only: [ :verify_access, :show_by_slug, :show_by_token ]
+        skip_before_action :check_presents_access, only: [ :verify_access, :show_by_slug, :show_by_token ]
 
         # POST /api/v1/presents/portals/verify
         # Params: { event_slug: "summer-art-market", email: "vendor@example.com" }
+        # OR { access_token: "7j9kX2mP5qL8nR4tY6wZ3vB1cD0fG", email: "vendor@example.com" }
         def verify_access
-          event = Event.find_by!(slug: params[:event_slug])
+          # Find event by slug OR by portal access_token
+          if params[:access_token].present?
+            portal = EventPortal.find_by!(access_token: params[:access_token])
+            event = portal.event
+          else
+            event = Event.find_by!(slug: params[:event_slug])
+            portal = event.event_portal || event.create_event_portal!
+          end
+
           email = params[:email]&.downcase&.strip
 
           # Check if email exists in registrations (applied) for this event
@@ -21,8 +30,7 @@ module Api
             }, status: :not_found
           end
 
-          # Track portal view (create portal if it doesn't exist)
-          portal = event.event_portal || event.create_event_portal!
+          # Track portal view
           portal.track_view!
 
           # Generate session token
@@ -31,7 +39,8 @@ module Api
           render json: {
             access_granted: true,
             portal_token: portal_token,
-            event_slug: event.slug
+            event_slug: event.slug,
+            access_token: portal.access_token
           }
         rescue ActiveRecord::RecordNotFound
           render json: {
@@ -60,6 +69,27 @@ module Api
           ).serializable_hash
         rescue ActiveRecord::RecordNotFound
           render json: { error: "Event not found" }, status: :not_found
+        end
+
+        # GET /api/v1/presents/portals/token/:access_token
+        # Headers: X-Portal-Token (from verify_access)
+        # New primary endpoint for token-based portal access
+        def show_by_token
+          portal = EventPortal.find_by!(access_token: params[:access_token])
+          event = portal.event
+
+          # Verify session token
+          verify_portal_token!(event.id)
+
+          # Get vendor email from session for read tracking
+          vendor_email = session[:vendor_email]
+
+          render json: Api::V1::Presents::EventPortalSerializer.new(
+            portal,
+            current_user_email: vendor_email
+          ).serializable_hash
+        rescue ActiveRecord::RecordNotFound
+          render json: { error: "Portal not found" }, status: :not_found
         end
 
         private

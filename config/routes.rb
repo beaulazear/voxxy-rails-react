@@ -344,7 +344,8 @@ Rails.application.routes.draw do
 
         # Public event portal endpoints (no auth required)
         post "portals/verify", to: "event_portals#verify_access"
-        get "portals/:event_slug", to: "event_portals#show_by_slug"
+        get "portals/token/:access_token", to: "event_portals#show_by_token"
+        get "portals/:event_slug", to: "event_portals#show_by_slug"  # Legacy: keep for backward compatibility
 
         # Vendors (marketplace)
         resources :vendors do

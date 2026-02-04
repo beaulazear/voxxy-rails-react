@@ -51,6 +51,7 @@ module Api
               excluded_ids: @event.invitation_excluded_ids || [],
               total_count: calculate_invitation_count
             },
+            event_portal: event_portal_json,
             created_at: @event.created_at,
             updated_at: @event.updated_at
           }.tap do |json|
@@ -100,6 +101,16 @@ module Api
               application_tags: app.application_tags
             }
           end
+        end
+
+        def event_portal_json
+          portal = @event.event_portal
+          return nil unless portal
+
+          {
+            access_token: portal.access_token,
+            view_count: portal.view_count
+          }
         end
 
         def calculate_invitation_count
