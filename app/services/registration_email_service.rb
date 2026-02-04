@@ -252,18 +252,8 @@ class RegistrationEmailService < BaseEmailService
   def self.send_event_registration_confirmation(registration)
     event = registration.event
 
-    # Build event URL
-    if Rails.env.production?
-      primary_domain = ENV.fetch("PRIMARY_DOMAIN", "voxxyai.com")
-      if primary_domain.include?("voxxyai.com")
-        frontend_url = "https://voxxy-presents-client-staging.onrender.com"
-      else
-        frontend_url = "https://www.voxxypresents.com"
-      end
-    else
-      frontend_url = ENV.fetch("PRESENTS_FRONTEND_URL", "http://localhost:5173")
-    end
-
+    # Build event URL using centralized helper
+    frontend_url = FrontendUrlHelper.presents_frontend_url
     event_url = "#{frontend_url}/events/#{event.slug}"
 
     subject = "Registration Confirmed - #{event.title}"
@@ -330,9 +320,9 @@ class RegistrationEmailService < BaseEmailService
     # Get producer email
     producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
 
-    # Build event portal link
-    base_url = ENV["FRONTEND_URL"] || "https://voxxy.io"
-    dashboard_link = "#{base_url}/portal/#{event.slug}"
+    # Build event portal link using token-based URL
+    portal = event.event_portal || event.create_event_portal!
+    dashboard_link = portal.portal_url
 
     subject = "You're in - #{event.title}"
 
@@ -560,9 +550,9 @@ class RegistrationEmailService < BaseEmailService
     location = [ event.venue, event.location ].compact.join(", ")
     location = "TBD" if location.blank?
 
-    # Build event portal link
-    base_url = ENV["FRONTEND_URL"] || "https://voxxy.io"
-    dashboard_link = "#{base_url}/portal/#{event.slug}"
+    # Build event portal link using token-based URL
+    portal = event.event_portal || event.create_event_portal!
+    dashboard_link = portal.portal_url
 
     subject = "Payment confirmed - #{event.title}"
 
@@ -642,9 +632,9 @@ class RegistrationEmailService < BaseEmailService
     # Get producer email
     producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
 
-    # Build event portal link
-    base_url = ENV["FRONTEND_URL"] || "https://voxxy.io"
-    dashboard_link = "#{base_url}/portal/#{event.slug}"
+    # Build event portal link using token-based URL
+    portal = event.event_portal || event.create_event_portal!
+    dashboard_link = portal.portal_url
 
     subject = "Category update for #{event.title}"
 
