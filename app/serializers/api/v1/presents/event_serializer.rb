@@ -40,10 +40,17 @@ module Api
             status: {
               published: @event.published,
               registration_open: @event.registration_open,
-              status: @event.status
+              status: @event.status,
+              is_live: @event.is_live
             },
             application_deadline: @event.application_deadline,
             payment_deadline: @event.payment_deadline,
+            invitation_draft: {
+              list_ids: @event.invitation_list_ids || [],
+              contact_ids: @event.invitation_contact_ids || [],
+              excluded_ids: @event.invitation_excluded_ids || [],
+              total_count: calculate_invitation_count
+            },
             created_at: @event.created_at,
             updated_at: @event.updated_at
           }.tap do |json|
@@ -93,6 +100,30 @@ module Api
               application_tags: app.application_tags
             }
           end
+        end
+
+        def calculate_invitation_count
+          return 0 if @event.invitation_list_ids.empty? && @event.invitation_contact_ids.empty?
+
+          list_ids = @event.invitation_list_ids || []
+          manual_contact_ids = @event.invitation_contact_ids || []
+          excluded_ids = @event.invitation_excluded_ids || []
+
+          # Get contacts from lists
+          list_contact_ids = []
+          if list_ids.any?
+            lists = ContactList.where(
+              id: list_ids,
+              organization_id: @event.organization_id
+            )
+            lists.each do |list|
+              list_contact_ids += list.contacts.pluck(:id)
+            end
+          end
+
+          # Merge, deduplicate, and exclude
+          all_ids = (manual_contact_ids + list_contact_ids).uniq - excluded_ids
+          all_ids.count
         end
       end
     end

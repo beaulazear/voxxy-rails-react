@@ -5,8 +5,8 @@ module Api
         skip_before_action :authorized, only: [ :index, :show ]
         skip_before_action :check_presents_access, only: [ :index, :show ]
         before_action :set_current_user_optional, only: [ :index, :show ]
-        before_action :require_venue_owner, only: [ :create, :update, :destroy ]
-        before_action :set_event, only: [ :show, :update, :destroy ]
+        before_action :require_venue_owner, only: [ :create, :update, :destroy, :go_live ]
+        before_action :set_event, only: [ :show, :update, :destroy, :go_live ]
 
         # GET /api/v1/presents/events
         # GET /api/v1/presents/organizations/:organization_id/events
@@ -121,6 +121,93 @@ module Api
           end
         end
 
+        # POST /api/v1/presents/events/:id/go_live
+        # Activates event by sending invitations and resuming scheduled emails
+        def go_live
+          # Check if already live
+          if @event.is_live
+            return render json: { error: "Event is already live" }, status: :unprocessable_entity
+          end
+
+          begin
+            invitations_sent = 0
+            emails_activated = 0
+
+            # Step 1: Send batch invitations if invitation data exists
+            if @event.invitation_list_ids.present? || @event.invitation_contact_ids.present?
+              Rails.logger.info("Sending invitations for event #{@event.slug}")
+
+              # Resolve all contact IDs from lists (same logic as event_invitations_controller)
+              list_ids = @event.invitation_list_ids || []
+              manual_contact_ids = @event.invitation_contact_ids || []
+              excluded_contact_ids = @event.invitation_excluded_ids || []
+
+              list_contact_ids = []
+              if list_ids.any?
+                lists = ContactList.where(
+                  id: list_ids,
+                  organization_id: @event.organization_id
+                )
+
+                lists.each do |list|
+                  list_contact_ids += list.contacts.pluck(:id)
+                end
+              end
+
+              # Merge and deduplicate
+              all_contact_ids = (manual_contact_ids + list_contact_ids).uniq - excluded_contact_ids
+
+              # Get contacts
+              vendor_contacts = VendorContact.where(
+                id: all_contact_ids,
+                organization_id: @event.organization_id
+              )
+
+              # Send invitations
+              vendor_contacts.each do |contact|
+                # Skip if already invited
+                next if @event.event_invitations.exists?(vendor_contact_id: contact.id)
+
+                # Create and send invitation
+                invitation = @event.event_invitations.create!(vendor_contact: contact)
+                invitation.mark_as_sent!
+
+                # Send email
+                begin
+                  EventInvitationMailer.invitation_email(invitation).deliver_now
+                  invitations_sent += 1
+                rescue => e
+                  Rails.logger.error "Failed to send invitation to #{contact.email}: #{e.message}"
+                end
+              end
+
+              Rails.logger.info("✅ Sent #{invitations_sent} invitations")
+            end
+
+            # Step 2: Activate all paused scheduled emails
+            paused_emails = @event.scheduled_emails.where(status: "paused")
+            emails_activated = paused_emails.count
+
+            if emails_activated > 0
+              paused_emails.update_all(status: "scheduled")
+              Rails.logger.info("✅ Activated #{emails_activated} scheduled emails")
+            end
+
+            # Step 3: Mark event as live
+            @event.update!(is_live: true)
+
+            render json: {
+              message: "Event is now live!",
+              invitations_sent: invitations_sent,
+              emails_activated: emails_activated,
+              is_live: true
+            }, status: :ok
+          rescue => e
+            Rails.logger.error("Failed to go live: #{e.message}")
+            render json: { error: "Failed to activate event: #{e.message}" }, status: :unprocessable_entity
+          end
+        end
+
         # DELETE /api/v1/presents/events/:id
         def destroy
           @event.destroy
@@ -160,7 +247,10 @@ module Api
             :venue, :start_time, :end_time, :age_restriction,
             :poster_url, :ticket_url, :ticket_link, :ticket_price, :capacity,
             :published, :registration_open, :status, :application_deadline,
-            :payment_deadline
+            :payment_deadline,
+            invitation_list_ids: [],
+            invitation_contact_ids: [],
+            invitation_excluded_ids: []
           )
         end
       end

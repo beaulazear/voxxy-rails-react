@@ -146,9 +146,22 @@ module Api
             return
           end
 
-          # Send immediately using EmailSenderService
+          # Send immediately using the appropriate service based on email category
           begin
-            service = EmailSenderService.new(@scheduled_email)
+            # Route to correct service based on email category (matches recipient count logic)
+            category = @scheduled_email.email_template_item&.category
+            Rails.logger.info("📧 Sending email immediately - Category: #{category}")
+
+            service = if category == "event_announcements"
+              # Application deadline reminders - send to invited contacts who haven't applied
+              Rails.logger.info("   Routing to InvitationReminderService")
+              InvitationReminderService.new(@scheduled_email)
+            else
+              # All other emails - send to registrations based on filter criteria
+              Rails.logger.info("   Routing to EmailSenderService")
+              EmailSenderService.new(@scheduled_email)
+            end
+
             result = service.send_to_recipients
 
             render json: {
