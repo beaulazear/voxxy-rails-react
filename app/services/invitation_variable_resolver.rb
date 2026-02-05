@@ -113,12 +113,18 @@ class InvitationVariableResolver
   end
 
   def resolve_vendor_application_variables(template)
-    # Get vendor application variables from event's active vendor application
-    vendor_app = event.active_vendor_application
+    # Get vendor application variables from event's active vendor applications
+    vendor_apps = event.vendor_applications.active
+
+    # For invitation emails, show all application names in category list
+    category_list = vendor_apps.any? ? format_application_names(vendor_apps) : ""
+
+    # For single-value fields, use first application if it exists
+    # (These are typically used in post-application emails, not invitations)
+    vendor_app = vendor_apps.first
     booth_price = vendor_app ? format_currency(vendor_app.booth_price) : ""
     install_date = vendor_app ? format_date(vendor_app.install_date) : ""
     install_time = vendor_app ? format_install_time(vendor_app.install_start_time, vendor_app.install_end_time) : ""
-    category_list = vendor_app ? format_category_list(vendor_app.categories) : ""
 
     template
       .gsub("[boothPrice]", booth_price)
@@ -164,6 +170,14 @@ class InvitationVariableResolver
     return "" unless categories.is_a?(Array) && categories.any?
 
     categories.map { |cat| "• #{cat}" }.join("\n")
+  rescue
+    ""
+  end
+
+  def format_application_names(vendor_applications)
+    return "" unless vendor_applications.any?
+
+    vendor_applications.map { |app| "• #{app.name}" }.join("\n")
   rescue
     ""
   end

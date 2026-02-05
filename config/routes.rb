@@ -300,6 +300,7 @@ Rails.application.routes.draw do
           resources :invitations, controller: :event_invitations, only: [ :index ] do
             collection do
               post :batch, action: :create_batch
+              get :preview_email
             end
           end
           resources :bulletins, only: [ :index, :create ]

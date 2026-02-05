@@ -1,7 +1,8 @@
 # Rake task to update email templates for pilot launch
 # This task:
-# 1. Adds two new email templates to the default campaign
-# 2. Updates footers on all existing templates
+# 1. Removes redundant "Initial Invitation" template (handled by EventInvitationMailer)
+# 2. Adds "Application Received" template
+# 3. Updates footers on all existing templates
 #
 # Usage: rails update_email_templates:pilot
 
@@ -37,90 +38,63 @@ namespace :update_email_templates do
     HTML
 
     # =========================================================================
-    # STEP 1: Check if new templates already exist
+    # STEP 1: Remove redundant "Initial Invitation" template if it exists
     # =========================================================================
-    puts "Checking for existing templates..."
+    puts "Checking for redundant 'Initial Invitation' template..."
 
     initial_invitation = default_template.email_template_items.find_by(
       trigger_type: "on_application_open",
       name: "Initial Invitation"
     )
 
+    if initial_invitation
+      puts "  Found redundant 'Initial Invitation' template (ID: #{initial_invitation.id})"
+      puts "  This is redundant because invitations are sent immediately via EventInvitationMailer"
+      puts "  Removing..."
+
+      initial_invitation.destroy
+
+      # Reorder remaining positions
+      default_template.email_template_items.where("position > ?", initial_invitation.position).order(:position).each do |email|
+        new_position = email.position - 1
+        email.update_column(:position, new_position)
+      end
+
+      puts "  ✓ Removed 'Initial Invitation' and reordered positions"
+    else
+      puts "  ✓ No redundant 'Initial Invitation' template found"
+    end
+
+    # =========================================================================
+    # STEP 2: Check if Application Received template already exists
+    # =========================================================================
+    puts "\nChecking for 'Application Received' template..."
+
     application_received = default_template.email_template_items.find_by(
       trigger_type: "on_application_submit",
       name: "Application Received"
     )
 
-    if initial_invitation && application_received
-      puts "✓ New templates already exist. Skipping creation."
-      puts "  - Initial Invitation (ID: #{initial_invitation.id})"
-      puts "  - Application Received (ID: #{application_received.id})"
+    if application_received
+      puts "  ✓ 'Application Received' template already exists (ID: #{application_received.id})"
     else
-      puts "Creating new email templates...\n"
+      puts "  Creating 'Application Received' template..."
 
-      # =========================================================================
-      # STEP 2: Shift existing email positions to make room
-      # =========================================================================
-      puts "Shifting existing email positions..."
-
-      # Get all existing emails ordered by position
+      # Shift existing emails to make room at position 1
       existing_emails = default_template.email_template_items.order(:position)
-
-      # Shift all positions by 2 to make room at positions 1 and 2
       existing_emails.each do |email|
-        new_position = email.position + 2
+        new_position = email.position + 1
         email.update_column(:position, new_position)
-        puts "  - Moved '#{email.name}' from position #{email.position - 2} to #{new_position}"
       end
 
       # =========================================================================
-      # STEP 3: Create EMAIL #1 - Initial Invitation
+      # STEP 3: Create Application Received template
       # =========================================================================
-      puts "\nCreating EMAIL #1: Initial Invitation..."
-
-      EmailTemplateItem.create!(
-        email_campaign_template: default_template,
-        name: "Initial Invitation",
-        position: 1,
-        category: "event_announcements",
-        subject_template: "Submissions Open for [eventName]",
-        body_template: <<~HTML,
-          <p>Hi [firstName],</p>
-
-          <p>We're pumped to announce that submissions are officially open for <strong>[eventName]</strong> at <strong>[eventVenue]</strong> on <strong>[eventDate]</strong>.</p>
-
-          <p>Submit your work here:<br/>
-          <a href="[invitationLink]" style="color: #0066cc; text-decoration: underline;">[invitationLink]</a></p>
-
-          <p><strong>[eventName]</strong> is calling for the following categories:</p>
-
-          <p>[categoryList]</p>
-
-          <p>I'm looking forward to your submission.</p>
-
-          <p>Thanks,<br/>
-          [organizationName]</p>
-
-          #{new_footer}
-        HTML
-        trigger_type: "on_application_open",
-        trigger_value: 0,
-        trigger_time: "09:00",
-        filter_criteria: {},
-        enabled_by_default: true
-      )
-
-      puts "  ✓ Created 'Initial Invitation' at position 1"
-
-      # =========================================================================
-      # STEP 4: Create EMAIL #2 - Application Received
-      # =========================================================================
-      puts "\nCreating EMAIL #2: Application Received..."
 
       EmailTemplateItem.create!(
         email_campaign_template: default_template,
         name: "Application Received",
-        position: 2,
+        position: 1,
         category: "application_updates",
         subject_template: "Application Received - [eventName]",
         body_template: <<~HTML,
@@ -180,11 +154,11 @@ namespace :update_email_templates do
         enabled_by_default: true
       )
 
-      puts "  ✓ Created 'Application Received' at position 2"
+      puts "  ✓ Created 'Application Received' at position 1"
     end
 
     # =========================================================================
-    # STEP 5: Update footers on all existing emails
+    # STEP 4: Update footers on all existing emails
     # =========================================================================
     puts "\nUpdating footers on all scheduled email templates..."
 
@@ -219,10 +193,12 @@ namespace :update_email_templates do
     end
 
     puts "\n✅ Email template update complete!"
+    puts "\nNote: The 'Initial Invitation' scheduled email was removed because"
+    puts "      invitations are sent immediately via EventInvitationMailer, not scheduled."
     puts "\nNext steps:"
-    puts "  1. Review the updated templates in the admin panel"
-    puts "  2. Test the new variables with sample data"
-    puts "  3. Update EventInvitationMailer and RegistrationEmailService footers"
+    puts "  1. Create a new event to test the updated templates"
+    puts "  2. Verify invitation email shows in Email Automation tab"
+    puts "  3. Test the new email variables with real data"
     puts "\n"
   end
 end

@@ -75,12 +75,12 @@
       <p>Submit your work here:<br/>
       <a href="<%= @invitation_url %>" class="link"><%= @invitation_url %></a></p>
 
-      <% vendor_app = @event.active_vendor_application %>
-      <% if vendor_app && vendor_app.categories.present? %>
+      <% vendor_apps = @event.vendor_applications.active %>
+      <% if vendor_apps.any? %>
         <p><strong><%= @event.title %></strong> is calling for the following categories:</p>
         <p>
-          <% vendor_app.categories.each do |category| %>
-            • <%= category %><br/>
+          <% vendor_apps.each do |app| %>
+            • <%= app.name %><br/>
           <% end %>
         </p>
       <% end %>

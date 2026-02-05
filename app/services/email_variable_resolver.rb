@@ -115,7 +115,10 @@ class EmailVariableResolver
     booth_price = vendor_app ? format_currency(vendor_app.booth_price) : ""
     install_date = vendor_app ? format_date(vendor_app.install_date) : ""
     install_time = vendor_app ? format_install_time(vendor_app.install_start_time, vendor_app.install_end_time) : ""
-    category_list = vendor_app ? format_category_list(vendor_app.categories) : ""
+
+    # Category list shows ALL application names for the event
+    vendor_apps = event.vendor_applications.active
+    category_list = vendor_apps.any? ? format_application_names(vendor_apps) : ""
 
     template
       .gsub("[greetingName]", greeting_name)
@@ -178,6 +181,14 @@ class EmailVariableResolver
     return "" unless categories.is_a?(Array) && categories.any?
 
     categories.map { |cat| "• #{cat}" }.join("\n")
+  rescue
+    ""
+  end
+
+  def format_application_names(vendor_applications)
+    return "" unless vendor_applications.any?
+
+    vendor_applications.map { |app| "• #{app.name}" }.join("\n")
   rescue
     ""
   end

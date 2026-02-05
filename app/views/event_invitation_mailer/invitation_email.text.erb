@@ -5,12 +5,12 @@ We're pumped to announce that submissions are officially open for <%= @event.tit
 Submit your work here:
 <%= @invitation_url %>
 
-<% vendor_app = @event.active_vendor_application %>
-<% if vendor_app && vendor_app.categories.present? %>
+<% vendor_apps = @event.vendor_applications.active %>
+<% if vendor_apps.any? %>
 <%= @event.title %> is calling for the following categories:
 
-<% vendor_app.categories.each do |category| %>
-• <%= category %>
+<% vendor_apps.each do |app| %>
+• <%= app.name %>
 <% end %>
 <% end %>
 
