@@ -7,8 +7,8 @@ module Api
         skip_before_action :check_presents_access, only: [ :show_by_token, :respond ]
 
         before_action :require_venue_owner, except: [ :show_by_token, :respond ]
-        before_action :set_event, only: [ :index, :create_batch ]
-        before_action :check_event_ownership, only: [ :index, :create_batch ]
+        before_action :set_event, only: [ :index, :create_batch, :preview_email ]
+        before_action :check_event_ownership, only: [ :index, :create_batch, :preview_email ]
         before_action :set_invitation_by_token, only: [ :show_by_token, :respond ]
 
         # GET /api/v1/presents/events/:event_slug/invitations
@@ -224,6 +224,70 @@ module Api
           else
             render json: { error: "Failed to record response" }, status: :unprocessable_entity
           end
+        end
+
+        # GET /api/v1/presents/events/:event_slug/invitations/preview_email
+        # Preview invitation email content (for display in Email Automation tab)
+        def preview_email
+          # Get first invitation or use sample data
+          invitation = @event.event_invitations.first
+          vendor_contact = invitation&.vendor_contact
+
+          # If no invitations exist, create sample data for preview
+          unless vendor_contact
+            vendor_contact = OpenStruct.new(
+              name: "John Doe",
+              business_name: "Sample Business",
+              email: "sample@example.com"
+            )
+          end
+
+          # Generate sample URLs
+          invitation_url = if invitation
+            invitation.invitation_url
+          else
+            frontend_url = FrontendUrlHelper.presents_frontend_url
+            "#{frontend_url}/events/#{@event.slug}"
+          end
+
+          unsubscribe_url = ""
+          begin
+            unsubscribe_token = UnsubscribeTokenService.generate_token(
+              email: vendor_contact.email,
+              event: @event,
+              organization: @event.organization
+            )
+            unsubscribe_url = UnsubscribeTokenService.generate_unsubscribe_url(unsubscribe_token.token)
+          rescue => e
+            Rails.logger.error("Failed to generate unsubscribe link for preview: #{e.message}")
+          end
+
+          # Get subject from mailer
+          subject = "Submissions Open for #{@event.title}"
+
+          # Render the invitation email template
+          body = render_to_string(
+            template: "event_invitation_mailer/invitation_email",
+            layout: false,
+            locals: {
+              event: @event,
+              vendor_contact: vendor_contact,
+              organization: @event.organization,
+              invitation_url: invitation_url,
+              unsubscribe_url: unsubscribe_url
+            }
+          )
+
+          render json: {
+            subject: subject,
+            body: body,
+            recipient_name: vendor_contact.name,
+            recipient_email: vendor_contact.email,
+            is_sample: invitation.nil?
+          }, status: :ok
+        rescue => e
+          Rails.logger.error("Failed to generate invitation preview: #{e.message}")
+          render json: { error: "Failed to generate preview: #{e.message}" }, status: :internal_server_error
         end
 
         private

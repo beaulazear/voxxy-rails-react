@@ -10,7 +10,7 @@
 #   Event variables: (same as EmailVariableResolver)
 #     [eventName], [eventDate], [eventTime], [eventLocation], [eventVenue]
 #     [eventDescription], [applicationDeadline], [paymentDueDate]
-#     [organizationName], [organizationEmail]
+#     [organizationName], [organizationEmail], [ageRestriction]
 #
 #   Vendor Contact variables:
 #     [firstName] - Contact first name
@@ -20,9 +20,16 @@
 #     [email] - Contact email
 #     [greetingName] - Preferred greeting (business name or first name)
 #
+#   Vendor Application variables (from event's active vendor application):
+#     [boothPrice] - Booth/space fee
+#     [installDate] - Installation date
+#     [installTime] - Installation time range
+#     [categoryList] - Bulleted list of vendor categories
+#
 #   Special variables:
 #     [unsubscribeLink] - Unsubscribe URL
 #     [eventLink] - Public event page URL
+#     [invitationLink] - Same as eventLink
 #
 #   Not supported (vendor hasn't applied yet):
 #     [vendorCategory] - N/A
@@ -51,6 +58,9 @@ class InvitationVariableResolver
     # Resolve vendor contact variables
     resolved = resolve_vendor_contact_variables(resolved)
 
+    # Resolve vendor application variables
+    resolved = resolve_vendor_application_variables(resolved)
+
     # Resolve special variables
     resolved = resolve_special_variables(resolved)
 
@@ -71,6 +81,7 @@ class InvitationVariableResolver
       .gsub("[paymentDueDate]", format_date(event.payment_deadline))
       .gsub("[organizationName]", event.organization&.name || "")
       .gsub("[organizationEmail]", event.organization&.email || "")
+      .gsub("[ageRestriction]", event.age_restriction || "")
   end
 
   def resolve_vendor_contact_variables(template)
@@ -101,18 +112,72 @@ class InvitationVariableResolver
       .gsub("[applicationDate]", "")
   end
 
+  def resolve_vendor_application_variables(template)
+    # Get vendor application variables from event's active vendor applications
+    vendor_apps = event.vendor_applications.active
+
+    # For invitation emails, show all application names in category list
+    category_list = vendor_apps.any? ? format_application_names(vendor_apps) : ""
+
+    # For single-value fields, use first application if it exists
+    # (These are typically used in post-application emails, not invitations)
+    vendor_app = vendor_apps.first
+    booth_price = vendor_app ? format_currency(vendor_app.booth_price) : ""
+    install_date = vendor_app ? format_date(vendor_app.install_date) : ""
+    install_time = vendor_app ? format_install_time(vendor_app.install_start_time, vendor_app.install_end_time) : ""
+
+    template
+      .gsub("[boothPrice]", booth_price)
+      .gsub("[installDate]", install_date)
+      .gsub("[installTime]", install_time)
+      .gsub("[categoryList]", category_list)
+  end
+
   def resolve_special_variables(template)
     template
       .gsub("[unsubscribeLink]", unsubscribe_link)
       .gsub("[eventLink]", event_link)
       .gsub("[bulletinLink]", event_link)  # Bulletin link is same as event link
       .gsub("[dashboardLink]", event_link)  # Redirect to event page (no dashboard yet)
+      .gsub("[invitationLink]", event_link)  # Invitation link is same as event link
   end
 
   def format_date(date)
     return "" unless date
 
     date.strftime("%A, %B %-d, %Y")
+  rescue
+    ""
+  end
+
+  def format_currency(amount)
+    return "" unless amount
+
+    "$#{amount.to_i}"
+  rescue
+    ""
+  end
+
+  def format_install_time(start_time, end_time)
+    return "" unless start_time && end_time
+
+    "#{start_time} - #{end_time}"
+  rescue
+    ""
+  end
+
+  def format_category_list(categories)
+    return "" unless categories.is_a?(Array) && categories.any?
+
+    categories.map { |cat| "• #{cat}" }.join("\n")
+  rescue
+    ""
+  end
+
+  def format_application_names(vendor_applications)
+    return "" unless vendor_applications.any?
+
+    vendor_applications.map { |app| "• #{app.name}" }.join("\n")
   rescue
     ""
   end

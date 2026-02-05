@@ -190,37 +190,98 @@ class RegistrationEmailService < BaseEmailService
 
     subject = "Application Received - #{event.title}"
 
-    content = <<~HTML
+    # Use EmailVariableResolver to resolve all template variables
+    resolver = EmailVariableResolver.new(event, registration)
+
+    content_template = <<~HTML
       <p style="#{BASE_STYLES[:text]}">
-        Hi #{greeting_name},
+        Hi [firstName],
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Thank you for applying to <strong>#{event.title}</strong>. We have received your application.
+        Thanks for submitting your application to participate in <strong>[eventName]</strong> at <strong>[eventVenue]</strong> on <strong>[eventDate]</strong>.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>Event Date:</strong> #{event_date}<br/>
-        <strong>Location:</strong> #{location}<br/>
-        <strong>Category:</strong> #{registration.vendor_category}<br/>
-        <strong>Confirmation Code:</strong> #{registration.ticket_code}
+        <strong>IMPORTANT:</strong> This is NOT an acceptance email. Please allow up to 10 days for us to review your submission. You will receive another email with further details if you're selected.
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}"><strong>PRICING & PAYMENT</strong></p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>Booth/Space Fee:</strong> [boothPrice]
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        We will review your application and contact you soon. Please keep an eye on your inbox for updates.
+        We now cover all ticketing and processing fees—the price you see is exactly what you pay at checkout.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Best regards,<br/>
-        #{organization.name || "Event Organizer"}
+        <strong>Note:</strong> If fees are paid after [paymentDueDate], rates may increase. Payment is required to reserve your space.
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}"><strong>EVENT DETAILS</strong></p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>INSTALLATION:</strong> Currently scheduled for [installDate] from [installTime]
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>CATEGORY:</strong> You applied as [vendorCategory]
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}"><strong>IMPORTANT GUIDELINES</strong></p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Please review these requirements for your category:
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        • <strong>SIZE & SPACE:</strong> Check your vendor portal for specific dimensions<br/>
+        • <strong>EQUIPMENT:</strong> Confirm what you need to bring vs what's provided<br/>
+        • <strong>LOAD OUT:</strong> All items must be removed at end of event<br/>
+        • <strong>NO COMMISSION:</strong> You keep 100% of your sales
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        For complete event information, category-specific rules, and updates, visit your vendor portal:<br/>
+        <a href="[dashboardLink]" style="#{BASE_STYLES[:link]}">[dashboardLink]</a>
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Thanks,<br/>
+        [organizationName]
       </p>
 
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
       <p style="font-size: 12px; color: #888888;">
-        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
+        Questions? Reply to this email or contact team@voxxypresents.com directly.
+      </p>
+
+      <p style="font-size: 12px; color: #888888;">
+        <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
+      </p>
+
+      <p style="font-size: 12px; color: #aaaaaa;">
+        Powered by Voxxy Presents
       </p>
     HTML
+
+    # Resolve all variables in the template
+    content = resolver.resolve(content_template)
 
     email_html = build_presents_email_template(
       "Application Received",
@@ -360,7 +421,7 @@ class RegistrationEmailService < BaseEmailService
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
       <p style="font-size: 12px; color: #888888;">
-        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
+        Questions? Reply to this email or contact team@voxxypresents.com directly.
       </p>
     HTML
 
@@ -428,7 +489,7 @@ class RegistrationEmailService < BaseEmailService
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
       <p style="font-size: 12px; color: #888888;">
-        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
+        Questions? Reply to this email or contact team@voxxypresents.com directly.
       </p>
     HTML
 
@@ -500,7 +561,7 @@ class RegistrationEmailService < BaseEmailService
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
       <p style="font-size: 12px; color: #888888;">
-        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
+        Questions? Reply to this email or contact team@voxxypresents.com directly.
       </p>
     HTML
 
@@ -587,7 +648,7 @@ class RegistrationEmailService < BaseEmailService
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
       <p style="font-size: 12px; color: #888888;">
-        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
+        Questions? Reply to this email or contact team@voxxypresents.com directly.
       </p>
     HTML
 
@@ -668,7 +729,7 @@ class RegistrationEmailService < BaseEmailService
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
       <p style="font-size: 12px; color: #888888;">
-        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
+        Questions? Reply to this email or contact team@voxxypresents.com directly.
       </p>
     HTML
 

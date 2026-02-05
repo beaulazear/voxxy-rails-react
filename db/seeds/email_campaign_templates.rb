@@ -67,7 +67,7 @@ create_email(template, {
 
     <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>
 
-    <p style="font-size: 12px; color: #888888;">Please do not reply to this email. For questions, contact <a href="mailto:[organizationEmail]" style="color: #888888;">[organizationEmail]</a></p>
+    <p style="font-size: 12px; color: #888888;">Questions? Reply to this email or contact team@voxxypresents.com directly.</p>
 
     <p style="font-size: 12px; color: #888888;">
       <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
@@ -106,7 +106,7 @@ create_email(template, {
 
     <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>
 
-    <p style="font-size: 12px; color: #888888;">Please do not reply to this email. For questions, contact <a href="mailto:[organizationEmail]" style="color: #888888;">[organizationEmail]</a></p>
+    <p style="font-size: 12px; color: #888888;">Questions? Reply to this email or contact team@voxxypresents.com directly.</p>
 
     <p style="font-size: 12px; color: #888888;">
       <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
@@ -153,7 +153,7 @@ create_email(template, {
 
     <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>
 
-    <p style="font-size: 12px; color: #888888;">Please do not reply to this email. For questions, contact <a href="mailto:[organizationEmail]" style="color: #888888;">[organizationEmail]</a></p>
+    <p style="font-size: 12px; color: #888888;">Questions? Reply to this email or contact team@voxxypresents.com directly.</p>
 
     <p style="font-size: 12px; color: #888888;">
       <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
@@ -197,7 +197,7 @@ create_email(template, {
 
     <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>
 
-    <p style="font-size: 12px; color: #888888;">Please do not reply to this email. For questions, contact <a href="mailto:[organizationEmail]" style="color: #888888;">[organizationEmail]</a></p>
+    <p style="font-size: 12px; color: #888888;">Questions? Reply to this email or contact team@voxxypresents.com directly.</p>
 
     <p style="font-size: 12px; color: #888888;">
       <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
@@ -254,7 +254,7 @@ create_email(template, {
 
     <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>
 
-    <p style="font-size: 12px; color: #888888;">Please do not reply to this email. For questions, contact <a href="mailto:[organizationEmail]" style="color: #888888;">[organizationEmail]</a></p>
+    <p style="font-size: 12px; color: #888888;">Questions? Reply to this email or contact team@voxxypresents.com directly.</p>
 
     <p style="font-size: 12px; color: #888888;">
       <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
@@ -300,7 +300,7 @@ create_email(template, {
 
     <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>
 
-    <p style="font-size: 12px; color: #888888;">Please do not reply to this email. For questions, contact <a href="mailto:[organizationEmail]" style="color: #888888;">[organizationEmail]</a></p>
+    <p style="font-size: 12px; color: #888888;">Questions? Reply to this email or contact team@voxxypresents.com directly.</p>
 
     <p style="font-size: 12px; color: #888888;">
       <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
@@ -336,7 +336,7 @@ create_email(template, {
 
     <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>
 
-    <p style="font-size: 12px; color: #888888;">Please do not reply to this email. For questions, contact <a href="mailto:[organizationEmail]" style="color: #888888;">[organizationEmail]</a></p>
+    <p style="font-size: 12px; color: #888888;">Questions? Reply to this email or contact team@voxxypresents.com directly.</p>
 
     <p style="font-size: 12px; color: #888888;">
       <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
