@@ -70,22 +70,35 @@
     <div class="content">
       <p>Hi <%= @vendor_contact.business_name.present? ? @vendor_contact.business_name.split(' ').first : @vendor_contact.name.split(' ').first %>,</p>
 
-      <p>We're pumped to announce that submissions are officially open for <strong><%= @event.title %></strong><% if @event.venue.present? %> at <strong><%= @event.venue %></strong><% end %><% if @event.event_date.present? %> on <strong><%= @event.event_date.strftime("%A, %B %-d, %Y") %></strong><% end %>.</p>
+      <p>We're pumped to announce that submissions are officially open for the next <strong><%= @event.title %></strong><% if @event.venue.present? %> at <strong><%= @event.venue %></strong><% end %><% if @event.event_date.present? %> on <strong><%= @event.event_date.strftime("%A, %B %-d, %Y") %></strong><% end %>.</p>
 
-      <p>Submit your work here:<br/>
-      <a href="<%= @invitation_url %>" class="link"><%= @invitation_url %></a></p>
+      <p>Submit your work below:</p>
+
+      <%
+        # Get vendor application links
+        app_links = @invitation.vendor_application_links
+        artist_link = app_links.find { |link| link[:name].downcase.include?('artist') }
+        vendor_link = app_links.find { |link| link[:name].downcase.include?('vendor') }
+      %>
+
+      <% if artist_link %>
+        <p>For those of you exhibiting artwork on the walls (paintings, sculptures, photography, body painters, etc): <strong>ARTIST/GALLERY SUBMISSIONS</strong> - <a href="<%= artist_link[:url] %>" class="link">Apply Here</a></p>
+      <% end %>
+
+      <% if vendor_link %>
+        <p>For those setting up a TABLE space (ie: clothing, jewelry, and other table merch): <strong>VENDOR/TABLE SUBMISSIONS</strong> - <a href="<%= vendor_link[:url] %>" class="link">Apply Here</a></p>
+      <% end %>
 
       <p>I'm looking forward to your submission.</p>
 
       <p>Thanks,<br/><%= @organization.name %></p>
+
+      <p style="margin-top: 20px; font-size: 14px;">If you're unable to participate, please <a href="<%= @unsubscribe_url %>" class="link">click here</a> to let us know.</p>
     </div>
 
     <div class="footer">
       <p style="margin: 0 0 12px 0; font-size: 12px; color: #888888;">
         Questions? Reply to this email or contact team@voxxypresents.com directly.
-      </p>
-      <p style="margin: 0 0 12px 0; font-size: 12px; color: #888888;">
-        <a href="<%= @unsubscribe_url %>" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
       </p>
       <p style="margin: 0; font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
     </div>
