@@ -210,6 +210,11 @@ namespace :email_testing do
     end
     puts ""
 
+    # Mark event as live since invitations were sent
+    event.update!(is_live: true)
+    puts "   ✅ Event marked as LIVE (invitations sent)"
+    puts ""
+
     # Step 7: Create 15 test registrations (variety of statuses and payment states)
     puts "📋 Creating 15 test registrations (vendors who have applied)..."
 
