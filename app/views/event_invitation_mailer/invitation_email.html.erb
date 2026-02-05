@@ -75,16 +75,6 @@
       <p>Submit your work here:<br/>
       <a href="<%= @invitation_url %>" class="link"><%= @invitation_url %></a></p>
 
-      <% vendor_apps = @event.vendor_applications.active %>
-      <% if vendor_apps.any? %>
-        <p><strong><%= @event.title %></strong> is calling for the following categories:</p>
-        <p>
-          <% vendor_apps.each do |app| %>
-            • <%= app.name %><br/>
-          <% end %>
-        </p>
-      <% end %>
-
       <p>I'm looking forward to your submission.</p>
 
       <p>Thanks,<br/><%= @organization.name %></p>
