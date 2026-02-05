@@ -211,6 +211,11 @@ namespace :email_automation do
     puts "      (unless they submit applications before reminders are sent)"
     puts ""
 
+    # Mark event as live since invitations were sent
+    event.update!(is_live: true)
+    puts "✅ Event marked as LIVE (invitations sent)"
+    puts ""
+
     # Step 2: Create test registrations (vendors who have applied)
     # Using Gmail's plus addressing to create multiple registrations per email
     puts "📝 Creating vendor registrations to ensure BOTH users receive ALL 7 emails..."
