@@ -1,27 +1,23 @@
-Hi <%= @vendor_contact.business_name.present? ? @vendor_contact.business_name : @vendor_contact.name %>,
+Hi <%= @vendor_contact.business_name.present? ? @vendor_contact.business_name.split(' ').first : @vendor_contact.name.split(' ').first %>,
 
-We're excited to announce <%= @event.title %> and would love to have you join us!
+We're pumped to announce that submissions are officially open for <%= @event.title %><% if @event.venue.present? %> at <%= @event.venue %><% end %><% if @event.event_date.present? %> on <%= @event.event_date.strftime("%A, %B %-d, %Y") %><% end %>.
 
-<% if @event.event_date.present? %>
-📅 Event Date: <%= @event.event_date.strftime("%B %d, %Y") %>
-<% end %>
-
-<% if @event.venue.present? || @event.location.present? %>
-📍 Location: <%= [@event.venue, @event.location].compact.join(', ') %>
-<% end %>
-
-<% if @event.application_deadline.present? %>
-⏰ Application Deadline: <%= @event.application_deadline.strftime("%B %d, %Y") %>
-<% end %>
-
-This is a great opportunity to showcase your work and connect with the community.
-
-Best,
-<%= @organization.name %>
-
-APPLY NOW
----------
+Submit your work here:
 <%= @invitation_url %>
+
+<% vendor_app = @event.active_vendor_application %>
+<% if vendor_app && vendor_app.categories.present? %>
+<%= @event.title %> is calling for the following categories:
+
+<% vendor_app.categories.each do |category| %>
+• <%= category %>
+<% end %>
+<% end %>
+
+I'm looking forward to your submission.
+
+Thanks,
+<%= @organization.name %>
 
 ---
 

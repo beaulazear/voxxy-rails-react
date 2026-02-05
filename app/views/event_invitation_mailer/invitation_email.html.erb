@@ -68,27 +68,26 @@
     </div>
 
     <div class="content">
-      <p>Hi <%= @vendor_contact.business_name.present? ? @vendor_contact.business_name : @vendor_contact.name %>,</p>
+      <p>Hi <%= @vendor_contact.business_name.present? ? @vendor_contact.business_name.split(' ').first : @vendor_contact.name.split(' ').first %>,</p>
 
-      <p>We are excited to announce <strong><%= @event.title %></strong> and would like to invite you to participate.</p>
+      <p>We're pumped to announce that submissions are officially open for <strong><%= @event.title %></strong><% if @event.venue.present? %> at <strong><%= @event.venue %></strong><% end %><% if @event.event_date.present? %> on <strong><%= @event.event_date.strftime("%A, %B %-d, %Y") %></strong><% end %>.</p>
 
-      <p>
-        <% if @event.event_date.present? %>
-          <strong>Event Date:</strong> <%= @event.event_date.strftime("%B %d, %Y") %><br/>
-        <% end %>
-        <% if @event.venue.present? || @event.location.present? %>
-          <strong>Location:</strong> <%= [@event.venue, @event.location].compact.join(', ') %><br/>
-        <% end %>
-        <% if @event.application_deadline.present? %>
-          <strong>Application Deadline:</strong> <%= @event.application_deadline.strftime("%B %d, %Y") %>
-        <% end %>
-      </p>
+      <p>Submit your work here:<br/>
+      <a href="<%= @invitation_url %>" class="link"><%= @invitation_url %></a></p>
 
-      <p>This is an opportunity to showcase your work and connect with the community.</p>
+      <% vendor_app = @event.active_vendor_application %>
+      <% if vendor_app && vendor_app.categories.present? %>
+        <p><strong><%= @event.title %></strong> is calling for the following categories:</p>
+        <p>
+          <% vendor_app.categories.each do |category| %>
+            • <%= category %><br/>
+          <% end %>
+        </p>
+      <% end %>
 
-      <p>Apply here: <a href="<%= @invitation_url %>" class="link"><%= @invitation_url %></a></p>
+      <p>I'm looking forward to your submission.</p>
 
-      <p>Best regards,<br/><%= @organization.name %></p>
+      <p>Thanks,<br/><%= @organization.name %></p>
     </div>
 
     <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>

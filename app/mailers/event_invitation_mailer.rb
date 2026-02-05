@@ -38,7 +38,7 @@ class EventInvitationMailer < ApplicationMailer
       to: @vendor_contact.email,
       from: "#{from_name} <noreply@voxxypresents.com>",
       reply_to: "#{@organization.reply_to_name} <#{@organization.reply_to_email}>",
-      subject: "#{@event.title} is coming#{location_suffix}"
+      subject: "Submissions Open for #{@event.title}"
     )
   end
 
