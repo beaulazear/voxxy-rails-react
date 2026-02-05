@@ -210,9 +210,16 @@ namespace :email_testing do
     end
     puts ""
 
+    # Activate all paused scheduled emails (same as go_live endpoint)
+    paused_emails = event.scheduled_emails.where(status: "paused")
+    if paused_emails.any?
+      paused_emails.update_all(status: "scheduled")
+      puts "   ✅ Activated #{paused_emails.count} scheduled emails (changed from paused → scheduled)"
+    end
+
     # Mark event as live since invitations were sent
     event.update!(is_live: true)
-    puts "   ✅ Event marked as LIVE (invitations sent)"
+    puts "   ✅ Event marked as LIVE"
     puts ""
 
     # Step 7: Create 15 test registrations (variety of statuses and payment states)
