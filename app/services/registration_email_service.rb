@@ -218,7 +218,7 @@ class RegistrationEmailService < BaseEmailService
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
       <p style="font-size: 12px; color: #888888;">
-        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
+        Questions? Reply to this email or contact team@voxxypresents.com directly.
       </p>
     HTML
 
@@ -360,7 +360,7 @@ class RegistrationEmailService < BaseEmailService
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
       <p style="font-size: 12px; color: #888888;">
-        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
+        Questions? Reply to this email or contact team@voxxypresents.com directly.
       </p>
     HTML
 
@@ -428,7 +428,7 @@ class RegistrationEmailService < BaseEmailService
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
       <p style="font-size: 12px; color: #888888;">
-        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
+        Questions? Reply to this email or contact team@voxxypresents.com directly.
       </p>
     HTML
 
@@ -500,7 +500,7 @@ class RegistrationEmailService < BaseEmailService
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
       <p style="font-size: 12px; color: #888888;">
-        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
+        Questions? Reply to this email or contact team@voxxypresents.com directly.
       </p>
     HTML
 
@@ -587,7 +587,7 @@ class RegistrationEmailService < BaseEmailService
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
       <p style="font-size: 12px; color: #888888;">
-        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
+        Questions? Reply to this email or contact team@voxxypresents.com directly.
       </p>
     HTML
 
@@ -668,7 +668,7 @@ class RegistrationEmailService < BaseEmailService
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
       <p style="font-size: 12px; color: #888888;">
-        Please do not reply to this email. For questions, contact <a href="mailto:#{producer_email}" style="color: #888888;">#{producer_email}</a>
+        Questions? Reply to this email or contact team@voxxypresents.com directly.
       </p>
     HTML
 

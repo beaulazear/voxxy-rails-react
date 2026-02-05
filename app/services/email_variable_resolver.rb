@@ -17,6 +17,7 @@
 #     [paymentDueDate] - Payment due date
 #     [organizationName] - Organization name
 #     [organizationEmail] - Organization contact email
+#     [ageRestriction] - Event age restriction
 #
 #   Vendor/Registration variables:
 #     [firstName] - Vendor first name
@@ -27,12 +28,17 @@
 #     [vendorCategory] - Vendor category (Food, Art, etc.)
 #     [boothNumber] - Assigned booth number (if any)
 #     [applicationDate] - Date application was submitted
+#     [boothPrice] - Booth/space fee (from vendor application)
+#     [installDate] - Installation date (from vendor application)
+#     [installTime] - Installation time range (from vendor application)
+#     [categoryList] - Bulleted list of vendor categories
 #
 #   Special variables:
 #     [unsubscribeLink] - Unsubscribe URL
 #     [eventLink] - Public event page URL (use as hub for all vendor application details)
 #     [bulletinLink] - Public event bulletin page URL (same as eventLink)
 #     [dashboardLink] - Event-specific vendor portal URL (/portal/{event-slug})
+#     [invitationLink] - Same as eventLink
 
 class EmailVariableResolver
   attr_reader :event, :registration, :base_url
@@ -83,6 +89,7 @@ class EmailVariableResolver
       .gsub("[paymentDueDate]", format_date(event.payment_deadline))
       .gsub("[organizationName]", event.organization&.name || "")
       .gsub("[organizationEmail]", event.organization&.email || "")
+      .gsub("[ageRestriction]", event.age_restriction || "")
   end
 
   def resolve_registration_variables(template)
@@ -103,6 +110,13 @@ class EmailVariableResolver
       "there"  # Ultimate fallback if both are missing
     end
 
+    # Get vendor application variables if available
+    vendor_app = registration.vendor_application
+    booth_price = vendor_app ? format_currency(vendor_app.booth_price) : ""
+    install_date = vendor_app ? format_date(vendor_app.install_date) : ""
+    install_time = vendor_app ? format_install_time(vendor_app.install_start_time, vendor_app.install_end_time) : ""
+    category_list = vendor_app ? format_category_list(vendor_app.categories) : ""
+
     template
       .gsub("[greetingName]", greeting_name)
       .gsub("[firstName]", first_name)
@@ -113,6 +127,10 @@ class EmailVariableResolver
       .gsub("[vendorCategory]", registration.vendor_category || "")
       .gsub("[boothNumber]", booth_number)
       .gsub("[applicationDate]", format_date(registration.created_at))
+      .gsub("[boothPrice]", booth_price)
+      .gsub("[installDate]", install_date)
+      .gsub("[installTime]", install_time)
+      .gsub("[categoryList]", category_list)
   end
 
   def resolve_special_variables(template)
@@ -121,6 +139,7 @@ class EmailVariableResolver
       .gsub("[eventLink]", event_link)
       .gsub("[bulletinLink]", event_link)  # Bulletin link is same as event link
       .gsub("[dashboardLink]", dashboard_link)
+      .gsub("[invitationLink]", event_link)  # Invitation link is same as event link
   end
 
   def format_date(date)
@@ -143,6 +162,22 @@ class EmailVariableResolver
     return "" unless amount
 
     "$#{amount.to_i}"
+  rescue
+    ""
+  end
+
+  def format_install_time(start_time, end_time)
+    return "" unless start_time && end_time
+
+    "#{start_time} - #{end_time}"
+  rescue
+    ""
+  end
+
+  def format_category_list(categories)
+    return "" unless categories.is_a?(Array) && categories.any?
+
+    categories.map { |cat| "• #{cat}" }.join("\n")
   rescue
     ""
   end
