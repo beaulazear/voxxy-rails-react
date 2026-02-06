@@ -15,6 +15,10 @@ module Api
             title: @event.title,
             slug: @event.slug,
             description: @event.description,
+            event_date: @event.event_date&.to_date&.iso8601,
+            event_end_date: @event.event_end_date&.to_date&.iso8601,
+            start_time: @event.start_time,
+            end_time: @event.end_time,
             dates: {
               start: @event.event_date&.to_date&.iso8601,
               end: @event.event_end_date&.to_date&.iso8601,
