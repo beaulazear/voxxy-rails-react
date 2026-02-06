@@ -23,6 +23,8 @@ gem "jbuilder"
 gem "rack-cors", require: "rack/cors"
 
 gem "dotenv-rails", groups: [ :development, :test ]
+gem "sentry-ruby"
+gem "sentry-rails"
 gem "sendgrid-ruby", "~> 6.7.0"
 gem "ruby-openai"
 gem "httparty"
