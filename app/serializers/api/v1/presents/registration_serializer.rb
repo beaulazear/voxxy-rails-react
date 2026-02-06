@@ -43,7 +43,7 @@ module Api
             id: @registration.event.id,
             title: @registration.event.title,
             slug: @registration.event.slug,
-            event_date: @registration.event.event_date,
+            event_date: @registration.event.event_date&.to_date&.iso8601,
             location: @registration.event.location
           }
         end

@@ -16,8 +16,8 @@ module Api
             slug: @event.slug,
             description: @event.description,
             dates: {
-              start: @event.event_date,
-              end: @event.event_end_date,
+              start: @event.event_date&.to_date&.iso8601,
+              end: @event.event_end_date&.to_date&.iso8601,
               start_time: @event.start_time,
               end_time: @event.end_time
             },
@@ -43,8 +43,8 @@ module Api
               status: @event.status,
               is_live: @event.is_live
             },
-            application_deadline: @event.application_deadline,
-            payment_deadline: @event.payment_deadline,
+            application_deadline: @event.application_deadline&.to_date&.iso8601,
+            payment_deadline: @event.payment_deadline&.to_date&.iso8601,
             invitation_draft: {
               list_ids: @event.invitation_list_ids || [],
               contact_ids: @event.invitation_contact_ids || [],
@@ -94,7 +94,7 @@ module Api
               submissions_count: app.submissions_count,
               booth_price: app.booth_price&.to_f,
               install: {
-                install_date: app.install_date,
+                install_date: app.install_date&.to_date&.iso8601,
                 install_start_time: app.install_start_time,
                 install_end_time: app.install_end_time
               },

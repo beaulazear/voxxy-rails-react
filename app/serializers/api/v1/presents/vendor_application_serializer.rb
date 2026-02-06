@@ -24,7 +24,7 @@ module Api
               currency: "USD"
             },
             install: {
-              install_date: @vendor_application.install_date,
+              install_date: @vendor_application.install_date&.to_date&.iso8601,
               install_start_time: @vendor_application.install_start_time,
               install_end_time: @vendor_application.install_end_time
             },
@@ -46,7 +46,7 @@ module Api
             id: @vendor_application.event.id,
             title: @vendor_application.event.title,
             slug: @vendor_application.event.slug,
-            event_date: @vendor_application.event.event_date,
+            event_date: @vendor_application.event.event_date&.to_date&.iso8601,
             location: @vendor_application.event.location
           }
         end
