@@ -211,14 +211,6 @@ class RegistrationEmailService < BaseEmailService
       <p style="#{BASE_STYLES[:text]}"><strong>PRICING & PAYMENT</strong></p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>Booth/Space Fee:</strong> [boothPrice]
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        We now cover all ticketing and processing fees—the price you see is exactly what you pay at checkout.
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
         <strong>Note:</strong> If fees are paid after [paymentDueDate], rates may increase. Payment is required to reserve your space.
       </p>
 
