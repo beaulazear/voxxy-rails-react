@@ -534,6 +534,7 @@ Rails.application.routes.draw do
 
   get "/test", to: "application#test"
   get "up" => "rails/health#show", as: :rails_health_check
+  get "/health", to: "health#show"  # Comprehensive health check for monitoring
 
   # Dynamic robots.txt (blocks voxxyai.com from search engines)
   get "/robots.txt", to: "robots#show", defaults: { format: :text }
