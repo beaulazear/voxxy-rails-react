@@ -82,6 +82,9 @@ class Rack::Attack
     # Skip blocking for localhost/development
     next false if req.ip == "::1" || req.ip == "127.0.0.1"
 
+    # Always allow health check endpoints for monitoring
+    next false if req.path == "/health" || req.path == "/up"
+
     # Always allow share pages for social media previews
     next false if req.path.start_with?("/share/")
 
