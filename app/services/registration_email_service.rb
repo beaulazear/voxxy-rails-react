@@ -978,7 +978,7 @@ class RegistrationEmailService < BaseEmailService
       <p style="#{BASE_STYLES[:text]}"><strong>EVENT DETAILS</strong></p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>INSTALLATION:</strong> Currently scheduled for [installDate] from [installTime]
+        <strong>INSTALLATION:</strong> Currently scheduled for [installDate] from [installStartTime] - [installEndTime]
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
