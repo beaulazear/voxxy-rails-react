@@ -107,7 +107,7 @@ class EmailVariableResolver
       .gsub("[eventCity]", event_city)
       .gsub("[dateRange]", date_range)
       .gsub("[eventTime]", event.start_time || "")
-      .gsub("[eventLocation]", event.location || "")
+      .gsub("[eventLocation]", event_city)
       .gsub("[eventVenue]", event.venue || "")
       .gsub("[eventDescription]", event.description || "")
       .gsub("[applicationDeadline]", format_date(event.application_deadline))

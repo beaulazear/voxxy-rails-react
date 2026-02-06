@@ -869,7 +869,7 @@ class RegistrationEmailService < BaseEmailService
         <strong>NO COMMISSION:</strong> You manage your own sales and keep 100% of the profit.<br/>
         <strong>SIZE LIMIT:</strong> Each piece should not exceed 3ft x 3ft.<br/>
         <strong>NO TABLES:</strong> Tables are not allowed in the gallery space. Small bins or boxes on the floor are permitted for prints.<br/>
-        <strong>LOAD OUT:</strong> All artwork must be taken home at the end of the night. Pancakes & Booze nor the [eventVenue] are responsible for any artwork left at the venue.<br/>
+        <strong>LOAD OUT:</strong> All artwork must be taken home at the end of the night. Pancakes & Booze nor [eventVenue] are responsible for any artwork left at the venue.<br/>
         <strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy.
       </p>
 
