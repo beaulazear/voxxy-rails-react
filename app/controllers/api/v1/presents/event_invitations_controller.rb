@@ -3,13 +3,13 @@ module Api
     module Presents
       class EventInvitationsController < BaseController
         # Skip authentication for public endpoints (view and respond by token)
-        skip_before_action :authorized, only: [ :show_by_token, :respond ]
-        skip_before_action :check_presents_access, only: [ :show_by_token, :respond ]
+        skip_before_action :authorized, only: [ :show_by_token, :respond, :prefill ]
+        skip_before_action :check_presents_access, only: [ :show_by_token, :respond, :prefill ]
 
-        before_action :require_venue_owner, except: [ :show_by_token, :respond ]
+        before_action :require_venue_owner, except: [ :show_by_token, :respond, :prefill ]
         before_action :set_event, only: [ :index, :create_batch, :preview_email ]
         before_action :check_event_ownership, only: [ :index, :create_batch, :preview_email ]
-        before_action :set_invitation_by_token, only: [ :show_by_token, :respond ]
+        before_action :set_invitation_by_token, only: [ :show_by_token, :respond, :prefill ]
 
         # GET /api/v1/presents/events/:event_slug/invitations
         # List all invitations for an event
@@ -224,6 +224,25 @@ module Api
           else
             render json: { error: "Failed to record response" }, status: :unprocessable_entity
           end
+        end
+
+        # GET /api/v1/presents/invitations/prefill/:token
+        # Public endpoint - get vendor contact data for form pre-population (no auth required)
+        # Returns: email, first_name, last_name, business_name
+        def prefill
+          vendor_contact = @invitation.vendor_contact
+
+          # Parse name into first/last
+          name_parts = (vendor_contact.name || "").split(" ", 2)
+          first_name = name_parts[0] || ""
+          last_name = name_parts[1] || ""
+
+          render json: {
+            email: vendor_contact.email || "",
+            first_name: first_name,
+            last_name: last_name,
+            business_name: vendor_contact.business_name || ""
+          }, status: :ok
         end
 
         # GET /api/v1/presents/events/:event_slug/invitations/preview_email

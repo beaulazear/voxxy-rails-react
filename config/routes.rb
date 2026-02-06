@@ -342,6 +342,7 @@ Rails.application.routes.draw do
         # Public invitation endpoints (no auth required)
         get "invitations/:token", to: "event_invitations#show_by_token"
         patch "invitations/:token/respond", to: "event_invitations#respond"
+        get "invitations/prefill/:token", to: "event_invitations#prefill"
 
         # Public event portal endpoints (no auth required)
         post "portals/verify", to: "event_portals#verify_access"
