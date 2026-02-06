@@ -889,10 +889,6 @@ class RegistrationEmailService < BaseEmailService
       <p style="font-size: 12px; color: #888888;">
         If you're unable to participate, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to let us know.
       </p>
-
-      <p style="font-size: 12px; color: #aaaaaa;">
-        Powered by Voxxy Presents
-      </p>
     HTML
   end
 
@@ -951,10 +947,6 @@ class RegistrationEmailService < BaseEmailService
 
       <p style="font-size: 12px; color: #888888;">
         If you're unable to participate, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to let us know.
-      </p>
-
-      <p style="font-size: 12px; color: #aaaaaa;">
-        Powered by Voxxy Presents
       </p>
     HTML
   end
@@ -1033,10 +1025,6 @@ class RegistrationEmailService < BaseEmailService
 
       <p style="font-size: 12px; color: #888888;">
         <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
-      </p>
-
-      <p style="font-size: 12px; color: #aaaaaa;">
-        Powered by Voxxy Presents
       </p>
     HTML
   end
