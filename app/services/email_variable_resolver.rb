@@ -32,6 +32,7 @@
 #     [installDate] - Installation date (from vendor application)
 #     [installTime] - Installation time range (from vendor application)
 #     [categoryList] - Bulleted list of vendor categories
+#     [categoryPaymentLink] - Payment link for the vendor category (from vendor application)
 #
 #   Special variables:
 #     [unsubscribeLink] - Unsubscribe URL
@@ -144,8 +145,8 @@ class EmailVariableResolver
     vendor_apps = event.vendor_applications.active
     category_list = vendor_apps.any? ? format_application_names(vendor_apps) : ""
 
-    # Category payment link (if vendor application has payment_url)
-    category_payment_link = vendor_app&.payment_url || ""
+    # Category payment link (using payment_link field from vendor_application)
+    category_payment_link = vendor_app&.payment_link || ""
 
     template
       .gsub("[greetingName]", greeting_name)
