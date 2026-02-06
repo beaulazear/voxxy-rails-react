@@ -2,9 +2,24 @@ Hi <%= @vendor_contact.business_name.present? ? @vendor_contact.business_name.sp
 
 We're pumped to announce that submissions are officially open for <%= @event.title %><% if @event.venue.present? %> at <%= @event.venue %><% end %><% if @event.event_date.present? %> on <%= @event.event_date.strftime("%A, %B %-d, %Y") %><% end %>.
 
-Submit your work here:
-<%= @invitation_url %>
+Submit your work below:
 
+<%
+  # Get vendor application links
+  app_links = @invitation.vendor_application_links
+  artist_link = app_links.find { |link| link[:name].downcase.include?('artist') }
+  vendor_link = app_links.find { |link| link[:name].downcase.include?('vendor') }
+%>
+<% if artist_link %>
+For those of you exhibiting artwork on the walls (paintings, sculptures, photography, body painters, etc):
+ARTIST/GALLERY SUBMISSIONS - <%= artist_link[:url] %>
+
+<% end %>
+<% if vendor_link %>
+For those setting up a TABLE space (ie: clothing, jewelry, and other table merch):
+VENDOR/TABLE SUBMISSIONS - <%= vendor_link[:url] %>
+
+<% end %>
 I'm looking forward to your submission.
 
 Thanks,
