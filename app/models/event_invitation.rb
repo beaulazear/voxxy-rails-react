@@ -84,7 +84,7 @@ class EventInvitation < ApplicationRecord
   # Returns URL like: /events/{event-slug}/{vendor-application-id}/apply?token={invitation_token}
   def vendor_application_url(vendor_application, base_url = nil)
     base_url ||= presents_frontend_url
-    "#{base_url}/events/#{event.slug}/#{vendor_application.id}/apply?token=#{invitation_token}"
+    "#{base_url}/events/#{event.slug}/apply/#{vendor_application.id}?token=#{invitation_token}"
   end
 
   # Get all vendor application links for email display
