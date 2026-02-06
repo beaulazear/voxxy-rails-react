@@ -1,4 +1,14 @@
-<!DOCTYPE html>
+<!-- BEGIN app/views/layouts/mailer.html.erb --><!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style>
+      /* Email styles need to be inline */
+    </style>
+  </head>
+
+  <body>
+    <!-- BEGIN app/views/event_invitation_mailer/invitation_email.html.erb --><!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -64,38 +74,28 @@
 <body>
   <div class="container">
     <div class="header">
-      <strong><%= @organization.name %></strong>
+      <strong>Test Organization</strong>
     </div>
 
     <div class="content">
-      <p>Hi <%= @vendor_contact.business_name.present? ? @vendor_contact.business_name.split(' ').first : @vendor_contact.name.split(' ').first %>,</p>
+      <p>Hi Test,</p>
 
-      <p>We're pumped to announce that submissions are officially open for the next <strong><%= @event.title %></strong><% if @event.venue.present? %> at <strong><%= @event.venue %></strong><% end %><% if @event.event_date.present? %> on <strong><%= @event.event_date.strftime("%A, %B %-d, %Y") %></strong><% end %>.</p>
+      <p>We're pumped to announce that submissions are officially open for the next <strong>Test Event for Category Links</strong> at <strong>Test Venue</strong> on <strong>Thursday, March 5, 2026</strong>.</p>
 
       <p>Submit your work below:</p>
 
-      <%
-        # Get vendor application links
-        app_links = @invitation.vendor_application_links
-        artist_link = app_links.find { |link| link[:name].downcase.include?('artist') }
-        vendor_link = app_links.find { |link| link[:name].downcase.include?('vendor') }
-      %>
 
-      <% if artist_link %>
         <p>For those of you exhibiting artwork on the walls (paintings, sculptures, photography, body painters, etc):<br/>
-        <strong>ARTIST/GALLERY SUBMISSIONS</strong> - <a href="<%= artist_link[:url] %>" class="link">Apply Here</a></p>
-      <% end %>
+        <strong>ARTIST/GALLERY SUBMISSIONS</strong> - <a href="http://localhost:5173/events/test-category-links-1770335766/1/apply?token=GcplGvBN5s1c_YTljkWaeGU9I61S8dRYFlCVJ3hOkRw" class="link">Apply Here</a></p>
 
-      <% if vendor_link %>
         <p>For those setting up a TABLE space (ie: clothing, jewelry, and other table merch):<br/>
-        <strong>VENDOR/TABLE SUBMISSIONS</strong> - <a href="<%= vendor_link[:url] %>" class="link">Apply Here</a></p>
-      <% end %>
+        <strong>VENDOR/TABLE SUBMISSIONS</strong> - <a href="http://localhost:5173/events/test-category-links-1770335766/2/apply?token=GcplGvBN5s1c_YTljkWaeGU9I61S8dRYFlCVJ3hOkRw" class="link">Apply Here</a></p>
 
       <p>I'm looking forward to your submission.</p>
 
-      <p>Thanks,<br/><%= @organization.name %></p>
+      <p>Thanks,<br/>Test Organization</p>
 
-      <p style="margin-top: 20px; font-size: 14px;">If you're unable to participate, please <a href="<%= @unsubscribe_url %>" class="link">click here</a> to let us know.</p>
+      <p style="margin-top: 20px; font-size: 14px;">If you're unable to participate, please <a href="http://localhost:5173/unsubscribe/tAfp7fkUp_2GTqXdeApVcSM36AYHZ2zZuI1Bf6C4lu0" class="link">click here</a> to let us know.</p>
     </div>
 
     <div class="footer">
@@ -107,3 +107,7 @@
   </div>
 </body>
 </html>
+<!-- END app/views/event_invitation_mailer/invitation_email.html.erb -->
+  </body>
+</html>
+<!-- END app/views/layouts/mailer.html.erb -->

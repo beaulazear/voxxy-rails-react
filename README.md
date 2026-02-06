@@ -452,6 +452,95 @@ We welcome contributions! Please follow these guidelines:
 
 ---
 
+## 🌿 Git Workflow
+
+We use a structured branch workflow to ensure quality and stability across environments.
+
+### Branch Pipeline
+```
+feature/branch → staging → main (production)
+```
+
+### Creating a Feature Branch
+```bash
+# 1. Start from staging
+git checkout staging
+git pull origin staging
+
+# 2. Create feature branch
+git checkout -b feature/descriptive-name
+```
+
+### Making Changes
+```bash
+# Make your changes
+git add .
+git commit -m "Descriptive commit message"
+
+# Push to remote
+git push -u origin feature/descriptive-name
+```
+
+### Pull Request Process
+
+**Step 1: Merge to Staging**
+1. Create PR: `feature/descriptive-name` → `staging`
+2. Developer reviews code
+3. Merge to staging for testing
+
+**Step 2: Merge to Production**
+1. Test thoroughly on staging
+2. Create PR: `staging` → `main`
+3. Developer reviews and merges to production
+
+### Handling Production Bugs
+
+If a bug appears in production that wasn't caught in staging:
+
+```bash
+# Continue using the same feature branch
+git checkout feature/descriptive-name
+
+# Make fixes
+git add .
+git commit -m "Fix production bug: [description]"
+
+# Push updates
+git push origin feature/descriptive-name
+```
+
+**Benefits:**
+- All related changes stay in one branch/PR
+- Easy to track what caused issues
+- Clean git history
+- Developer can review incrementally
+
+### Cleanup After Merge
+```bash
+# After successful merge to main
+git checkout staging
+git pull origin staging
+
+# Delete local branch
+git branch -d feature/descriptive-name
+
+# Delete remote branch
+git push origin --delete feature/descriptive-name
+```
+
+### Branch Naming Conventions
+- `feature/` - New features or enhancements
+- `bugfix/` - Bug fixes
+- `hotfix/` - Critical production fixes
+- `refactor/` - Code refactoring
+
+**Examples:**
+- `feature/email-template-updates`
+- `bugfix/registration-validation`
+- `hotfix/sendgrid-webhook`
+
+---
+
 ## 🐛 Troubleshooting
 
 ### Common Issues

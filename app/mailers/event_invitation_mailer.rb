@@ -23,10 +23,9 @@ class EventInvitationMailer < ApplicationMailer
       @unsubscribe_url = ""
     end
 
-    # Build location string for subject line
-    location_parts = []
-    location_parts << @event.location if @event.location.present?
-    location_suffix = location_parts.any? ? " in #{location_parts.join(', ')}" : ""
+    # Build subject line with event location
+    location_text = @event.location.present? ? @event.location : "your area"
+    subject_line = "#{@event.title} is coming in #{location_text}"
 
     # Add SendGrid custom tracking args for webhook bounce processing
     headers["X-SMTPAPI"] = smtp_api_header.to_json
@@ -38,7 +37,7 @@ class EventInvitationMailer < ApplicationMailer
       to: @vendor_contact.email,
       from: "#{from_name} <noreply@voxxypresents.com>",
       reply_to: "#{@organization.reply_to_name} <#{@organization.reply_to_email}>",
-      subject: "Submissions Open for #{@event.title}"
+      subject: subject_line
     )
   end
 

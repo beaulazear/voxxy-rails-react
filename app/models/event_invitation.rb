@@ -80,6 +80,26 @@ class EventInvitation < ApplicationRecord
     "#{base_url}/invitations/#{invitation_token}"
   end
 
+  # Generate category-specific application URL with pre-fill token
+  # Returns URL like: /events/{event-slug}/{vendor-application-id}/apply?token={invitation_token}
+  def vendor_application_url(vendor_application, base_url = nil)
+    base_url ||= presents_frontend_url
+    "#{base_url}/events/#{event.slug}/apply/#{vendor_application.id}?token=#{invitation_token}"
+  end
+
+  # Get all vendor application links for email display
+  # Returns array of hashes: [{ id: 1, name: "Artists", url: "..." }, ...]
+  def vendor_application_links(base_url = nil)
+    event.vendor_applications.active.map do |vendor_app|
+      {
+        id: vendor_app.id,
+        name: vendor_app.name,
+        description: vendor_app.description,
+        url: vendor_application_url(vendor_app, base_url)
+      }
+    end
+  end
+
   private
 
   # Generate a secure unique token for the invitation

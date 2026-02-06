@@ -78,9 +78,33 @@ class EmailVariableResolver
   private
 
   def resolve_event_variables(template)
+    # Extract city from location (last part after comma, or whole location)
+    event_city = if event.location.present?
+      event.location.split(",").last.strip
+    else
+      ""
+    end
+
+    # Format date range (e.g., "December 15-16, 2024" or just single date)
+    date_range = if event.event_date.present? && event.event_end_date.present? && event.event_date != event.event_end_date
+      start_date = event.event_date
+      end_date = event.event_end_date
+      if start_date.month == end_date.month && start_date.year == end_date.year
+        "#{start_date.strftime('%B')} #{start_date.day}-#{end_date.day}, #{start_date.year}"
+      else
+        "#{format_date(start_date)} - #{format_date(end_date)}"
+      end
+    elsif event.event_date.present?
+      format_date(event.event_date)
+    else
+      "TBD"
+    end
+
     template
       .gsub("[eventName]", event.title || "")
       .gsub("[eventDate]", format_date(event.event_date))
+      .gsub("[eventCity]", event_city)
+      .gsub("[dateRange]", date_range)
       .gsub("[eventTime]", event.start_time || "")
       .gsub("[eventLocation]", event.location || "")
       .gsub("[eventVenue]", event.venue || "")
@@ -120,6 +144,9 @@ class EmailVariableResolver
     vendor_apps = event.vendor_applications.active
     category_list = vendor_apps.any? ? format_application_names(vendor_apps) : ""
 
+    # Category payment link (if vendor application has payment_url)
+    category_payment_link = vendor_app&.payment_url || ""
+
     template
       .gsub("[greetingName]", greeting_name)
       .gsub("[firstName]", first_name)
@@ -134,6 +161,7 @@ class EmailVariableResolver
       .gsub("[installDate]", install_date)
       .gsub("[installTime]", install_time)
       .gsub("[categoryList]", category_list)
+      .gsub("[categoryPaymentLink]", category_payment_link)
   end
 
   def resolve_special_variables(template)
