@@ -30,8 +30,7 @@ if event.nil?
     venue: "Test Venue",
     event_date: 1.month.from_now,
     application_deadline: 2.weeks.from_now,
-    event_type: "market",
-    status: "published"
+    published: true
   )
   puts "✓ Created event: #{event.title}"
 
@@ -74,7 +73,7 @@ if vendor_contact.nil?
   puts "\n⚠️  No vendor contacts found. Creating test contact..."
   vendor_contact = org.vendor_contacts.create!(
     name: "Test Vendor",
-    email: "courtney@voxxypresents.com",  # Use your email!
+    email: "team@voxxypresents.com",  # Your email
     business_name: "Test Business"
   )
   puts "✓ Created vendor contact: #{vendor_contact.email}"
