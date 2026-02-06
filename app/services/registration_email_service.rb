@@ -173,104 +173,22 @@ class RegistrationEmailService < BaseEmailService
     event = registration.event
     organization = event.organization
 
-    # Get greeting name (businessName preferred, fallback to firstName)
-    greeting_name = if registration.business_name.present?
-      registration.business_name
-    else
-      registration.name.to_s.split(" ").first || registration.name
-    end
-
-    # Get producer email
-    producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
-
-    # Format event date
-    event_date = event.event_date.present? ? event.event_date.strftime("%B %d, %Y") : "TBD"
-    location = [ event.venue, event.location ].compact.join(", ")
-    location = "TBD" if location.blank?
-
     subject = "Application Received - #{event.title}"
 
     # Use EmailVariableResolver to resolve all template variables
     resolver = EmailVariableResolver.new(event, registration)
 
-    content_template = <<~HTML
-      <p style="#{BASE_STYLES[:text]}">
-        Hi [firstName],
-      </p>
+    # Determine which template to use based on category name
+    category_name = registration.vendor_category.to_s.downcase
 
-      <p style="#{BASE_STYLES[:text]}">
-        Thanks for submitting your application to participate in <strong>[eventName]</strong> at <strong>[eventVenue]</strong> on <strong>[eventDate]</strong>.
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        <strong>IMPORTANT:</strong> This is NOT an acceptance email. Please allow up to 10 days for us to review your submission. You will receive another email with further details if you're selected.
-      </p>
-
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
-
-      <p style="#{BASE_STYLES[:text]}"><strong>PRICING & PAYMENT</strong></p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        <strong>Note:</strong> If fees are paid after [paymentDueDate], rates may increase. Payment is required to reserve your space.
-      </p>
-
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
-
-      <p style="#{BASE_STYLES[:text]}"><strong>EVENT DETAILS</strong></p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        <strong>INSTALLATION:</strong> Currently scheduled for [installDate] from [installTime]
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        <strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        <strong>CATEGORY:</strong> You applied as [vendorCategory]
-      </p>
-
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
-
-      <p style="#{BASE_STYLES[:text]}"><strong>IMPORTANT GUIDELINES</strong></p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        Please review these requirements for your category:
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        • <strong>SIZE & SPACE:</strong> Check your vendor portal for specific dimensions<br/>
-        • <strong>EQUIPMENT:</strong> Confirm what you need to bring vs what's provided<br/>
-        • <strong>LOAD OUT:</strong> All items must be removed at end of event<br/>
-        • <strong>NO COMMISSION:</strong> You keep 100% of your sales
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        For complete event information, category-specific rules, and updates, visit your vendor portal:<br/>
-        <a href="[dashboardLink]" style="#{BASE_STYLES[:link]}">[dashboardLink]</a>
-      </p>
-
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
-
-      <p style="#{BASE_STYLES[:text]}">
-        Thanks,<br/>
-        [organizationName]
-      </p>
-
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
-
-      <p style="font-size: 12px; color: #888888;">
-        Questions? Reply to this email or contact team@voxxypresents.com directly.
-      </p>
-
-      <p style="font-size: 12px; color: #888888;">
-        <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
-      </p>
-
-      <p style="font-size: 12px; color: #aaaaaa;">
-        Powered by Voxxy Presents
-      </p>
-    HTML
+    if category_name.include?("artist") || category_name.include?("gallery")
+      content_template = artist_application_received_template
+    elsif category_name.include?("vendor") || category_name.include?("table")
+      content_template = vendor_table_application_received_template
+    else
+      # Fallback to generic template
+      content_template = generic_application_received_template
+    end
 
     # Resolve all variables in the template
     content = resolver.resolve(content_template)
@@ -907,5 +825,219 @@ class RegistrationEmailService < BaseEmailService
 
     Rails.logger.info "Event cancellation sent to #{sent_count} recipients (#{failed_count} failed)"
     { sent: sent_count, failed: failed_count }
+  end
+
+  # Artist Application Received Template (Pancakes & Booze pilot - hardcoded)
+  def self.artist_application_received_template
+    <<~HTML
+      <p style="#{BASE_STYLES[:text]}">
+        Hi [firstName],
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        We've received your request to set up a [vendorCategory] at The [eventName] on [dateRange] at [eventVenue]. Please allow up to 10 days for us to review your submission and get back to you.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>IMPORTANT:</strong> This is NOT an acceptance email. You will receive another email and text message with further information if you're selected.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        In the meantime, please visit our Instagram page (@pancakesandbooze) and check out the "FAQs" in our Story Highlights for details on how our events work.
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}"><strong>Exhibition Pricing Update</strong></p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        We've updated our exhibition structure for 2026. We are now offering one free piece after your first paid exhibition space. And to keep our pricing transparent, we are now covering all ticketing and processing fees—the price you see below is exactly what you pay at checkout with no hidden service fees.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        The vending fee can be paid via [categoryPaymentLink]. We now cover all ticketing and processing fees—the price you see is exactly what you pay at checkout.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>Note:</strong> If fees are paid after [paymentDueDate] the rate increases to $25 per piece (2nd piece remains free).
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}"><strong>The Details:</strong></p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>NO COMMISSION:</strong> You manage your own sales and take 100% of what you sell.<br/>
+        <strong>SIZE LIMIT:</strong> Each piece should not exceed 3ft x 3ft.<br/>
+        <strong>INSTALLATION:</strong> Currently scheduled for [installDate] from [installTime].<br/>
+        <strong>NO TABLES:</strong> Artists hanging artwork cannot use tables. Small bins/boxes on the floor are permitted.<br/>
+        <strong>LOAD OUT:</strong> All artwork must be taken home at the end of the night.<br/>
+        <strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>Attention Live Painters:</strong> We love featuring live body painting and canvas work. If you'd like to paint live, let us know so we can coordinate promotion on our socials.
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Thanks,<br/>
+        [organizationName]
+      </p>
+
+      <p style="font-size: 12px; color: #888888;">
+        If you're unable to participate, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to let us know.
+      </p>
+
+      <p style="font-size: 12px; color: #aaaaaa;">
+        Powered by Voxxy Presents
+      </p>
+    HTML
+  end
+
+  # Vendor Table Application Received Template (Pancakes & Booze pilot - hardcoded)
+  def self.vendor_table_application_received_template
+    <<~HTML
+      <p style="#{BASE_STYLES[:text]}">
+        Hi [firstName],
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        We've received your request to set up a [vendorCategory] at The [eventCity] Pancakes & Booze Art Show on [dateRange] at [eventVenue].
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>IMPORTANT:</strong> This is NOT an acceptance email. You will receive another email and text message with further information if you're selected.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>WARNING:</strong> Vendor tables are strictly for non-hangable merchandise (clothing, jewelry, etc). If you have paintings or wall art, you have filled out the WRONG application. We do not permit canvas paintings, drawings, or prints larger than a greeting card on vendor tables. If this is you, please email us immediately.
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}"><strong>Selection & Pricing</strong></p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Table space is extremely limited. If you are selected, PREPAYMENT IS REQUIRED to reserve your space.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        The vending fee can be paid via [categoryPaymentLink]. We now cover all ticketing and processing fees—the price you see is exactly what you pay at checkout.
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}"><strong>The Details:</strong></p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>SPACE:</strong> Large enough for ONE 6ft table. No tents or multiple tables allowed.<br/>
+        <strong>EQUIPMENT:</strong> You must provide your own table and chair. We do not provide them.<br/>
+        <strong>LOAD-IN:</strong> Starts at [installTime] on the day of the show. Please do not arrive early.<br/>
+        <strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        New to the event? Check us out @pancakesandbooze on Instagram and TikTok.
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Thanks,<br/>
+        [organizationName]
+      </p>
+
+      <p style="font-size: 12px; color: #888888;">
+        If you're unable to participate, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to let us know.
+      </p>
+
+      <p style="font-size: 12px; color: #aaaaaa;">
+        Powered by Voxxy Presents
+      </p>
+    HTML
+  end
+
+  # Generic fallback template for other categories
+  def self.generic_application_received_template
+    <<~HTML
+      <p style="#{BASE_STYLES[:text]}">
+        Hi [firstName],
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Thanks for submitting your application to participate in <strong>[eventName]</strong> at <strong>[eventVenue]</strong> on <strong>[eventDate]</strong>.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>IMPORTANT:</strong> This is NOT an acceptance email. Please allow up to 10 days for us to review your submission. You will receive another email with further details if you're selected.
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}"><strong>PRICING & PAYMENT</strong></p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>Note:</strong> If fees are paid after [paymentDueDate], rates may increase. Payment is required to reserve your space.
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}"><strong>EVENT DETAILS</strong></p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>INSTALLATION:</strong> Currently scheduled for [installDate] from [installTime]
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>CATEGORY:</strong> You applied as [vendorCategory]
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}"><strong>IMPORTANT GUIDELINES</strong></p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Please review these requirements for your category:
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        • <strong>SIZE & SPACE:</strong> Check your vendor portal for specific dimensions<br/>
+        • <strong>EQUIPMENT:</strong> Confirm what you need to bring vs what's provided<br/>
+        • <strong>LOAD OUT:</strong> All items must be removed at end of event<br/>
+        • <strong>NO COMMISSION:</strong> You keep 100% of your sales
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        For complete event information, category-specific rules, and updates, visit your vendor portal:<br/>
+        <a href="[dashboardLink]" style="#{BASE_STYLES[:link]}">[dashboardLink]</a>
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Thanks,<br/>
+        [organizationName]
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="font-size: 12px; color: #888888;">
+        Questions? Reply to this email or contact team@voxxypresents.com directly.
+      </p>
+
+      <p style="font-size: 12px; color: #888888;">
+        <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
+      </p>
+
+      <p style="font-size: 12px; color: #aaaaaa;">
+        Powered by Voxxy Presents
+      </p>
+    HTML
   end
 end
