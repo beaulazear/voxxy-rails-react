@@ -13,6 +13,7 @@ class Registration < ApplicationRecord
   validates :email, uniqueness: { scope: :event_id, message: "already registered for this event" }
   validates :business_name, presence: true, if: :vendor_registration?
   validates :vendor_category, presence: true, if: :vendor_registration?
+  validate :at_least_one_social_media_link, if: :vendor_registration?
 
   # Track previous category for change detection
   attribute :previous_vendor_category, :string
@@ -124,5 +125,11 @@ class Registration < ApplicationRecord
     Rails.logger.info "Category changed for registration #{id}: #{saved_change_to_vendor_category[0]} -> #{saved_change_to_vendor_category[1]}"
     # NOTE: Email notification is NOT sent automatically
     # Must be triggered explicitly via EmailNotificationsController#send_category_change
+  end
+
+  def at_least_one_social_media_link
+    if instagram_handle.blank? && tiktok_handle.blank? && website.blank?
+      errors.add(:base, "Please provide at least one social media link (Instagram, TikTok, or Website)")
+    end
   end
 end
