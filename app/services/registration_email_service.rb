@@ -827,7 +827,7 @@ class RegistrationEmailService < BaseEmailService
     { sent: sent_count, failed: failed_count }
   end
 
-  # Artist Application Received Template (Pancakes & Booze pilot - hardcoded)
+  # Artist Application Received Template (Updated)
   def self.artist_application_received_template
     <<~HTML
       <p style="#{BASE_STYLES[:text]}">
@@ -835,31 +835,34 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        We've received your request to set up a [vendorCategory] at The [eventName] on [dateRange] at [eventVenue]. Please allow up to 10 days for us to review your submission and get back to you.
+        We've received your application for the Pancakes & Booze Art Show in [eventName] ([dateRange] at [eventVenue]) under the category: [vendorCategory]. Please allow up to 10 days for our team to review your submission.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>IMPORTANT:</strong> This is NOT an acceptance email. You will receive another email and text message with further information if you're selected.
+        <strong>IMPORTANT:</strong> This is NOT an acceptance email. You will receive a follow-up email and text message with further instructions if you're selected.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        In the meantime, please visit our Instagram page (@pancakesandbooze) and check out the "FAQs" in our Story Highlights for details on how our events work.
+        In the meantime, check out the "FAQs" in our Instagram Story Highlights (@pancakesandbooze) for a look at how our events work.
       </p>
 
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
-      <p style="#{BASE_STYLES[:text]}"><strong>Exhibition Pricing Update</strong></p>
+      <p style="#{BASE_STYLES[:text]}"><strong>Exhibition Pricing & Transparency</strong></p>
 
       <p style="#{BASE_STYLES[:text]}">
-        We've updated our exhibition structure for 2026. We are now offering one free piece after your first paid exhibition space. And to keep our pricing transparent, we are now covering all ticketing and processing fees—the price you see below is exactly what you pay at checkout with no hidden service fees.
+        We have streamlined our 2026 pricing to be 100% transparent. We now cover all ticketing and processing fees—the price you see below is exactly what you pay at checkout.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        The vending fee can be paid via [categoryPaymentLink]. We now cover all ticketing and processing fees—the price you see is exactly what you pay at checkout.
+        <strong>Exhibition Rates:</strong><br/>
+        <strong>Early Rate:</strong> $20 for your first two pieces (if paid by [paymentDueDate]).<br/>
+        <strong>Late Rate:</strong> $25 for your first two pieces (if paid after [paymentDueDate]).<br/>
+        <strong>Additional Work:</strong> All additional pieces (3–10) follow the same $20 or $25 rate based on your payment date.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>Note:</strong> If fees are paid after [paymentDueDate] the rate increases to $25 per piece (2nd piece remains free).
+        If selected, you can secure your space here: <a href="[categoryPaymentLink]" style="color: #007bff; text-decoration: underline;">[categoryPaymentLink]</a>
       </p>
 
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
@@ -867,16 +870,16 @@ class RegistrationEmailService < BaseEmailService
       <p style="#{BASE_STYLES[:text]}"><strong>The Details:</strong></p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>NO COMMISSION:</strong> You manage your own sales and take 100% of what you sell.<br/>
+        <strong>NO COMMISSION:</strong> You manage your own sales and keep 100% of the profit.<br/>
         <strong>SIZE LIMIT:</strong> Each piece should not exceed 3ft x 3ft.<br/>
-        <strong>INSTALLATION:</strong> Currently scheduled for [installDate] from [installTime].<br/>
-        <strong>NO TABLES:</strong> Artists hanging artwork cannot use tables. Small bins/boxes on the floor are permitted.<br/>
+        <strong>INSTALLATION:</strong> Scheduled for [installDate] starting at [installTime].<br/>
+        <strong>NO TABLES:</strong> This is a wall-art application. Small bins/boxes on the floor are permitted for prints.<br/>
         <strong>LOAD OUT:</strong> All artwork must be taken home at the end of the night.<br/>
         <strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>Attention Live Painters:</strong> We love featuring live body painting and canvas work. If you'd like to paint live, let us know so we can coordinate promotion on our socials.
+        <strong>Attention Live Painters:</strong> We love featuring live body painting and canvas work. If you'd like to paint live, let us know so we can coordinate promotion!
       </p>
 
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
@@ -887,12 +890,12 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="font-size: 12px; color: #888888;">
-        If you're unable to participate, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to let us know.
+        If you're unable to participate, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to withdraw your application.
       </p>
     HTML
   end
 
-  # Vendor Table Application Received Template (Pancakes & Booze pilot - hardcoded)
+  # Vendor Table Application Received Template (Updated)
   def self.vendor_table_application_received_template
     <<~HTML
       <p style="#{BASE_STYLES[:text]}">
@@ -900,15 +903,15 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        We've received your request to set up a [vendorCategory] at The [eventCity] Pancakes & Booze Art Show on [dateRange] at [eventVenue].
+        We've received your application for the Pancakes & Booze Art Show in [eventCity] ([dateRange] at [eventVenue]) under the category: [vendorCategory].
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>IMPORTANT:</strong> This is NOT an acceptance email. You will receive another email and text message with further information if you're selected.
+        <strong>IMPORTANT:</strong> This is NOT an acceptance email. You will receive another email and text message with further information if your application is approved.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>WARNING:</strong> Vendor tables are strictly for non-hangable merchandise (clothing, jewelry, etc). If you have paintings or wall art, you have filled out the WRONG application. We do not permit canvas paintings, drawings, or prints larger than a greeting card on vendor tables. If this is you, please email us immediately.
+        <strong>PLEASE NOTE:</strong> Vendor tables are strictly for non-hangable merchandise (clothing, jewelry, etc). If you intend to display paintings or wall art, please note that we do not permit canvases or prints larger than a greeting card on vendor tables. If you need to switch to an Artist Application, please email us immediately.
       </p>
 
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
@@ -916,11 +919,11 @@ class RegistrationEmailService < BaseEmailService
       <p style="#{BASE_STYLES[:text]}"><strong>Selection & Pricing</strong></p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Table space is extremely limited. If you are selected, PREPAYMENT IS REQUIRED to reserve your space.
+        Table space is extremely limited. If you are selected, <strong>PREPAYMENT IS REQUIRED</strong> to reserve your space.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        The vending fee can be paid via [categoryPaymentLink]. We now cover all ticketing and processing fees—the price you see is exactly what you pay at checkout.
+        The vending fee can be paid via [categoryPaymentLink]. We now cover all ticketing and processing fees—the price you see is exactly what you pay at checkout with no hidden service fees.
       </p>
 
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
@@ -928,9 +931,9 @@ class RegistrationEmailService < BaseEmailService
       <p style="#{BASE_STYLES[:text]}"><strong>The Details:</strong></p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>SPACE:</strong> Large enough for ONE 6ft table. No tents or multiple tables allowed.<br/>
-        <strong>EQUIPMENT:</strong> You must provide your own table and chair. We do not provide them.<br/>
-        <strong>LOAD-IN:</strong> Starts at [installTime] on the day of the show. Please do not arrive early.<br/>
+        <strong>SPACE:</strong> One 6ft table area. No tents or multiple tables allowed.<br/>
+        <strong>EQUIPMENT:</strong> You must provide your own table and chair.<br/>
+        <strong>LOAD-IN:</strong> Starts at [installTime] on show day. Please do not arrive early.<br/>
         <strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy.
       </p>
 
@@ -946,7 +949,7 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="font-size: 12px; color: #888888;">
-        If you're unable to participate, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to let us know.
+        If you're unable to participate, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to withdraw your application.
       </p>
     HTML
   end
