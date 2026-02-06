@@ -1,113 +1,174 @@
-<!-- BEGIN app/views/layouts/mailer.html.erb --><!DOCTYPE html>
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <style>
-      /* Email styles need to be inline */
-    </style>
-  </head>
-
-  <body>
-    <!-- BEGIN app/views/event_invitation_mailer/invitation_email.html.erb --><!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Template Preview - Application Received</title>
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      padding: 20px;
+      font-family: Arial, sans-serif;
+      padding: 40px 20px;
+      background: white;
       margin: 0;
-      line-height: 1.6;
+      color: #333333;
     }
     .container {
       max-width: 600px;
       margin: 0 auto;
-      background-color: #ffffff;
-      padding: 30px;
-      border: 1px solid #e0e0e0;
     }
-    .header {
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 1px solid #e0e0e0;
+    .preview-header {
+      text-align: center;
+      padding: 20px 0;
+      border-bottom: 2px solid #e0e0e0;
+      margin-bottom: 40px;
     }
-    .header strong {
+    .preview-header h1 {
+      color: #333;
       font-size: 18px;
-      color: #1a1a1a;
+      margin: 0 0 5px 0;
+      font-weight: bold;
     }
-    .content {
-      color: #333333;
-      font-size: 15px;
+    .preview-header p {
+      color: #888;
+      font-size: 12px;
+      margin: 0;
     }
-    .content p {
-      margin: 0 0 15px 0;
-    }
-    .event-details {
-      background-color: #f9f9f9;
-      padding: 15px;
-      margin: 15px 0;
-      border: 1px solid #e0e0e0;
-    }
-    .event-details p {
-      margin: 5px 0;
-      font-size: 14px;
-      color: #333333;
-    }
-    .link {
-      color: #0066cc;
-      text-decoration: underline;
-    }
-    .footer {
-      margin-top: 25px;
-      padding-top: 20px;
-      border-top: 1px solid #e0e0e0;
-      font-size: 13px;
-      color: #888888;
-    }
-    .footer a {
-      color: #0066cc;
-      text-decoration: underline;
+    .email-divider {
+      margin: 60px 0;
+      border-top: 2px solid #e0e0e0;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <strong>Test Organization</strong>
+    <div class="preview-header">
+      <h1>Artist Application Received Email</h1>
+      <p>Updated template preview</p>
     </div>
 
-    <div class="content">
-      <p>Hi Test,</p>
+    <!-- ACTUAL EMAIL CONTENT STARTS HERE -->
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      Hi Test,
+    </p>
 
-      <p>We're pumped to announce that submissions are officially open for the next <strong>Test Event for Category Links</strong> at <strong>Test Venue</strong> on <strong>Thursday, March 5, 2026</strong>.</p>
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      We've received your application for the Pancakes & Booze at Denver. Please allow up to 10 days for our team to review your submission.
+    </p>
 
-      <p>Submit your work below:</p>
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      <strong>IMPORTANT:</strong> This is NOT an acceptance email. You will receive a follow-up email and text message with further instructions if you're selected.
+    </p>
 
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      In the meantime, check out the "FAQs" in our Instagram Story Highlights (@pancakesandbooze) for a look at how our events work.
+    </p>
 
-        <p>For those of you exhibiting artwork on the walls (paintings, sculptures, photography, body painters, etc):<br/>
-        <strong>ARTIST/GALLERY SUBMISSIONS</strong> - <a href="http://localhost:5173/events/test-category-links-1770335766/1/apply?token=GcplGvBN5s1c_YTljkWaeGU9I61S8dRYFlCVJ3hOkRw" class="link">Apply Here</a></p>
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
-        <p>For those setting up a TABLE space (ie: clothing, jewelry, and other table merch):<br/>
-        <strong>VENDOR/TABLE SUBMISSIONS</strong> - <a href="http://localhost:5173/events/test-category-links-1770335766/2/apply?token=GcplGvBN5s1c_YTljkWaeGU9I61S8dRYFlCVJ3hOkRw" class="link">Apply Here</a></p>
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;"><strong>Exhibition Pricing</strong></p>
 
-      <p>I'm looking forward to your submission.</p>
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      We now cover all ticketing and processing fees—the price you see below is exactly what you pay at checkout.
+    </p>
 
-      <p>Thanks,<br/>Test Organization</p>
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      <strong>Exhibition Rates:</strong><br/>
+      <strong>Early Rate:</strong> $20 for your first two pieces (if paid by Thursday, March 19, 2026).<br/>
+      <strong>Late Rate:</strong> $25 for your first two pieces (if paid after Thursday, March 19, 2026).<br/>
+      <strong>Additional Work:</strong> All additional pieces (3–10) follow the same $20 or $25 rate based on your payment date.
+    </p>
 
-      <p style="margin-top: 20px; font-size: 14px;">If you're unable to participate, please <a href="http://localhost:5173/unsubscribe/tAfp7fkUp_2GTqXdeApVcSM36AYHZ2zZuI1Bf6C4lu0" class="link">click here</a> to let us know.</p>
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;"><strong>The Details:</strong></p>
+
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      <strong>NO COMMISSION:</strong> You manage your own sales and keep 100% of the profit.<br/>
+      <strong>SIZE LIMIT:</strong> Each piece should not exceed 3ft x 3ft.<br/>
+      <strong>INSTALLATION:</strong> Scheduled for Tuesday, February 17, 2026 starting at 8:00 AM - 10:00 AM.<br/>
+      <strong>NO TABLES:</strong> Tables are not allowed in the gallery space. Small bins or boxes on the floor are permitted for prints.<br/>
+      <strong>LOAD OUT:</strong> All artwork must be taken home at the end of the night. Pancakes & Booze nor the Downtown Art Gallery are responsible for any artwork left at the venue.<br/>
+      <strong>AGE POLICY:</strong> The venue enforces a strict All Ages age policy.
+    </p>
+
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      <strong>Attention Live Painters:</strong> We love featuring live body painting and canvas work. If you'd like to paint live, let us know and we will get you details.
+    </p>
+
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      Thanks,<br/>
+      TEST - Sample Venue
+    </p>
+
+    <p style="font-size: 12px; color: #888888;">
+      If you're unable to participate, please <a href="#" style="color: #888888; text-decoration: underline;">click here</a> to withdraw your application.
+    </p>
+    <!-- ACTUAL EMAIL CONTENT ENDS HERE -->
+
+    <div class="email-divider"></div>
+
+    <div class="preview-header">
+      <h1>Vendor Table Application Received Email</h1>
+      <p>Updated template preview</p>
     </div>
 
-    <div class="footer">
-      <p style="margin: 0 0 12px 0; font-size: 12px; color: #888888;">
-        Questions? Reply to this email or contact team@voxxypresents.com directly.
-      </p>
-      <p style="margin: 0; font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
-    </div>
+    <!-- ACTUAL EMAIL CONTENT STARTS HERE -->
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      Hi Test,
+    </p>
+
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      We've received your application for the Pancakes & Booze at Denver. Please allow up to 10 days for our team to review your submission.
+    </p>
+
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      <strong>IMPORTANT:</strong> This is NOT an acceptance email. You will receive another email and text message with further information if your application is approved.
+    </p>
+
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      <strong>PLEASE NOTE:</strong> Vendor tables are strictly for non-hangable merchandise (clothing, jewelry, etc). If you intend to display paintings or wall art, please note that we do not permit canvases or prints larger than a greeting card on vendor tables. If you need to switch to an Artist Application, please email us as soon as possible.
+    </p>
+
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;"><strong>Selection & Pricing</strong></p>
+
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      Table space is extremely limited. If you are selected, <strong>PREPAYMENT IS REQUIRED</strong> to reserve your space.
+    </p>
+
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      We now cover all ticketing and processing fees—the price you see is exactly what you pay at checkout with no hidden service fees.
+    </p>
+
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;"><strong>The Details:</strong></p>
+
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      <strong>SPACE:</strong> One 6ft table area. No tents or multiple tables allowed.<br/>
+      <strong>EQUIPMENT:</strong> You must provide your own table and chair.<br/>
+      <strong>LOAD-IN:</strong> Starts at 9:00 AM - 10:00 AM on show day. Please do not arrive early.<br/>
+      <strong>AGE POLICY:</strong> The venue enforces a strict All Ages age policy.
+    </p>
+
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      New to the event? Check us out @pancakesandbooze on Instagram and TikTok.
+    </p>
+
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      Thanks,<br/>
+      TEST - Sample Venue
+    </p>
+
+    <p style="font-size: 12px; color: #888888;">
+      If you're unable to participate, please <a href="#" style="color: #888888; text-decoration: underline;">click here</a> to withdraw your application.
+    </p>
+    <!-- ACTUAL EMAIL CONTENT ENDS HERE -->
   </div>
 </body>
 </html>
-<!-- END app/views/event_invitation_mailer/invitation_email.html.erb -->
-  </body>
-</html>
-<!-- END app/views/layouts/mailer.html.erb -->

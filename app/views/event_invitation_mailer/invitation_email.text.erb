@@ -11,13 +11,13 @@ Submit your work below:
   vendor_link = app_links.find { |link| link[:name].downcase.include?('vendor') }
 %>
 <% if artist_link %>
-For those of you exhibiting artwork on the walls (paintings, sculptures, photography, body painters, etc):
 ARTIST/GALLERY SUBMISSIONS - <%= artist_link[:url] %>
+(Paintings, Photography, Mixed Media, & Sculptures, etc)
 
 <% end %>
 <% if vendor_link %>
-For those setting up a TABLE space (ie: clothing, jewelry, and other table merch):
 VENDOR/TABLE SUBMISSIONS - <%= vendor_link[:url] %>
+(Clothing, Jewelry, Handcrafted Goods, & Small Merch)
 
 <% end %>
 I'm looking forward to your submission.

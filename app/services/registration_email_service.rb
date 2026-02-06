@@ -835,7 +835,7 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        We've received your application for the Pancakes & Booze Art Show in [eventName] ([dateRange] at [eventVenue]) under the category: [vendorCategory]. Please allow up to 10 days for our team to review your submission.
+        We've received your application for the [organizationName] at [eventLocation]. Please allow up to 10 days for our team to review your submission.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
@@ -848,10 +848,10 @@ class RegistrationEmailService < BaseEmailService
 
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
-      <p style="#{BASE_STYLES[:text]}"><strong>Exhibition Pricing & Transparency</strong></p>
+      <p style="#{BASE_STYLES[:text]}"><strong>Exhibition Pricing</strong></p>
 
       <p style="#{BASE_STYLES[:text]}">
-        We have streamlined our 2026 pricing to be 100% transparent. We now cover all ticketing and processing fees—the price you see below is exactly what you pay at checkout.
+        We now cover all ticketing and processing fees—the price you see below is exactly what you pay at checkout.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
@@ -861,10 +861,6 @@ class RegistrationEmailService < BaseEmailService
         <strong>Additional Work:</strong> All additional pieces (3–10) follow the same $20 or $25 rate based on your payment date.
       </p>
 
-      <p style="#{BASE_STYLES[:text]}">
-        If selected, you can secure your space here: <a href="[categoryPaymentLink]" style="color: #007bff; text-decoration: underline;">[categoryPaymentLink]</a>
-      </p>
-
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
       <p style="#{BASE_STYLES[:text]}"><strong>The Details:</strong></p>
@@ -872,14 +868,14 @@ class RegistrationEmailService < BaseEmailService
       <p style="#{BASE_STYLES[:text]}">
         <strong>NO COMMISSION:</strong> You manage your own sales and keep 100% of the profit.<br/>
         <strong>SIZE LIMIT:</strong> Each piece should not exceed 3ft x 3ft.<br/>
-        <strong>INSTALLATION:</strong> Scheduled for [installDate] starting at [installTime].<br/>
-        <strong>NO TABLES:</strong> This is a wall-art application. Small bins/boxes on the floor are permitted for prints.<br/>
-        <strong>LOAD OUT:</strong> All artwork must be taken home at the end of the night.<br/>
+        <strong>INSTALLATION:</strong> Scheduled for [installDate] starting at [installStartTime] - [installEndTime].<br/>
+        <strong>NO TABLES:</strong> Tables are not allowed in the gallery space. Small bins or boxes on the floor are permitted for prints.<br/>
+        <strong>LOAD OUT:</strong> All artwork must be taken home at the end of the night. Pancakes & Booze nor the [eventVenue] are responsible for any artwork left at the venue.<br/>
         <strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>Attention Live Painters:</strong> We love featuring live body painting and canvas work. If you'd like to paint live, let us know so we can coordinate promotion!
+        <strong>Attention Live Painters:</strong> We love featuring live body painting and canvas work. If you'd like to paint live, let us know and we will get you details.
       </p>
 
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
@@ -903,7 +899,7 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        We've received your application for the Pancakes & Booze Art Show in [eventCity] ([dateRange] at [eventVenue]) under the category: [vendorCategory].
+        We've received your application for the [organizationName] at [eventLocation]. Please allow up to 10 days for our team to review your submission.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
@@ -911,7 +907,7 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>PLEASE NOTE:</strong> Vendor tables are strictly for non-hangable merchandise (clothing, jewelry, etc). If you intend to display paintings or wall art, please note that we do not permit canvases or prints larger than a greeting card on vendor tables. If you need to switch to an Artist Application, please email us immediately.
+        <strong>PLEASE NOTE:</strong> Vendor tables are strictly for non-hangable merchandise (clothing, jewelry, etc). If you intend to display paintings or wall art, please note that we do not permit canvases or prints larger than a greeting card on vendor tables. If you need to switch to an Artist Application, please email us as soon as possible.
       </p>
 
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
@@ -923,7 +919,7 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        The vending fee can be paid via [categoryPaymentLink]. We now cover all ticketing and processing fees—the price you see is exactly what you pay at checkout with no hidden service fees.
+        We now cover all ticketing and processing fees—the price you see is exactly what you pay at checkout with no hidden service fees.
       </p>
 
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
@@ -933,7 +929,7 @@ class RegistrationEmailService < BaseEmailService
       <p style="#{BASE_STYLES[:text]}">
         <strong>SPACE:</strong> One 6ft table area. No tents or multiple tables allowed.<br/>
         <strong>EQUIPMENT:</strong> You must provide your own table and chair.<br/>
-        <strong>LOAD-IN:</strong> Starts at [installTime] on show day. Please do not arrive early.<br/>
+        <strong>LOAD-IN:</strong> Starts at [installStartTime] - [installEndTime] on show day. Please do not arrive early.<br/>
         <strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy.
       </p>
 
