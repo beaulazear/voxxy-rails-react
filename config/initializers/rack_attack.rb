@@ -172,10 +172,41 @@ class Rack::Attack
   end
 end
 
-# Log blocked and throttled requests in development
-if Rails.env.development?
-  ActiveSupport::Notifications.subscribe(/rack_attack/) do |name, start, finish, request_id, payload|
-    req = payload[:request]
+# Log blocked and throttled requests
+ActiveSupport::Notifications.subscribe(/rack_attack/) do |name, start, finish, request_id, payload|
+  req = payload[:request]
+
+  if Rails.env.development?
     Rails.logger.info "[Rack::Attack] #{name}: #{req.ip} #{req.request_method} #{req.fullpath}"
+  end
+
+  # Send alerts to Sentry for suspicious activity in production
+  if Rails.env.production? && defined?(Sentry)
+    case name
+    when "blocklist.rack_attack"
+      # Alert on blocked malicious requests
+      Sentry.capture_message(
+        "Blocked suspicious request",
+        level: :warning,
+        extra: {
+          ip: req.ip,
+          method: req.request_method,
+          path: req.fullpath,
+          user_agent: req.user_agent
+        }
+      )
+    when /throttle\.rack_attack/
+      # Track rate limit violations (don't alert on every one, Sentry will aggregate)
+      Sentry.capture_message(
+        "Rate limit exceeded",
+        level: :info,
+        extra: {
+          ip: req.ip,
+          method: req.request_method,
+          path: req.fullpath,
+          throttle: name
+        }
+      )
+    end
   end
 end
