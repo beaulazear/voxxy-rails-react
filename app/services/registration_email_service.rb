@@ -46,8 +46,8 @@ class RegistrationEmailService < BaseEmailService
         <p style="margin: 5px 0; font-size: 14px; color: #333333;"><strong>Contact:</strong> #{registration.name}</p>
         <p style="margin: 5px 0; font-size: 14px; color: #333333;"><strong>Email:</strong> #{registration.email}</p>
         #{registration.phone.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #333333;'><strong>Phone:</strong> #{registration.phone}</p>" : ""}
-        #{registration.instagram_handle.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #333333;'><strong>Instagram:</strong> <a href='https://instagram.com/#{registration.instagram_handle.delete_prefix('@')}' style='#{BASE_STYLES[:link]}'>#{registration.instagram_handle}</a></p>" : ""}
-        #{registration.tiktok_handle.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #333333;'><strong>TikTok:</strong> <a href='https://tiktok.com/@#{registration.tiktok_handle.delete_prefix('@')}' style='#{BASE_STYLES[:link]}'>#{registration.tiktok_handle}</a></p>" : ""}
+        #{registration.instagram_handle.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #333333;'><strong>Instagram:</strong> <a href='https://www.instagram.com/#{registration.instagram_handle.delete_prefix('@')}' style='#{BASE_STYLES[:link]}'>@#{registration.instagram_handle.delete_prefix('@')}</a></p>" : ""}
+        #{registration.tiktok_handle.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #333333;'><strong>TikTok:</strong> <a href='https://www.tiktok.com/@#{registration.tiktok_handle.delete_prefix('@')}' style='#{BASE_STYLES[:link]}'>@#{registration.tiktok_handle.delete_prefix('@')}</a></p>" : ""}
         #{registration.website.present? ? "<p style='margin: 5px 0; font-size: 14px; color: #333333;'><strong>Website:</strong> <a href='#{registration.website}' style='#{BASE_STYLES[:link]}'>#{registration.website}</a></p>" : ""}
       </div>
 
