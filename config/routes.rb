@@ -151,6 +151,9 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      # SendGrid webhook for email event tracking
+      post "sendgrid/webhook", to: "sendgrid_webhooks#event"
+
       # MOBILE PRODUCT ROUTES
       # All routes for the existing Voxxy mobile app
       # Mobile clients should migrate to these routes from legacy routes above
