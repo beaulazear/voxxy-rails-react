@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_02_04_203447) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_07_012717) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -241,9 +241,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_04_203447) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "event_invitation_id"
+    t.datetime "opened_at"
+    t.datetime "clicked_at"
+    t.datetime "failed_at"
+    t.text "error_message"
     t.index ["event_id", "status"], name: "index_email_deliveries_on_event_id_and_status"
     t.index ["event_id"], name: "index_email_deliveries_on_event_id"
     t.index ["event_invitation_id"], name: "index_email_deliveries_on_event_invitation_id"
+    t.index ["failed_at"], name: "index_email_deliveries_on_failed_at", where: "(failed_at IS NOT NULL)"
     t.index ["next_retry_at"], name: "index_email_deliveries_on_next_retry_at", where: "(next_retry_at IS NOT NULL)"
     t.index ["registration_id", "status"], name: "index_email_deliveries_on_registration_id_and_status"
     t.index ["registration_id"], name: "index_email_deliveries_on_registration_id"
