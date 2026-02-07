@@ -79,9 +79,9 @@ class EmailVariableResolver
   private
 
   def resolve_event_variables(template)
-    # Extract city from location (last part after comma, or whole location)
+    # Extract city from location (first part before comma, or whole location)
     event_city = if event.location.present?
-      event.location.split(",").last.strip
+      event.location.split(",").first.strip
     else
       ""
     end
@@ -107,7 +107,7 @@ class EmailVariableResolver
       .gsub("[eventCity]", event_city)
       .gsub("[dateRange]", date_range)
       .gsub("[eventTime]", event.start_time || "")
-      .gsub("[eventLocation]", event.location || "")
+      .gsub("[eventLocation]", event_city)
       .gsub("[eventVenue]", event.venue || "")
       .gsub("[eventDescription]", event.description || "")
       .gsub("[applicationDeadline]", format_date(event.application_deadline))
