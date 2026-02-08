@@ -13,9 +13,17 @@ class BugReportsController < ApplicationController
     end
 
     def create
-      @bug_report = BugReport.new(bug_report_params)
+      report_params = bug_report_params
+
+      # Handle description alias (frontend uses 'description', model uses 'bug_description')
+      if report_params[:description].present? && report_params[:bug_description].blank?
+        report_params[:bug_description] = report_params[:description]
+      end
+
+      @bug_report = BugReport.new(report_params)
       if @bug_report.save
-        SubmissionNotifierService.notify(:bug_report, @bug_report)
+        # Only notify if service exists (avoid errors in development)
+        SubmissionNotifierService.notify(:bug_report, @bug_report) if defined?(SubmissionNotifierService)
         render json: @bug_report, status: :created
       else
         render json: { errors: @bug_report.errors.full_messages }, status: :unprocessable_entity
@@ -25,6 +33,13 @@ class BugReportsController < ApplicationController
     private
 
     def bug_report_params
-      params.require(:bug_report).permit(:name, :email, :bug_description, :steps_to_reproduce)
+      params.require(:bug_report).permit(
+        :name,
+        :email,
+        :bug_description,
+        :description, # Alias for bug_description (frontend uses this)
+        :steps_to_reproduce,
+        error_context: {} # Allow nested JSON
+      )
     end
 end
