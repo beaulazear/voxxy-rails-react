@@ -2,7 +2,7 @@
 
 **Voxxy** is a unified Rails API powering two complementary products: **Voxxy Mobile** (social planning) and **Voxxy Presents** (event management & vendor coordination).
 
-**Latest Updates**: Vendor application improvements, social media validation, and email template refinements (Feb 2026).
+**Latest Updates**: Bug reporting system, vendor application improvements, social media validation, and email template refinements (Feb 2026).
 
 [![Rails](https://img.shields.io/badge/Rails-7.2.2-red)](https://rubyonrails.org/)
 [![Ruby](https://img.shields.io/badge/Ruby-3.x-red)](https://www.ruby-lang.org/)
