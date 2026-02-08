@@ -1,4 +1,8 @@
-# Getting Started with Create React App
+# Voxxy Mobile - React Client
+
+This is the React frontend for the Voxxy Mobile social planning application.
+
+**Latest Updates**: UI improvements and form validation enhancements (Feb 2026).
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

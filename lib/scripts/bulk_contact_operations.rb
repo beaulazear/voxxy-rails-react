@@ -17,7 +17,7 @@
 #   BulkContactOperations.bulk_add_tag("org@email.com", contact_ids: [1,2,3], tag: "VIP")
 #   BulkContactOperations.bulk_remove_category("org@email.com", contact_ids: [1,2,3], category: "Outdated")
 
-require 'csv'
+require "csv"
 
 class BulkContactOperations
   # ANSI color codes for terminal output
@@ -75,7 +75,7 @@ class BulkContactOperations
         puts "" # New line after progress
         log_success "✓ Deleted #{deleted_count} contacts"
 
-        return { deleted: deleted_count }
+        { deleted: deleted_count }
       end
     end
 
@@ -133,7 +133,7 @@ class BulkContactOperations
           end
         end
 
-        return results
+        results
       end
     ensure
       csv_file&.close
@@ -172,7 +172,7 @@ class BulkContactOperations
         end
 
         log_success "✓ Added tag '#{tag}' to #{updated_count} contacts"
-        return { updated: updated_count }
+        { updated: updated_count }
       end
     end
 
@@ -209,7 +209,7 @@ class BulkContactOperations
         end
 
         log_success "✓ Removed tag '#{tag}' from #{updated_count} contacts"
-        return { updated: updated_count }
+        { updated: updated_count }
       end
     end
 
@@ -246,7 +246,7 @@ class BulkContactOperations
         end
 
         log_success "✓ Added category '#{category}' to #{updated_count} contacts"
-        return { updated: updated_count }
+        { updated: updated_count }
       end
     end
 
@@ -283,7 +283,7 @@ class BulkContactOperations
         end
 
         log_success "✓ Removed category '#{category}' from #{updated_count} contacts"
-        return { updated: updated_count }
+        { updated: updated_count }
       end
     end
 
@@ -315,7 +315,7 @@ class BulkContactOperations
         deleted_count = contacts.destroy_all.length
 
         log_success "✓ Deleted #{deleted_count} contacts"
-        return { deleted: deleted_count }
+        { deleted: deleted_count }
       end
     end
 
@@ -397,7 +397,7 @@ end
 # ============================================================================
 # INTERACTIVE MODE (when run directly)
 # ============================================================================
-if __FILE__ == $PROGRAM_NAME || ARGV.include?('interactive')
+if __FILE__ == $PROGRAM_NAME || ARGV.include?("interactive")
   puts <<~BANNER
     #{BulkContactOperations::COLORS[:cyan]}
     ╔════════════════════════════════════════════════════════════════╗
@@ -427,7 +427,7 @@ if __FILE__ == $PROGRAM_NAME || ARGV.include?('interactive')
     org_email = gets.chomp
 
     print "Dry run? (y/n, default: y): "
-    dry_run = gets.chomp.downcase != 'n'
+    dry_run = gets.chomp.downcase != "n"
 
     BulkContactOperations.clear_organization_contacts(org_email, dry_run: dry_run)
 
@@ -439,10 +439,10 @@ if __FILE__ == $PROGRAM_NAME || ARGV.include?('interactive')
     csv_path = gets.chomp
 
     print "Update existing contacts? (y/n, default: n): "
-    update_existing = gets.chomp.downcase == 'y'
+    update_existing = gets.chomp.downcase == "y"
 
     print "Dry run? (y/n, default: y): "
-    dry_run = gets.chomp.downcase != 'n'
+    dry_run = gets.chomp.downcase != "n"
 
     BulkContactOperations.bulk_import_csv(org_email, csv_path, dry_run: dry_run, update_existing: update_existing)
 
@@ -451,13 +451,13 @@ if __FILE__ == $PROGRAM_NAME || ARGV.include?('interactive')
     org_email = gets.chomp
 
     print "Contact IDs (comma-separated): "
-    contact_ids = gets.chomp.split(',').map(&:strip).map(&:to_i)
+    contact_ids = gets.chomp.split(",").map(&:strip).map(&:to_i)
 
     print "Tag to add: "
     tag = gets.chomp
 
     print "Dry run? (y/n, default: y): "
-    dry_run = gets.chomp.downcase != 'n'
+    dry_run = gets.chomp.downcase != "n"
 
     BulkContactOperations.bulk_add_tag(org_email, contact_ids: contact_ids, tag: tag, dry_run: dry_run)
 

@@ -3,8 +3,8 @@
 # CSV Data Quality Analysis Script
 # Analyzes the Pancakes and Booze CSV for import compatibility
 
-require 'csv'
-require 'uri'
+require "csv"
+require "uri"
 
 class CsvDataQualityAnalyzer
   COLORS = {
@@ -171,9 +171,9 @@ class CsvDataQualityAnalyzer
   private
 
   def check_headers(headers)
-    expected_headers = [:name, :email, :phone, :business_name, :job_title, :contact_type,
+    expected_headers = [ :name, :email, :phone, :business_name, :job_title, :contact_type,
                        :status, :location, :instagram_handle, :tiktok_handle, :website,
-                       :categories, :tags, :notes, :featured]
+                       :categories, :tags, :notes, :featured ]
 
     missing_headers = expected_headers - headers
     extra_headers = headers - expected_headers

@@ -46,3 +46,9 @@ test_*.sh
 .DS_Store
 *~
 *.bak
+
+# Vendor import files (contain sensitive data)
+tmp/vendor_social_import.csv
+tmp/prepare_vendor_csv.rb
+tmp/vendor_social_import_errors.log
+**/test_vendors*.csv

@@ -35,7 +35,7 @@ if Rails.env.production? && defined?(Sentry)
               action: data[:action],
               params: data[:params]&.except(:password, :token, :api_key)
             },
-            fingerprint: ["404", path]  # Group by path
+            fingerprint: [ "404", path ]  # Group by path
           )
         end
       end
@@ -55,7 +55,7 @@ if Rails.env.production? && defined?(Sentry)
             db_runtime: data[:db_runtime],
             view_runtime: data[:view_runtime]
           },
-          fingerprint: ["slow-request", "#{data[:controller]}##{data[:action]}"]
+          fingerprint: [ "slow-request", "#{data[:controller]}##{data[:action]}" ]
         )
       end
     end

@@ -16,7 +16,7 @@
 #   rails runner lib/scripts/pancakesandbooze_contact_reset.rb ~/Downloads/pancake_contacts.csv
 #   rails runner lib/scripts/pancakesandbooze_contact_reset.rb ~/Downloads/pancake_contacts.csv run
 
-ORG_EMAIL = 'info@pancakesandbooze.com'
+ORG_EMAIL = "info@pancakesandbooze.com"
 
 def colorize(text, color_code)
   "\e[#{color_code}m#{text}\e[0m"
@@ -46,7 +46,7 @@ end
 
 # Parse arguments
 csv_path = ARGV[0]
-dry_run = ARGV[1] != 'run'
+dry_run = ARGV[1] != "run"
 
 if csv_path.nil?
   log_error "ERROR: Please provide a CSV file path"
