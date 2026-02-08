@@ -1,5 +1,5 @@
-# app/controllers/api/v1/presents/bug_reports_controller.rb
-class Api::V1::Presents::BugReportsController < ApplicationController
+# app/controllers/api/v1/shared/bug_reports_controller.rb
+class Api::V1::Shared::BugReportsController < ApplicationController
   skip_before_action :authorized, only: [ :create ]
 
     def index

@@ -495,6 +495,12 @@ Rails.application.routes.draw do
         # Bug Reports (public endpoint for user submissions, admin endpoints require auth)
         resources :bug_reports, only: [ :index, :show, :create ]
       end
+
+      # PRESENTS PRODUCT ROUTES (NEW)
+      # All routes for the new Voxxy Presents venue/events product
+
+      namespace :presents do
+      end
     end
   end
 
