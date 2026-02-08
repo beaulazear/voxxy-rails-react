@@ -27,3 +27,13 @@ payment_sync_worker:
   queue: payment_sync
   description: "Syncs payment transactions from external providers (Eventbrite, etc.)"
   active_job: false
+
+# Daily Backup Worker - Automated daily backups of all events
+# Runs every day at 2:00 AM EST
+# Note: Ensure server timezone is set to Eastern Time (US & Canada)
+daily_backup_worker:
+  cron: "0 2 * * *"  # Every day at 2:00 AM (server time)
+  class: "DailyBackupWorker"
+  queue: default
+  description: "Automated daily backup of all events for disaster recovery"
+  active_job: false

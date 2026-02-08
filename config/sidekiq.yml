@@ -27,3 +27,6 @@
 # Job timeout (in seconds)
 # Jobs running longer than this will be terminated
 :timeout: 300
+
+# Note: Scheduled jobs are configured in config/sidekiq_schedule.yml
+# This project uses sidekiq-cron for scheduling (not sidekiq-scheduler)
