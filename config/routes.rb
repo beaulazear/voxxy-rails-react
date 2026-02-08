@@ -145,7 +145,6 @@ Rails.application.routes.draw do
   resources :waitlists, only: [ :index, :show, :create, :update, :destroy ]
   resources :feedbacks, only: [ :index, :show, :create ]
   resources :contacts, only: [ :index, :show, :create ]
-  resources :bug_reports, only: [ :index, :show, :create ]
 
   # VERSIONED API ROUTES (New structure)
 
@@ -492,6 +491,9 @@ Rails.application.routes.draw do
           post :identify
           post :page_view
         end
+
+        # Bug Reports (public endpoint for user submissions, admin endpoints require auth)
+        resources :bug_reports, only: [ :index, :show, :create ]
       end
     end
   end
