@@ -131,9 +131,8 @@ class TestEventSetup
       u.password = "TestPassword123!"
       u.password_confirmation = "TestPassword123!"
       u.role = "venue_owner"
-      u.first_name = "Test"
-      u.last_name = "Producer"
-      u.email_verified = true
+      u.name = "Test Producer"
+      u.confirmed_at = Time.current
     end
   end
 
