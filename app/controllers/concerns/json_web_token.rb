@@ -2,7 +2,9 @@
 module JsonWebToken
   require "jwt"
 
-    SECRET_KEY = Rails.application.credentials.secret_key_base
+    # Use credentials secret_key_base if available, otherwise fall back to Rails secret_key_base
+    # In development, Rails generates a tmp/development_secret.txt if no secret is set
+    SECRET_KEY = Rails.application.credentials.secret_key_base || Rails.application.secret_key_base
 
     def self.encode(payload, exp = 24.hours.from_now)
       payload[:exp] = exp.to_i
