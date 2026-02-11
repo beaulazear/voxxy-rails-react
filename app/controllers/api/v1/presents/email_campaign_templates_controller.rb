@@ -5,7 +5,7 @@ module Api
   module V1
     module Presents
       class EmailCampaignTemplatesController < BaseController
-        before_action :set_template, only: [ :show, :update, :destroy, :clone ]
+        before_action :set_template, only: [ :show, :update, :destroy, :clone, :preview_email ]
         before_action :set_organization, only: [ :index, :create, :clone ]
 
         # GET /api/v1/presents/email_campaign_templates
@@ -19,7 +19,18 @@ module Api
             system_templates
           end
 
-          render json: templates, include: [ :email_template_items ]
+          # Add usage stats for each template
+          templates_with_stats = templates.map do |template|
+            usage_count = template.events.select(:organization_id).distinct.count
+            organizations_using = template.events.includes(:organization).map(&:organization).uniq.compact
+
+            template.as_json(include: :email_template_items).merge(
+              usage_count: usage_count,
+              organizations_using: organizations_using.map { |org| { id: org.id, name: org.name } }
+            )
+          end
+
+          render json: templates_with_stats
         end
 
         # GET /api/v1/presents/email_campaign_templates/:id
@@ -113,6 +124,40 @@ module Api
           end
         end
 
+        # GET /api/v1/presents/email_campaign_templates/:id/preview/:email_template_item_id
+        # Preview a specific email template item with variable resolution
+        def preview_email
+          @email_item = @template.email_template_items.find(params[:email_template_item_id])
+
+          # Get a sample event or create dummy data for preview
+          sample_event = @current_user.organization&.events&.first || create_sample_event_data
+          sample_registration = create_sample_registration_data(sample_event)
+
+          # Resolve variables in subject and body
+          resolver = EmailVariableResolver.new(sample_event, sample_registration)
+          resolved_subject = resolver.resolve(@email_item.subject_template)
+          resolved_body = resolver.resolve(@email_item.body_template)
+
+          render json: {
+            email_item: {
+              id: @email_item.id,
+              name: @email_item.name,
+              category: @email_item.category,
+              position: @email_item.position,
+              subject_template: @email_item.subject_template,
+              body_template: @email_item.body_template,
+              subject: resolved_subject,
+              body: resolved_body,
+              trigger_type: @email_item.trigger_type,
+              trigger_value: @email_item.trigger_value,
+              trigger_time: @email_item.trigger_time
+            },
+            sample_data_used: sample_event.is_a?(OpenStruct)
+          }
+        rescue ActiveRecord::RecordNotFound
+          render json: { error: "Email template item not found" }, status: :not_found
+        end
+
         private
 
         def set_template
@@ -129,6 +174,50 @@ module Api
 
         def template_params
           params.require(:email_campaign_template).permit(:name, :description, :is_default)
+        end
+
+        def create_sample_event_data
+          # Create OpenStruct with sample event data for preview
+          OpenStruct.new(
+            title: "Sample Art Show",
+            slug: "sample-art-show",
+            event_date: 30.days.from_now,
+            event_end_date: 30.days.from_now,
+            start_time: "7:00 PM",
+            venue: "Sample Venue",
+            location: "San Francisco, CA",
+            description: "An amazing art show featuring local artists",
+            application_deadline: 15.days.from_now,
+            payment_deadline: 20.days.from_now,
+            age_restriction: "21",
+            organization: OpenStruct.new(
+              name: @current_user.organization&.name || "Sample Organization",
+              email: @current_user.email
+            ),
+            vendor_applications: [
+              OpenStruct.new(
+                name: "Artists",
+                booth_price: 150,
+                install_date: 29.days.from_now,
+                install_start_time: "2:00 PM",
+                install_end_time: "6:00 PM",
+                payment_link: "https://example.com/payment",
+                active: true
+              )
+            ]
+          )
+        end
+
+        def create_sample_registration_data(event)
+          OpenStruct.new(
+            name: "Jane Artist",
+            business_name: "Jane's Gallery",
+            email: @current_user.email,
+            vendor_category: "Artists",
+            booth_number: "A12",
+            created_at: Time.current,
+            vendor_application: event.vendor_applications&.first
+          )
         end
       end
     end

@@ -403,6 +403,7 @@ Rails.application.routes.draw do
         resources :email_campaign_templates do
           member do
             post :clone
+            get 'preview/:email_template_item_id', action: :preview_email, as: :preview_email
           end
           resources :email_template_items do
             member do
