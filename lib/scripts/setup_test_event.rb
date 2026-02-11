@@ -141,8 +141,6 @@ class TestEventSetup
       o.email = TEST_EMAIL
       o.slug = "test-event-org"
       o.description = "Test organization for performance testing"
-      o.reply_to_email = TEST_EMAIL
-      o.reply_to_name = "Test Producer"
     end
   end
 
