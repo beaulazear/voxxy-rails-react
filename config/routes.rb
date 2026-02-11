@@ -12,6 +12,7 @@ Rails.application.routes.draw do
 
   # Auth routes (legacy - will move to /api/v1/shared/*)
   post "login", to: "sessions#create"
+  post "dev_login", to: "dev_login#create" # Development-only bypass
   delete "logout", to: "sessions#destroy"
   get "/me", to: "users#show"
 

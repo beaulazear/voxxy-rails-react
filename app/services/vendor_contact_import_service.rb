@@ -132,6 +132,15 @@ class VendorContactImportService
       }
     end
 
+    # Location format (if provided) - should contain a comma (e.g., "City, State")
+    if row[:location].present? && !row[:location].include?(',')
+      errors << {
+        row: line_number,
+        field: "location",
+        message: "Location should include city and state/region separated by comma (e.g., 'San Francisco, CA')"
+      }
+    end
+
     # Contact type enum
     valid_types = %w[lead vendor partner client other]
     if row[:contact_type].present? && !valid_types.include?(row[:contact_type].downcase)

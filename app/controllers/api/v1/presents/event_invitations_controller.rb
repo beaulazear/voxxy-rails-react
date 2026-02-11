@@ -22,8 +22,20 @@ module Api
           # Order by most recent
           invitations = invitations.recent
 
+          # Pagination parameters
+          page = (params[:page] || 1).to_i
+          per_page = (params[:per_page] || 50).to_i
+          per_page = [ per_page, 100 ].min # Cap at 100
+
+          # Get total count before pagination
+          total_count = invitations.count
+
+          # Apply pagination
+          offset = (page - 1) * per_page
+          paginated_invitations = invitations.limit(per_page).offset(offset)
+
           # Serialize invitations with vendor contact info
-          serialized = invitations.map do |invitation|
+          serialized = paginated_invitations.map do |invitation|
             EventInvitationSerializer.new(invitation, include_vendor_contact: true).as_json
           end
 
@@ -39,7 +51,16 @@ module Api
             declined_count: @event.event_invitations.declined.count,
             expired_count: @event.event_invitations.expired.count,
             # Delivery tracking stats for invitation emails
-            delivery_stats: calculate_invitation_delivery_stats
+            delivery_stats: calculate_invitation_delivery_stats,
+            # Pagination metadata
+            pagination: {
+              current_page: page,
+              per_page: per_page,
+              total_pages: (total_count.to_f / per_page).ceil,
+              total_count: total_count,
+              has_next_page: page < (total_count.to_f / per_page).ceil,
+              has_prev_page: page > 1
+            }
           }
 
           render json: { invitations: serialized, meta: meta }, status: :ok
