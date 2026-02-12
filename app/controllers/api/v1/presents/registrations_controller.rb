@@ -5,7 +5,7 @@ module Api
         skip_before_action :authorized, only: [ :create, :track ]
         skip_before_action :check_presents_access, only: [ :create, :track ]
         before_action :set_event, only: [ :index, :create ]
-        before_action :set_registration, only: [ :show, :update ]
+        before_action :set_registration, only: [ :show, :update, :email_history ]
 
         # GET /api/v1/presents/events/:event_id/registrations
         def index
@@ -129,6 +129,20 @@ module Api
           render json: serialized, status: :ok
         rescue ActiveRecord::RecordNotFound
           render json: { error: "Application not found" }, status: :not_found
+        end
+
+        # GET /api/v1/presents/registrations/:id/email_history
+        # Returns all email deliveries for a specific registration
+        def email_history
+          email_deliveries = @registration.email_deliveries
+            .includes(:scheduled_email)
+            .order(created_at: :desc)
+
+          serialized = email_deliveries.map do |delivery|
+            EmailDeliverySerializer.new(delivery).as_json
+          end
+
+          render json: serialized, status: :ok
         end
 
         private

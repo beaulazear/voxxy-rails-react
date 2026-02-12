@@ -394,6 +394,7 @@ Rails.application.routes.draw do
 
           # Email notification endpoints for registrations
           member do
+            get :email_history
             post "email_notifications/send_payment_confirmation", to: "email_notifications#send_payment_confirmation"
             post "email_notifications/send_category_change", to: "email_notifications#send_category_change"
           end
