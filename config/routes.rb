@@ -305,6 +305,10 @@ Rails.application.routes.draw do
               post :batch, action: :create_batch
               get :preview_email
             end
+
+            member do
+              get :email_history
+            end
           end
           resources :bulletins, only: [ :index, :create ]
 
