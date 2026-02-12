@@ -330,6 +330,29 @@ module Api
           render json: { error: "Failed to generate preview: #{e.message}" }, status: :internal_server_error
         end
 
+        # GET /api/v1/presents/events/:event_slug/invitations/:id/email_history
+        # Returns all email deliveries for a specific invitation
+        def email_history
+          invitation = EventInvitation.find(params[:id])
+
+          # Check authorization
+          unless invitation.event.organization.user_id == @current_user.id || @current_user.admin?
+            return render json: { error: "Not authorized" }, status: :forbidden
+          end
+
+          email_deliveries = invitation.email_deliveries
+            .includes(:scheduled_email)
+            .order(created_at: :desc)
+
+          serialized = email_deliveries.map do |delivery|
+            EmailDeliverySerializer.new(delivery).as_json
+          end
+
+          render json: serialized, status: :ok
+        rescue ActiveRecord::RecordNotFound
+          render json: { error: "Invitation not found" }, status: :not_found
+        end
+
         private
 
         def set_event

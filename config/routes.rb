@@ -305,6 +305,10 @@ Rails.application.routes.draw do
               post :batch, action: :create_batch
               get :preview_email
             end
+
+            member do
+              get :email_history
+            end
           end
           resources :bulletins, only: [ :index, :create ]
 
@@ -394,6 +398,7 @@ Rails.application.routes.draw do
 
           # Email notification endpoints for registrations
           member do
+            get :email_history
             post "email_notifications/send_payment_confirmation", to: "email_notifications#send_payment_confirmation"
             post "email_notifications/send_category_change", to: "email_notifications#send_category_change"
           end
