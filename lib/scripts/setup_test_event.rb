@@ -11,6 +11,7 @@
 # Usage:
 #   rails runner lib/scripts/setup_test_event.rb
 #   rails runner lib/scripts/setup_test_event.rb cleanup  # Remove test data
+#   rails runner lib/scripts/setup_test_event.rb pancake_booze  # Use Pancake & Booze email sequence
 
 require 'faker'
 
@@ -28,8 +29,9 @@ class TestEventSetup
     reset: "\e[0m"
   }
 
-  def initialize(cleanup: false)
+  def initialize(cleanup: false, sequence_type: :default)
     @cleanup = cleanup
+    @sequence_type = sequence_type
   end
 
   def run
@@ -102,28 +104,45 @@ class TestEventSetup
     contacts = create_network_contacts(org, 300)
     log("✓ Created #{contacts.count} network contacts", color: :green)
 
-    # Step 4: Create event
-    event = create_event(org)
-    log("✓ Created event: #{event.title} (#{event.slug})", color: :green)
+    # Step 4: Create events (one with each email sequence for comparison)
+    log("\nCreating events with different email sequences...", color: :yellow)
 
-    # Step 5: Create vendor applications
-    vendor_apps = create_vendor_applications(event)
-    log("✓ Created #{vendor_apps.count} vendor application categories", color: :green)
+    # Event 1: Default sequence
+    event_default = create_event(org, :default, suffix: "default")
+    log("✓ Created event with Default sequence: #{event_default.title} (#{event_default.slug})", color: :green)
 
-    # Step 6: Invite network contacts (creates invitations)
+    # Event 2: Pancake & Booze sequence
+    event_pb = create_event(org, :pancake_booze, suffix: "pb")
+    log("✓ Created event with Pancake & Booze sequence: #{event_pb.title} (#{event_pb.slug})", color: :green)
+
+    # Step 5: Create vendor applications for both events
+    vendor_apps_default = create_vendor_applications(event_default)
+    log("✓ Created #{vendor_apps_default.count} vendor application categories for Default event", color: :green)
+
+    vendor_apps_pb = create_vendor_applications(event_pb)
+    log("✓ Created #{vendor_apps_pb.count} vendor application categories for Pancake & Booze event", color: :green)
+
+    # Step 6: Invite network contacts (creates invitations) - split between both events
     log("\nCreating invitations for network contacts...", color: :yellow)
-    invitations = create_invitations(event, contacts.first(200)) # Invite 200 out of 300
-    log("✓ Created #{invitations.count} invitations", color: :green)
+    invitations_default = create_invitations(event_default, contacts.first(100)) # 100 to default event
+    invitations_pb = create_invitations(event_pb, contacts[100..199]) # 100 to P&B event
+    log("✓ Created #{invitations_default.count} invitations for Default event", color: :green)
+    log("✓ Created #{invitations_pb.count} invitations for Pancake & Booze event", color: :green)
 
-    # Step 7: Create vendor application submissions (500 total)
-    # 200 from invited contacts (50% conversion)
-    # 300 net new applicants
-    log("\nCreating 500 vendor application submissions...", color: :yellow)
-    registrations = create_registrations(event, vendor_apps, contacts, invitations)
-    log("✓ Created #{registrations.count} registrations", color: :green)
+    # Step 7: Create vendor application submissions - split between both events
+    # 250 registrations per event
+    log("\nCreating vendor application submissions...", color: :yellow)
+
+    # Default event: 50 from invited + 200 net new = 250
+    registrations_default = create_registrations(event_default, vendor_apps_default, contacts, invitations_default, count: 250)
+    log("✓ Created #{registrations_default.count} registrations for Default event", color: :green)
+
+    # Pancake & Booze event: 50 from invited + 200 net new = 250
+    registrations_pb = create_registrations(event_pb, vendor_apps_pb, contacts, invitations_pb, count: 250)
+    log("✓ Created #{registrations_pb.count} registrations for Pancake & Booze event", color: :green)
 
     # Step 8: Summary
-    print_summary(user, org, event, contacts, invitations, registrations)
+    print_summary(user, org, [event_default, event_pb], contacts, invitations_default.count + invitations_pb.count, registrations_default.count + registrations_pb.count)
   end
 
   def create_test_user
@@ -174,11 +193,21 @@ class TestEventSetup
     contacts
   end
 
-  def create_event(org)
-    Event.create!(
+  def create_event(org, sequence_type = @sequence_type, suffix: nil)
+    # Get the email campaign template based on sequence type
+    template = get_email_template_by_type(sequence_type)
+
+    slug_suffix = suffix ? "-#{suffix}" : ""
+    title_suffix = case sequence_type
+                   when :pancake_booze then " (Pancake & Booze)"
+                   when :default then " (Default)"
+                   else ""
+                   end
+
+    event_params = {
       organization: org,
-      title: "Test Art & Vendor Market #{Date.today.year}",
-      slug: "test-market-#{Date.today.strftime('%Y%m%d')}",
+      title: "Test Art & Vendor Market #{Date.today.year}#{title_suffix}",
+      slug: "test-market-#{Date.today.strftime('%Y%m%d')}#{slug_suffix}",
       description: "Large-scale test event for performance testing with 500+ applicants",
       event_date: 30.days.from_now,
       event_end_date: 30.days.from_now,
@@ -190,7 +219,33 @@ class TestEventSetup
       payment_deadline: 25.days.from_now,
       published: true,
       status: "published"
-    )
+    }
+
+    # Add email campaign template if found
+    event_params[:email_campaign_template_id] = template.id if template
+
+    event = Event.create!(event_params)
+
+    if template
+      log("  → Using email sequence: #{template.name} (#{template.email_template_items.count} emails)", color: :cyan)
+    end
+
+    event
+  end
+
+  def get_email_template
+    get_email_template_by_type(@sequence_type)
+  end
+
+  def get_email_template_by_type(type)
+    case type
+    when :pancake_booze
+      EmailCampaignTemplate.find_by(name: "Pancake & Booze Event Campaign")
+    when :default
+      EmailCampaignTemplate.find_by(is_default: true)
+    else
+      nil
+    end
   end
 
   def create_vendor_applications(event)
@@ -227,20 +282,24 @@ class TestEventSetup
     invitations
   end
 
-  def create_registrations(event, vendor_apps, all_contacts, invitations)
+  def create_registrations(event, vendor_apps, all_contacts, invitations, count: 500)
     registrations = []
     log("  Progress: ", color: :yellow)
 
-    # Part 1: Create 100 registrations from invited contacts (50% conversion of 200 invites)
-    invited_contacts = invitations.sample(100).map(&:vendor_contact)
+    # Calculate split: 20% from invited contacts, 80% net new
+    from_invited = [invitations.count / 2, count / 5].min # 50% conversion rate, but max 20% of total
+    from_new = count - from_invited
+
+    # Part 1: Create registrations from invited contacts
+    invited_contacts = invitations.sample(from_invited).map(&:vendor_contact)
     invited_contacts.each_with_index do |contact, i|
       registration = create_single_registration(event, vendor_apps, contact, from_invitation: true)
       registrations << registration if registration
       print "." if (i + 1) % 25 == 0
     end
 
-    # Part 2: Create 400 net new registrations (not from network contacts)
-    400.times do |i|
+    # Part 2: Create net new registrations (not from network contacts)
+    from_new.times do |i|
       registration = create_single_registration(event, vendor_apps, nil, from_invitation: false)
       registrations << registration if registration
       print "." if (i + 1) % 50 == 0
@@ -297,17 +356,15 @@ class TestEventSetup
       tiktok_handle: tiktok,
       website: website,
       vendor_category: vendor_app.categories.first,
-      portfolio: rand > 0.5 ? Faker::Internet.url : nil,
       status: status,
-      payment_status: payment_status,
-      submitted_at: rand(5..25).days.ago
+      payment_status: payment_status
     )
   rescue ActiveRecord::RecordInvalid => e
     log("    Warning: Skipped registration due to validation error: #{e.message}", color: :red)
     nil
   end
 
-  def print_summary(user, org, event, contacts, invitations, registrations)
+  def print_summary(user, org, events, contacts, total_invitations, total_registrations)
     log_header("TEST DATA SETUP COMPLETE")
 
     puts "#{COLORS[:cyan]}Login Credentials:#{COLORS[:reset]}"
@@ -318,40 +375,33 @@ class TestEventSetup
     puts "  Name: #{org.name}"
     puts "  ID:   #{org.id}"
     puts ""
-    puts "#{COLORS[:cyan]}Event:#{COLORS[:reset]}"
-    puts "  Title: #{event.title}"
-    puts "  Slug:  #{event.slug}"
-    puts "  ID:    #{event.id}"
-    puts "  URL:   #{COLORS[:blue]}http://localhost:5173/events/#{event.slug}#{COLORS[:reset]}"
-    puts ""
-    puts "#{COLORS[:cyan]}Network Contacts:#{COLORS[:reset]}"
-    puts "  Total:   #{contacts.count}"
-    puts "  Invited: #{invitations.count}"
-    puts ""
-    puts "#{COLORS[:cyan]}Vendor Applications:#{COLORS[:reset]}"
-    puts "  Total Registrations: #{registrations.count}"
+    puts "#{COLORS[:cyan]}Events Created:#{COLORS[:reset]}"
 
-    status_breakdown = registrations.group_by(&:status).transform_values(&:count)
-    puts "  Breakdown:"
-    puts "    Pending:  #{status_breakdown['pending'] || 0}"
-    puts "    Approved: #{status_breakdown['approved'] || 0}"
-    puts "    Waitlist: #{status_breakdown['waitlist'] || 0}"
-    puts "    Rejected: #{status_breakdown['rejected'] || 0}"
-    puts ""
-
-    payment_breakdown = registrations.where(status: 'approved').group_by(&:payment_status).transform_values(&:count)
-    if payment_breakdown.any?
-      puts "  Payment Status (Approved only):"
-      puts "    Paid:    #{payment_breakdown['paid'] || 0}"
-      puts "    Pending: #{payment_breakdown['pending'] || 0}"
-      puts "    Overdue: #{payment_breakdown['overdue'] || 0}"
+    events.each do |event|
+      template = event.email_campaign_template
+      puts ""
+      puts "  #{COLORS[:purple]}#{event.title}#{COLORS[:reset]}"
+      puts "    Slug:     #{event.slug}"
+      puts "    ID:       #{event.id}"
+      puts "    URL:      #{COLORS[:blue]}http://localhost:5173/events/#{event.slug}#{COLORS[:reset]}"
+      if template
+        puts "    Sequence: #{COLORS[:cyan]}#{template.name}#{COLORS[:reset]} (#{template.email_template_items.count} emails)"
+      end
+      puts "    Registrations: #{event.registrations.count}"
     end
 
     puts ""
-    puts "#{COLORS[:yellow]}⚡ Performance Testing Notes:#{COLORS[:reset]}"
-    puts "  - Invites Tab should paginate (50 per page = #{(invitations.count / 50.0).ceil} pages)"
-    puts "  - Applicants Tab has #{registrations.count} submissions"
-    puts "  - Network Tab has #{contacts.count} contacts"
+    puts "#{COLORS[:cyan]}Network Contacts:#{COLORS[:reset]}"
+    puts "  Total:   #{contacts.count}"
+    puts "  Invited: #{total_invitations} (split across events)"
+    puts ""
+    puts "#{COLORS[:cyan]}Total Registrations: #{total_registrations}#{COLORS[:reset]}"
+    puts "  (#{total_registrations / events.count} per event)"
+    puts ""
+    puts "#{COLORS[:yellow]}⚡ Email Sequence Comparison:#{COLORS[:reset]}"
+    puts "  - Both events use the same test data but different email sequences"
+    puts "  - Compare the emails in the Email Sequence Manager"
+    puts "  - Test data includes #{contacts.count} network contacts"
     puts ""
     puts "#{COLORS[:green]}✓ Ready for testing!#{COLORS[:reset]}"
     puts ""
@@ -363,4 +413,10 @@ end
 
 # Run the script
 cleanup_mode = ARGV.include?("cleanup")
-TestEventSetup.new(cleanup: cleanup_mode).run
+sequence_type = if ARGV.include?("pancake_booze")
+                  :pancake_booze
+                else
+                  :default
+                end
+
+TestEventSetup.new(cleanup: cleanup_mode, sequence_type: sequence_type).run

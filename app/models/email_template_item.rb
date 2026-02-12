@@ -15,6 +15,9 @@ class EmailTemplateItem < ApplicationRecord
       on_application_open
       on_application_submit
       on_approval
+      on_waitlist
+      on_rejection
+      on_payment_received
       days_before_payment_deadline
       on_payment_deadline
     ]
