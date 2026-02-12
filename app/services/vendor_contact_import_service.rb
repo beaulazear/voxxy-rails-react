@@ -133,7 +133,7 @@ class VendorContactImportService
     end
 
     # Location format (if provided) - should contain a comma (e.g., "City, State")
-    if row[:location].present? && !row[:location].include?(',')
+    if row[:location].present? && !row[:location].include?(",")
       errors << {
         row: line_number,
         field: "location",

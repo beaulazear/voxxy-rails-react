@@ -17,7 +17,7 @@
 #   --dry-run             Show what would be retried without actually sending
 #   --help                Show this help message
 
-require 'optparse'
+require "optparse"
 
 class EmailRetryScript
   VALID_STATUSES = %w[bounced dropped failed].freeze
@@ -27,7 +27,7 @@ class EmailRetryScript
     @event_slug = options[:event]
     @specific_emails = options[:emails]
     @status_filter = options[:status]
-    @type_filter = options[:type] || 'all'
+    @type_filter = options[:type] || "all"
     @dry_run = options[:dry_run]
     @results = { success: 0, failed: 0, skipped: 0 }
   end
@@ -58,7 +58,7 @@ class EmailRetryScript
       print "Type 'yes' to continue: "
       confirmation = STDIN.gets.chomp
 
-      unless confirmation.downcase == 'yes'
+      unless confirmation.downcase == "yes"
         puts "❌ Aborted."
         return
       end
@@ -79,7 +79,7 @@ class EmailRetryScript
 
   def validate_options!
     # Check environment safety
-    if Rails.env.production? && !ENV['ALLOW_PRODUCTION_SCRIPTS']
+    if Rails.env.production? && !ENV["ALLOW_PRODUCTION_SCRIPTS"]
       raise "⛔️ SAFETY CHECK: Cannot run scripts in production without ALLOW_PRODUCTION_SCRIPTS=true"
     end
 
@@ -92,7 +92,7 @@ class EmailRetryScript
 
     # Validate status filter
     if @status_filter.present?
-      statuses = @status_filter.split(',').map(&:strip)
+      statuses = @status_filter.split(",").map(&:strip)
       invalid_statuses = statuses - VALID_STATUSES
       if invalid_statuses.any?
         raise "❌ Invalid status: #{invalid_statuses.join(', ')}. Valid: #{VALID_STATUSES.join(', ')}"
@@ -106,7 +106,7 @@ class EmailRetryScript
 
     # Validate specific emails format
     if @specific_emails.present?
-      emails = @specific_emails.split(',').map(&:strip)
+      emails = @specific_emails.split(",").map(&:strip)
       invalid_emails = emails.reject { |e| e.match?(URI::MailTo::EMAIL_REGEXP) }
       if invalid_emails.any?
         raise "❌ Invalid email format: #{invalid_emails.join(', ')}"
@@ -119,16 +119,16 @@ class EmailRetryScript
 
     # Filter by specific emails if provided
     if @specific_emails.present?
-      email_list = @specific_emails.split(',').map(&:strip)
+      email_list = @specific_emails.split(",").map(&:strip)
       deliveries = deliveries.where(recipient_email: email_list)
     end
 
     # Filter by status
     if @status_filter.present?
-      statuses = @status_filter.split(',').map(&:strip)
-      if statuses.include?('failed')
+      statuses = @status_filter.split(",").map(&:strip)
+      if statuses.include?("failed")
         # 'failed' is a shorthand for bounced + dropped
-        deliveries = deliveries.where(status: ['bounced', 'dropped'])
+        deliveries = deliveries.where(status: [ "bounced", "dropped" ])
       else
         deliveries = deliveries.where(status: statuses)
       end
@@ -136,9 +136,9 @@ class EmailRetryScript
 
     # Filter by type (invitation vs scheduled)
     case @type_filter
-    when 'invitation'
+    when "invitation"
       deliveries = deliveries.where.not(event_invitation_id: nil)
-    when 'scheduled'
+    when "scheduled"
       deliveries = deliveries.where.not(scheduled_email_id: nil)
     end
 
@@ -163,14 +163,14 @@ class EmailRetryScript
     # Show sample recipients
     puts "\nSample Recipients:"
     deliveries.limit(5).each do |d|
-      email_type = d.event_invitation_id ? 'invitation' : 'scheduled'
+      email_type = d.event_invitation_id ? "invitation" : "scheduled"
       puts "  - #{d.recipient_email} (#{d.status}, #{email_type})"
     end
     puts "  ... and #{deliveries.count - 5} more" if deliveries.count > 5
   end
 
   def process_delivery(delivery, current, total)
-    email_type = delivery.event_invitation_id ? 'invitation' : 'scheduled'
+    email_type = delivery.event_invitation_id ? "invitation" : "scheduled"
 
     print "[#{current}/#{total}] #{delivery.recipient_email} (#{email_type})... "
 
@@ -272,14 +272,14 @@ class EmailRetryScript
     result = template.dup
 
     if recipient.is_a?(Registration)
-      result.gsub!('{{vendor_name}}', recipient.business_name || recipient.name || '')
-      result.gsub!('{{contact_name}}', recipient.name || '')
-      result.gsub!('{{event_name}}', @event.title)
-      result.gsub!('{{event_date}}', @event.event_date.strftime('%B %d, %Y'))
+      result.gsub!("{{vendor_name}}", recipient.business_name || recipient.name || "")
+      result.gsub!("{{contact_name}}", recipient.name || "")
+      result.gsub!("{{event_name}}", @event.title)
+      result.gsub!("{{event_date}}", @event.event_date.strftime("%B %d, %Y"))
     elsif recipient.respond_to?(:name)
-      result.gsub!('{{contact_name}}', recipient.name || '')
-      result.gsub!('{{event_name}}', @event.title)
-      result.gsub!('{{event_date}}', @event.event_date.strftime('%B %d, %Y'))
+      result.gsub!("{{contact_name}}", recipient.name || "")
+      result.gsub!("{{event_name}}", @event.title)
+      result.gsub!("{{event_date}}", @event.event_date.strftime("%B %d, %Y"))
     end
 
     result

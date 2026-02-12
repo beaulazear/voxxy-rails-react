@@ -18,7 +18,7 @@ unless organization
 end
 
 # Check if template already exists
-existing_template = EmailCampaignTemplate.find_by(name: 'Pancake & Booze Event Campaign')
+existing_template = EmailCampaignTemplate.find_by(name: "Pancake & Booze Event Campaign")
 
 if existing_template
   puts "Template already exists (ID: #{existing_template.id})"
@@ -31,9 +31,9 @@ end
 # organization_id: nil means it's a system template
 puts "\n1. Creating Pancake & Booze Email Campaign Template..."
 template = EmailCampaignTemplate.create!(
-  template_type: 'system',
-  name: 'Pancake & Booze Event Campaign',
-  description: 'Custom email campaign for Pancake & Booze events with 33 category-specific automated emails covering invitations, applications, payments, and event countdown',
+  template_type: "system",
+  name: "Pancake & Booze Event Campaign",
+  description: "Custom email campaign for Pancake & Booze events with 33 category-specific automated emails covering invitations, applications, payments, and event countdown",
   is_default: false,  # Not the default - must be explicitly selected
   organization_id: organization&.id  # nil for system template, or specific org ID
 )
@@ -57,10 +57,10 @@ puts "   📢 Event Announcements (8 emails)..."
 
 # Announcement 1: 10 weeks out - ARTISTS
 create_email(template, {
-  name: 'Event Announcement - 10 Weeks Out (Artists)',
+  name: "Event Announcement - 10 Weeks Out (Artists)",
   position: 1,
-  category: 'Artists',
-  subject_template: 'Pancake and Booze Art Show is Coming to [eventCity] on [date]',
+  category: "Artists",
+  subject_template: "Pancake and Booze Art Show is Coming to [eventCity] on [date]",
   body_template: <<~HTML,
     <p>Hey [greetingName],</p>
 
@@ -87,19 +87,19 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'days_before_event',
+  trigger_type: "days_before_event",
   trigger_value: 70,
-  trigger_time: '10:00',
+  trigger_time: "10:00",
   filter_criteria: {},
   enabled_by_default: true
 })
 
 # Announcement 1: 10 weeks out - VENDORS
 create_email(template, {
-  name: 'Event Announcement - 10 Weeks Out (Vendors)',
+  name: "Event Announcement - 10 Weeks Out (Vendors)",
   position: 2,
-  category: 'Vendors',
-  subject_template: 'Pancake and Booze Art Show is Coming to [eventCity] on [date]',
+  category: "Vendors",
+  subject_template: "Pancake and Booze Art Show is Coming to [eventCity] on [date]",
   body_template: <<~HTML,
     <p>Hey [greetingName],</p>
 
@@ -126,19 +126,19 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'days_before_event',
+  trigger_type: "days_before_event",
   trigger_value: 70,
-  trigger_time: '10:00',
+  trigger_time: "10:00",
   filter_criteria: {},
   enabled_by_default: true
 })
 
 # Announcement 2: 8 weeks out - ARTISTS
 create_email(template, {
-  name: 'Event Announcement - 8 Weeks Out (Artists)',
+  name: "Event Announcement - 8 Weeks Out (Artists)",
   position: 3,
-  category: 'Artists',
-  subject_template: 'Artist Submissions for Pancake and Booze in [eventCity]',
+  category: "Artists",
+  subject_template: "Artist Submissions for Pancake and Booze in [eventCity]",
   body_template: <<~HTML,
     <p>Hey [greetingName],</p>
 
@@ -167,19 +167,19 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'days_before_event',
+  trigger_type: "days_before_event",
   trigger_value: 56,
-  trigger_time: '10:00',
+  trigger_time: "10:00",
   filter_criteria: {},
   enabled_by_default: true
 })
 
 # Announcement 2: 8 weeks out - VENDORS
 create_email(template, {
-  name: 'Event Announcement - 8 Weeks Out (Vendors)',
+  name: "Event Announcement - 8 Weeks Out (Vendors)",
   position: 4,
-  category: 'Vendors',
-  subject_template: 'Vendor Submissions for Pancake and Booze in [eventCity]',
+  category: "Vendors",
+  subject_template: "Vendor Submissions for Pancake and Booze in [eventCity]",
   body_template: <<~HTML,
     <p>Hey [greetingName],</p>
 
@@ -208,19 +208,19 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'days_before_event',
+  trigger_type: "days_before_event",
   trigger_value: 56,
-  trigger_time: '10:00',
+  trigger_time: "10:00",
   filter_criteria: {},
   enabled_by_default: true
 })
 
 # Announcement 3: 4 weeks out - ARTISTS
 create_email(template, {
-  name: 'Event Announcement - 4 Weeks Out (Artists)',
+  name: "Event Announcement - 4 Weeks Out (Artists)",
   position: 5,
-  category: 'Artists',
-  subject_template: 'Final Call for Artist Submissions - Pancake & Booze [eventCity]',
+  category: "Artists",
+  subject_template: "Final Call for Artist Submissions - Pancake & Booze [eventCity]",
   body_template: <<~HTML,
     <p>Hey [greetingName],</p>
 
@@ -246,19 +246,19 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'days_before_event',
+  trigger_type: "days_before_event",
   trigger_value: 28,
-  trigger_time: '10:00',
+  trigger_time: "10:00",
   filter_criteria: {},
   enabled_by_default: true
 })
 
 # Announcement 3: 4 weeks out - VENDORS
 create_email(template, {
-  name: 'Event Announcement - 4 Weeks Out (Vendors)',
+  name: "Event Announcement - 4 Weeks Out (Vendors)",
   position: 6,
-  category: 'Vendors',
-  subject_template: 'Final Call for Vendor Submissions - Pancake & Booze [eventCity]',
+  category: "Vendors",
+  subject_template: "Final Call for Vendor Submissions - Pancake & Booze [eventCity]",
   body_template: <<~HTML,
     <p>Hey [greetingName],</p>
 
@@ -284,19 +284,19 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'days_before_event',
+  trigger_type: "days_before_event",
   trigger_value: 28,
-  trigger_time: '10:00',
+  trigger_time: "10:00",
   filter_criteria: {},
   enabled_by_default: true
 })
 
 # Announcement 4: 12 days out - ARTISTS
 create_email(template, {
-  name: 'Event Announcement - 12 Days Out (Artists)',
+  name: "Event Announcement - 12 Days Out (Artists)",
   position: 7,
-  category: 'Artists',
-  subject_template: 'Pancake & Booze [eventCity] - 12 Days Away!',
+  category: "Artists",
+  subject_template: "Pancake & Booze [eventCity] - 12 Days Away!",
   body_template: <<~HTML,
     <p>Hey [greetingName],</p>
 
@@ -325,19 +325,19 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'days_before_event',
+  trigger_type: "days_before_event",
   trigger_value: 12,
-  trigger_time: '10:00',
+  trigger_time: "10:00",
   filter_criteria: {},
   enabled_by_default: true
 })
 
 # Announcement 4: 12 days out - VENDORS
 create_email(template, {
-  name: 'Event Announcement - 12 Days Out (Vendors)',
+  name: "Event Announcement - 12 Days Out (Vendors)",
   position: 8,
-  category: 'Vendors',
-  subject_template: 'Pancake & Booze [eventCity] - 12 Days Away!',
+  category: "Vendors",
+  subject_template: "Pancake & Booze [eventCity] - 12 Days Away!",
   body_template: <<~HTML,
     <p>Hey [greetingName],</p>
 
@@ -366,9 +366,9 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'days_before_event',
+  trigger_type: "days_before_event",
   trigger_value: 12,
-  trigger_time: '10:00',
+  trigger_time: "10:00",
   filter_criteria: {},
   enabled_by_default: true
 })
@@ -383,10 +383,10 @@ puts "   📝 Application Workflow (4 emails)..."
 
 # Application Received - ARTISTS
 create_email(template, {
-  name: 'Application Received (Artists)',
+  name: "Application Received (Artists)",
   position: 9,
-  category: 'Artists',
-  subject_template: 'Thank You For Your Submission!',
+  category: "Artists",
+  subject_template: "Thank You For Your Submission!",
   body_template: <<~HTML,
     <p>Hello [greetingName],</p>
 
@@ -411,19 +411,19 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'on_application_submit',
+  trigger_type: "on_application_submit",
   trigger_value: 0,
-  trigger_time: '09:00',
+  trigger_time: "09:00",
   filter_criteria: {},
   enabled_by_default: true
 })
 
 # Application Received - VENDORS
 create_email(template, {
-  name: 'Application Received (Vendors)',
+  name: "Application Received (Vendors)",
   position: 10,
-  category: 'Vendors',
-  subject_template: 'Thank You For Your Submission!',
+  category: "Vendors",
+  subject_template: "Thank You For Your Submission!",
   body_template: <<~HTML,
     <p>Hello [greetingName],</p>
 
@@ -448,19 +448,19 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'on_application_submit',
+  trigger_type: "on_application_submit",
   trigger_value: 0,
-  trigger_time: '09:00',
+  trigger_time: "09:00",
   filter_criteria: {},
   enabled_by_default: true
 })
 
 # Application Accepted - ARTISTS
 create_email(template, {
-  name: 'Application Accepted (Artists)',
+  name: "Application Accepted (Artists)",
   position: 11,
-  category: 'Artists',
-  subject_template: 'You\'re In! Pancake and Booze Art Show - [eventCity]',
+  category: "Artists",
+  subject_template: "You're In! Pancake and Booze Art Show - [eventCity]",
   body_template: <<~HTML,
     <p>Hello [greetingName],</p>
 
@@ -499,19 +499,19 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'on_approval',
+  trigger_type: "on_approval",
   trigger_value: 0,
-  trigger_time: '09:00',
-  filter_criteria: { statuses: ['approved'] },
+  trigger_time: "09:00",
+  filter_criteria: { statuses: [ "approved" ] },
   enabled_by_default: true
 })
 
 # Application Accepted - VENDORS
 create_email(template, {
-  name: 'Application Accepted (Vendors)',
+  name: "Application Accepted (Vendors)",
   position: 12,
-  category: 'Vendors',
-  subject_template: 'You\'re In! Pancake and Booze Art Show - [eventCity]',
+  category: "Vendors",
+  subject_template: "You're In! Pancake and Booze Art Show - [eventCity]",
   body_template: <<~HTML,
     <p>Hello [greetingName],</p>
 
@@ -550,10 +550,10 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'on_approval',
+  trigger_type: "on_approval",
   trigger_value: 0,
-  trigger_time: '09:00',
-  filter_criteria: { statuses: ['approved'] },
+  trigger_time: "09:00",
+  filter_criteria: { statuses: [ "approved" ] },
   enabled_by_default: true
 })
 
@@ -565,13 +565,13 @@ puts "      ✓ Added 4 application workflow emails"
 
 puts "   💳 Payment Reminders - Artists (6 emails)..."
 
-artist_payment_days = [39, 26, 16, 8, 4, 1]
+artist_payment_days = [ 39, 26, 16, 8, 4, 1 ]
 artist_payment_days.each_with_index do |days, index|
-  urgency = days <= 4 ? 'URGENT: ' : ''
+  urgency = days <= 4 ? "URGENT: " : ""
   create_email(template, {
     name: "Payment Reminder - #{days} Days (Artists)",
     position: 13 + index,
-    category: 'Artists',
+    category: "Artists",
     subject_template: "#{urgency}Payment Due in #{days} Days - Pancake & Booze [eventCity]",
     body_template: <<~HTML,
       <p>Hello [greetingName],</p>
@@ -601,12 +601,12 @@ artist_payment_days.each_with_index do |days, index|
 
       <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
     HTML
-    trigger_type: 'days_before_payment_deadline',
+    trigger_type: "days_before_payment_deadline",
     trigger_value: days,
-    trigger_time: '10:00',
+    trigger_time: "10:00",
     filter_criteria: {
-      statuses: ['approved'],
-      payment_status: ['pending', 'overdue']
+      statuses: [ "approved" ],
+      payment_status: [ "pending", "overdue" ]
     },
     enabled_by_default: true
   })
@@ -620,13 +620,13 @@ puts "      ✓ Added 6 artist payment reminder emails"
 
 puts "   💳 Payment Reminders - Vendors (4 emails)..."
 
-vendor_payment_days = [29, 15, 9, 3]
+vendor_payment_days = [ 29, 15, 9, 3 ]
 vendor_payment_days.each_with_index do |days, index|
-  urgency = days <= 9 ? 'URGENT: ' : ''
+  urgency = days <= 9 ? "URGENT: " : ""
   create_email(template, {
     name: "Payment Reminder - #{days} Days (Vendors)",
     position: 19 + index,
-    category: 'Vendors',
+    category: "Vendors",
     subject_template: "#{urgency}Payment Due in #{days} Days - Pancake & Booze [eventCity]",
     body_template: <<~HTML,
       <p>Hello [greetingName],</p>
@@ -656,12 +656,12 @@ vendor_payment_days.each_with_index do |days, index|
 
       <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
     HTML
-    trigger_type: 'days_before_payment_deadline',
+    trigger_type: "days_before_payment_deadline",
     trigger_value: days,
-    trigger_time: '10:00',
+    trigger_time: "10:00",
     filter_criteria: {
-      statuses: ['approved'],
-      payment_status: ['pending', 'overdue']
+      statuses: [ "approved" ],
+      payment_status: [ "pending", "overdue" ]
     },
     enabled_by_default: true
   })
@@ -677,10 +677,10 @@ puts "   ✅ Payment Confirmation (2 emails)..."
 
 # Payment Confirmation - ARTISTS
 create_email(template, {
-  name: 'Payment Confirmation (Artists)',
+  name: "Payment Confirmation (Artists)",
   position: 23,
-  category: 'Artists',
-  subject_template: 'Payment Received - Pancake & Booze [eventCity]',
+  category: "Artists",
+  subject_template: "Payment Received - Pancake & Booze [eventCity]",
   body_template: <<~HTML,
     <p>Hello [greetingName],</p>
 
@@ -708,22 +708,22 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'on_payment_deadline',
+  trigger_type: "on_payment_deadline",
   trigger_value: -1,  # -1 means "after" payment deadline (triggered when payment received)
-  trigger_time: '09:00',
+  trigger_time: "09:00",
   filter_criteria: {
-    statuses: ['approved', 'confirmed'],
-    payment_status: ['paid']
+    statuses: [ "approved", "confirmed" ],
+    payment_status: [ "paid" ]
   },
   enabled_by_default: true
 })
 
 # Payment Confirmation - VENDORS
 create_email(template, {
-  name: 'Payment Confirmation (Vendors)',
+  name: "Payment Confirmation (Vendors)",
   position: 24,
-  category: 'Vendors',
-  subject_template: 'Payment Received - Pancake & Booze [eventCity]',
+  category: "Vendors",
+  subject_template: "Payment Received - Pancake & Booze [eventCity]",
   body_template: <<~HTML,
     <p>Hello [greetingName],</p>
 
@@ -751,12 +751,12 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'on_payment_deadline',
+  trigger_type: "on_payment_deadline",
   trigger_value: -1,  # -1 means "after" payment deadline (triggered when payment received)
-  trigger_time: '09:00',
+  trigger_time: "09:00",
   filter_criteria: {
-    statuses: ['approved', 'confirmed'],
-    payment_status: ['paid']
+    statuses: [ "approved", "confirmed" ],
+    payment_status: [ "paid" ]
   },
   enabled_by_default: true
 })
@@ -771,10 +771,10 @@ puts "   ⏰ Event Countdown - Artists (4 emails)..."
 
 # 17 days before
 create_email(template, {
-  name: 'Event Countdown - 17 Days (Artists)',
+  name: "Event Countdown - 17 Days (Artists)",
   position: 25,
-  category: 'Artists',
-  subject_template: '17 Days Until Pancake & Booze in [eventCity]!',
+  category: "Artists",
+  subject_template: "17 Days Until Pancake & Booze in [eventCity]!",
   body_template: <<~HTML,
     <p>Hello [greetingName],</p>
 
@@ -805,19 +805,19 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'days_before_event',
+  trigger_type: "days_before_event",
   trigger_value: 17,
-  trigger_time: '10:00',
-  filter_criteria: { statuses: ['approved', 'confirmed'] },
+  trigger_time: "10:00",
+  filter_criteria: { statuses: [ "approved", "confirmed" ] },
   enabled_by_default: true
 })
 
 # 11 days before
 create_email(template, {
-  name: 'Event Countdown - 11 Days (Artists)',
+  name: "Event Countdown - 11 Days (Artists)",
   position: 26,
-  category: 'Artists',
-  subject_template: '11 Days Until Pancake & Booze in [eventCity]!',
+  category: "Artists",
+  subject_template: "11 Days Until Pancake & Booze in [eventCity]!",
   body_template: <<~HTML,
     <p>Hello [greetingName],</p>
 
@@ -848,19 +848,19 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'days_before_event',
+  trigger_type: "days_before_event",
   trigger_value: 11,
-  trigger_time: '10:00',
-  filter_criteria: { statuses: ['approved', 'confirmed'] },
+  trigger_time: "10:00",
+  filter_criteria: { statuses: [ "approved", "confirmed" ] },
   enabled_by_default: true
 })
 
 # 3 days before
 create_email(template, {
-  name: 'Event Countdown - 3 Days (Artists)',
+  name: "Event Countdown - 3 Days (Artists)",
   position: 27,
-  category: 'Artists',
-  subject_template: '3 Days Until Pancake & Booze in [eventCity]!',
+  category: "Artists",
+  subject_template: "3 Days Until Pancake & Booze in [eventCity]!",
   body_template: <<~HTML,
     <p>Hello [greetingName],</p>
 
@@ -891,19 +891,19 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'days_before_event',
+  trigger_type: "days_before_event",
   trigger_value: 3,
-  trigger_time: '10:00',
-  filter_criteria: { statuses: ['approved', 'confirmed'] },
+  trigger_time: "10:00",
+  filter_criteria: { statuses: [ "approved", "confirmed" ] },
   enabled_by_default: true
 })
 
 # Day of event
 create_email(template, {
-  name: 'Event Day - Today (Artists)',
+  name: "Event Day - Today (Artists)",
   position: 28,
-  category: 'Artists',
-  subject_template: 'Today: Pancake & Booze in [eventCity]!',
+  category: "Artists",
+  subject_template: "Today: Pancake & Booze in [eventCity]!",
   body_template: <<~HTML,
     <p>Hello [greetingName],</p>
 
@@ -933,10 +933,10 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'on_event_date',
+  trigger_type: "on_event_date",
   trigger_value: 0,
-  trigger_time: '08:00',
-  filter_criteria: { statuses: ['approved', 'confirmed'] },
+  trigger_time: "08:00",
+  filter_criteria: { statuses: [ "approved", "confirmed" ] },
   enabled_by_default: true
 })
 
@@ -950,10 +950,10 @@ puts "   ⏰ Event Countdown - Vendors (4 emails)..."
 
 # 12 days before
 create_email(template, {
-  name: 'Event Countdown - 12 Days (Vendors)',
+  name: "Event Countdown - 12 Days (Vendors)",
   position: 29,
-  category: 'Vendors',
-  subject_template: '12 Days Until Pancake & Booze in [eventCity]!',
+  category: "Vendors",
+  subject_template: "12 Days Until Pancake & Booze in [eventCity]!",
   body_template: <<~HTML,
     <p>Hello [greetingName],</p>
 
@@ -984,19 +984,19 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'days_before_event',
+  trigger_type: "days_before_event",
   trigger_value: 12,
-  trigger_time: '14:00',  # Different time than announcement to avoid duplicate
-  filter_criteria: { statuses: ['approved', 'confirmed'] },
+  trigger_time: "14:00",  # Different time than announcement to avoid duplicate
+  filter_criteria: { statuses: [ "approved", "confirmed" ] },
   enabled_by_default: true
 })
 
 # 7 days before
 create_email(template, {
-  name: 'Event Countdown - 7 Days (Vendors)',
+  name: "Event Countdown - 7 Days (Vendors)",
   position: 30,
-  category: 'Vendors',
-  subject_template: '7 Days Until Pancake & Booze in [eventCity]!',
+  category: "Vendors",
+  subject_template: "7 Days Until Pancake & Booze in [eventCity]!",
   body_template: <<~HTML,
     <p>Hello [greetingName],</p>
 
@@ -1027,19 +1027,19 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'days_before_event',
+  trigger_type: "days_before_event",
   trigger_value: 7,
-  trigger_time: '10:00',
-  filter_criteria: { statuses: ['approved', 'confirmed'] },
+  trigger_time: "10:00",
+  filter_criteria: { statuses: [ "approved", "confirmed" ] },
   enabled_by_default: true
 })
 
 # 3 days before
 create_email(template, {
-  name: 'Event Countdown - 3 Days (Vendors)',
+  name: "Event Countdown - 3 Days (Vendors)",
   position: 31,
-  category: 'Vendors',
-  subject_template: '3 Days Until Pancake & Booze in [eventCity]!',
+  category: "Vendors",
+  subject_template: "3 Days Until Pancake & Booze in [eventCity]!",
   body_template: <<~HTML,
     <p>Hello [greetingName],</p>
 
@@ -1070,19 +1070,19 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'days_before_event',
+  trigger_type: "days_before_event",
   trigger_value: 3,
-  trigger_time: '14:00',  # Different time than artists
-  filter_criteria: { statuses: ['approved', 'confirmed'] },
+  trigger_time: "14:00",  # Different time than artists
+  filter_criteria: { statuses: [ "approved", "confirmed" ] },
   enabled_by_default: true
 })
 
 # Day of event (morning)
 create_email(template, {
-  name: 'Event Day - Morning (Vendors)',
+  name: "Event Day - Morning (Vendors)",
   position: 32,
-  category: 'Vendors',
-  subject_template: 'Today: Pancake & Booze in [eventCity]!',
+  category: "Vendors",
+  subject_template: "Today: Pancake & Booze in [eventCity]!",
   body_template: <<~HTML,
     <p>Hello [greetingName],</p>
 
@@ -1112,10 +1112,10 @@ create_email(template, {
 
     <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
   HTML
-  trigger_type: 'on_event_date',
+  trigger_type: "on_event_date",
   trigger_value: 0,
-  trigger_time: '07:00',  # Earlier than artists
-  filter_criteria: { statuses: ['approved', 'confirmed'] },
+  trigger_time: "07:00",  # Earlier than artists
+  filter_criteria: { statuses: [ "approved", "confirmed" ] },
   enabled_by_default: true
 })
 

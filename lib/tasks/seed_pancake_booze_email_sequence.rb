@@ -71,7 +71,7 @@ class PancakeBoozeSeedService
       category: "application",
       trigger_type: "on_application_submit",
       trigger_value: nil,
-      filter_criteria: { vendor_category: ["Artists"] }.to_json,
+      filter_criteria: { vendor_category: [ "Artists" ] }.to_json,
       subject: "Application Received - [eventName]",
       body: <<~BODY
         Hi [greetingName],
@@ -96,7 +96,7 @@ class PancakeBoozeSeedService
       category: "application",
       trigger_type: "on_application_submit",
       trigger_value: nil,
-      filter_criteria: { vendor_category: ["Vendors"] }.to_json,
+      filter_criteria: { vendor_category: [ "Vendors" ] }.to_json,
       subject: "Vendor Application Received - [eventName]",
       body: <<~BODY
         Hi [greetingName],
@@ -123,7 +123,7 @@ class PancakeBoozeSeedService
       category: "application",
       trigger_type: "on_approval",
       trigger_value: nil,
-      filter_criteria: { vendor_category: ["Artists"] }.to_json,
+      filter_criteria: { vendor_category: [ "Artists" ] }.to_json,
       subject: "Congratulations! You're Invited to [eventName]",
       body: <<~BODY
         Hi [greetingName],
@@ -153,7 +153,7 @@ class PancakeBoozeSeedService
       category: "application",
       trigger_type: "on_approval",
       trigger_value: nil,
-      filter_criteria: { vendor_category: ["Vendors"] }.to_json,
+      filter_criteria: { vendor_category: [ "Vendors" ] }.to_json,
       subject: "You're Approved to Vend at [eventName]",
       body: <<~BODY
         Hi [greetingName],
@@ -347,7 +347,7 @@ class PancakeBoozeSeedService
       category: "payment",
       trigger_type: "days_before_event",
       trigger_value: 39,
-      filter_criteria: { vendor_category: ["Artists"], payment_status: ["pending", "overdue"] }.to_json,
+      filter_criteria: { vendor_category: [ "Artists" ], payment_status: [ "pending", "overdue" ] }.to_json,
       subject: "Ramping Up for [eventName] - Confirm Your Spot",
       body: <<~BODY
         Hi [greetingName],
@@ -372,7 +372,7 @@ class PancakeBoozeSeedService
       category: "payment",
       trigger_type: "days_before_event",
       trigger_value: 26,
-      filter_criteria: { vendor_category: ["Artists"], payment_status: ["pending", "overdue"] }.to_json,
+      filter_criteria: { vendor_category: [ "Artists" ], payment_status: [ "pending", "overdue" ] }.to_json,
       subject: "[eventName] - 4 Weeks to Go!",
       body: <<~BODY
         Hi [greetingName],
@@ -399,7 +399,7 @@ class PancakeBoozeSeedService
       category: "payment",
       trigger_type: "days_before_event",
       trigger_value: 16,
-      filter_criteria: { vendor_category: ["Artists"], payment_status: ["pending", "overdue"] }.to_json,
+      filter_criteria: { vendor_category: [ "Artists" ], payment_status: [ "pending", "overdue" ] }.to_json,
       subject: "Early Bird Pricing Ends in 10 Days - [eventName]",
       body: <<~BODY
         Hi [greetingName],
@@ -424,7 +424,7 @@ class PancakeBoozeSeedService
       category: "payment",
       trigger_type: "days_before_event",
       trigger_value: 8,
-      filter_criteria: { vendor_category: ["Artists"], payment_status: ["pending", "overdue"] }.to_json,
+      filter_criteria: { vendor_category: [ "Artists" ], payment_status: [ "pending", "overdue" ] }.to_json,
       subject: "Final Hours - Early Bird Rates End Tomorrow",
       body: <<~BODY
         Hi [greetingName],
@@ -451,7 +451,7 @@ class PancakeBoozeSeedService
       category: "payment",
       trigger_type: "days_before_event",
       trigger_value: 4,
-      filter_criteria: { vendor_category: ["Artists"], payment_status: ["pending", "overdue"] }.to_json,
+      filter_criteria: { vendor_category: [ "Artists" ], payment_status: [ "pending", "overdue" ] }.to_json,
       subject: "You Can Still Exhibit at [eventName]",
       body: <<~BODY
         Hi [greetingName],
@@ -478,7 +478,7 @@ class PancakeBoozeSeedService
       category: "payment",
       trigger_type: "days_before_event",
       trigger_value: 1,
-      filter_criteria: { vendor_category: ["Artists"], payment_status: ["pending", "overdue"] }.to_json,
+      filter_criteria: { vendor_category: [ "Artists" ], payment_status: [ "pending", "overdue" ] }.to_json,
       subject: "Last Call - Secure Your Spot for Tomorrow",
       body: <<~BODY
         Hi [greetingName],
@@ -504,7 +504,7 @@ class PancakeBoozeSeedService
       category: "payment",
       trigger_type: "days_before_event",
       trigger_value: 29,
-      filter_criteria: { vendor_category: ["Vendors"], payment_status: ["pending", "overdue"] }.to_json,
+      filter_criteria: { vendor_category: [ "Vendors" ], payment_status: [ "pending", "overdue" ] }.to_json,
       subject: "Your Vendor Spot for [eventName]",
       body: <<~BODY
         Hi [greetingName],
@@ -529,7 +529,7 @@ class PancakeBoozeSeedService
       category: "payment",
       trigger_type: "days_before_event",
       trigger_value: 15,
-      filter_criteria: { vendor_category: ["Vendors"], payment_status: ["pending", "overdue"] }.to_json,
+      filter_criteria: { vendor_category: [ "Vendors" ], payment_status: [ "pending", "overdue" ] }.to_json,
       subject: "Update: [eventName] Vendor Space Availability",
       body: <<~BODY
         Hi [greetingName],
@@ -554,7 +554,7 @@ class PancakeBoozeSeedService
       category: "payment",
       trigger_type: "days_before_event",
       trigger_value: 9,
-      filter_criteria: { vendor_category: ["Vendors"], payment_status: ["pending", "overdue"] }.to_json,
+      filter_criteria: { vendor_category: [ "Vendors" ], payment_status: [ "pending", "overdue" ] }.to_json,
       subject: "Final Call: [eventName] Vendor Availability",
       body: <<~BODY
         Hi [greetingName],
@@ -579,7 +579,7 @@ class PancakeBoozeSeedService
       category: "payment",
       trigger_type: "days_before_event",
       trigger_value: 3,
-      filter_criteria: { vendor_category: ["Vendors"], payment_status: ["pending", "overdue"] }.to_json,
+      filter_criteria: { vendor_category: [ "Vendors" ], payment_status: [ "pending", "overdue" ] }.to_json,
       subject: "URGENT: Is Your Vendor Space Confirmed?",
       body: <<~BODY
         Hi [greetingName],
@@ -634,7 +634,7 @@ class PancakeBoozeSeedService
       category: "pre_event",
       trigger_type: "days_before_event",
       trigger_value: 17,
-      filter_criteria: { vendor_category: ["Artists"], payment_status: ["paid"] }.to_json,
+      filter_criteria: { vendor_category: [ "Artists" ], payment_status: [ "paid" ] }.to_json,
       subject: "Artist Guide: Size, Hanging & Sales for [eventName]",
       body: <<~BODY
         Hi [greetingName],
@@ -673,7 +673,7 @@ class PancakeBoozeSeedService
       category: "pre_event",
       trigger_type: "days_before_event",
       trigger_value: 11,
-      filter_criteria: { vendor_category: ["Artists"], payment_status: ["paid"] }.to_json,
+      filter_criteria: { vendor_category: [ "Artists" ], payment_status: [ "paid" ] }.to_json,
       subject: "What to Expect: Your Day at [eventName]",
       body: <<~BODY
         Hi [greetingName],
@@ -710,7 +710,7 @@ class PancakeBoozeSeedService
       category: "pre_event",
       trigger_type: "days_before_event",
       trigger_value: 3,
-      filter_criteria: { vendor_category: ["Artists"], payment_status: ["paid"] }.to_json,
+      filter_criteria: { vendor_category: [ "Artists" ], payment_status: [ "paid" ] }.to_json,
       subject: "Final Details for [eventName]!",
       body: <<~BODY
         Hi [greetingName],
@@ -749,7 +749,7 @@ class PancakeBoozeSeedService
       category: "event_day",
       trigger_type: "on_event_date",
       trigger_value: nil,
-      filter_criteria: { vendor_category: ["Artists"], payment_status: ["paid"] }.to_json,
+      filter_criteria: { vendor_category: [ "Artists" ], payment_status: [ "paid" ] }.to_json,
       subject: "TODAY: [eventName] - Let's Do This!",
       body: <<~BODY
         Hi [greetingName],
@@ -782,7 +782,7 @@ class PancakeBoozeSeedService
       category: "pre_event",
       trigger_type: "days_before_event",
       trigger_value: 12,
-      filter_criteria: { vendor_category: ["Vendors"], payment_status: ["paid"] }.to_json,
+      filter_criteria: { vendor_category: [ "Vendors" ], payment_status: [ "paid" ] }.to_json,
       subject: "Vendor Guide: Setup, Gear & Expectations for [eventName]",
       body: <<~BODY
         Hi [greetingName],
@@ -822,7 +822,7 @@ class PancakeBoozeSeedService
       category: "pre_event",
       trigger_type: "days_before_event",
       trigger_value: 7,
-      filter_criteria: { vendor_category: ["Vendors"], payment_status: ["paid"] }.to_json,
+      filter_criteria: { vendor_category: [ "Vendors" ], payment_status: [ "paid" ] }.to_json,
       subject: "1 Week Out: Vendor Checklist for [eventName]",
       body: <<~BODY
         Hi [greetingName],
@@ -857,7 +857,7 @@ class PancakeBoozeSeedService
       category: "pre_event",
       trigger_type: "days_before_event",
       trigger_value: 3,
-      filter_criteria: { vendor_category: ["Vendors"], payment_status: ["paid"] }.to_json,
+      filter_criteria: { vendor_category: [ "Vendors" ], payment_status: [ "paid" ] }.to_json,
       subject: "Final Instructions: [eventName] Load-In & Parking",
       body: <<~BODY
         Hi [greetingName],
@@ -897,7 +897,7 @@ class PancakeBoozeSeedService
       category: "event_day",
       trigger_type: "on_event_date",
       trigger_value: nil,
-      filter_criteria: { vendor_category: ["Vendors"], payment_status: ["paid"] }.to_json,
+      filter_criteria: { vendor_category: [ "Vendors" ], payment_status: [ "paid" ] }.to_json,
       subject: "TODAY: [eventName] Vendor Load-In!",
       body: <<~BODY
         Hi [greetingName],

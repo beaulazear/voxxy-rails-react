@@ -57,7 +57,7 @@ class DailyBackupWorker
 
   def run_backup_script(organization_slug)
     # Use backticks to capture output
-    script_path = Rails.root.join('lib', 'scripts', 'data_backup.rb')
+    script_path = Rails.root.join("lib", "scripts", "data_backup.rb")
 
     # Run the script
     output = `rails runner #{script_path} --organization=#{organization_slug} 2>&1`
@@ -81,13 +81,13 @@ class DailyBackupWorker
   end
 
   def cleanup_old_backups
-    backup_dir = Rails.root.join('backups')
+    backup_dir = Rails.root.join("backups")
     return unless Dir.exist?(backup_dir)
 
     cutoff_date = 30.days.ago
 
     deleted_count = 0
-    Dir.glob(File.join(backup_dir, '*.json')).each do |file|
+    Dir.glob(File.join(backup_dir, "*.json")).each do |file|
       if File.mtime(file) < cutoff_date
         File.delete(file)
         deleted_count += 1

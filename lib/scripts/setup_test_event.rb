@@ -13,7 +13,7 @@
 #   rails runner lib/scripts/setup_test_event.rb cleanup  # Remove test data
 #   rails runner lib/scripts/setup_test_event.rb pancake_booze  # Use Pancake & Booze email sequence
 
-require 'faker'
+require "faker"
 
 class TestEventSetup
   TEST_EMAIL = "test-producer@voxxypresents.com"
@@ -142,7 +142,7 @@ class TestEventSetup
     log("✓ Created #{registrations_pb.count} registrations for Pancake & Booze event", color: :green)
 
     # Step 8: Summary
-    print_summary(user, org, [event_default, event_pb], contacts, invitations_default.count + invitations_pb.count, registrations_default.count + registrations_pb.count)
+    print_summary(user, org, [ event_default, event_pb ], contacts, invitations_default.count + invitations_pb.count, registrations_default.count + registrations_pb.count)
   end
 
   def create_test_user
@@ -180,8 +180,8 @@ class TestEventSetup
         location: "#{Faker::Address.city}, #{Faker::Address.state_abbr}",
         contact_type: "vendor",
         status: "new",
-        source: ["returning", "past_event", "new"].sample,
-        tags: ["art", "food", "jewelry", "local", "featured"].sample(rand(1..3)),
+        source: [ "returning", "past_event", "new" ].sample,
+        tags: [ "art", "food", "jewelry", "local", "featured" ].sample(rand(1..3)),
         notes: rand > 0.7 ? Faker::Lorem.sentence : nil
       )
       contacts << contact
@@ -199,10 +199,10 @@ class TestEventSetup
 
     slug_suffix = suffix ? "-#{suffix}" : ""
     title_suffix = case sequence_type
-                   when :pancake_booze then " (Pancake & Booze)"
-                   when :default then " (Default)"
-                   else ""
-                   end
+    when :pancake_booze then " (Pancake & Booze)"
+    when :default then " (Default)"
+    else ""
+    end
 
     event_params = {
       organization: org,
@@ -262,8 +262,8 @@ class TestEventSetup
         name: cat[:name],
         description: cat[:description],
         status: "active",
-        categories: [cat[:name]],
-        booth_price: [50, 75, 100, 150].sample
+        categories: [ cat[:name] ],
+        booth_price: [ 50, 75, 100, 150 ].sample
       )
     end
   end
@@ -287,7 +287,7 @@ class TestEventSetup
     log("  Progress: ", color: :yellow)
 
     # Calculate split: 20% from invited contacts, 80% net new
-    from_invited = [invitations.count / 2, count / 5].min # 50% conversion rate, but max 20% of total
+    from_invited = [ invitations.count / 2, count / 5 ].min # 50% conversion rate, but max 20% of total
     from_new = count - from_invited
 
     # Part 1: Create registrations from invited contacts
@@ -333,17 +333,17 @@ class TestEventSetup
 
     # Assign realistic statuses
     status = case rand
-             when 0..0.5 then "pending"    # 50% pending (not reviewed yet)
-             when 0.5..0.8 then "approved"  # 30% approved
-             when 0.8..0.95 then "waitlist" # 15% waitlist
-             else "rejected"                 # 5% rejected
-             end
+    when 0..0.5 then "pending"    # 50% pending (not reviewed yet)
+    when 0.5..0.8 then "approved"  # 30% approved
+    when 0.8..0.95 then "waitlist" # 15% waitlist
+    else "rejected"                 # 5% rejected
+    end
 
     payment_status = if status == "approved"
-                       ["paid", "pending", "overdue"].sample
-                     else
+                       [ "paid", "pending", "overdue" ].sample
+    else
                        "pending"
-                     end
+    end
 
     Registration.create!(
       event: event,
@@ -415,8 +415,8 @@ end
 cleanup_mode = ARGV.include?("cleanup")
 sequence_type = if ARGV.include?("pancake_booze")
                   :pancake_booze
-                else
+else
                   :default
-                end
+end
 
 TestEventSetup.new(cleanup: cleanup_mode, sequence_type: sequence_type).run

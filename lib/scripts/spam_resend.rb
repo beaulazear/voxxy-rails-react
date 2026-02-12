@@ -26,8 +26,8 @@
 #   --dry-run             Preview without sending or marking
 #   --help                Show this help message
 
-require 'optparse'
-require 'csv'
+require "optparse"
+require "csv"
 
 class SpamResendScript
   def initialize(options = {})
@@ -83,7 +83,7 @@ class SpamResendScript
       print "Type 'yes' to continue: "
       confirmation = STDIN.gets.chomp
 
-      unless confirmation.downcase == 'yes'
+      unless confirmation.downcase == "yes"
         puts "❌ Aborted."
         return
       end
@@ -104,7 +104,7 @@ class SpamResendScript
 
   def validate_options!
     # Check environment safety
-    if Rails.env.production? && !ENV['ALLOW_PRODUCTION_SCRIPTS']
+    if Rails.env.production? && !ENV["ALLOW_PRODUCTION_SCRIPTS"]
       raise "⛔️ SAFETY CHECK: Cannot run scripts in production without ALLOW_PRODUCTION_SCRIPTS=true"
     end
 
@@ -127,7 +127,7 @@ class SpamResendScript
 
     # Validate specific emails format if provided
     if @specific_emails.present?
-      emails = @specific_emails.split(',').map(&:strip)
+      emails = @specific_emails.split(",").map(&:strip)
       invalid_emails = emails.reject { |e| e.match?(URI::MailTo::EMAIL_REGEXP) }
       if invalid_emails.any?
         raise "❌ Invalid email format: #{invalid_emails.join(', ')}"
@@ -140,7 +140,7 @@ class SpamResendScript
 
     # From --emails parameter
     if @specific_emails.present?
-      addresses += @specific_emails.split(',').map(&:strip)
+      addresses += @specific_emails.split(",").map(&:strip)
     end
 
     # From CSV file
@@ -162,7 +162,7 @@ class SpamResendScript
 
     CSV.foreach(@csv_file, headers: true) do |row|
       # Try to find email in 'email' column or first column
-      email = row['email'] || row['Email'] || row[0]
+      email = row["email"] || row["Email"] || row[0]
 
       if email && email.match?(URI::MailTo::EMAIL_REGEXP)
         emails << email.strip
@@ -199,11 +199,11 @@ class SpamResendScript
       unit = time_str[-1]
 
       case unit
-      when 'h'
+      when "h"
         amount.hours.ago
-      when 'd'
+      when "d"
         amount.days.ago
-      when 'm'
+      when "m"
         amount.minutes.ago
       end
     else
@@ -267,14 +267,14 @@ class SpamResendScript
 
     puts "\nSample Deliveries:"
     deliveries.first(5).each do |d|
-      email_type = d.event_invitation_id ? 'invitation' : 'scheduled'
+      email_type = d.event_invitation_id ? "invitation" : "scheduled"
       puts "  - #{d.recipient_email} (#{d.status}, #{email_type})"
     end
     puts "  ... and #{deliveries.count - 5} more" if deliveries.count > 5
   end
 
   def process_delivery(delivery, current, total)
-    email_type = delivery.event_invitation_id ? 'invitation' : 'scheduled'
+    email_type = delivery.event_invitation_id ? "invitation" : "scheduled"
 
     print "[#{current}/#{total}] #{delivery.recipient_email} (#{email_type})... "
 
@@ -308,8 +308,8 @@ class SpamResendScript
   def mark_resent_due_to_spam(delivery)
     # Add a note to the delivery record
     notes = delivery.notes || {}
-    notes['resent_due_to_spam'] = true
-    notes['resent_at'] = Time.current.iso8601
+    notes["resent_due_to_spam"] = true
+    notes["resent_at"] = Time.current.iso8601
 
     delivery.update!(
       notes: notes,
@@ -383,14 +383,14 @@ class SpamResendScript
     result = template.dup
 
     if recipient.is_a?(Registration)
-      result.gsub!('{{vendor_name}}', recipient.business_name || recipient.name || '')
-      result.gsub!('{{contact_name}}', recipient.name || '')
-      result.gsub!('{{event_name}}', @event.title)
-      result.gsub!('{{event_date}}', @event.event_date.strftime('%B %d, %Y'))
+      result.gsub!("{{vendor_name}}", recipient.business_name || recipient.name || "")
+      result.gsub!("{{contact_name}}", recipient.name || "")
+      result.gsub!("{{event_name}}", @event.title)
+      result.gsub!("{{event_date}}", @event.event_date.strftime("%B %d, %Y"))
     elsif recipient.respond_to?(:name)
-      result.gsub!('{{contact_name}}', recipient.name || '')
-      result.gsub!('{{event_name}}', @event.title)
-      result.gsub!('{{event_date}}', @event.event_date.strftime('%B %d, %Y'))
+      result.gsub!("{{contact_name}}", recipient.name || "")
+      result.gsub!("{{event_name}}", @event.title)
+      result.gsub!("{{event_date}}", @event.event_date.strftime("%B %d, %Y"))
     end
 
     result

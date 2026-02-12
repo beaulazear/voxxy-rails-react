@@ -25,12 +25,12 @@
 #   --list                  List all available backups
 #   --help                  Show this help message
 
-require 'optparse'
-require 'json'
-require 'fileutils'
+require "optparse"
+require "json"
+require "fileutils"
 
 class DataBackupScript
-  BACKUP_DIR = Rails.root.join('backups').freeze
+  BACKUP_DIR = Rails.root.join("backups").freeze
 
   def initialize(options = {})
     @event_slug = options[:event]
@@ -80,7 +80,7 @@ class DataBackupScript
     data = build_event_data(event)
 
     # Generate filename
-    timestamp = Time.current.strftime('%Y-%m-%d-%H%M%S')
+    timestamp = Time.current.strftime("%Y-%m-%d-%H%M%S")
     filename = "#{event.slug}-#{timestamp}.json"
     filepath = File.join(@output_dir, filename)
 
@@ -135,11 +135,11 @@ class DataBackupScript
     {
       # Metadata
       exported_at: Time.current.iso8601,
-      export_version: '1.0',
+      export_version: "1.0",
       original_event_id: event.id,
 
       # Core event data
-      event: event.attributes.except('id', 'created_at', 'updated_at'),
+      event: event.attributes.except("id", "created_at", "updated_at"),
 
       # Organization reference (for context)
       organization: {
@@ -150,42 +150,42 @@ class DataBackupScript
 
       # Registrations (vendor applications/registrations)
       registrations: event.registrations.map do |reg|
-        reg.attributes.except('id', 'event_id', 'created_at', 'updated_at')
+        reg.attributes.except("id", "event_id", "created_at", "updated_at")
       end,
 
       # Event invitations (invitation list)
       event_invitations: event.event_invitations.map do |inv|
         {
-          **inv.attributes.except('id', 'event_id', 'vendor_contact_id', 'created_at', 'updated_at'),
-          vendor_contact: inv.vendor_contact&.attributes&.except('id', 'organization_id', 'created_at', 'updated_at')
+          **inv.attributes.except("id", "event_id", "vendor_contact_id", "created_at", "updated_at"),
+          vendor_contact: inv.vendor_contact&.attributes&.except("id", "organization_id", "created_at", "updated_at")
         }
       end,
 
       # Scheduled emails
       scheduled_emails: event.scheduled_emails.map do |email|
-        email.attributes.except('id', 'event_id', 'email_campaign_template_id', 'email_template_item_id', 'created_at', 'updated_at')
+        email.attributes.except("id", "event_id", "email_campaign_template_id", "email_template_item_id", "created_at", "updated_at")
       end,
 
       # Email deliveries (for tracking/analytics)
       email_deliveries: event.email_deliveries.map do |delivery|
-        delivery.attributes.except('id', 'event_id', 'scheduled_email_id', 'registration_id', 'event_invitation_id', 'created_at', 'updated_at')
+        delivery.attributes.except("id", "event_id", "scheduled_email_id", "registration_id", "event_invitation_id", "created_at", "updated_at")
       end,
 
       # Vendor application forms
       vendor_applications: event.vendor_applications.map do |app|
-        app.attributes.except('id', 'event_id', 'created_at', 'updated_at')
+        app.attributes.except("id", "event_id", "created_at", "updated_at")
       end,
 
       # Event portal settings
-      event_portal: event.event_portal&.attributes&.except('id', 'event_id', 'created_at', 'updated_at'),
+      event_portal: event.event_portal&.attributes&.except("id", "event_id", "created_at", "updated_at"),
 
       # Payment integrations
       payment_integrations: event.payment_integrations.map do |integration|
-        integration.attributes.except('id', 'event_id', 'created_at', 'updated_at')
+        integration.attributes.except("id", "event_id", "created_at", "updated_at")
       end,
 
       # Email campaign template reference (for context)
-      email_campaign_template: event.email_campaign_template&.attributes&.except('id', 'organization_id', 'created_at', 'updated_at')
+      email_campaign_template: event.email_campaign_template&.attributes&.except("id", "organization_id", "created_at", "updated_at")
     }
   end
 
@@ -216,7 +216,7 @@ class DataBackupScript
     print "\nType 'yes' to continue: "
 
     confirmation = STDIN.gets.chomp
-    unless confirmation.downcase == 'yes'
+    unless confirmation.downcase == "yes"
       puts "❌ Aborted."
       return
     end
@@ -329,7 +329,7 @@ class DataBackupScript
     puts "Directory: #{@output_dir}"
     puts "="*80 + "\n"
 
-    backup_files = Dir.glob(File.join(@output_dir, '*.json')).sort_by { |f| File.mtime(f) }.reverse
+    backup_files = Dir.glob(File.join(@output_dir, "*.json")).sort_by { |f| File.mtime(f) }.reverse
 
     if backup_files.empty?
       puts "No backup files found.\n\n"
@@ -363,7 +363,7 @@ class DataBackupScript
 
   def validate_safety!
     # Check environment safety
-    if Rails.env.production? && !ENV['ALLOW_PRODUCTION_SCRIPTS']
+    if Rails.env.production? && !ENV["ALLOW_PRODUCTION_SCRIPTS"]
       raise "⛔️ SAFETY CHECK: Cannot run scripts in production without ALLOW_PRODUCTION_SCRIPTS=true"
     end
   end
