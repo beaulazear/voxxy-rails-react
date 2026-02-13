@@ -712,53 +712,46 @@ class RegistrationEmailService < BaseEmailService
   def self.artist_application_received_template
     <<~HTML
       <p style="#{BASE_STYLES[:text]}">
-        Hi [firstName],
+        Hi [greetingName],
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        We've received your application for the [organizationName] at [eventLocation]. Please allow up to 10 days for our team to review your submission.
+        Thanks for submitting your application to participate in The [eventName] at [eventVenue] on [dateRange]. Please allow up to 10 days for us to review your submission and get back to you.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>IMPORTANT:</strong> This is NOT an acceptance email. You will receive a follow-up email and text message with further instructions if you're selected.
+        In the meantime, please visit our Instagram page (@pancakesandbooze) and check out the "FAQs" in our Story Highlights for details on how our events work.
       </p>
+
+      <h3 style="font-size: 0.95rem; font-weight: 600; margin: 1.25rem 0 0.6rem 0;">Exhibition Pricing Update</h3>
 
       <p style="#{BASE_STYLES[:text]}">
-        In the meantime, check out the "FAQs" in our Instagram Story Highlights (@pancakesandbooze) for a look at how our events work.
+        We've updated our exhibition structure for 2026. We are now offering <strong>one free piece</strong> after your first paid exhibition space. And to keep our pricing transparent, <strong>we are now covering all ticketing and processing fees</strong>—the price you see below is exactly what you pay at checkout with no hidden service fees.
       </p>
 
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+      <h4 style="font-size: 0.9rem; font-weight: 600; margin: 1rem 0 0.4rem 0;">The Rate:</h4>
 
-      <p style="#{BASE_STYLES[:text]}"><strong>Exhibition Pricing</strong></p>
+      <ul style="margin: 0.6rem 0; padding-left: 1.25rem;">
+        <li style="margin-bottom: 0.4rem;"><strong>1st Piece:</strong> [boothPrice]</li>
+        <li style="margin-bottom: 0.4rem;"><strong>2nd Piece:</strong> <strong>FREE</strong></li>
+        <li style="margin-bottom: 0.4rem;"><strong>Pieces 3-10:</strong> [boothPrice] each</li>
+        <li style="margin-bottom: 0.4rem;"><em>Note: If fees are paid after [paymentDueDate], the rate increases to $25 per piece (2nd piece remains free).</em></li>
+      </ul>
+
+      <h4 style="font-size: 0.9rem; font-weight: 600; margin: 1rem 0 0.4rem 0;">The Details:</h4>
+
+      <ul style="margin: 0.6rem 0; padding-left: 1.25rem;">
+        <li style="margin-bottom: 0.4rem;"><strong>NO COMMISSION:</strong> You manage your own sales and take 100% of what you sell.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>SIZE LIMIT:</strong> Each piece should not exceed 3ft x 3ft.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>INSTALLATION:</strong> Currently scheduled for [installDate] from [installTime].</li>
+        <li style="margin-bottom: 0.4rem;"><strong>NO TABLES:</strong> Artists hanging artwork cannot use tables. Small bins/boxes on the floor are permitted.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>LOAD OUT:</strong> All artwork must be taken home at the end of the night. We are not responsible for items left behind.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy.</li>
+      </ul>
 
       <p style="#{BASE_STYLES[:text]}">
-        We now cover all ticketing and processing fees—the price you see below is exactly what you pay at checkout.
+        <strong>Attention Live Painters:</strong> We love featuring live body painting and canvas work. If you'd like to paint live, let us know so we can coordinate promotion on our socials.
       </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        <strong>Exhibition Rates:</strong><br/>
-        <strong>Early Rate:</strong> $20 for your first two pieces (if paid by [paymentDueDate]).<br/>
-        <strong>Late Rate:</strong> $25 for your first two pieces (if paid after [paymentDueDate]).<br/>
-        <strong>Additional Work:</strong> All additional pieces (3–10) follow the same $20 or $25 rate based on your payment date.
-      </p>
-
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
-
-      <p style="#{BASE_STYLES[:text]}"><strong>The Details:</strong></p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        <strong>NO COMMISSION:</strong> You manage your own sales and keep 100% of the profit.<br/>
-        <strong>SIZE LIMIT:</strong> Each piece should not exceed 3ft x 3ft.<br/>
-        <strong>NO TABLES:</strong> Tables are not allowed in the gallery space. Small bins or boxes on the floor are permitted for prints.<br/>
-        <strong>LOAD OUT:</strong> All artwork must be taken home at the end of the night. Pancakes & Booze nor [eventVenue] are responsible for any artwork left at the venue.<br/>
-        <strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy.
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        <strong>Attention Live Painters:</strong> We love featuring live body painting and canvas work. If you'd like to paint live, let us know and we will get you details.
-      </p>
-
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
       <p style="#{BASE_STYLES[:text]}">
         Thanks,<br/>
@@ -766,7 +759,7 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="font-size: 12px; color: #888888;">
-        If you're unable to participate, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to withdraw your application.
+        <em>If you're unable to participate, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to let us know.</em>
       </p>
     HTML
   end
@@ -775,48 +768,39 @@ class RegistrationEmailService < BaseEmailService
   def self.vendor_table_application_received_template
     <<~HTML
       <p style="#{BASE_STYLES[:text]}">
-        Hi [firstName],
+        Hi [greetingName],
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        We've received your application for the [organizationName] at [eventLocation]. Please allow up to 10 days for our team to review your submission.
+        We've received your request to set up a VENDOR TABLE at The [eventName] on [dateRange] at [eventVenue]. This is <strong>NOT</strong> an acceptance email. You will receive another email and text message with further information if you're selected.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>IMPORTANT:</strong> This is NOT an acceptance email. You will receive another email and text message with further information if your application is approved.
+        <strong>IMPORTANT:</strong> Vendor tables are strictly for non-hangable merchandise (clothing, jewelry, etc). If you have paintings or wall art, you have filled out the <strong>WRONG application</strong>. We do not permit canvas paintings, drawings, or prints larger than a greeting card on vendor tables. If this is you, please email us immediately so we can get you the correct artist information.
+      </p>
+
+      <h3 style="font-size: 0.95rem; font-weight: 600; margin: 1.25rem 0 0.6rem 0;">Selection & Pricing</h3>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Table space is extremely limited and in high demand. If you are selected, <strong>PREPAYMENT IS REQUIRED</strong> to reserve your space. Your spot is only guaranteed once payment is received.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>PLEASE NOTE:</strong> Vendor tables are strictly for non-hangable merchandise (clothing, jewelry, etc). If you intend to display paintings or wall art, please note that we do not permit canvases or prints larger than a greeting card on vendor tables. If you need to switch to an Artist Application, please email us as soon as possible.
+        The vending fee is <strong>[boothPrice]</strong>. To keep our pricing transparent, <strong>we now cover all ticketing and processing fees</strong>—the price you see is exactly what you pay at checkout with no hidden service fees.
       </p>
 
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+      <h4 style="font-size: 0.9rem; font-weight: 600; margin: 1rem 0 0.4rem 0;">The Details:</h4>
 
-      <p style="#{BASE_STYLES[:text]}"><strong>Selection & Pricing</strong></p>
+      <ul style="margin: 0.6rem 0; padding-left: 1.25rem;">
+        <li style="margin-bottom: 0.4rem;"><strong>SPACE:</strong> Large enough for ONE 6ft table. No tents or multiple tables allowed.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>EQUIPMENT:</strong> You must provide your own table and chair. We do not provide them.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>LOAD-IN:</strong> Starts at [installTime] on the day of the show. Please do not arrive early.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy.</li>
+      </ul>
 
       <p style="#{BASE_STYLES[:text]}">
-        Table space is extremely limited. If you are selected, <strong>PREPAYMENT IS REQUIRED</strong> to reserve your space.
+        New to the event? Check us out @pancakesandbooze on Instagram and TikTok for a look at the vibe.
       </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        We now cover all ticketing and processing fees—the price you see is exactly what you pay at checkout with no hidden service fees.
-      </p>
-
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
-
-      <p style="#{BASE_STYLES[:text]}"><strong>The Details:</strong></p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        <strong>SPACE:</strong> One 6ft table area. No tents or multiple tables allowed.<br/>
-        <strong>EQUIPMENT:</strong> You must provide your own table and chair.<br/>
-        <strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy.
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        New to the event? Check us out @pancakesandbooze on Instagram and TikTok.
-      </p>
-
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
       <p style="#{BASE_STYLES[:text]}">
         Thanks,<br/>
@@ -824,7 +808,7 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="font-size: 12px; color: #888888;">
-        If you're unable to participate, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to withdraw your application.
+        <em>If you're unable to participate, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to let us know.</em>
       </p>
     HTML
   end
@@ -911,51 +895,58 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Congratulations—you've been accepted to participate in the [organizationName] at [eventLocation]!
+        <strong>Congratulations!</strong> You've been invited to exhibit at <strong>The [eventName]</strong> on [dateRange] at [eventVenue].
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>Next step:</strong> Complete your payment to confirm your spot.
+        We received a high volume of applications, and we're excited to have your work in the mix. Please note that <strong>we do not hold spots</strong>; your space is only officially secured once your exhibition fees are received.
       </p>
 
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
-
-      <p style="#{BASE_STYLES[:text]}"><strong>PRICING</strong></p>
+      <h3 style="font-size: 0.95rem; font-weight: 600; margin: 1.25rem 0 0.6rem 0;">Step 1: Secure Your Space</h3>
 
       <p style="#{BASE_STYLES[:text]}">
-        We now cover all ticketing and processing fees—the price you see below is exactly what you pay at checkout.
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        <strong>Early Rate:</strong> $20 for your first two pieces (if paid by [paymentDueDate]).<br/>
-        <strong>Late Rate:</strong> $25 for your first two pieces (if paid after [paymentDueDate]).<br/>
-        <strong>Additional Work:</strong> All additional pieces (3–10) follow the same $20 or $25 rate based on your payment date.
+        <a href="[categoryPaymentLink]" style="#{BASE_STYLES[:link]}">PAYMENT LINK: CONFIRM YOUR EXHIBIT HERE</a>
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>👉 PAY NOW:</strong> <a href="[categoryPaymentLink]" style="#{BASE_STYLES[:link]}">[categoryPaymentLink]</a>
-      </p>
-
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
-
-      <p style="#{BASE_STYLES[:text]}"><strong>THE DETAILS</strong></p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        <strong>NO COMMISSION:</strong> You manage your own sales and keep 100% of the profit.<br/>
-        <strong>SIZE LIMIT:</strong> Each piece should not exceed 3ft x 3ft.<br/>
-        <strong>NO TABLES:</strong> Tables are not allowed in the gallery space. Small bins or boxes on the floor are permitted for prints.<br/>
-        <strong>LOAD OUT:</strong> All artwork must be taken home at the end of the night. Pancakes & Booze nor [eventVenue] are responsible for any artwork left at the venue.<br/>
-        <strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy.
+        <strong>Exhibition Rates (No Hidden Fees):</strong><br/>
+        - 1st Piece: <strong>[boothPrice]</strong><br/>
+        - 2nd Piece: <strong>FREE</strong><br/>
+        - Pieces 3-10: <strong>[boothPrice] each</strong><br/>
+        - <em>Note: Prices increase to $25/piece after [paymentDueDate].</em>
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>Attention Live Painters:</strong> We love featuring live body painting and canvas work. If you'd like to paint live, let us know and we will get you details.
+        <strong>Cancellation Policy:</strong> Full refunds are available for cancellations made up to <strong>72 hours before the event</strong>. Cancellations within 72 hours are non-refundable.
       </p>
 
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
+      <h4 style="font-size: 0.9rem; font-weight: 600; margin: 1rem 0 0.4rem 0;">What Happens Next?</h4>
+
       <p style="#{BASE_STYLES[:text]}">
-        Once your payment is complete, you're fully confirmed. See you at the event!
+        Once your payment is confirmed, keep an eye on your inbox for our <strong>Artist Roadmap</strong> series:
+      </p>
+
+      <ul style="margin: 0.6rem 0; padding-left: 1.25rem;">
+        <li style="margin-bottom: 0.4rem;"><strong>30 Days Out:</strong> You'll receive a "Prep Guide" detailing our salon-style hanging requirements and hardware tips.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>14 Days Out:</strong> We'll launch our marketing blitz and send you the official promo toolkit to help drive sales.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>3-6 Days Out:</strong> Final logistics, load-in times, and venue updates will be sent via Eventbrite.</li>
+      </ul>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <h4 style="font-size: 0.9rem; font-weight: 600; margin: 1rem 0 0.4rem 0;">Quick Guidelines:</h4>
+
+      <ul style="margin: 0.6rem 0; padding-left: 1.25rem;">
+        <li style="margin-bottom: 0.4rem;"><strong>NO COMMISSION:</strong> You keep 100% of your sales.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>SIZE LIMIT:</strong> Max 3ft x 3ft per piece. No exceptions.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>NO TABLES:</strong> Tables are for vendors only. Artists may use small floor bins for prints.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>AGE POLICY:</strong> Strict [ageRestriction] policy.</li>
+      </ul>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>Online Marketplace:</strong> P&B Artists can sell year-round at <a href="https://district.net/pancakesandbooze" style="#{BASE_STYLES[:link]}">district.net/pancakesandbooze</a>.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
@@ -964,7 +955,7 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="font-size: 12px; color: #888888;">
-        If you're unable to participate, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to withdraw.
+        <em>Plans changed? <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Click here</a> to release your space to the next artist on our waitlist.</em>
       </p>
     HTML
   end
@@ -977,51 +968,51 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Congratulations—you've been accepted for a vendor table at the [organizationName] in [eventLocation]!
+        <strong>Congratulations!</strong> You've been approved to vend at <strong>The [eventName]</strong> on [dateRange] at [eventVenue].
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>Next step:</strong> Complete your payment to confirm your spot. <strong>Table space is limited and we CANNOT hold your table without prepayment.</strong>
+        We received a high volume of applications for this show, and we're excited to have your brand in the mix. Because vendor space is extremely limited, <strong>we do not hold spots.</strong> Your space is only officially reserved once payment is completed through the link below.
       </p>
 
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
-
-      <p style="#{BASE_STYLES[:text]}"><strong>PRICING</strong></p>
+      <h3 style="font-size: 0.95rem; font-weight: 600; margin: 1.25rem 0 0.6rem 0;">Step 1: Secure Your Space</h3>
 
       <p style="#{BASE_STYLES[:text]}">
-        We now cover all ticketing and processing fees—the price you see is exactly what you pay at checkout with no hidden service fees.
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        <strong>Table Fee:</strong> [boothPrice]
+        The vending fee is <strong>[boothPrice]</strong>. To keep our pricing transparent, <strong>we now cover all ticketing and processing fees</strong>—the price you see is exactly what you pay at checkout.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>👉 PAY NOW:</strong> <a href="[categoryPaymentLink]" style="#{BASE_STYLES[:link]}">[categoryPaymentLink]</a>
-      </p>
-
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
-
-      <p style="#{BASE_STYLES[:text]}"><strong>THE DETAILS</strong></p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        <strong>SPACE:</strong> One 6ft table area. No tents or multiple tables allowed.<br/>
-        <strong>EQUIPMENT:</strong> You must provide your own table and chair.<br/>
-        <strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy.
+        <a href="[categoryPaymentLink]" style="#{BASE_STYLES[:link]}">PAYMENT LINK: SECURE YOUR TABLE HERE</a>
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>PLEASE NOTE:</strong> Vendor tables are strictly for non-hangable merchandise (clothing, jewelry, etc). We do not permit canvases or prints larger than a greeting card on vendor tables.
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        New to the event? Check us out @pancakesandbooze on Instagram and TikTok.
+        <strong>Cancellation Policy:</strong> We understand that life happens. We offer full refunds for cancellations made up to <strong>72 hours before the event</strong>. This allows us time to offer the space to a vendor on our waitlist. Cancellations made within 72 hours of the show are non-refundable.
       </p>
 
       <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
 
+      <h4 style="font-size: 0.9rem; font-weight: 600; margin: 1rem 0 0.4rem 0;">Step 2: Spread the Word</h4>
+
       <p style="#{BASE_STYLES[:text]}">
-        Once your payment is complete, you're fully confirmed. See you there!
+        The most successful shows happen when we all hustle together. Tag <strong>@pancakesandbooze</strong> and use <strong>#pancakesandbooze</strong> in your posts so we can find and feature your work leading up to the event.
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <h4 style="font-size: 0.9rem; font-weight: 600; margin: 1rem 0 0.4rem 0;">Event Day Details:</h4>
+
+      <ul style="margin: 0.6rem 0; padding-left: 1.25rem;">
+        <li style="margin-bottom: 0.4rem;"><strong>Location:</strong> [eventVenue] — [eventLocation]</li>
+        <li style="margin-bottom: 0.4rem;"><strong>Load-In:</strong> [installDate] at [installTime]. (The venue will not be open for setup prior to this time).</li>
+        <li style="margin-bottom: 0.4rem;"><strong>Setup:</strong> You are allowed ONE 6ft table. You must provide your own table and chair. Grid walls and racks are permitted if they fit within your approx. 8ft x 5ft footprint.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>Staffing:</strong> Your space includes entry for one person (you). All assistants or guests must purchase a general admission ticket.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>Load-Out:</strong> Must be completed by the end of the event. We are not responsible for items left behind.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>Merchandise:</strong> Strictly non-hangable items only. No wall art/paintings permitted at vendor tables.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>Age Policy:</strong> You must be [ageRestriction] to participate.</li>
+      </ul>
+
+      <p style="#{BASE_STYLES[:text]}">
+        If you have any questions, feel free to reply to this email.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
@@ -1030,7 +1021,7 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="font-size: 12px; color: #888888;">
-        If you're unable to participate, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to withdraw.
+        <em>If your plans have changed and you can no longer participate, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to release your spot to the next person on our waitlist.</em>
       </p>
     HTML
   end
@@ -1084,26 +1075,25 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Your payment for <strong>[eventName]</strong> was not received by the deadline.
+        Thank you for your interest in [eventName].
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Your spot has been moved to the waitlist. If a spot becomes available and you would still like to participate, we will contact you.
+        After careful review, we've placed you on the waitlist. If a spot opens up, we'll contact you right away.
+      </p>
+
+      <ul style="margin: 0.6rem 0; padding-left: 1.25rem;">
+        <li style="margin-bottom: 0.4rem;"><strong>Event:</strong> [eventDate]</li>
+        <li style="margin-bottom: 0.4rem;"><strong>Location:</strong> [eventLocation]</li>
+      </ul>
+
+      <p style="#{BASE_STYLES[:text]}">
+        We truly appreciate your interest and encourage you to stay tuned for updates.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        If you believe this is an error, please contact us at [organizationEmail].
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        Best regards,<br/>
+        Best,<br/>
         [organizationName]
-      </p>
-
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
-
-      <p style="font-size: 12px; color: #888888;">
-        Questions? Reply to this email or contact team@voxxypresents.com directly.
       </p>
     HTML
   end
@@ -1116,32 +1106,31 @@ class RegistrationEmailService < BaseEmailService
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        Your payment for <strong>[eventName]</strong> has been confirmed. You're all set.
+        We've received your payment—you're officially confirmed for The [eventName] at [eventVenue] on [eventDate]!
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        <strong>Category:</strong> [vendorCategory]<br/>
-        <strong>Event Date:</strong> [eventDate]<br/>
-        <strong>Location:</strong> [eventLocation]
+        We're pumped to have you with us.
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
-        View all event details on your dashboard:<br/>
-        <a href="[dashboardLink]" style="#{BASE_STYLES[:link]}">[dashboardLink]</a>
+        <strong>Your Entry Ticket:</strong> You should have already received a confirmation email from Eventbrite. That email includes your QR code, which we'll scan when you arrive to install your work. You can bring it on your phone, print it out, or we can look you up by name—the QR code is just the fastest option for check-in.
       </p>
 
+      <h4 style="font-size: 0.9rem; font-weight: 600; margin: 1rem 0 0.4rem 0;">What Happens Next?</h4>
+
+      <ul style="margin: 0.6rem 0; padding-left: 1.25rem;">
+        <li style="margin-bottom: 0.4rem;"><strong>Confirmation:</strong> You are all set for now! You don't need to send us anything else today.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>Deep Details:</strong> Over the next couple of weeks, you'll receive the "Deep Detail" emails covering setup times, parking, wall assignments, and exactly what to expect on show day.</li>
+        <li style="margin-bottom: 0.4rem;"><strong>Promotion:</strong> We are pushing the show hard on socials. Tag @pancakesandbooze in your process shots or finished pieces so we can repost your work to our followers.</li>
+      </ul>
+
       <p style="#{BASE_STYLES[:text]}">
-        See you at the event.
+        Thanks again for being a part of the show. We'll be in touch soon with the logistics!
       </p>
 
       <p style="#{BASE_STYLES[:text]}">
         [organizationName]
-      </p>
-
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
-
-      <p style="font-size: 12px; color: #888888;">
-        Questions? Reply to this email or contact team@voxxypresents.com directly.
       </p>
     HTML
   end

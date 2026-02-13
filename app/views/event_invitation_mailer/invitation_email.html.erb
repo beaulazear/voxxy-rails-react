@@ -82,20 +82,22 @@
       %>
 
       <% if artist_link %>
-        <p><strong>ARTIST/GALLERY SUBMISSIONS</strong> - <a href="<%= artist_link[:url] %>" class="link">Apply Here</a><br/>
-        (Paintings, Photography, Mixed Media, & Sculptures, etc)</p>
+        <p><strong>ARTIST / GALLERY SUBMISSIONS</strong><br/>
+        For artists exhibiting artwork on the walls<br/>
+        <a href="<%= artist_link[:url] %>" class="link">Apply Here</a></p>
       <% end %>
 
       <% if vendor_link %>
-        <p><strong>VENDOR/TABLE SUBMISSIONS</strong> - <a href="<%= vendor_link[:url] %>" class="link">Apply Here</a><br/>
-        (Clothing, Jewelry, Handcrafted Goods, & Small Merch)</p>
+        <p><strong>TABLE VENDOR SUBMISSIONS</strong><br/>
+        For those setting up a TABLE space (Clothing, jewelry, and other table merch)<br/>
+        <a href="<%= vendor_link[:url] %>" class="link">Apply Here</a></p>
       <% end %>
 
       <p>I'm looking forward to your submission.</p>
 
       <p>Thanks,<br/><%= @organization.name %></p>
 
-      <p style="margin-top: 20px; font-size: 14px;">If you're unable to participate, please <a href="<%= @unsubscribe_url %>" class="link">click here</a> to let us know.</p>
+      <p style="margin-top: 20px; font-size: 14px;">P.S. If you can't make the date, please <a href="<%= @unsubscribe_url %>" class="link">let us know here</a>.</p>
     </div>
 
     <div class="footer">
