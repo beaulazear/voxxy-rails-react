@@ -277,6 +277,7 @@ Rails.application.routes.draw do
           resources :vendor_contacts, only: [ :index ] do
             collection do
               get :ids
+              get :filter_options
             end
           end
           resources :contact_lists, only: [ :index, :create ]

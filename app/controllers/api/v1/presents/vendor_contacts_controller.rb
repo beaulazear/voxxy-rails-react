@@ -42,6 +42,32 @@ module Api
           render json: { ids: ids, count: ids.length }, status: :ok
         end
 
+        # GET /api/v1/presents/organizations/:organization_id/vendor_contacts/filter_options
+        # Returns unique values for all filter fields (locations, tags, categories)
+        def filter_options
+          organization = Organization.find(params[:organization_id])
+          unless organization.user_id == @current_user.id || @current_user.admin?
+            return render json: { error: "Not authorized" }, status: :forbidden
+          end
+
+          vendor_contacts = organization.vendor_contacts
+
+          # Get all unique locations (non-null, sorted)
+          locations = vendor_contacts.where.not(location: nil).distinct.pluck(:location).sort
+
+          # Get all unique tags (flatten array fields, remove nulls, sort)
+          tags = vendor_contacts.where.not(tags: nil).pluck(:tags).flatten.uniq.compact.sort
+
+          # Get all unique categories (flatten array fields, remove nulls, sort)
+          categories = vendor_contacts.where.not(categories: nil).pluck(:categories).flatten.uniq.compact.sort
+
+          render json: {
+            locations: locations,
+            tags: tags,
+            categories: categories
+          }, status: :ok
+        end
+
         # GET /api/v1/presents/vendor_contacts
         # GET /api/v1/presents/organizations/:organization_id/vendor_contacts
         def index
