@@ -121,22 +121,22 @@ class Event < ApplicationRecord
   end
 
   def assign_email_template_and_generate_emails
-    # Skip if email_campaign_template is already assigned
-    return if email_campaign_template.present?
+    # If template not already assigned, assign one
+    if email_campaign_template.blank?
+      # Try to find organization's default template first
+      template = organization.email_campaign_templates.find_by(is_default: true) if organization
 
-    # Try to find organization's default template first
-    template = organization.email_campaign_templates.find_by(is_default: true) if organization
+      # Fallback to system default template
+      template ||= EmailCampaignTemplate.default_template
 
-    # Fallback to system default template
-    template ||= EmailCampaignTemplate.default_template
+      # If no template found, skip email generation gracefully
+      return unless template
 
-    # If no template found, skip email generation gracefully
-    return unless template
+      # Assign the template
+      update_column(:email_campaign_template_id, template.id)
+    end
 
-    # Assign the template
-    update_column(:email_campaign_template_id, template.id)
-
-    # Generate scheduled emails
+    # Generate scheduled emails (whether template was just assigned or already present)
     generate_scheduled_emails
   rescue => e
     # Log error but don't fail event creation

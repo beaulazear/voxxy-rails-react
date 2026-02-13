@@ -247,7 +247,7 @@ module Api
             :venue, :start_time, :end_time, :age_restriction,
             :poster_url, :ticket_url, :ticket_link, :ticket_price, :capacity,
             :published, :registration_open, :status, :application_deadline,
-            :payment_deadline,
+            :payment_deadline, :email_campaign_template_id,
             invitation_list_ids: [],
             invitation_contact_ids: [],
             invitation_excluded_ids: []
