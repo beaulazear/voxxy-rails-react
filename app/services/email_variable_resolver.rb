@@ -33,6 +33,8 @@
 #     [installTime] - Installation time range (from vendor application)
 #     [categoryList] - Bulleted list of vendor categories
 #     [categoryPaymentLink] - Payment link for the vendor category (from vendor application)
+#     [categoryApplicationLink] - Public application URL (short link with shareable code)
+#     [applicationLink] - Alias for categoryApplicationLink
 #
 #   Special variables:
 #     [unsubscribeLink] - Unsubscribe URL
@@ -148,6 +150,9 @@ class EmailVariableResolver
     # Category payment link (using payment_link field from vendor_application)
     category_payment_link = vendor_app&.payment_link || ""
 
+    # Category application link (using shareable_code for public application URL)
+    category_application_link = vendor_app ? "#{base_url}/apply/#{vendor_app.shareable_code}" : ""
+
     template
       .gsub("[greetingName]", greeting_name)
       .gsub("[firstName]", first_name)
@@ -163,6 +168,8 @@ class EmailVariableResolver
       .gsub("[installTime]", install_time)
       .gsub("[categoryList]", category_list)
       .gsub("[categoryPaymentLink]", category_payment_link)
+      .gsub("[categoryApplicationLink]", category_application_link)
+      .gsub("[applicationLink]", category_application_link)
   end
 
   def resolve_special_variables(template)

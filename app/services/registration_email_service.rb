@@ -281,59 +281,25 @@ class RegistrationEmailService < BaseEmailService
     event = registration.event
     organization = event.organization
 
-    # Get greeting name (businessName preferred, fallback to firstName)
-    greeting_name = if registration.business_name.present?
-      registration.business_name
-    else
-      registration.name.to_s.split(" ").first || registration.name
-    end
-
-    # Get producer email
-    producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
-
-    # Build event portal link using token-based URL
-    portal = event.event_portal || event.create_event_portal!
-    dashboard_link = portal.portal_url
-
     subject = "You're in - #{event.title}"
 
-    content = <<~HTML
-      <p style="#{BASE_STYLES[:text]}">
-        Hi #{greeting_name},
-      </p>
+    # Use EmailVariableResolver to resolve all template variables
+    resolver = EmailVariableResolver.new(event, registration)
 
-      <p style="#{BASE_STYLES[:text]}">
-        Great news - your application to <strong>#{event.title}</strong> has been approved!
-      </p>
+    # Determine which template to use based on category name
+    category_name = registration.vendor_category.to_s.downcase
 
-      <p style="#{BASE_STYLES[:text]}">
-        You can now access your event portal to view event details, your category information, load-in times, and payment instructions:<br/>
-        <a href="#{dashboard_link}" style="color: #0066cc; text-decoration: underline;">#{dashboard_link}</a>
-      </p>
+    if category_name.include?("artist") || category_name.include?("gallery")
+      content_template = artist_application_accepted_template
+    elsif category_name.include?("vendor") || category_name.include?("table")
+      content_template = vendor_table_application_accepted_template
+    else
+      # Fallback to generic template
+      content_template = generic_application_accepted_template
+    end
 
-      <p style="#{BASE_STYLES[:text]}">
-        To sign in, use the email address you applied with: #{registration.email}
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        Once you've completed payment, you'll be fully confirmed for the event. If you have any questions, contact us at #{producer_email}.
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        We're excited to have you!
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        Best,<br/>
-        #{organization.name || "Event Organizer"}
-      </p>
-
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
-
-      <p style="font-size: 12px; color: #888888;">
-        Questions? Reply to this email or contact team@voxxypresents.com directly.
-      </p>
-    HTML
+    # Resolve all variables in the template
+    content = resolver.resolve(content_template)
 
     email_html = build_presents_email_template(
       "You're in!",
@@ -434,46 +400,11 @@ class RegistrationEmailService < BaseEmailService
     event = registration.event
     organization = event.organization
 
-    # Get greeting name (businessName preferred, fallback to firstName)
-    greeting_name = if registration.business_name.present?
-      registration.business_name
-    else
-      registration.name.to_s.split(" ").first || registration.name
-    end
+    subject = "Waitlist - #{event.title}"
 
-    # Get producer email
-    producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
-
-    subject = "Waitlist update - #{event.title}"
-
-    content = <<~HTML
-      <p style="#{BASE_STYLES[:text]}">
-        Hi #{greeting_name},
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        Your payment for <strong>#{event.title}</strong> was not received by the deadline.
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        Your spot has been moved to the waitlist. If a spot becomes available and you would still like to participate, we will contact you.
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        If you believe this is an error, please contact us at #{producer_email}.
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        Best regards,<br/>
-        #{organization.name || "Event Organizer"}
-      </p>
-
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
-
-      <p style="font-size: 12px; color: #888888;">
-        Questions? Reply to this email or contact team@voxxypresents.com directly.
-      </p>
-    HTML
+    # Use EmailVariableResolver to resolve all template variables
+    resolver = EmailVariableResolver.new(event, registration)
+    content = resolver.resolve(waitlist_template)
 
     email_html = build_presents_email_template(
       "Waitlist Update",
@@ -506,61 +437,11 @@ class RegistrationEmailService < BaseEmailService
     event = registration.event
     organization = event.organization
 
-    # Get greeting name (businessName preferred, fallback to firstName)
-    greeting_name = if registration.business_name.present?
-      registration.business_name
-    else
-      registration.name.to_s.split(" ").first || registration.name
-    end
-
-    # Get producer email
-    producer_email = organization.email || organization.user&.email || "team@voxxypresents.com"
-
-    # Format event date and location
-    event_date = event.event_date.present? ? event.event_date.strftime("%B %d, %Y") : "TBD"
-    location = [ event.venue, event.location ].compact.join(", ")
-    location = "TBD" if location.blank?
-
-    # Build event portal link using token-based URL
-    portal = event.event_portal || event.create_event_portal!
-    dashboard_link = portal.portal_url
-
     subject = "Payment confirmed - #{event.title}"
 
-    content = <<~HTML
-      <p style="#{BASE_STYLES[:text]}">
-        Hi #{greeting_name},
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        Your payment for <strong>#{event.title}</strong> has been confirmed. You're all set.
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        <strong>Category:</strong> #{registration.vendor_category}<br/>
-        <strong>Event Date:</strong> #{event_date}<br/>
-        <strong>Location:</strong> #{location}
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        View all event details on your dashboard:<br/>
-        <a href="#{dashboard_link}" style="color: #0066cc; text-decoration: underline;">#{dashboard_link}</a>
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        See you at the event.
-      </p>
-
-      <p style="#{BASE_STYLES[:text]}">
-        #{organization.name || "Event Organizer"}
-      </p>
-
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
-
-      <p style="font-size: 12px; color: #888888;">
-        Questions? Reply to this email or contact team@voxxypresents.com directly.
-      </p>
-    HTML
+    # Use EmailVariableResolver to resolve all template variables
+    resolver = EmailVariableResolver.new(event, registration)
+    content = resolver.resolve(payment_confirmed_template)
 
     email_html = build_presents_email_template(
       "Payment Confirmed",
@@ -1018,6 +899,249 @@ class RegistrationEmailService < BaseEmailService
 
       <p style="font-size: 12px; color: #888888;">
         <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
+      </p>
+    HTML
+  end
+
+  # Artist Application Accepted Template
+  def self.artist_application_accepted_template
+    <<~HTML
+      <p style="#{BASE_STYLES[:text]}">
+        Hi [greetingName],
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Congratulations—you've been accepted to participate in the [organizationName] at [eventLocation]!
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>Next step:</strong> Complete your payment to confirm your spot.
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}"><strong>PRICING</strong></p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        We now cover all ticketing and processing fees—the price you see below is exactly what you pay at checkout.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>Early Rate:</strong> $20 for your first two pieces (if paid by [paymentDueDate]).<br/>
+        <strong>Late Rate:</strong> $25 for your first two pieces (if paid after [paymentDueDate]).<br/>
+        <strong>Additional Work:</strong> All additional pieces (3–10) follow the same $20 or $25 rate based on your payment date.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>👉 PAY NOW:</strong> <a href="[categoryPaymentLink]" style="#{BASE_STYLES[:link]}">[categoryPaymentLink]</a>
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}"><strong>THE DETAILS</strong></p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>NO COMMISSION:</strong> You manage your own sales and keep 100% of the profit.<br/>
+        <strong>SIZE LIMIT:</strong> Each piece should not exceed 3ft x 3ft.<br/>
+        <strong>NO TABLES:</strong> Tables are not allowed in the gallery space. Small bins or boxes on the floor are permitted for prints.<br/>
+        <strong>LOAD OUT:</strong> All artwork must be taken home at the end of the night. Pancakes & Booze nor [eventVenue] are responsible for any artwork left at the venue.<br/>
+        <strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>Attention Live Painters:</strong> We love featuring live body painting and canvas work. If you'd like to paint live, let us know and we will get you details.
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Once your payment is complete, you're fully confirmed. See you at the event!
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Thanks,<br/>
+        [organizationName]
+      </p>
+
+      <p style="font-size: 12px; color: #888888;">
+        If you're unable to participate, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to withdraw.
+      </p>
+    HTML
+  end
+
+  # Vendor Table Application Accepted Template
+  def self.vendor_table_application_accepted_template
+    <<~HTML
+      <p style="#{BASE_STYLES[:text]}">
+        Hi [greetingName],
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Congratulations—you've been accepted for a vendor table at the [organizationName] in [eventLocation]!
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>Next step:</strong> Complete your payment to confirm your spot. <strong>Table space is limited and we CANNOT hold your table without prepayment.</strong>
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}"><strong>PRICING</strong></p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        We now cover all ticketing and processing fees—the price you see is exactly what you pay at checkout with no hidden service fees.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>Table Fee:</strong> [boothPrice]
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>👉 PAY NOW:</strong> <a href="[categoryPaymentLink]" style="#{BASE_STYLES[:link]}">[categoryPaymentLink]</a>
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}"><strong>THE DETAILS</strong></p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>SPACE:</strong> One 6ft table area. No tents or multiple tables allowed.<br/>
+        <strong>EQUIPMENT:</strong> You must provide your own table and chair.<br/>
+        <strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>PLEASE NOTE:</strong> Vendor tables are strictly for non-hangable merchandise (clothing, jewelry, etc). We do not permit canvases or prints larger than a greeting card on vendor tables.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        New to the event? Check us out @pancakesandbooze on Instagram and TikTok.
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Once your payment is complete, you're fully confirmed. See you there!
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Thanks,<br/>
+        [organizationName]
+      </p>
+
+      <p style="font-size: 12px; color: #888888;">
+        If you're unable to participate, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to withdraw.
+      </p>
+    HTML
+  end
+
+  # Generic Application Accepted Template
+  def self.generic_application_accepted_template
+    <<~HTML
+      <p style="#{BASE_STYLES[:text]}">
+        Hi [greetingName],
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Great news - your application to <strong>[eventName]</strong> has been approved!
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        You can now access your event portal to view event details, your category information, load-in times, and payment instructions:<br/>
+        <a href="[dashboardLink]" style="#{BASE_STYLES[:link]}">[dashboardLink]</a>
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        To sign in, use the email address you applied with: [email]
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Once you've completed payment, you'll be fully confirmed for the event. If you have any questions, contact us at [organizationEmail].
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        We're excited to have you!
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Best,<br/>
+        [organizationName]
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="font-size: 12px; color: #888888;">
+        Questions? Reply to this email or contact team@voxxypresents.com directly.
+      </p>
+    HTML
+  end
+
+  # Waitlist Template
+  def self.waitlist_template
+    <<~HTML
+      <p style="#{BASE_STYLES[:text]}">
+        Hi [greetingName],
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Your payment for <strong>[eventName]</strong> was not received by the deadline.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Your spot has been moved to the waitlist. If a spot becomes available and you would still like to participate, we will contact you.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        If you believe this is an error, please contact us at [organizationEmail].
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Best regards,<br/>
+        [organizationName]
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="font-size: 12px; color: #888888;">
+        Questions? Reply to this email or contact team@voxxypresents.com directly.
+      </p>
+    HTML
+  end
+
+  # Payment Confirmed Template
+  def self.payment_confirmed_template
+    <<~HTML
+      <p style="#{BASE_STYLES[:text]}">
+        Hi [greetingName],
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        Your payment for <strong>[eventName]</strong> has been confirmed. You're all set.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        <strong>Category:</strong> [vendorCategory]<br/>
+        <strong>Event Date:</strong> [eventDate]<br/>
+        <strong>Location:</strong> [eventLocation]
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        View all event details on your dashboard:<br/>
+        <a href="[dashboardLink]" style="#{BASE_STYLES[:link]}">[dashboardLink]</a>
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        See you at the event.
+      </p>
+
+      <p style="#{BASE_STYLES[:text]}">
+        [organizationName]
+      </p>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+      <p style="font-size: 12px; color: #888888;">
+        Questions? Reply to this email or contact team@voxxypresents.com directly.
       </p>
     HTML
   end
