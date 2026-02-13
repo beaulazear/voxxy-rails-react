@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_02_07_012717) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_13_143332) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -436,8 +436,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_07_012717) do
     t.string "eventbrite_api_token"
     t.boolean "eventbrite_connected", default: false
     t.datetime "eventbrite_connected_at"
+    t.string "timezone", default: "America/Los_Angeles"
     t.index ["active"], name: "index_organizations_on_active"
     t.index ["slug"], name: "index_organizations_on_slug", unique: true
+    t.index ["timezone"], name: "index_organizations_on_timezone"
     t.index ["user_id"], name: "index_organizations_on_user_id"
   end
 

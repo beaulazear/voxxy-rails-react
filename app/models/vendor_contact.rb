@@ -27,6 +27,12 @@ class VendorContact < ApplicationRecord
   scope :by_contact_type, ->(type) { where(contact_type: type) }
   scope :by_location, ->(location) { where("location ILIKE ?", "%#{location}%") }
   scope :by_category, ->(category) { where("categories @> ?", [ category ].to_json) }
+  scope :by_tags, ->(tags) {
+    # Match ANY of the provided tags (OR operation)
+    conditions = tags.map { "tags @> ?" }.join(" OR ")
+    values = tags.map { |tag| [ tag ].to_json }
+    where(conditions, *values)
+  }
   scope :featured, -> { where(featured: true) }
   scope :recent, -> { order(created_at: :desc) }
   scope :recently_contacted, -> { where.not(last_contacted_at: nil).order(last_contacted_at: :desc) }

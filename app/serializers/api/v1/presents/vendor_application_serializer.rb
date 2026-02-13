@@ -23,6 +23,9 @@ module Api
               booth_price: @vendor_application.booth_price&.to_f,
               currency: "USD"
             },
+            install_date: @vendor_application.install_date&.iso8601,
+            install_start_time: @vendor_application.install_start_time,
+            install_end_time: @vendor_application.install_end_time,
             payment_link: @vendor_application.payment_link,
             application_tags: @vendor_application.application_tags,
             created_at: @vendor_application.created_at,

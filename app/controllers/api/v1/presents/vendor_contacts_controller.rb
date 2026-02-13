@@ -23,6 +23,7 @@ module Api
           vendor_contacts = vendor_contacts.by_contact_type(params[:contact_type]) if params[:contact_type].present?
           vendor_contacts = vendor_contacts.by_location(params[:location]) if params[:location].present?
           vendor_contacts = vendor_contacts.by_category(params[:category]) if params[:category].present?
+          vendor_contacts = vendor_contacts.by_tags(params[:tags]) if params[:tags].present?
           vendor_contacts = vendor_contacts.featured if params[:featured] == "true"
           vendor_contacts = vendor_contacts.with_email if params[:has_email] == "true"
           vendor_contacts = vendor_contacts.with_phone if params[:has_phone] == "true"
@@ -61,6 +62,7 @@ module Api
           vendor_contacts = vendor_contacts.by_contact_type(params[:contact_type]) if params[:contact_type].present?
           vendor_contacts = vendor_contacts.by_location(params[:location]) if params[:location].present?
           vendor_contacts = vendor_contacts.by_category(params[:category]) if params[:category].present?
+          vendor_contacts = vendor_contacts.by_tags(params[:tags]) if params[:tags].present?
           vendor_contacts = vendor_contacts.featured if params[:featured] == "true"
           vendor_contacts = vendor_contacts.with_email if params[:has_email] == "true"
           vendor_contacts = vendor_contacts.with_phone if params[:has_phone] == "true"
