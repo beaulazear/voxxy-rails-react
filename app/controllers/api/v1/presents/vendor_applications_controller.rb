@@ -44,13 +44,31 @@ module Api
 
         # PATCH/PUT /api/v1/presents/vendor_applications/:id
         def update
+          Rails.logger.info "=== Vendor Application Update Debug ==="
+          Rails.logger.info "Application ID: #{@vendor_application.id}"
+          Rails.logger.info "Params received: #{vendor_application_params.inspect}"
+          Rails.logger.info "Current attributes: #{@vendor_application.attributes.slice('name', 'description', 'status', 'booth_price', 'categories').inspect}"
+
           if @vendor_application.update(vendor_application_params)
+            Rails.logger.info "✅ Update successful"
+            Rails.logger.info "New attributes: #{@vendor_application.reload.attributes.slice('name', 'description', 'status', 'booth_price', 'categories').inspect}"
+
             serialized = VendorApplicationSerializer.new(@vendor_application, include_event: true).as_json
             render json: serialized, status: :ok
           else
-            render json: { errors: @vendor_application.errors.full_messages },
-                   status: :unprocessable_entity
+            Rails.logger.error "❌ Update failed"
+            Rails.logger.error "Validation errors: #{@vendor_application.errors.full_messages}"
+            Rails.logger.error "Error details: #{@vendor_application.errors.details}"
+
+            render json: {
+              errors: @vendor_application.errors.full_messages,
+              details: @vendor_application.errors.details
+            }, status: :unprocessable_entity
           end
+        rescue => e
+          Rails.logger.error "❌ Exception during update: #{e.class.name}: #{e.message}"
+          Rails.logger.error e.backtrace.first(10).join("\n")
+          render json: { error: "Update failed: #{e.message}" }, status: :internal_server_error
         end
 
         # DELETE /api/v1/presents/vendor_applications/:id
