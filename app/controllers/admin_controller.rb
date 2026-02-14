@@ -154,10 +154,32 @@ class AdminController < ApplicationController
     total_users = users_query.count
     users = users_query.offset((page - 1) * per_page).limit(per_page)
 
+    # Get activity counts efficiently with LEFT JOINs to prevent N+1 queries
+    user_ids = users.pluck(:id)
+
+    # Get hosted activities count per user
+    hosted_counts = Activity
+      .where(user_id: user_ids)
+      .group(:user_id)
+      .count
+
+    # Get participated activities count per user (only accepted)
+    participated_counts = ActivityParticipant
+      .where(user_id: user_ids, accepted: true)
+      .group(:user_id)
+      .count
+
+    # Get last activity date per user
+    last_activities = Activity
+      .where(user_id: user_ids)
+      .select('user_id, MAX(created_at) as last_created_at')
+      .group(:user_id)
+      .index_by(&:user_id)
+
     # Get detailed user data
     user_data = users.map do |user|
-      activities_count = user.activities.count
-      participations_count = user.activity_participants.where(accepted: true).count
+      activities_count = hosted_counts[user.id] || 0
+      participations_count = participated_counts[user.id] || 0
 
       {
         id: user.id,
@@ -180,7 +202,7 @@ class AdminController < ApplicationController
           participated: participations_count,
           total: activities_count + participations_count
         },
-        last_activity: user.activities.order(created_at: :desc).first&.created_at
+        last_activity: last_activities[user.id]&.last_created_at
       }
     end
 
