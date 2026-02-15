@@ -32,7 +32,7 @@ module Api
             },
             verified: @organization.verified,
             active: @organization.active,
-            timezone: @organization.timezone || 'America/Los_Angeles',
+            timezone: @organization.timezone || "America/Los_Angeles",
             created_at: @organization.created_at,
             updated_at: @organization.updated_at
           }.tap do |json|

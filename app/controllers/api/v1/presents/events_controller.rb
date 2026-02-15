@@ -269,7 +269,7 @@ module Api
           response = {
             event: EventSerializer.new(@event, include_organization: true).as_json,
             vendor_applications: vendor_applications.map { |app|
-              app.as_json(only: [:id, :name, :event_id, :status, :categories, :pricing, :created_at, :updated_at])
+              app.as_json(only: [ :id, :name, :event_id, :status, :categories, :pricing, :created_at, :updated_at ])
             },
             submissions: all_submissions.map { |sub|
               RegistrationSerializer.new(sub, include_user: false).as_json
@@ -280,7 +280,7 @@ module Api
             scheduled_emails: scheduled_emails.map { |email|
               email.as_json(
                 include: { email_template_item: {}, latest_delivery: {} },
-                methods: [:delivery_status]
+                methods: [ :delivery_status ]
               ).merge(
                 delivery_counts: email.delivery_counts,
                 undelivered_count: email.undelivered_count,
@@ -293,7 +293,7 @@ module Api
               )
             },
             bulletins: bulletins.map { |b|
-              b.as_json(only: [:id, :title, :content, :message, :pinned, :created_at, :updated_at])
+              b.as_json(only: [ :id, :title, :content, :message, :pinned, :created_at, :updated_at ])
             },
             stats: stats,
             invitation_meta: invitation_meta,
@@ -318,10 +318,10 @@ module Api
 
         def calculate_dashboard_stats(submissions)
           applied = submissions.count
-          new_unreviewed = submissions.select { |s| s.status == 'pending' }.count
-          approved = submissions.select { |s| s.status == 'approved' || s.status == 'confirmed' }
-          approved_paid = approved.select { |s| s.payment_status == 'paid' }.count
-          missing_payments = approved.select { |s| s.payment_status != 'paid' }.count
+          new_unreviewed = submissions.select { |s| s.status == "pending" }.count
+          approved = submissions.select { |s| s.status == "approved" || s.status == "confirmed" }
+          approved_paid = approved.select { |s| s.payment_status == "paid" }.count
+          missing_payments = approved.select { |s| s.payment_status != "paid" }.count
 
           {
             applied: applied,
@@ -334,9 +334,9 @@ module Api
         def calculate_invitation_metadata(invitations)
           total_count = @event.event_invitations.count
           sent_count = invitations.select { |inv| inv.sent_at.present? }.count
-          viewed_count = invitations.select { |inv| inv.status == 'viewed' }.count
-          accepted_count = invitations.select { |inv| inv.status == 'accepted' }.count
-          declined_count = invitations.select { |inv| inv.status == 'declined' }.count
+          viewed_count = invitations.select { |inv| inv.status == "viewed" }.count
+          accepted_count = invitations.select { |inv| inv.status == "accepted" }.count
+          declined_count = invitations.select { |inv| inv.status == "declined" }.count
 
           # Get delivery stats from database (single query)
           delivery_stats = calculate_invitation_delivery_stats_optimized
@@ -360,12 +360,12 @@ module Api
 
           {
             total_sent: stats.values.sum,
-            delivered: stats['delivered'] || 0,
-            bounced: stats['bounced'] || 0,
-            dropped: stats['dropped'] || 0,
-            undelivered: (stats['bounced'] || 0) + (stats['dropped'] || 0),
-            unsubscribed: stats['unsubscribed'] || 0,
-            pending: (stats['queued'] || 0) + (stats['sent'] || 0)
+            delivered: stats["delivered"] || 0,
+            bounced: stats["bounced"] || 0,
+            dropped: stats["dropped"] || 0,
+            undelivered: (stats["bounced"] || 0) + (stats["dropped"] || 0),
+            unsubscribed: stats["unsubscribed"] || 0,
+            pending: (stats["queued"] || 0) + (stats["sent"] || 0)
           }
         end
 

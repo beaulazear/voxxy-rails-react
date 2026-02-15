@@ -96,13 +96,14 @@
       <p>I'm looking forward to your submission.</p>
 
       <p>Thanks,<br/><%= @organization.name %></p>
-
-      <p style="margin-top: 20px; font-size: 14px;">P.S. If you can't make the date, please <a href="<%= @unsubscribe_url %>" class="link">let us know here</a>.</p>
     </div>
 
     <div class="footer">
       <p style="margin: 0 0 12px 0; font-size: 12px; color: #888888;">
         Questions? Reply to this email or contact team@voxxypresents.com directly.
+      </p>
+      <p style="margin: 0 0 12px 0; font-size: 12px; color: #888888;">
+        <a href="<%= @unsubscribe_url %>" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
       </p>
       <p style="margin: 0; font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
     </div>

@@ -34,7 +34,7 @@ puts ""
 
 # Check Minnesota contacts
 minnesota_location = org.vendor_contacts.where("location ILIKE ?", "%Minnesota%").count
-minnesota_tags = org.vendor_contacts.by_tags(['Minnesota']).count rescue 0
+minnesota_tags = org.vendor_contacts.by_tags([ 'Minnesota' ]).count rescue 0
 
 puts "🔍 MINNESOTA FILTER RESULTS:"
 puts "   By location (contains 'Minnesota'): #{minnesota_location}"

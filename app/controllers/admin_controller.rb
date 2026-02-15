@@ -172,7 +172,7 @@ class AdminController < ApplicationController
     # Get last activity date per user
     last_activities = Activity
       .where(user_id: user_ids)
-      .select('user_id, MAX(created_at) as last_created_at')
+      .select("user_id, MAX(created_at) as last_created_at")
       .group(:user_id)
       .index_by(&:user_id)
 

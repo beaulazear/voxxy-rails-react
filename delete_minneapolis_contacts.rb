@@ -41,7 +41,7 @@ puts ""
 minneapolis_contacts = org.vendor_contacts.where(
   "location ILIKE ? OR tags @> ?",
   "%Minneapolis%",
-  ["Minneapolis"].to_json
+  [ "Minneapolis" ].to_json
 )
 
 minneapolis_count = minneapolis_contacts.count

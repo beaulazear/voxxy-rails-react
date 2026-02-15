@@ -50,11 +50,11 @@ module ScheduledEmailStatistics
         email = emails.find { |e| e.id == email_id }
         total_sent = email.recipient_count || 0
 
-        delivered = counts[[email_id, "delivered"]] || 0
-        bounced = counts[[email_id, "bounced"]] || 0
-        dropped = counts[[email_id, "dropped"]] || 0
-        unsubscribed = counts[[email_id, "unsubscribed"]] || 0
-        queued = (counts[[email_id, "queued"]] || 0) + (counts[[email_id, "sent"]] || 0)
+        delivered = counts[[ email_id, "delivered" ]] || 0
+        bounced = counts[[ email_id, "bounced" ]] || 0
+        dropped = counts[[ email_id, "dropped" ]] || 0
+        unsubscribed = counts[[ email_id, "unsubscribed" ]] || 0
+        queued = (counts[[ email_id, "queued" ]] || 0) + (counts[[ email_id, "sent" ]] || 0)
 
         stats[email_id][:delivery_counts] = {
           total_sent: total_sent,
