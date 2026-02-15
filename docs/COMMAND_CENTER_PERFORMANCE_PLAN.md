@@ -351,11 +351,120 @@ for (const app of vendorApps) {
 **Current Branch**: `feature/command-center-performance-optimization`
 
 ### Phase 1 Progress
-- [ ] Backend: Compound endpoint created
+- [x] Backend: Compound endpoint created ✅ (Feb 15, 2026)
 - [ ] Backend: Integration tests added
-- [ ] Frontend: React Query installed
+- [ ] Frontend: React Query installed (IN PROGRESS)
 - [ ] Frontend: InvitesTab refactored (POC)
 - [ ] Performance: Before/after metrics documented
+
+---
+
+## 🧹 PHASE 7: CLEANUP - DEPRECATE OLD ENDPOINTS (FUTURE)
+
+**Timeline**: After 2-4 weeks of stable production use
+**Risk Level**: Medium (requires careful coordination)
+
+### Overview
+Once the Command Center compound endpoint is proven stable in production and all frontend components are migrated to React Query, we can deprecate the old individual endpoints to reduce codebase complexity and maintenance burden.
+
+### Pre-Cleanup Checklist
+- [ ] Compound endpoint has been in production for 2+ weeks
+- [ ] No reported issues with Command Center performance
+- [ ] All frontend tabs (Invites, Applicants, Mail, Home, Bulletins) migrated to React Query
+- [ ] Performance benchmarks confirm improvement
+- [ ] All edge cases tested (large datasets, slow networks, errors)
+- [ ] Mobile app (if applicable) updated to use new endpoint
+
+### Endpoints to Deprecate
+
+#### ⚠️ HIGH RISK - Used by Command Center (can remove after migration)
+1. `GET /api/v1/presents/events/:event_slug/vendor_applications` - Replaced by compound endpoint
+2. `GET /api/v1/presents/vendor_applications/:id/submissions` - Replaced by compound endpoint
+3. `GET /api/v1/presents/events/:event_slug/invitations` - Replaced by compound endpoint
+4. `GET /api/v1/presents/events/:event_slug/scheduled_emails` - Replaced by compound endpoint
+5. `GET /api/v1/presents/events/:event_slug/bulletins` - Replaced by compound endpoint
+
+#### ⚠️ MEDIUM RISK - May be used elsewhere (audit first)
+6. Individual invitation delivery stats queries - Replaced by optimized GROUP BY in compound endpoint
+
+### Deprecation Strategy (Staged Approach)
+
+#### Stage 1: Add Deprecation Warnings (Week 1)
+```ruby
+# Add to each deprecated controller action
+def index
+  Rails.logger.warn("DEPRECATED: This endpoint is deprecated. Use GET /events/:slug/command_center instead.")
+  # ... existing logic
+end
+```
+
+- Monitor logs for 1 week to identify any unexpected usage
+- Check if any external integrations, mobile apps, or forgotten frontend components are still using old endpoints
+
+#### Stage 2: Add Deprecation Headers (Week 2)
+```ruby
+# Add to response headers
+response.headers['X-Deprecation-Warning'] = 'This endpoint will be removed on YYYY-MM-DD. Use /command_center instead.'
+response.headers['X-Sunset'] = '2026-04-01' # Example sunset date
+```
+
+- Alerts frontend developers if they accidentally use old endpoints
+- Standard HTTP deprecation pattern
+
+#### Stage 3: Feature Flag Old Endpoints (Week 3)
+```ruby
+# config/initializers/feature_flags.rb
+COMMAND_CENTER_OLD_ENDPOINTS_ENABLED = ENV.fetch('COMMAND_CENTER_OLD_ENDPOINTS', 'true') == 'true'
+
+# In controller
+def index
+  unless COMMAND_CENTER_OLD_ENDPOINTS_ENABLED
+    return render json: {
+      error: "This endpoint has been deprecated. Please use GET /events/:slug/command_center"
+    }, status: 410 # 410 Gone
+  end
+  # ... existing logic
+end
+```
+
+- Allows quick rollback if issues arise
+- Can disable in staging to test impact
+
+#### Stage 4: Remove Endpoints (Week 4+)
+Only after confirming:
+- Zero usage of old endpoints in logs (2+ weeks of monitoring)
+- All frontend code audited and confirmed migrated
+- QA testing passed on staging with endpoints disabled
+- Rollback plan documented
+
+**Files to Modify:**
+1. `config/routes.rb` - Remove deprecated routes
+2. Controllers - Delete deprecated actions
+3. Tests - Remove tests for deprecated endpoints (or mark as archived)
+
+### Rollback Plan
+If issues are discovered after removal:
+1. **Immediate**: Re-enable feature flag (`COMMAND_CENTER_OLD_ENDPOINTS=true`)
+2. **Within 1 hour**: Restore routes and controller actions from git history
+3. **Within 1 day**: Deploy fix to production
+4. **Post-mortem**: Document what was missed, update audit process
+
+### Code Cleanup Benefits
+- **Reduced complexity**: ~500 lines of controller code removed
+- **Faster tests**: Fewer endpoints to test
+- **Clearer API**: Single source of truth for Command Center data
+- **Easier maintenance**: One endpoint to optimize instead of six
+
+### Monitoring After Cleanup
+- Watch error rates for 410 Gone responses (indicates missed usage)
+- Monitor Command Center load times (should remain stable)
+- Track API response times (compound endpoint should handle all load)
+
+### Documentation Updates After Cleanup
+- [ ] Update API documentation to remove deprecated endpoints
+- [ ] Update COMMAND_CENTER_PERFORMANCE_PLAN.md with cleanup completion date
+- [ ] Add "Lessons Learned" section for future deprecations
+- [ ] Archive old endpoint tests for reference
 
 ---
 
