@@ -18,13 +18,17 @@
 
 ## 📊 Current Performance Metrics (Baseline)
 
-| Component | Current Load Time | Target Load Time |
-|-----------|------------------|------------------|
-| Invites Tab | 8-12s | 1-2s |
-| Home Dashboard | 5-8s | 0.5-1s |
-| Applicants Tab | 6-10s | 1-2s |
-| Mail Tab | 4-6s | 1-2s |
-| API Requests per Load | 15-20 requests | 1-2 requests |
+**Note**: Actual measurements from production (Feb 15, 2026):
+- **Mail Tab** and **Home Dashboard** are the SLOWEST screens (highest priority)
+- **Invites Tab** is relatively fast after recent optimizations
+
+| Component | Current Load Time | Target Load Time | Priority |
+|-----------|------------------|------------------|----------|
+| Mail Tab | 8-15s | 1-2s | **HIGH** 🔴 |
+| Home Dashboard | 8-12s | 0.5-1s | **HIGH** 🔴 |
+| Applicants Tab | 6-10s | 1-2s | MEDIUM 🟡 |
+| Invites Tab | 2-4s (fast) | 1-2s | LOW 🟢 |
+| API Requests per Load | 15-20 requests | 1-2 requests | N/A |
 
 ---
 
@@ -128,12 +132,12 @@ for (const app of vendorApps) {
 
 ### **PHASE 3: REACT QUERY ROLLOUT** 📅 Week 2
 
-#### Incremental Adoption
-1. ✅ Invites Tab (POC from Phase 1)
-2. [ ] Applicants Tab
-3. [ ] Mail Tab
-4. [ ] Home Dashboard
-5. [ ] Bulletins Tab
+#### Incremental Adoption (Prioritized by Actual Performance)
+1. ✅ Invites Tab (POC from Phase 1) - **Baseline: 2-4s (already fast)**
+2. [ ] **Mail Tab** - 🔴 **HIGH PRIORITY** (Slowest: 8-15s)
+3. [ ] **Home Dashboard** - 🔴 **HIGH PRIORITY** (Slowest: 8-12s)
+4. [ ] Applicants Tab - 🟡 MEDIUM (6-10s)
+5. [ ] Bulletins Tab - 🟢 LOW (if needed)
 
 #### Benefits
 - **Caching**: Tab switches become instant (no refetch)
@@ -352,10 +356,14 @@ for (const app of vendorApps) {
 
 ### Phase 1 Progress
 - [x] Backend: Compound endpoint created ✅ (Feb 15, 2026)
-- [ ] Backend: Integration tests added
-- [ ] Frontend: React Query installed (IN PROGRESS)
-- [ ] Frontend: InvitesTab refactored (POC)
-- [ ] Performance: Before/after metrics documented
+- [x] Frontend: React Query installed ✅ (Feb 15, 2026)
+- [x] Frontend: InvitesTab refactored (POC) ✅ (Feb 15, 2026)
+- [x] Documentation: Performance testing guide created ✅ (Feb 15, 2026)
+- [x] Branches pushed to GitHub ✅ (Feb 15, 2026)
+- [ ] Backend: Integration tests added (NEXT)
+- [ ] Performance: Actual before/after metrics measured (awaiting user testing)
+
+**Key Finding**: Mail Tab and Home Dashboard are the slowest screens (8-15s), not Invites Tab (2-4s). After Phase 1 validation, prioritize optimizing Mail Tab and Home Dashboard next.
 
 ---
 
