@@ -217,6 +217,7 @@ module Api
         # GET /api/v1/presents/events/:id/command_center
         # Compound endpoint that returns ALL data needed for Command Center in a single request
         # This eliminates N+1 queries by eager-loading all associations
+        # Performance: Reduces 15-20+ sequential requests to 1 request
         def command_center_data
           # Check ownership
           unless @event.organization.user_id == @current_user.id || @current_user.admin?
