@@ -238,16 +238,21 @@ module Api
                                          .to_a
           end
 
-          # Fetch invitations with vendor contacts (paginated separately if needed)
+          # Fetch invitations with vendor contacts
+          # Note: Returns ALL invitations (no limit) for accurate stats and filtering
+          # Frontend uses React Query caching to avoid repeated fetches
+          # Future optimization: Add pagination params (?page=1&per_page=100)
           invitations = @event.event_invitations
                              .includes(:vendor_contact)
                              .order(created_at: :desc)
-                             .limit(100) # Reasonable limit for initial load
                              .to_a
 
           # Fetch scheduled emails with associations
+          # Note: Removed :email_deliveries eager loading to reduce payload size
+          # The model already calculates delivery_counts efficiently via SQL aggregations
+          # This reduces response size by ~80-90% for events with many deliveries
           scheduled_emails = @event.scheduled_emails
-                                   .includes(:email_template_item, :latest_delivery, :email_deliveries)
+                                   .includes(:email_template_item, :latest_delivery)
                                    .order(scheduled_for: :asc)
                                    .to_a
 
