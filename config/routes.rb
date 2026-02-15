@@ -298,6 +298,11 @@ Rails.application.routes.draw do
 
         # Events
         resources :events do
+          # Compound endpoint for Command Center (performance optimization)
+          member do
+            get :command_center, action: :command_center_data
+          end
+
           resources :registrations, only: [ :index, :create ]
           resources :budgets, only: [ :index, :create ]
           resources :vendor_applications, only: [ :index, :create ]

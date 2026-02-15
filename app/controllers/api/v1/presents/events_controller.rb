@@ -5,8 +5,8 @@ module Api
         skip_before_action :authorized, only: [ :index, :show ]
         skip_before_action :check_presents_access, only: [ :index, :show ]
         before_action :set_current_user_optional, only: [ :index, :show ]
-        before_action :require_venue_owner, only: [ :create, :update, :destroy, :go_live ]
-        before_action :set_event, only: [ :show, :update, :destroy, :go_live ]
+        before_action :require_venue_owner, only: [ :create, :update, :destroy, :go_live, :command_center_data ]
+        before_action :set_event, only: [ :show, :update, :destroy, :go_live, :command_center_data ]
 
         # GET /api/v1/presents/events
         # GET /api/v1/presents/organizations/:organization_id/events
@@ -214,7 +214,154 @@ module Api
           head :no_content
         end
 
+        # GET /api/v1/presents/events/:id/command_center
+        # Compound endpoint that returns ALL data needed for Command Center in a single request
+        # This eliminates N+1 queries by eager-loading all associations
+        def command_center_data
+          # Check ownership
+          unless @event.organization.user_id == @current_user.id || @current_user.admin?
+            return render json: { error: "Not authorized" }, status: :forbidden
+          end
+
+          # Eager load all associations to avoid N+1 queries
+          vendor_applications = @event.vendor_applications.includes(:event)
+
+          # Fetch all submissions across all applications in one query
+          all_submissions = []
+          application_ids = vendor_applications.pluck(:id)
+
+          if application_ids.any?
+            all_submissions = Registration.where(vendor_application_id: application_ids)
+                                         .includes(:user)
+                                         .order(created_at: :desc)
+                                         .to_a
+          end
+
+          # Fetch invitations with vendor contacts (paginated separately if needed)
+          invitations = @event.event_invitations
+                             .includes(:vendor_contact)
+                             .order(created_at: :desc)
+                             .limit(100) # Reasonable limit for initial load
+                             .to_a
+
+          # Fetch scheduled emails with associations
+          scheduled_emails = @event.scheduled_emails
+                                   .includes(:email_template_item, :latest_delivery, :email_deliveries)
+                                   .order(scheduled_for: :asc)
+                                   .to_a
+
+          # Fetch bulletins
+          bulletins = @event.bulletins.order(created_at: :desc).limit(10).to_a
+
+          # Calculate stats from already-loaded data (no additional queries)
+          stats = calculate_dashboard_stats(all_submissions)
+
+          # Calculate invitation metadata
+          invitation_meta = calculate_invitation_metadata(invitations)
+
+          # Serialize everything
+          response = {
+            event: EventSerializer.new(@event, include_organization: true).as_json,
+            vendor_applications: vendor_applications.map { |app|
+              app.as_json(only: [:id, :name, :event_id, :status, :categories, :pricing, :created_at, :updated_at])
+            },
+            submissions: all_submissions.map { |sub|
+              RegistrationSerializer.new(sub, include_user: false).as_json
+            },
+            invitations: invitations.map { |inv|
+              EventInvitationSerializer.new(inv, include_vendor_contact: true).as_json
+            },
+            scheduled_emails: scheduled_emails.map { |email|
+              email.as_json(
+                include: { email_template_item: {}, latest_delivery: {} },
+                methods: [:delivery_status]
+              ).merge(
+                delivery_counts: email.delivery_counts,
+                undelivered_count: email.undelivered_count,
+                unsubscribed_count: email.unsubscribed_count,
+                delivered_count: email.delivered_count,
+                delivery_rate: email.delivery_rate,
+                overdue: email.overdue?,
+                minutes_overdue: email.minutes_overdue,
+                overdue_message: email.overdue_message
+              )
+            },
+            bulletins: bulletins.map { |b|
+              b.as_json(only: [:id, :title, :content, :message, :pinned, :created_at, :updated_at])
+            },
+            stats: stats,
+            invitation_meta: invitation_meta,
+            _metadata: {
+              fetched_at: Time.current.iso8601,
+              submissions_count: all_submissions.count,
+              invitations_count: invitations.count,
+              invitations_total: @event.event_invitations.count,
+              invitations_paginated: invitations.count < @event.event_invitations.count
+            }
+          }
+
+          render json: response, status: :ok
+        rescue => e
+          Rails.logger.error("Command Center data fetch failed: #{e.message}")
+          Rails.logger.error(e.backtrace.join("\n"))
+          render json: { error: "Failed to load command center data: #{e.message}" },
+                 status: :internal_server_error
+        end
+
         private
+
+        def calculate_dashboard_stats(submissions)
+          applied = submissions.count
+          new_unreviewed = submissions.select { |s| s.status == 'pending' }.count
+          approved = submissions.select { |s| s.status == 'approved' || s.status == 'confirmed' }
+          approved_paid = approved.select { |s| s.payment_status == 'paid' }.count
+          missing_payments = approved.select { |s| s.payment_status != 'paid' }.count
+
+          {
+            applied: applied,
+            new_unreviewed: new_unreviewed,
+            approved_paid: approved_paid,
+            missing_payments: missing_payments
+          }
+        end
+
+        def calculate_invitation_metadata(invitations)
+          total_count = @event.event_invitations.count
+          sent_count = invitations.select { |inv| inv.sent_at.present? }.count
+          viewed_count = invitations.select { |inv| inv.status == 'viewed' }.count
+          accepted_count = invitations.select { |inv| inv.status == 'accepted' }.count
+          declined_count = invitations.select { |inv| inv.status == 'declined' }.count
+
+          # Get delivery stats from database (single query)
+          delivery_stats = calculate_invitation_delivery_stats_optimized
+
+          {
+            total_count: total_count,
+            sent_count: sent_count,
+            viewed_count: viewed_count,
+            accepted_count: accepted_count,
+            declined_count: declined_count,
+            delivery_stats: delivery_stats
+          }
+        end
+
+        def calculate_invitation_delivery_stats_optimized
+          # Single GROUP BY query instead of 6 separate COUNT queries
+          stats = EmailDelivery.where(event_id: @event.id)
+                              .where.not(event_invitation_id: nil)
+                              .group(:status)
+                              .count
+
+          {
+            total_sent: stats.values.sum,
+            delivered: stats['delivered'] || 0,
+            bounced: stats['bounced'] || 0,
+            dropped: stats['dropped'] || 0,
+            undelivered: (stats['bounced'] || 0) + (stats['dropped'] || 0),
+            unsubscribed: stats['unsubscribed'] || 0,
+            pending: (stats['queued'] || 0) + (stats['sent'] || 0)
+          }
+        end
 
         def set_current_user_optional
           # Set @current_user if token is present, but don't require it
