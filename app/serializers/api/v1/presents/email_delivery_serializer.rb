@@ -11,6 +11,7 @@ module Api
             id: @email_delivery.id,
             sendgrid_message_id: @email_delivery.sendgrid_message_id,
             recipient_email: @email_delivery.recipient_email,
+            subject: determine_subject,
             status: @email_delivery.status,
             email_type: @email_delivery.email_type,
             bounce_type: @email_delivery.bounce_type,
@@ -31,6 +32,28 @@ module Api
         end
 
         private
+
+        def determine_subject
+          # 1. Use stored subject if present (for notification/invitation emails)
+          return @email_delivery.subject if @email_delivery.subject.present?
+
+          # 2. Fall back to scheduled email subject if available
+          if @email_delivery.scheduled_email.present?
+            return @email_delivery.scheduled_email.subject_template || @email_delivery.scheduled_email.name
+          end
+
+          # 3. Generic fallback based on email_type
+          case @email_delivery.email_type
+          when "invitation"
+            "Event Invitation"
+          when "notification"
+            "Event Notification"
+          when "scheduled"
+            "Scheduled Email"
+          else
+            "Unknown Email"
+          end
+        end
 
         def scheduled_email_json
           return nil unless @email_delivery.scheduled_email.present?

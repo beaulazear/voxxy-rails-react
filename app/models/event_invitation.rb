@@ -2,6 +2,7 @@ class EventInvitation < ApplicationRecord
   # Associations
   belongs_to :event
   belongs_to :vendor_contact
+  has_one :registration, dependent: :nullify
   has_many :email_deliveries, dependent: :destroy
 
   # Validations

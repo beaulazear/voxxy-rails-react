@@ -42,9 +42,19 @@ module Api
             end
 
             # Vendor applications start as pending
-            registration = @event.registrations.build(registration_params)
+            registration = @event.registrations.build(registration_params.except(:invitation_token))
             registration.user = @current_user if @current_user
             registration.status = "pending"
+
+            # Link invitation if token provided (fixes bug where invitation emails disappear)
+            if params[:invitation_token].present?
+              invitation = EventInvitation.find_by(
+                invitation_token: params[:invitation_token],
+                event_id: @event.id
+              )
+              registration.event_invitation = invitation if invitation
+              Rails.logger.info("Linked registration to invitation ##{invitation.id}") if invitation
+            end
           else
             # Regular event registration
             unless @event.registration_open?
@@ -132,9 +142,12 @@ module Api
         end
 
         # GET /api/v1/presents/registrations/:id/email_history
-        # Returns all email deliveries for a specific registration
+        # Returns ALL email deliveries for a specific registration, including:
+        # 1. Registration emails (application received, approved, etc.)
+        # 2. Invitation email (if this registration came from an invitation)
+        # This fixes the bug where invitation emails "disappear" after vendor applies
         def email_history
-          email_deliveries = @registration.email_deliveries
+          email_deliveries = @registration.all_email_deliveries
             .includes(:scheduled_email)
             .order(created_at: :desc)
 

@@ -217,7 +217,7 @@ class RegistrationEmailService < BaseEmailService
     )
 
     # Create EmailDelivery record to track this notification
-    create_notification_delivery_record(registration, response, "application_received")
+    create_notification_delivery_record(registration, response, "application_received", subject)
 
     Rails.logger.info "Vendor submission confirmation sent successfully to #{registration.email}"
   end
@@ -328,7 +328,7 @@ class RegistrationEmailService < BaseEmailService
     )
 
     # Create EmailDelivery record to track this notification
-    create_notification_delivery_record(registration, response, "approval")
+    create_notification_delivery_record(registration, response, "approval", subject)
 
     Rails.logger.info "Approval email sent successfully to #{registration.email}"
   end
@@ -399,7 +399,7 @@ class RegistrationEmailService < BaseEmailService
     )
 
     # Create EmailDelivery record to track this notification
-    create_notification_delivery_record(registration, response, "rejection")
+    create_notification_delivery_record(registration, response, "rejection", subject)
 
     Rails.logger.info "Rejection email sent successfully to #{registration.email}"
   end
@@ -439,7 +439,7 @@ class RegistrationEmailService < BaseEmailService
     )
 
     # Create EmailDelivery record to track this notification
-    create_notification_delivery_record(registration, response, "waitlist")
+    create_notification_delivery_record(registration, response, "waitlist", subject)
 
     Rails.logger.info "Waitlist notification sent successfully to #{registration.email}"
   end
@@ -479,7 +479,7 @@ class RegistrationEmailService < BaseEmailService
     )
 
     # Create EmailDelivery record to track this notification
-    create_notification_delivery_record(registration, response, "payment_confirmation")
+    create_notification_delivery_record(registration, response, "payment_confirmation", subject)
 
     Rails.logger.info "Payment confirmation sent successfully to #{registration.email}"
   end
@@ -563,7 +563,7 @@ class RegistrationEmailService < BaseEmailService
     )
 
     # Create EmailDelivery record to track this notification
-    create_notification_delivery_record(registration, response, "category_change")
+    create_notification_delivery_record(registration, response, "category_change", subject)
 
     Rails.logger.info "Category change notification sent successfully to #{registration.email}"
   end
@@ -641,7 +641,7 @@ class RegistrationEmailService < BaseEmailService
         )
 
         # Create EmailDelivery record to track this notification
-        create_notification_delivery_record(registration, response, "event_details_changed")
+        create_notification_delivery_record(registration, response, "event_details_changed", subject)
 
         sent_count += 1
       rescue StandardError => e
@@ -721,7 +721,7 @@ class RegistrationEmailService < BaseEmailService
         )
 
         # Create EmailDelivery record to track this notification
-        create_notification_delivery_record(registration, response, "event_canceled")
+        create_notification_delivery_record(registration, response, "event_canceled", subject)
 
         sent_count += 1
       rescue StandardError => e
@@ -1164,7 +1164,7 @@ class RegistrationEmailService < BaseEmailService
   private
 
   # Helper method to create EmailDelivery record for system notification emails
-  def self.create_notification_delivery_record(registration, response, notification_type)
+  def self.create_notification_delivery_record(registration, response, notification_type, subject)
     return unless registration && response
 
     begin
@@ -1181,12 +1181,13 @@ class RegistrationEmailService < BaseEmailService
         registration: registration,
         sendgrid_message_id: message_id,
         recipient_email: registration.email,
+        subject: subject,
         status: response.status_code.to_i == 202 ? "sent" : "failed",
         email_type: "notification",
         sent_at: Time.current
       )
 
-      Rails.logger.info "✓ Created EmailDelivery record for #{notification_type} notification to #{registration.email} (message_id: #{message_id})"
+      Rails.logger.info "✓ Created EmailDelivery record for #{notification_type} notification to #{registration.email} (subject: #{subject}, message_id: #{message_id})"
     rescue StandardError => e
       # Log error but don't fail the email send
       Rails.logger.error "Failed to create EmailDelivery record for #{notification_type}: #{e.message}"

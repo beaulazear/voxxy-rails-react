@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_02_16_033334) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_16_135600) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -246,6 +246,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_16_033334) do
     t.datetime "failed_at"
     t.text "error_message"
     t.string "email_type"
+    t.string "subject"
     t.index ["email_type"], name: "index_email_deliveries_on_email_type"
     t.index ["event_id", "status"], name: "index_email_deliveries_on_event_id_and_status"
     t.index ["event_id"], name: "index_email_deliveries_on_event_id"
@@ -256,6 +257,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_16_033334) do
     t.index ["registration_id"], name: "index_email_deliveries_on_registration_id"
     t.index ["scheduled_email_id"], name: "index_email_deliveries_on_scheduled_email_id"
     t.index ["sendgrid_message_id"], name: "index_email_deliveries_on_sendgrid_message_id", unique: true
+    t.index ["subject"], name: "index_email_deliveries_on_subject"
     t.check_constraint "scheduled_email_id IS NOT NULL OR event_invitation_id IS NOT NULL OR registration_id IS NOT NULL", name: "check_email_source_present"
   end
 
@@ -561,8 +563,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_16_033334) do
     t.string "payment_provider"
     t.decimal "payment_amount", precision: 10, scale: 2
     t.boolean "vendor_fee_paid", default: false
+    t.bigint "event_invitation_id"
     t.index ["email"], name: "index_registrations_on_email"
     t.index ["event_id"], name: "index_registrations_on_event_id"
+    t.index ["event_invitation_id"], name: "index_registrations_on_event_invitation_id"
     t.index ["payment_status"], name: "index_registrations_on_payment_status"
     t.index ["payment_transaction_id"], name: "index_registrations_on_payment_transaction_id"
     t.index ["status"], name: "index_registrations_on_status"
@@ -920,6 +924,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_16_033334) do
   add_foreign_key "payment_transactions", "registrations"
   add_foreign_key "payment_transactions", "vendor_contacts"
   add_foreign_key "pinned_activities", "activities"
+  add_foreign_key "registrations", "event_invitations"
   add_foreign_key "registrations", "events"
   add_foreign_key "registrations", "payment_transactions"
   add_foreign_key "registrations", "users"

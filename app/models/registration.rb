@@ -3,6 +3,7 @@ class Registration < ApplicationRecord
   belongs_to :user, optional: true
   belongs_to :vendor_application, optional: true, counter_cache: :submissions_count
   belongs_to :payment_transaction, optional: true
+  belongs_to :event_invitation, optional: true
 
   # Email automation associations
   has_many :email_deliveries, dependent: :destroy
@@ -97,6 +98,24 @@ class Registration < ApplicationRecord
       new_category: saved_change_to_vendor_category[1],
       changed_at: updated_at
     }
+  end
+
+  # Returns ALL email deliveries for this registration, including:
+  # 1. Direct registration emails (application received, approved, etc.)
+  # 2. Invitation email (if this registration came from an invitation)
+  # This fixes the bug where invitation emails "disappear" after vendor applies
+  def all_email_deliveries
+    if event_invitation_id.present?
+      # Combine registration emails + invitation emails
+      EmailDelivery.where(
+        "registration_id = ? OR event_invitation_id = ?",
+        id,
+        event_invitation_id
+      ).order(created_at: :asc)
+    else
+      # No invitation - just return registration emails
+      email_deliveries.order(created_at: :asc)
+    end
   end
 
   private

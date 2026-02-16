@@ -130,9 +130,13 @@ module Api
               # Mark as sent immediately (could also be done via background job)
               invitation.mark_as_sent!
 
+              # Build subject line (same as EventInvitationMailer)
+              location_text = @event.location.present? ? @event.location : "your area"
+              subject_line = "#{@event.title} is coming in #{location_text}"
+
               # Create EmailDelivery record BEFORE sending (ensures all invitations tracked)
               # Initial status is "queued" - will be updated to "sent" or "dropped"
-              delivery_record = create_invitation_delivery_record(invitation, @event, contact)
+              delivery_record = create_invitation_delivery_record(invitation, @event, contact, subject_line)
 
               # Send invitation email
               begin
@@ -395,7 +399,7 @@ module Api
           }
         end
 
-        def create_invitation_delivery_record(invitation, event, contact)
+        def create_invitation_delivery_record(invitation, event, contact, subject)
           # Create EmailDelivery record BEFORE sending email
           # This ensures ALL invitations are tracked, even if email send fails
           # Use recipient email as lookup key since we can't get SendGrid message ID from SMTP
@@ -406,11 +410,13 @@ module Api
             event_invitation_id: invitation.id,
             sendgrid_message_id: "pending-#{invitation.id}-#{Time.current.to_i}",
             recipient_email: contact.email,
+            subject: subject,
+            email_type: "invitation",
             status: "queued",  # Initial status - indicates send attempt in progress
             sent_at: Time.current
           )
 
-          Rails.logger.info("Created delivery tracking record for invitation ##{invitation.id} to #{contact.email}")
+          Rails.logger.info("Created delivery tracking record for invitation ##{invitation.id} to #{contact.email} (subject: #{subject})")
         rescue ActiveRecord::RecordInvalid => e
           Rails.logger.error("Failed to create invitation delivery record: #{e.message}")
           nil
