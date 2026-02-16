@@ -12,6 +12,7 @@ module Api
             sendgrid_message_id: @email_delivery.sendgrid_message_id,
             recipient_email: @email_delivery.recipient_email,
             status: @email_delivery.status,
+            email_type: @email_delivery.email_type,
             bounce_type: @email_delivery.bounce_type,
             bounce_reason: @email_delivery.bounce_reason,
             drop_reason: @email_delivery.drop_reason,
@@ -36,8 +37,7 @@ module Api
 
           {
             id: @email_delivery.scheduled_email.id,
-            subject: @email_delivery.scheduled_email.subject,
-            email_type: @email_delivery.scheduled_email.email_type,
+            subject: @email_delivery.scheduled_email.subject_template || @email_delivery.scheduled_email.name,
             scheduled_for: @email_delivery.scheduled_email.scheduled_for,
             sent_at: @email_delivery.scheduled_email.sent_at
           }

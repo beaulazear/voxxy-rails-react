@@ -15,6 +15,13 @@ class EmailDelivery < ApplicationRecord
     unsubscribed: "unsubscribed"
   }
 
+  # Enums for email type
+  enum email_type: {
+    invitation: "invitation",       # Manual invitation emails
+    scheduled: "scheduled",          # Campaign template emails
+    notification: "notification"     # System notification emails
+  }, _prefix: true
+
   # Validations
   validates :sendgrid_message_id, presence: true, uniqueness: true
   validates :recipient_email, presence: true
@@ -26,9 +33,12 @@ class EmailDelivery < ApplicationRecord
   private
 
   def must_have_email_source
-    # Must have at least one email source
-    if scheduled_email_id.blank? && event_invitation_id.blank?
-      errors.add(:base, "Must have either scheduled_email_id or event_invitation_id")
+    # Must have at least one email source:
+    # - scheduled_email_id (scheduled campaign emails)
+    # - event_invitation_id (manual invitation emails)
+    # - registration_id (system notification emails)
+    if scheduled_email_id.blank? && event_invitation_id.blank? && registration_id.blank?
+      errors.add(:base, "Must have either scheduled_email_id, event_invitation_id, or registration_id")
     end
 
     # Cannot have both recipient types (would be ambiguous)

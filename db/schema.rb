@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_02_13_143332) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_16_033334) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -245,6 +245,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_13_143332) do
     t.datetime "clicked_at"
     t.datetime "failed_at"
     t.text "error_message"
+    t.string "email_type"
+    t.index ["email_type"], name: "index_email_deliveries_on_email_type"
     t.index ["event_id", "status"], name: "index_email_deliveries_on_event_id_and_status"
     t.index ["event_id"], name: "index_email_deliveries_on_event_id"
     t.index ["event_invitation_id"], name: "index_email_deliveries_on_event_invitation_id"
@@ -254,7 +256,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_13_143332) do
     t.index ["registration_id"], name: "index_email_deliveries_on_registration_id"
     t.index ["scheduled_email_id"], name: "index_email_deliveries_on_scheduled_email_id"
     t.index ["sendgrid_message_id"], name: "index_email_deliveries_on_sendgrid_message_id", unique: true
-    t.check_constraint "scheduled_email_id IS NOT NULL OR event_invitation_id IS NOT NULL", name: "check_email_source_present"
+    t.check_constraint "scheduled_email_id IS NOT NULL OR event_invitation_id IS NOT NULL OR registration_id IS NOT NULL", name: "check_email_source_present"
   end
 
   create_table "email_template_items", force: :cascade do |t|

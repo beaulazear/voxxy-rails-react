@@ -206,7 +206,7 @@ class RegistrationEmailService < BaseEmailService
       "X-SMTPAPI" => '{"category": ["transactional", "application-confirmation"]}'
     }
 
-    send_email(
+    response = send_email(
       registration.email,
       subject,
       email_html,
@@ -215,6 +215,9 @@ class RegistrationEmailService < BaseEmailService
       reply_to_email: organization.reply_to_email,
       reply_to_name: organization.reply_to_name
     )
+
+    # Create EmailDelivery record to track this notification
+    create_notification_delivery_record(registration, response, "application_received")
 
     Rails.logger.info "Vendor submission confirmation sent successfully to #{registration.email}"
   end
@@ -314,7 +317,7 @@ class RegistrationEmailService < BaseEmailService
       "X-SMTPAPI" => '{"category": ["transactional", "application-approved"]}'
     }
 
-    send_email(
+    response = send_email(
       registration.email,
       subject,
       email_html,
@@ -323,6 +326,9 @@ class RegistrationEmailService < BaseEmailService
       reply_to_email: organization.reply_to_email,
       reply_to_name: organization.reply_to_name
     )
+
+    # Create EmailDelivery record to track this notification
+    create_notification_delivery_record(registration, response, "approval")
 
     Rails.logger.info "Approval email sent successfully to #{registration.email}"
   end
@@ -382,7 +388,7 @@ class RegistrationEmailService < BaseEmailService
       "X-SMTPAPI" => '{"category": ["transactional", "application-rejected"]}'
     }
 
-    send_email(
+    response = send_email(
       registration.email,
       subject,
       email_html,
@@ -391,6 +397,9 @@ class RegistrationEmailService < BaseEmailService
       reply_to_email: organization.reply_to_email,
       reply_to_name: organization.reply_to_name
     )
+
+    # Create EmailDelivery record to track this notification
+    create_notification_delivery_record(registration, response, "rejection")
 
     Rails.logger.info "Rejection email sent successfully to #{registration.email}"
   end
@@ -419,7 +428,7 @@ class RegistrationEmailService < BaseEmailService
       "X-SMTPAPI" => '{"category": ["transactional", "application-waitlist"]}'
     }
 
-    send_email(
+    response = send_email(
       registration.email,
       subject,
       email_html,
@@ -428,6 +437,9 @@ class RegistrationEmailService < BaseEmailService
       reply_to_email: organization.reply_to_email,
       reply_to_name: organization.reply_to_name
     )
+
+    # Create EmailDelivery record to track this notification
+    create_notification_delivery_record(registration, response, "waitlist")
 
     Rails.logger.info "Waitlist notification sent successfully to #{registration.email}"
   end
@@ -456,7 +468,7 @@ class RegistrationEmailService < BaseEmailService
       "X-SMTPAPI" => '{"category": ["transactional", "payment-confirmed"]}'
     }
 
-    send_email(
+    response = send_email(
       registration.email,
       subject,
       email_html,
@@ -465,6 +477,9 @@ class RegistrationEmailService < BaseEmailService
       reply_to_email: organization.reply_to_email,
       reply_to_name: organization.reply_to_name
     )
+
+    # Create EmailDelivery record to track this notification
+    create_notification_delivery_record(registration, response, "payment_confirmation")
 
     Rails.logger.info "Payment confirmation sent successfully to #{registration.email}"
   end
@@ -537,7 +552,7 @@ class RegistrationEmailService < BaseEmailService
       "X-SMTPAPI" => '{"category": ["transactional", "category-changed"]}'
     }
 
-    send_email(
+    response = send_email(
       registration.email,
       subject,
       email_html,
@@ -546,6 +561,9 @@ class RegistrationEmailService < BaseEmailService
       reply_to_email: organization.reply_to_email,
       reply_to_name: organization.reply_to_name
     )
+
+    # Create EmailDelivery record to track this notification
+    create_notification_delivery_record(registration, response, "category_change")
 
     Rails.logger.info "Category change notification sent successfully to #{registration.email}"
   end
@@ -612,7 +630,7 @@ class RegistrationEmailService < BaseEmailService
           "X-SMTPAPI" => '{"category": ["transactional", "event-details-changed"]}'
         }
 
-        send_email(
+        response = send_email(
           registration.email,
           subject,
           email_html,
@@ -621,6 +639,10 @@ class RegistrationEmailService < BaseEmailService
           reply_to_email: organization.reply_to_email,
           reply_to_name: organization.reply_to_name
         )
+
+        # Create EmailDelivery record to track this notification
+        create_notification_delivery_record(registration, response, "event_details_changed")
+
         sent_count += 1
       rescue StandardError => e
         Rails.logger.error "Failed to send event details update to #{registration.email}: #{e.message}"
@@ -688,7 +710,7 @@ class RegistrationEmailService < BaseEmailService
           "X-SMTPAPI" => '{"category": ["transactional", "event-canceled"]}'
         }
 
-        send_email(
+        response = send_email(
           registration.email,
           subject,
           email_html,
@@ -697,6 +719,10 @@ class RegistrationEmailService < BaseEmailService
           reply_to_email: organization.reply_to_email,
           reply_to_name: organization.reply_to_name
         )
+
+        # Create EmailDelivery record to track this notification
+        create_notification_delivery_record(registration, response, "event_canceled")
+
         sent_count += 1
       rescue StandardError => e
         Rails.logger.error "Failed to send event cancellation to #{registration.email}: #{e.message}"
@@ -1133,5 +1159,38 @@ class RegistrationEmailService < BaseEmailService
         [organizationName]
       </p>
     HTML
+  end
+
+  private
+
+  # Helper method to create EmailDelivery record for system notification emails
+  def self.create_notification_delivery_record(registration, response, notification_type)
+    return unless registration && response
+
+    begin
+      # Extract SendGrid message ID from response headers
+      # IMPORTANT: SendGrid returns x-message-id as an array, so we need to extract the first element
+      message_id = Array(response.headers["x-message-id"]).first
+
+      # If no message ID in headers, generate a temporary one
+      # (SendGrid webhooks will update this later when they arrive)
+      message_id ||= "notification-#{registration.id}-#{Time.current.to_i}"
+
+      EmailDelivery.create!(
+        event: registration.event,
+        registration: registration,
+        sendgrid_message_id: message_id,
+        recipient_email: registration.email,
+        status: response.status_code.to_i == 202 ? "sent" : "failed",
+        email_type: "notification",
+        sent_at: Time.current
+      )
+
+      Rails.logger.info "✓ Created EmailDelivery record for #{notification_type} notification to #{registration.email} (message_id: #{message_id})"
+    rescue StandardError => e
+      # Log error but don't fail the email send
+      Rails.logger.error "Failed to create EmailDelivery record for #{notification_type}: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+    end
   end
 end
