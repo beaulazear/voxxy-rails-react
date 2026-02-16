@@ -172,12 +172,37 @@ module Api
                 invitation = @event.event_invitations.create!(vendor_contact: contact)
                 invitation.mark_as_sent!
 
+                # Build subject line (same as EventInvitationMailer)
+                location_text = @event.location.present? ? @event.location : "your area"
+                subject_line = "#{@event.title} is coming in #{location_text}"
+
+                # Create EmailDelivery record BEFORE sending (ensures all invitations tracked)
+                # Initial status is "queued" - will be updated to "sent" or "dropped"
+                delivery_record = EmailDelivery.create!(
+                  event_id: @event.id,
+                  event_invitation_id: invitation.id,
+                  sendgrid_message_id: "pending-#{invitation.id}-#{Time.current.to_i}",
+                  recipient_email: contact.email,
+                  subject: subject_line,
+                  email_type: "invitation",
+                  status: "queued",
+                  sent_at: Time.current
+                )
+
                 # Send email
                 begin
                   EventInvitationMailer.invitation_email(invitation).deliver_now
                   invitations_sent += 1
+                  Rails.logger.info("✓ Sent invitation email to #{contact.email}")
                 rescue => e
                   Rails.logger.error "Failed to send invitation to #{contact.email}: #{e.message}"
+
+                  # Mark delivery as failed in tracking system
+                  delivery_record.update(
+                    status: "dropped",
+                    drop_reason: "Email send failed: #{e.message}",
+                    dropped_at: Time.current
+                  )
                 end
               end
 
