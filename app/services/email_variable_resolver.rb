@@ -35,6 +35,8 @@
 #     [categoryPaymentLink] - Payment link for the vendor category (from vendor application)
 #     [categoryApplicationLink] - Public application URL (short link with shareable code)
 #     [applicationLink] - Alias for categoryApplicationLink
+#     [artistApplicationLink] - Public application URL for the first Artist-category vendor_application on the event
+#     [vendorApplicationLink] - Public application URL for the first Vendor-category vendor_application on the event
 #
 #   Special variables:
 #     [unsubscribeLink] - Unsubscribe URL
@@ -181,6 +183,8 @@ class EmailVariableResolver
       .gsub("[bulletinLink]", event_link)  # Bulletin link is same as event link
       .gsub("[dashboardLink]", dashboard_link)
       .gsub("[invitationLink]", event_link)  # Invitation link is same as event link
+      .gsub("[artistApplicationLink]", artist_application_link)
+      .gsub("[vendorApplicationLink]", vendor_application_link)
   end
 
   def format_date(date)
@@ -257,5 +261,19 @@ class EmailVariableResolver
     return "" unless event_portal
 
     "#{base_url}/portal/#{event_portal.access_token}"
+  end
+
+  def artist_application_link
+    app = event.vendor_applications.active.find { |a| a.name.downcase.include?("artist") || a.name.downcase.include?("gallery") || a.name.downcase.include?("wall") }
+    app ? "#{base_url}/apply/#{app.shareable_code}" : ""
+  rescue
+    ""
+  end
+
+  def vendor_application_link
+    app = event.vendor_applications.active.find { |a| a.name.downcase.include?("vendor") || a.name.downcase.include?("table") || a.name.downcase.include?("market") }
+    app ? "#{base_url}/apply/#{app.shareable_code}" : ""
+  rescue
+    ""
   end
 end

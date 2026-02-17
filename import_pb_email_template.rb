@@ -12,7 +12,13 @@ existing = EmailCampaignTemplate.find_by(name: template_name)
 if existing
   puts "⚠️  Found existing template '#{template_name}' (ID: #{existing.id}), deleting it..."
 
-  # Must delete in FK order: email_deliveries → scheduled_emails → email_template_items
+  # Must delete/nullify in FK order:
+  # events.email_campaign_template_id → email_deliveries → scheduled_emails → email_template_items
+
+  # Nullify events referencing this template (preserves events, just clears the link)
+  nullified_events = Event.where(email_campaign_template_id: existing.id).update_all(email_campaign_template_id: nil)
+  puts "   🗑  Nullified email_campaign_template_id on #{nullified_events} event(s)" if nullified_events > 0
+
   item_ids = existing.email_template_items.pluck(:id)
   if item_ids.any?
     se_ids = ScheduledEmail.where(email_template_item_id: item_ids).pluck(:id)
@@ -44,11 +50,13 @@ puts "\n📧 Creating email template items..."
 
 # Shared unsubscribe footer appended to every email
 FOOTER = <<~HTML
-  <hr style="margin: 32px 0; border: none; border-top: 1px solid #e5e7eb;">
-  <p style="font-size: 12px; color: #6b7280; text-align: center;">
-    You're receiving this because you applied to a Pancake &amp; Booze event.<br>
-    <a href="[unsubscribeLink]" style="color: #6b7280;">Unsubscribe</a>
+  <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;"/>
+
+  <p style="font-size: 12px; color: #888888;">
+    <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
   </p>
+
+  <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
 HTML
 
 emails = [
@@ -129,7 +137,7 @@ emails = [
       <p><strong>Congratulations!</strong> You've been invited to exhibit at <strong>The [eventName]</strong> on [dateRange] at [eventVenue].</p>
       <p>We received a high volume of applications, and we're excited to have your work in the mix. Please note that <strong>we do not hold spots</strong>; your space is only officially secured once your exhibition fees are received.</p>
       <h3>Step 1: Secure Your Space</h3>
-      <p><a href="[categoryPaymentLink]">PAYMENT LINK: CONFIRM YOUR EXHIBIT HERE</a></p>
+      <p><a href="[categoryPaymentLink]" style="color: #0066cc; text-decoration: underline;">PAYMENT LINK: CONFIRM YOUR EXHIBIT HERE</a></p>
       <p><strong>Exhibition Rates (No Hidden Fees):</strong><br>
       – 1st Piece: <strong>[boothPrice]</strong><br>
       – 2nd Piece: <strong>FREE</strong><br>
@@ -171,7 +179,7 @@ emails = [
       <p>We received a high volume of applications for this show, and we're excited to have your brand in the mix. Because vendor space is extremely limited, <strong>we do not hold spots.</strong> Your space is only officially reserved once payment is completed through the link below.</p>
       <h3>Step 1: Secure Your Space</h3>
       <p>The vending fee is <strong>[boothPrice]</strong>. To keep our pricing transparent, <strong>we now cover all ticketing and processing fees</strong>—the price you see is exactly what you pay at checkout.</p>
-      <p><a href="[categoryPaymentLink]">PAYMENT LINK: SECURE YOUR TABLE HERE</a></p>
+      <p><a href="[categoryPaymentLink]" style="color: #0066cc; text-decoration: underline;">PAYMENT LINK: SECURE YOUR TABLE HERE</a></p>
       <p><strong>Cancellation Policy:</strong> We understand that life happens. We offer full refunds for cancellations made up to <strong>72 hours before the event</strong>. This allows us time to offer the space to a vendor on our waitlist. Cancellations made within 72 hours of the show are non-refundable.</p>
       <hr>
       <h4>Step 2: Spread the Word</h4>
@@ -205,14 +213,14 @@ emails = [
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>[organizationName] is back in [eventCity] and submissions are open for our upcoming show at [eventVenue] on [dateRange].</p>
-      <p>Your first TWO pieces are just [boothPrice] total if your exhibition fee is paid by [paymentDueDate].</p>
+      <p>Your first TWO pieces are just $20 total if your exhibition fee is paid by [paymentDueDate].</p>
       <p>We'd be stoked to have you back. Please follow the appropriate link below to get your application in:</p>
       <p><strong>GALLERY EXHIBITION (Wall Space)</strong><br>
       Paintings, Photography, Mixed Media, &amp; Sculptures<br>
-      <a href="[categoryApplicationLink]">Artists Apply Here</a></p>
+      <a href="[artistApplicationLink]" style="color: #0066cc; text-decoration: underline;">Artists Apply Here</a></p>
       <p><strong>VENDOR MARKET (Table Space)</strong><br>
       Clothing, Jewelry, Handcrafted Goods, &amp; Small Merch (No wall art)<br>
-      <a href="[categoryApplicationLink]">Vendors Apply Here</a></p>
+      <a href="[vendorApplicationLink]" style="color: #0066cc; text-decoration: underline;">Vendors Apply Here</a></p>
       <p>We look forward to your submission!</p>
       <p>[organizationName]</p>
       <p>P.S. — If you can't make this show and want to stop receiving reminders for this specific date, please <a href="#">let us know</a>.</p>
@@ -230,14 +238,14 @@ emails = [
       <p>Hey [greetingName],</p>
       <p>Ready for another round of [organizationName]? We're back in [eventCity] at [eventVenue] on [dateRange] and we'd love to have you there.</p>
       <p>We are officially two months out, so now is the time to lock in your spot.</p>
-      <p><strong>The Deal:</strong> Your first TWO pieces are just [boothPrice] total if your exhibition fee is paid by [paymentDueDate].</p>
+      <p><strong>The Deal:</strong> Your first TWO pieces are just $20 total if your exhibition fee is paid by [paymentDueDate].</p>
       <p>We have your info on file, so applying is easy—just visit the appropriate link below and click "Yes, Sign Me Up." It takes two seconds.</p>
       <p><strong>GALLERY EXHIBITION (Wall Space)</strong><br>
       Paintings, Photography, Mixed Media, &amp; Sculptures<br>
-      <a href="[categoryApplicationLink]">ARTIST SUBMISSIONS - Apply Here</a></p>
+      <a href="[artistApplicationLink]" style="color: #0066cc; text-decoration: underline;">ARTIST SUBMISSIONS - Apply Here</a></p>
       <p><strong>VENDOR MARKET (Table Space)</strong><br>
       Clothing, Jewelry, Handcrafted Goods, &amp; Small Merch (No wall art)<br>
-      <a href="[categoryApplicationLink]">VENDOR SUBMISSIONS - Apply Here</a></p>
+      <a href="[vendorApplicationLink]" style="color: #0066cc; text-decoration: underline;">VENDOR SUBMISSIONS - Apply Here</a></p>
       <p>If you have any questions, just hit reply and let me know.</p>
       <p>Thanks,<br>[organizationName]</p>
       <p>P.S. — If you can't make this show and want to stop receiving reminders for this specific date, please <a href="#">let us know</a>.</p>
@@ -254,14 +262,14 @@ emails = [
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>The [eventName] on [dateRange] is now just weeks away.</p>
-      <p>We've received an insane response for this event and are nearly at capacity. This is likely your final opportunity to submit and lock in the [boothPrice] rate for your first two pieces before we are completely full.</p>
+      <p>We've received an insane response for this event and are nearly at capacity. This is likely your final opportunity to submit and lock in the $20 rate for your first two pieces before we are completely full.</p>
       <p>If you want in, please use the appropriate link below to secure your spot ASAP:</p>
       <p><strong>GALLERY EXHIBITION (Wall Space)</strong><br>
       Paintings, Photography, Mixed Media, &amp; Sculptures<br>
-      <a href="[categoryApplicationLink]">ARTIST SUBMISSIONS - Apply Here</a></p>
+      <a href="[artistApplicationLink]" style="color: #0066cc; text-decoration: underline;">ARTIST SUBMISSIONS - Apply Here</a></p>
       <p><strong>VENDOR MARKET (Table Space)</strong><br>
       Clothing, Jewelry, Handcrafted Goods, &amp; Small Merch (No wall art)<br>
-      <a href="[categoryApplicationLink]">VENDOR SUBMISSIONS - Apply Here</a></p>
+      <a href="[vendorApplicationLink]" style="color: #0066cc; text-decoration: underline;">VENDOR SUBMISSIONS - Apply Here</a></p>
       <p>Hit me back as soon as possible to let me know if you're joining us.</p>
       <p>Thanks,<br>[organizationName]</p>
       #{FOOTER}
@@ -280,10 +288,10 @@ emails = [
       <p>This is the last time I'll reach out for this specific show, so please hit the link below now if you want to ensure you have a spot on the floor or the walls.</p>
       <p><strong>GALLERY EXHIBITION (Wall Space)</strong><br>
       Paintings, Photography, Mixed Media, &amp; Sculptures<br>
-      <a href="[categoryApplicationLink]">ARTIST SUBMISSIONS - Apply Here</a></p>
+      <a href="[artistApplicationLink]" style="color: #0066cc; text-decoration: underline;">ARTIST SUBMISSIONS - Apply Here</a></p>
       <p><strong>VENDOR MARKET (Table Space)</strong><br>
       Clothing, Jewelry, Handcrafted Goods, &amp; Small Merch (No wall art)<br>
-      <a href="[categoryApplicationLink]">VENDOR SUBMISSIONS - Apply Here</a></p>
+      <a href="[vendorApplicationLink]" style="color: #0066cc; text-decoration: underline;">VENDOR SUBMISSIONS - Apply Here</a></p>
       <p>Good Vibes,<br>[organizationName]</p>
       #{FOOTER}
     HTML
@@ -305,7 +313,7 @@ emails = [
       [boothPrice] for your first two pieces.<br>
       Pieces 3–10 are [boothPrice] each.</p>
       <p>This discounted rate is only available until [paymentDueDate].</p>
-      <p><a href="[categoryPaymentLink]">RESERVE YOUR SPACE</a></p>
+      <p><a href="[categoryPaymentLink]" style="color: #0066cc; text-decoration: underline;">RESERVE YOUR SPACE</a></p>
       <p>On the promo side: We're seeing a huge surge in engagement across our socials, and the local buzz for the [eventName] show is already high. We're pushing hard to get your work in front of as many eyes as possible—keep an eye out for the event flyer on your feed and tag us (@pancakesandbooze) for a chance to have your work reposted.</p>
       <p>[organizationName]</p>
       #{FOOTER}
@@ -327,7 +335,7 @@ emails = [
       [boothPrice] for your first two pieces.<br>
       Pieces 3–10 are [boothPrice] each.<br>
       This rate is valid until [paymentDueDate].</p>
-      <p><a href="[categoryPaymentLink]">RESERVE YOUR SPACE HERE</a></p>
+      <p><a href="[categoryPaymentLink]" style="color: #0066cc; text-decoration: underline;">RESERVE YOUR SPACE HERE</a></p>
       <p><strong>Quick Reminder:</strong><br>
       0% Commission: You keep 100% of your sales.<br>
       3' x 3' size maximum per piece you exhibit.</p>
@@ -351,7 +359,7 @@ emails = [
       Current Rate: [boothPrice] for your first two pieces.<br>
       Deadline: This rate expires on [paymentDueDate].<br>
       After the Deadline: The price jumps to $25 per piece.</p>
-      <p><a href="[categoryPaymentLink]">SECURE YOUR SPACE &amp; SAVE</a></p>
+      <p><a href="[categoryPaymentLink]" style="color: #0066cc; text-decoration: underline;">SECURE YOUR SPACE &amp; SAVE</a></p>
       <p><strong>Quick Recap:</strong><br>
       No Commission: You keep 100% of your sales.<br>
       Live Painting: Still highly encouraged! It's a great way to engage the crowd.<br>
@@ -370,7 +378,7 @@ emails = [
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>Just a quick heads-up: The early bird discount for The [eventName] expires on [paymentDueDate]. This is your last chance to grab the [boothPrice] rate for your first two pieces.</p>
-      <p><a href="[categoryPaymentLink]">SECURE YOUR SPACE NOW</a></p>
+      <p><a href="[categoryPaymentLink]" style="color: #0066cc; text-decoration: underline;">SECURE YOUR SPACE NOW</a></p>
       <p>Starting the day after [paymentDueDate], the rate for your first two pieces will jump to $25 per piece. Please complete your payment before the deadline to ensure you are included in the show at the lower rate.</p>
       <p>See you soon,<br>[organizationName]</p>
       #{FOOTER}
@@ -390,7 +398,7 @@ emails = [
       <p><strong>The Current Rate:</strong><br>
       Exhibition fees are now $25 per piece (2nd piece remains free).<br>
       Pieces 3–10 are $25 per piece.</p>
-      <p><a href="[categoryPaymentLink]">SECURE YOUR SPACE NOW</a></p>
+      <p><a href="[categoryPaymentLink]" style="color: #0066cc; text-decoration: underline;">SECURE YOUR SPACE NOW</a></p>
       <p>Once your payment is complete, you will receive the final "Deep Detail" email with your specific load-in times, parking info, and setup instructions.</p>
       <p>[organizationName]</p>
       #{FOOTER}
@@ -407,7 +415,7 @@ emails = [
       <p>Hi [greetingName],</p>
       <p>The show is tomorrow at [eventVenue], and we have just a few artist spaces still open.</p>
       <p>If you want to exhibit, payment must be completed today. Unpaid spots are not guaranteed and will be given to walk-in artists or those on the waitlist once we hit capacity.</p>
-      <p><a href="[categoryPaymentLink]">RESERVE THE LAST REMAINING SPACE</a></p>
+      <p><a href="[categoryPaymentLink]" style="color: #0066cc; text-decoration: underline;">RESERVE THE LAST REMAINING SPACE</a></p>
       <p>Once payment is processed, you'll get the final load-in instructions immediately. Let's make it a big one!</p>
       <p>[organizationName]</p>
       #{FOOTER}
@@ -427,7 +435,7 @@ emails = [
       <p>We're ramping up for The [eventName] at [eventVenue] on [eventDate] and we would love to have you in our vendor lineup!</p>
       <p>As a reminder, your vendor space is not confirmed or held until your payment is completed. Because we are very limited on our vendor spaces, these spots tend to fill up fast as we get closer to the event.</p>
       <p><strong>HOW TO SECURE YOUR SPACE</strong></p>
-      <p><a href="[categoryPaymentLink]">CLICK HERE TO RESERVE YOUR SPACE</a><br>
+      <p><a href="[categoryPaymentLink]" style="color: #0066cc; text-decoration: underline;">CLICK HERE TO RESERVE YOUR SPACE</a><br>
       Select "Get Tickets"<br>
       Scroll down to the "VENDOR TICKET" option<br>
       Complete checkout through Eventbrite</p>
@@ -459,7 +467,7 @@ emails = [
       <p>We're getting into the home stretch for The [eventName] at [eventVenue] on [eventDate].</p>
       <p>I'm reaching out because we are officially entering the final two weeks before the show. As we've mentioned previously, we are limited on the total number of vendors we can host, and we typically see our remaining spaces fill up completely right around this time.</p>
       <p>If you are still planning to exhibit your work, please complete your payment now to ensure you don't lose your spot. Once we hit our capacity, the payment link will disappear.</p>
-      <p><a href="[categoryPaymentLink]">SECURE YOUR VENDOR SPACE</a></p>
+      <p><a href="[categoryPaymentLink]" style="color: #0066cc; text-decoration: underline;">SECURE YOUR VENDOR SPACE</a></p>
       <p><strong>Quick Reminders:</strong></p>
       <ul>
         <li>Your Space: Approx. 8ft wide x 5ft deep.</li>
@@ -485,7 +493,7 @@ emails = [
       <p>We are now just over a week away from The [eventName]!</p>
       <p>As we've mentioned, we are strictly limited on the number of vendor spaces available at [eventVenue]. We are currently down to our final remaining spots, and we expect the payment link to deactivate shortly as we hit capacity.</p>
       <p>If you still intend to vend at this show, please secure your space immediately. Once the link disappears, we will be unable to add any additional vendors to the floor plan.</p>
-      <p><a href="[categoryPaymentLink]">SECURE YOUR VENDOR SPACE NOW</a></p>
+      <p><a href="[categoryPaymentLink]" style="color: #0066cc; text-decoration: underline;">SECURE YOUR VENDOR SPACE NOW</a></p>
       <p><strong>Final Checklist:</strong></p>
       <ul>
         <li>Space: Approx. 8ft wide x 5ft deep.</li>
@@ -509,7 +517,7 @@ emails = [
       <p>Hi [greetingName],</p>
       <p>We are just 72 hours away from The [eventName] at [eventVenue].</p>
       <p>We are currently finalizing the physical floor layout and we have a very small number of vendor spaces left. If you still intend to participate, this is your final opportunity to secure your spot before the payment link is deactivated for good.</p>
-      <p><a href="[categoryPaymentLink]">RESERVE THE LAST REMAINING SPACE</a></p>
+      <p><a href="[categoryPaymentLink]" style="color: #0066cc; text-decoration: underline;">RESERVE THE LAST REMAINING SPACE</a></p>
       <p><strong>Important:</strong> Once we hit our final capacity (which usually happens within hours of this final notice), we cannot accommodate any more vendors. There are no walk-in vendor spots available.</p>
       <p><strong>Reminder for Show Day:</strong></p>
       <ul>
