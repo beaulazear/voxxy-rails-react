@@ -39,10 +39,9 @@ class ScheduledEmailGenerator
       # created as paused and available for Send Now without ever auto-firing
       scheduled_time ||= 10.years.from_now
 
-      # Skip if scheduled time is in the past (event created late)
+      # If scheduled time is in the past, still create it as paused so Send Now can be used
       if scheduled_time < Time.current
-        @errors << "Skipped '#{item.name}' - scheduled time (#{scheduled_time}) is in the past"
-        next
+        @errors << "Note: '#{item.name}' scheduled time (#{scheduled_time}) is in the past — creating as paused for Send Now"
       end
 
       # Check if scheduled email already exists for this event + template item
@@ -89,7 +88,6 @@ class ScheduledEmailGenerator
       scheduled_time = calculator.calculate(item)
       # Callback-triggered emails get a far-future placeholder (same as #generate)
       scheduled_time ||= 10.years.from_now
-      next if scheduled_time < Time.current
 
       # Check if scheduled email already exists for this event + template item
       existing = ScheduledEmail.find_by(
