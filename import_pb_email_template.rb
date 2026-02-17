@@ -12,11 +12,16 @@ existing = EmailCampaignTemplate.find_by(name: template_name)
 if existing
   puts "⚠️  Found existing template '#{template_name}' (ID: #{existing.id}), deleting it..."
 
-  # Must delete dependent scheduled_emails first (FK constraint prevents destroying template_items)
+  # Must delete in FK order: email_deliveries → scheduled_emails → email_template_items
   item_ids = existing.email_template_items.pluck(:id)
   if item_ids.any?
-    deleted_se = ScheduledEmail.where(email_template_item_id: item_ids).delete_all
-    puts "   🗑  Deleted #{deleted_se} scheduled_email(s) referencing old template items"
+    se_ids = ScheduledEmail.where(email_template_item_id: item_ids).pluck(:id)
+    if se_ids.any?
+      deleted_ed = EmailDelivery.where(scheduled_email_id: se_ids).delete_all
+      puts "   🗑  Deleted #{deleted_ed} email_deliver(ies) referencing old scheduled emails"
+      deleted_se = ScheduledEmail.where(id: se_ids).delete_all
+      puts "   🗑  Deleted #{deleted_se} scheduled_email(s) referencing old template items"
+    end
   end
 
   existing.destroy!
