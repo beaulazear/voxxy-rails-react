@@ -7,8 +7,9 @@
 # This service:
 # 1. Gets all enabled email template items from the event's campaign template
 # 2. Calculates send times using EmailScheduleCalculator
-# 3. Creates ScheduledEmail records for each email that can be scheduled
-# 4. Skips callback-triggered emails (on_application_submit, on_approval)
+# 3. Creates ScheduledEmail records for each email
+# 4. Callback-triggered emails (on_application_submit, on_approval, on_payment_received)
+#    get a far-future placeholder date so they're created as paused and available for Send Now
 # 5. Returns array of created ScheduledEmail records
 
 class ScheduledEmailGenerator
@@ -33,8 +34,10 @@ class ScheduledEmailGenerator
       # Calculate scheduled time
       scheduled_time = calculator.calculate(item)
 
-      # Skip if no scheduled time (callback-triggered emails)
-      next unless scheduled_time
+      # Callback-triggered emails (on_application_submit, on_approval, on_payment_received)
+      # return nil from the calculator — use a far-future placeholder so they're always
+      # created as paused and available for Send Now without ever auto-firing
+      scheduled_time ||= 10.years.from_now
 
       # Skip if scheduled time is in the past (event created late)
       if scheduled_time < Time.current
@@ -84,7 +87,8 @@ class ScheduledEmailGenerator
 
     items.each do |item|
       scheduled_time = calculator.calculate(item)
-      next unless scheduled_time
+      # Callback-triggered emails get a far-future placeholder (same as #generate)
+      scheduled_time ||= 10.years.from_now
       next if scheduled_time < Time.current
 
       # Check if scheduled email already exists for this event + template item
