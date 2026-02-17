@@ -11,6 +11,14 @@ template_name = "Pancake & Booze 2026 Email Campaign"
 existing = EmailCampaignTemplate.find_by(name: template_name)
 if existing
   puts "⚠️  Found existing template '#{template_name}' (ID: #{existing.id}), deleting it..."
+
+  # Must delete dependent scheduled_emails first (FK constraint prevents destroying template_items)
+  item_ids = existing.email_template_items.pluck(:id)
+  if item_ids.any?
+    deleted_se = ScheduledEmail.where(email_template_item_id: item_ids).delete_all
+    puts "   🗑  Deleted #{deleted_se} scheduled_email(s) referencing old template items"
+  end
+
   existing.destroy!
   puts "✅ Old template deleted"
 end
