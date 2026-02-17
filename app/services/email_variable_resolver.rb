@@ -42,6 +42,7 @@
 #     [bulletinLink] - Public event bulletin page URL (same as eventLink)
 #     [dashboardLink] - Event-specific vendor portal URL (/portal/{event-slug})
 #     [invitationLink] - Same as eventLink
+#     [address] - Full event location/address (maps to event.location)
 
 class EmailVariableResolver
   attr_reader :event, :registration, :base_url
@@ -117,6 +118,7 @@ class EmailVariableResolver
       .gsub("[organizationName]", event.organization&.name || "")
       .gsub("[organizationEmail]", event.organization&.email || "")
       .gsub("[ageRestriction]", event.age_restriction || "")
+      .gsub("[address]", event.location || "")
   end
 
   def resolve_registration_variables(template)
