@@ -1,0 +1,711 @@
+email_name,subject,trigger,category,body
+"Public Description - Artist","N/A - Public Page","application_page_load","artists","**Please review the updated 2026 rates and guidelines below before submitting your application.**
+• We now cover all processing fees. The price you see is exactly what you pay.
+• Early Rate (Paid by [paymentDueDate]):
+     • [category_price] for your first two pieces.
+     • [category_price] per additional piece (3–10).
+• Late Rate (Paid after [paymentDueDate]):
+     • $25 for your first two pieces.
+     • $25 per additional piece.
+• No Commission: You manage your own sales and keep 100% of your profits.
+• Maximum 3ft x 3ft per piece. No exceptions.
+• Tables are not permitted for hanging artists. Small floor bins/boxes for prints are allowed.
+• Installation is scheduled for [category_install_date] from [category_install_time].
+• Load-Out: All artwork must be removed at the end of the night.
+• Strict [age]+ age policy enforced by the venue."
+"Public Description - Vendor","N/A - Public Page","application_page_load","vendors","These spaces are intended for those that sell non-hangable physical merchandise, e.g. clothing, jewelry, candles, pens, cards, and/or prints smaller than 8.5x11.
+• Vending fee is [category_price]. Prepayment is required; spots are not held without payment.
+• Allotted footprint is for ONE 6ft table. No tents or multiple tables permitted.
+• You must provide your own table and chair. We do not provide them.
+• Access to outlets is included. Bringing a personal light source is highly recommended for best display.
+• Load-in is at [category_install_time] on show day. Please do not arrive early.
+• No MLM/Direct Sales. No shared tables."
+"Invitation Email","Submissions Open - [eventName]","manual_invite","all","Hi [greetingName],
+
+We're pumped to announce that submissions are officially open for the next [eventName] at [venue] on [date].
+
+Submit your work below:
+
+ARTIST / GALLERY SUBMISSIONS
+For artists exhibiting artwork on the walls
+Apply Here [category.applicationLink]
+
+TABLE VENDOR SUBMISSIONS
+For those setting up a TABLE space (Clothing, jewelry, and other table merch)
+Apply Here [category.applicationLink]
+
+I'm looking forward to your submission.
+
+Thanks,
+[organizationName]
+
+P.S. If you can't make the date, please let us know here."
+"Application Received - Artist","Application Received - [eventName]","application_submitted","artists","Hi [greetingName],
+
+Thanks for submitting your application to participate in The [eventName] at [venue] on [date_range]. Please allow up to 10 days for us to review your submission and get back to you.
+
+In the meantime, please visit our Instagram page (@pancakesandbooze) and check out the ""FAQs"" in our Story Highlights for details on how our events work.
+
+Exhibition Pricing Update
+
+We've updated our exhibition structure for 2026. We are now offering one free piece after your first paid exhibition space. And to keep our pricing transparent, we are now covering all ticketing and processing fees—the price you see below is exactly what you pay at checkout with no hidden service fees.
+
+The Rate:
+• 1st Piece: [category_price]
+• 2nd Piece: FREE
+• Pieces 3-10: [category_price] each
+• Note: If fees are paid after [paymentDueDate], the rate increases to $25 per piece (2nd piece remains free).
+
+The Details:
+• NO COMMISSION: You manage your own sales and take 100% of what you sell.
+• SIZE LIMIT: Each piece should not exceed 3ft x 3ft.
+• INSTALLATION: Currently scheduled for [category_install_date] from [category_install_time].
+• NO TABLES: Artists hanging artwork cannot use tables. Small bins/boxes on the floor are permitted.
+• LOAD OUT: All artwork must be taken home at the end of the night. We are not responsible for items left behind.
+• AGE POLICY: The venue enforces a strict [age] age policy.
+
+Attention Live Painters: We love featuring live body painting and canvas work. If you'd like to paint live, let us know so we can coordinate promotion on our socials.
+
+Thanks,
+[organizationName]
+
+If you're unable to participate, please click here to let us know."
+"Application Received - Vendor","Vendor Application Received - [eventName]","application_submitted","vendors","Hi [greetingName],
+
+We've received your request to set up a VENDOR TABLE at The [eventName] on [date_range] at [venue]. This is NOT an acceptance email. You will receive another email and text message with further information if you're selected.
+
+IMPORTANT: Vendor tables are strictly for non-hangable merchandise (clothing, jewelry, etc). If you have paintings or wall art, you have filled out the WRONG application. We do not permit canvas paintings, drawings, or prints larger than a greeting card on vendor tables. If this is you, please email us immediately so we can get you the correct artist information.
+
+Selection & Pricing
+
+Table space is extremely limited and in high demand. If you are selected, PREPAYMENT IS REQUIRED to reserve your space. Your spot is only guaranteed once payment is received.
+
+The vending fee is [category_price]. To keep our pricing transparent, we now cover all ticketing and processing fees—the price you see is exactly what you pay at checkout with no hidden service fees.
+
+The Details:
+• SPACE: Large enough for ONE 6ft table. No tents or multiple tables allowed.
+• EQUIPMENT: You must provide your own table and chair. We do not provide them.
+• LOAD-IN: Starts at [category_install_time] on the day of the show. Please do not arrive early.
+• AGE POLICY: The venue enforces a strict [age] age policy.
+
+New to the event? Check us out @pancakesandbooze on Instagram and TikTok for a look at the vibe.
+
+Thanks,
+[organizationName]
+
+If you're unable to participate, please click here to let us know."
+"Application Accepted - Artist","You're In! [eventName]","status_change_accepted","artists","Hi [greetingName],
+
+Congratulations! You've been invited to exhibit at The [eventName] on [date_range] at [venue].
+
+We received a high volume of applications, and we're excited to have your work in the mix. Please note that we do not hold spots; your space is only officially secured once your exhibition fees are received.
+
+Step 1: Secure Your Space
+
+PAYMENT LINK: CONFIRM YOUR EXHIBIT HERE [category.paymentLink]
+
+Exhibition Rates (No Hidden Fees):
+• 1st Piece: [category_price]
+• 2nd Piece: FREE
+• Pieces 3-10: [category_price] each
+• Note: Prices increase to $25/piece after [paymentDueDate].
+
+Cancellation Policy: Full refunds are available for cancellations made up to 72 hours before the event. Cancellations within 72 hours are non-refundable.
+
+What Happens Next?
+Once your payment is confirmed, keep an eye on your inbox for our Artist Roadmap series:
+• 30 Days Out: You'll receive a ""Prep Guide"" detailing our salon-style hanging requirements and hardware tips.
+• 14 Days Out: We'll launch our marketing blitz and send you the official promo toolkit to help drive sales.
+• 3-6 Days Out: Final logistics, load-in times, and venue updates will be sent via Eventbrite.
+
+Quick Guidelines:
+• NO COMMISSION: You keep 100% of your sales.
+• SIZE LIMIT: Max 3ft x 3ft per piece. No exceptions.
+• NO TABLES: Tables are for vendors only. Artists may use small floor bins for prints.
+• AGE POLICY: Strict [age] policy.
+
+Online Marketplace: P&B Artists can sell year-round at district.net/pancakesandbooze.
+
+Thanks,
+[organizationName]
+
+Plans changed? Click here to release your space to the next artist on our waitlist."
+"Application Accepted - Vendor","You're Approved! [eventName]","status_change_accepted","vendors","Hi [greetingName],
+
+Congratulations! You've been approved to vend at The [eventName] on [date_range] at [venue].
+
+We received a high volume of applications for this show, and we're excited to have your brand in the mix. Because vendor space is extremely limited, we do not hold spots. Your space is only officially reserved once payment is completed through the link below.
+
+Step 1: Secure Your Space
+
+The vending fee is [category_price]. To keep our pricing transparent, we now cover all ticketing and processing fees—the price you see is exactly what you pay at checkout.
+
+PAYMENT LINK: SECURE YOUR TABLE HERE [category.paymentLink]
+
+Cancellation Policy: We understand that life happens. We offer full refunds for cancellations made up to 72 hours before the event. This allows us time to offer the space to a vendor on our waitlist. Cancellations made within 72 hours of the show are non-refundable.
+
+Step 2: Spread the Word
+The most successful shows happen when we all hustle together. Tag @pancakesandbooze and use #pancakesandbooze in your posts so we can find and feature your work leading up to the event.
+
+Event Day Details:
+• Location: [venue] — [address], [eventName]
+• Load-In: [category_install_date] at [category_install_time]. (The venue will not be open for setup prior to this time).
+• Setup: You are allowed ONE 6ft table. You must provide your own table and chair. Grid walls and racks are permitted if they fit within your approx. 8ft x 5ft footprint.
+• Staffing: Your space includes entry for one person (you). All assistants or guests must purchase a general admission ticket.
+• Load-Out: Must be completed by the end of the event. We are not responsible for items left behind.
+• Merchandise: Strictly non-hangable items only. No wall art/paintings permitted at vendor tables.
+• Age Policy: You must be [age] to participate.
+
+If you have any questions, feel free to reply to this email.
+
+Thanks,
+[organizationName]
+
+If your plans have changed and you can no longer participate, please click here to release your spot to the next person on our waitlist."
+"Waitlist","You're on the Waitlist - [eventName]","status_change_waitlist","all","Hi [greetingName],
+
+Thank you for your interest in [eventName].
+
+After careful review, we've placed you on the waitlist. If a spot opens up, we'll contact you right away.
+
+• Event: [eventDate]
+• Location: [eventLocation]
+
+We truly appreciate your interest and encourage you to stay tuned for updates.
+
+Best,
+[producerName]"
+"Art Call - 10 Weeks","Submissions Open - [eventName]","scheduled_10_weeks_out","all","Hi [greetingName],
+
+[organizationName] is back in [location] and submissions are open for our upcoming show at [venue] on [date_range].
+
+Your first TWO pieces are just [category_price] total if your exhibition fee is paid by [paymentDueDate].
+
+We'd be stoked to have you back. Please follow the appropriate link below to get your application in:
+
+GALLERY EXHIBITION (Wall Space)
+Paintings, Photography, Mixed Media, & Sculptures
+Artists Apply Here [category.applicationLink]
+
+VENDOR MARKET (Table Space)
+Clothing, Jewelry, Handcrafted Goods, & Small Merch (No wall art)
+Vendors Apply Here [category.applicationLink]
+
+We look forward to your submission!
+
+[organizationName]
+
+P.S. - If you can't make this show and want to stop receiving reminders for this specific date, please let us know."
+"Art Call - 8 Weeks","Two Months Out - [eventName]","scheduled_8_weeks_out","all","Hey [greetingName],
+
+Ready for another round of [organizationName]? We're back in [location] at [venue] on [date_range] and we'd love to have you there.
+
+We are officially two months out, so now is the time to lock in your spot.
+
+The Deal: Your first TWO pieces are just [category_price] total if your exhibition fee is paid by [paymentDueDate].
+
+We have your info on file, so applying is easy—just visit the appropriate link below and click ""Yes, Sign Me Up."" It takes two seconds.
+
+GALLERY EXHIBITION (Wall Space)
+Paintings, Photography, Mixed Media, & Sculptures
+ARTIST SUBMISSIONS - Apply Here [category.applicationLink]
+
+VENDOR MARKET (Table Space)
+Clothing, Jewelry, Handcrafted Goods, & Small Merch (No wall art)
+VENDOR SUBMISSIONS - Apply Here [category.applicationLink]
+
+If you have any questions, just hit reply and let me know.
+
+Thanks,
+[organizationName]
+
+P.S. - If you can't make this show and want to stop receiving reminders for this specific date, please let us know."
+"Art Call - 4 Weeks","Nearly at Capacity - [eventName]","scheduled_4_weeks_out","all","Hi [greetingName],
+
+The [eventName] on [date_range] is now just weeks away.
+
+We've received an insane response for this event and are nearly at capacity. This is likely your final opportunity to submit and lock in the [category_price] rate for your first two pieces before we are completely full.
+
+If you want in, please use the appropriate link below to secure your spot ASAP:
+
+GALLERY EXHIBITION (Wall Space)
+Paintings, Photography, Mixed Media, & Sculptures
+ARTIST SUBMISSIONS - Apply Here [category.applicationLink]
+
+VENDOR MARKET (Table Space)
+Clothing, Jewelry, Handcrafted Goods, & Small Merch (No wall art)
+VENDOR SUBMISSIONS - Apply Here [category.applicationLink]
+
+Hit me back as soon as possible to let me know if you're joining us.
+
+Thanks,
+[organizationName]"
+"Art Call - 12 Days","Submissions Closing Soon - [eventName]","scheduled_12_days_out","all","What's up [greetingName]?
+
+Just a heads up that submissions for The [eventName] on [date_range] at [venue] will be closing soon.
+
+This is the last time I'll reach out for this specific show, so please hit the link below now if you want to ensure you have a spot on the floor or the walls.
+
+GALLERY EXHIBITION (Wall Space)
+Paintings, Photography, Mixed Media, & Sculptures
+ARTIST SUBMISSIONS - Apply Here [category.applicationLink]
+
+VENDOR MARKET (Table Space)
+Clothing, Jewelry, Handcrafted Goods, & Small Merch (No wall art)
+VENDOR SUBMISSIONS - Apply Here [category.applicationLink]
+
+Good Vibes,
+[organizationName]"
+"Payment Reminder Artist - 39 Days","Ramping up for [eventName]! (Confirm your spot)","scheduled_39_days_out_unpaid","artists","Hi [greetingName],
+
+We're starting to ramp things up for The [eventName] at [venue].
+
+We wanted to remind you that your spot is not confirmed until your payment is completed. Once you're locked in, you'll start receiving the ""Deep Detail"" emails covering load-in times and setup guidelines.
+
+The Early Bird Rate:
+[category_price] for your first two pieces.
+Pieces 3-10 are [category_price] each
+
+This discounted rate is only available until [paymentDueDate] (one week before the show).
+
+RESERVE YOUR SPACE [category.paymentLink]
+
+On the promo side: We're seeing a huge surge in engagement across our socials, and the local buzz for the [eventName] show is already high. We're pushing hard to get your work in front of as many eyes as possible—keep an eye out for the event flyer on your feed and tag us (@pancakesandbooze) for a chance to have your work reposted.
+
+[organizationName]"
+"Payment Reminder Artist - 26 Days","[eventName]: 4 weeks to go!","scheduled_26_days_out_unpaid","artists","Hi [greetingName],
+
+We are officially less than a month away from The [eventName]!
+
+The local buzz is building, and we're seeing a huge surge in engagement across our socials. We're pushing hard to get the word out—keep an eye out for the event flyer on your feed and feel free to share it with your own followers to let them know where you'll be.
+
+If you haven't secured your space yet, now is the time. You still have plenty of time to lock in the Early Bird rate, but spots are being claimed quickly.
+
+The Current Rate:
+[category_price] for your first two pieces
+Pieces 3-10 are [category_price] each
+This rate is valid until [paymentDueDate]
+
+RESERVE YOUR SPACE HERE [category.paymentLink]
+
+Quick Reminder:
+0% Commission: You keep 100% of your sales.
+3' x 3' size maximum per piece you exhibit.
+
+We're looking forward to working together and making this an incredible night!
+
+[organizationName]"
+"Payment Reminder Artist - 16 Days","Early bird pricing ends in 10 days","scheduled_16_days_out_unpaid","artists","Hi [greetingName],
+
+We're getting closer! The [eventName] show is officially less than three weeks away, and we're currently finalizing the layout of the space.
+
+This is your 10-day warning to lock in the early-bird rate. If you want to exhibit, make sure you've secured your space before the price increase kicks in.
+
+The Early Bird Deadline:
+Current Rate: [category_price] for your first two pieces.
+Deadline: This rate expires on [paymentDueDate].
+After the Deadline: The price jumps to $25 per piece.
+
+SECURE YOUR SPACE & SAVE [category.paymentLink]
+
+Quick Recap:
+No Commission: You keep 100% of your sales.
+Live Painting: Still highly encouraged! It's a great way to engage the crowd.
+Socials: Don't forget to tag @pancakesandbooze in your process shots so we can show our followers what you're bringing to the show.
+
+[organizationName]"
+"Payment Reminder Artist - 8 Days","Early bird Exhibition rates end tomorrow","scheduled_8_days_out_unpaid","artists","Hi [greetingName],
+
+Just a quick heads-up: The early bird discount for The [eventName] expires on [discount_ends]. This is your last chance to grab the [category_price] rate for your first two pieces.
+
+SECURE YOUR SPACE NOW [category.paymentLink]
+
+Starting [paymentDueDate] morning, the rate for your first two pieces will jump to $25 per piece. Please complete your payment before the deadline to ensure you are included in the show at the lower rate.
+
+See you soon,
+[organizationName]"
+"Payment Reminder Artist - 4 Days","You can still exhibit at the [eventName]","scheduled_4_days_out_unpaid","artists","Hi [greetingName],
+
+We are 4 days out from The [eventName] and we are finalizing the artist lineup and wall layout today.
+
+We still haven't seen your payment come through. If you still plan to participate, payment must be completed immediately to ensure you are included in the floor plan.
+
+The Current Rate:
+Exhibition fees are now $25 per piece (2nd piece remains free).
+Pieces 3-10 are $25 per piece.
+
+SECURE YOUR SPACE NOW [category.paymentLink]
+
+Once your payment is complete, you will receive the final ""Deep Detail"" email with your specific load-in times, parking info, and setup instructions.
+
+[organizationName]"
+"Payment Reminder Artist - 1 Day","Last call to Secure your spot for the [eventName]","scheduled_1_day_out_unpaid","artists","Hi [greetingName],
+
+The show is tomorrow at [venue], and we have just a few artist spaces still open.
+
+If you want to exhibit, payment must be completed today. Unpaid spots are not guaranteed and will be given to walk-in artists or those on the waitlist once we hit capacity.
+
+RESERVE THE LAST REMAINING SPACE [category.paymentLink]
+
+Once payment is processed, you'll get the final load-in instructions immediately. Let's make it a big one!
+
+[organizationName]"
+"Payment Reminder Vendor - 29 Days","Nudge: Your Vendor Spot for [eventName]","scheduled_29_days_out_unpaid","vendors","Hi [greetingName],
+
+We're ramping up for The [eventName] at [venue] on [date] and we would love to have you in our vendor lineup!
+
+As a reminder, your vendor space is not confirmed or held until your payment is completed. Because we are very limited on our vendor spaces, these spots tend to fill up fast as we get closer to the event.
+
+HOW TO SECURE YOUR SPACE
+
+CLICK HERE TO RESERVE YOUR SPACE [category.paymentLink]
+Select ""Get Tickets""
+Scroll down to the ""VENDOR TICKET"" option
+Complete checkout through Eventbrite
+
+Vendor Fee: [category_price]
+
+QUICK VENDOR DETAILS
+• Approved Items: Jewelry, clothing, stickers, etc. No wall-hanging art.
+• Space Size: Roughly 8ft wide x 5ft deep (Fits one 6ft table).
+• Equipment: You must bring your own 6ft table and chair.
+• Setup Rules: No tents. No multiple-table setups. Grid walls/racks must fit inside your space.
+• Entry: Includes one (1) free entry for the vendor.
+• Age Policy: You must be [age]+ to participate.
+
+Once your payment is processed, your space is officially locked in. We typically see our vendor market hit capacity about two weeks before the show—don't miss the window to join us!
+
+[organizationName]
+
+P.S. — If your plans have changed and you're no longer able to attend, please click here to let us know so we can release the space to the next person on the waitlist."
+"Payment Reminder Vendor - 15 Days","Update: [eventName] Vendor Space Availability","scheduled_15_days_out_unpaid","vendors","Hi [greetingName],
+
+We're getting into the home stretch for The [eventName] at [venue] on [date].
+
+I'm reaching out because we are officially entering the final two weeks before the show. As we've mentioned previously, we are limited on the total number of vendors we can host, and we typically see our remaining spaces fill up completely right around this time.
+
+If you are still planning to exhibit your work, please complete your payment now to ensure you don't lose your spot. Once we hit our capacity, the payment link will disappear.
+
+SECURE YOUR VENDOR SPACE [category.paymentLink]
+
+Quick Reminders:
+• Your Space: Approx. 8ft wide x 5ft deep.
+• Your Gear: You must bring your own 6ft table and chair.
+• Setup: No tents or multiple-table setups.
+• Items: This space is for non-hangable items (jewelry, clothing, stickers, etc.).
+
+Once payment is confirmed, you are officially on the floor plan. We're looking forward to having you!
+
+[organizationName]
+
+P.S. — If you are no longer able to make it, please let us know so we can offer the space to someone else on the waiting list."
+"Payment Reminder Vendor - 9 Days","Final Call: [eventName] Vendor Availability","scheduled_9_days_out_unpaid","vendors","Hi [greetingName],
+
+We are now just over a week away from The [eventName]!
+
+As we've mentioned, we are strictly limited on the number of vendor spaces available at [venue]. We are currently down to our final remaining spots, and we expect the payment link to deactivate shortly as we hit capacity.
+
+If you still intend to vend at this show, please secure your space immediately. Once the link disappears, we will be unable to add any additional vendors to the floor plan.
+
+SECURE YOUR VENDOR SPACE NOW [category.paymentLink]
+
+Final Checklist:
+• Space: Approx. 8ft wide x 5ft deep.
+• Table: You must bring your own 6ft table and chair.
+• Rules: No tents. No multiple-table setups.
+• Load-in: Instructions will be sent once payment is confirmed.
+
+We'd love to have you out there with us, but we can't hold the space without payment. Hope to see you next week!
+
+[organizationName]"
+"Payment Reminder Vendor - 3 Days","URGENT: Is your [eventName] vendor space confirmed?","scheduled_3_days_out_unpaid","vendors","Hi [greetingName],
+
+We are just 72 hours away from The [eventName] at [venue].
+
+We are currently finalizing the physical floor layout and we have a very small number of vendor spaces left. If you still intend to participate, this is your final opportunity to secure your spot before the payment link is deactivated for good.
+
+RESERVE THE LAST REMAINING SPACE [category.paymentLink]
+
+Important: Once we hit our final capacity (which usually happens within hours of this final notice), we cannot accommodate any more vendors. There are no walk-in vendor spots available.
+
+Reminder for Thursday:
+• Load-in starts at [category_install_time].
+• You must bring your own 6ft table and chair.
+• No tents or multiple-table setups are permitted.
+
+If your payment has already been processed, please disregard this message and keep an eye out for the final logistics email.
+
+[organizationName]"
+"Payment Confirmed","Confirmed: You're in for [eventName]!","payment_received","all","Hi [greetingName],
+
+We've received your payment—you're officially confirmed for The [eventName] at [venue] on [date]!
+
+We're pumped to have you with us.
+
+Your Entry Ticket: You should have already received a confirmation email from Eventbrite. That email includes your QR code, which we'll scan when you arrive to install your work. You can bring it on your phone, print it out, or we can look you up by name—the QR code is just the fastest option for check-in.
+
+What Happens Next?
+• Confirmation: You are all set for now! You don't need to send us anything else today.
+• Deep Details: Over the next couple of weeks, you'll receive the ""Deep Detail"" emails covering setup times, parking, wall assignments, and exactly what to expect on show day.
+• Promotion: We are pushing the show hard on socials. Tag @pancakesandbooze in your process shots or finished pieces so we can repost your work to our followers.
+
+Thanks again for being a part of the show. We'll be in touch soon with the logistics!
+
+[organizationName]"
+"Countdown Artist - 17 Days","Artist Guide: Size, Hanging, & Sales for [eventName]","scheduled_17_days_out_paid","artists","Hi [greetingName],
+
+As we get closer to The [eventName] at [venue], we want to share the ""Playbook"" regarding artwork size, hanging, and setup so you know exactly what to expect on install day.
+
+This is a salon-style show and wall space is shared—please read through these guidelines carefully.
+
+1. SIZE & HANGING GUIDELINES
+• Size Limit: Each piece must not exceed 3ft x 3ft (90cm x 90cm).
+• The Walls: Artwork is hung salon-style on 8ft x 4ft drywall panels. Wall space is shared; please be prepared to coordinate with your neighbors respectfully.
+• Placement: Locations are assigned first-come, first-served at load-in. If you are particular about where you hang, arrive early.
+• Method: Wired artwork is highly preferred, though we can work with most methods.
+• Tools: We provide walls, screws, and screw guns. Tools are shared, so if you're in a rush, feel free to bring your own screw gun.
+• CRITICAL: Hammers and nails are NOT allowed.
+
+2. SALES, PRICING & MERCH
+• 0% Commission: 100% of your sales are yours. We do not take a cut.
+• Payments: You must handle your own sales. Please have your Venmo/Zelle/Square QR codes ready for buyers.
+• Merch: You may sell prints or small merch from a small bin/box on the floor directly under your artwork.
+• NO TABLES: Tables are not permitted for artists hanging in the gallery space.
+
+3. TITLE CARDS
+Please provide your own title cards (roughly 4""x6"" / postcard size). We recommend including:
+• Name of Artwork, Medium, and Price.
+• A QR code linking to your Instagram or payment handle.
+
+4. ENTRY & LOAD-OUT
+• Artist Entry: You are on the guest list for free entry. Assistants and guests must purchase a ticket to attend.
+• Load-Out: All artwork must be removed immediately after the show (Midnight). Neither the venue nor [organizationName] can store artwork. Do not leave for the night without your work!
+
+We'll be sending another email soon with a walkthrough of the ""Day-Of"" experience, followed by final load-in times.
+
+Thanks for being prepared—we're looking forward to a great night in [location]!
+
+[organizationName]"
+"Countdown Artist - 11 Days","What to expect: Your day at the [eventName]","scheduled_11_days_out_paid","artists","Hi [greetingName],
+
+As we get closer to The [eventName], we wanted to walk through how the day typically works so you can plan accordingly.
+
+This email focuses on the general flow and expectations. Final, confirmed logistics (load-in times/parking) will be sent closer to the show.
+
+INSTALLATION TIMING
+• Artwork installation typically takes place on the day of the show, usually between 1:00 PM – 5:00 PM.
+• Pre-Show: Installation happens before doors open to the public.
+• Confirming Times: Exact timing for your city will be reconfirmed in a later email.
+• Placement: Wall space is first-come, first-served. If you have a specific spot in mind, we recommend arriving early.
+
+SALON-STYLE EXHIBITION
+This is a salon-style show, which means we utilize the wall space from top to bottom.
+• You will likely be sharing wall space with other artists.
+• Plan your layout with flexibility and space efficiency in mind.
+• Staff Note: If spacing becomes an issue, our staff may ask for adjustments to ensure everyone fits.
+
+HANGING YOUR ARTWORK
+You are responsible for hanging your own work (though our staff is nearby to assist).
+• Ready to Hang: Please bring your art ready to be mounted.
+• Wiring: Wired artwork is preferred, but stretched canvas is fine without wiring.
+• Tools: We provide screws and screw guns onsite.
+• PROHIBITED: Hammers and nails are not allowed.
+
+LIVE ART & BODY PAINTING
+If you plan to do live painting or body painting:
+• Timing: Setup may begin only after the event starts. Please do not set up earlier as production changes may be happening.
+• Guest List: Participating body painters and models get free entry.
+• Note: Sorry—no free entry for assistants or plus-ones.
+
+SALES & PAYMENTS
+You manage your own sales and keep 100% of what you sell.
+• We recommend having at least one digital payment option (Venmo, CashApp, Zelle).
+• Ideally, include a QR code on your title card to make it easy for buyers to pay you instantly.
+
+For additional day-of questions, please review the FAQs on our website or check our Instagram Story Highlights.
+
+Thanks for being prepared and flexible—we're looking forward to a great night!
+
+[organizationName]"
+"Countdown Artist - 3 Days","Final Details for [eventName]!","scheduled_3_days_out_paid","artists","Hi [greetingName],
+
+The [eventName] is only a few days away! We are finalizing the venue prep and wanted to share this final checklist to ensure everything goes smoothly for you on show day.
+
+INSTALLATION & TIMING
+• Install Window: Day of the show, typically between [category_install_time].
+• Be Ready: Please arrive with your work ready to hang immediately.
+• Load-Out: All artwork must be removed immediately after the event. No storage is available.
+
+ARTWORK & HANGING
+• Max Size: Each piece must not exceed 3ft x 3ft. No exceptions due to wall size constraints.
+• Hanging: Wired artwork is preferred; stretched canvas is fine without wiring.
+• The Layout: This is a salon-style exhibition. Wall space is shared and utilized from top to bottom—not all work will be at eye level.
+• Tools: We provide screws and screw guns. Hammers and nails are NOT allowed.
+
+SALES & MERCH
+• Commission: You keep 100% of your sales.
+• Merch: Bins or boxes for prints/merch are allowed on the floor beneath your work.
+• Tables: No tables are permitted for artists hanging in the gallery space.
+• Title Cards: Please bring your own (index-card size is best).
+
+LIVE ART & BODY PAINTING
+• Setup: May begin only after the event starts. Please do not set up during the gallery installation window.
+• Guests: Participating body painters and models are on the guest list. No assistants or plus-ones are included.
+
+ENTRY & GUESTS
+• Artists: You are on the guest list for free entry.
+• Others: Everyone else, including assistants, must have a ticket or pay the cover charge.
+
+For any last-minute questions, please review the FAQs on our website or check our Instagram Story Highlights.
+
+Thanks for being prepared and flexible—we'll see you at [venue]!
+
+[organizationName]"
+"Countdown Artist - Day Of","TODAY: [eventName]!","scheduled_day_of","artists","Hi [greetingName],
+
+The day is finally here! The [eventName] is TODAY at [venue]. We can't wait to see your work on the walls.
+
+SHOW DAY ESSENTIALS
+• Installation: Takes place today between [category_install_time].
+• Check-In: Have your Eventbrite QR code ready on your phone (or printed) for the fastest scan-in.
+• The Gear: We provide screws and screw guns. Hammers and nails are NOT allowed.
+• Size Check: Max size per piece is 3ft x 3ft.
+
+QUICK REMINDERS
+• Hanging: Arrive with your artwork ready to hang. This is a salon-style show; wall space is shared.
+• Sales: You keep 100% of your sales! Ensure your payment QR codes are ready for your buyers.
+• Merch: Prints/merch can be sold from a small bin on the floor. No tables for hanging artists.
+• Entry: You get in free. All guests and assistants must have a ticket.
+
+Event Hours: [event_time]
+
+We're excited to have you with us—let's make it a great night!
+
+[organizationName]"
+"Countdown Vendor - 12 Days","Vendor Guide: Setup, Gear, & Expectations for [eventName]","scheduled_12_days_out_paid","vendors","Hi [greetingName],
+
+Now that you're officially confirmed for The [eventName], we want to walk through the logistical ""Playbook"" so you can prep your setup.
+
+Because we are limited on the number of vendors we can host at [venue], space is optimized for flow and visibility. Please review these requirements carefully.
+
+1. YOUR SPACE & FOOTPRINT
+• Dimensions: Your space is approximately 8ft wide x 5ft deep.
+• Placement: Locations are assigned first-come, first-served during load-in. If you want a specific spot, arrive early.
+• No Wall Art: This space is for non-hangable items (jewelry, apparel, etc.). You cannot use the gallery walls for canvases or hanging art unless you have also been accepted as an artist and have already paid your exhibition fees.
+
+2. EQUIPMENT: WHAT TO BRING
+We do not provide any furniture or display hardware. You are responsible for:
+• Table & Chair: One 6ft table and your own seating.
+• Displays: Grid walls or clothing racks are permitted as long as they stay within your 8x5 footprint.
+• Lighting: The venues are often ""moody"" (dim). We highly recommend bringing battery-powered lights for your display.
+• Power: Outlets are not guaranteed at every spot. If you need power, please bring a long extension cord and power strip.
+
+3. PROHIBITED ITEMS
+• No Tents: Tents/canopies are not permitted indoors.
+• No Wall Damage: Do not drill, glue, or attach anything to the venue walls.
+
+4. SALES & ENTRY
+• 0% Commission: You keep 100% of your sales. Please have your Venmo/Square/Zelle QR codes ready.
+• Entry: Your space includes one (1) free entry for yourself. All assistants, staff, or guests must purchase a ticket to enter.
+
+What's Next? We will send a final email 2–3 days before the show with the specific load-in address, parking instructions, and final arrival times.
+
+[organizationName]"
+"Countdown Vendor - 7 Days","1 Week Out: Vendor Checklist for [eventName]","scheduled_7_days_out_paid","vendors","Hi [greetingName],
+
+We're just one week away from The [eventName]! This isn't the final load-in email (that's coming in a few days), but this checklist will ensure you're 100% prepared.
+
+Now is the perfect time to push your involvement on social media! Tag @pancakesandbooze and use #pancakesandbooze so we can repost your work to our community.
+
+EVENT BASICS
+• Load-in: [category_install_date] starting at [category_install_time].
+• Event Hours: [event_time].
+• Address: [address].
+• Check-in: Our team will be stationed at the main entrance.
+• Setup: Locations are first-come, first-served.
+
+PREP CHECKLIST
+Since we DO NOT provide tables, chairs, or display hardware for vendors, please ensure you have the following:
+• Your Gear: Table (6ft max), chairs, grid walls, or racks.
+• Lighting: The venue can be dim; battery-powered display lights are highly recommended.
+• Power: We provide access, but please bring your own long extension cords and power strips.
+• Sales Supplies: Signage, business cards, and your digital payment QR codes.
+
+RESTRICTIONS
+To keep the event smooth and safe, please do not bring:
+• Tents: No pop-up tents or canopies are allowed indoors.
+• Wall Attachments: No drilling, gluing, or attaching anything to venue surfaces.
+• Prohibited: No open flames, generators, outside alcohol, or loose confetti/glitter.
+
+FINAL LOGISTICS COMING SOON
+In our next email, you'll receive the ""Day-Of"" specifics, including:
+• Parking & Unloading details.
+• Entry Points for vendors.
+• Venue-specific updates.
+
+If you have any questions in the meantime, just hit reply to this email!
+
+[organizationName]"
+"Countdown Vendor - 3 Days","Final Instructions: [eventName] Vendor Load-In & Parking","scheduled_3_days_out_paid","vendors","Hi [greetingName],
+
+We're just a few days out from The [eventName] at [venue]! Promo is running across all channels, and local interest is massive—this is shaping up to be an incredible night.
+
+Below is everything you need for a smooth load-in, plus a few ""Pro Tips"" to help you maximize your sales during the event.
+
+PRO TIPS
+• Eye-Level Signage: In a crowded room, making sure your brand name is visible above the crowd is key.
+• Warm Lighting: The venue is ""moody"" (dim); battery-powered clip lights or warm LEDs instantly increase booth dwell time.
+• Payment Readiness: Have your card readers and QR codes (Venmo/CashApp/Zelle) displayed prominently for quick transactions.
+• The ""Hook"": A small, featured item or a bundle deal at the front of your table helps draw people in.
+
+LOAD-IN INSTRUCTIONS
+• Where: [venue] | [address]
+• Load-In Time: [category_install_time]
+• Event Hours: [event_time]
+• Check-In: Enter through the main entrance. Our team will be stationed there to scan your Eventbrite QR code.
+• Setup Location: Spaces are first-come, first-served.
+• Parking: Paid street parking and nearby lots are available.
+
+WHAT TO BRING
+We DO NOT provide tables, chairs, or display hardware. Please bring:
+• Table & Chair: One 6ft table and your own seating.
+• Display Gear: Grid walls, racks, and signage.
+• Power: We provide access, but bring your own long extension cords and power strips just in case.
+• Supplies: Bags, change/cash, and any branding materials.
+
+RULES & RESTRICTIONS
+To keep the event safe and ensure we can return to this venue, please avoid:
+• No Tents: Tents and pop-up canopies are not permitted indoors.
+• No Wall Damage: Do not drill, glue, or attach anything to venue surfaces.
+• Prohibited: No open flames, cooking appliances, amplified sound, or loose glitter/confetti.
+
+We're ramping up the promo all week. If you haven't shared the flyer yet, now is the perfect time—tag @pancakesandbooze so we can repost!
+
+If any last-minute questions pop up, just reply here. We'll see you soon!
+
+[organizationName]"
+"Countdown Vendor - Day Of","TODAY: [eventName] Vendor Load-In Info!","scheduled_day_of","vendors","Hi [greetingName],
+
+The day is here! Here is the TL;DR info for today's vendor load-in at [venue].
+
+THE BASICS:
+• Load-in: [category_install_time].
+• Check-in: Front door—have your Eventbrite QR code ready.
+• Setup: First-come, first-served.
+• Parking: Paid street + nearby lots. Unload quickly, then move your car.
+
+REMEMBER TO BRING:
+• One 6ft table and your own chair(s).
+• Gear: Displays, lighting, and long extension cords.
+• Sales: Your digital payment QR codes and any supplies for your customers.
+
+QUICK RULES:
+• NO Tents: Indoor shows do not allow pop-up canopies.
+• NO Wall Art: Vendor spaces are for non-hangable items only.
+• NO Tables Provided: If you don't bring a table, you won't have a display surface!
+
+Full Details & FAQs: https://www.pancakesandbooze.com/[location]
+
+We'll see you in a few hours!
+
+[organizationName]"
