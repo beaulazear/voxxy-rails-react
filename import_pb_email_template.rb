@@ -30,26 +30,6 @@ puts "✅ Template created with ID: #{template.id}"
 puts "\n📧 Creating email template items..."
 
 emails = [
-  # ─── Invitation ───
-  {
-    name: "Invitation Email",
-    subject_template: "Submissions Open - [eventName]",
-    trigger_type: "on_application_open",
-    trigger_value: 0,
-    category: "invitation",
-    position: 1,
-    body_template: <<~HTML
-      <p>Hi [greetingName],</p><br>
-      <p>We're pumped to announce that submissions are officially open for the next [eventName] at [venue] on [date].</p><br>
-      <p>Submit your work below:</p><br>
-      <p><strong>ARTIST / GALLERY SUBMISSIONS</strong><br>For artists exhibiting artwork on the walls<br><a href="[category.applicationLink]">Apply Here</a></p><br>
-      <p><strong>TABLE VENDOR SUBMISSIONS</strong><br>For those setting up a TABLE space (Clothing, jewelry, and other table merch)<br><a href="[category.applicationLink]">Apply Here</a></p><br>
-      <p>I'm looking forward to your submission.</p><br>
-      <p>Thanks,<br>[organizationName]</p><br>
-      <p>P.S. If you can't make the date, please <a href="#">let us know here</a>.</p><br>
-    HTML
-  },
-
   # ─── Application Received ───
   {
     name: "Application Received - Artist",
@@ -57,7 +37,7 @@ emails = [
     trigger_type: "on_application_submit",
     trigger_value: 0,
     category: "artist",
-    position: 2,
+    position: 1,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>Thanks for submitting your application to participate in The [eventName] at [venue] on [date_range]. Please allow up to 10 days for us to review your submission and get back to you.</p><br>
@@ -91,7 +71,7 @@ emails = [
     trigger_type: "on_application_submit",
     trigger_value: 0,
     category: "vendor",
-    position: 3,
+    position: 2,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>We've received your request to set up a VENDOR TABLE at The [eventName] on [date_range] at [venue]. This is <strong>NOT</strong> an acceptance email. You will receive another email and text message with further information if you're selected.</p><br>
@@ -119,7 +99,7 @@ emails = [
     trigger_type: "on_approval",
     trigger_value: 0,
     category: "artist",
-    position: 4,
+    position: 3,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p><strong>Congratulations!</strong> You've been invited to exhibit at <strong>The [eventName]</strong> on [date_range] at [venue].</p><br>
@@ -159,7 +139,7 @@ emails = [
     trigger_type: "on_approval",
     trigger_value: 0,
     category: "vendor",
-    position: 5,
+    position: 4,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p><strong>Congratulations!</strong> You've been approved to vend at <strong>The [eventName]</strong> on [date_range] at [venue].</p><br>
@@ -188,27 +168,6 @@ emails = [
     HTML
   },
 
-  # ─── Waitlist ───
-  {
-    name: "Waitlist Email",
-    subject_template: "You're on the Waitlist - [eventName]",
-    trigger_type: "on_waitlist",
-    trigger_value: 0,
-    category: "artist",
-    position: 6,
-    body_template: <<~HTML
-      <p>Hi [greetingName],</p><br>
-      <p>Thank you for your interest in [eventName].</p><br>
-      <p>After careful review, we've placed you on the waitlist. If a spot opens up, we'll contact you right away.</p><br>
-      <ul>
-        <li><strong>Event:</strong> [eventDate]</li>
-        <li><strong>Location:</strong> [eventLocation]</li>
-      </ul><br>
-      <p>We truly appreciate your interest and encourage you to stay tuned for updates.</p><br>
-      <p>Best,<br>[producerName]</p><br>
-    HTML
-  },
-
   # ─── Art Calls ───
   {
     name: "Art Call Email #1 - 10 Weeks Out",
@@ -216,7 +175,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 70,
     category: "artist",
-    position: 7,
+    position: 5,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>[organizationName] is back in [location] and submissions are open for our upcoming show at [venue] on [date_range].</p><br>
@@ -235,7 +194,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 56,
     category: "artist",
-    position: 8,
+    position: 6,
     body_template: <<~HTML
       <p>Hey [greetingName],</p><br>
       <p>Ready for another round of [organizationName]? We're back in [location] at [venue] on [date_range] and we'd love to have you there.</p><br>
@@ -255,7 +214,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 28,
     category: "artist",
-    position: 9,
+    position: 7,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>The [eventName] on [date_range] is now just weeks away.</p><br>
@@ -273,7 +232,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 12,
     category: "artist",
-    position: 10,
+    position: 8,
     body_template: <<~HTML
       <p>What's up [greetingName]?</p><br>
       <p>Just a heads up that submissions for The [eventName] on [date_range] at [venue] will be closing soon.</p><br>
@@ -291,7 +250,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 39,
     category: "artist",
-    position: 11,
+    position: 9,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>We're starting to ramp things up for The [eventName] at [venue].</p><br>
@@ -309,7 +268,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 26,
     category: "artist",
-    position: 12,
+    position: 10,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>We are officially less than a month away from The [eventName]!</p><br>
@@ -328,7 +287,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 16,
     category: "artist",
-    position: 13,
+    position: 11,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>We're getting closer! The [eventName] show is officially less than three weeks away, and we're currently finalizing the layout of the space.</p><br>
@@ -345,7 +304,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 8,
     category: "artist",
-    position: 14,
+    position: 12,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>Just a quick heads-up: The early bird discount for The [eventName] expires on [discount_ends]. This is your last chance to grab the [category_price] rate for your first two pieces.</p><br>
@@ -360,7 +319,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 4,
     category: "artist",
-    position: 15,
+    position: 13,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>We are 4 days out from The [eventName] and we are finalizing the artist lineup and wall layout today.</p><br>
@@ -377,7 +336,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 1,
     category: "artist",
-    position: 16,
+    position: 14,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>The show is tomorrow at [venue], and we have just a few artist spaces still open.</p><br>
@@ -395,7 +354,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 29,
     category: "vendor",
-    position: 17,
+    position: 15,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>We're ramping up for The [eventName] at [venue] on [date] and we would love to have you in our vendor lineup!</p><br>
@@ -423,7 +382,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 15,
     category: "vendor",
-    position: 18,
+    position: 16,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>We're getting into the home stretch for The [eventName] at [venue] on [date].</p><br>
@@ -448,7 +407,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 9,
     category: "vendor",
-    position: 19,
+    position: 17,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>We are now just over a week away from The [eventName]!</p><br>
@@ -472,7 +431,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 3,
     category: "vendor",
-    position: 20,
+    position: 18,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>We are just 72 hours away from The [eventName] at [venue].</p><br>
@@ -497,7 +456,7 @@ emails = [
     trigger_type: "on_payment_received",
     trigger_value: 0,
     category: "artist",
-    position: 21,
+    position: 19,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>We've received your payment—you're officially confirmed for The [eventName] at [venue] on [date]!</p><br>
@@ -521,7 +480,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 17,
     category: "artist",
-    position: 22,
+    position: 20,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>As we get closer to The [eventName] at [venue], we want to share the "Playbook" regarding artwork size, hanging, and setup so you know exactly what to expect on install day.</p><br>
@@ -564,7 +523,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 11,
     category: "artist",
-    position: 23,
+    position: 21,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>As we get closer to The [eventName], we wanted to walk through how the day typically works so you can plan accordingly.</p><br>
@@ -615,7 +574,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 3,
     category: "artist",
-    position: 24,
+    position: 22,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>The [eventName] is only a few days away! We are finalizing the venue prep and wanted to share this final checklist to ensure everything goes smoothly for you on show day.</p><br>
@@ -660,7 +619,7 @@ emails = [
     trigger_type: "on_event_date",
     trigger_value: 0,
     category: "artist",
-    position: 25,
+    position: 23,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>The day is finally here! The [eventName] is TODAY at [venue]. We can't wait to see your work on the walls.</p><br>
@@ -691,7 +650,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 12,
     category: "vendor",
-    position: 26,
+    position: 24,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>Now that you're officially confirmed for The [eventName], we want to walk through the logistical "Playbook" so you can prep your setup.</p><br>
@@ -730,7 +689,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 7,
     category: "vendor",
-    position: 27,
+    position: 25,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>We're just one week away from The [eventName]! This isn't the final load-in email (that's coming in a few days), but this checklist will ensure you're 100% prepared.</p><br>
@@ -775,7 +734,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 3,
     category: "vendor",
-    position: 28,
+    position: 26,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>We're just a few days out from The [eventName] at [venue]! Promo is running across all channels, and local interest is massive—this is shaping up to be an incredible night.</p><br>
@@ -822,7 +781,7 @@ emails = [
     trigger_type: "on_event_date",
     trigger_value: 0,
     category: "vendor",
-    position: 29,
+    position: 27,
     body_template: <<~HTML
       <p>Hi [greetingName],</p><br>
       <p>The day is here! Here is the TL;DR info for today's vendor load-in at [venue].</p><br>
