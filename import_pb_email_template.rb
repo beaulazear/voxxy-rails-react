@@ -287,7 +287,7 @@ emails = [
   # ─── Payment Reminders - Artists ───
   {
     name: "Payment Reminder - Artist (39 Days)",
-    subject_template: "Ramping up for [location]! (Confirm your spot)",
+    subject_template: "Ramping up for [eventName]! (Confirm your spot)",
     trigger_type: "days_before_payment_deadline",
     trigger_value: 39,
     category: "artist",
@@ -331,7 +331,7 @@ emails = [
     position: 13,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
-      <p>We're getting closer! The [location] show is officially less than three weeks away, and we're currently finalizing the layout of the space.</p>
+      <p>We're getting closer! The [eventName] show is officially less than three weeks away, and we're currently finalizing the layout of the space.</p>
       <p>This is your 10-day warning to lock in the early-bird rate. If you want to exhibit, make sure you've secured your space before the price increase kicks in.</p>
       <p><strong>The Early Bird Deadline:</strong><br>Current Rate: [category_price] for your first two pieces.<br>Deadline: This rate expires on [paymentDueDate].<br>After the Deadline: The price jumps to $25 per piece.</p>
       <p><a href="[category.paymentLink]">SECURE YOUR SPACE &amp; SAVE</a></p>
@@ -356,7 +356,7 @@ emails = [
   },
   {
     name: "Payment Reminder - Artist (4 Days)",
-    subject_template: "You can still exhibit at the [eventName] Pancakes and Booze Art Show",
+    subject_template: "You can still exhibit at the [eventName]",
     trigger_type: "days_before_payment_deadline",
     trigger_value: 4,
     category: "artist",
@@ -391,7 +391,7 @@ emails = [
   # ─── Payment Reminders - Vendors ───
   {
     name: "Payment Reminder - Vendor (29 Days)",
-    subject_template: "Nudge: Your Vendor Spot for [location]'s P&B",
+    subject_template: "Nudge: Your Vendor Spot for [eventName]",
     trigger_type: "days_before_payment_deadline",
     trigger_value: 29,
     category: "vendor",
@@ -493,7 +493,7 @@ emails = [
   # ─── Payment Confirmed ───
   {
     name: "Payment Confirmed",
-    subject_template: "Confirmed: You're in for [location] P&B!",
+    subject_template: "Confirmed: You're in for [eventName]!",
     trigger_type: "on_payment_received",
     trigger_value: 0,
     category: "artist",
@@ -517,7 +517,7 @@ emails = [
   # ─── Countdown - Artists ───
   {
     name: "Countdown - Artist (17 Days)",
-    subject_template: "Artist Guide: Size, Hanging, & Sales for [location]",
+    subject_template: "Artist Guide: Size, Hanging, & Sales for [eventName]",
     trigger_type: "days_before_event",
     trigger_value: 17,
     category: "artist",
@@ -611,7 +611,7 @@ emails = [
   },
   {
     name: "Countdown - Artist (3 Days)",
-    subject_template: "Final Details for [location]!",
+    subject_template: "Final Details for [eventName]!",
     trigger_type: "days_before_event",
     trigger_value: 3,
     category: "artist",
@@ -687,7 +687,7 @@ emails = [
   # ─── Countdown - Vendors ───
   {
     name: "Countdown - Vendor (12 Days)",
-    subject_template: "Vendor Guide: Setup, Gear, & Expectations for [location]",
+    subject_template: "Vendor Guide: Setup, Gear, & Expectations for [eventName]",
     trigger_type: "days_before_event",
     trigger_value: 12,
     category: "vendor",
@@ -726,7 +726,7 @@ emails = [
   },
   {
     name: "Countdown - Vendor (7 Days)",
-    subject_template: "1 Week Out: Vendor Checklist for [location]",
+    subject_template: "1 Week Out: Vendor Checklist for [eventName]",
     trigger_type: "days_before_event",
     trigger_value: 7,
     category: "vendor",
