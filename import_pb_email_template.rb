@@ -60,148 +60,6 @@ FOOTER = <<~HTML
 HTML
 
 emails = [
-  # ─── Application Received ───
-  {
-    name: "Application Received - Artist",
-    subject_template: "Application Received - [eventName]",
-    trigger_type: "on_application_submit",
-    trigger_value: 0,
-    category: "artist",
-    position: 1,
-    body_template: <<~HTML
-      <p>Hi [greetingName],</p>
-      <p>Thanks for submitting your application to participate in The [eventName] at [eventVenue] on [dateRange]. Please allow up to 10 days for us to review your submission and get back to you.</p>
-      <p>In the meantime, please visit our Instagram page (@pancakesandbooze) and check out the "FAQs" in our Story Highlights for details on how our events work.</p>
-      <h3>Exhibition Pricing Update</h3>
-      <p>We've updated our exhibition structure for 2026. We are now offering <strong>one free piece</strong> after your first paid exhibition space. And to keep our pricing transparent, <strong>we are now covering all ticketing and processing fees</strong>—the price you see below is exactly what you pay at checkout with no hidden service fees.</p>
-      <h4>The Rate:</h4>
-      <ul>
-        <li><strong>1st Piece:</strong> [boothPrice]</li>
-        <li><strong>2nd Piece:</strong> FREE</li>
-        <li><strong>Pieces 3–10:</strong> [boothPrice] each</li>
-        <li><em>Note: If fees are paid after [paymentDueDate], the rate increases to $25 per piece (2nd piece remains free).</em></li>
-      </ul>
-      <h4>The Details:</h4>
-      <ul>
-        <li><strong>NO COMMISSION:</strong> You manage your own sales and take 100% of what you sell.</li>
-        <li><strong>SIZE LIMIT:</strong> Each piece should not exceed 3ft x 3ft.</li>
-        <li><strong>INSTALLATION:</strong> Currently scheduled for [installDate] from [installTime].</li>
-        <li><strong>NO TABLES:</strong> Artists hanging artwork cannot use tables. Small bins/boxes on the floor are permitted.</li>
-        <li><strong>LOAD OUT:</strong> All artwork must be taken home at the end of the night. We are not responsible for items left behind.</li>
-        <li><strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy.</li>
-      </ul>
-      <p><strong>Attention Live Painters:</strong> We love featuring live body painting and canvas work. If you'd like to paint live, let us know so we can coordinate promotion on our socials.</p>
-      <p>Thanks,<br>[organizationName]</p>
-      <p><em>If you're unable to participate, please <a href="#">click here</a> to let us know.</em></p>
-      #{FOOTER}
-    HTML
-  },
-  {
-    name: "Application Received - Vendor",
-    subject_template: "Vendor Application Received - [eventName]",
-    trigger_type: "on_application_submit",
-    trigger_value: 0,
-    category: "vendor",
-    position: 2,
-    body_template: <<~HTML
-      <p>Hi [greetingName],</p>
-      <p>We've received your request to set up a VENDOR TABLE at The [eventName] on [dateRange] at [eventVenue]. This is <strong>NOT</strong> an acceptance email. You will receive another email and text message with further information if you're selected.</p>
-      <p><strong>IMPORTANT:</strong> Vendor tables are strictly for non-hangable merchandise (clothing, jewelry, etc). If you have paintings or wall art, you have filled out the <strong>WRONG application</strong>. We do not permit canvas paintings, drawings, or prints larger than a greeting card on vendor tables. If this is you, please email us immediately so we can get you the correct artist information.</p>
-      <h3>Selection &amp; Pricing</h3>
-      <p>Table space is extremely limited and in high demand. If you are selected, <strong>PREPAYMENT IS REQUIRED</strong> to reserve your space. Your spot is only guaranteed once payment is received.</p>
-      <p>The vending fee is <strong>[boothPrice]</strong>. To keep our pricing transparent, <strong>we now cover all ticketing and processing fees</strong>—the price you see is exactly what you pay at checkout with no hidden service fees.</p>
-      <h4>The Details:</h4>
-      <ul>
-        <li><strong>SPACE:</strong> Large enough for ONE 6ft table. No tents or multiple tables allowed.</li>
-        <li><strong>EQUIPMENT:</strong> You must provide your own table and chair. We do not provide them.</li>
-        <li><strong>LOAD-IN:</strong> Starts at [installTime] on the day of the show. Please do not arrive early.</li>
-        <li><strong>AGE POLICY:</strong> The venue enforces a strict [ageRestriction] age policy.</li>
-      </ul>
-      <p>New to the event? Check us out @pancakesandbooze on Instagram and TikTok for a look at the vibe.</p>
-      <p>Thanks,<br>[organizationName]</p>
-      <p><em>If you're unable to participate, please <a href="#">click here</a> to let us know.</em></p>
-      #{FOOTER}
-    HTML
-  },
-
-  # ─── Application Accepted ───
-  {
-    name: "Application Accepted - Artist",
-    subject_template: "You're In! [eventName]",
-    trigger_type: "on_approval",
-    trigger_value: 0,
-    category: "artist",
-    position: 3,
-    body_template: <<~HTML
-      <p>Hi [greetingName],</p>
-      <p><strong>Congratulations!</strong> You've been invited to exhibit at <strong>The [eventName]</strong> on [dateRange] at [eventVenue].</p>
-      <p>We received a high volume of applications, and we're excited to have your work in the mix. Please note that <strong>we do not hold spots</strong>; your space is only officially secured once your exhibition fees are received.</p>
-      <h3>Step 1: Secure Your Space</h3>
-      <p><a href="[categoryPaymentLink]" style="color: #0066cc; text-decoration: underline;">PAYMENT LINK: CONFIRM YOUR EXHIBIT HERE</a></p>
-      <p><strong>Exhibition Rates (No Hidden Fees):</strong><br>
-      – 1st Piece: <strong>[boothPrice]</strong><br>
-      – 2nd Piece: <strong>FREE</strong><br>
-      – Pieces 3–10: <strong>[boothPrice] each</strong><br>
-      – <em>Prices increase to $25/piece after [paymentDueDate].</em></p>
-      <p><strong>Cancellation Policy:</strong> Full refunds are available for cancellations made up to <strong>72 hours before the event</strong>. Cancellations within 72 hours are non-refundable.</p>
-      <hr>
-      <h4>What Happens Next?</h4>
-      <p>Once your payment is confirmed, keep an eye on your inbox for our <strong>Artist Roadmap</strong> series:</p>
-      <ul>
-        <li><strong>30 Days Out:</strong> You'll receive a "Prep Guide" detailing our salon-style hanging requirements and hardware tips.</li>
-        <li><strong>14 Days Out:</strong> We'll launch our marketing blitz and send you the official promo toolkit to help drive sales.</li>
-        <li><strong>3–6 Days Out:</strong> Final logistics, load-in times, and venue updates will be sent via Eventbrite.</li>
-      </ul>
-      <hr>
-      <h4>Quick Guidelines:</h4>
-      <ul>
-        <li><strong>NO COMMISSION:</strong> You keep 100% of your sales.</li>
-        <li><strong>SIZE LIMIT:</strong> Max 3ft x 3ft per piece. No exceptions.</li>
-        <li><strong>NO TABLES:</strong> Tables are for vendors only. Artists may use small floor bins for prints.</li>
-        <li><strong>AGE POLICY:</strong> Strict [ageRestriction] policy.</li>
-      </ul>
-      <p><strong>Online Marketplace:</strong> P&amp;B Artists can sell year-round at <a href="#">district.net/pancakesandbooze</a>.</p>
-      <p>Thanks,<br>[organizationName]</p>
-      <p><em>Plans changed? <a href="#">Click here</a> to release your space to the next artist on our waitlist.</em></p>
-      #{FOOTER}
-    HTML
-  },
-  {
-    name: "Application Accepted - Vendor",
-    subject_template: "You're Approved! [eventName]",
-    trigger_type: "on_approval",
-    trigger_value: 0,
-    category: "vendor",
-    position: 4,
-    body_template: <<~HTML
-      <p>Hi [greetingName],</p>
-      <p><strong>Congratulations!</strong> You've been approved to vend at <strong>The [eventName]</strong> on [dateRange] at [eventVenue].</p>
-      <p>We received a high volume of applications for this show, and we're excited to have your brand in the mix. Because vendor space is extremely limited, <strong>we do not hold spots.</strong> Your space is only officially reserved once payment is completed through the link below.</p>
-      <h3>Step 1: Secure Your Space</h3>
-      <p>The vending fee is <strong>[boothPrice]</strong>. To keep our pricing transparent, <strong>we now cover all ticketing and processing fees</strong>—the price you see is exactly what you pay at checkout.</p>
-      <p><a href="[categoryPaymentLink]" style="color: #0066cc; text-decoration: underline;">PAYMENT LINK: SECURE YOUR TABLE HERE</a></p>
-      <p><strong>Cancellation Policy:</strong> We understand that life happens. We offer full refunds for cancellations made up to <strong>72 hours before the event</strong>. This allows us time to offer the space to a vendor on our waitlist. Cancellations made within 72 hours of the show are non-refundable.</p>
-      <hr>
-      <h4>Step 2: Spread the Word</h4>
-      <p>The most successful shows happen when we all hustle together. Tag <strong>@pancakesandbooze</strong> and use <strong>#pancakesandbooze</strong> in your posts so we can find and feature your work leading up to the event.</p>
-      <hr>
-      <h4>Event Day Details:</h4>
-      <ul>
-        <li><strong>Location:</strong> [eventVenue] — [address]</li>
-        <li><strong>Load-In:</strong> [installDate] at [installTime]. (The venue will not be open for setup prior to this time).</li>
-        <li><strong>Setup:</strong> You are allowed ONE 6ft table. You must provide your own table and chair. Grid walls and racks are permitted if they fit within your approx. 8ft x 5ft footprint.</li>
-        <li><strong>Staffing:</strong> Your space includes entry for one person (you). All assistants or guests must purchase a general admission ticket.</li>
-        <li><strong>Load-Out:</strong> Must be completed by the end of the event. We are not responsible for items left behind.</li>
-        <li><strong>Merchandise:</strong> Strictly non-hangable items only. No wall art/paintings permitted at vendor tables.</li>
-        <li><strong>Age Policy:</strong> You must be [ageRestriction] to participate.</li>
-      </ul>
-      <p>If you have any questions, feel free to reply to this email.</p>
-      <p>Thanks,<br>[organizationName]</p>
-      <p><em>If your plans have changed and you can no longer participate, please <a href="#">click here</a> to release your spot to the next person on our waitlist.</em></p>
-      #{FOOTER}
-    HTML
-  },
-
   # ─── Art Calls ───
   {
     name: "Art Call Email #1 - 10 Weeks Out",
@@ -209,7 +67,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 70,
     category: "artist",
-    position: 5,
+    position: 1,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>[organizationName] is back in [eventCity] and submissions are open for our upcoming show at [eventVenue] on [dateRange].</p>
@@ -223,7 +81,7 @@ emails = [
       <a href="[vendorApplicationLink]" style="color: #0066cc; text-decoration: underline;">Vendors Apply Here</a></p>
       <p>We look forward to your submission!</p>
       <p>[organizationName]</p>
-      <p>P.S. — If you can't make this show and want to stop receiving reminders for this specific date, please <a href="#">let us know</a>.</p>
+      <p>P.S. — If you can't make this show and want to stop receiving reminders for this specific date, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">let us know</a>.</p>
       #{FOOTER}
     HTML
   },
@@ -233,7 +91,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 56,
     category: "artist",
-    position: 6,
+    position: 2,
     body_template: <<~HTML
       <p>Hey [greetingName],</p>
       <p>Ready for another round of [organizationName]? We're back in [eventCity] at [eventVenue] on [dateRange] and we'd love to have you there.</p>
@@ -248,7 +106,7 @@ emails = [
       <a href="[vendorApplicationLink]" style="color: #0066cc; text-decoration: underline;">VENDOR SUBMISSIONS - Apply Here</a></p>
       <p>If you have any questions, just hit reply and let me know.</p>
       <p>Thanks,<br>[organizationName]</p>
-      <p>P.S. — If you can't make this show and want to stop receiving reminders for this specific date, please <a href="#">let us know</a>.</p>
+      <p>P.S. — If you can't make this show and want to stop receiving reminders for this specific date, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">let us know</a>.</p>
       #{FOOTER}
     HTML
   },
@@ -258,7 +116,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 28,
     category: "artist",
-    position: 7,
+    position: 3,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>The [eventName] on [dateRange] is now just weeks away.</p>
@@ -281,7 +139,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 12,
     category: "artist",
-    position: 8,
+    position: 4,
     body_template: <<~HTML
       <p>What's up [greetingName]?</p>
       <p>Just a heads up that submissions for The [eventName] on [dateRange] at [eventVenue] will be closing soon.</p>
@@ -304,7 +162,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 39,
     category: "artist",
-    position: 9,
+    position: 5,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>We're starting to ramp things up for The [eventName] at [eventVenue].</p>
@@ -325,7 +183,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 26,
     category: "artist",
-    position: 10,
+    position: 6,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>We are officially less than a month away from The [eventName]!</p>
@@ -350,7 +208,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 16,
     category: "artist",
-    position: 11,
+    position: 7,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>We're getting closer! The [eventName] show is officially less than three weeks away, and we're currently finalizing the layout of the space.</p>
@@ -374,7 +232,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 8,
     category: "artist",
-    position: 12,
+    position: 8,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>Just a quick heads-up: The early bird discount for The [eventName] expires on [paymentDueDate]. This is your last chance to grab the [boothPrice] rate for your first two pieces.</p>
@@ -390,7 +248,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 4,
     category: "artist",
-    position: 13,
+    position: 9,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>We are 4 days out from The [eventName] and we are finalizing the artist lineup and wall layout today.</p>
@@ -410,7 +268,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 1,
     category: "artist",
-    position: 14,
+    position: 10,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>The show is tomorrow at [eventVenue], and we have just a few artist spaces still open.</p>
@@ -429,7 +287,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 29,
     category: "vendor",
-    position: 15,
+    position: 11,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>We're ramping up for The [eventName] at [eventVenue] on [eventDate] and we would love to have you in our vendor lineup!</p>
@@ -451,7 +309,7 @@ emails = [
       </ul>
       <p>Once your payment is processed, your space is officially locked in. We typically see our vendor market hit capacity about two weeks before the show—don't miss the window to join us!</p>
       <p>[organizationName]</p>
-      <p>P.S. — If your plans have changed and you're no longer able to attend, please <a href="#">click here</a> to let us know so we can release the space to the next person on the waitlist.</p>
+      <p>P.S. — If your plans have changed and you're no longer able to attend, please <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">click here</a> to let us know so we can release the space to the next person on the waitlist.</p>
       #{FOOTER}
     HTML
   },
@@ -461,7 +319,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 15,
     category: "vendor",
-    position: 16,
+    position: 12,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>We're getting into the home stretch for The [eventName] at [eventVenue] on [eventDate].</p>
@@ -487,7 +345,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 9,
     category: "vendor",
-    position: 17,
+    position: 13,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>We are now just over a week away from The [eventName]!</p>
@@ -512,7 +370,7 @@ emails = [
     trigger_type: "days_before_payment_deadline",
     trigger_value: 3,
     category: "vendor",
-    position: 18,
+    position: 14,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>We are just 72 hours away from The [eventName] at [eventVenue].</p>
@@ -531,31 +389,6 @@ emails = [
     HTML
   },
 
-  # ─── Payment Confirmed ───
-  {
-    name: "Payment Confirmed",
-    subject_template: "Confirmed: You're in for [eventName]!",
-    trigger_type: "on_payment_received",
-    trigger_value: 0,
-    category: "artist",
-    position: 19,
-    body_template: <<~HTML
-      <p>Hi [greetingName],</p>
-      <p>We've received your payment—you're officially confirmed for The [eventName] at [eventVenue] on [eventDate]!</p>
-      <p>We're pumped to have you with us.</p>
-      <p><strong>Your Entry Ticket:</strong> You should have already received a confirmation email from Eventbrite. That email includes your QR code, which we'll scan when you arrive to install your work. You can bring it on your phone, print it out, or we can look you up by name—the QR code is just the fastest option for check-in.</p>
-      <p><strong>What Happens Next?</strong></p>
-      <ul>
-        <li><strong>Confirmation:</strong> You are all set for now! You don't need to send us anything else today.</li>
-        <li><strong>Deep Details:</strong> Over the next couple of weeks, you'll receive the "Deep Detail" emails covering setup times, parking, wall assignments, and exactly what to expect on show day.</li>
-        <li><strong>Promotion:</strong> We are pushing the show hard on socials. Tag @pancakesandbooze in your process shots or finished pieces so we can repost your work to our followers.</li>
-      </ul>
-      <p>Thanks again for being a part of the show. We'll be in touch soon with the logistics!</p>
-      <p>[organizationName]</p>
-      #{FOOTER}
-    HTML
-  },
-
   # ─── Countdown - Artists ───
   {
     name: "Countdown - Artist (17 Days)",
@@ -563,7 +396,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 17,
     category: "artist",
-    position: 20,
+    position: 15,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>As we get closer to The [eventName] at [eventVenue], we want to share the "Playbook" regarding artwork size, hanging, and setup so you know exactly what to expect on install day.</p>
@@ -607,7 +440,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 11,
     category: "artist",
-    position: 21,
+    position: 16,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>As we get closer to The [eventName], we wanted to walk through how the day typically works so you can plan accordingly.</p>
@@ -659,7 +492,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 3,
     category: "artist",
-    position: 22,
+    position: 17,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>The [eventName] is only a few days away! We are finalizing the venue prep and wanted to share this final checklist to ensure everything goes smoothly for you on show day.</p>
@@ -705,7 +538,7 @@ emails = [
     trigger_type: "on_event_date",
     trigger_value: 0,
     category: "artist",
-    position: 23,
+    position: 18,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>The day is finally here! The [eventName] is TODAY at [eventVenue]. We can't wait to see your work on the walls.</p>
@@ -737,7 +570,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 12,
     category: "vendor",
-    position: 24,
+    position: 19,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>Now that you're officially confirmed for The [eventName], we want to walk through the logistical "Playbook" so you can prep your setup.</p>
@@ -777,7 +610,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 7,
     category: "vendor",
-    position: 25,
+    position: 20,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>We're just one week away from The [eventName]! This isn't the final load-in email (that's coming in a few days), but this checklist will ensure you're 100% prepared.</p>
@@ -823,7 +656,7 @@ emails = [
     trigger_type: "days_before_event",
     trigger_value: 3,
     category: "vendor",
-    position: 26,
+    position: 21,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>We're just a few days out from The [eventName] at [eventVenue]! Promo is running across all channels, and local interest is massive—this is shaping up to be an incredible night.</p>
@@ -871,7 +704,7 @@ emails = [
     trigger_type: "on_event_date",
     trigger_value: 0,
     category: "vendor",
-    position: 27,
+    position: 22,
     body_template: <<~HTML
       <p>Hi [greetingName],</p>
       <p>The day is here! Here is the TL;DR info for today's vendor load-in at [eventVenue].</p>
