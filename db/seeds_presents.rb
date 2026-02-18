@@ -22,6 +22,15 @@ puts "🌱 Starting Voxxy Presents seed data..."
 puts ""
 
 # =============================================================================
+# HARD STOP: Never run destructive seeds in production
+# =============================================================================
+if Rails.env.production?
+  puts "🚨 ABORTED: seeds_presents.rb cannot run in production."
+  puts "   This script destroys all data. Run only in development."
+  return
+end
+
+# =============================================================================
 # SAFETY: Only wipe Presents-specific models (not User/Organization if shared)
 # =============================================================================
 puts "🧹 Clearing existing Presents data..."
