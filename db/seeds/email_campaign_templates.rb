@@ -1,53 +1,128 @@
 # Email Campaign Templates Seed Data
-# Creates the default system template with 7 scheduled email templates
-# Based on simplified email schedule requirements with improved deliverability
+# Exact stamp of production template ID 6 as of 2026-02-17
+# 9 emails: 2 event announcements, 1 application update, 2 payment reminders, 3 event countdown
 #
-# NOTE: The "Event Announcement (immediate)" email sent on event creation
-# is handled by the EventInvitation system, NOT by scheduled emails.
-# It is tracked in the email deliveries but not duplicated here.
+# NOTE: The "Initial Invitation" email (position 1) is sent via the EventInvitation system.
+# It is tracked in email_deliveries but generated here as a template item for reference/preview.
 
 puts "\nSeeding Email Campaign Templates...\n"
 
-# Check if default template already exists
 existing_default = EmailCampaignTemplate.find_by(template_type: 'system', is_default: true)
 
 if existing_default
-  puts "Default template already exists (ID: #{existing_default.id})"
-  puts "Skipping creation. Use 'rails email_automation:regenerate' to update individual events."
-  exit 0
+  puts "Default template already exists (ID: #{existing_default.id}) — skipping creation."
+  puts "To force update, run: EmailCampaignTemplate.find_by(template_type: 'system', is_default: true).destroy"
+  return
 end
 
-# Create the default system template
 puts "\n1. Creating Default Email Campaign Template..."
 template = EmailCampaignTemplate.create!(
   template_type: 'system',
   name: 'Default Event Campaign',
-  description: 'Simplified email campaign with 7 automated emails covering application deadline, payment reminders, and event countdown',
+  description: 'Simplified email campaign with 9 automated emails covering invitations, application updates, deadline reminders, payment reminders, and event countdown',
   is_default: true
 )
 puts "   Created: #{template.name} (ID: #{template.id})"
 
-# Helper to create email template items
 def create_email(template, attrs)
-  EmailTemplateItem.create!(
-    email_campaign_template: template,
-    **attrs
-  )
+  EmailTemplateItem.create!(email_campaign_template: template, **attrs)
 end
 
 puts "\n2. Adding Email Templates...\n"
 
 # ==============================================================================
-# CATEGORY 1: EVENT ANNOUNCEMENTS (2 emails)
+# POSITION 1 — EVENT ANNOUNCEMENTS: Initial Invitation
+# Sent via EventInvitation system on application open; included here for preview
 # ==============================================================================
 
-puts "   Event Announcements..."
-
+puts "   [1/9] Initial Invitation..."
 create_email(template, {
-  name: '1 Day Before Application Deadline',
+  name: 'Initial Invitation',
   position: 1,
   category: 'event_announcements',
-  subject_template: "Last Chance: [eventName] Applications Close Tomorrow",
+  subject_template: 'Submissions Open for [eventName]',
+  body_template: <<~HTML,
+    <p>Hi [firstName],</p>
+
+    <p>We're pumped to announce that submissions are officially open for <strong>[eventName]</strong> at <strong>[eventVenue]</strong> on <strong>[eventDate]</strong>.</p>
+
+    <p>Submit your work here:<br/>
+    <a href="[invitationLink]" style="color: #0066cc; text-decoration: underline;">[invitationLink]</a></p>
+
+    <p><strong>[eventName]</strong> is calling for the following categories:</p>
+
+    <p>[categoryList]</p>
+
+    <p>I'm looking forward to your submission.</p>
+
+    <p>Thanks,<br/>
+    [organizationName]</p>
+
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>
+
+    <p style="font-size: 12px; color: #888888;">Questions? Reply to this email or contact team@voxxypresents.com directly.</p>
+
+    <p style="font-size: 12px; color: #888888;">
+      <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
+    </p>
+
+    <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
+
+  HTML
+  trigger_type: 'on_application_open',
+  trigger_value: 0,
+  trigger_time: '09:00',
+  filter_criteria: {},
+  enabled_by_default: true
+})
+
+# ==============================================================================
+# POSITION 2 — APPLICATION UPDATES: Application Received
+# ==============================================================================
+
+puts "   [2/9] Application Received..."
+create_email(template, {
+  name: 'Application Received',
+  position: 2,
+  category: 'application_updates',
+  subject_template: 'Application Received - [eventName]',
+  body_template: <<~HTML,
+    <p>Hi [firstName],</p>
+
+    <p>Thanks for submitting your application to participate in <strong>[eventName]</strong> at <strong>[eventVenue]</strong> on <strong>[eventDate]</strong>.</p>
+
+    <p><strong>IMPORTANT:</strong> This is NOT an acceptance email. Please allow up to 10 days for us to review your submission. You will receive another email with further details if you're selected.</p>
+
+    <p>In the meantime, check us out on Instagram (@pancakesandbooze) and see our "FAQs" Story Highlights for details on how our events work.</p>
+
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0 20px 0;"/>
+
+    <p style="font-size: 12px; color: #888888;">Questions? Reply to this email or contact team@voxxypresents.com directly.</p>
+
+    <p style="font-size: 12px; color: #888888;">
+      <a href="[unsubscribeLink]" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
+    </p>
+
+    <p style="font-size: 12px; color: #aaaaaa;">Powered by Voxxy Presents</p>
+
+  HTML
+  trigger_type: 'on_application_submit',
+  trigger_value: 0,
+  trigger_time: '00:00',
+  filter_criteria: {},
+  enabled_by_default: true
+})
+
+# ==============================================================================
+# POSITIONS 3–4 — EVENT ANNOUNCEMENTS: Deadline reminders
+# ==============================================================================
+
+puts "   [3/9] 1 Day Before Application Deadline..."
+create_email(template, {
+  name: '1 Day Before Application Deadline',
+  position: 3,
+  category: 'event_announcements',
+  subject_template: 'Last Chance: [eventName] Applications Close Tomorrow',
   body_template: <<~HTML,
     <p>Hi [greetingName],</p>
 
@@ -78,13 +153,14 @@ create_email(template, {
   trigger_type: 'days_before_deadline',
   trigger_value: 1,
   trigger_time: '09:00',
-  filter_criteria: { statuses: [ 'pending' ] },
+  filter_criteria: { statuses: ['pending'] },
   enabled_by_default: true
 })
 
+puts "   [4/9] Application Deadline Day..."
 create_email(template, {
   name: 'Application Deadline Day',
-  position: 2,
+  position: 4,
   category: 'event_announcements',
   subject_template: 'URGENT: [eventName] Applications Close Today',
   body_template: <<~HTML,
@@ -117,21 +193,18 @@ create_email(template, {
   trigger_type: 'days_before_deadline',
   trigger_value: 0,
   trigger_time: '08:00',
-  filter_criteria: { statuses: [ 'pending' ] },
+  filter_criteria: { statuses: ['pending'] },
   enabled_by_default: true
 })
 
-puts "      Added 2 announcement emails"
-
 # ==============================================================================
-# CATEGORY 2: PAYMENT REMINDERS (2 emails)
+# POSITIONS 5–6 — PAYMENT REMINDERS
 # ==============================================================================
 
-puts "   Payment Reminders..."
-
+puts "   [5/9] 1 Day Before Payment Due..."
 create_email(template, {
   name: '1 Day Before Payment Due',
-  position: 3,
+  position: 5,
   category: 'payment_reminders',
   subject_template: 'Reminder: Payment Due Tomorrow - [eventName]',
   body_template: <<~HTML,
@@ -164,16 +237,14 @@ create_email(template, {
   trigger_type: 'days_before_payment_deadline',
   trigger_value: 1,
   trigger_time: '10:00',
-  filter_criteria: {
-    statuses: [ 'approved' ],
-    payment_status: [ 'pending', 'overdue' ]
-  },
+  filter_criteria: { statuses: ['approved'], payment_status: ['pending', 'overdue'] },
   enabled_by_default: true
 })
 
+puts "   [6/9] Payment Due Today..."
 create_email(template, {
   name: 'Payment Due Today',
-  position: 4,
+  position: 6,
   category: 'payment_reminders',
   subject_template: 'URGENT: Payment Due Today - [eventName]',
   body_template: <<~HTML,
@@ -208,24 +279,18 @@ create_email(template, {
   trigger_type: 'on_payment_deadline',
   trigger_value: 0,
   trigger_time: '08:00',
-  filter_criteria: {
-    statuses: [ 'approved' ],
-    payment_status: [ 'pending', 'overdue' ]
-  },
+  filter_criteria: { statuses: ['approved'], payment_status: ['pending', 'overdue'] },
   enabled_by_default: true
 })
 
-puts "      Added 2 payment reminder emails"
-
 # ==============================================================================
-# CATEGORY 3: EVENT COUNTDOWN (3 emails)
+# POSITIONS 7–9 — EVENT COUNTDOWN
 # ==============================================================================
 
-puts "   Event Countdown..."
-
+puts "   [7/9] 1 Day Before Event..."
 create_email(template, {
   name: '1 Day Before Event',
-  position: 5,
+  position: 7,
   category: 'event_countdown',
   subject_template: 'Tomorrow: [eventName] Final Details',
   body_template: <<~HTML,
@@ -265,13 +330,14 @@ create_email(template, {
   trigger_type: 'days_before_event',
   trigger_value: 1,
   trigger_time: '17:00',
-  filter_criteria: { statuses: [ 'approved', 'confirmed' ] },
+  filter_criteria: { statuses: ['approved', 'confirmed'] },
   enabled_by_default: true
 })
 
+puts "   [8/9] Day of Event..."
 create_email(template, {
   name: 'Day of Event',
-  position: 6,
+  position: 8,
   category: 'event_countdown',
   subject_template: 'Today: [eventName]',
   body_template: <<~HTML,
@@ -311,13 +377,14 @@ create_email(template, {
   trigger_type: 'on_event_date',
   trigger_value: 0,
   trigger_time: '07:00',
-  filter_criteria: { statuses: [ 'approved', 'confirmed' ] },
+  filter_criteria: { statuses: ['approved', 'confirmed'] },
   enabled_by_default: true
 })
 
+puts "   [9/9] Day After Event - Thank You..."
 create_email(template, {
   name: 'Day After Event - Thank You',
-  position: 7,
+  position: 9,
   category: 'event_countdown',
   subject_template: 'Thank You for Participating in [eventName]',
   body_template: <<~HTML,
@@ -347,15 +414,14 @@ create_email(template, {
   trigger_type: 'days_after_event',
   trigger_value: 1,
   trigger_time: '10:00',
-  filter_criteria: { statuses: [ 'approved', 'confirmed' ] },
+  filter_criteria: { statuses: ['approved', 'confirmed'] },
   enabled_by_default: true
 })
 
-puts "      Added 3 event countdown emails"
-
 puts "\nEmail Campaign Template Setup Complete!"
-puts "Total: 7 email templates created"
-puts "\nTemplates:"
-puts "  - 2 Event Announcements (application deadline reminders)"
-puts "  - 2 Payment Reminders (payment due reminders)"
-puts "  - 3 Event Countdown (pre-event, day-of, post-event)"
+puts "Total: 9 email templates created"
+puts "\nTemplate breakdown:"
+puts "  - 2 Event Announcements     (invitation, deadline reminders)"
+puts "  - 1 Application Update      (application received)"
+puts "  - 2 Payment Reminders       (1 day before, day of)"
+puts "  - 3 Event Countdown         (day before, day of, day after)"

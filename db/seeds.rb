@@ -21,4 +21,14 @@ else
 end
 
 puts ""
+
+# Load Presents development scenario data (users, org, events, contacts, registrations)
+if File.exist?(Rails.root.join('db/seeds_presents.rb'))
+  puts "🎪 Loading Presents scenario seed data..."
+  load Rails.root.join('db/seeds_presents.rb')
+else
+  puts "⚠️  Presents seed file not found (db/seeds_presents.rb)"
+end
+
+puts ""
 puts "✅ Seeds complete!"

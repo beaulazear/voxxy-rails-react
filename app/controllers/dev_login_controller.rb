@@ -8,16 +8,23 @@ class DevLoginController < ApplicationController
       return render json: { error: "This endpoint only works in development" }, status: :forbidden
     end
 
-    # Find or create test user
-    user = User.find_or_create_by!(email: "test-producer@voxxypresents.com") do |u|
-      u.role = "venue_owner"
-      u.name = "Test Producer"
-      u.confirmed_at = Time.current
-      # Don't set password - we're bypassing auth anyway
-    end
+    # Use the seeded producer account (run db:seed first)
+    user = User.find_by(email: "producer@voxxy.dev")
 
-    # Set password if it's not set or wrong
-    user.update(password: "test123", password_confirmation: "test123") unless user.authenticate("test123")
+    # Fallback: create a minimal test user if seeds haven't been run
+    if user.nil?
+      user = User.find_or_create_by!(email: "test-producer@voxxypresents.com") do |u|
+        u.role = "venue_owner"
+        u.name = "Test Producer"
+        u.confirmed_at = Time.current
+        u.password = "test123"
+        u.password_confirmation = "test123"
+      end
+
+      unless user.authenticate("test123")
+        user.update!(password: "test123", password_confirmation: "test123")
+      end
+    end
 
     Rails.logger.info "🔧 [DEV] Auto-login for test user: #{user.email}"
 
