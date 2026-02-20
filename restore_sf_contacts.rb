@@ -1797,7 +1797,7 @@ applicants = [
   { email: "smlkandi@gmail.com",             status: "approved", from_invite: true  },
   { email: "sulcristina51@gmail.com",        status: "approved", from_invite: true  },
   { email: "tanaka.jpeg@gmail.com",          status: "approved", from_invite: true  },
-  { email: "trinitymarriott143143@gmail.com",status: "approved", from_invite: true  },
+  { email: "trinitymarriott143143@gmail.com", status: "approved", from_invite: true  },
   { email: "yeshaoba@gmail.com",             status: "approved", from_invite: true  },
   { email: "zahranafar68@gmail.com",         status: "approved", from_invite: true  },
   { email: "zennia@zennia.art",              status: "approved", from_invite: true  },
@@ -1834,7 +1834,7 @@ applicants = [
   { email: "mesperanzam510@gmail.com",       status: "approved", from_invite: false },
   { email: "michaela.flores16@gmail.com",    status: "approved", from_invite: false },
   { email: "neajahbrown@gmail.com",          status: "approved", from_invite: false },
-  { email: "peacefulclaycreations@gmail.com",status: "approved", from_invite: false },
+  { email: "peacefulclaycreations@gmail.com", status: "approved", from_invite: false },
   { email: "plugplayhouse@outlook.com",      status: "approved", from_invite: false },
   { email: "schnurrjulia22@gmail.com",       status: "approved", from_invite: false },
   { email: "shmackrealm@gmail.com",          status: "approved", from_invite: false },
@@ -1849,7 +1849,7 @@ applicants = [
   { email: "jayissk8rdie@gmail.com",         status: "pending",  from_invite: false },
   { email: "mkurimsk@gmail.com",             status: "pending",  from_invite: false },
   { email: "mmarielca@gmail.com",            status: "pending",  from_invite: false },
-  { email: "ora@natalieora.art",             status: "pending",  from_invite: false },
+  { email: "ora@natalieora.art",             status: "pending",  from_invite: false }
 ]
 
 invitations = {}

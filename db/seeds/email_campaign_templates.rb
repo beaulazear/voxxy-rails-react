@@ -153,7 +153,7 @@ create_email(template, {
   trigger_type: 'days_before_deadline',
   trigger_value: 1,
   trigger_time: '09:00',
-  filter_criteria: { statuses: ['pending'] },
+  filter_criteria: { statuses: [ 'pending' ] },
   enabled_by_default: true
 })
 
@@ -193,7 +193,7 @@ create_email(template, {
   trigger_type: 'days_before_deadline',
   trigger_value: 0,
   trigger_time: '08:00',
-  filter_criteria: { statuses: ['pending'] },
+  filter_criteria: { statuses: [ 'pending' ] },
   enabled_by_default: true
 })
 
@@ -237,7 +237,7 @@ create_email(template, {
   trigger_type: 'days_before_payment_deadline',
   trigger_value: 1,
   trigger_time: '10:00',
-  filter_criteria: { statuses: ['approved'], payment_status: ['pending', 'overdue'] },
+  filter_criteria: { statuses: [ 'approved' ], payment_status: [ 'pending', 'overdue' ] },
   enabled_by_default: true
 })
 
@@ -279,7 +279,7 @@ create_email(template, {
   trigger_type: 'on_payment_deadline',
   trigger_value: 0,
   trigger_time: '08:00',
-  filter_criteria: { statuses: ['approved'], payment_status: ['pending', 'overdue'] },
+  filter_criteria: { statuses: [ 'approved' ], payment_status: [ 'pending', 'overdue' ] },
   enabled_by_default: true
 })
 
@@ -330,7 +330,7 @@ create_email(template, {
   trigger_type: 'days_before_event',
   trigger_value: 1,
   trigger_time: '17:00',
-  filter_criteria: { statuses: ['approved', 'confirmed'] },
+  filter_criteria: { statuses: [ 'approved', 'confirmed' ] },
   enabled_by_default: true
 })
 
@@ -377,7 +377,7 @@ create_email(template, {
   trigger_type: 'on_event_date',
   trigger_value: 0,
   trigger_time: '07:00',
-  filter_criteria: { statuses: ['approved', 'confirmed'] },
+  filter_criteria: { statuses: [ 'approved', 'confirmed' ] },
   enabled_by_default: true
 })
 
@@ -414,7 +414,7 @@ create_email(template, {
   trigger_type: 'days_after_event',
   trigger_value: 1,
   trigger_time: '10:00',
-  filter_criteria: { statuses: ['approved', 'confirmed'] },
+  filter_criteria: { statuses: [ 'approved', 'confirmed' ] },
   enabled_by_default: true
 })
 

@@ -182,7 +182,7 @@ applicants = [
   { email: "briantaylor1973@gmail.com",   status: "pending",  from_invite: false },
   { email: "dchenderson91@gmail.com",     status: "pending",  from_invite: false },
   { email: "livpaints22@gmail.com",       status: "pending",  from_invite: false },
-  { email: "trenasuggs@yahoo.com",        status: "pending",  from_invite: false },
+  { email: "trenasuggs@yahoo.com",        status: "pending",  from_invite: false }
 ]
 
 invitations = {}

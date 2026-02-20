@@ -1070,7 +1070,7 @@ applicants = [
   { email: "storm.m612@gmail.com",               status: "pending",  from_invite: true  },
   { email: "tulips55963@gmail.com",              status: "pending",  from_invite: true  },
   { email: "courtneygreer@heyvoxxy.com",         status: "pending",  from_invite: false },
-  { email: "justin@pancakesandbooze.com",        status: "pending",  from_invite: false },
+  { email: "justin@pancakesandbooze.com",        status: "pending",  from_invite: false }
 ]
 
 invitations = {}

@@ -56,19 +56,31 @@ class DailyBackupWorker
   private
 
   def run_backup_script(organization_slug)
-    # Use backticks to capture output
-    script_path = Rails.root.join("lib", "scripts", "data_backup.rb")
+    # Sanitize organization_slug to prevent command injection
+    # Only allow alphanumeric, hyphens, and underscores (valid slug characters)
+    sanitized_slug = organization_slug.to_s.gsub(/[^a-zA-Z0-9\-_]/, '')
 
-    # Run the script
-    output = `rails runner #{script_path} --organization=#{organization_slug} 2>&1`
-    exit_status = $?.exitstatus
+    if sanitized_slug.blank?
+      return { success: false, error: "Invalid organization slug" }
+    end
 
-    if exit_status == 0
+    # Use Open3.capture3 with array arguments to prevent command injection
+    script_path = Rails.root.join("lib", "scripts", "data_backup.rb").to_s
+
+    require 'open3'
+
+    stdout, stderr, status = Open3.capture3(
+      "rails", "runner", script_path, "--organization=#{sanitized_slug}"
+    )
+
+    output = stdout + stderr
+
+    if status.exitstatus == 0
       # Count how many events were backed up from output
       event_count = count_events_from_output(output)
       { success: true, event_count: event_count, output: output }
     else
-      { success: false, error: "Exit status #{exit_status}", output: output }
+      { success: false, error: "Exit status #{status.exitstatus}", output: output }
     end
   rescue => e
     { success: false, error: e.message }
