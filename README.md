@@ -345,6 +345,28 @@ bundle exec rspec spec/models/user_spec.rb
 - **Worker:** `voxxy-sidekiq`
 - **Database:** Separate PostgreSQL instance
 
+### Deployment Method & CI Status
+
+**Current Status (Feb 2026):**
+- **CI Pipeline:** GitHub Actions builds are currently **failing** on main branch
+- **Deployment:** Manual deploys via Render.com dashboard or git push
+- **Database Migrations:** Run automatically on Render deploy via `bin/render-build.sh`
+- **Build Script:** `bin/render-build.sh` runs `bundle install` and `rails db:migrate` only
+- **Safety:** `db:seed` removed from deploy script to prevent accidental data wipes
+
+**CI Failure Notes:**
+- Recent builds failing with ~1min timeout
+- Safe to deploy manually - CI issues do not block Render deployments
+- Investigating: potential test suite issues, dependency conflicts, or timeout configurations
+- Action Required: Update CI configuration in `.github/workflows/` to resolve failures
+
+**Deployment Best Practices:**
+1. Always test on staging environment first
+2. Verify database migrations are safe and reversible
+3. Check Sidekiq workers are running after deploy
+4. Monitor Render deployment logs for errors
+5. Avoid deploying during peak user hours when possible
+
 See [docs/deployment/RENDER_DEPLOYMENT.md](docs/deployment/RENDER_DEPLOYMENT.md) for complete deployment guide.
 
 ---
