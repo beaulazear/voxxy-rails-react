@@ -180,6 +180,27 @@ class InvitationReminderService
       value: body
     ))
 
+    # Add List-Unsubscribe headers for better deliverability (RFC 8058)
+    # Helps prevent spam classification by Gmail/Outlook
+    if event_invitation_id
+      base_url = Rails.env.production? ? "https://voxxypresents.com" : "http://localhost:3000"
+      unsubscribe_url = "#{base_url}/api/v1/unsubscribe?email=#{CGI.escape(to_email)}&event_id=#{event_id}&token=#{event_invitation_id}"
+
+      # List-Unsubscribe header (link-based unsubscribe)
+      mail.add_header(SendGrid::Header.new(
+        key: "List-Unsubscribe",
+        value: "<#{unsubscribe_url}>"
+      ))
+
+      # List-Unsubscribe-Post header (one-click unsubscribe for Gmail)
+      mail.add_header(SendGrid::Header.new(
+        key: "List-Unsubscribe-Post",
+        value: "List-Unsubscribe=One-Click"
+      ))
+
+      Rails.logger.debug("📧 Added List-Unsubscribe headers for invitation #{to_email}")
+    end
+
     # Send via SendGrid API
     sg = SendGrid::API.new(api_key: ENV["VoxxyKeyAPI"])
     response = sg.client.mail._("send").post(request_body: mail.to_json)

@@ -58,7 +58,7 @@ class DailyBackupWorker
   def run_backup_script(organization_slug)
     # Sanitize organization_slug to prevent command injection
     # Only allow alphanumeric, hyphens, and underscores (valid slug characters)
-    sanitized_slug = organization_slug.to_s.gsub(/[^a-zA-Z0-9\-_]/, '')
+    sanitized_slug = organization_slug.to_s.gsub(/[^a-zA-Z0-9\-_]/, "")
 
     if sanitized_slug.blank?
       return { success: false, error: "Invalid organization slug" }
@@ -67,7 +67,7 @@ class DailyBackupWorker
     # Use Open3.capture3 with array arguments to prevent command injection
     script_path = Rails.root.join("lib", "scripts", "data_backup.rb").to_s
 
-    require 'open3'
+    require "open3"
 
     stdout, stderr, status = Open3.capture3(
       "rails", "runner", script_path, "--organization=#{sanitized_slug}"
